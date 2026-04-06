@@ -251,6 +251,14 @@ export const directoryAPI = {
   filters: ()            => get('/directory/filters'),
 };
 
+// ── Public (no auth required) ───────────────────────────────
+export const publicAPI = {
+  listChallenges:    (params = {}) => get(`/public/challenges?${new URLSearchParams(params)}`),
+  getChallengeDetail:(id)          => get(`/public/challenges/${id}`),
+  listReports:       (params = {}) => get(`/public/reports?${new URLSearchParams(params)}`),
+  getStats:          ()            => get('/public/stats'),
+};
+
 // ── Crawling ────────────────────────────────────────────────
 export const crawlAPI = {
   stats:           ()                => get('/crawl/stats'),

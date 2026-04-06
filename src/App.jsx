@@ -6,6 +6,10 @@ import { AuthProvider } from './context/AuthContext';
 import Landing           from './pages/auth/Landing';
 import Register          from './pages/auth/Register';
 
+// Pages — Public
+import PublicMarketplace from './pages/public/PublicMarketplace';
+import PublicReports     from './pages/public/PublicReports';
+
 // Pages — Dashboard
 import Login             from './pages/dashboard/Login';
 import DashboardLayout   from './pages/dashboard/DashboardLayout';
@@ -66,6 +70,8 @@ export default function App() {
           {/* Public auth pages */}
           <Route path="/landing"         element={<Landing />} />
           <Route path="/register"        element={<Register />} />
+          <Route path="/marketplace"       element={<PublicMarketplace />} />
+          <Route path="/reports"            element={<PublicReports />} />
           <Route path="/dashboard/login" element={<Login />} />
 
           {/* Protected dashboard shell */}

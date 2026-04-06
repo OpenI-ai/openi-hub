@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, Shield, Users, Briefcase, Target, Network, Sparkles,
   Search, Calendar, MessageSquare, FileText, Award, Database,
   Zap, TrendingUp, CheckCircle2, Rocket, Building2, Landmark,
-  GraduationCap, FlaskConical, Home, BookOpen,
+  GraduationCap, FlaskConical, Home, BookOpen, ChevronDown, ChevronUp,
+  BarChart3, Globe, Star,
 } from 'lucide-react';
 
 // Brand colors
@@ -16,16 +18,58 @@ const GRAY = '#6b7280';
 const LIGHT_GRAY = '#f5f5f5';
 const BORDER = '#e5e7eb';
 
-// ── Reusable section wrapper ───────────────────────────────────
-function Section({ children, bg = '#fff', className = '' }) {
+// ── Social SVG icons (lucide-react v0.294 doesn't have these) ──
+function LinkedInIcon({ size = 18, color = 'currentColor' }) {
   return (
-    <section className={`py-20 px-6 ${className}`} style={{ background: bg }}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+    </svg>
+  );
+}
+
+function XIcon({ size = 18, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  );
+}
+
+// ── CMS-ready content data ─────────────────────────────────
+const STATS = [
+  { value: '500+', label: 'Registered Startups' },
+  { value: '50+', label: 'Corporate Partners' },
+  { value: '120+', label: 'Challenges Posted' },
+  { value: '25 Cr+', label: 'Investments Facilitated' },
+];
+
+const PARTNERS = ['DRDO', 'DPIIT', 'iDEX', 'NASSCOM', 'Startup India', 'AIM'];
+
+const TESTIMONIALS = [
+  { quote: 'OpenI helped us find the perfect deep-tech startup for our autonomous systems PoC. The evaluation framework gave us confidence in every shortlist decision.', name: 'Priya Sharma', role: 'VP Innovation', org: 'Tata Advanced Systems' },
+  { quote: 'The 8-vector evaluation framework and recommendation engine transformed how we assess investment opportunities. Data-driven decisions at scale.', name: 'Rahul Mehta', role: 'Partner', org: 'Kalaari Capital' },
+  { quote: 'We connected with three corporates within our first week on the platform. The challenge marketplace is a game-changer for early-stage startups.', name: 'Dr. Anand Kumar', role: 'Founder & CEO', org: 'QuantumShield AI' },
+];
+
+const FAQS = [
+  { q: 'Who can join OpenI?', a: 'Anyone in the innovation ecosystem — startups, corporates, investors, government bodies, mentors, labs, incubators, accelerators, students, and academia. Each persona gets a tailored dashboard and tools.' },
+  { q: 'Is OpenI free to use?', a: 'Yes! The Free tier gives you access to the core platform including challenges, directory, meetings, and messaging. Upgrade to Pro or Enterprise for higher limits and premium features.' },
+  { q: 'What is the 8-Vector Evaluation Framework?', a: 'It is a proprietary scoring system that evaluates startups across 103 criteria in 8 vectors including technology readiness, market potential, team strength, IP portfolio, and more. It is the gold standard for deep-tech evaluation in India.' },
+  { q: 'How does the Challenge Marketplace work?', a: 'Corporates, investors, and government bodies post open innovation challenges. Startups and providers can browse, apply with structured proposals, upload data rooms, and answer RFI questions. Seekers evaluate and shortlist applicants through a built-in workflow.' },
+  { q: 'Can I use OpenI for defence-tech startups?', a: 'Absolutely. OpenI has deep integration with the defence innovation ecosystem including iDEX challenge tracking, DRDO requirement mapping, and sector-specific evaluation criteria for defence and dual-use technologies.' },
+  { q: 'How do recommendations work?', a: 'Our algorithm matches corporates with relevant startups based on sector overlap, technology alignment, TRL scores, deep-tech qualification, and application signals. Startups also get recommended challenges and potential partners.' },
+];
+
+// ── Reusable section wrapper ───────────────────────────────
+function Section({ children, bg = '#fff', className = '', id = '' }) {
+  return (
+    <section id={id} className={`py-20 px-6 ${className}`} style={{ background: bg }}>
       <div className="max-w-6xl mx-auto">{children}</div>
     </section>
   );
 }
 
-// ── Feature card ───────────────────────────────────────────────
+// ── Feature card ───────────────────────────────────────────
 function FeatureCard({ icon: Icon, title, description }) {
   return (
     <div
@@ -54,7 +98,7 @@ function FeatureCard({ icon: Icon, title, description }) {
   );
 }
 
-// ── Pricing card ───────────────────────────────────────────────
+// ── Pricing card ───────────────────────────────────────────
 function PricingCard({ name, price, priceNote, features, cta, ctaLink, featured = false }) {
   return (
     <div
@@ -110,7 +154,7 @@ function PricingCard({ name, price, priceNote, features, cta, ctaLink, featured 
   );
 }
 
-// ── How It Works step ──────────────────────────────────────────
+// ── How It Works step ──────────────────────────────────────
 function Step({ number, title, description }) {
   return (
     <div className="text-center">
@@ -126,7 +170,7 @@ function Step({ number, title, description }) {
   );
 }
 
-// ── Persona list item for provider/seeker cards ───────────────
+// ── Persona list item ───────────────────────────────────────
 function PersonaListItem({ icon: Icon, label, color }) {
   return (
     <li className="flex items-center gap-2 text-sm" style={{ color: DARK }}>
@@ -136,8 +180,59 @@ function PersonaListItem({ icon: Icon, label, color }) {
   );
 }
 
-// ── Landing Page ───────────────────────────────────────────────
+// ── Testimonial card ────────────────────────────────────────
+function TestimonialCard({ quote, name, role, org }) {
+  return (
+    <div
+      className="p-6 rounded-xl transition-all"
+      style={{ background: '#fff', border: `1px solid ${BORDER}` }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = GOLD;
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(213,170,91,0.08)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = BORDER;
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      <div className="flex gap-1 mb-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Star key={i} size={14} fill={GOLD} style={{ color: GOLD }} />
+        ))}
+      </div>
+      <p className="text-sm leading-relaxed mb-4" style={{ color: GRAY, fontStyle: 'italic' }}>
+        &ldquo;{quote}&rdquo;
+      </p>
+      <div>
+        <div className="text-sm font-bold" style={{ color: DARK }}>{name}</div>
+        <div className="text-xs" style={{ color: GRAY }}>{role}, {org}</div>
+      </div>
+    </div>
+  );
+}
+
+// ── FAQ item ────────────────────────────────────────────────
+function FAQItem({ question, answer, isOpen, onToggle }) {
+  return (
+    <div style={{ border: `1px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden' }}>
+      <button onClick={onToggle} className="w-full flex justify-between items-center p-5 text-left"
+        style={{ background: isOpen ? GOLD_LIGHT : '#fff', border: 'none', cursor: 'pointer' }}>
+        <span className="text-sm font-semibold pr-4" style={{ color: DARK }}>{question}</span>
+        {isOpen ? <ChevronUp size={18} style={{ color: GOLD, flexShrink: 0 }} /> : <ChevronDown size={18} style={{ color: GRAY, flexShrink: 0 }} />}
+      </button>
+      {isOpen && (
+        <div className="px-5 pb-5 text-sm leading-relaxed" style={{ color: GRAY }}>{answer}</div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LANDING PAGE
+// ═══════════════════════════════════════════════════════════════
 export default function Landing() {
+  const [openFaq, setOpenFaq] = useState(null);
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#fff' }}>
       {/* ═══════════════════════════════════════════════════════════
@@ -166,13 +261,29 @@ export default function Landing() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: GRAY }}>
+          <nav className="hidden md:flex items-center gap-7 text-sm font-medium" style={{ color: GRAY }}>
+            <Link to="/marketplace" className="hover:text-gray-900 transition-colors">Marketplace</Link>
+            <Link to="/reports" className="hover:text-gray-900 transition-colors">Reports</Link>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a>
             <a href="#features" className="hover:text-gray-900 transition-colors">Features</a>
             <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
           </nav>
 
           <div className="flex items-center gap-3">
+            <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
+               className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
+               style={{ color: GRAY }}
+               onMouseEnter={e => e.currentTarget.style.color = GOLD}
+               onMouseLeave={e => e.currentTarget.style.color = GRAY}>
+              <LinkedInIcon size={18} />
+            </a>
+            <a href="https://x.com/OpenIPartners" target="_blank" rel="noopener noreferrer"
+               className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
+               style={{ color: GRAY }}
+               onMouseEnter={e => e.currentTarget.style.color = GOLD}
+               onMouseLeave={e => e.currentTarget.style.color = GRAY}>
+              <XIcon size={18} />
+            </a>
             <Link
               to="/dashboard/login"
               className="hidden sm:inline text-sm font-semibold px-4 py-2 transition-colors"
@@ -202,7 +313,6 @@ export default function Landing() {
           background: `linear-gradient(180deg, ${LIGHT_GRAY} 0%, #fff 100%)`,
         }}
       >
-        {/* Decorative gradient orb */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
           style={{
@@ -212,7 +322,6 @@ export default function Landing() {
         />
 
         <div className="relative max-w-5xl mx-auto text-center">
-          {/* Eyebrow tag */}
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-bold tracking-wide"
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
@@ -221,7 +330,6 @@ export default function Landing() {
             INDIA&apos;S OPEN INNOVATION PLATFORM
           </div>
 
-          {/* Big headline */}
           <h1
             className="font-bold tracking-tight mb-6"
             style={{
@@ -234,7 +342,6 @@ export default function Landing() {
             Partner. Source. <span style={{ color: GOLD }}>Invest.</span>
           </h1>
 
-          {/* Subheadline */}
           <p
             className="max-w-2xl mx-auto mb-10 text-lg leading-relaxed"
             style={{ color: GRAY }}
@@ -243,7 +350,6 @@ export default function Landing() {
             connect with India&apos;s most promising startups — discover, evaluate, and collaborate on one platform.
           </p>
 
-          {/* Dual CTA */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
             <Link
               to="/register"
@@ -262,28 +368,65 @@ export default function Landing() {
               <ArrowRight size={18} />
             </Link>
             <Link
-              to="/dashboard/login"
+              to="/marketplace"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg text-base font-bold transition-all"
               style={{ background: '#fff', color: DARK, border: `1.5px solid ${BORDER}` }}
               onMouseEnter={e => e.currentTarget.style.borderColor = GOLD}
               onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
             >
-              Sign In
+              Browse Challenges
             </Link>
           </div>
 
-          {/* Micro trust line */}
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            Built for Deep-Tech · AI · Quantum · Defence · Cybersecurity
+            Built for Deep-Tech &middot; AI &middot; Quantum &middot; Defence &middot; Cybersecurity
           </p>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          STATS / SOCIAL PROOF
+          ═══════════════════════════════════════════════════════════ */}
+      <Section bg="#fff">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
+            Trusted by India&apos;s Innovation Ecosystem
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
+            A growing network of startups, corporates, and institutions building the future together.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {STATS.map((stat, i) => (
+            <div key={i} className="p-6 rounded-xl" style={{ background: LIGHT_GRAY }}>
+              <div className="text-3xl md:text-4xl font-bold mb-1" style={{ color: GOLD }}>{stat.value}</div>
+              <div className="text-sm font-medium" style={{ color: GRAY }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          PARTNER / TRUST LOGOS
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="py-10 px-6" style={{ background: LIGHT_GRAY }}>
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-wider font-semibold mb-6" style={{ color: GRAY }}>
+            Ecosystem Partners &amp; Supporters
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+            {PARTNERS.map((name, i) => (
+              <span key={i} className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#bbb' }}>{name}</span>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
           HOW IT WORKS
           ═══════════════════════════════════════════════════════════ */}
-      <Section bg="#fff">
-        <div id="how-it-works" className="text-center mb-14">
+      <Section bg="#fff" id="how-it-works">
+        <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
             How OpenI Works
           </h2>
@@ -333,10 +476,7 @@ export default function Landing() {
             onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: GOLD_LIGHT }}
-              >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: GOLD_LIGHT }}>
                 <Rocket size={22} style={{ color: GOLD }} />
               </div>
               <div>
@@ -359,8 +499,7 @@ export default function Landing() {
               onMouseEnter={e => e.currentTarget.style.color = GOLD_DARK}
               onMouseLeave={e => e.currentTarget.style.color = GOLD}
             >
-              Join as Provider
-              <ArrowRight size={16} />
+              Join as Provider <ArrowRight size={16} />
             </Link>
           </div>
 
@@ -372,10 +511,7 @@ export default function Landing() {
             onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(59, 130, 246, 0.1)' }}
-              >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
                 <Target size={22} style={{ color: BLUE }} />
               </div>
               <div>
@@ -390,7 +526,7 @@ export default function Landing() {
               <PersonaListItem icon={Building2} label="Corporates — Find startups for PoCs, pilots, acquisitions" color={BLUE} />
               <PersonaListItem icon={Landmark} label="Government — iDEX, defence, e-governance tech providers" color={BLUE} />
               <PersonaListItem icon={TrendingUp} label="Investors — Pre-seed to Series C deeptech opportunities" color={BLUE} />
-              <PersonaListItem icon={Users} label="Mentors · Labs · Incubators · Accelerators" color={BLUE} />
+              <PersonaListItem icon={Users} label="Mentors \u00B7 Labs \u00B7 Incubators \u00B7 Accelerators" color={BLUE} />
             </ul>
             <Link
               to="/register"
@@ -399,8 +535,7 @@ export default function Landing() {
               onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
               onMouseLeave={e => e.currentTarget.style.color = BLUE}
             >
-              Join as Seeker
-              <ArrowRight size={16} />
+              Join as Seeker <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -409,8 +544,8 @@ export default function Landing() {
       {/* ═══════════════════════════════════════════════════════════
           FEATURES
           ═══════════════════════════════════════════════════════════ */}
-      <Section bg="#fff">
-        <div id="features" className="text-center mb-14">
+      <Section bg="#fff" id="features">
+        <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
             Everything You Need in One Platform
           </h2>
@@ -423,51 +558,93 @@ export default function Landing() {
           <FeatureCard
             icon={Briefcase}
             title="Challenge Marketplace"
-            description="Post open innovation challenges, receive structured applications, evaluate and award solutions."
+            description="Post open innovation challenges with RFI forms, data rooms, and deadline tracking. Receive structured applications and evaluate with built-in scoring."
           />
           <FeatureCard
             icon={Search}
             title="Directory Search"
-            description="Browse 10 persona types with filters for sector, city, skills, and technology stack."
+            description="Discover the right partners across 10 persona types. Filter by sector, city, skills, and technology stack with real-time results."
           />
           <FeatureCard
             icon={Award}
             title="8-Vector Evaluation"
-            description="Score startups across 103 criteria in 8 vectors — the gold standard for deep-tech evaluation."
+            description="Score startups across 103 criteria in 8 vectors — technology readiness, market potential, team strength, and more. The gold standard for deep-tech."
           />
           <FeatureCard
             icon={Calendar}
             title="Meetings & RSVPs"
-            description="Schedule 1:1, group, demo, and review meetings with auto-confirmation and calendar invites."
+            description="Schedule 1:1, group, demo, and review meetings with automatic confirmation, RSVP tracking, and real-time status updates."
           />
           <FeatureCard
             icon={MessageSquare}
             title="Real-time Messaging"
-            description="Cross-persona conversations with direct and group chat, polling-based live updates."
+            description="Cross-persona conversations with direct and group chat. Stay connected with your innovation partners in real time."
           />
           <FeatureCard
             icon={Zap}
             title="DeepTech Assessment"
-            description="16-question framework to qualify if a startup is truly deep-tech across 5 dimensions."
+            description="16-question qualification framework across 5 dimensions. Verify if a startup is truly deep-tech with a standardized score."
           />
           <FeatureCard
-            icon={FileText}
-            title="IPR Database"
-            description="Track patents, trademarks, copyrights, and designs across the startup ecosystem."
+            icon={BarChart3}
+            title="Recommendations Engine"
+            description="AI-powered matching of corporates with relevant startups based on sector overlap, TRL scores, and technology alignment."
           />
           <FeatureCard
-            icon={Database}
-            title="Document Repository"
-            description="Centralised document storage with public, internal, and restricted access controls."
+            icon={Globe}
+            title="Public Marketplace"
+            description="Browse open challenges without login. Innovation seekers post challenges visible to the entire ecosystem, driving quality applications."
           />
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          TESTIMONIALS
+          ═══════════════════════════════════════════════════════════ */}
+      <Section bg={LIGHT_GRAY}>
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
+            What Our Users Say
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
+            Hear from corporates, investors, and startups who are building on OpenI.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} {...t} />)}
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          FAQ
+          ═══════════════════════════════════════════════════════════ */}
+      <Section bg="#fff" id="faq">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
+            Frequently Asked Questions
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
+            Everything you need to know about OpenI.
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto space-y-3">
+          {FAQS.map((faq, i) => (
+            <FAQItem
+              key={i}
+              question={faq.q}
+              answer={faq.a}
+              isOpen={openFaq === i}
+              onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+            />
+          ))}
         </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════
           PRICING
           ═══════════════════════════════════════════════════════════ */}
-      <Section bg={LIGHT_GRAY}>
-        <div id="pricing" className="text-center mb-14">
+      <Section bg={LIGHT_GRAY} id="pricing">
+        <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
             Simple, Transparent Pricing
           </h2>
@@ -549,16 +726,27 @@ export default function Landing() {
           <p className="text-base mb-8 max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.9)' }}>
             Join thousands of innovators, investors, and enterprises building the future of deep-tech in India.
           </p>
-          <Link
-            to="/register"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all shadow-lg"
-            style={{ background: '#fff', color: GOLD_DARK }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            Get Started — It&apos;s Free
-            <ArrowRight size={18} />
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all shadow-lg"
+              style={{ background: '#fff', color: GOLD_DARK }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              Get Started — It&apos;s Free
+              <ArrowRight size={18} />
+            </Link>
+            <Link
+              to="/marketplace"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all"
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.3)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            >
+              Browse Marketplace
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -578,12 +766,29 @@ export default function Landing() {
               <p className="text-sm mt-4 max-w-xs leading-relaxed">
                 The open innovation platform connecting India&apos;s deep-tech ecosystem. Partner. Source. Invest.
               </p>
+              {/* Social Links */}
+              <div className="flex items-center gap-4 mt-4">
+                <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
+                   className="transition-colors"
+                   onMouseEnter={e => e.currentTarget.querySelector('svg').setAttribute('fill', GOLD)}
+                   onMouseLeave={e => e.currentTarget.querySelector('svg').setAttribute('fill', '#9ca3af')}>
+                  <LinkedInIcon size={20} color="#9ca3af" />
+                </a>
+                <a href="https://x.com/OpenIPartners" target="_blank" rel="noopener noreferrer"
+                   className="transition-colors"
+                   onMouseEnter={e => e.currentTarget.querySelector('svg').setAttribute('fill', GOLD)}
+                   onMouseLeave={e => e.currentTarget.querySelector('svg').setAttribute('fill', '#9ca3af')}>
+                  <XIcon size={20} color="#9ca3af" />
+                </a>
+              </div>
             </div>
 
             {/* Product */}
             <div>
               <h4 className="text-sm font-bold mb-4 text-white">Product</h4>
               <ul className="space-y-2 text-sm">
+                <li><Link to="/marketplace" className="hover:text-white transition-colors">Marketplace</Link></li>
+                <li><Link to="/reports" className="hover:text-white transition-colors">Startup Reports</Link></li>
                 <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
                 <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
@@ -606,7 +811,7 @@ export default function Landing() {
           {/* Divider */}
           <div className="border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderColor: '#333' }}>
             <p className="text-xs">
-              © 2026 OpenI Hub · Built for India&apos;s deep-tech ecosystem
+              &copy; 2026 OpenI Hub &middot; Built for India&apos;s deep-tech ecosystem
             </p>
             <p className="text-xs">
               <span style={{ color: GOLD }}>openi.tech</span>

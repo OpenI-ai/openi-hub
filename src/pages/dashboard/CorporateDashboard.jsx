@@ -175,6 +175,64 @@ export default function CorporateDashboard() {
         </div>
       </div>
 
+      {/* Application Analytics */}
+      {data?.application_analytics && data.application_analytics.total > 0 && (
+        <div style={{ marginTop: 20 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>
+            <Target size={15} style={{ verticalAlign: -3, marginRight: 6, color: G }} />Challenge Performance
+          </h2>
+          <div style={{ ...card, padding: 20 }}>
+            {/* Summary numbers */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 20 }}>
+              {[
+                { label: 'Total Applications', value: data.application_analytics.total, color: '#3b82f6' },
+                { label: 'Applied', value: data.application_analytics.applied || 0, color: '#6b7280' },
+                { label: 'Shortlisted', value: data.application_analytics.shortlisted || 0, color: '#ca8a04' },
+                { label: 'Selected', value: data.application_analytics.selected || 0, color: '#16a34a' },
+                { label: 'Rejected', value: data.application_analytics.rejected || 0, color: '#dc2626' },
+              ].map((m, i) => (
+                <div key={i} style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: `${m.color}08` }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: m.color }}>{m.value}</div>
+                  <div style={{ fontSize: 10, color: '#888', fontWeight: 500 }}>{m.label}</div>
+                </div>
+              ))}
+            </div>
+            {/* Conversion funnel */}
+            {data.application_analytics.total > 0 && (
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 8 }}>Conversion Funnel</div>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  {[
+                    { label: 'Applied', value: data.application_analytics.total, color: '#3b82f6' },
+                    { label: 'Shortlisted', value: data.application_analytics.shortlisted || 0, color: '#ca8a04' },
+                    { label: 'Selected', value: data.application_analytics.selected || 0, color: '#16a34a' },
+                  ].map((step, i) => (
+                    <div key={i} style={{ flex: 1 }}>
+                      <div style={{ height: 28, borderRadius: 6, background: `${step.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                        <div style={{
+                          position: 'absolute', left: 0, top: 0, height: '100%', borderRadius: 6,
+                          background: step.color,
+                          width: `${data.application_analytics.total > 0 ? (step.value / data.application_analytics.total) * 100 : 0}%`,
+                          opacity: 0.2, transition: 'width 0.5s',
+                        }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: step.color, position: 'relative' }}>
+                          {step.value} {step.label}
+                        </span>
+                      </div>
+                      {i < 2 && data.application_analytics.total > 0 && (
+                        <div style={{ textAlign: 'center', fontSize: 9, color: '#999', marginTop: 2 }}>
+                          {Math.round((step.value / data.application_analytics.total) * 100)}%
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Recommended Startups */}
       {recs.length > 0 && (
         <div style={{ marginTop: 20 }}>
