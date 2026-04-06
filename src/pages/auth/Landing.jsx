@@ -327,7 +327,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            INDIA&apos;S OPEN INNOVATION PLATFORM
+            OPEN INNOVATION PLATFORM
           </div>
 
           <h1
