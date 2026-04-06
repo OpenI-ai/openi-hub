@@ -2,13 +2,27 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 2.4
-**Last Updated:** 5 April 2026
+**Version:** 2.5
+**Last Updated:** 6 April 2026
 **Live URL:** https://openi.tech 🎉 *(soft launched 5 April 2026)*
 **Production domain:** https://www.openi.tech *(Vercel production)*
 **Apex redirect:** https://openi.tech → 308 → https://www.openi.tech
 **Backend API:** https://openi-hub-production.up.railway.app *(api.openi.tech pending Railway SSL)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for transition)*
+
+### What's New in v2.5 — Public Pages + Landing Enhancement + Corporate Analytics
+- **Public Marketplace** (`/marketplace`) 🏪 — Fully public page (no authentication required) showing all open innovation challenges. Features search bar, sector/technology filter dropdowns, 12-card grid with company logos, tags, budget, deadline, and applicant count. Click any card for full detail view with problem statement, description, requirements, FAQs, and a "Register to Apply" CTA. Pagination supports browsing 130+ challenges.
+- **Startup Reports** (`/reports`) 📊 — Public page with curated startup ecosystem reports across 8 sectors: DeepTech, AI/ML, Defence, CleanTech, HealthTech, Cybersecurity, Quantum, and Semiconductor. Sector filter pills, report cards with cover gradients, status badges (Available/Coming Soon), and download-to-register modal. Data is CMS-ready (hardcoded arrays, easily swappable with Strapi/Sanity API calls).
+- **Landing Page Enhancement** (620→824 lines) 🎨 — 5 new sections added: Stats/Social Proof (4 metrics), Ecosystem Partner Logos (DRDO, DPIIT, iDEX, NASSCOM, Startup India, AIM), Testimonials (3 cards with 5-star ratings), FAQ Accordion (6 expandable questions), LinkedIn + X social media icons in header AND footer. Improved feature descriptions, 2 new feature cards (Recommendations Engine, Public Marketplace), "Browse Challenges" CTA in hero.
+- **PublicLayout Component** — Shared header/footer for all public pages (`/marketplace`, `/reports`) matching Landing.jsx brand styling. Active nav highlighting, LinkedIn/X social icons, consistent design.
+- **Corporate Dashboard Analytics** 📈 — New "Challenge Performance" section on the corporate dashboard. Shows application status breakdown (total/applied/shortlisted/selected/rejected) with color-coded metric cards and a visual conversion funnel (applied → shortlisted → selected with percentage bars).
+- **Public API Endpoints** (4 new, no auth required):
+  - `GET /api/public/challenges` — list open challenges with search + sector/technology/usecase filters + pagination
+  - `GET /api/public/challenges/:id` — full challenge detail
+  - `GET /api/public/reports` — startup ecosystem reports with sector filter
+  - `GET /api/public/stats` — platform statistics (startup count, corporate count, challenge count, application count)
+- **Social Media Integration** — LinkedIn (https://www.linkedin.com/company/openi-partners/) and X (https://x.com/OpenIPartners) icons added via inline SVGs (lucide-react v0.294 doesn't include social icons). Present on Landing page header/footer, PublicLayout header/footer.
+- **CMS Planning** — Strapi recommended for future integration. All landing page content (stats, partners, testimonials, FAQs) and reports stored in const arrays at file top — designed for easy migration to CMS fetch calls without changing rendering logic.
 
 ### What's New in v2.4 — Marketing Landing Page + Brand Polish
 - **New Marketing Landing Page** 🎨 — Replaced the direct persona-picker landing with a proper 7-section marketing site: sticky header, hero ("Partner. Source. Invest."), how it works (3 steps), built-for-every-stakeholder (Provider/Seeker split), features grid (8 cards), pricing (Free/Pro/Enterprise), final CTA, and footer. Professional/corporate tone with gold accents and fully mobile responsive.
@@ -999,18 +1013,22 @@ The landing page is the first impression for visitors typing `openi.tech` into a
 - **Eyebrow tag:** "INDIA'S OPEN INNOVATION PLATFORM"
 - **Micro trust line:** "Built for Deep-Tech · AI · Quantum · Defence · Cybersecurity"
 
-### 15.3 Page Structure (7 sections)
+### 15.3 Page Structure (12 sections — updated v2.5)
 
 | # | Section | Background | Purpose |
 |---|---------|------------|---------|
-| 1 | **Sticky Header** | White with backdrop blur | Logo, nav (How It Works / Features / Pricing), Sign In + Get Started CTAs |
-| 2 | **Hero** | Gradient (light gray → white) with gold orb glow | Big headline, subheadline, dual CTA, trust line |
-| 3 | **How It Works** | White | 3-step numbered explainer: Register Your Persona → Discover & Connect → Collaborate & Grow |
-| 4 | **Built for Every Stakeholder** | Light gray | Two-column Providers/Seekers split. Gold accent for Providers, blue for Seekers. Each has icon, list of persona types, and "Join as..." CTA |
-| 5 | **Features Grid** | White | 8 feature cards: Challenge Marketplace, Directory Search, 8-Vector Evaluation, Meetings & RSVPs, Real-time Messaging, DeepTech Assessment, IPR Database, Document Repository |
-| 6 | **Simple, Transparent Pricing** | Light gray | 3-tier pricing cards matching `subscription_plans` table: Free ₹0, **Pro ₹999/mo (featured)**, Enterprise ₹4,999/mo |
-| 7 | **Final CTA** | Gold gradient | Network icon, "Ready to Join the Ecosystem?" + single white "Get Started" button |
-| 8 | **Footer** | Dark (#1a1a1a) | 3-column layout with logo (inverted white), Product links, Company links, copyright |
+| 1 | **Sticky Header** | White with backdrop blur | Logo, nav (Marketplace / Reports / How It Works / Features / Pricing), LinkedIn + X icons, Sign In + Get Started CTAs |
+| 2 | **Hero** | Gradient (light gray → white) with gold orb glow | Big headline, subheadline, dual CTA ("Get Started" + "Browse Challenges"), trust line |
+| 3 | **Stats / Social Proof** | White | 4-column grid: 500+ Registered Startups, 50+ Corporate Partners, 120+ Challenges Posted, 25 Cr+ Investments Facilitated |
+| 4 | **Partner / Trust Logos** | Light gray | Ecosystem partners: DRDO, DPIIT, iDEX, NASSCOM, Startup India, AIM (text placeholders, swappable with logos) |
+| 5 | **How It Works** | White | 3-step numbered explainer: Register Your Persona → Discover & Connect → Collaborate & Grow |
+| 6 | **Built for Every Stakeholder** | Light gray | Two-column Providers/Seekers split. Gold accent for Providers, blue for Seekers |
+| 7 | **Features Grid** | White | 8 feature cards: Challenge Marketplace, Directory Search, 8-Vector Evaluation, Meetings & RSVPs, Real-time Messaging, DeepTech Assessment, Recommendations Engine, Public Marketplace |
+| 8 | **Testimonials** | Light gray | 3 testimonial cards with 5-star ratings from corporates, investors, and startups |
+| 9 | **FAQ Accordion** | White | 6 expandable questions covering: who can join, pricing, evaluation framework, marketplace, defence-tech, recommendations |
+| 10 | **Simple, Transparent Pricing** | Light gray | 3-tier pricing cards: Free ₹0, **Pro ₹999/mo (featured)**, Enterprise ₹4,999/mo |
+| 11 | **Final CTA** | Gold gradient | "Ready to Join the Ecosystem?" + dual CTA ("Get Started" + "Browse Marketplace") |
+| 12 | **Footer** | Dark (#1a1a1a) | Logo, tagline, LinkedIn + X social icons, Product links (Marketplace, Reports, How It Works, Features, Pricing), Company links, copyright |
 
 ### 15.4 CTA Routing
 
@@ -1054,10 +1072,10 @@ No new dependencies were added. Uses existing packages only:
 - `lucide-react` v0.294.0 (icons: ArrowRight, Shield, Users, Briefcase, Target, Network, Sparkles, Search, Calendar, MessageSquare, FileText, Award, Database, Zap, TrendingUp, CheckCircle2, Rocket, Building2, Landmark, GraduationCap, FlaskConical, Home, BookOpen)
 - `tailwindcss` v3.3.6 (responsive grid utilities and spacing)
 
-### 15.9 Future Enhancements (out of scope for v2.4)
+### 15.9 Future Enhancements
 
 Ideas captured here for when they're needed:
-- Real social proof (partner logos, usage stats, testimonials) once real users are onboarded
+- ~~Real social proof (partner logos, usage stats, testimonials)~~ ✅ Added in v2.5
 - Blog/changelog section for content marketing and SEO
 - Customer case studies for each persona type
 - Video/animation in the hero showing the product in action
@@ -1067,17 +1085,97 @@ Ideas captured here for when they're needed:
 
 ---
 
+## 16. Public Pages (v2.5)
+
+Three new public pages accessible without authentication, designed to drive organic traffic and conversions.
+
+### 16.1 Public Marketplace (`/marketplace`)
+
+**File:** `src/pages/public/PublicMarketplace.jsx` (433 lines)
+**Route:** `/marketplace` (public, no auth required)
+**Backend:** `GET /api/public/challenges` + `GET /api/public/challenges/:id`
+
+**Features:**
+- Hero banner: "Explore Innovation Challenges"
+- Search bar with full-text search across title, description, problem statement
+- Sector and technology filter dropdowns (populated from API response)
+- 12-card grid with: company logo, title, problem snippet, sector/tech tags, budget, deadline, applicant count
+- Click card → full detail view with problem statement, description, requirements, FAQs accordion, taxonomy tags, meta cards
+- "Register to Apply" CTA on detail view → redirects to `/register`
+- Pagination (Previous/Next with page counter)
+- Bottom CTA section: "Ready to Innovate?"
+- Loading skeleton animation during fetch
+- Empty state for no results
+
+### 16.2 Startup Reports (`/reports`)
+
+**File:** `src/pages/public/PublicReports.jsx` (303 lines)
+**Route:** `/reports` (public, no auth required)
+**Backend:** `GET /api/public/reports`
+
+**Features:**
+- Hero: "Curated Insights for Innovators"
+- Sector filter pill buttons (All, DeepTech, AI/ML, Defence, CleanTech, HealthTech, Cybersecurity, Quantum, Semiconductor)
+- Report cards with: sector-colored cover gradient, sector icon, status badge (Available/Coming Soon), title, description, date, author, page count
+- Download button → register modal for unauthenticated users
+- "Why OpenI Reports?" section (3 value prop cards: Platform Data, Expert Curated, Actionable Insights)
+- Bottom CTA: "Want Full Access?"
+- 8 hardcoded reports (CMS-ready structure)
+
+### 16.3 PublicLayout Component
+
+**File:** `src/components/PublicLayout.jsx` (186 lines)
+**Used by:** PublicMarketplace, PublicReports
+
+Shared layout wrapper for all public pages:
+- **Header:** Logo, nav (Marketplace, Reports, How It Works, Features, Pricing) with active state highlighting, LinkedIn + X social icons, Sign In + Get Started buttons
+- **Footer:** Logo with inverted filter, tagline, social links with gold hover, Product links (Marketplace, Reports, How It Works, Features, Pricing, Get Started), Company links (Sign In, Contact, Privacy, Terms), copyright
+
+### 16.4 Public API Controller
+
+**File:** `src/controllers/publicController.js` (131 lines, backend)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/public/challenges` | GET | List open public challenges with search, sector, technology, usecase filters + pagination. Returns challenges array + filter options (distinct sectors, technologies, usecases) |
+| `/api/public/challenges/:id` | GET | Single challenge detail (limited fields, no RFI questions or internal data) |
+| `/api/public/reports` | GET | Startup ecosystem reports with sector filter. Hardcoded data, CMS-ready |
+| `/api/public/stats` | GET | Platform statistics (startup count, corporate count, challenge count, application count). Uses real DB counts with minimum thresholds |
+
+All endpoints have **no authentication middleware** — fully public access.
+
+### 16.5 CMS Migration Plan
+
+All public page content is structured for easy CMS migration:
+
+| Content Type | Current Location | CMS Type (Strapi) |
+|---|---|---|
+| Stats (landing) | `STATS` const array in Landing.jsx | Single type: `platform-stats` |
+| Partners (landing) | `PARTNERS` const array in Landing.jsx | Collection type: `partner-logo` |
+| Testimonials (landing) | `TESTIMONIALS` const array in Landing.jsx | Collection type: `testimonial` |
+| FAQs (landing) | `FAQS` const array in Landing.jsx | Collection type: `faq` |
+| Reports (reports page) | Hardcoded in publicController.js | Collection type: `report` |
+
+**Migration steps (when Strapi is deployed):**
+1. Deploy Strapi on Railway
+2. Create content types matching the arrays above
+3. Add `VITE_CMS_URL` env var to Vercel
+4. Replace const arrays with `useEffect` + `fetch` calls, with const arrays as fallback
+
+---
+
 ## Project Statistics
 
 | Metric | Count |
 |--------|-------|
-| Frontend Pages | 29+ |
-| Backend Controllers | 27 |
-| API Endpoints | 92+ |
+| Frontend Pages | 33+ |
+| Backend Controllers | 28 |
+| API Endpoints | 96+ |
 | Database Tables | 56+ |
-| API Service Modules | 20+ |
+| API Service Modules | 21+ |
 | Persona Types | 10 |
 | Subscription Plans | 3 (Free / Pro / Enterprise) |
+| Public Pages | 3 (Landing, Marketplace, Reports) |
 | Frontend Dependencies | 6 |
 | Backend Dependencies | 13 (incl. razorpay, cloudinary, multer) |
 | Lines of Seed Data | ~300 |
@@ -1088,8 +1186,10 @@ Ideas captured here for when they're needed:
 
 - **Frontend:** https://github.com/RajeevBanduni/openi-hub
 - **Backend:** https://github.com/RajeevBanduni/openi-hub-backend
+- **LinkedIn:** https://www.linkedin.com/company/openi-partners/
+- **X (Twitter):** https://x.com/OpenIPartners
 
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 5 April 2026 (v2.4 — Marketing landing page + brand polish)* 🎉
+*Last updated: 6 April 2026 (v2.5 — Public pages + landing enhancement + corporate analytics)* 🎉
