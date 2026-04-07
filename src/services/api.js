@@ -257,6 +257,7 @@ export const publicAPI = {
   getChallengeDetail:(id)          => get(`/public/challenges/${id}`),
   listReports:       (params = {}) => get(`/public/reports?${new URLSearchParams(params)}`),
   getStats:          ()            => get('/public/stats'),
+  getLandingContent: ()            => get('/public/landing-content'),
 };
 
 // ── Crawling ────────────────────────────────────────────────

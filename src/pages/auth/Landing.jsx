@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, Shield, Users, Briefcase, Target, Network, Sparkles,
   Search, Calendar, MessageSquare, FileText, Award, Database,
   Zap, TrendingUp, CheckCircle2, Rocket, Building2, Landmark,
   GraduationCap, FlaskConical, Home, BookOpen, ChevronDown, ChevronUp,
-  BarChart3, Globe, Star,
+  BarChart3, Globe, Star, UserPlus,
 } from 'lucide-react';
+import { publicAPI } from '../../services/api';
+
+// Icon map for CMS-provided icon names (string → component)
+const ICON_MAP = {
+  Briefcase, Search, Award, Calendar, MessageSquare, Zap, BarChart3, Globe,
+  Shield, Users, Target, Network, Sparkles, FileText, Database, Rocket,
+  TrendingUp, Star, UserPlus, Building2, Landmark, GraduationCap, FlaskConical,
+  Home, BookOpen, ArrowRight, CheckCircle2,
+};
 
 // Brand colors
 const GOLD = '#D5AA5B';
@@ -35,23 +44,23 @@ function XIcon({ size = 18, color = 'currentColor' }) {
   );
 }
 
-// ── CMS-ready content data ─────────────────────────────────
-const STATS = [
+// ── Default content (used when CMS is unavailable) ─────────
+const DEFAULT_STATS = [
   { value: '500+', label: 'Registered Startups' },
   { value: '50+', label: 'Corporate Partners' },
   { value: '120+', label: 'Challenges Posted' },
   { value: '25 Cr+', label: 'Investments Facilitated' },
 ];
 
-const PARTNERS = ['DRDO', 'DPIIT', 'iDEX', 'NASSCOM', 'Startup India', 'AIM'];
+const DEFAULT_PARTNERS = ['DRDO', 'DPIIT', 'iDEX', 'NASSCOM', 'Startup India', 'AIM'];
 
-const TESTIMONIALS = [
+const DEFAULT_TESTIMONIALS = [
   { quote: 'OpenI helped us find the perfect deep-tech startup for our autonomous systems PoC. The evaluation framework gave us confidence in every shortlist decision.', name: 'Priya Sharma', role: 'VP Innovation', org: 'Tata Advanced Systems' },
   { quote: 'The 8-vector evaluation framework and recommendation engine transformed how we assess investment opportunities. Data-driven decisions at scale.', name: 'Rahul Mehta', role: 'Partner', org: 'Kalaari Capital' },
   { quote: 'We connected with three corporates within our first week on the platform. The challenge marketplace is a game-changer for early-stage startups.', name: 'Dr. Anand Kumar', role: 'Founder & CEO', org: 'QuantumShield AI' },
 ];
 
-const FAQS = [
+const DEFAULT_FAQS = [
   { q: 'Who can join OpenI?', a: 'Anyone in the innovation ecosystem — startups, corporates, investors, government bodies, mentors, labs, incubators, accelerators, students, and academia. Each persona gets a tailored dashboard and tools.' },
   { q: 'Is OpenI free to use?', a: 'Yes! The Free tier gives you access to the core platform including challenges, directory, meetings, and messaging. Upgrade to Pro or Enterprise for higher limits and premium features.' },
   { q: 'What is the 8-Vector Evaluation Framework?', a: 'It is a proprietary scoring system that evaluates startups across 103 criteria in 8 vectors including technology readiness, market potential, team strength, IP portfolio, and more. It is the gold standard for deep-tech evaluation in India.' },
@@ -232,6 +241,25 @@ function FAQItem({ question, answer, isOpen, onToggle }) {
 // ═══════════════════════════════════════════════════════════════
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
+  const [cms, setCms] = useState(null);
+
+  useEffect(() => {
+    publicAPI.getLandingContent()
+      .then(data => setCms(data))
+      .catch(() => {}); // silently use defaults
+  }, []);
+
+  // Resolved content (CMS data or fallback defaults)
+  const stats = cms?.stats || DEFAULT_STATS;
+  const partners = cms?.partners || DEFAULT_PARTNERS;
+  const testimonials = cms?.testimonials || DEFAULT_TESTIMONIALS;
+  const faqs = cms?.faqs || DEFAULT_FAQS;
+  const features = cms?.features || null; // null = use inline JSX
+  const howItWorks = cms?.howItWorks || null;
+  const pricing = cms?.pricing || null;
+  const hero = cms?.hero || null;
+  const ctaContent = cms?.cta || null;
+  const footerTagline = cms?.footer_tagline || null;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#fff' }}>
@@ -327,7 +355,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            OPEN INNOVATION PLATFORM
+            {hero?.badge_text || 'OPEN INNOVATION PLATFORM'}
           </div>
 
           <h1
@@ -379,7 +407,7 @@ export default function Landing() {
           </div>
 
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            Built for Deep-Tech &middot; AI &middot; Quantum &middot; Defence &middot; Cybersecurity
+            {hero?.sectors_text || 'Built for Deep-Tech \u00b7 AI \u00b7 Quantum \u00b7 Defence \u00b7 Cybersecurity'}
           </p>
         </div>
       </section>
@@ -397,7 +425,7 @@ export default function Landing() {
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {STATS.map((stat, i) => (
+          {stats.map((stat, i) => (
             <div key={i} className="p-6 rounded-xl" style={{ background: LIGHT_GRAY }}>
               <div className="text-3xl md:text-4xl font-bold mb-1" style={{ color: GOLD }}>{stat.value}</div>
               <div className="text-sm font-medium" style={{ color: GRAY }}>{stat.label}</div>
@@ -415,7 +443,7 @@ export default function Landing() {
             Ecosystem Partners &amp; Supporters
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-            {PARTNERS.map((name, i) => (
+            {partners.map((name, i) => (
               <span key={i} className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#bbb' }}>{name}</span>
             ))}
           </div>
@@ -436,21 +464,13 @@ export default function Landing() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <Step
-            number="1"
-            title="Register Your Persona"
-            description="Pick from 10 persona types — startup, corporate, investor, government, mentor, lab, and more. Each persona has a tailored profile and dashboard."
-          />
-          <Step
-            number="2"
-            title="Discover & Connect"
-            description="Browse the directory, explore challenges, and use the 8-vector evaluation framework to find the right partners, investments, or innovations."
-          />
-          <Step
-            number="3"
-            title="Collaborate & Grow"
-            description="Schedule meetings, submit proposals, track projects, and manage the full innovation lifecycle from first contact to successful pilot."
-          />
+          {(howItWorks || [
+            { number: '1', title: 'Register Your Persona', description: 'Pick from 10 persona types — startup, corporate, investor, government, mentor, lab, and more. Each persona has a tailored profile and dashboard.' },
+            { number: '2', title: 'Discover & Connect', description: 'Browse the directory, explore challenges, and use the 8-vector evaluation framework to find the right partners, investments, or innovations.' },
+            { number: '3', title: 'Collaborate & Grow', description: 'Schedule meetings, submit proposals, track projects, and manage the full innovation lifecycle from first contact to successful pilot.' },
+          ]).map((step, i) => (
+            <Step key={i} number={step.number || String(i + 1)} title={step.title} description={step.description} />
+          ))}
         </div>
       </Section>
 
@@ -555,46 +575,18 @@ export default function Landing() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <FeatureCard
-            icon={Briefcase}
-            title="Challenge Marketplace"
-            description="Post open innovation challenges with RFI forms, data rooms, and deadline tracking. Receive structured applications and evaluate with built-in scoring."
-          />
-          <FeatureCard
-            icon={Search}
-            title="Directory Search"
-            description="Discover the right partners across 10 persona types. Filter by sector, city, skills, and technology stack with real-time results."
-          />
-          <FeatureCard
-            icon={Award}
-            title="8-Vector Evaluation"
-            description="Score startups across 103 criteria in 8 vectors — technology readiness, market potential, team strength, and more. The gold standard for deep-tech."
-          />
-          <FeatureCard
-            icon={Calendar}
-            title="Meetings & RSVPs"
-            description="Schedule 1:1, group, demo, and review meetings with automatic confirmation, RSVP tracking, and real-time status updates."
-          />
-          <FeatureCard
-            icon={MessageSquare}
-            title="Real-time Messaging"
-            description="Cross-persona conversations with direct and group chat. Stay connected with your innovation partners in real time."
-          />
-          <FeatureCard
-            icon={Zap}
-            title="DeepTech Assessment"
-            description="16-question qualification framework across 5 dimensions. Verify if a startup is truly deep-tech with a standardized score."
-          />
-          <FeatureCard
-            icon={BarChart3}
-            title="Recommendations Engine"
-            description="AI-powered matching of corporates with relevant startups based on sector overlap, TRL scores, and technology alignment."
-          />
-          <FeatureCard
-            icon={Globe}
-            title="Public Marketplace"
-            description="Browse open challenges without login. Innovation seekers post challenges visible to the entire ecosystem, driving quality applications."
-          />
+          {(features || [
+            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post open innovation challenges with RFI forms, data rooms, and deadline tracking. Receive structured applications and evaluate with built-in scoring.' },
+            { icon: 'Search', title: 'Directory Search', description: 'Discover the right partners across 10 persona types. Filter by sector, city, skills, and technology stack with real-time results.' },
+            { icon: 'Award', title: '8-Vector Evaluation', description: 'Score startups across 103 criteria in 8 vectors — technology readiness, market potential, team strength, and more. The gold standard for deep-tech.' },
+            { icon: 'Calendar', title: 'Meetings & RSVPs', description: 'Schedule 1:1, group, demo, and review meetings with automatic confirmation, RSVP tracking, and real-time status updates.' },
+            { icon: 'MessageSquare', title: 'Real-time Messaging', description: 'Cross-persona conversations with direct and group chat. Stay connected with your innovation partners in real time.' },
+            { icon: 'Zap', title: 'DeepTech Assessment', description: '16-question qualification framework across 5 dimensions. Verify if a startup is truly deep-tech with a standardized score.' },
+            { icon: 'BarChart3', title: 'Recommendations Engine', description: 'AI-powered matching of corporates with relevant startups based on sector overlap, TRL scores, and technology alignment.' },
+            { icon: 'Globe', title: 'Public Marketplace', description: 'Browse open challenges without login. Innovation seekers post challenges visible to the entire ecosystem, driving quality applications.' },
+          ]).map((f, i) => (
+            <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
+          ))}
         </div>
       </Section>
 
@@ -611,7 +603,7 @@ export default function Landing() {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} {...t} />)}
+          {testimonials.map((t, i) => <TestimonialCard key={i} {...t} />)}
         </div>
       </Section>
 
@@ -628,7 +620,7 @@ export default function Landing() {
           </p>
         </div>
         <div className="max-w-3xl mx-auto space-y-3">
-          {FAQS.map((faq, i) => (
+          {faqs.map((faq, i) => (
             <FAQItem
               key={i}
               question={faq.q}
@@ -646,66 +638,25 @@ export default function Landing() {
       <Section bg={LIGHT_GRAY} id="pricing">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Simple, Transparent Pricing
+            {pricing?.title || 'Simple, Transparent Pricing'}
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            Start free. Upgrade when you need more. No credit card required.
+            {pricing?.subtitle || 'Start free. Upgrade when you need more. No credit card required.'}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <PricingCard
-            name="Free"
-            price="₹0"
-            priceNote="/forever"
-            features={[
-              '1 challenge per month',
-              '3 applications per month',
-              '5 meetings per month',
-              '5 file uploads per month',
-              'Basic directory access',
-              'All 10 persona types',
-            ]}
-            cta="Get Started"
-            ctaLink="/register"
-          />
-          <PricingCard
-            name="Pro"
-            price="₹999"
-            priceNote="/month"
-            features={[
-              '5 challenges per month',
-              '20 applications per month',
-              '50 meetings per month',
-              '100 file uploads per month',
-              'Advanced search & filters',
-              'Priority email support',
-              'Recommendation engine',
-            ]}
-            cta="Upgrade to Pro"
-            ctaLink="/register"
-            featured
-          />
-          <PricingCard
-            name="Enterprise"
-            price="₹4,999"
-            priceNote="/month"
-            features={[
-              'Unlimited challenges',
-              'Unlimited applications',
-              'Unlimited meetings',
-              'Unlimited uploads',
-              'Dedicated account manager',
-              'Custom integrations',
-              'SSO + audit logs',
-            ]}
-            cta="Contact Sales"
-            ctaLink="/register"
-          />
+          {(pricing?.plans || [
+            { name: 'Free', price: '₹0', priceNote: '/forever', features: ['1 challenge per month', '3 applications per month', '5 meetings per month', '5 file uploads per month', 'Basic directory access', 'All 10 persona types'], cta: 'Get Started', ctaLink: '/register', featured: false },
+            { name: 'Pro', price: '₹999', priceNote: '/month', features: ['5 challenges per month', '20 applications per month', '50 meetings per month', '100 file uploads per month', 'Advanced search & filters', 'Priority email support', 'Recommendation engine'], cta: 'Upgrade to Pro', ctaLink: '/register', featured: true },
+            { name: 'Enterprise', price: '₹4,999', priceNote: '/month', features: ['Unlimited challenges', 'Unlimited applications', 'Unlimited meetings', 'Unlimited uploads', 'Dedicated account manager', 'Custom integrations', 'SSO + audit logs'], cta: 'Contact Sales', ctaLink: '/register', featured: false },
+          ]).map((plan, i) => (
+            <PricingCard key={i} {...plan} />
+          ))}
         </div>
 
         <p className="text-center text-sm mt-8" style={{ color: GRAY }}>
-          All plans include SSL, data encryption, and daily backups. Annual billing saves 17%.
+          {pricing?.footer_note || 'All plans include SSL, data encryption, and daily backups. Annual billing saves 17%.'}
         </p>
       </Section>
 
@@ -721,10 +672,10 @@ export default function Landing() {
         <div className="max-w-3xl mx-auto text-center">
           <Network size={40} color="#fff" className="mx-auto mb-5 opacity-90" />
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Ready to Join the Ecosystem?
+            {ctaContent?.title || 'Ready to Join the Ecosystem?'}
           </h2>
           <p className="text-base mb-8 max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.9)' }}>
-            Join thousands of innovators, investors, and enterprises building the future of deep-tech in India.
+            {ctaContent?.description || 'Join thousands of innovators, investors, and enterprises building the future of deep-tech in India.'}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
@@ -764,7 +715,7 @@ export default function Landing() {
                 style={{ height: 36, width: 'auto', maxWidth: 120, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
               />
               <p className="text-sm mt-4 max-w-xs leading-relaxed">
-                The open innovation platform connecting India&apos;s deep-tech ecosystem. Partner. Source. Invest.
+                {footerTagline || 'The open innovation platform connecting India\u2019s deep-tech ecosystem. Partner. Source. Invest.'}
               </p>
               {/* Social Links */}
               <div className="flex items-center gap-4 mt-4">
