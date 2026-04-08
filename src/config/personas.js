@@ -91,11 +91,13 @@ export const PERSONA_NAV = {
   ],
   government: [
     ...COMMON_NAV,
-    { to: '/dashboard/startups',        label: 'Discover Startups', icon: 'Rocket' },
-    { to: '/dashboard/evaluations',     label: 'Programs',          icon: 'FileText' },
-    { to: '/dashboard/cohorts',         label: 'Cohorts',           icon: 'GraduationCap' },
-    { to: '/dashboard/projects',        label: 'Projects',          icon: 'FolderKanban' },
-    { to: '/dashboard/govt-apis',       label: 'Govt. APIs',        icon: 'Link2' },
+    { to: '/dashboard/corporate/challenges', label: 'Challenges/RFPs', icon: 'Target' },
+    { to: '/dashboard/startups',             label: 'Discover Startups', icon: 'Rocket' },
+    { to: '/dashboard/evaluations',          label: 'Programs',          icon: 'FileText' },
+    { to: '/dashboard/cohorts',              label: 'Cohorts',           icon: 'GraduationCap' },
+    { to: '/dashboard/projects',             label: 'Projects',          icon: 'FolderKanban' },
+    { to: '/dashboard/watchlist',            label: 'Watchlist',         icon: 'Star' },
+    { to: '/dashboard/govt-apis',            label: 'Govt. APIs',        icon: 'Link2' },
   ],
   investor: [
     ...COMMON_NAV,
