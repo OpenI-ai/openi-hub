@@ -9,6 +9,7 @@ import Register          from './pages/auth/Register';
 // Pages — Public
 import PublicMarketplace from './pages/public/PublicMarketplace';
 import PublicReports     from './pages/public/PublicReports';
+import SharedChallenge   from './pages/public/SharedChallenge';
 
 // Pages — Dashboard
 import Login             from './pages/dashboard/Login';
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="/register"        element={<Register />} />
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/reports"            element={<PublicReports />} />
+          <Route path="/challenges/share/:token" element={<SharedChallenge />} />
           <Route path="/dashboard/login" element={<Login />} />
 
           {/* Protected dashboard shell */}
