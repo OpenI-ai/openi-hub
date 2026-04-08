@@ -140,7 +140,14 @@ export default function PublicReports() {
                 <ReportCard
                   key={report.id}
                   report={report}
-                  onDownload={() => setShowRegisterModal(true)}
+                  onDownload={async () => {
+                    try {
+                      const blob = await publicAPI.downloadReportPdf(report.id);
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a'); a.href = url; a.download = `OpenI-Report-${report.id}.pdf`;
+                      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+                    } catch (err) { setShowRegisterModal(true); }
+                  }}
                 />
               ))}
             </div>

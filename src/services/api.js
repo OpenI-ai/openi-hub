@@ -36,6 +36,16 @@ const post   = (path, body)  => request('POST',   path, body);
 const put    = (path, body)  => request('PUT',    path, body);
 const del    = (path)        => request('DELETE', path);
 
+// Blob fetch for binary downloads (PDF, etc.)
+async function blobRequest(method, path) {
+  const token = getToken();
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`${BASE_URL}${path}`, { method, headers });
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
+  return res.blob();
+}
+
 // ── File Upload ───────────────────────────────────────────────
 export const uploadAPI = {
   upload: (file, folder = 'general') => {
@@ -52,6 +62,7 @@ export const subscriptionAPI = {
   createOrder:   (data)   => post('/subscription/create-order', data),
   verifyPayment: (data)   => post('/subscription/verify-payment', data),
   cancel:        ()       => post('/subscription/cancel'),
+  downloadInvoice: (paymentId) => blobRequest('GET', `/subscription/invoice/${paymentId}`),
 };
 
 // ── Auth ────────────────────────────────────────────────────
@@ -219,6 +230,7 @@ export const corporateAPI = {
   createCollab:      (data)          => post('/corporate/collaborations', data),
   listCollabs:       (params = {})   => get(`/corporate/collaborations?${new URLSearchParams(params)}`),
   updateCollab:      (id, data)      => put(`/corporate/collaborations/${id}`, data),
+  exportChallengePdf: (id)           => blobRequest('GET', `/corporate/challenges/${id}/pdf`),
 };
 
 // ── Challenge Applications (for startups / marketplace) ──────
@@ -258,6 +270,7 @@ export const publicAPI = {
   listReports:       (params = {}) => get(`/public/reports?${new URLSearchParams(params)}`),
   getStats:          ()            => get('/public/stats'),
   getLandingContent: ()            => get('/public/landing-content'),
+  downloadReportPdf: (id)          => blobRequest('GET', `/public/reports/${id}/pdf`),
 };
 
 // ── Crawling ────────────────────────────────────────────────

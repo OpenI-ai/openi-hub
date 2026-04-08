@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import {
   User, Mail, Shield, Lock, Save, Eye, EyeOff,
   CheckCircle2, AlertCircle, Bell, Moon, Sun,
-  CreditCard, Loader2, Check, Crown, Zap, X,
+  CreditCard, Loader2, Check, Crown, Zap, X, Download,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -467,11 +467,26 @@ export default function Settings() {
                             <div style={{ fontWeight: 600, color: '#333' }}>₹{parseInt(p.amount)}</div>
                             <div style={{ fontSize: 11, color: '#999' }}>{new Date(p.created_at).toLocaleDateString()}</div>
                           </div>
-                          <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-                            background: p.status === 'captured' ? '#f0fdf4' : p.status === 'failed' ? '#fef2f2' : '#fefce8',
-                            color: p.status === 'captured' ? '#16a34a' : p.status === 'failed' ? '#dc2626' : '#ca8a04' }}>
-                            {p.status === 'captured' ? 'Paid' : p.status}
-                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                              background: p.status === 'captured' ? '#f0fdf4' : p.status === 'failed' ? '#fef2f2' : '#fefce8',
+                              color: p.status === 'captured' ? '#16a34a' : p.status === 'failed' ? '#dc2626' : '#ca8a04' }}>
+                              {p.status === 'captured' ? 'Paid' : p.status}
+                            </span>
+                            {p.status === 'captured' && (
+                              <button onClick={async () => {
+                                try {
+                                  const blob = await subscriptionAPI.downloadInvoice(p.id);
+                                  const url = URL.createObjectURL(blob);
+                                  const a = document.createElement('a'); a.href = url; a.download = `OpenI-Invoice-${p.id}.pdf`;
+                                  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+                                } catch (err) { toast.error('Failed to download invoice'); }
+                              }} title="Download Invoice"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: G }}>
+                                <Download size={13} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

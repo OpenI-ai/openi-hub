@@ -4,7 +4,7 @@ import {
   Target, Plus, ChevronLeft, Clock, CheckCircle, XCircle,
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
   MapPin, FileText, HelpCircle, Trash2, ChevronDown, ChevronUp,
-  X, Search,
+  X, Search, Download,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -215,6 +215,18 @@ export default function CorporateChallenges() {
                 style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer', outline: 'none' }}>
                 {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>
+              <button onClick={async () => {
+                try {
+                  const blob = await corporateAPI.exportChallengePdf(detail.id);
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a'); a.href = url; a.download = `Challenge-${detail.id}.pdf`;
+                  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+                  toast.success('PDF downloaded');
+                } catch (err) { toast.error('Failed to export PDF'); }
+              }}
+                style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: '#555', border: '1px solid #ddd', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Download size={12} /> Export PDF
+              </button>
               <button onClick={startEdit}
                 style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
                 Edit
