@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
-import { profileAPI } from '../../services/api';
-import { User, Save, Loader2, AlertCircle, Check, X } from 'lucide-react';
+import { profileAPI, startupProfileAPI } from '../../services/api';
+import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import toast from 'react-hot-toast';
 
@@ -274,6 +274,207 @@ export default function MyProfile() {
           </button>
         </div>
       </div>
+
+      {/* ── Startup Profile Sections (child tables) ─────────────── */}
+      {user?.role === 'startup' && (
+        <div className="mt-6 space-y-4">
+          <ProfileSection section="team" title="Team & Management" fields={[
+            { name: 'name', label: 'Name', required: true },
+            { name: 'designation', label: 'Designation' },
+            { name: 'role', label: 'Role (CEO, CTO, etc.)' },
+            { name: 'bio', label: 'Bio', type: 'textarea' },
+            { name: 'linkedin_url', label: 'LinkedIn URL' },
+            { name: 'twitter_url', label: 'X (Twitter) URL' },
+            { name: 'is_founder', label: 'Founder?', type: 'checkbox' },
+            { name: 'is_advisory', label: 'Advisory Board?', type: 'checkbox' },
+          ]} displayCols={['name','designation','role','is_founder']} />
+
+          <ProfileSection section="products" title="Products & Services" fields={[
+            { name: 'name', label: 'Product Name', required: true },
+            { name: 'description', label: 'Description', type: 'textarea' },
+            { name: 'launch_date', label: 'Launch Date', type: 'date' },
+            { name: 'pricing_model', label: 'Pricing Model' },
+            { name: 'url', label: 'Product URL' },
+          ]} displayCols={['name','pricing_model','launch_date']} />
+
+          <ProfileSection section="funding" title="Funding Rounds" fields={[
+            { name: 'round_type', label: 'Round Type', required: true, type: 'select', options: ['Pre-seed','Seed','Angel','Series A','Series B','Series C','Series D','Debt','Grant','Bridge'] },
+            { name: 'amount', label: 'Amount', type: 'number' },
+            { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR','GBP'] },
+            { name: 'round_date', label: 'Date', type: 'date' },
+            { name: 'lead_investor', label: 'Lead Investor' },
+            { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number' },
+          ]} displayCols={['round_type','amount','currency','lead_investor','round_date']} />
+
+          <ProfileSection section="clients" title="Clients / Customers" fields={[
+            { name: 'client_name', label: 'Client Name', required: true },
+            { name: 'industry', label: 'Industry' },
+            { name: 'logo_url', label: 'Logo URL' },
+          ]} displayCols={['client_name','industry']} />
+
+          <ProfileSection section="patents" title="Patents / IP" fields={[
+            { name: 'title', label: 'Patent Title', required: true },
+            { name: 'status', label: 'Status', type: 'select', options: ['Applied','Granted','Pending'] },
+            { name: 'patent_number', label: 'Patent Number' },
+            { name: 'filing_date', label: 'Filing Date', type: 'date' },
+            { name: 'abstract', label: 'Abstract', type: 'textarea' },
+            { name: 'url', label: 'URL' },
+          ]} displayCols={['title','status','patent_number','filing_date']} />
+
+          <ProfileSection section="competitors" title="Competitors" fields={[
+            { name: 'competitor_name', label: 'Competitor Name', required: true },
+            { name: 'description', label: 'Description', type: 'textarea' },
+            { name: 'country', label: 'Country' },
+            { name: 'sector', label: 'Sector' },
+            { name: 'website', label: 'Website' },
+          ]} displayCols={['competitor_name','country','sector']} />
+
+          <ProfileSection section="news" title="Latest News" fields={[
+            { name: 'title', label: 'Title', required: true },
+            { name: 'url', label: 'URL' },
+            { name: 'published_date', label: 'Date', type: 'date' },
+            { name: 'source', label: 'Source' },
+          ]} displayCols={['title','source','published_date']} />
+
+          <ProfileSection section="acquisitions" title="Acquisitions" fields={[
+            { name: 'acquired_company', label: 'Acquired Company', required: true },
+            { name: 'acquisition_date', label: 'Date', type: 'date' },
+            { name: 'amount', label: 'Amount', type: 'number' },
+            { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR'] },
+          ]} displayCols={['acquired_company','acquisition_date','amount']} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Generic Profile Section Component ───────────────────────
+function ProfileSection({ section, title, fields, displayCols }) {
+  const [items, setItems] = useState([]);
+  const [expanded, setExpanded] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [form, setForm] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const load = async () => {
+    try { const d = await startupProfileAPI.list(section); setItems(d); }
+    catch { /* silent */ }
+  };
+
+  useEffect(() => { if (expanded) load(); }, [expanded]);
+
+  const handleAdd = async () => {
+    const requiredField = fields.find(f => f.required);
+    if (requiredField && !form[requiredField.name]) { toast.error(`${requiredField.label} is required`); return; }
+    setLoading(true);
+    try {
+      await startupProfileAPI.create(section, form);
+      setForm({}); setShowAdd(false); load();
+      toast.success('Added');
+    } catch (err) { toast.error(err.message || 'Failed to add'); }
+    finally { setLoading(false); }
+  };
+
+  const handleDelete = async (id) => {
+    try { await startupProfileAPI.remove(section, id); load(); toast.success('Deleted'); }
+    catch { toast.error('Failed to delete'); }
+  };
+
+  const G = '#D5AA5B';
+
+  return (
+    <div className="rounded-xl" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+      <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-4"
+        style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        <span className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{title} {items.length > 0 && `(${items.length})`}</span>
+        {expanded ? <ChevronUp size={16} style={{ color: '#999' }} /> : <ChevronDown size={16} style={{ color: '#999' }} />}
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4">
+          {/* Add button */}
+          <button onClick={() => setShowAdd(!showAdd)}
+            className="flex items-center gap-1 text-xs font-semibold mb-3"
+            style={{ color: G, background: 'none', border: 'none', cursor: 'pointer' }}>
+            <Plus size={12} /> Add {title.split(' ')[0]}
+          </button>
+
+          {/* Add form */}
+          {showAdd && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 p-3 rounded-lg" style={{ background: '#f9fafb' }}>
+              {fields.map(f => (
+                <div key={f.name} className={f.type === 'textarea' ? 'md:col-span-2' : ''}>
+                  <label className="block text-xs font-medium mb-1" style={{ color: '#555' }}>{f.label}</label>
+                  {f.type === 'textarea' ? (
+                    <textarea value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))} rows={2}
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', resize: 'vertical' }} />
+                  ) : f.type === 'select' ? (
+                    <select value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+                      <option value="">Select...</option>
+                      {(f.options || []).map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  ) : f.type === 'checkbox' ? (
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={!!form[f.name]} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.checked }))} style={{ accentColor: G }} />
+                      <span className="text-xs" style={{ color: '#555' }}>Yes</span>
+                    </label>
+                  ) : (
+                    <input type={f.type || 'text'} value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value }))}
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  )}
+                </div>
+              ))}
+              <div className="md:col-span-2 flex gap-2">
+                <button onClick={handleAdd} disabled={loading}
+                  className="px-4 py-1.5 rounded-lg text-xs font-semibold" style={{ background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
+                  {loading ? 'Adding...' : 'Add'}
+                </button>
+                <button onClick={() => { setShowAdd(false); setForm({}); }}
+                  className="px-4 py-1.5 rounded-lg text-xs" style={{ background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Items table */}
+          {items.length === 0 ? (
+            <div className="text-center py-4 text-xs" style={{ color: '#ccc' }}>No items yet</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr>
+                    {displayCols.map(col => (
+                      <th key={col} style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#555', borderBottom: '1px solid #f0f0f0', fontSize: 11 }}>
+                        {col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </th>
+                    ))}
+                    <th style={{ width: 40 }} />
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map(item => (
+                    <tr key={item.id} style={{ borderBottom: '1px solid #f8f8f8' }}>
+                      {displayCols.map(col => (
+                        <td key={col} style={{ padding: '6px 10px', color: '#333' }}>
+                          {item[col] === true ? 'Yes' : item[col] === false ? 'No' : (item[col] != null ? String(item[col]).slice(0, 50) : '-')}
+                        </td>
+                      ))}
+                      <td>
+                        <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ddd' }}>
+                          <Trash2 size={12} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

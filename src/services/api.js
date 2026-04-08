@@ -216,6 +216,17 @@ export const profileAPI = {
   getPublic:      (userId)  => get(`/profile/${userId}`),
 };
 
+// ── Startup Profile Sections (child tables) ──────────────────
+export const startupProfileAPI = {
+  // section = products | team | funding | clients | patents | competitors | news | acquisitions
+  list:   (section)          => get(`/startup-profile/${section}`),
+  create: (section, data)    => post(`/startup-profile/${section}`, data),
+  update: (section, id, data) => put(`/startup-profile/${section}/${id}`, data),
+  remove: (section, id)      => del(`/startup-profile/${section}/${id}`),
+  // Full public profile (for corporates/investors)
+  getFullProfile: (userId)   => get(`/startup-profile/public/${userId}`),
+};
+
 // ── Corporate Features ───────────────────────────────────────
 export const corporateAPI = {
   dashboard:         ()              => get('/corporate/dashboard'),
