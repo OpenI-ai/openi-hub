@@ -10,7 +10,7 @@ export const PERSONA_CATEGORIES = {
 };
 
 export const PROVIDER_ROLES = ['startup', 'student', 'academia'];
-export const SEEKER_ROLES   = ['corporate', 'government', 'investor', 'mentor', 'lab', 'incubator', 'accelerator'];
+export const SEEKER_ROLES   = ['corporate', 'government', 'investor', 'mentor', 'lab', 'incubator', 'accelerator', 'service_provider'];
 export const ALL_PERSONA_ROLES = [...PROVIDER_ROLES, ...SEEKER_ROLES];
 export const SELF_REGISTER_ROLES = ALL_PERSONA_ROLES; // admin/evaluator are NOT self-register
 
@@ -31,7 +31,8 @@ export const PERSONAS = {
   mentor:      { label: 'Mentor',        category: 'seeker',   icon: 'Users',         color: '#ec4899', description: 'Industry mentor or advisor' },
   lab:         { label: 'Lab',           category: 'seeker',   icon: 'FlaskConical',  color: '#14b8a6', description: 'Lab offering resources to innovators' },
   incubator:   { label: 'Incubator',     category: 'seeker',   icon: 'Home',          color: '#8b5cf6', description: 'Startup incubation program' },
-  accelerator: { label: 'Accelerator',   category: 'seeker',   icon: 'Zap',           color: '#ef4444', description: 'Growth acceleration program' },
+  accelerator:       { label: 'Accelerator',       category: 'seeker',   icon: 'Zap',           color: '#ef4444', description: 'Growth acceleration program' },
+  service_provider:  { label: 'Service Provider',  category: 'seeker',   icon: 'Briefcase',     color: '#0d9488', description: 'Startup services provider (cloud, legal, compliance)' },
 };
 
 // ── Navigation per Persona ─────────────────────────────────
@@ -131,6 +132,12 @@ export const PERSONA_NAV = {
     { to: '/dashboard/projects',    label: 'Projects',  icon: 'FolderKanban' },
     { to: '/dashboard/evaluations', label: 'Programs',  icon: 'FileText' },
     { to: '/dashboard/watchlist',   label: 'Watchlist',  icon: 'Star' },
+  ],
+  service_provider: [
+    ...COMMON_NAV,
+    { to: '/dashboard/marketplace',     label: 'Marketplace',       icon: 'Target' },
+    { to: '/dashboard/startups',        label: 'Discover Startups', icon: 'Rocket' },
+    { to: '/dashboard/mentors',         label: 'Mentors',           icon: 'Users' },
   ],
 };
 
@@ -301,6 +308,28 @@ export const PROFILE_FIELDS = {
     { name: 'corporate_partners', label: 'Corporate Partners', type: 'tags', placeholder: 'e.g., Google, Microsoft' },
     { name: 'linkedin_url',     label: 'LinkedIn URL',         type: 'url' },
   ],
+  service_provider: [
+    { name: 'company_name',         label: 'Company Name',            type: 'text',   required: true },
+    { name: 'logo_url',             label: 'Company Logo URL',        type: 'url',    placeholder: 'https://yoursite.com/logo.png' },
+    { name: 'tagline',              label: 'Tagline',                  type: 'text',   placeholder: 'e.g., Empowering startups with cloud & compliance' },
+    { name: 'service_categories',   label: 'Service Categories',       type: 'multiselect', options: ['Cloud Credits (AWS/Azure/GCP)','Legal Services','Financial/Accounting','Compliance/Regulatory','HR/Recruitment','Marketing/PR','IP/Patent Services','Mentorship Programs','Office Space/Co-working','Design/Branding','Software Development','Data Analytics'] },
+    { name: 'description',          label: 'About the Company',        type: 'textarea' },
+    { name: 'pricing_model',        label: 'Pricing Model',            type: 'select', options: ['Free','Subscription','Per-use','Subscription + Per-use','Equity-based','Custom/Negotiable'] },
+    { name: 'target_startup_stages', label: 'Target Startup Stages',   type: 'multiselect', options: ['Ideation','Pre-seed','Seed','Series A','Series B','Growth','Listed'] },
+    { name: 'sectors_served',       label: 'Sectors Served',           type: 'tags', placeholder: 'e.g., DeepTech, SaaS, HealthTech' },
+    { name: 'city',                 label: 'City',                     type: 'text' },
+    { name: 'state',                label: 'State',                    type: 'text' },
+    { name: 'website',              label: 'Website',                  type: 'url' },
+    { name: 'team_size',            label: 'Team Size',                type: 'number' },
+    { name: 'years_in_business',    label: 'Years in Business',        type: 'number' },
+    { name: 'certifications',       label: 'Certifications',           type: 'tags', placeholder: 'e.g., ISO 27001, SOC 2, AWS Partner' },
+    { name: 'client_testimonials',  label: 'Client Testimonials',      type: 'textarea' },
+    { name: 'portfolio_url',        label: 'Portfolio / Case Studies URL', type: 'url' },
+    { name: 'contact_person',       label: 'Contact Person',           type: 'text' },
+    { name: 'contact_email',        label: 'Contact Email',            type: 'text' },
+    { name: 'looking_for',          label: 'Looking For',              type: 'multiselect', options: ['Startups','Incubators','Accelerators','Corporates','Government Programs'] },
+    { name: 'linkedin_url',         label: 'LinkedIn URL',             type: 'url' },
+  ],
 };
 
 // Helper: get the primary "org name" field key for each persona
@@ -314,5 +343,6 @@ export const ORG_NAME_FIELD = {
   mentor:      'organisation',
   lab:         'lab_name',
   incubator:   'incubator_name',
-  accelerator: 'accelerator_name',
+  accelerator:      'accelerator_name',
+  service_provider: 'company_name',
 };

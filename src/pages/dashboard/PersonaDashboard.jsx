@@ -160,6 +160,21 @@ const DASHBOARD_CONFIG = {
       { label: 'Explore Directory', desc: 'Find mentors and investors', icon: Search, to: '/dashboard/directory', color: '#ec4899' },
     ],
   },
+  service_provider: {
+    subtitle: 'Service Provider Dashboard',
+    stats: [
+      { key: 'services_offered', label: 'Services Offered', icon: Briefcase, color: '#0d9488', to: '/dashboard/profile' },
+      { key: 'startup_connections', label: 'Startup Connections', icon: Rocket, color: '#f59e0b', to: '/dashboard/directory' },
+      { key: 'certifications_count', label: 'Certifications', icon: Shield, color: '#7c3aed', to: '/dashboard/profile' },
+    ],
+    quickActions: [
+      { label: 'Browse Challenges', desc: 'Find corporate challenges to support', icon: Target, to: '/dashboard/marketplace', color: G },
+      { label: 'Discover Startups', desc: 'Find startups that need your services', icon: Rocket, to: '/dashboard/startups', color: '#f59e0b' },
+      { label: 'Find Mentors', desc: 'Connect with mentors in your domain', icon: Users, to: '/dashboard/mentors', color: '#ec4899' },
+      { label: 'Explore Directory', desc: 'Connect with the ecosystem', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
+      { label: 'Schedule Meeting', desc: 'Set up meetings with potential clients', icon: CalendarCheck, to: '/dashboard/meetings', color: '#16a34a' },
+    ],
+  },
 };
 
 const fmtDate = (d) => {

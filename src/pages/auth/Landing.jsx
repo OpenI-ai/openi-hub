@@ -465,7 +465,7 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {(howItWorks || [
-            { number: '1', title: 'Register Your Persona', description: 'Pick from 10 persona types — startup, corporate, investor, government, mentor, lab, and more. Each persona has a tailored profile and dashboard.' },
+            { number: '1', title: 'Register Your Persona', description: 'Pick from 11 persona types — startup, corporate, investor, government, mentor, lab, and more. Each persona has a tailored profile and dashboard.' },
             { number: '2', title: 'Discover & Connect', description: 'Browse the directory, explore challenges, and use the 8-vector evaluation framework to find the right partners, investments, or innovations.' },
             { number: '3', title: 'Collaborate & Grow', description: 'Schedule meetings, submit proposals, track projects, and manage the full innovation lifecycle from first contact to successful pilot.' },
           ]).map((step, i) => (
@@ -547,6 +547,7 @@ export default function Landing() {
               <PersonaListItem icon={Landmark} label="Government — iDEX, defence, e-governance tech providers" color={BLUE} />
               <PersonaListItem icon={TrendingUp} label="Investors — Pre-seed to Series C deeptech opportunities" color={BLUE} />
               <PersonaListItem icon={Users} label="Mentors \u00B7 Labs \u00B7 Incubators \u00B7 Accelerators" color={BLUE} />
+              <PersonaListItem icon={Briefcase} label="Service Providers — Cloud credits, legal, compliance, HR" color={BLUE} />
             </ul>
             <Link
               to="/register"
@@ -557,6 +558,45 @@ export default function Landing() {
             >
               Join as Seeker <ArrowRight size={16} />
             </Link>
+          </div>
+        </div>
+
+        {/* ── Persona Picker Grid ──────────────────────────────────── */}
+        <div className="mt-14">
+          <h3 className="text-2xl font-bold text-center mb-2" style={{ color: DARK }}>Choose Your Persona</h3>
+          <p className="text-sm text-center mb-8" style={{ color: GRAY }}>Click a persona to create your free account</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[
+              { key: 'startup',          label: 'Startup',          icon: Rocket,        color: '#D5AA5B', desc: 'Tech startup or early-stage' },
+              { key: 'student',          label: 'Student',          icon: GraduationCap, color: '#3b82f6', desc: 'Student innovator / researcher' },
+              { key: 'academia',         label: 'Academia',         icon: BookOpen,      color: '#7c3aed', desc: 'University or research institute' },
+              { key: 'corporate',        label: 'Corporate',        icon: Building2,     color: '#16a34a', desc: 'Enterprise seeking innovation' },
+              { key: 'government',       label: 'Government',       icon: Landmark,      color: '#0ea5e9', desc: 'Government body or PSU' },
+              { key: 'investor',         label: 'Investor',         icon: TrendingUp,    color: '#f59e0b', desc: 'Angel, VC, PE, or fund' },
+              { key: 'mentor',           label: 'Mentor',           icon: Users,         color: '#ec4899', desc: 'Industry mentor or advisor' },
+              { key: 'lab',              label: 'Lab',              icon: FlaskConical,  color: '#14b8a6', desc: 'Lab offering resources' },
+              { key: 'incubator',        label: 'Incubator',        icon: Home,          color: '#8b5cf6', desc: 'Startup incubation program' },
+              { key: 'accelerator',      label: 'Accelerator',      icon: Zap,           color: '#ef4444', desc: 'Growth acceleration program' },
+              { key: 'service_provider', label: 'Service Provider', icon: Briefcase,     color: '#0d9488', desc: 'Cloud, legal, compliance services' },
+            ].map(p => (
+              <Link
+                key={p.key}
+                to={`/register?type=${p.key}`}
+                className="rounded-xl p-4 text-center transition-all group"
+                style={{ background: '#fff', border: `1px solid ${BORDER}` }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.boxShadow = `0 4px 16px ${p.color}20`; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div
+                  className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
+                  style={{ background: `${p.color}12` }}
+                >
+                  <p.icon size={20} style={{ color: p.color }} />
+                </div>
+                <div className="text-sm font-bold" style={{ color: DARK }}>{p.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: GRAY }}>{p.desc}</div>
+              </Link>
+            ))}
           </div>
         </div>
       </Section>
@@ -647,7 +687,7 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {(pricing?.plans || [
-            { name: 'Free', price: '₹0', priceNote: '/forever', features: ['1 challenge per month', '3 applications per month', '5 meetings per month', '5 file uploads per month', 'Basic directory access', 'All 10 persona types'], cta: 'Get Started', ctaLink: '/register', featured: false },
+            { name: 'Free', price: '₹0', priceNote: '/forever', features: ['1 challenge per month', '3 applications per month', '5 meetings per month', '5 file uploads per month', 'Basic directory access', 'All 11 persona types'], cta: 'Get Started', ctaLink: '/register', featured: false },
             { name: 'Pro', price: '₹999', priceNote: '/month', features: ['5 challenges per month', '20 applications per month', '50 meetings per month', '100 file uploads per month', 'Advanced search & filters', 'Priority email support', 'Recommendation engine'], cta: 'Upgrade to Pro', ctaLink: '/register', featured: true },
             { name: 'Enterprise', price: '₹4,999', priceNote: '/month', features: ['Unlimited challenges', 'Unlimited applications', 'Unlimited meetings', 'Unlimited uploads', 'Dedicated account manager', 'Custom integrations', 'SSO + audit logs'], cta: 'Contact Sales', ctaLink: '/register', featured: false },
           ]).map((plan, i) => (
