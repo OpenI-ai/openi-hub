@@ -231,6 +231,32 @@ export const corporateAPI = {
   listCollabs:       (params = {})   => get(`/corporate/collaborations?${new URLSearchParams(params)}`),
   updateCollab:      (id, data)      => put(`/corporate/collaborations/${id}`, data),
   exportChallengePdf: (id)           => blobRequest('GET', `/corporate/challenges/${id}/pdf`),
+  // Templates
+  listTemplates:     ()              => get('/corporate/templates'),
+  createTemplate:    (data)          => post('/corporate/templates', data),
+  deleteTemplate:    (id)            => del(`/corporate/templates/${id}`),
+  // Team members
+  listMembers:       (cid)           => get(`/corporate/challenges/${cid}/members`),
+  addMember:         (cid, data)     => post(`/corporate/challenges/${cid}/members`, data),
+  updateMember:      (cid, uid, data) => put(`/corporate/challenges/${cid}/members/${uid}`, data),
+  removeMember:      (cid, uid)      => del(`/corporate/challenges/${cid}/members/${uid}`),
+  // Application notes & docs
+  listAppNotes:      (cid, aid)      => get(`/corporate/challenges/${cid}/applications/${aid}/notes`),
+  createAppNote:     (cid, aid, data) => post(`/corporate/challenges/${cid}/applications/${aid}/notes`, data),
+  listAppDocs:       (cid, aid)      => get(`/corporate/challenges/${cid}/applications/${aid}/documents`),
+  createAppDoc:      (cid, aid, data) => post(`/corporate/challenges/${cid}/applications/${aid}/documents`, data),
+  // Challenge recommendations
+  challengeRecs:     (id)            => get(`/corporate/challenges/${id}/recommended-startups`),
+  // Collaboration milestones
+  listMilestones:    (coId)          => get(`/corporate/collaborations/${coId}/milestones`),
+  createMilestone:   (coId, data)    => post(`/corporate/collaborations/${coId}/milestones`, data),
+  updateMilestone:   (coId, mid, data) => put(`/corporate/collaborations/${coId}/milestones/${mid}`, data),
+  deleteMilestone:   (coId, mid)     => del(`/corporate/collaborations/${coId}/milestones/${mid}`),
+  // Collaboration tasks
+  listTasks:         (coId)          => get(`/corporate/collaborations/${coId}/tasks`),
+  createTask:        (coId, data)    => post(`/corporate/collaborations/${coId}/tasks`, data),
+  updateTask:        (coId, tid, data) => put(`/corporate/collaborations/${coId}/tasks/${tid}`, data),
+  deleteTask:        (coId, tid)     => del(`/corporate/collaborations/${coId}/tasks/${tid}`),
 };
 
 // ── Challenge Applications (for startups / marketplace) ──────
@@ -271,6 +297,7 @@ export const publicAPI = {
   getStats:          ()            => get('/public/stats'),
   getLandingContent: ()            => get('/public/landing-content'),
   downloadReportPdf: (id)          => blobRequest('GET', `/public/reports/${id}/pdf`),
+  getSharedChallenge: (token)      => get(`/public/challenges/share/${token}`),
 };
 
 // ── Crawling ────────────────────────────────────────────────
