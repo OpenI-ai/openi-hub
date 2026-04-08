@@ -20,6 +20,8 @@ import CorporateDashboard       from './pages/dashboard/CorporateDashboard';
 import CorporateStartupSearch   from './pages/dashboard/CorporateStartupSearch';
 import CorporateChallenges      from './pages/dashboard/CorporateChallenges';
 import CorporateCollaborations  from './pages/dashboard/CorporateCollaborations';
+import InvestorDeals            from './pages/dashboard/InvestorDeals';
+import InvestorPortfolio        from './pages/dashboard/InvestorPortfolio';
 import StartupEvaluation from './pages/dashboard/StartupEvaluation';
 import StartupDiscovery  from './pages/dashboard/StartupDiscovery';
 import StartupProfile    from './pages/dashboard/StartupProfile';
@@ -91,6 +93,8 @@ export default function App() {
             <Route path="corporate/search"   element={<CorporateStartupSearch />} />
             <Route path="corporate/challenges" element={<CorporateChallenges />} />
             <Route path="corporate/collabs"  element={<CorporateCollaborations />} />
+            <Route path="investor/deals"     element={<InvestorDeals />} />
+            <Route path="investor/portfolio" element={<InvestorPortfolio />} />
             <Route path="evaluate"            element={<StartupEvaluation />} />
             <Route path="startups"            element={<StartupDiscovery />} />
             <Route path="startup-profile"     element={<StartupProfile />} />

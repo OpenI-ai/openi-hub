@@ -88,13 +88,15 @@ const DASHBOARD_CONFIG = {
   investor: {
     subtitle: 'Investor Dashboard',
     stats: [
-      { key: 'watchlists', label: 'Watchlists', icon: Star, color: '#f59e0b', to: '/dashboard/watchlist' },
-      { key: 'watched_startups', label: 'Tracked Startups', icon: Eye, color: '#2563eb', to: '/dashboard/watchlist' },
-      { key: 'deeptech_assessments', label: 'DeepTech Assessments', icon: Zap, color: '#7c3aed', to: '/dashboard/deeptech' },
+      { key: 'total_deals', label: 'Active Deals', icon: Target, color: '#f59e0b', to: '/dashboard/investor/deals' },
+      { key: 'watchlists', label: 'Watchlists', icon: Star, color: '#2563eb', to: '/dashboard/watchlist' },
+      { key: 'watched_startups', label: 'Tracked Startups', icon: Eye, color: '#7c3aed', to: '/dashboard/watchlist' },
     ],
     quickActions: [
-      { label: 'Discover Startups', desc: 'Find high-potential startups', icon: Rocket, to: '/dashboard/startups', color: G },
-      { label: 'My Watchlists', desc: 'Curated startup lists', icon: Star, to: '/dashboard/watchlist', color: '#f59e0b' },
+      { label: 'Deal Pipeline', desc: 'Manage your investment pipeline', icon: Target, to: '/dashboard/investor/deals', color: G },
+      { label: 'Portfolio', desc: 'Track portfolio companies', icon: Briefcase, to: '/dashboard/investor/portfolio', color: '#16a34a' },
+      { label: 'Discover Startups', desc: 'Find high-potential startups', icon: Rocket, to: '/dashboard/startups', color: '#f59e0b' },
+      { label: 'My Watchlists', desc: 'Curated startup lists', icon: Star, to: '/dashboard/watchlist', color: '#2563eb' },
       { label: 'DeepTech Scores', desc: 'Technology readiness assessments', icon: Zap, to: '/dashboard/deeptech', color: '#7c3aed' },
       { label: 'Explore Directory', desc: 'Find co-investors and labs', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
     ],

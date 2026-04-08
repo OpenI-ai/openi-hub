@@ -270,6 +270,34 @@ export const corporateAPI = {
   deleteTask:        (coId, tid)     => del(`/corporate/collaborations/${coId}/tasks/${tid}`),
 };
 
+// ── Investor Features ─────────────────────────────────────────
+export const investorAPI = {
+  dashboard:            ()              => get('/investor/dashboard'),
+  recommendedStartups:  ()              => get('/investor/recommended-startups'),
+  // Deals
+  listDeals:            (params = {})   => get(`/investor/deals?${new URLSearchParams(params)}`),
+  createDeal:           (data)          => post('/investor/deals', data),
+  getDeal:              (id)            => get(`/investor/deals/${id}`),
+  updateDeal:           (id, data)      => put(`/investor/deals/${id}`, data),
+  // Evaluations
+  addEvaluation:        (dealId, data)  => post(`/investor/deals/${dealId}/evaluations`, data),
+  listEvaluations:      (dealId)        => get(`/investor/deals/${dealId}/evaluations`),
+  // Deal milestones
+  listDealMilestones:   (dealId)        => get(`/investor/deals/${dealId}/milestones`),
+  createDealMilestone:  (dealId, data)  => post(`/investor/deals/${dealId}/milestones`, data),
+  updateDealMilestone:  (dealId, mid, d) => put(`/investor/deals/${dealId}/milestones/${mid}`, d),
+  deleteDealMilestone:  (dealId, mid)   => del(`/investor/deals/${dealId}/milestones/${mid}`),
+  // Deal tasks
+  listDealTasks:        (dealId)        => get(`/investor/deals/${dealId}/tasks`),
+  createDealTask:       (dealId, data)  => post(`/investor/deals/${dealId}/tasks`, data),
+  updateDealTask:       (dealId, tid, d) => put(`/investor/deals/${dealId}/tasks/${tid}`, d),
+  deleteDealTask:       (dealId, tid)   => del(`/investor/deals/${dealId}/tasks/${tid}`),
+  // Portfolio
+  listPortfolio:        ()              => get('/investor/portfolio'),
+  addToPortfolio:       (data)          => post('/investor/portfolio', data),
+  updatePortfolio:      (id, data)      => put(`/investor/portfolio/${id}`, data),
+};
+
 // ── Challenge Applications (for startups / marketplace) ──────
 export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),
