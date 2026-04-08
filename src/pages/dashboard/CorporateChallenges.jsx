@@ -102,17 +102,30 @@ export default function CorporateChallenges() {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open' });
+  const [form, setForm] = useState({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' });
   const [saving, setSaving] = useState(false);
   const [taxonomy, setTaxonomy] = useState({ sectors: [], functions: [], technologies: [], usecases: [] });
   const [editMode, setEditMode] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
+  // Phase 9: Templates, Filters, Recommendations
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [templates, setTemplates] = useState({ builtin: [], saved: [] });
+  const [filters, setFilters] = useState({ status: 'all', sector: '', search: '', sort: 'newest' });
+  const [recommendedStartups, setRecommendedStartups] = useState([]);
 
   useEffect(() => { load(); loadTaxonomy(); }, []);
+  useEffect(() => { load(); }, [filters]);
 
   const load = async () => {
-    try { const d = await corporateAPI.listChallenges(); setChallenges(d); }
-    catch { toast.error('Failed to load challenges'); }
+    try {
+      const params = {};
+      if (filters.status !== 'all') params.status = filters.status;
+      if (filters.sector) params.sector = filters.sector;
+      if (filters.search) params.search = filters.search;
+      if (filters.sort) params.sort = filters.sort;
+      const d = await corporateAPI.listChallenges(params);
+      setChallenges(d);
+    } catch { toast.error('Failed to load challenges'); }
     finally { setLoading(false); }
   };
 
@@ -120,9 +133,20 @@ export default function CorporateChallenges() {
     try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); } catch {}
   };
 
+  const loadTemplates = async () => {
+    try { const d = await corporateAPI.listTemplates(); setTemplates(d); } catch {}
+  };
+
+  const loadRecommendations = async (id) => {
+    try { const d = await corporateAPI.challengeRecs(id); setRecommendedStartups(d); } catch {}
+  };
+
   const loadDetail = async (id) => {
-    try { const d = await corporateAPI.getChallenge(id); setDetail(d); setSelected(id); }
-    catch { toast.error('Failed to load challenge'); }
+    try {
+      const d = await corporateAPI.getChallenge(id); setDetail(d); setSelected(id);
+      if (d.challenge?.status === 'open') loadRecommendations(id);
+      else setRecommendedStartups([]);
+    } catch { toast.error('Failed to load challenge'); }
   };
 
   const create = async () => {
@@ -231,7 +255,47 @@ export default function CorporateChallenges() {
                 style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
                 Edit
               </button>
+              {/* Share buttons */}
+              <button onClick={() => {
+                const url = detail.visibility === 'private' && detail.share_token
+                  ? `${window.location.origin}/challenges/share/${detail.share_token}`
+                  : `${window.location.origin}/marketplace`;
+                navigator.clipboard.writeText(url); toast.success('Link copied!');
+              }} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: '#fff', color: '#555', border: '1px solid #ddd', cursor: 'pointer' }} title="Copy link">
+                Link
+              </button>
+              <button onClick={() => {
+                const url = detail.visibility === 'private' && detail.share_token
+                  ? `${window.location.origin}/challenges/share/${detail.share_token}`
+                  : `${window.location.origin}/marketplace`;
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+              }} style={{ fontSize: 11, padding: '5px 8px', borderRadius: 8, background: '#0a66c2', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                in
+              </button>
+              <button onClick={() => {
+                const url = detail.visibility === 'private' && detail.share_token
+                  ? `${window.location.origin}/challenges/share/${detail.share_token}`
+                  : `${window.location.origin}/marketplace`;
+                window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(detail.title)}`, '_blank');
+              }} style={{ fontSize: 11, padding: '5px 8px', borderRadius: 8, background: '#1a1a1a', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                X
+              </button>
             </div>
+          </div>
+          {/* Type + Visibility badges */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            {detail.challenge_type && (
+              <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                background: detail.challenge_type === 'partner' ? '#f0fdf4' : detail.challenge_type === 'source' ? '#eff6ff' : '#fefce8',
+                color: detail.challenge_type === 'partner' ? '#16a34a' : detail.challenge_type === 'source' ? '#2563eb' : '#f59e0b' }}>
+                {detail.challenge_type === 'partner' ? 'Partner' : detail.challenge_type === 'source' ? 'Source' : 'Invest'}
+              </span>
+            )}
+            <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+              background: detail.visibility === 'private' ? '#fef2f2' : '#f0fdf4',
+              color: detail.visibility === 'private' ? '#dc2626' : '#16a34a' }}>
+              {detail.visibility === 'private' ? 'Private' : 'Public'}
+            </span>
           </div>
           {detail.description && <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6, marginBottom: 12 }}>{detail.description}</p>}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 12, color: '#666', marginBottom: 12 }}>
@@ -347,7 +411,16 @@ export default function CorporateChallenges() {
                         {app.profile_pct != null && <span style={{ marginLeft: 8, color: '#16a34a' }}>Profile: {app.profile_pct}%</span>}
                       </div>
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: as.bg, color: as.color }}>{as.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: as.bg, color: as.color }}>{as.label}</span>
+                      {/* Star Rating */}
+                      <div style={{ display: 'flex', gap: 1 }}>
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} size={14} fill={s <= (app.rating || 0) ? '#f59e0b' : 'none'} style={{ color: s <= (app.rating || 0) ? '#f59e0b' : '#ddd', cursor: 'pointer' }}
+                            onClick={() => corporateAPI.updateApplication(detail.id, app.id, { rating: s }).then(() => { loadDetail(detail.id); toast.success('Rating saved'); })} />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   {app.pitch && <p style={{ fontSize: 12, color: '#555', marginBottom: 8, lineHeight: 1.5 }}>{app.pitch}</p>}
                   {app.proposal_url && (
@@ -417,17 +490,133 @@ export default function CorporateChallenges() {
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Innovation Challenges
         </h1>
-        <button onClick={() => setShowCreate(!showCreate)}
+        <button onClick={() => { loadTemplates(); setShowTemplatePicker(true); }}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
           <Plus size={15} /> New Challenge
         </button>
       </div>
+
+      {/* Template Picker Modal */}
+      {showTemplatePicker && (
+        <div style={{ ...card, padding: 20, marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Start from a Template</h3>
+            <button onClick={() => setShowTemplatePicker(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={16} /></button>
+          </div>
+          {/* Challenge Type Selector */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+            {[
+              { key: 'partner', label: 'Partner', desc: 'PoC, Pilot, Scale with startups', color: '#16a34a' },
+              { key: 'source', label: 'Source', desc: 'Find & procure startup solutions', color: '#2563eb' },
+              { key: 'invest', label: 'Invest', desc: 'Evaluate startups for investment', color: '#f59e0b' },
+            ].map(t => (
+              <button key={t.key} onClick={() => setForm(f => ({ ...f, challenge_type: t.key }))}
+                style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: `2px solid ${form.challenge_type === t.key ? t.color : '#eee'}`, background: form.challenge_type === t.key ? `${t.color}08` : '#fff', cursor: 'pointer', textAlign: 'left' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: form.challenge_type === t.key ? t.color : '#333' }}>{t.label}</div>
+                <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{t.desc}</div>
+              </button>
+            ))}
+          </div>
+          {/* Template Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10, marginBottom: 10 }}>
+            {/* Blank */}
+            <div onClick={() => { setForm(f => ({ ...f, title: '', description: '', problem_statement: '', sectors: [], technologies: [], usecases: [], budget_range: '', timeline: '' })); setShowTemplatePicker(false); setShowCreate(true); setEditMode(false); }}
+              style={{ ...card, padding: 14, cursor: 'pointer', textAlign: 'center', border: `2px dashed #ddd` }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = G} onMouseLeave={e => e.currentTarget.style.borderColor = '#ddd'}>
+              <Plus size={20} style={{ color: '#ccc', margin: '8px auto' }} />
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#666' }}>Blank Challenge</div>
+              <div style={{ fontSize: 10, color: '#aaa' }}>Start from scratch</div>
+            </div>
+            {/* Built-in */}
+            {(templates.builtin || []).map(t => (
+              <div key={t.id} onClick={() => { setForm(f => ({ ...f, ...t.template_data })); setShowTemplatePicker(false); setShowCreate(true); setEditMode(false); }}
+                style={{ ...card, padding: 14, cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = G} onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 4 }}>{t.name}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                  {(t.template_data?.sectors || []).slice(0, 2).map(s => <span key={s} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb' }}>{s}</span>)}
+                </div>
+              </div>
+            ))}
+            {/* Saved */}
+            {(templates.saved || []).map(t => {
+              const td = typeof t.template_data === 'string' ? JSON.parse(t.template_data) : (t.template_data || {});
+              return (
+                <div key={t.id} style={{ ...card, padding: 14, cursor: 'pointer', position: 'relative' }}
+                  onClick={() => { setForm(f => ({ ...f, ...td })); setShowTemplatePicker(false); setShowCreate(true); setEditMode(false); }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#8b5cf6'} onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 4 }}>{t.name}</div>
+                  <div style={{ fontSize: 9, color: '#8b5cf6', fontWeight: 500 }}>Custom Template</div>
+                  <button onClick={async (e) => { e.stopPropagation(); await corporateAPI.deleteTemplate(t.id); loadTemplates(); toast.success('Template deleted'); }}
+                    style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#ccc' }}><Trash2 size={12} /></button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Filter Bar */}
+      {!showCreate && !selected && (
+        <div style={{ ...card, padding: 12, marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+          <div style={{ flex: '1 1 180px' }}>
+            <input value={filters.search} onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+              placeholder="Search challenges..." style={{ width: '100%', padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          </div>
+          <select value={filters.status} onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
+            style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            <option value="all">All Status</option>
+            {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          </select>
+          <select value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
+            style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            <option value="">All Sectors</option>
+            {(taxonomy.sectors || []).map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select value={filters.sort} onChange={e => setFilters(f => ({ ...f, sort: e.target.value }))}
+            style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="deadline">By Deadline</option>
+            <option value="applications">Most Applications</option>
+          </select>
+          {(filters.search || filters.status !== 'all' || filters.sector) && (
+            <button onClick={() => setFilters({ status: 'all', sector: '', search: '', sort: 'newest' })}
+              style={{ fontSize: 11, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear</button>
+          )}
+        </div>
+      )}
 
       {/* Create form */}
       {showCreate && (
         <div style={{ ...card, padding: 20, marginBottom: 20 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{editMode ? 'Edit Challenge' : 'Create Innovation Challenge'}</h3>
           <div style={{ display: 'grid', gap: 12 }}>
+            {/* Challenge Type + Visibility */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <div style={{ flex: 2 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Challenge Type</label>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[{ key: 'partner', label: 'Partner', color: '#16a34a' }, { key: 'source', label: 'Source', color: '#2563eb' }, { key: 'invest', label: 'Invest', color: '#f59e0b' }].map(t => (
+                    <button key={t.key} type="button" onClick={() => setForm(f => ({ ...f, challenge_type: t.key }))}
+                      style={{ flex: 1, padding: '6px 10px', fontSize: 11, fontWeight: 600, borderRadius: 8, border: `1.5px solid ${form.challenge_type === t.key ? t.color : '#eee'}`, background: form.challenge_type === t.key ? `${t.color}10` : '#fff', color: form.challenge_type === t.key ? t.color : '#888', cursor: 'pointer' }}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Visibility</label>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[{ key: 'public', label: 'Public' }, { key: 'private', label: 'Private' }].map(v => (
+                    <button key={v.key} type="button" onClick={() => setForm(f => ({ ...f, visibility: v.key }))}
+                      style={{ flex: 1, padding: '6px 10px', fontSize: 11, fontWeight: 600, borderRadius: 8, border: `1.5px solid ${form.visibility === v.key ? G : '#eee'}`, background: form.visibility === v.key ? `${G}10` : '#fff', color: form.visibility === v.key ? G : '#888', cursor: 'pointer' }}>
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
             {/* Basic info */}
             <input placeholder="Challenge title *" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
               style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
@@ -549,6 +738,15 @@ export default function CorporateChallenges() {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button onClick={() => { setShowCreate(false); setEditMode(false); }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#555', border: 'none', cursor: 'pointer' }}>Cancel</button>
+              {!editMode && (
+                <button onClick={async () => {
+                  const name = prompt('Template name:');
+                  if (!name) return;
+                  try { await corporateAPI.createTemplate({ name, template_data: form }); toast.success('Template saved!'); } catch { toast.error('Failed to save template'); }
+                }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#8b5cf6', border: '1px solid #8b5cf620', cursor: 'pointer' }}>
+                  Save as Template
+                </button>
+              )}
               <button onClick={editMode ? updateChallenge : create} disabled={saving} style={{ padding: '8px 20px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
                 {saving ? <Loader2 size={14} className="animate-spin" /> : (editMode ? 'Update Challenge' : 'Create Challenge')}
               </button>
@@ -575,7 +773,17 @@ export default function CorporateChallenges() {
                 onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>{ch.title}</h3>
-                  <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color }}>{st.label}</span>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    {ch.challenge_type && (
+                      <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
+                        background: ch.challenge_type === 'partner' ? '#f0fdf4' : ch.challenge_type === 'source' ? '#eff6ff' : '#fefce8',
+                        color: ch.challenge_type === 'partner' ? '#16a34a' : ch.challenge_type === 'source' ? '#2563eb' : '#f59e0b' }}>
+                        {ch.challenge_type === 'partner' ? 'Partner' : ch.challenge_type === 'source' ? 'Source' : 'Invest'}
+                      </span>
+                    )}
+                    {ch.visibility === 'private' && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#fef2f2', color: '#dc2626' }}>Private</span>}
+                    <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color }}>{st.label}</span>
+                  </div>
                 </div>
                 {ch.problem_statement && (
                   <p style={{ fontSize: 12, color: '#666', lineHeight: 1.4, margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
