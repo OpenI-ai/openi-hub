@@ -617,7 +617,7 @@ export default function Landing() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(features || [
             { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post open innovation challenges with RFI forms, data rooms, and deadline tracking. Receive structured applications and evaluate with built-in scoring.' },
-            { icon: 'Search', title: 'Directory Search', description: 'Discover the right partners across 10 persona types. Filter by sector, city, skills, and technology stack with real-time results.' },
+            { icon: 'Search', title: 'Directory Search', description: 'Discover the right partners across 11 persona types. Filter by sector, city, skills, and technology stack with real-time results.' },
             { icon: 'Award', title: '8-Vector Evaluation', description: 'Score startups across 103 criteria in 8 vectors — technology readiness, market potential, team strength, and more. The gold standard for deep-tech.' },
             { icon: 'Calendar', title: 'Meetings & RSVPs', description: 'Schedule 1:1, group, demo, and review meetings with automatic confirmation, RSVP tracking, and real-time status updates.' },
             { icon: 'MessageSquare', title: 'Real-time Messaging', description: 'Cross-persona conversations with direct and group chat. Stay connected with your innovation partners in real time.' },
