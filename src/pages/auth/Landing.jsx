@@ -546,7 +546,9 @@ export default function Landing() {
               <PersonaListItem icon={Building2} label="Corporates — Find startups for PoCs, pilots, acquisitions" color={BLUE} />
               <PersonaListItem icon={Landmark} label="Government — iDEX, defence, e-governance tech providers" color={BLUE} />
               <PersonaListItem icon={TrendingUp} label="Investors — Pre-seed to Series C deeptech opportunities" color={BLUE} />
-              <PersonaListItem icon={Users} label="Mentors \u00B7 Labs \u00B7 Incubators \u00B7 Accelerators" color={BLUE} />
+              <PersonaListItem icon={Users} label="Mentors — Industry advisors and domain experts" color={BLUE} />
+              <PersonaListItem icon={FlaskConical} label="Labs — Research labs and testing facilities" color={BLUE} />
+              <PersonaListItem icon={Home} label="Incubators & Accelerators — Growth programs" color={BLUE} />
               <PersonaListItem icon={Briefcase} label="Service Providers — Cloud credits, legal, compliance, HR" color={BLUE} />
             </ul>
             <Link
@@ -802,7 +804,7 @@ export default function Landing() {
           {/* Divider */}
           <div className="border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderColor: '#333' }}>
             <p className="text-xs">
-              &copy; 2026 OpenI Hub &middot; Built for India&apos;s deep-tech ecosystem
+              &copy; 2026 OpenI Hub &middot; Built for Startup and Innovation Ecosystem
             </p>
             <p className="text-xs">
               <span style={{ color: GOLD }}>openi.tech</span>
