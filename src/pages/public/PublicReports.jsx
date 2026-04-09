@@ -1,12 +1,13 @@
 /**
  * PublicReports — Public page showing curated startup ecosystem reports.
- * No authentication required. Downloads redirect to /register.
+ * No authentication required. Reports link to openi.ai insights pages.
  */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FileText, ArrowRight, Calendar, User, BookOpen, Download,
-  Clock, Zap, Shield, FlaskConical, Heart, Lock, Cpu, Layers,
+  FileText, ArrowRight, Calendar, User, BookOpen, ExternalLink,
+  Zap, Shield, FlaskConical, Heart, Cpu, Layers,
+  TrendingUp, ShoppingBag, Shirt, Globe, Building2, Brain,
 } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import { publicAPI } from '../../services/api';
@@ -22,26 +23,40 @@ const LIGHT_GRAY = '#f5f5f5';
 
 // Sector icon mapping
 const SECTOR_ICONS = {
-  DeepTech: Zap,
+  'Agentic AI': Brain,
+  'DeepTech': Zap,
+  'FinTech': TrendingUp,
+  'CPG': ShoppingBag,
+  'FashionTech': Shirt,
+  'ImpactTech': Heart,
+  'ConstructionTech': Building2,
+  'Cyber Security': Shield,
+  'AI': Cpu,
   'AI/ML': Cpu,
-  Defence: Shield,
-  CleanTech: FlaskConical,
-  HealthTech: Heart,
-  Cybersecurity: Lock,
-  Quantum: Layers,
-  Semiconductor: Cpu,
+  'Defence': Shield,
+  'CleanTech': FlaskConical,
+  'HealthTech': Heart,
+  'Quantum': Layers,
+  'Semiconductor': Cpu,
 };
 
 // Sector color mapping
 const SECTOR_COLORS = {
-  DeepTech: '#D5AA5B',
-  'AI/ML': '#3b82f6',
-  Defence: '#16a34a',
-  CleanTech: '#10b981',
-  HealthTech: '#ef4444',
-  Cybersecurity: '#8b5cf6',
-  Quantum: '#06b6d4',
-  Semiconductor: '#f97316',
+  'Agentic AI': '#8b5cf6',
+  'DeepTech': '#D5AA5B',
+  'FinTech': '#3b82f6',
+  'CPG': '#f97316',
+  'FashionTech': '#ec4899',
+  'ImpactTech': '#10b981',
+  'ConstructionTech': '#78716c',
+  'Cyber Security': '#ef4444',
+  'AI': '#6366f1',
+  'AI/ML': '#6366f1',
+  'Defence': '#16a34a',
+  'CleanTech': '#10b981',
+  'HealthTech': '#ef4444',
+  'Quantum': '#06b6d4',
+  'Semiconductor': '#f97316',
 };
 
 export default function PublicReports() {
@@ -49,7 +64,6 @@ export default function PublicReports() {
   const [sectors, setSectors] = useState([]);
   const [selectedSector, setSelectedSector] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   useEffect(() => { fetchReports(); }, [selectedSector]);
 
@@ -79,7 +93,7 @@ export default function PublicReports() {
             Curated <span style={{ color: GOLD }}>Insights</span> for Innovators
           </h1>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            In-depth reports on India&apos;s startup ecosystem across deep-tech sectors. Data-driven analysis to power your innovation strategy.
+            In-depth reports on the global startup ecosystem across deep-tech sectors. Data-driven analysis to power your innovation strategy.
           </p>
         </div>
       </section>
@@ -137,18 +151,7 @@ export default function PublicReports() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {reports.map(report => (
-                <ReportCard
-                  key={report.id}
-                  report={report}
-                  onDownload={async () => {
-                    try {
-                      const blob = await publicAPI.downloadReportPdf(report.id);
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a'); a.href = url; a.download = `OpenI-Report-${report.id}.pdf`;
-                      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-                    } catch (err) { setShowRegisterModal(true); }
-                  }}
-                />
+                <ReportCard key={report.id} report={report} />
               ))}
             </div>
           )}
@@ -187,7 +190,7 @@ export default function PublicReports() {
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">Want Full Access?</h2>
           <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.9)' }}>
-            Register on OpenI to download reports, access detailed data, and connect with startups and corporates featured in our research.
+            Register on OpenI to access detailed data, connect with startups and corporates featured in our research, and collaborate on innovation.
           </p>
           <Link to="/register"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all shadow-lg"
@@ -198,44 +201,15 @@ export default function PublicReports() {
           </Link>
         </div>
       </section>
-
-      {/* Register Modal */}
-      {showRegisterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setShowRegisterModal(false)}>
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: GOLD_LIGHT }}>
-                <Lock size={28} style={{ color: GOLD }} />
-              </div>
-              <h3 className="text-xl font-bold mb-2" style={{ color: DARK }}>Register to Download</h3>
-              <p className="text-sm mb-6" style={{ color: GRAY }}>
-                Create a free OpenI account to download reports and access the full ecosystem.
-              </p>
-              <Link to="/register"
-                    className="inline-flex items-center gap-2 px-7 py-3 rounded-lg text-base font-bold transition-all w-full justify-center"
-                    style={{ background: GOLD, color: '#fff' }}
-                    onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
-                    onMouseLeave={e => e.currentTarget.style.background = GOLD}>
-                Register Now <ArrowRight size={18} />
-              </Link>
-              <button onClick={() => setShowRegisterModal(false)}
-                      className="mt-4 text-sm font-semibold block mx-auto"
-                      style={{ color: GRAY, background: 'none', border: 'none', cursor: 'pointer' }}>
-                Maybe later
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </PublicLayout>
   );
 }
 
 // ── Report Card ───────────────────────────────────────────
-function ReportCard({ report, onDownload }) {
+function ReportCard({ report }) {
   const SectorIcon = SECTOR_ICONS[report.sector] || FileText;
   const sectorColor = SECTOR_COLORS[report.sector] || GOLD;
-  const isAvailable = report.status === 'available';
+  const reportUrl = report.cover_url || '#';
 
   return (
     <div
@@ -256,14 +230,6 @@ function ReportCard({ report, onDownload }) {
       <div className="h-36 flex items-center justify-center relative"
            style={{ background: `linear-gradient(135deg, ${sectorColor}15 0%, ${sectorColor}30 100%)` }}>
         <SectorIcon size={48} style={{ color: sectorColor, opacity: 0.5 }} />
-        {/* Status badge */}
-        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold"
-             style={{
-               background: isAvailable ? 'rgba(16,163,127,0.1)' : 'rgba(107,114,128,0.1)',
-               color: isAvailable ? '#10a37f' : GRAY,
-             }}>
-          {isAvailable ? 'Available' : 'Coming Soon'}
-        </div>
         {/* Sector badge */}
         <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold"
              style={{ background: `${sectorColor}20`, color: sectorColor }}>
@@ -282,28 +248,22 @@ function ReportCard({ report, onDownload }) {
 
         {/* Meta */}
         <div className="flex items-center gap-4 mb-4 text-xs" style={{ color: GRAY }}>
-          <span className="flex items-center gap-1"><Calendar size={11} /> {report.published_at ? new Date(report.published_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'TBD'}</span>
-          <span className="flex items-center gap-1"><User size={11} /> {report.author}</span>
+          {report.author && <span className="flex items-center gap-1"><User size={11} /> {report.author}</span>}
           {report.pages && <span className="flex items-center gap-1"><FileText size={11} /> {report.pages} pages</span>}
         </div>
 
-        {/* Action button */}
-        {isAvailable ? (
-          <button
-            onClick={onDownload}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all"
-            style={{ background: sectorColor, color: '#fff' }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-          >
-            <Download size={14} /> Download Report
-          </button>
-        ) : (
-          <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold"
-               style={{ background: LIGHT_GRAY, color: GRAY }}>
-            <Clock size={14} /> Coming Soon
-          </div>
-        )}
+        {/* Action button — link to openi.ai report page */}
+        <a
+          href={reportUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all"
+          style={{ background: sectorColor, color: '#fff', textDecoration: 'none' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          <ExternalLink size={14} /> Read Report
+        </a>
       </div>
     </div>
   );
