@@ -418,10 +418,10 @@ export default function Landing() {
       <Section bg="#fff">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Trusted by India&apos;s Innovation Ecosystem
+            Trusted by the Global Innovation Ecosystem
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            A growing network of startups, corporates, and institutions building the future together.
+            A growing network of startups, corporates, and institutions building the global Innovation ecosystem together.
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
