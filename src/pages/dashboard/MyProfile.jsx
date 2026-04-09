@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
-import { profileAPI, startupProfileAPI } from '../../services/api';
-import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { profileAPI, startupProfileAPI, publicAPI } from '../../services/api';
+import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import toast from 'react-hot-toast';
 
@@ -59,6 +59,143 @@ function MultiSelect({ options = [], value = [], onChange }) {
   );
 }
 
+// ── Taxonomy data cache (loaded once per session) ──────────────
+let _taxonomyCache = null;
+let _taxonomyPromise = null;
+function useTaxonomy() {
+  const [data, setData] = useState(_taxonomyCache);
+  useEffect(() => {
+    if (_taxonomyCache) { setData(_taxonomyCache); return; }
+    if (!_taxonomyPromise) {
+      _taxonomyPromise = publicAPI.getTaxonomy().then(d => { _taxonomyCache = d; return d; }).catch(() => null);
+    }
+    _taxonomyPromise.then(d => { if (d) setData(d); });
+  }, []);
+  return data;
+}
+
+// ── TaxonomySelect — searchable dropdown for taxonomy items ────
+function TaxonomySelect({ taxonomy, value, onChange, label, required }) {
+  const tax = useTaxonomy();
+  const items = tax?.[taxonomy] || [];
+  const parents = items.filter(i => !i.parent_id);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Build flat display list: parent → children grouped
+  const displayList = [];
+  parents.forEach(p => {
+    displayList.push({ name: p.name, level: 0 });
+    items.filter(c => c.parent_id === p.id).forEach(c => {
+      displayList.push({ name: c.name, level: 1 });
+    });
+  });
+
+  const filtered = displayList.filter(o => o.name.toLowerCase().includes(query.toLowerCase()));
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+      </label>
+      <div onClick={() => setOpen(true)}
+        style={{ ...inputStyle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: value ? '#1a1a1a' : '#9ca3af', fontSize: 13 }}>{value || 'Select...'}</span>
+        <ChevronDown size={13} style={{ color: '#aaa' }} />
+      </div>
+      {open && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 260, overflowY: 'auto' }}>
+          <div style={{ padding: '6px 10px', borderBottom: '1px solid #f3f4f6' }}>
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search..."
+              autoFocus style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, padding: '4px 0', background: 'transparent' }} />
+          </div>
+          {filtered.length === 0 ? (
+            <div style={{ padding: '12px 14px', fontSize: 12, color: '#999', textAlign: 'center' }}>No matches</div>
+          ) : filtered.map((o, idx) => {
+            const isSelected = value === o.name;
+            return (
+              <div key={`${o.name}-${idx}`}
+                onClick={() => { onChange(o.name); setOpen(false); setQuery(''); }}
+                style={{ padding: '8px 14px', paddingLeft: o.level > 0 ? 28 : 14, fontSize: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isSelected ? '#D5AA5B10' : 'transparent', color: isSelected ? '#D5AA5B' : (o.level === 0 ? '#1a1a1a' : '#555'), fontWeight: o.level === 0 ? 600 : 400 }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#f9fafb'; }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? '#D5AA5B10' : 'transparent'; }}>
+                <span>{o.level > 0 ? '↳ ' : ''}{o.name}</span>
+                {isSelected && <CheckCircle size={12} style={{ color: '#D5AA5B' }} />}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── TaxonomyTags — tag input with taxonomy autocomplete ────────
+function TaxonomyTags({ taxonomy, value = [], onChange, placeholder, label }) {
+  const tax = useTaxonomy();
+  const items = tax?.[taxonomy] || [];
+  const [input, setInput] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setShowSuggestions(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const addTag = (tag) => {
+    const trimmed = tag.trim();
+    if (trimmed && !value.includes(trimmed)) { onChange([...value, trimmed]); }
+    setInput(''); setShowSuggestions(false);
+  };
+
+  const suggestions = input.length >= 1
+    ? items.filter(i => i.name.toLowerCase().includes(input.toLowerCase()) && !value.includes(i.name)).slice(0, 12)
+    : [];
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
+      <div className="flex flex-wrap gap-1.5 mb-1.5">
+        {(value || []).map((t, i) => (
+          <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+            style={{ background: '#D5AA5B15', color: '#D5AA5B', border: '1px solid #D5AA5B30' }}>
+            {t}
+            <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))}><X size={12} /></button>
+          </span>
+        ))}
+      </div>
+      <input type="text" value={input}
+        onChange={e => { setInput(e.target.value); setShowSuggestions(true); }}
+        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(input); } }}
+        onFocus={() => { if (input.length >= 1) setShowSuggestions(true); }}
+        placeholder={placeholder} style={inputStyle}
+        onBlur={() => { setTimeout(() => setShowSuggestions(false), 200); if (input.trim()) addTag(input); }} />
+      {showSuggestions && suggestions.length > 0 && (
+        <div style={{ position: 'absolute', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 200, overflowY: 'auto' }}>
+          {suggestions.map(s => (
+            <div key={s.id}
+              onClick={() => addTag(s.name)}
+              style={{ padding: '8px 14px', paddingLeft: s.level > 0 ? 24 : 14, fontSize: 12, cursor: 'pointer', color: s.level === 0 ? '#1a1a1a' : '#555', fontWeight: s.level === 0 ? 600 : 400 }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              {s.level > 0 ? '↳ ' : ''}{s.name}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FormField({ field, value, onChange }) {
   const { name, label, type, required, options, placeholder, min, max } = field;
   if (type === 'select') {
@@ -109,6 +246,12 @@ function FormField({ field, value, onChange }) {
         <MultiSelect options={options || []} value={value || []} onChange={onChange} />
       </div>
     );
+  }
+  if (type === 'taxonomy_select') {
+    return <TaxonomySelect taxonomy={field.taxonomy} value={value} onChange={onChange} label={label} required={required} />;
+  }
+  if (type === 'taxonomy_tags') {
+    return <TaxonomyTags taxonomy={field.taxonomy} value={value || []} onChange={onChange} placeholder={placeholder} label={label} />;
   }
   // File upload fields: logo, pitch deck, portfolio, resume
   const FILE_UPLOAD_FIELDS = {
@@ -255,7 +398,7 @@ export default function MyProfile() {
       <div className="rounded-xl p-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {fields.map(field => (
-            <div key={field.name} className={field.type === 'textarea' || field.type === 'tags' || field.type === 'multiselect' ? 'md:col-span-2' : ''}>
+            <div key={field.name} className={field.type === 'textarea' || field.type === 'tags' || field.type === 'multiselect' || field.type === 'taxonomy_tags' ? 'md:col-span-2' : ''}>
               <FormField field={field} value={profileData[field.name]}
                 onChange={val => updateField(field.name, val)} />
             </div>

@@ -152,7 +152,7 @@ export const PROFILE_FIELDS = {
     // ── Brief Information ─────────────────────────────
     { name: 'company_name',   label: 'Company Name',        type: 'text',     required: true },
     { name: 'tagline',        label: 'Tagline',              type: 'text' },
-    { name: 'sector',         label: 'Sector',               type: 'select', options: ['AI/ML','Cybersecurity','Robotics','Biotech','CleanTech','HealthTech','EdTech','FinTech','SpaceTech','Defence','IoT','Blockchain','Other'] },
+    { name: 'sector',         label: 'Sector',               type: 'taxonomy_select', taxonomy: 'sectors' },
     { name: 'stage',          label: 'Stage',                type: 'select', options: ['Ideation','Pre-seed','Seed','Series A','Series B','Growth','Listed'] },
     { name: 'startup_type',   label: 'Startup Type',         type: 'select', options: ['Product','Service','Platform','Marketplace'] },
     { name: 'business_model', label: 'Business Model',       type: 'select', options: ['B2B','B2C','B2B2C','D2C','B2G','SaaS'] },
@@ -171,8 +171,8 @@ export const PROFILE_FIELDS = {
     { name: 'vision',         label: 'Vision',               type: 'textarea' },
     { name: 'video_url',      label: 'Video URL (Demo/Pitch)', type: 'url', placeholder: 'YouTube or Vimeo link' },
     // ── Technology & Innovation ───────────────────────
-    { name: 'technologies',   label: 'Technologies',         type: 'tags', placeholder: 'e.g., React, Python, TensorFlow' },
-    { name: 'focus_areas',    label: 'Focus Areas',          type: 'tags', placeholder: 'e.g., Defence, Healthcare' },
+    { name: 'technologies',   label: 'Technologies',         type: 'taxonomy_tags', taxonomy: 'technologies', placeholder: 'Search technologies...' },
+    { name: 'focus_areas',    label: 'Focus Areas / Use Cases', type: 'taxonomy_tags', taxonomy: 'usecases', placeholder: 'Search use cases...' },
     { name: 'tech_readiness', label: 'Tech Readiness (TRL 1-9)', type: 'number', min: 1, max: 9 },
     { name: 'is_deeptech',    label: 'Is DeepTech?',         type: 'checkbox' },
     // ── Business Traction ─────────────────────────────

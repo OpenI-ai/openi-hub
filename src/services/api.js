@@ -337,6 +337,7 @@ export const publicAPI = {
   getLandingContent: ()            => get('/public/landing-content'),
   downloadReportPdf: (id)          => blobRequest('GET', `/public/reports/${id}/pdf`),
   getSharedChallenge: (token)      => get(`/public/challenges/share/${token}`),
+  getTaxonomy:        ()            => get('/public/taxonomy'),
 };
 
 // ── Crawling ────────────────────────────────────────────────
