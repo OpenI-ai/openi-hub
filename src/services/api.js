@@ -338,6 +338,10 @@ export const publicAPI = {
   downloadReportPdf: (id)          => blobRequest('GET', `/public/reports/${id}/pdf`),
   getSharedChallenge: (token)      => get(`/public/challenges/share/${token}`),
   getTaxonomy:        ()            => get('/public/taxonomy'),
+  // Search (Phase 14)
+  globalSearch:      (q, limit = 5) => get(`/public/search?q=${encodeURIComponent(q)}&limit=${limit}`),
+  searchSuggest:     (q)            => get(`/public/search/suggest?q=${encodeURIComponent(q)}`),
+  semanticSearch:    (q, type = 'startups', limit = 10) => get(`/public/search/semantic?q=${encodeURIComponent(q)}&type=${type}&limit=${limit}`),
 };
 
 // ── Crawling ────────────────────────────────────────────────

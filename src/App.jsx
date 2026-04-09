@@ -10,6 +10,7 @@ import Register          from './pages/auth/Register';
 import PublicMarketplace from './pages/public/PublicMarketplace';
 import PublicReports     from './pages/public/PublicReports';
 import SharedChallenge   from './pages/public/SharedChallenge';
+import GlobalSearch      from './pages/public/GlobalSearch';
 
 // Pages — Dashboard
 import Login             from './pages/dashboard/Login';
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/reports"            element={<PublicReports />} />
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
+          <Route path="/search"                  element={<GlobalSearch />} />
           <Route path="/dashboard/login" element={<Login />} />
 
           {/* Protected dashboard shell */}

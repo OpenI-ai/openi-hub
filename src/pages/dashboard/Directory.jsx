@@ -4,7 +4,7 @@ import { PERSONAS, PERSONA_CATEGORIES } from '../../config/personas';
 import {
   Search, Filter, ChevronLeft, Loader2, MapPin, Star, CheckCircle,
   X, Users, Building2, Rocket, GraduationCap, BookOpen, Landmark,
-  TrendingUp, FlaskConical, Home, Zap, User,
+  TrendingUp, FlaskConical, Home, Zap, User, ArrowUpDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -18,27 +18,41 @@ export default function Directory() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('');
   const [filters, setFilters] = useState({ persona_type: '', persona_category: '', city: '', state: '', sector: '', skill: '' });
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [filterOptions, setFilterOptions] = useState({ cities: [], states: [], sectors: [], skills: [] });
+  const [facets, setFacets] = useState({});
 
   // Detail view state
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
+  // Sort options
+  const SORT_OPTIONS = [
+    { value: '', label: 'Default' },
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'name_asc', label: 'Name A-Z' },
+    { value: 'name_desc', label: 'Name Z-A' },
+    { value: 'newest', label: 'Newest' },
+    { value: 'profile_score', label: 'Profile Score' },
+  ];
+
   useEffect(() => { loadProfiles(); loadFilters(); }, []);
 
-  const loadProfiles = async (p = 1, s = search, f = filters) => {
+  const loadProfiles = async (p = 1, s = search, f = filters, srt = sort) => {
     setLoading(true);
     try {
       const params = { page: p, limit: 20 };
       if (s.trim()) params.search = s.trim();
+      if (srt) params.sort = srt;
       Object.entries(f).forEach(([k, v]) => { if (v) params[k] = v; });
       const data = await directoryAPI.search(params);
       setProfiles(data.profiles || []);
       setTotal(data.total || 0);
+      setFacets(data.facets?.persona_type || {});
       setPage(p);
     } catch { toast.error('Failed to load directory'); }
     finally { setLoading(false); }
@@ -48,11 +62,18 @@ export default function Directory() {
     try { const d = await directoryAPI.filters(); setFilterOptions(d); } catch {}
   };
 
-  const handleSearch = () => { loadProfiles(1, search, filters); };
+  const handleSearch = () => { loadProfiles(1, search, filters, sort); };
+  const handleSort = (val) => { setSort(val); loadProfiles(1, search, filters, val); };
+  const handleFacetClick = (type) => {
+    const f = { ...filters, persona_type: filters.persona_type === type ? '' : type };
+    setFilters(f);
+    loadProfiles(1, search, f, sort);
+  };
   const clearFilters = () => {
     const empty = { persona_type: '', persona_category: '', city: '', state: '', sector: '', skill: '' };
     setFilters(empty);
-    loadProfiles(1, search, empty);
+    setSort('');
+    loadProfiles(1, search, empty, '');
   };
 
   const openDetail = async (userId) => {
@@ -189,7 +210,36 @@ export default function Directory() {
           style={{ padding: '10px 14px', fontSize: 13, borderRadius: 10, background: showFilters ? '#f0f0f0' : '#fff', border: '1px solid #ddd', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Filter size={14} /> Filters
         </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <ArrowUpDown size={14} style={{ color: '#888' }} />
+          <select value={sort} onChange={e => handleSort(e.target.value)}
+            style={{ padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', background: '#fff', cursor: 'pointer' }}>
+            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
       </div>
+
+      {/* Facet chips */}
+      {Object.keys(facets).length > 0 && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          {Object.entries(facets).map(([type, count]) => {
+            const active = filters.persona_type === type;
+            return (
+              <button key={type} onClick={() => handleFacetClick(type)}
+                style={{
+                  padding: '4px 12px', borderRadius: 16, fontSize: 11, cursor: 'pointer',
+                  border: active ? `2px solid ${G}` : '1px solid #ddd',
+                  background: active ? '#fffbf0' : '#fff',
+                  color: active ? '#1a1a2e' : '#666', fontWeight: active ? 600 : 400,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}>
+                {(PERSONAS[type]?.label || type).replace('_', ' ')}
+                <span style={{ background: active ? G : '#eee', color: active ? '#fff' : '#888', borderRadius: 8, padding: '0 6px', fontSize: 10 }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Filter panel */}
       {showFilters && (

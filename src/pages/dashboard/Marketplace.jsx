@@ -4,12 +4,27 @@ import FileUpload from '../../components/FileUpload';
 import {
   Search, Target, ChevronLeft, Clock, Calendar, DollarSign, MapPin,
   Building2, Users, Loader2, AlertCircle, CheckCircle, FileText,
-  ChevronDown, ChevronUp, Upload, X, HelpCircle, Send, Filter,
+  ChevronDown, ChevronUp, Upload, X, HelpCircle, Send, Filter, ArrowUpDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const G = '#D5AA5B';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
+
+const SORT_OPTIONS = [
+  { value: '', label: 'Default' },
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'deadline', label: 'Deadline Soon' },
+  { value: 'applications', label: 'Most Applications' },
+];
+
+const CHALLENGE_TYPES = [
+  { value: '', label: 'All Types' },
+  { value: 'partner', label: 'Partner' },
+  { value: 'source', label: 'Source' },
+  { value: 'invest', label: 'Invest' },
+];
 
 const STATUS_BADGE = {
   applied:     { bg: '#eff6ff', color: '#2563eb', label: 'Applied' },
@@ -28,6 +43,9 @@ export default function Marketplace() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [taxonomy, setTaxonomy] = useState({ sectors: [], technologies: [], usecases: [] });
+  const [sort, setSort] = useState('');
+  const [challengeType, setChallengeType] = useState('');
+  const [facets, setFacets] = useState({ sector: {}, challenge_type: {} });
 
   // Detail/apply state
   const [selectedId, setSelectedId] = useState(null);
@@ -46,16 +64,19 @@ export default function Marketplace() {
 
   useEffect(() => { loadChallenges(); loadTaxonomy(); }, []);
 
-  const loadChallenges = async (p = 1, s = search, f = filters) => {
+  const loadChallenges = async (p = 1, s = search, f = filters, srt = sort, ct = challengeType) => {
     setLoading(true);
     try {
       const params = { page: p, limit: 20 };
       if (s.trim()) params.search = s.trim();
+      if (srt) params.sort = srt;
+      if (ct) params.challenge_type = ct;
       Object.entries(f).forEach(([k, v]) => { if (v) params[k] = v; });
       const data = await challengeAPI.listOpen(params);
       setChallenges(data.challenges || []);
       setTotal(data.total || 0);
       setPage(p);
+      if (data.facets) setFacets(data.facets);
     } catch { toast.error('Failed to load challenges'); }
     finally { setLoading(false); }
   };
@@ -85,11 +106,15 @@ export default function Marketplace() {
     finally { setAppsLoading(false); }
   };
 
-  const handleSearch = () => { loadChallenges(1, search, filters); };
+  const handleSearch = () => { loadChallenges(1, search, filters, sort, challengeType); };
+  const handleSort = (val) => { setSort(val); loadChallenges(1, search, filters, val, challengeType); };
+  const handleChallengeType = (val) => { setChallengeType(val); loadChallenges(1, search, filters, sort, val); };
   const clearFilters = () => {
     const empty = { sector: '', technology: '', usecase: '', location: '', company: '' };
     setFilters(empty);
-    loadChallenges(1, search, empty);
+    setSort('');
+    setChallengeType('');
+    loadChallenges(1, search, empty, '', '');
   };
 
   const submitApplication = async () => {
@@ -388,6 +413,19 @@ export default function Marketplace() {
             <button onClick={() => setShowFilters(!showFilters)} style={{ padding: '10px 14px', fontSize: 13, borderRadius: 10, background: showFilters ? '#fdf6e9' : '#f3f4f6', color: showFilters ? G : '#666', border: `1px solid ${showFilters ? G : '#e5e7eb'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Filter size={14} /> Filters
             </button>
+            {/* Sort dropdown */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <ArrowUpDown size={14} style={{ color: '#888' }} />
+              <select value={sort} onChange={e => handleSort(e.target.value)}
+                style={{ padding: '10px 10px', fontSize: 12, borderRadius: 10, border: '1px solid #e5e7eb', background: sort ? '#fdf6e9' : '#f9fafb', color: sort ? '#92700a' : '#555', outline: 'none', cursor: 'pointer', fontWeight: sort ? 600 : 400 }}>
+                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            {/* Challenge type filter */}
+            <select value={challengeType} onChange={e => handleChallengeType(e.target.value)}
+              style={{ padding: '10px 10px', fontSize: 12, borderRadius: 10, border: `1px solid ${challengeType ? G : '#e5e7eb'}`, background: challengeType ? '#fdf6e9' : '#f9fafb', color: challengeType ? '#92700a' : '#555', outline: 'none', cursor: 'pointer', fontWeight: challengeType ? 600 : 400 }}>
+              {CHALLENGE_TYPES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
           </div>
 
           {/* Filters */}
@@ -426,9 +464,31 @@ export default function Marketplace() {
                   style={{ padding: '8px 12px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => loadChallenges(1, search, filters)} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Apply Filters</button>
+                <button onClick={() => loadChallenges(1, search, filters, sort, challengeType)} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Apply Filters</button>
                 <button onClick={clearFilters} style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>Clear</button>
               </div>
+            </div>
+          )}
+
+          {/* Facet chips */}
+          {Object.keys(facets.sector || {}).length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {Object.entries(facets.sector).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => (
+                <button key={name} onClick={() => { setFilters(p => ({ ...p, sector: p.sector === name ? '' : name })); loadChallenges(1, search, { ...filters, sector: filters.sector === name ? '' : name }, sort, challengeType); }}
+                  style={{ padding: '4px 12px', fontSize: 11, borderRadius: 20, border: `1px solid ${filters.sector === name ? G : '#e5e7eb'}`, background: filters.sector === name ? '#fdf6e9' : '#fff', color: filters.sector === name ? '#92700a' : '#666', cursor: 'pointer', fontWeight: filters.sector === name ? 600 : 400 }}>
+                  {name} <span style={{ color: '#bbb', marginLeft: 3 }}>{count}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {Object.keys(facets.challenge_type || {}).length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {Object.entries(facets.challenge_type).map(([type, count]) => (
+                <button key={type} onClick={() => handleChallengeType(challengeType === type ? '' : type)}
+                  style={{ padding: '4px 12px', fontSize: 11, borderRadius: 20, border: `1px solid ${challengeType === type ? G : '#e5e7eb'}`, background: challengeType === type ? '#fdf6e9' : '#fff', color: challengeType === type ? '#92700a' : '#666', cursor: 'pointer', fontWeight: challengeType === type ? 600 : 400, textTransform: 'capitalize' }}>
+                  {type} <span style={{ color: '#bbb', marginLeft: 3 }}>{count}</span>
+                </button>
+              ))}
             </div>
           )}
 
@@ -491,10 +551,10 @@ export default function Marketplace() {
           {/* Pagination */}
           {total > 20 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
-              <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters)}
+              <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters, sort, challengeType)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page <= 1 ? '#f9fafb' : '#fff', color: page <= 1 ? '#ccc' : '#555', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous</button>
               <span style={{ padding: '7px 12px', fontSize: 12, color: '#888' }}>Page {page} of {Math.ceil(total / 20)}</span>
-              <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters)}
+              <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters, sort, challengeType)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / 20) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / 20) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / 20) ? 'default' : 'pointer' }}>Next</button>
             </div>
           )}

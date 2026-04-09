@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Search, Briefcase, MapPin, Clock, Calendar, Users, ChevronDown, ChevronUp,
-  ArrowRight, Building2, Tag, DollarSign, Filter, X, ChevronLeft, ChevronRight,
+  ArrowRight, Building2, Tag, DollarSign, Filter, X, ChevronLeft, ChevronRight, ArrowUpDown,
 } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import { publicAPI } from '../../services/api';
@@ -20,6 +20,21 @@ const GRAY = '#6b7280';
 const BORDER = '#e5e7eb';
 const LIGHT_GRAY = '#f5f5f5';
 
+const SORT_OPTIONS = [
+  { value: '', label: 'Default' },
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'deadline', label: 'Deadline Soon' },
+  { value: 'applications', label: 'Most Applications' },
+];
+
+const CHALLENGE_TYPES = [
+  { value: '', label: 'All Types' },
+  { value: 'partner', label: 'Partner' },
+  { value: 'source', label: 'Source' },
+  { value: 'invest', label: 'Invest' },
+];
+
 export default function PublicMarketplace() {
   const [challenges, setChallenges] = useState([]);
   const [total, setTotal] = useState(0);
@@ -32,12 +47,15 @@ export default function PublicMarketplace() {
   const [selectedChallenge, setSelectedChallenge] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [sort, setSort] = useState('');
+  const [challengeType, setChallengeType] = useState('');
+  const [facets, setFacets] = useState({ sector: {}, challenge_type: {} });
   const limit = 12;
 
   // Fetch challenges
   useEffect(() => {
     fetchChallenges();
-  }, [page, sector, technology]);
+  }, [page, sector, technology, sort, challengeType]);
 
   async function fetchChallenges() {
     setLoading(true);
@@ -46,10 +64,13 @@ export default function PublicMarketplace() {
       if (search) params.search = search;
       if (sector) params.sector = sector;
       if (technology) params.technology = technology;
+      if (sort) params.sort = sort;
+      if (challengeType) params.challenge_type = challengeType;
       const data = await publicAPI.listChallenges(params);
       setChallenges(data.challenges || []);
       setTotal(data.total || 0);
       if (data.filters) setFilters(data.filters);
+      if (data.facets) setFacets(data.facets);
     } catch (err) {
       console.error('Failed to load challenges:', err);
     } finally { setLoading(false); }
@@ -246,7 +267,7 @@ export default function PublicMarketplace() {
           </form>
 
           {/* Filter dropdowns */}
-          <div className={`flex flex-wrap gap-3 mb-6 ${showFilters ? '' : 'hidden md:flex'}`}>
+          <div className={`flex flex-wrap gap-3 mb-4 ${showFilters ? '' : 'hidden md:flex'}`}>
             {/* Sector filter */}
             <select value={sector} onChange={e => { setSector(e.target.value); setPage(1); }}
                     className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, outline: 'none', minWidth: 180 }}>
@@ -261,19 +282,58 @@ export default function PublicMarketplace() {
               {filters.technologies.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
 
+            {/* Challenge type filter */}
+            <select value={challengeType} onChange={e => { setChallengeType(e.target.value); setPage(1); }}
+                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${challengeType ? GOLD : BORDER}`, color: DARK, outline: 'none', minWidth: 140, background: challengeType ? GOLD_LIGHT : '#fff', fontWeight: challengeType ? 600 : 400 }}>
+              {CHALLENGE_TYPES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+
+            {/* Sort dropdown */}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <ArrowUpDown size={14} style={{ color: GRAY }} />
+              <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
+                      className="px-3 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${sort ? GOLD : BORDER}`, color: DARK, outline: 'none', background: sort ? GOLD_LIGHT : '#fff', fontWeight: sort ? 600 : 400 }}>
+                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+
             {/* Active filters */}
-            {(sector || technology) && (
-              <button onClick={() => { setSector(''); setTechnology(''); setPage(1); }}
+            {(sector || technology || sort || challengeType) && (
+              <button onClick={() => { setSector(''); setTechnology(''); setSort(''); setChallengeType(''); setPage(1); }}
                       className="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1"
                       style={{ background: GOLD_LIGHT, color: GOLD_DARK }}>
-                <X size={14} /> Clear Filters
+                <X size={14} /> Clear All
               </button>
             )}
+          </div>
 
-            {/* Result count */}
-            <div className="flex items-center text-sm ml-auto" style={{ color: GRAY }}>
-              {total} challenge{total !== 1 ? 's' : ''} found
+          {/* Facet chips */}
+          {Object.keys(facets.sector || {}).length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.entries(facets.sector).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => (
+                <button key={name} onClick={() => { setSector(sector === name ? '' : name); setPage(1); }}
+                  className="px-3 py-1 rounded-full text-xs font-medium transition-all"
+                  style={{ border: `1px solid ${sector === name ? GOLD : BORDER}`, background: sector === name ? GOLD_LIGHT : '#fff', color: sector === name ? GOLD_DARK : GRAY }}>
+                  {name} <span style={{ color: '#bbb', marginLeft: 2 }}>{count}</span>
+                </button>
+              ))}
             </div>
+          )}
+          {Object.keys(facets.challenge_type || {}).length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.entries(facets.challenge_type).map(([type, count]) => (
+                <button key={type} onClick={() => { setChallengeType(challengeType === type ? '' : type); setPage(1); }}
+                  className="px-3 py-1 rounded-full text-xs font-medium transition-all capitalize"
+                  style={{ border: `1px solid ${challengeType === type ? GOLD : BORDER}`, background: challengeType === type ? GOLD_LIGHT : '#fff', color: challengeType === type ? GOLD_DARK : GRAY }}>
+                  {type} <span style={{ color: '#bbb', marginLeft: 2 }}>{count}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Result count */}
+          <div className="flex items-center text-sm mb-6" style={{ color: GRAY }}>
+            {total} challenge{total !== 1 ? 's' : ''} found
           </div>
 
           {/* Challenge Grid */}

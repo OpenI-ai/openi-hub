@@ -3,7 +3,7 @@
  * Matches the Landing.jsx brand styling: gold (#D5AA5B) primary, dark theme footer.
  */
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, ArrowRight } from 'lucide-react';
+import { Shield, ArrowRight, Search } from 'lucide-react';
 
 // Brand colors (same as Landing.jsx)
 const GOLD = '#D5AA5B';
@@ -67,8 +67,10 @@ export default function PublicLayout({ children }) {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/marketplace')}>Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/reports')}>Reports</Link>
+            <Link to="/search" className="hover:text-gray-900 transition-colors flex items-center gap-1.5" style={navLinkStyle('/search')}>
+              <Search size={14} /> Search
+            </Link>
             <Link to="/#how-it-works" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>How It Works</Link>
-            <Link to="/#features" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>Features</Link>
             <Link to="/#pricing" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>Pricing</Link>
           </nav>
 
