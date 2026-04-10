@@ -2,8 +2,9 @@
  * PublicLayout — Shared header/footer for all public (non-auth) pages.
  * Matches the Landing.jsx brand styling: gold (#D5AA5B) primary, dark theme footer.
  */
-import { Link, useLocation } from 'react-router-dom';
-import { Shield, ArrowRight, Search } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Shield, ArrowRight } from 'lucide-react';
+import SearchBar from './SearchBar';
 
 // Brand colors (same as Landing.jsx)
 const GOLD = '#D5AA5B';
@@ -31,12 +32,21 @@ function XIcon({ size = 18, color = 'currentColor' }) {
 
 export default function PublicLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = (path) => location.pathname === path;
+  // Hide the inline header SearchBar on the /search page itself — it has its own hero bar
+  const showHeaderSearch = location.pathname !== '/search';
 
   const navLinkStyle = (path) => ({
     color: isActive(path) ? GOLD : GRAY,
     fontWeight: isActive(path) ? 700 : 500,
   });
+
+  // Header search always navigates to /search?q=...&mode=...
+  const handleHeaderSearch = (term, mode) => {
+    const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
+    navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#fff' }}>
@@ -45,7 +55,7 @@ export default function PublicLayout({ children }) {
         className="sticky top-0 z-50 px-6 py-4 border-b backdrop-blur"
         style={{ background: 'rgba(255,255,255,0.92)', borderColor: BORDER }}
       >
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3">
             <img
               src="/openi-logo.png"
@@ -64,15 +74,23 @@ export default function PublicLayout({ children }) {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/marketplace')}>Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/reports')}>Reports</Link>
-            <Link to="/search" className="hover:text-gray-900 transition-colors flex items-center gap-1.5" style={navLinkStyle('/search')}>
-              <Search size={14} /> Search
-            </Link>
             <Link to="/#how-it-works" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>How It Works</Link>
             <Link to="/#pricing" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>Pricing</Link>
           </nav>
+
+          {/* Global header search — AI Ask enabled, hidden on /search */}
+          {showHeaderSearch && (
+            <div className="hidden lg:block flex-1 max-w-md mx-6">
+              <SearchBar
+                onSearch={handleHeaderSearch}
+                showAiToggle
+                placeholder="Ask or search..."
+              />
+            </div>
+          )}
 
           <div className="flex items-center gap-3">
             <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"

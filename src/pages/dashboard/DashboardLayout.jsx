@@ -12,6 +12,7 @@ import {
   FlaskConical, Home, Target, Link,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS } from "../../config/personas";
+import SearchBar from "../../components/SearchBar";
 
 // ── OpenI brand tokens (light theme – matches openi.ai) ───────
 const C = {
@@ -280,10 +281,22 @@ export default function DashboardLayout() {
           </button>
 
           {/* Breadcrumb */}
-          <div style={{ flex:1, fontSize:12, color: C.textMuted, display:"flex", alignItems:"center", gap:6 }}>
+          <div style={{ fontSize:12, color: C.textMuted, display:"flex", alignItems:"center", gap:6, flexShrink:0 }} className="hidden md:flex">
             <span style={{ color: C.gold, fontWeight:700 }}>OpenI Hub</span>
             <ChevronRight size={12} />
             <span style={{ color: C.textSecond }}>Dashboard</span>
+          </div>
+
+          {/* Global AI Ask search in top bar */}
+          <div style={{ flex:1, display:"flex", justifyContent:"center", maxWidth:480, marginLeft:"auto", marginRight:"auto" }} className="hidden md:flex">
+            <SearchBar
+              onSearch={(term, mode) => {
+                const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
+                navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+              }}
+              showAiToggle
+              placeholder="Ask or search..."
+            />
           </div>
 
           {/* Right side */}

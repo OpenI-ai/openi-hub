@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Shield, Users, Briefcase, Target, Network, Sparkles,
   Search, Calendar, MessageSquare, FileText, Award, Database,
@@ -8,6 +8,7 @@ import {
   BarChart3, Globe, Star, UserPlus,
 } from 'lucide-react';
 import { publicAPI } from '../../services/api';
+import SearchBar from '../../components/SearchBar';
 
 // Icon map for CMS-provided icon names (string → component)
 const ICON_MAP = {
@@ -242,12 +243,19 @@ function FAQItem({ question, answer, isOpen, onToggle }) {
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [cms, setCms] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     publicAPI.getLandingContent()
       .then(data => setCms(data))
       .catch(() => {}); // silently use defaults
   }, []);
+
+  // Header search navigates to /search with AI mode support
+  const handleHeaderSearch = (term, mode) => {
+    const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
+    navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+  };
 
   // Resolved content (CMS data or fallback defaults)
   const stats = cms?.stats || DEFAULT_STATS;
@@ -270,7 +278,7 @@ export default function Landing() {
         className="sticky top-0 z-50 px-6 py-4 border-b backdrop-blur"
         style={{ background: 'rgba(255,255,255,0.92)', borderColor: BORDER }}
       >
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3">
             <img
               src="/openi-logo.png"
@@ -289,13 +297,21 @@ export default function Landing() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium" style={{ color: GRAY }}>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium" style={{ color: GRAY }}>
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors">Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors">Reports</Link>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a>
-            <a href="#features" className="hover:text-gray-900 transition-colors">Features</a>
             <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
           </nav>
+
+          {/* Global header search — AI Ask enabled */}
+          <div className="hidden lg:block flex-1 max-w-md">
+            <SearchBar
+              onSearch={handleHeaderSearch}
+              showAiToggle
+              placeholder="Ask or search..."
+            />
+          </div>
 
           <div className="flex items-center gap-3">
             <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
