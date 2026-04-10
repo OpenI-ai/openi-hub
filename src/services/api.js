@@ -342,6 +342,8 @@ export const publicAPI = {
   globalSearch:      (q, limit = 5) => get(`/public/search?q=${encodeURIComponent(q)}&limit=${limit}`),
   searchSuggest:     (q)            => get(`/public/search/suggest?q=${encodeURIComponent(q)}`),
   semanticSearch:    (q, type = 'startups', limit = 10) => get(`/public/search/semantic?q=${encodeURIComponent(q)}&type=${type}&limit=${limit}`),
+  // AI query-parsing (Phase 15)
+  aiSearch:          (q, limit = 10) => get(`/public/search/ai?q=${encodeURIComponent(q)}&limit=${limit}`),
 };
 
 // ── Crawling ────────────────────────────────────────────────

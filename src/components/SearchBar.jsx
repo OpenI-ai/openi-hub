@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, Sparkles } from 'lucide-react';
+import { Search, X, Sparkles, Brain } from 'lucide-react';
 import { publicAPI } from '../services/api';
 
 const G = '#D5AA5B';
@@ -9,22 +9,43 @@ const G = '#D5AA5B';
  * Reusable SearchBar with debounced autocomplete suggestions.
  * Props:
  *   - compact: boolean (smaller variant for header)
- *   - onSearch: (query) => void (override navigation behavior)
+ *   - onSearch: (query, mode) => void (override navigation behavior, receives mode)
  *   - placeholder: string
- *   - showSemanticToggle: boolean
+ *   - showSemanticToggle: boolean — show the "Semantic" (vector) toggle
+ *   - showAiToggle: boolean — show the "AI Ask" (LLM query-parsing) toggle
+ *   - initialMode: 'keyword' | 'semantic' | 'ai' — starting mode (from URL param)
  */
-export default function SearchBar({ compact = false, onSearch, placeholder = 'Search challenges, startups, people...', showSemanticToggle = false }) {
+export default function SearchBar({
+  compact = false,
+  onSearch,
+  placeholder = 'Search challenges, startups, people...',
+  showSemanticToggle = false,
+  showAiToggle = false,
+  initialMode = 'keyword',
+}) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [semantic, setSemantic] = useState(false);
+  const [mode, setMode] = useState(initialMode); // 'keyword' | 'semantic' | 'ai'
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const ref = useRef(null);
   const timer = useRef(null);
 
-  // Debounced autocomplete
+  // Sync mode with prop (e.g. when URL changes)
+  useEffect(() => { setMode(initialMode); }, [initialMode]);
+
+  // Dynamic placeholder based on mode
+  const effectivePlaceholder =
+    mode === 'ai'
+      ? 'Ask anything — "deeptech AI startups in Bangalore"'
+      : mode === 'semantic'
+      ? 'Describe what you are looking for...'
+      : placeholder;
+
+  // Debounced autocomplete (disable in AI mode — user is typing a full sentence)
   useEffect(() => {
+    if (mode === 'ai') { setSuggestions([]); setShowDropdown(false); return; }
     if (query.trim().length < 2) { setSuggestions([]); return; }
     clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
@@ -36,7 +57,7 @@ export default function SearchBar({ compact = false, onSearch, placeholder = 'Se
       } catch {} finally { setLoading(false); }
     }, 300);
     return () => clearTimeout(timer.current);
-  }, [query]);
+  }, [query, mode]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -49,8 +70,11 @@ export default function SearchBar({ compact = false, onSearch, placeholder = 'Se
     const term = (q || query).trim();
     if (!term) return;
     setShowDropdown(false);
-    if (onSearch) { onSearch(term); }
-    else { navigate(`/search?q=${encodeURIComponent(term)}${semantic ? '&mode=semantic' : ''}`); }
+    if (onSearch) { onSearch(term, mode); }
+    else {
+      const modeParam = mode !== 'keyword' ? `&mode=${mode}` : '';
+      navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -58,24 +82,31 @@ export default function SearchBar({ compact = false, onSearch, placeholder = 'Se
     if (e.key === 'Escape') setShowDropdown(false);
   };
 
+  // Toggle AI mode (mutually exclusive with semantic)
+  const toggleAi = () => setMode(mode === 'ai' ? 'keyword' : 'ai');
+  // Toggle semantic mode (mutually exclusive with AI)
+  const toggleSemantic = () => setMode(mode === 'semantic' ? 'keyword' : 'semantic');
+
   const TYPE_ICONS = { sector: '\uD83C\uDF10', technology: '\uD83D\uDCA1', industry: '\uD83C\uDFED', startup: '\uD83D\uDE80', person: '\uD83D\uDC64' };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: compact ? 260 : '100%', maxWidth: 520 }}>
+    <div ref={ref} style={{ position: 'relative', width: compact ? 260 : '100%', maxWidth: 560 }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
         background: compact ? 'rgba(255,255,255,0.08)' : '#fff',
-        border: compact ? '1px solid rgba(255,255,255,0.15)' : '1.5px solid #ddd',
+        border: compact ? '1px solid rgba(255,255,255,0.15)' : `1.5px solid ${mode === 'ai' ? G : '#ddd'}`,
         borderRadius: 10, padding: compact ? '6px 12px' : '10px 16px',
         transition: 'border-color 0.2s',
       }}>
-        <Search size={compact ? 15 : 18} style={{ color: compact ? 'rgba(255,255,255,0.5)' : '#999', flexShrink: 0 }} />
+        {mode === 'ai'
+          ? <Brain size={compact ? 15 : 18} style={{ color: G, flexShrink: 0 }} />
+          : <Search size={compact ? 15 : 18} style={{ color: compact ? 'rgba(255,255,255,0.5)' : '#999', flexShrink: 0 }} />}
         <input
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length && setShowDropdown(true)}
-          placeholder={placeholder}
+          placeholder={effectivePlaceholder}
           style={{
             flex: 1, border: 'none', outline: 'none', background: 'transparent',
             fontSize: compact ? 13 : 15,
@@ -85,20 +116,36 @@ export default function SearchBar({ compact = false, onSearch, placeholder = 'Se
         {query && (
           <X size={14} style={{ cursor: 'pointer', color: '#999' }} onClick={() => { setQuery(''); setSuggestions([]); }} />
         )}
-        {showSemanticToggle && (
+        {showAiToggle && (
           <button
-            onClick={() => setSemantic(!semantic)}
-            title={semantic ? 'Semantic search (AI)' : 'Keyword search'}
+            onClick={toggleAi}
+            title={mode === 'ai' ? 'AI Ask (natural language → filters)' : 'Enable AI Ask'}
             style={{
-              background: semantic ? G : 'transparent',
-              border: `1px solid ${semantic ? G : '#ccc'}`,
+              background: mode === 'ai' ? G : 'transparent',
+              border: `1px solid ${mode === 'ai' ? G : '#ccc'}`,
               borderRadius: 6, padding: '3px 8px',
               display: 'flex', alignItems: 'center', gap: 4,
-              cursor: 'pointer', fontSize: 11, color: semantic ? '#fff' : '#666',
+              cursor: 'pointer', fontSize: 11, color: mode === 'ai' ? '#fff' : '#666',
+              transition: 'all 0.2s', fontWeight: 600,
+            }}
+          >
+            <Brain size={12} /> AI Ask
+          </button>
+        )}
+        {showSemanticToggle && (
+          <button
+            onClick={toggleSemantic}
+            title={mode === 'semantic' ? 'Semantic search (vector)' : 'Enable semantic search'}
+            style={{
+              background: mode === 'semantic' ? G : 'transparent',
+              border: `1px solid ${mode === 'semantic' ? G : '#ccc'}`,
+              borderRadius: 6, padding: '3px 8px',
+              display: 'flex', alignItems: 'center', gap: 4,
+              cursor: 'pointer', fontSize: 11, color: mode === 'semantic' ? '#fff' : '#666',
               transition: 'all 0.2s',
             }}
           >
-            <Sparkles size={12} /> AI
+            <Sparkles size={12} /> Semantic
           </button>
         )}
         <button
@@ -114,8 +161,8 @@ export default function SearchBar({ compact = false, onSearch, placeholder = 'Se
         </button>
       </div>
 
-      {/* Autocomplete dropdown */}
-      {showDropdown && suggestions.length > 0 && (
+      {/* Autocomplete dropdown (keyword mode only) */}
+      {showDropdown && mode !== 'ai' && suggestions.length > 0 && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
           background: '#fff', border: '1px solid #eee', borderRadius: 10,

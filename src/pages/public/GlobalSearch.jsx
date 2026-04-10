@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, MapPin, Calendar, Tag } from 'lucide-react';
+import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brain, MapPin, Calendar, Tag, Info } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import SearchBar from '../../components/SearchBar';
 import { publicAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const G = '#D5AA5B';
+const NAVY = '#0D2137';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 const TABS = [
@@ -16,26 +17,41 @@ const TABS = [
   { key: 'directory', label: 'People', icon: Users },
 ];
 
+// Map AI intent → default tab
+const INTENT_TO_TAB = { startups: 'startups', challenges: 'challenges', directory: 'directory', all: 'all' };
+
 export default function GlobalSearch() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const q = params.get('q') || '';
-  const mode = params.get('mode') || 'keyword';
+  const mode = params.get('mode') || 'keyword'; // 'keyword' | 'semantic' | 'ai'
   const type = params.get('type') || 'all';
 
   const [results, setResults] = useState(null);
+  const [interpretation, setInterpretation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(type);
-  const [semantic, setSemantic] = useState(mode === 'semantic');
 
   useEffect(() => {
     if (q) doSearch(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, mode]);
 
   const doSearch = async (term) => {
     setLoading(true);
+    setInterpretation(null);
     try {
-      if (semantic && mode === 'semantic') {
+      if (mode === 'ai') {
+        // AI query-parsing: single call returns all three entity types + interpretation
+        const data = await publicAPI.aiSearch(term, 8);
+        setResults(data);
+        setInterpretation(data.interpretation || null);
+        // Auto-select tab based on intent if user hasn't explicitly picked one
+        if (data.interpretation?.intent && (!type || type === 'all')) {
+          const suggested = INTENT_TO_TAB[data.interpretation.intent] || 'all';
+          setActiveTab(suggested);
+        }
+      } else if (mode === 'semantic') {
         // Semantic search — one type at a time
         const types = activeTab === 'all' ? ['challenges', 'startups', 'directory'] : [activeTab];
         const promises = types.map(t => publicAPI.semanticSearch(term, t, 8));
@@ -53,13 +69,16 @@ export default function GlobalSearch() {
     } finally { setLoading(false); }
   };
 
-  const handleSearch = (term) => {
-    navigate(`/search?q=${encodeURIComponent(term)}${semantic ? '&mode=semantic' : ''}`);
+  const handleSearch = (term, newMode) => {
+    const effectiveMode = newMode || mode;
+    const modeParam = effectiveMode !== 'keyword' ? `&mode=${effectiveMode}` : '';
+    navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
   };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    if (q) navigate(`/search?q=${encodeURIComponent(q)}&type=${tab}${semantic ? '&mode=semantic' : ''}`);
+    const modeParam = mode !== 'keyword' ? `&mode=${mode}` : '';
+    if (q) navigate(`/search?q=${encodeURIComponent(q)}&type=${tab}${modeParam}`);
   };
 
   const totalResults = results
@@ -78,7 +97,13 @@ export default function GlobalSearch() {
             Find challenges, startups, investors, mentors, and more
           </p>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <SearchBar onSearch={handleSearch} showSemanticToggle placeholder="Search across the entire platform..." />
+            <SearchBar
+              onSearch={handleSearch}
+              showSemanticToggle
+              showAiToggle
+              initialMode={mode}
+              placeholder="Search across the entire platform..."
+            />
           </div>
         </div>
 
@@ -109,6 +134,11 @@ export default function GlobalSearch() {
               );
             })}
           </div>
+
+          {/* AI Interpretation banner (mode=ai) */}
+          {mode === 'ai' && interpretation && !loading && (
+            <InterpretationBanner interpretation={interpretation} />
+          )}
 
           {/* Loading */}
           {loading && (
@@ -248,6 +278,101 @@ function StartupCard({ startup: s }) {
         {s.sector && <span style={{ fontSize: 10, background: '#f5f0e6', color: '#8B7355', borderRadius: 6, padding: '2px 8px' }}>{s.sector}</span>}
         {s.stage && <span style={{ fontSize: 10, background: '#eef', color: '#558', borderRadius: 6, padding: '2px 8px' }}>{s.stage}</span>}
       </div>
+    </div>
+  );
+}
+
+function InterpretationBanner({ interpretation }) {
+  const { intent, filters = {}, keywords, confidence, fallback_used, error } = interpretation || {};
+  const confPct = Math.round((confidence || 0) * 100);
+
+  // Collect non-null filter chips
+  const chips = [];
+  if (intent && intent !== 'all') chips.push({ label: `Intent: ${intent.charAt(0).toUpperCase() + intent.slice(1)}`, primary: true });
+  if (filters.sector) chips.push({ label: `Sector: ${filters.sector}` });
+  if (filters.technology) chips.push({ label: `Tech: ${filters.technology}` });
+  if (filters.stage) chips.push({ label: `Stage: ${filters.stage}` });
+  if (filters.city) chips.push({ label: `City: ${filters.city}` });
+  if (filters.state) chips.push({ label: `State: ${filters.state}` });
+  if (filters.challenge_type) chips.push({ label: `Type: ${filters.challenge_type}` });
+  if (filters.persona_type) chips.push({ label: `Persona: ${filters.persona_type.replace('_', ' ')}` });
+  if (filters.is_deeptech) chips.push({ label: 'DeepTech', highlight: true });
+
+  // Build fallback note
+  let fallbackNote = null;
+  if (error === 'no_api_key') fallbackNote = 'AI parser unavailable — showing keyword results';
+  else if (fallback_used === 'keywords-only') fallbackNote = 'Low confidence — showing keyword results';
+  else if (fallback_used === 'fts') fallbackNote = 'No filter matches — showing keyword results';
+  else if (fallback_used === 'semantic') fallbackNote = 'No keyword matches — showing semantic (vector) results';
+
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, #fffbf0 0%, #fff 100%)',
+      border: `1.5px solid ${G}`,
+      borderRadius: 12,
+      padding: '14px 18px',
+      marginBottom: 20,
+      boxShadow: '0 2px 8px rgba(213,170,91,0.08)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: chips.length ? 10 : 0 }}>
+        <Brain size={16} style={{ color: G }} />
+        <span style={{ fontSize: 13, fontWeight: 600, color: NAVY }}>Interpreted as:</span>
+        {confidence > 0 && (
+          <span style={{
+            fontSize: 11, color: '#888', marginLeft: 'auto',
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}>
+            <Info size={11} /> {confPct}% confidence
+          </span>
+        )}
+      </div>
+      {chips.length > 0 && (
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: fallbackNote ? 10 : 0 }}>
+          {chips.map((c, i) => (
+            <span
+              key={i}
+              style={{
+                fontSize: 12,
+                padding: '4px 12px',
+                borderRadius: 14,
+                background: c.primary ? NAVY : c.highlight ? G : '#f5f0e6',
+                color: c.primary || c.highlight ? '#fff' : '#8B7355',
+                fontWeight: c.primary ? 600 : 500,
+                border: c.primary || c.highlight ? 'none' : '1px solid #eadfc8',
+              }}
+            >
+              {c.label}
+            </span>
+          ))}
+          {keywords && (
+            <span style={{
+              fontSize: 12,
+              padding: '4px 12px',
+              borderRadius: 14,
+              background: '#f0f0f0',
+              color: '#666',
+              fontStyle: 'italic',
+            }}>
+              keywords: "{keywords}"
+            </span>
+          )}
+        </div>
+      )}
+      {fallbackNote && (
+        <div style={{
+          fontSize: 11,
+          color: '#a06b00',
+          background: '#fff8e6',
+          padding: '6px 10px',
+          borderRadius: 6,
+          border: '1px solid #f0d890',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 5,
+        }}>
+          <Info size={11} /> {fallbackNote}
+        </div>
+      )}
     </div>
   );
 }
