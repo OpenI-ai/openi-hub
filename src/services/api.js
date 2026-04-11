@@ -367,6 +367,15 @@ export const acceleratorAPI = {
   deleteBatchMilestone: (id, mid)       => del(`/accelerator/batches/${id}/milestones/${mid}`),
 };
 
+// ── Program Service Partners (Phase 16B.1, shared incubator+accelerator) ───
+export const programPartnersAPI = {
+  list:             ()               => get('/program-partners'),
+  directory:        (params = {})    => get(`/program-partners/directory?${new URLSearchParams(params)}`),
+  add:              (data)           => post('/program-partners', data),
+  update:           (id, data)       => put(`/program-partners/${id}`, data),
+  remove:           (id)             => del(`/program-partners/${id}`),
+};
+
 // ── Challenge Applications (for startups / marketplace) ──────
 export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),
