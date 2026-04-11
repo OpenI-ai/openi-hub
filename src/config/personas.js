@@ -129,12 +129,11 @@ export const PERSONA_NAV = {
   ],
   accelerator: [
     ...COMMON_NAV,
-    { to: '/dashboard/startups',    label: 'Startups',  icon: 'Rocket' },
-    { to: '/dashboard/cohorts',     label: 'Cohorts',   icon: 'GraduationCap' },
-    { to: '/dashboard/mentors',     label: 'Mentors',   icon: 'Users' },
-    { to: '/dashboard/projects',    label: 'Projects',  icon: 'FolderKanban' },
-    { to: '/dashboard/evaluations', label: 'Programs',  icon: 'FileText' },
-    { to: '/dashboard/watchlist',   label: 'Watchlist',  icon: 'Star' },
+    { to: '/dashboard/accelerator/batches',  label: 'Batches',         icon: 'Zap' },
+    { to: '/dashboard/accelerator/partners', label: 'Partners & Network', icon: 'Building2' },
+    { to: '/dashboard/startups',             label: 'Discover Startups', icon: 'Rocket' },
+    { to: '/dashboard/watchlist',            label: 'Watchlist',        icon: 'Star' },
+    { to: '/dashboard/projects',             label: 'Projects',         icon: 'FolderKanban' },
   ],
   service_provider: [
     ...COMMON_NAV,

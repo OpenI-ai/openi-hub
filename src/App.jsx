@@ -26,6 +26,9 @@ import InvestorPortfolio        from './pages/dashboard/InvestorPortfolio';
 import IncubatorPrograms        from './pages/dashboard/IncubatorPrograms';
 import IncubatorProgramDetail   from './pages/dashboard/IncubatorProgramDetail';
 import IncubatorMentorPool      from './pages/dashboard/IncubatorMentorPool';
+import AcceleratorBatches       from './pages/dashboard/AcceleratorBatches';
+import AcceleratorBatchDetail   from './pages/dashboard/AcceleratorBatchDetail';
+import AcceleratorPartners      from './pages/dashboard/AcceleratorPartners';
 import StartupEvaluation from './pages/dashboard/StartupEvaluation';
 import StartupDiscovery  from './pages/dashboard/StartupDiscovery';
 import StartupProfile    from './pages/dashboard/StartupProfile';
@@ -103,6 +106,9 @@ export default function App() {
             <Route path="incubator/programs"          element={<IncubatorPrograms />} />
             <Route path="incubator/programs/:id"      element={<IncubatorProgramDetail />} />
             <Route path="incubator/mentors"           element={<IncubatorMentorPool />} />
+            <Route path="accelerator/batches"         element={<AcceleratorBatches />} />
+            <Route path="accelerator/batches/:id"     element={<AcceleratorBatchDetail />} />
+            <Route path="accelerator/partners"        element={<AcceleratorPartners />} />
             <Route path="evaluate"            element={<StartupEvaluation />} />
             <Route path="startups"            element={<StartupDiscovery />} />
             <Route path="startup-profile"     element={<StartupProfile />} />

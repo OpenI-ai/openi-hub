@@ -330,6 +330,43 @@ export const incubatorAPI = {
   deleteMilestone:      (id, mid)       => del(`/incubator/programs/${id}/milestones/${mid}`),
 };
 
+// ── Accelerator Features (Phase 16B) ─────────────────────────
+export const acceleratorAPI = {
+  dashboard:            ()              => get('/accelerator/dashboard'),
+  recommendedStartups:  ()              => get('/accelerator/recommended-startups'),
+  // Batches
+  listBatches:          (params = {})   => get(`/accelerator/batches?${new URLSearchParams(params)}`),
+  createBatch:          (data)          => post('/accelerator/batches', data),
+  getBatch:             (id)            => get(`/accelerator/batches/${id}`),
+  updateBatch:          (id, data)      => put(`/accelerator/batches/${id}`, data),
+  deleteBatch:          (id)            => del(`/accelerator/batches/${id}`),
+  // Batch startups (pipeline)
+  listBatchStartups:    (id)            => get(`/accelerator/batches/${id}/startups`),
+  addBatchStartup:      (id, data)      => post(`/accelerator/batches/${id}/startups`, data),
+  updateBatchStartup:   (id, sid, data) => put(`/accelerator/batches/${id}/startups/${sid}`, data),
+  removeBatchStartup:   (id, sid)       => del(`/accelerator/batches/${id}/startups/${sid}`),
+  // Demo days
+  listDemoDays:         ()              => get('/accelerator/demo-days'),
+  createDemoDay:        (data)          => post('/accelerator/demo-days', data),
+  updateDemoDay:        (id, data)      => put(`/accelerator/demo-days/${id}`, data),
+  deleteDemoDay:        (id)            => del(`/accelerator/demo-days/${id}`),
+  // Corporate partners
+  listCorporatePartners:()              => get('/accelerator/corporate-partners'),
+  addCorporatePartner:  (data)          => post('/accelerator/corporate-partners', data),
+  updateCorporatePartner:(pid, data)    => put(`/accelerator/corporate-partners/${pid}`, data),
+  removeCorporatePartner:(pid)          => del(`/accelerator/corporate-partners/${pid}`),
+  // Investor network
+  listInvestorNetwork:  ()              => get('/accelerator/investors'),
+  addInvestor:          (data)          => post('/accelerator/investors', data),
+  updateInvestor:       (iid, data)     => put(`/accelerator/investors/${iid}`, data),
+  removeInvestor:       (iid)           => del(`/accelerator/investors/${iid}`),
+  // Batch milestones
+  listBatchMilestones:  (id)            => get(`/accelerator/batches/${id}/milestones`),
+  createBatchMilestone: (id, data)      => post(`/accelerator/batches/${id}/milestones`, data),
+  updateBatchMilestone: (id, mid, data) => put(`/accelerator/batches/${id}/milestones/${mid}`, data),
+  deleteBatchMilestone: (id, mid)       => del(`/accelerator/batches/${id}/milestones/${mid}`),
+};
+
 // ── Challenge Applications (for startups / marketplace) ──────
 export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),

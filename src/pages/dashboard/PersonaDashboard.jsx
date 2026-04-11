@@ -7,7 +7,7 @@ import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
   Shield, Search, MessageSquare, CalendarCheck, Calendar, Clock, Video,
-  FileText, ThumbsUp, MapPin, BarChart2, Briefcase, Eye,
+  FileText, ThumbsUp, MapPin, BarChart2, Briefcase, Eye, DollarSign,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -155,17 +155,19 @@ const DASHBOARD_CONFIG = {
   accelerator: {
     subtitle: 'Accelerator Dashboard',
     stats: [
-      { key: 'portfolio', label: 'Portfolio', icon: Briefcase, color: '#ef4444', to: '/dashboard/startups' },
-      { key: 'cohorts_active', label: 'Active Batches', icon: GraduationCap, color: '#16a34a', to: '/dashboard/cohorts' },
-      { key: 'watchlists', label: 'Watchlists', icon: Star, color: '#f59e0b', to: '/dashboard/watchlist' },
-      { key: 'projects', label: 'Projects', icon: FolderKanban, color: '#3b82f6', to: '/dashboard/projects' },
+      { key: 'total_batches', label: 'Total Batches', icon: GraduationCap, color: '#ef4444', to: '/dashboard/accelerator/batches' },
+      { key: 'active_batches', label: 'Active Batches', icon: Target, color: '#16a34a', to: '/dashboard/accelerator/batches' },
+      { key: 'pipeline_total', label: 'Pipeline Startups', icon: Rocket, color: '#3b82f6', to: '/dashboard/accelerator/batches' },
+      { key: 'graduated_count', label: 'Graduated', icon: Star, color: '#ca8a04', to: '/dashboard/accelerator/batches' },
+      { key: 'corporate_partners_active', label: 'Corp Partners', icon: Briefcase, color: '#8b5cf6', to: '/dashboard/accelerator/partners' },
+      { key: 'investor_network_active', label: 'Investors', icon: DollarSign, color: '#f59e0b', to: '/dashboard/accelerator/partners' },
     ],
     quickActions: [
-      { label: 'Browse Startups', desc: 'Find startups for acceleration', icon: Rocket, to: '/dashboard/startups', color: G },
-      { label: 'Manage Cohorts', desc: 'Track acceleration batches', icon: GraduationCap, to: '/dashboard/cohorts', color: '#16a34a' },
+      { label: 'Manage Batches', desc: 'Create and run accelerator batches', icon: GraduationCap, to: '/dashboard/accelerator/batches', color: G },
+      { label: 'Partners & Network', desc: 'Corporate partners, investors, demo days', icon: Briefcase, to: '/dashboard/accelerator/partners', color: '#8b5cf6' },
+      { label: 'Discover Startups', desc: 'Find startups for acceleration', icon: Rocket, to: '/dashboard/startups', color: '#3b82f6' },
       { label: 'My Watchlists', desc: 'Curated startup lists', icon: Star, to: '/dashboard/watchlist', color: '#f59e0b' },
-      { label: 'My Projects', desc: 'Track portfolio projects', icon: FolderKanban, to: '/dashboard/projects', color: '#3b82f6' },
-      { label: 'Explore Directory', desc: 'Find mentors and investors', icon: Search, to: '/dashboard/directory', color: '#ec4899' },
+      { label: 'Explore Directory', desc: 'Connect with ecosystem players', icon: Search, to: '/dashboard/directory', color: '#ec4899' },
     ],
   },
   service_provider: {
