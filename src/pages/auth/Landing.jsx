@@ -258,15 +258,19 @@ export default function Landing() {
     navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
   };
 
-  // Resolved content (CMS data or fallback defaults)
-  const stats = cms?.stats || DEFAULT_STATS;
+  // Resolved content — Phase 17 rehash overrides stale Strapi CMS content.
+  // Until Strapi is re-seeded with Phase 10-16 content, hardcoded defaults win.
+  // CMS fetch is still wired for partners/howItWorks/cta/footerTagline which
+  // haven't been rehashed yet and remain safe to hydrate from CMS.
+  const stats = DEFAULT_STATS;               // Phase 17: platform-capability stats
+  const testimonials = DEFAULT_TESTIMONIALS; // Phase 17: refreshed quotes
+  const faqs = DEFAULT_FAQS;                 // Phase 17: new AI Ask / Portfolio Health FAQs
+  const features = null;                     // null = use inline Phase 17 feature grid (12 cards)
+  const pricing = null;                      // null = use inline Phase 17 pricing (with 🔒 gating)
+  const hero = null;                         // null = use inline Phase 17 hero copy
+  // These sections still hydrate from CMS (legacy, not part of Phase 17 rehash):
   const partners = cms?.partners || DEFAULT_PARTNERS;
-  const testimonials = cms?.testimonials || DEFAULT_TESTIMONIALS;
-  const faqs = cms?.faqs || DEFAULT_FAQS;
-  const features = cms?.features || null; // null = use inline JSX
   const howItWorks = cms?.howItWorks || null;
-  const pricing = cms?.pricing || null;
-  const hero = cms?.hero || null;
   const ctaContent = cms?.cta || null;
   const footerTagline = cms?.footer_tagline || null;
 
