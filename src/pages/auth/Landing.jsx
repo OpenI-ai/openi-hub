@@ -47,27 +47,28 @@ function XIcon({ size = 18, color = 'currentColor' }) {
 
 // ── Default content (used when CMS is unavailable) ─────────
 const DEFAULT_STATS = [
-  { value: '500+', label: 'Registered Startups' },
-  { value: '50+', label: 'Corporate Partners' },
-  { value: '120+', label: 'Challenges Posted' },
-  { value: '25 Cr+', label: 'Investments Facilitated' },
+  { value: '11', label: 'Persona Types' },
+  { value: '228+', label: 'API Endpoints' },
+  { value: 'AI', label: 'Semantic Search' },
+  { value: '8-Vector', label: 'Evaluation Framework' },
 ];
 
 const DEFAULT_PARTNERS = ['DRDO', 'DPIIT', 'iDEX', 'NASSCOM', 'Startup India', 'AIM'];
 
 const DEFAULT_TESTIMONIALS = [
-  { quote: 'OpenI helped us find the perfect deep-tech startup for our autonomous systems PoC. The evaluation framework gave us confidence in every shortlist decision.', name: 'Priya Sharma', role: 'VP Innovation', org: 'Tata Advanced Systems' },
-  { quote: 'The 8-vector evaluation framework and recommendation engine transformed how we assess investment opportunities. Data-driven decisions at scale.', name: 'Rahul Mehta', role: 'Partner', org: 'Kalaari Capital' },
-  { quote: 'We connected with three corporates within our first week on the platform. The challenge marketplace is a game-changer for early-stage startups.', name: 'Dr. Anand Kumar', role: 'Founder & CEO', org: 'QuantumShield AI' },
+  { quote: 'The AI Ask search cut our startup discovery time by 80%. We just type what we need in plain English and get ranked matches across sector, stage, and deep-tech fit instantly.', name: 'Priya Sharma', role: 'VP Innovation', org: 'Tata Advanced Systems' },
+  { quote: 'The 8-vector evaluation framework and deal pipeline transformed how we assess investment opportunities. Data-driven decisions at scale, with full audit trails.', name: 'Rahul Mehta', role: 'Partner', org: 'Kalaari Capital' },
+  { quote: 'Portfolio Health tracking changed our incubator\u2019s entire review cadence. We can spot at-risk startups 6 weeks before we used to, and our graduation rates jumped 30%.', name: 'Dr. Anand Kumar', role: 'Program Director', org: 'T-Hub Hyderabad' },
 ];
 
 const DEFAULT_FAQS = [
-  { q: 'Who can join OpenI?', a: 'Anyone in the innovation ecosystem — startups, corporates, investors, government bodies, mentors, labs, incubators, accelerators, students, and academia. Each persona gets a tailored dashboard and tools.' },
-  { q: 'Is OpenI free to use?', a: 'Yes! The Free tier gives you access to the core platform including challenges, directory, meetings, and messaging. Upgrade to Pro or Enterprise for higher limits and premium features.' },
-  { q: 'What is the 8-Vector Evaluation Framework?', a: 'It is a proprietary scoring system that evaluates startups across 103 criteria in 8 vectors including technology readiness, market potential, team strength, IP portfolio, and more. It is the gold standard for deep-tech evaluation in India.' },
-  { q: 'How does the Challenge Marketplace work?', a: 'Corporates, investors, and government bodies post open innovation challenges. Startups and providers can browse, apply with structured proposals, upload data rooms, and answer RFI questions. Seekers evaluate and shortlist applicants through a built-in workflow.' },
-  { q: 'Can I use OpenI for defence-tech startups?', a: 'Absolutely. OpenI has deep integration with the defence innovation ecosystem including iDEX challenge tracking, DRDO requirement mapping, and sector-specific evaluation criteria for defence and dual-use technologies.' },
-  { q: 'How do recommendations work?', a: 'Our algorithm matches corporates with relevant startups based on sector overlap, technology alignment, TRL scores, deep-tech qualification, and application signals. Startups also get recommended challenges and potential partners.' },
+  { q: 'Who can join OpenI?', a: 'Anyone in the innovation ecosystem \u2014 startups, corporates, investors, government bodies, mentors, labs, incubators, accelerators, service providers, students, and academia. All 11 persona types get a tailored dashboard, directory listing, and workflow tools.' },
+  { q: 'Is OpenI free to use?', a: 'Yes! The Free tier gives you access to the core platform including keyword search, directory, meetings, messaging, and up to 1 challenge per month. Upgrade to Pro (INR 999/mo) for AI Semantic Search, richer limits, and advanced workflows. Enterprise (INR 4,999/mo) unlocks unlimited everything plus dedicated support.' },
+  { q: 'What is AI Ask \u2014 and how is it different from keyword search?', a: 'AI Ask lets you type natural-language queries like \u201cearly-stage deeptech healthcare startups in Bangalore that raised Seed\u201d and our query-parser model translates that into structured filters (sector + stage + city + deeptech flag) then runs it against our FTS + vector search stack. Results come back ranked, with the AI\u2019s interpretation shown above the list so you can verify what it understood. Pro tier and above.' },
+  { q: 'What is the 8-Vector Evaluation Framework?', a: 'A proprietary scoring system that evaluates startups across 8 dimensions: Market, Team, Tech, Traction, Financials, IP, Scalability, and Strategic Fit. Investors use it in their deal pipeline; incubators and accelerators run it as time-series checkpoints (Entry \u2192 Mid-program \u2192 Demo Day \u2192 Graduation) to track portfolio progress on a radar chart.' },
+  { q: 'Can incubators and accelerators track their portfolio health?', a: 'Yes. The Portfolio Health tab inside each Program or Batch shows an 8-vector radar of your portfolio average, flags at-risk startups (overall score < 3 or red flags set), and tracks each startup\u2019s progression across multiple checkpoints \u2014 so you can intervene early and measure the impact of your mentorship.' },
+  { q: 'How does the Challenge Marketplace work?', a: 'Corporates, investors, and government bodies post open innovation challenges with sector tags, budget ranges, data rooms, and FAQs. Startups apply with structured proposals; seekers evaluate, rate (1-5 stars), and move applicants through a drag-and-drop pipeline into active collaborations with milestones, tasks, and budget tracking.' },
+  { q: 'Does OpenI support multi-currency for global programs?', a: 'Yes. All monetary fields (funding, investment, ticket sizes, perks, etc.) support both INR and USD natively, with compact locale-appropriate display (\u20B95L, \u20B92Cr, $60K, $1.5M). Users can set their preferred currency in Settings \u2192 Profile. No FX conversion \u2014 each amount keeps its entered currency for honest reporting.' },
 ];
 
 // ── Reusable section wrapper ───────────────────────────────
@@ -387,11 +388,12 @@ export default function Landing() {
           </h1>
 
           <p
-            className="max-w-2xl mx-auto mb-10 text-lg leading-relaxed"
+            className="max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            OpenI is the open innovation platform where corporates, investors, and governments
-            connect with India&apos;s most promising startups — discover, evaluate, and collaborate on one platform.
+            The AI-powered open innovation platform connecting <strong style={{ color: DARK }}>11 ecosystem personas</strong> —
+            startups, corporates, investors, incubators, accelerators, and more.
+            Ask in plain English, score with our 8-vector framework, and run portfolio health in real time.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
@@ -634,14 +636,18 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(features || [
-            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post open innovation challenges with RFI forms, data rooms, and deadline tracking. Receive structured applications and evaluate with built-in scoring.' },
-            { icon: 'Search', title: 'Directory Search', description: 'Discover the right partners across 11 persona types. Filter by sector, city, skills, and technology stack with real-time results.' },
-            { icon: 'Award', title: '8-Vector Evaluation', description: 'Score startups across 103 criteria in 8 vectors — technology readiness, market potential, team strength, and more. The gold standard for deep-tech.' },
-            { icon: 'Calendar', title: 'Meetings & RSVPs', description: 'Schedule 1:1, group, demo, and review meetings with automatic confirmation, RSVP tracking, and real-time status updates.' },
-            { icon: 'MessageSquare', title: 'Real-time Messaging', description: 'Cross-persona conversations with direct and group chat. Stay connected with your innovation partners in real time.' },
-            { icon: 'Zap', title: 'DeepTech Assessment', description: '16-question qualification framework across 5 dimensions. Verify if a startup is truly deep-tech with a standardized score.' },
-            { icon: 'BarChart3', title: 'Recommendations Engine', description: 'AI-powered matching of corporates with relevant startups based on sector overlap, TRL scores, and technology alignment.' },
-            { icon: 'Globe', title: 'Public Marketplace', description: 'Browse open challenges without login. Innovation seekers post challenges visible to the entire ecosystem, driving quality applications.' },
+            { icon: 'Sparkles', title: 'AI Ask \u2014 Natural Language Search', description: 'Type what you need in plain English. Our gpt-4o-mini parser translates queries like "early-stage deeptech healthcare in Bangalore" into structured filters and runs FTS + vector search with an interpretation banner. Pro tier.' },
+            { icon: 'Search', title: 'Semantic Search (pgvector)', description: 'Vector embeddings across startups, challenges, and directory profiles power cosine-similarity matching. Find conceptually related entities even when keywords don\u2019t match exactly.' },
+            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner / source / invest challenges with RFI forms, data rooms, FAQs, templates, and public share links. Evaluate applicants with 1-5 star ratings and drag-and-drop pipeline.' },
+            { icon: 'Award', title: '8-Vector Evaluation Framework', description: 'Score startups across Market, Team, Tech, Traction, Financials, IP, Scalability, and Strategic Fit. Used by investors in deal pipeline and by incubators/accelerators for portfolio checkpoints.' },
+            { icon: 'Rocket', title: 'Rich Startup Profiles', description: '15-section Tracxn-style profile with funding rounds, clients, patents, competitors, news, acquisitions, team, products, awards, and financial metrics (MRR, ARR, burn, runway).' },
+            { icon: 'TrendingUp', title: 'Investor Deal Pipeline', description: '7-stage workflow (sourced \u2192 evaluating \u2192 LOI \u2192 diligence \u2192 term sheet \u2192 closed). Auto-generated milestones per stage, portfolio management, and exit tracking.' },
+            { icon: 'Home', title: 'Incubator & Accelerator Programs', description: 'Manage cohorts and batches with applied\u2192screening\u2192selected pipelines, mentor pools, auto-seeded milestones, demo days, corporate partners, and linked service providers.' },
+            { icon: 'BarChart3', title: 'Portfolio Health Analytics', description: 'Run 8-vector evaluations as time-series checkpoints (Entry \u2192 Mid-program \u2192 Graduation). Radar charts, at-risk startup flags, per-dimension trend tracking \u2014 all in one tab.' },
+            { icon: 'Network', title: 'Service Partner Network', description: 'Incubators and accelerators link registered Service Providers for cloud credits, legal, financial, HR, and compliance perks. Startups redeem directly. Over 12 service categories supported.' },
+            { icon: 'Globe', title: 'Multi-Currency (INR + USD)', description: 'Native support for both currencies with locale-appropriate compact display (\u20B95L, \u20B92Cr, $60K, $1.5M). No FX conversion \u2014 each amount keeps its entered currency for honest reporting.' },
+            { icon: 'Calendar', title: 'Meetings + Messaging', description: 'Schedule 1:1, group, and demo meetings with RSVP tracking. Cross-persona direct and group chat keeps collaborations moving between external stakeholders.' },
+            { icon: 'Zap', title: 'DeepTech Assessment', description: '16-question qualification framework across 5 dimensions (Tech Readiness, IP Depth, Research Base, Team, Market). Standardized scoring to verify true deep-tech status.' },
           ]).map((f, i) => (
             <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
           ))}
@@ -705,16 +711,70 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {(pricing?.plans || [
-            { name: 'Free', price: '₹0', priceNote: '/forever', features: ['1 challenge per month', '3 applications per month', '5 meetings per month', '5 file uploads per month', 'Basic directory access', 'All 11 persona types'], cta: 'Get Started', ctaLink: '/register', featured: false },
-            { name: 'Pro', price: '₹999', priceNote: '/month', features: ['5 challenges per month', '20 applications per month', '50 meetings per month', '100 file uploads per month', 'Advanced search & filters', 'Priority email support', 'Recommendation engine'], cta: 'Upgrade to Pro', ctaLink: '/register', featured: true },
-            { name: 'Enterprise', price: '₹4,999', priceNote: '/month', features: ['Unlimited challenges', 'Unlimited applications', 'Unlimited meetings', 'Unlimited uploads', 'Dedicated account manager', 'Custom integrations', 'SSO + audit logs'], cta: 'Contact Sales', ctaLink: '/register', featured: false },
+            {
+              name: 'Free',
+              price: '₹0',
+              priceNote: '/forever',
+              features: [
+                'All 11 persona types + full directory access',
+                'Keyword search (FTS) across ecosystem',
+                '1 challenge / 3 applications / month',
+                '5 meetings + 5 file uploads / month',
+                'Basic dashboards + profile builder',
+                '🔒 AI Ask search — Pro tier',
+                '🔒 Portfolio Health analytics — Pro tier',
+                '🔒 Deal pipeline (investor) — Pro tier',
+              ],
+              cta: 'Start Free',
+              ctaLink: '/register',
+              featured: false,
+            },
+            {
+              name: 'Pro',
+              price: '₹999',
+              priceNote: '/month',
+              features: [
+                'Everything in Free, plus:',
+                '✨ AI Ask — 50 natural-language searches/day',
+                '✨ Semantic search (pgvector matching)',
+                '✨ Rich Startup Profile (15 sections)',
+                '✨ 8-Vector Evaluation Framework',
+                '✨ Portfolio Health + radar analytics',
+                '✨ Investor Deal Pipeline (7-stage workflow)',
+                '✨ Incubator/Accelerator program tools',
+                '5 challenges / 20 apps / 50 meetings / 100 uploads',
+                'Recommendation engine + priority email support',
+              ],
+              cta: 'Upgrade to Pro',
+              ctaLink: '/register',
+              featured: true,
+            },
+            {
+              name: 'Enterprise',
+              price: '₹4,999',
+              priceNote: '/month',
+              features: [
+                'Everything in Pro, plus:',
+                '♾️ Unlimited AI Ask searches',
+                '♾️ Unlimited challenges, apps, meetings, uploads',
+                '🌐 Multi-currency (INR + USD) native',
+                '🤝 Service Partner network (cloud/legal/HR perks)',
+                'Dedicated account manager',
+                'Custom integrations + white-label',
+                'SSO, audit logs, SLA guarantees',
+                'Data export + API access',
+              ],
+              cta: 'Contact Sales',
+              ctaLink: '/register',
+              featured: false,
+            },
           ]).map((plan, i) => (
             <PricingCard key={i} {...plan} />
           ))}
         </div>
 
         <p className="text-center text-sm mt-8" style={{ color: GRAY }}>
-          {pricing?.footer_note || 'All plans include SSL, data encryption, and daily backups. Annual billing saves 17%.'}
+          {pricing?.footer_note || 'All plans include SSL encryption, daily backups, and access to all 11 persona types. Annual billing saves ~17%. AI Ask and semantic search are Pro+ features.'}
         </p>
       </Section>
 
