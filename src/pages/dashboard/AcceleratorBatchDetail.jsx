@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { acceleratorAPI } from '../../services/api';
+import { formatCurrency } from '../../utils/currency';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
   Users, Target, Rocket, Clock, Zap, MapPin, Globe, DollarSign
@@ -135,7 +136,7 @@ export default function AcceleratorBatchDetail() {
           <Stat icon={Users} label="Pipeline" value={startups.length} color="#3b82f6" />
           <Stat icon={CheckCircle} label="Selected" value={startups.filter(s => s.application_status === 'selected').length} color="#16a34a" />
           <Stat icon={Zap} label="Graduated" value={startups.filter(s => s.application_status === 'graduated').length} color="#ca8a04" />
-          <Stat icon={DollarSign} label="Investment" value={batch.investment_amount ? `₹${(batch.investment_amount / 100000).toFixed(0)}L` : '—'} color={G} />
+          <Stat icon={DollarSign} label="Investment" value={formatCurrency(batch.investment_amount, batch.investment_currency, 'compact')} color={G} />
           <Stat icon={Calendar} label="Duration" value={batch.duration_weeks ? `${batch.duration_weeks}w` : '—'} color="#8b5cf6" />
           <Stat icon={MapPin} label="Location" value={batch.is_virtual ? 'Virtual' : (batch.location || '—')} color="#ec4899" />
         </div>

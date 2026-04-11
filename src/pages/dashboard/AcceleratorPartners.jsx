@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { acceleratorAPI } from '../../services/api';
+import { formatCurrency, formatCurrencyRange, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
   Loader2, Plus, X, Trash2, Edit3, Building2, DollarSign, Calendar,
   Globe, Mail, MapPin, ToggleLeft, ToggleRight, ExternalLink, Video
@@ -28,11 +29,12 @@ export default function AcceleratorPartners() {
     partner_name: '', partnership_type: 'sponsor', partnership_tier: '', contribution: '', website: '', started_at: '', notes: ''
   });
   const [investorForm, setInvestorForm] = useState({
-    investor_name: '', investor_type: 'vc', firm_name: '', typical_ticket_min: '', typical_ticket_max: '',
+    investor_name: '', investor_type: 'vc', firm_name: '', typical_ticket_min: '', typical_ticket_max: '', ticket_currency: 'INR',
     focus_sectors: '', stage_preference: '', contact_email: '', linkedin_url: '', notes: ''
   });
   const [demoDayForm, setDemoDayForm] = useState({
-    title: '', description: '', event_date: '', venue: '', is_virtual: false, stream_url: '', rsvp_url: '', total_investors_invited: 0
+    title: '', description: '', event_date: '', venue: '', is_virtual: false, stream_url: '', rsvp_url: '', total_investors_invited: 0,
+    total_funding_raised: '', total_funding_raised_currency: 'INR',
   });
 
   useEffect(() => { load(); }, []);
@@ -79,7 +81,7 @@ export default function AcceleratorPartners() {
       });
       toast.success('Investor added');
       setShowAddInvestor(false);
-      setInvestorForm({ investor_name: '', investor_type: 'vc', firm_name: '', typical_ticket_min: '', typical_ticket_max: '', focus_sectors: '', stage_preference: '', contact_email: '', linkedin_url: '', notes: '' });
+      setInvestorForm({ investor_name: '', investor_type: 'vc', firm_name: '', typical_ticket_min: '', typical_ticket_max: '', ticket_currency: 'INR', focus_sectors: '', stage_preference: '', contact_email: '', linkedin_url: '', notes: '' });
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -91,7 +93,7 @@ export default function AcceleratorPartners() {
       await acceleratorAPI.createDemoDay(demoDayForm);
       toast.success('Demo day created');
       setShowAddDemoDay(false);
-      setDemoDayForm({ title: '', description: '', event_date: '', venue: '', is_virtual: false, stream_url: '', rsvp_url: '', total_investors_invited: 0 });
+      setDemoDayForm({ title: '', description: '', event_date: '', venue: '', is_virtual: false, stream_url: '', rsvp_url: '', total_investors_invited: 0, total_funding_raised: '', total_funding_raised_currency: 'INR' });
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -217,7 +219,7 @@ export default function AcceleratorPartners() {
                   </div>
                   {(i.typical_ticket_min || i.typical_ticket_max) && (
                     <div style={{ fontSize: 11, color: '#666', marginTop: 8 }}>
-                      <strong>Ticket:</strong> ₹{i.typical_ticket_min ? (i.typical_ticket_min / 100000).toFixed(0) + 'L' : '—'} – ₹{i.typical_ticket_max ? (i.typical_ticket_max / 100000).toFixed(0) + 'L' : '—'}
+                      <strong>Ticket:</strong> {formatCurrencyRange(i.typical_ticket_min, i.typical_ticket_max, i.ticket_currency, 'compact')}
                     </div>
                   )}
                   {(i.focus_sectors || []).length > 0 && (
@@ -263,7 +265,7 @@ export default function AcceleratorPartners() {
                     <Stat icon={Calendar} label="Date" value={new Date(d.event_date).toLocaleDateString()} />
                     <Stat icon={d.is_virtual ? Video : MapPin} label="Venue" value={d.is_virtual ? 'Virtual' : (d.venue || '—')} />
                     <Stat icon={DollarSign} label="Invited" value={d.total_investors_invited} />
-                    <Stat icon={DollarSign} label="Raised" value={d.total_funding_raised ? `₹${(d.total_funding_raised / 10000000).toFixed(1)}Cr` : '—'} />
+                    <Stat icon={DollarSign} label="Raised" value={formatCurrency(d.total_funding_raised, d.total_funding_raised_currency, 'compact')} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginTop: 10 }}>
                     {d.stream_url && <a href={d.stream_url} target="_blank" rel="noopener noreferrer" style={{ ...btnIcon, display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}><Video size={12} /> Stream</a>}
@@ -311,9 +313,15 @@ export default function AcceleratorPartners() {
               </div>
               <div><label style={lbl}>Firm Name</label><input value={investorForm.firm_name} onChange={e => setInvestorForm({ ...investorForm, firm_name: e.target.value })} style={inp} /></div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <div><label style={lbl}>Ticket Min (INR)</label><input type="number" value={investorForm.typical_ticket_min} onChange={e => setInvestorForm({ ...investorForm, typical_ticket_min: e.target.value })} style={inp} /></div>
-              <div><label style={lbl}>Ticket Max (INR)</label><input type="number" value={investorForm.typical_ticket_max} onChange={e => setInvestorForm({ ...investorForm, typical_ticket_max: e.target.value })} style={inp} /></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+              <div>
+                <label style={lbl}>Currency</label>
+                <select value={investorForm.ticket_currency} onChange={e => setInvestorForm({ ...investorForm, ticket_currency: e.target.value })} style={inp}>
+                  {CURRENCY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+              </div>
+              <div><label style={lbl}>Ticket Min</label><input type="number" value={investorForm.typical_ticket_min} onChange={e => setInvestorForm({ ...investorForm, typical_ticket_min: e.target.value })} style={inp} /></div>
+              <div><label style={lbl}>Ticket Max</label><input type="number" value={investorForm.typical_ticket_max} onChange={e => setInvestorForm({ ...investorForm, typical_ticket_max: e.target.value })} style={inp} /></div>
             </div>
             <div><label style={lbl}>Focus Sectors (comma-separated)</label><input value={investorForm.focus_sectors} onChange={e => setInvestorForm({ ...investorForm, focus_sectors: e.target.value })} placeholder="FinTech, SaaS" style={inp} /></div>
             <div><label style={lbl}>Stage Preference (comma-separated)</label><input value={investorForm.stage_preference} onChange={e => setInvestorForm({ ...investorForm, stage_preference: e.target.value })} placeholder="Seed, Series A" style={inp} /></div>
@@ -340,6 +348,18 @@ export default function AcceleratorPartners() {
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#666' }}><input type="checkbox" checked={demoDayForm.is_virtual} onChange={e => setDemoDayForm({ ...demoDayForm, is_virtual: e.target.checked })} /> Virtual event</label>
             <div><label style={lbl}>Stream URL</label><input type="url" value={demoDayForm.stream_url} onChange={e => setDemoDayForm({ ...demoDayForm, stream_url: e.target.value })} style={inp} /></div>
             <div><label style={lbl}>RSVP URL</label><input type="url" value={demoDayForm.rsvp_url} onChange={e => setDemoDayForm({ ...demoDayForm, rsvp_url: e.target.value })} style={inp} /></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10 }}>
+              <div>
+                <label style={lbl}>Currency</label>
+                <select value={demoDayForm.total_funding_raised_currency} onChange={e => setDemoDayForm({ ...demoDayForm, total_funding_raised_currency: e.target.value })} style={inp}>
+                  {CURRENCY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={lbl}>Total Funding Raised (optional)</label>
+                <input type="number" value={demoDayForm.total_funding_raised} onChange={e => setDemoDayForm({ ...demoDayForm, total_funding_raised: e.target.value })} placeholder="0 if not yet held" style={inp} />
+              </div>
+            </div>
             <ModalFooter onClose={() => setShowAddDemoDay(false)} />
           </form>
         </Modal>

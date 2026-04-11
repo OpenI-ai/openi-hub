@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { programPartnersAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { formatCurrency, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
   Loader2, Plus, X, Trash2, Edit3, Link2, Globe, Mail, ExternalLink,
   ToggleLeft, ToggleRight, Search, Gift, CheckCircle, User
@@ -47,6 +48,7 @@ export default function ProgramServicePartners() {
     service_category: '',
     perk_description: '',
     perk_value: '',
+    perk_value_currency: 'INR',
     redemption_url: '',
     redemption_instructions: '',
     eligibility_criteria: '',
@@ -89,7 +91,7 @@ export default function ProgramServicePartners() {
     setEditingId(null);
     setForm({
       service_provider_user_id: '', service_category: '', perk_description: '',
-      perk_value: '', redemption_url: '', redemption_instructions: '',
+      perk_value: '', perk_value_currency: 'INR', redemption_url: '', redemption_instructions: '',
       eligibility_criteria: '', contact_email: '', contact_person: '', started_at: '', notes: '',
     });
   };
@@ -124,6 +126,7 @@ export default function ProgramServicePartners() {
       service_category: p.service_category || '',
       perk_description: p.perk_description || '',
       perk_value: p.perk_value || '',
+      perk_value_currency: p.perk_value_currency || 'INR',
       redemption_url: p.redemption_url || '',
       redemption_instructions: p.redemption_instructions || '',
       eligibility_criteria: p.eligibility_criteria || '',
@@ -240,7 +243,7 @@ export default function ProgramServicePartners() {
                   <div style={{ fontSize: 12, color: '#1a1a1a', lineHeight: 1.5 }}>{p.perk_description}</div>
                   {p.perk_value && (
                     <div style={{ fontSize: 11, color: '#666', marginTop: 4 }}>
-                      Est. value: <strong>₹{(Number(p.perk_value) / 100000).toFixed(1)}L</strong>
+                      Est. value: <strong>{formatCurrency(p.perk_value, p.perk_value_currency, 'compact')}</strong>
                     </div>
                   )}
                 </div>
@@ -420,9 +423,15 @@ export default function ProgramServicePartners() {
                   style={{ ...inp, resize: 'vertical' }} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 10 }}>
                 <div>
-                  <label style={lbl}>Perk Value (INR)</label>
+                  <label style={lbl}>Currency</label>
+                  <select value={form.perk_value_currency} onChange={e => setForm({ ...form, perk_value_currency: e.target.value })} style={inp}>
+                    {CURRENCY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={lbl}>Perk Value</label>
                   <input type="number" value={form.perk_value} onChange={e => setForm({ ...form, perk_value: e.target.value })} placeholder="2500000" style={inp} />
                 </div>
                 <div>

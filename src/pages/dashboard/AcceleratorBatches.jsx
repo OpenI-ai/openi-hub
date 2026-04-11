@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { acceleratorAPI } from '../../services/api';
+import { formatCurrency, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
   Loader2, Plus, X, Calendar, Users, Target, Rocket,
   Search, ArrowRight, Zap, MapPin, DollarSign, Globe
@@ -28,7 +29,7 @@ export default function AcceleratorBatches() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     name: '', description: '', focus_sectors: '', batch_number: '', duration_weeks: 12,
-    equity_taken: '', investment_amount: '', application_deadline: '', start_date: '',
+    equity_taken: '', investment_amount: '', investment_currency: 'INR', application_deadline: '', start_date: '',
     end_date: '', demo_day_date: '', total_seats: 10, status: 'draft', location: '', is_virtual: false,
   });
 
@@ -65,7 +66,7 @@ export default function AcceleratorBatches() {
       setShowCreate(false);
       setForm({
         name: '', description: '', focus_sectors: '', batch_number: '', duration_weeks: 12,
-        equity_taken: '', investment_amount: '', application_deadline: '', start_date: '',
+        equity_taken: '', investment_amount: '', investment_currency: 'INR', application_deadline: '', start_date: '',
         end_date: '', demo_day_date: '', total_seats: 10, status: 'draft', location: '', is_virtual: false,
       });
       load();
@@ -213,7 +214,7 @@ export default function AcceleratorBatches() {
                   <label style={lbl}>Focus Sectors (comma-separated)</label>
                   <input value={form.focus_sectors} onChange={e => setForm({ ...form, focus_sectors: e.target.value })} placeholder="FinTech, InsurTech" style={inp} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
                   <div>
                     <label style={lbl}>Duration (weeks)</label>
                     <input type="number" value={form.duration_weeks} onChange={e => setForm({ ...form, duration_weeks: e.target.value })} style={inp} />
@@ -223,7 +224,13 @@ export default function AcceleratorBatches() {
                     <input type="number" step="0.1" value={form.equity_taken} onChange={e => setForm({ ...form, equity_taken: e.target.value })} style={inp} />
                   </div>
                   <div>
-                    <label style={lbl}>Investment (INR)</label>
+                    <label style={lbl}>Currency</label>
+                    <select value={form.investment_currency} onChange={e => setForm({ ...form, investment_currency: e.target.value })} style={inp}>
+                      {CURRENCY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={lbl}>Investment</label>
                     <input type="number" value={form.investment_amount} onChange={e => setForm({ ...form, investment_amount: e.target.value })} style={inp} />
                   </div>
                 </div>

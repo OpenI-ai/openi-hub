@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
+import { formatCurrencyRange, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
   Loader2, Plus, X, Calendar, Users, Target, GraduationCap,
-  TrendingUp, Search, Filter, ArrowRight, Award, Clock
+  TrendingUp, Search, Filter, ArrowRight, Award, Clock, DollarSign
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -29,7 +30,7 @@ export default function IncubatorPrograms() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     name: '', description: '', focus_sectors: '', program_type: 'incubation',
-    duration_months: 6, equity_taken: '', funding_offered_min: '', funding_offered_max: '',
+    duration_months: 6, equity_taken: '', funding_offered_min: '', funding_offered_max: '', funding_currency: 'INR',
     application_deadline: '', start_date: '', end_date: '', total_seats: 10, status: 'draft',
   });
 
@@ -66,7 +67,7 @@ export default function IncubatorPrograms() {
       setShowCreate(false);
       setForm({
         name: '', description: '', focus_sectors: '', program_type: 'incubation',
-        duration_months: 6, equity_taken: '', funding_offered_min: '', funding_offered_max: '',
+        duration_months: 6, equity_taken: '', funding_offered_min: '', funding_offered_max: '', funding_currency: 'INR',
         application_deadline: '', start_date: '', end_date: '', total_seats: 10, status: 'draft',
       });
       load();
@@ -227,17 +228,23 @@ export default function IncubatorPrograms() {
                     <input type="number" value={form.duration_months} onChange={e => setForm({ ...form, duration_months: e.target.value })} style={inp} />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
                   <div>
                     <label style={lbl}>Equity (%)</label>
                     <input type="number" step="0.1" value={form.equity_taken} onChange={e => setForm({ ...form, equity_taken: e.target.value })} style={inp} />
                   </div>
                   <div>
-                    <label style={lbl}>Funding Min (INR)</label>
+                    <label style={lbl}>Currency</label>
+                    <select value={form.funding_currency} onChange={e => setForm({ ...form, funding_currency: e.target.value })} style={inp}>
+                      {CURRENCY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={lbl}>Funding Min</label>
                     <input type="number" value={form.funding_offered_min} onChange={e => setForm({ ...form, funding_offered_min: e.target.value })} style={inp} />
                   </div>
                   <div>
-                    <label style={lbl}>Funding Max (INR)</label>
+                    <label style={lbl}>Funding Max</label>
                     <input type="number" value={form.funding_offered_max} onChange={e => setForm({ ...form, funding_offered_max: e.target.value })} style={inp} />
                   </div>
                 </div>

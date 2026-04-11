@@ -31,6 +31,7 @@ export default function Settings() {
 
   // Profile form
   const [name, setName] = useState(user?.name || '');
+  const [preferredCurrency, setPreferredCurrency] = useState(user?.preferred_currency || 'INR');
   const [saving, setSaving] = useState(false);
 
   // Password form
@@ -129,11 +130,17 @@ export default function Settings() {
     if (!name.trim()) return toast.error('Name is required');
     setSaving(true);
     try {
-      const res = await authAPI.updateProfile({ name: name.trim() });
+      const res = await authAPI.updateProfile({
+        name: name.trim(),
+        preferred_currency: preferredCurrency,
+      });
       // Update localStorage
       const stored = JSON.parse(localStorage.getItem('openi_user') || '{}');
       stored.name = res.user?.name || name.trim();
+      stored.preferred_currency = res.user?.preferred_currency || preferredCurrency;
       localStorage.setItem('openi_user', JSON.stringify(stored));
+      // Also update auth context so downstream components see the new preference
+      if (updateUser) updateUser({ preferred_currency: stored.preferred_currency });
       toast.success('Profile updated successfully');
     } catch (err) {
       toast.error(err.message || 'Failed to update profile');
@@ -239,6 +246,20 @@ export default function Settings() {
                 borderRadius: 9, fontSize: 14, color: '#888', textTransform: 'capitalize',
               }}>
                 {user?.role} <span style={{ fontSize: 11, color: '#aaa' }}>(assigned by admin)</span>
+              </div>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#444', marginBottom: 6 }}>Preferred Currency</label>
+              <select value={preferredCurrency} onChange={e => setPreferredCurrency(e.target.value)} style={{
+                width: '100%', boxSizing: 'border-box', padding: '10px 14px',
+                background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
+                fontSize: 14, outline: 'none', color: '#1a1a1a', cursor: 'pointer',
+              }}>
+                <option value="INR">₹ Indian Rupee (INR)</option>
+                <option value="USD">$ US Dollar (USD)</option>
+              </select>
+              <div style={{ fontSize: 11, color: '#888', marginTop: 5 }}>
+                Default currency used when creating new programs, batches, and partnerships. Existing records keep their original currency.
               </div>
             </div>
           </div>
