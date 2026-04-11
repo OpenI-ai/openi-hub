@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
+import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
-  Users, Target, GraduationCap, Edit3, Clock
+  Users, Target, GraduationCap, Edit3, Clock, BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -160,11 +161,15 @@ export default function IncubatorProgramDetail() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 14, borderBottom: '1px solid #eee' }}>
-        {['pipeline', 'milestones', 'mentors'].map(t => (
+      <div style={{ display: 'flex', gap: 4, marginBottom: 14, borderBottom: '1px solid #eee', flexWrap: 'wrap' }}>
+        {['pipeline', 'milestones', 'mentors', 'health'].map(t => (
           <button key={t} onClick={() => setTab(t)}
-            style={{ padding: '10px 18px', background: 'none', border: 'none', borderBottom: tab === t ? `2px solid ${G}` : '2px solid transparent', color: tab === t ? '#1a1a1a' : '#888', fontSize: 13, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' }}>
-            {t} {t === 'pipeline' && `(${startups.length})`}{t === 'milestones' && ` (${milestoneDone}/${milestones.length})`}{t === 'mentors' && ` (${assignments.length})`}
+            style={{ padding: '10px 18px', background: 'none', border: 'none', borderBottom: tab === t ? `2px solid ${G}` : '2px solid transparent', color: tab === t ? '#1a1a1a' : '#888', fontSize: 13, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: 5 }}>
+            {t === 'health' && <BarChart3 size={13} />}
+            {t === 'health' ? 'Portfolio Health' : t}
+            {t === 'pipeline' && ` (${startups.length})`}
+            {t === 'milestones' && ` (${milestoneDone}/${milestones.length})`}
+            {t === 'mentors' && ` (${assignments.length})`}
           </button>
         ))}
       </div>
@@ -286,6 +291,15 @@ export default function IncubatorProgramDetail() {
             )}
           </div>
         </>
+      )}
+
+      {/* Portfolio Health tab (Phase 16B.4) */}
+      {tab === 'health' && (
+        <PortfolioHealthTab
+          owner="incubator"
+          parentId={parseInt(id, 10)}
+          pipelineStartups={startups}
+        />
       )}
 
       {/* Add startup modal */}

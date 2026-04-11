@@ -376,6 +376,16 @@ export const programPartnersAPI = {
   remove:           (id)             => del(`/program-partners/${id}`),
 };
 
+// ── Portfolio 8-Vector Evaluations (Phase 16B.4, shared incubator+accelerator) ───
+export const portfolioEvalsAPI = {
+  list:             (params = {})    => get(`/program-evals?${new URLSearchParams(params)}`),
+  create:           (data)            => post('/program-evals', data),
+  get:              (id)              => get(`/program-evals/${id}`),
+  update:           (id, data)        => put(`/program-evals/${id}`, data),
+  remove:           (id)              => del(`/program-evals/${id}`),
+  portfolioHealth:  (params = {})    => get(`/program-evals/portfolio-health?${new URLSearchParams(params)}`),
+};
+
 // ── Challenge Applications (for startups / marketplace) ──────
 export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),
