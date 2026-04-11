@@ -122,11 +122,10 @@ export const PERSONA_NAV = {
   ],
   incubator: [
     ...COMMON_NAV,
-    { to: '/dashboard/startups',    label: 'Startups',  icon: 'Rocket' },
-    { to: '/dashboard/cohorts',     label: 'Cohorts',   icon: 'GraduationCap' },
-    { to: '/dashboard/mentors',     label: 'Mentors',   icon: 'Users' },
-    { to: '/dashboard/projects',    label: 'Projects',  icon: 'FolderKanban' },
-    { to: '/dashboard/evaluations', label: 'Programs',  icon: 'FileText' },
+    { to: '/dashboard/incubator/programs', label: 'Programs',     icon: 'GraduationCap' },
+    { to: '/dashboard/incubator/mentors',  label: 'Mentor Pool',  icon: 'Users' },
+    { to: '/dashboard/startups',           label: 'Discover Startups', icon: 'Rocket' },
+    { to: '/dashboard/projects',           label: 'Projects',     icon: 'FolderKanban' },
   ],
   accelerator: [
     ...COMMON_NAV,

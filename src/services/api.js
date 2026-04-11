@@ -298,6 +298,38 @@ export const investorAPI = {
   updatePortfolio:      (id, data)      => put(`/investor/portfolio/${id}`, data),
 };
 
+// ── Incubator Features (Phase 16A) ───────────────────────────
+export const incubatorAPI = {
+  dashboard:            ()              => get('/incubator/dashboard'),
+  recommendedStartups:  ()              => get('/incubator/recommended-startups'),
+  // Programs
+  listPrograms:         (params = {})   => get(`/incubator/programs?${new URLSearchParams(params)}`),
+  createProgram:        (data)          => post('/incubator/programs', data),
+  getProgram:           (id)            => get(`/incubator/programs/${id}`),
+  updateProgram:        (id, data)      => put(`/incubator/programs/${id}`, data),
+  deleteProgram:        (id)            => del(`/incubator/programs/${id}`),
+  // Program startups (pipeline)
+  listProgramStartups:  (id)            => get(`/incubator/programs/${id}/startups`),
+  addProgramStartup:    (id, data)      => post(`/incubator/programs/${id}/startups`, data),
+  updateProgramStartup: (id, sid, data) => put(`/incubator/programs/${id}/startups/${sid}`, data),
+  removeProgramStartup: (id, sid)       => del(`/incubator/programs/${id}/startups/${sid}`),
+  // Mentor pool
+  listMentorPool:       ()              => get('/incubator/mentor-pool'),
+  addMentorToPool:      (data)          => post('/incubator/mentor-pool', data),
+  updateMentorInPool:   (mid, data)     => put(`/incubator/mentor-pool/${mid}`, data),
+  removeMentorFromPool: (mid)           => del(`/incubator/mentor-pool/${mid}`),
+  // Mentor assignments
+  listAssignments:      (id)            => get(`/incubator/programs/${id}/assignments`),
+  createAssignment:     (id, data)      => post(`/incubator/programs/${id}/assignments`, data),
+  updateAssignment:     (id, aid, data) => put(`/incubator/programs/${id}/assignments/${aid}`, data),
+  deleteAssignment:     (id, aid)       => del(`/incubator/programs/${id}/assignments/${aid}`),
+  // Milestones
+  listMilestones:       (id)            => get(`/incubator/programs/${id}/milestones`),
+  createMilestone:      (id, data)      => post(`/incubator/programs/${id}/milestones`, data),
+  updateMilestone:      (id, mid, data) => put(`/incubator/programs/${id}/milestones/${mid}`, data),
+  deleteMilestone:      (id, mid)       => del(`/incubator/programs/${id}/milestones/${mid}`),
+};
+
 // ── Challenge Applications (for startups / marketplace) ──────
 export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),
