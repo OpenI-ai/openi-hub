@@ -48,6 +48,8 @@ const COMMON_NAV = [
   { to: '/dashboard/knowledge',  label: 'Knowledge',   icon: 'BookOpen' },
   { to: '/dashboard/documents',      label: 'Documents',      icon: 'FolderOpen' },
   { to: '/dashboard/organization',  label: 'Organization',   icon: 'Building2' },
+  { to: '/dashboard/features',     label: 'Features',       icon: 'Map' },
+  { to: '/dashboard/whats-new',    label: "What's New",     icon: 'Sparkles' },
   { to: '/dashboard/settings',      label: 'Settings',       icon: 'Settings' },
 ];
 

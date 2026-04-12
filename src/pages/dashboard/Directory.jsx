@@ -3,6 +3,7 @@ import { directoryAPI, profileAPI } from '../../services/api';
 import { PERSONAS, PERSONA_CATEGORIES } from '../../config/personas';
 import ConnectButton from '../../components/ConnectButton';
 import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
+import ContextualTip from '../../components/ContextualTip';
 import {
   Search, Filter, ChevronLeft, Loader2, MapPin, Star, CheckCircle,
   X, Users, Building2, Rocket, GraduationCap, BookOpen, Landmark,
@@ -190,6 +191,9 @@ export default function Directory() {
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px' }}>Directory</h1>
         <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Discover innovators, mentors, investors, labs, and more across the ecosystem</p>
+        <ContextualTip tipKey="directory-intro">
+          Search by name, filter by persona type or sector, and click Connect to build your network. Use the sort dropdown to find the most relevant profiles.
+        </ContextualTip>
       </div>
 
       {/* Search bar */}

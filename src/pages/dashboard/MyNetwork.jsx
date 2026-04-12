@@ -7,6 +7,7 @@ import { connectionAPI, directoryAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import ConnectButton from '../../components/ConnectButton';
 import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
+import ContextualTip from '../../components/ContextualTip';
 import {
   Users, UserPlus, Clock, Search, Loader2, MapPin, Building2,
   ArrowRight, Inbox, Send, Globe,
@@ -141,10 +142,13 @@ export default function MyNetwork() {
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>My Network</h1>
-      <p style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
         {stats.total_connections} connection{stats.total_connections !== 1 ? 's' : ''}
         {stats.pending_incoming > 0 && <span style={{ color: G, fontWeight: 600 }}> &middot; {stats.pending_incoming} pending</span>}
       </p>
+      <ContextualTip tipKey="network-intro">
+        Build your professional network! Use the Discover tab to find people, send connection requests, and grow your ecosystem reach.
+      </ContextualTip>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '1px solid #eee', paddingBottom: 0 }}>
