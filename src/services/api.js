@@ -452,6 +452,7 @@ export const analyticsAPI = {
   personas:        ()            => get('/admin/analytics/personas'),
   funnel:          ()            => get('/admin/analytics/funnel'),
   featureAdoption: ()            => get('/admin/analytics/feature-adoption'),
+  aiTelemetry:     (params = {}) => get(`/admin/analytics/ai-telemetry?${new URLSearchParams(params)}`),
 };
 
 // ── Connections (Phase 18) ──────────────────────────────────

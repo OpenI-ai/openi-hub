@@ -67,12 +67,13 @@ export default function Settings() {
   const loadBilling = async () => {
     setBillingLoading(true);
     try {
-      const [plansData, myData] = await Promise.all([
+      const [plansData, myData, featureData] = await Promise.all([
         subscriptionAPI.getPlans(),
         subscriptionAPI.getMyPlan(),
+        subscriptionAPI.featureAccess().catch(() => null),
       ]);
       setPlans(plansData.plans || []);
-      setMyPlan(myData);
+      setMyPlan({ ...myData, ai_consumption: featureData?.ai_consumption || null });
     } catch (err) { toast.error('Failed to load billing info'); }
     finally { setBillingLoading(false); }
   };
@@ -467,6 +468,27 @@ export default function Settings() {
                       );
                     })}
                   </div>
+
+                  {/* AI Consumption (Phase 25 — for paid users) */}
+                  {currentPlan !== 'free' && myPlan?.ai_consumption && (
+                    <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 10, border: '1px solid #fde68a' }}>
+                      <h3 style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 8 }}>AI Usage This Month</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{myPlan.ai_consumption.queries_this_month || 0}</div>
+                          <div style={{ fontSize: 10, color: '#888' }}>Queries</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{((myPlan.ai_consumption.tokens_this_month || 0) / 1000).toFixed(1)}K</div>
+                          <div style={{ fontSize: 10, color: '#888' }}>Tokens</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>${(myPlan.ai_consumption.cost_this_month_usd || 0).toFixed(4)}</div>
+                          <div style={{ fontSize: 10, color: '#888' }}>Est. Cost</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {currentPlan !== 'free' && (
                     <button onClick={handleCancel} style={{ marginTop: 16, fontSize: 12, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>
