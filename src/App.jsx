@@ -67,6 +67,7 @@ import LabPublications      from './pages/dashboard/LabPublications';
 import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 import FeatureMap           from './pages/dashboard/FeatureMap';
+import AdminAnalytics       from './pages/dashboard/AdminAnalytics';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -162,6 +163,7 @@ export default function App() {
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />
+            <Route path="admin/analytics"    element={<AdminAnalytics />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

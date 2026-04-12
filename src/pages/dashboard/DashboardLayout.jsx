@@ -70,6 +70,7 @@ const NAV = [
   { to: "/dashboard/sme",            label: "SME Experts",      Icon: UserCheck,       roles: ["admin","evaluator"] },
   { to: "/dashboard/feedback",       label: "Feedback",         Icon: ThumbsUp,        roles: ["admin","evaluator"] },
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
+  { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"], badge: "NEW" },
 ];
 
 const MOCK_NOTIFS = [

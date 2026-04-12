@@ -445,6 +445,15 @@ export const onboardingAPI = {
   skip:          ()         => post('/onboarding/skip'),
 };
 
+// ── Admin Analytics (Phase 24) ──────────────────────────────
+export const analyticsAPI = {
+  overview:        ()            => get('/admin/analytics/overview'),
+  timeseries:      (params = {}) => get(`/admin/analytics/timeseries?${new URLSearchParams(params)}`),
+  personas:        ()            => get('/admin/analytics/personas'),
+  funnel:          ()            => get('/admin/analytics/funnel'),
+  featureAdoption: ()            => get('/admin/analytics/feature-adoption'),
+};
+
 // ── Connections (Phase 18) ──────────────────────────────────
 export const connectionAPI = {
   list:             (params = {}) => get(`/connections?${new URLSearchParams(params)}`),
