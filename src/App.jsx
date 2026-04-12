@@ -59,6 +59,11 @@ import Settings             from './pages/dashboard/Settings';
 import MyNetwork            from './pages/dashboard/MyNetwork';
 import UserProfile          from './pages/dashboard/UserProfile';
 import OrgAdmin             from './pages/dashboard/OrgAdmin';
+import SPServices           from './pages/dashboard/SPServices';
+import MentorSessions       from './pages/dashboard/MentorSessions';
+import MentorAvailability   from './pages/dashboard/MentorAvailability';
+import LabEquipment         from './pages/dashboard/LabEquipment';
+import LabPublications      from './pages/dashboard/LabPublications';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -143,6 +148,14 @@ export default function App() {
             <Route path="network"             element={<MyNetwork />} />
             <Route path="profile/:id"        element={<UserProfile />} />
             <Route path="organization"       element={<OrgAdmin />} />
+            <Route path="sp/services"        element={<SPServices />} />
+            <Route path="sp/clients"         element={<SPServices />} />
+            <Route path="sp/reviews"         element={<SPServices />} />
+            <Route path="mentor/sessions"    element={<MentorSessions />} />
+            <Route path="mentor/availability" element={<MentorAvailability />} />
+            <Route path="lab/equipment"      element={<LabEquipment />} />
+            <Route path="lab/bookings"       element={<LabEquipment />} />
+            <Route path="lab/publications"   element={<LabPublications />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

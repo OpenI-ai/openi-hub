@@ -397,7 +397,48 @@ export const portfolioEvalsAPI = {
   portfolioHealth:  (params = {})    => get(`/program-evals/portfolio-health?${new URLSearchParams(params)}`),
 };
 
-// ── Connections (Phase 18) ───────────��───────────────────────
+// ── Service Provider Enhancement (Phase 16C) ────────────────
+export const spAPI = {
+  dashboard:      ()           => get('/sp/dashboard'),
+  listServices:   ()           => get('/sp/services'),
+  createService:  (data)       => post('/sp/services', data),
+  updateService:  (id, data)   => put(`/sp/services/${id}`, data),
+  deleteService:  (id)         => del(`/sp/services/${id}`),
+  listClients:    ()           => get('/sp/clients'),
+  createClient:   (data)       => post('/sp/clients', data),
+  updateClient:   (id, data)   => put(`/sp/clients/${id}`, data),
+  deleteClient:   (id)         => del(`/sp/clients/${id}`),
+  listReviews:    (userId)     => get(userId ? `/sp/reviews/${userId}` : '/sp/reviews'),
+  createReview:   (data)       => post('/sp/reviews', data),
+};
+
+// ── Mentor Enhancement (Phase 16D) ──────────────────────────
+export const mentorEnhAPI = {
+  dashboard:         ()           => get('/mentor-enh/dashboard'),
+  listSessions:      (params={})  => get(`/mentor-enh/sessions?${new URLSearchParams(params)}`),
+  createSession:     (data)       => post('/mentor-enh/sessions', data),
+  updateSession:     (id, data)   => put(`/mentor-enh/sessions/${id}`, data),
+  deleteSession:     (id)         => del(`/mentor-enh/sessions/${id}`),
+  getAvailability:   ()           => get('/mentor-enh/availability'),
+  setAvailability:   (slots)      => put('/mentor-enh/availability', { slots }),
+};
+
+// ── Lab Enhancement (Phase 16E) ─────────────────────────────
+export const labEnhAPI = {
+  dashboard:          ()           => get('/lab-enh/dashboard'),
+  listEquipment:      ()           => get('/lab-enh/equipment'),
+  createEquipment:    (data)       => post('/lab-enh/equipment', data),
+  updateEquipment:    (id, data)   => put(`/lab-enh/equipment/${id}`, data),
+  deleteEquipment:    (id)         => del(`/lab-enh/equipment/${id}`),
+  listBookings:       ()           => get('/lab-enh/bookings'),
+  createBooking:      (data)       => post('/lab-enh/bookings', data),
+  updateBooking:      (id, data)   => put(`/lab-enh/bookings/${id}`, data),
+  listPublications:   ()           => get('/lab-enh/publications'),
+  createPublication:  (data)       => post('/lab-enh/publications', data),
+  deletePublication:  (id)         => del(`/lab-enh/publications/${id}`),
+};
+
+// ── Connections (Phase 18) ──────────────────────────────────
 export const connectionAPI = {
   list:             (params = {}) => get(`/connections?${new URLSearchParams(params)}`),
   incoming:         ()            => get('/connections/incoming'),

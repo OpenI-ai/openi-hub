@@ -111,16 +111,19 @@ export const PERSONA_NAV = {
   ],
   mentor: [
     ...COMMON_NAV,
-    { to: '/dashboard/startups', label: 'Startups', icon: 'Rocket' },
-    { to: '/dashboard/mentors',  label: 'Mentors',  icon: 'Users' },
-    { to: '/dashboard/projects', label: 'Projects', icon: 'FolderKanban' },
-    { to: '/dashboard/feedback', label: 'Feedback', icon: 'ThumbsUp' },
+    { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
+    { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
+    { to: '/dashboard/startups',            label: 'Startups',     icon: 'Rocket' },
+    { to: '/dashboard/projects',            label: 'Projects',     icon: 'FolderKanban' },
+    { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
   ],
   lab: [
     ...COMMON_NAV,
-    { to: '/dashboard/startups',        label: 'Startups',       icon: 'Rocket' },
-    { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
-    { to: '/dashboard/ipr',             label: 'IPR Database',   icon: 'Shield' },
+    { to: '/dashboard/lab/equipment',    label: 'Equipment',      icon: 'FlaskConical' },
+    { to: '/dashboard/lab/bookings',     label: 'Bookings',       icon: 'CalendarCheck' },
+    { to: '/dashboard/lab/publications', label: 'Publications',   icon: 'FileText' },
+    { to: '/dashboard/startups',         label: 'Startups',       icon: 'Rocket' },
+    { to: '/dashboard/ipr',              label: 'IPR Database',   icon: 'Shield' },
   ],
   incubator: [
     ...COMMON_NAV,
@@ -141,9 +144,11 @@ export const PERSONA_NAV = {
   ],
   service_provider: [
     ...COMMON_NAV,
+    { to: '/dashboard/sp/services',     label: 'My Services',       icon: 'Briefcase' },
+    { to: '/dashboard/sp/clients',      label: 'Clients',           icon: 'Building2' },
+    { to: '/dashboard/sp/reviews',      label: 'Reviews',           icon: 'Star' },
     { to: '/dashboard/marketplace',     label: 'Marketplace',       icon: 'Target' },
     { to: '/dashboard/startups',        label: 'Discover Startups', icon: 'Rocket' },
-    { to: '/dashboard/mentors',         label: 'Mentors',           icon: 'Users' },
   ],
 };
 
