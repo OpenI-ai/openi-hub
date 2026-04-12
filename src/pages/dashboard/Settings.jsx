@@ -23,7 +23,19 @@ const FEATURE_LABELS = {
   application_submit: 'Applications Submitted',
   meeting_create: 'Meetings Scheduled',
   file_upload: 'Files Uploaded',
+  ai_search_daily_cap: 'AI Ask (daily)',
+  semantic_search: 'Semantic Search',
+  can_access_portfolio_health: 'Portfolio Health',
+  can_access_deal_pipeline: 'Deal Pipeline',
+  can_access_service_partners: 'Service Partners',
+  rich_profile_sections_unlocked: 'Rich Profile Sections',
+  multi_currency_enabled: 'Multi-Currency',
+  can_create_programs_batches: 'Programs & Batches',
+  eight_vector_evaluation: '8-Vector Evaluation',
 };
+// Features that are boolean flags (not counted usage)
+const BOOLEAN_FEATURES = ['semantic_search', 'can_access_portfolio_health', 'can_access_deal_pipeline', 'can_access_service_partners', 'rich_profile_sections_unlocked', 'multi_currency_enabled', 'can_create_programs_batches', 'eight_vector_evaluation'];
+const USAGE_FEATURES = ['challenge_create', 'application_submit', 'meeting_create', 'file_upload'];
 
 export default function Settings() {
   const { user, logout, updateUser } = useAuth();
@@ -398,10 +410,12 @@ export default function Settings() {
                     )}
                   </div>
 
-                  {/* Usage Meters */}
+                  {/* Usage Meters (monthly counters only) */}
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Usage This Month</h3>
                   <div style={{ display: 'grid', gap: 10 }}>
-                    {Object.entries(planFeatures).map(([feature, limit]) => {
+                    {USAGE_FEATURES.map(feature => {
+                      const limit = planFeatures[feature];
+                      if (limit === undefined || limit === null) return null;
                       const used = usage[feature] || 0;
                       const isUnlimited = limit === -1;
                       const pct = isUnlimited ? 10 : (limit > 0 ? Math.min((used / limit) * 100, 100) : 0);
@@ -419,6 +433,36 @@ export default function Settings() {
                               background: isUnlimited ? '#16a34a' : isNearLimit ? '#dc2626' : pct > 50 ? '#f59e0b' : '#16a34a',
                               transition: 'width 0.3s' }} />
                           </div>
+                        </div>
+                      );
+                    })}
+                    {/* AI Ask daily quota */}
+                    {planFeatures.ai_search_daily_cap !== undefined && (
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#555', marginBottom: 3 }}>
+                          <span>AI Ask (today)</span>
+                          <span style={{ fontWeight: 600, color: planFeatures.ai_search_daily_cap === 0 ? '#999' : '#333' }}>
+                            {planFeatures.ai_search_daily_cap === 0 ? 'Locked' : planFeatures.ai_search_daily_cap === -1 ? 'Unlimited' : `${usage['ai_search'] || 0} / ${planFeatures.ai_search_daily_cap}/day`}
+                          </span>
+                        </div>
+                        {planFeatures.ai_search_daily_cap > 0 && (
+                          <div style={{ height: 6, borderRadius: 3, background: '#f3f4f6' }}>
+                            <div style={{ height: '100%', borderRadius: 3, width: `${Math.min(((usage['ai_search'] || 0) / planFeatures.ai_search_daily_cap) * 100, 100)}%`, background: '#D5AA5B', transition: 'width 0.3s' }} />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Feature Access (boolean flags) */}
+                  <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, marginTop: 16 }}>Feature Access</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                    {BOOLEAN_FEATURES.map(feature => {
+                      const enabled = planFeatures[feature] === true;
+                      return (
+                        <div key={feature} style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, color: enabled ? '#16a34a' : '#999' }}>
+                          <span style={{ fontSize: 14 }}>{enabled ? '✓' : '✗'}</span>
+                          {FEATURE_LABELS[feature] || feature}
                         </div>
                       );
                     })}

@@ -63,6 +63,7 @@ export const subscriptionAPI = {
   verifyPayment: (data)   => post('/subscription/verify-payment', data),
   cancel:        ()       => post('/subscription/cancel'),
   downloadInvoice: (paymentId) => blobRequest('GET', `/subscription/invoice/${paymentId}`),
+  featureAccess: ()       => get('/subscription/feature-access'),
 };
 
 // ── Auth ────────────────────────────────────────────────────

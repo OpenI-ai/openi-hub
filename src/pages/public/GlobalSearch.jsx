@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brain, MapPin, Calendar, Tag, Info } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import SearchBar from '../../components/SearchBar';
+import UpgradeCTA from '../../components/UpgradeCTA';
 import { publicAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -29,6 +30,7 @@ export default function GlobalSearch() {
 
   const [results, setResults] = useState(null);
   const [interpretation, setInterpretation] = useState(null);
+  const [upgradeNeeded, setUpgradeNeeded] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(type);
 
@@ -40,6 +42,7 @@ export default function GlobalSearch() {
   const doSearch = async (term) => {
     setLoading(true);
     setInterpretation(null);
+    setUpgradeNeeded(null);
     try {
       if (mode === 'ai') {
         // AI query-parsing: single call returns all three entity types + interpretation
@@ -64,7 +67,12 @@ export default function GlobalSearch() {
         setResults(data);
       }
     } catch (err) {
-      toast.error('Search failed');
+      // Phase 19: handle 402 upgrade_required from AI/semantic search
+      if (err.message?.includes('402') || err.message?.includes('upgrade') || err.message?.includes('Pro')) {
+        setUpgradeNeeded(mode === 'ai' ? 'AI Ask Search' : 'Semantic Search');
+      } else {
+        toast.error('Search failed');
+      }
       console.error(err);
     } finally { setLoading(false); }
   };
@@ -138,6 +146,11 @@ export default function GlobalSearch() {
           {/* AI Interpretation banner (mode=ai) */}
           {mode === 'ai' && interpretation && !loading && (
             <InterpretationBanner interpretation={interpretation} />
+          )}
+
+          {/* Phase 19: Upgrade CTA when feature is gated */}
+          {upgradeNeeded && !loading && (
+            <UpgradeCTA feature={upgradeNeeded} compact />
           )}
 
           {/* Loading */}
