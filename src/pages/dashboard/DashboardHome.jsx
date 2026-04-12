@@ -66,6 +66,12 @@ export default function DashboardHome() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Phase 20: redirect new users to onboarding wizard
+  const ALL_PERSONA_ROLES = ['startup','student','academia','corporate','government','investor','mentor','lab','incubator','accelerator','service_provider'];
+  if (ALL_PERSONA_ROLES.includes(user?.role) && user?.onboarding_completed === false) {
+    return <Navigate to="/dashboard/onboarding" replace />;
+  }
+
   // Redirect persona users to their dedicated dashboards
   if (user?.role === 'corporate') return <Navigate to="/dashboard/corporate" replace />;
   const PERSONA_ROLES = ['startup','student','academia','government','investor','mentor','lab','incubator','accelerator'];

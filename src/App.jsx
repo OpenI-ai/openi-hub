@@ -64,6 +64,7 @@ import MentorSessions       from './pages/dashboard/MentorSessions';
 import MentorAvailability   from './pages/dashboard/MentorAvailability';
 import LabEquipment         from './pages/dashboard/LabEquipment';
 import LabPublications      from './pages/dashboard/LabPublications';
+import Onboarding           from './pages/dashboard/Onboarding';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -156,6 +157,7 @@ export default function App() {
             <Route path="lab/equipment"      element={<LabEquipment />} />
             <Route path="lab/bookings"       element={<LabEquipment />} />
             <Route path="lab/publications"   element={<LabPublications />} />
+            <Route path="onboarding"         element={<Onboarding />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

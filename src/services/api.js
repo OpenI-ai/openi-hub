@@ -438,6 +438,13 @@ export const labEnhAPI = {
   deletePublication:  (id)         => del(`/lab-enh/publications/${id}`),
 };
 
+// ── Onboarding (Phase 20) ───────────────────────────────────
+export const onboardingAPI = {
+  getStatus:     ()         => get('/onboarding/status'),
+  completeStep:  (step_key) => post('/onboarding/complete-step', { step_key }),
+  skip:          ()         => post('/onboarding/skip'),
+};
+
 // ── Connections (Phase 18) ──────────────────────────────────
 export const connectionAPI = {
   list:             (params = {}) => get(`/connections?${new URLSearchParams(params)}`),
