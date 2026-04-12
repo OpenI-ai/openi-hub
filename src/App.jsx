@@ -56,6 +56,8 @@ import Directory            from './pages/dashboard/Directory';
 import Meetings             from './pages/dashboard/Meetings';
 import PersonaDashboard     from './pages/dashboard/PersonaDashboard';
 import Settings             from './pages/dashboard/Settings';
+import MyNetwork            from './pages/dashboard/MyNetwork';
+import UserProfile          from './pages/dashboard/UserProfile';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -137,6 +139,8 @@ export default function App() {
             <Route path="directory"           element={<Directory />} />
             <Route path="meetings"            element={<Meetings />} />
             <Route path="home"                element={<PersonaDashboard />} />
+            <Route path="network"             element={<MyNetwork />} />
+            <Route path="profile/:id"        element={<UserProfile />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { connectionAPI } from "../../services/api";
 import {
   LayoutDashboard, Rocket, ClipboardCheck, BookOpen,
   Shield, Settings, LogOut, Menu, X,
@@ -86,6 +87,13 @@ export default function DashboardLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState(MOCK_NOTIFS);
   const unreadCount = notifications.filter(n => !n.read).length;
+  const [pendingConns, setPendingConns] = useState(0);
+
+  // Fetch pending connection requests count
+  useEffect(() => {
+    connectionAPI.stats().then(d => setPendingConns(d.pending_incoming || 0)).catch(() => {});
+  }, []);
+
   // For admin/evaluator: use legacy NAV with role filtering
   // For all other personas: use PERSONA_NAV config
   const isLegacyRole = user?.role === 'admin' || user?.role === 'evaluator';
@@ -94,6 +102,8 @@ export default function DashboardLayout() {
     : (PERSONA_NAV[user?.role] || PERSONA_NAV.startup).map(item => ({
         ...item,
         Icon: ICON_MAP[item.icon] || LayoutDashboard,
+        // Inject pending count badge on My Network nav item
+        badge: item.to === '/dashboard/network' && pendingConns > 0 ? String(pendingConns) : item.badge,
       }));
 
   const handleLogout = () => {

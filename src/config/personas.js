@@ -41,6 +41,7 @@ const COMMON_NAV = [
   { to: '/dashboard',            label: 'Overview',    icon: 'LayoutDashboard', end: true },
   { to: '/dashboard/profile',    label: 'My Profile',  icon: 'User' },
   { to: '/dashboard/directory',  label: 'Directory',   icon: 'Search' },
+  { to: '/dashboard/network',   label: 'My Network',  icon: 'Users' },
   { to: '/dashboard/messaging',  label: 'Messaging',   icon: 'MessageSquare' },
   { to: '/dashboard/meetings',   label: 'Meetings',    icon: 'CalendarCheck' },
   { to: '/dashboard/events',     label: 'Events',      icon: 'Calendar' },

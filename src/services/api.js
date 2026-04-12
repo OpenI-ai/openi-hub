@@ -386,7 +386,21 @@ export const portfolioEvalsAPI = {
   portfolioHealth:  (params = {})    => get(`/program-evals/portfolio-health?${new URLSearchParams(params)}`),
 };
 
-// ── Challenge Applications (for startups / marketplace) ──────
+// ── Connections (Phase 18) ───────────��───────────────────────
+export const connectionAPI = {
+  list:             (params = {}) => get(`/connections?${new URLSearchParams(params)}`),
+  incoming:         ()            => get('/connections/incoming'),
+  outgoing:         ()            => get('/connections/outgoing'),
+  stats:            ()            => get('/connections/stats'),
+  check:            (userId)      => get(`/connections/check/${userId}`),
+  mutual:           (userId)      => get(`/connections/mutual/${userId}`),
+  send:             (data)        => post('/connections', data),
+  respond:          (id, action)  => put(`/connections/${id}/respond`, { action }),
+  remove:           (id)          => del(`/connections/${id}`),
+  block:            (userId)      => post(`/connections/${userId}/block`),
+};
+
+// ─��� Challenge Applications (for startups / marketplace) ──────
 export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),
   getDetail:        (id)          => get(`/challenges/${id}`),

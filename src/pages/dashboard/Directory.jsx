@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { directoryAPI, profileAPI } from '../../services/api';
 import { PERSONAS, PERSONA_CATEGORIES } from '../../config/personas';
+import ConnectButton from '../../components/ConnectButton';
+import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
 import {
   Search, Filter, ChevronLeft, Loader2, MapPin, Star, CheckCircle,
   X, Users, Building2, Rocket, GraduationCap, BookOpen, Landmark,
@@ -407,6 +409,13 @@ export default function Directory() {
                     </div>
                   </div>
                 )}
+
+                {/* Connect + Mutual connections (Phase 18) */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, borderTop: '1px solid #f5f5f5', paddingTop: 8 }}
+                  onClick={e => e.stopPropagation()}>
+                  <MutualConnectionsBadge userId={p.user_id} size="sm" />
+                  <ConnectButton userId={p.user_id} size="sm" />
+                </div>
               </div>
             ))}
           </div>
