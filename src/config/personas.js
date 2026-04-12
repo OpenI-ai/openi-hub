@@ -46,8 +46,9 @@ const COMMON_NAV = [
   { to: '/dashboard/meetings',   label: 'Meetings',    icon: 'CalendarCheck' },
   { to: '/dashboard/events',     label: 'Events',      icon: 'Calendar' },
   { to: '/dashboard/knowledge',  label: 'Knowledge',   icon: 'BookOpen' },
-  { to: '/dashboard/documents',  label: 'Documents',   icon: 'FolderOpen' },
-  { to: '/dashboard/settings',   label: 'Settings',    icon: 'Settings' },
+  { to: '/dashboard/documents',      label: 'Documents',      icon: 'FolderOpen' },
+  { to: '/dashboard/organization',  label: 'Organization',   icon: 'Building2' },
+  { to: '/dashboard/settings',      label: 'Settings',       icon: 'Settings' },
 ];
 
 export const PERSONA_NAV = {

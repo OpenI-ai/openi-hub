@@ -58,6 +58,7 @@ import PersonaDashboard     from './pages/dashboard/PersonaDashboard';
 import Settings             from './pages/dashboard/Settings';
 import MyNetwork            from './pages/dashboard/MyNetwork';
 import UserProfile          from './pages/dashboard/UserProfile';
+import OrgAdmin             from './pages/dashboard/OrgAdmin';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -141,6 +142,7 @@ export default function App() {
             <Route path="home"                element={<PersonaDashboard />} />
             <Route path="network"             element={<MyNetwork />} />
             <Route path="profile/:id"        element={<UserProfile />} />
+            <Route path="organization"       element={<OrgAdmin />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

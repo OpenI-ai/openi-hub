@@ -55,6 +55,16 @@ export const uploadAPI = {
   },
 };
 
+// ── Organizations (Phase 21) ─────────────────────────────────
+export const orgAPI = {
+  getMyOrg:       ()           => get('/org/my-org'),
+  create:         (data)       => post('/org', data),
+  update:         (data)       => put('/org', data),
+  inviteMember:   (data)       => post('/org/members', data),
+  updateMember:   (id, data)   => put(`/org/members/${id}`, data),
+  removeMember:   (id)         => del(`/org/members/${id}`),
+};
+
 // ── Subscriptions ─────────────────────────────────────────────
 export const subscriptionAPI = {
   getPlans:      ()       => get('/subscription/plans'),
