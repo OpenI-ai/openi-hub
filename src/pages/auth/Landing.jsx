@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { publicAPI } from '../../services/api';
 import SearchBar from '../../components/SearchBar';
+import PlatformSlideshow from '../../components/PlatformSlideshow';
 
 // Icon map for CMS-provided icon names (string → component)
 const ICON_MAP = {
@@ -490,6 +491,13 @@ export default function Landing() {
           ]).map((step, i) => (
             <Step key={i} number={step.number || String(i + 1)} title={step.title} description={step.description} />
           ))}
+        </div>
+
+        {/* Platform Slideshow */}
+        <div className="mt-16 text-center">
+          <h3 className="text-2xl font-bold mb-2" style={{ color: DARK }}>See It In Action</h3>
+          <p className="text-sm mb-8" style={{ color: GRAY }}>Explore the platform across different persona dashboards</p>
+          <PlatformSlideshow />
         </div>
       </Section>
 
