@@ -438,6 +438,23 @@ export const labEnhAPI = {
   deletePublication:  (id)         => del(`/lab-enh/publications/${id}`),
 };
 
+// ── Student Enhancement (Phase 16F) ─────────────────────────
+export const studentEnhAPI = {
+  dashboard:            ()           => get('/student-enh/dashboard'),
+  listProjects:         ()           => get('/student-enh/projects'),
+  createProject:        (data)       => post('/student-enh/projects', data),
+  updateProject:        (id, data)   => put(`/student-enh/projects/${id}`, data),
+  deleteProject:        (id)         => del(`/student-enh/projects/${id}`),
+  listCertifications:   ()           => get('/student-enh/certifications'),
+  createCertification:  (data)       => post('/student-enh/certifications', data),
+  updateCertification:  (id, data)   => put(`/student-enh/certifications/${id}`, data),
+  deleteCertification:  (id)         => del(`/student-enh/certifications/${id}`),
+  listMentorships:      (params={})  => get(`/student-enh/mentorships?${new URLSearchParams(params)}`),
+  createMentorship:     (data)       => post('/student-enh/mentorships', data),
+  updateMentorship:     (id, data)   => put(`/student-enh/mentorships/${id}`, data),
+  deleteMentorship:     (id)         => del(`/student-enh/mentorships/${id}`),
+};
+
 // ── Onboarding (Phase 20) ───────────────────────────────────
 export const onboardingAPI = {
   getStatus:     ()         => get('/onboarding/status'),

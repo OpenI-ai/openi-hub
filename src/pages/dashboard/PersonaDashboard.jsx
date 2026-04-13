@@ -7,7 +7,7 @@ import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
   Shield, Search, MessageSquare, CalendarCheck, Calendar, Clock, Video,
-  FileText, ThumbsUp, MapPin, BarChart2, Briefcase, Eye, DollarSign,
+  FileText, ThumbsUp, MapPin, BarChart2, Briefcase, Eye, DollarSign, Award, Link2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -44,14 +44,19 @@ const DASHBOARD_CONFIG = {
   student: {
     subtitle: 'Student Innovation Dashboard',
     stats: [
-      { key: 'applications', label: 'My Applications', icon: Target, color: '#2563eb', to: '/dashboard/marketplace' },
-      { key: 'upcoming_events_count', label: 'Upcoming Events', icon: Calendar, color: '#16a34a', to: '/dashboard/events' },
+      { key: 'projects', label: 'My Projects', icon: FolderKanban, color: G, to: '/dashboard/student/portfolio' },
+      { key: 'certifications', label: 'Certifications', icon: Award, color: '#16a34a', to: '/dashboard/student/portfolio' },
+      { key: 'applications', label: 'Applications', icon: Target, color: '#2563eb', to: '/dashboard/marketplace' },
+      { key: 'active_mentorships', label: 'Active Mentorships', icon: Users, color: '#ec4899', to: '/dashboard/student/mentorships' },
+      { key: 'connections', label: 'Connections', icon: Link2, color: '#7c3aed', to: '/dashboard/network' },
     ],
     quickActions: [
-      { label: 'Browse Challenges', desc: 'Apply to innovation challenges', icon: Target, to: '/dashboard/marketplace', color: G },
-      { label: 'Find Mentors', desc: 'Connect with experienced mentors', icon: Users, to: '/dashboard/mentors', color: '#ec4899' },
-      { label: 'Browse Startups', desc: 'Explore startup opportunities', icon: Rocket, to: '/dashboard/startups', color: '#f59e0b' },
-      { label: 'Explore Directory', desc: 'Discover innovators and labs', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
+      { label: 'Add Project', desc: 'Showcase your research or hackathon project', icon: FolderKanban, to: '/dashboard/student/portfolio', color: G },
+      { label: 'Browse Challenges', desc: 'Apply to innovation challenges', icon: Target, to: '/dashboard/marketplace', color: '#2563eb' },
+      { label: 'Find Mentors', desc: 'Connect with experienced mentors', icon: Users, to: '/dashboard/directory', color: '#ec4899' },
+      { label: 'Track Mentorship', desc: 'Log your mentorship journey', icon: CalendarCheck, to: '/dashboard/student/mentorships', color: '#f59e0b' },
+      { label: 'Explore Directory', desc: 'Discover innovators, labs, and startups', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
+      { label: 'Browse Startups', desc: 'Find internship & collaboration opportunities', icon: Rocket, to: '/dashboard/startups', color: '#16a34a' },
     ],
   },
   academia: {

@@ -65,9 +65,11 @@ export const PERSONA_NAV = {
   ],
   student: [
     ...COMMON_NAV,
-    { to: '/dashboard/marketplace',  label: 'Marketplace',  icon: 'Target' },
-    { to: '/dashboard/startups',     label: 'Startups',     icon: 'Rocket' },
-    { to: '/dashboard/mentors',      label: 'Mentors',      icon: 'Users' },
+    { to: '/dashboard/student/portfolio',   label: 'My Portfolio',  icon: 'FolderKanban' },
+    { to: '/dashboard/student/mentorships', label: 'Mentorships',   icon: 'Users' },
+    { to: '/dashboard/marketplace',         label: 'Marketplace',   icon: 'Target' },
+    { to: '/dashboard/startups',            label: 'Startups',      icon: 'Rocket' },
+    { to: '/dashboard/watchlist',           label: 'Watchlist',     icon: 'Star' },
   ],
   academia: [
     ...COMMON_NAV,

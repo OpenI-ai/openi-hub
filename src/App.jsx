@@ -68,6 +68,8 @@ import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 import FeatureMap           from './pages/dashboard/FeatureMap';
 import AdminAnalytics       from './pages/dashboard/AdminAnalytics';
+import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
+import StudentMentorships  from './pages/dashboard/StudentMentorships';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -160,6 +162,9 @@ export default function App() {
             <Route path="lab/equipment"      element={<LabEquipment />} />
             <Route path="lab/bookings"       element={<LabEquipment />} />
             <Route path="lab/publications"   element={<LabPublications />} />
+            <Route path="student/portfolio"      element={<StudentPortfolio />} />
+            <Route path="student/certifications" element={<StudentPortfolio />} />
+            <Route path="student/mentorships"    element={<StudentMentorships />} />
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />
