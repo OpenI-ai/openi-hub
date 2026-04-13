@@ -7,8 +7,8 @@ const SLIDES = [
   { src: '/screenshots/02-startup-dashboard.png', caption: 'Startup Dashboard', desc: 'Persona-specific stats, quick actions, and meeting scheduler' },
   { src: '/screenshots/03-student-portfolio.png', caption: 'Student Portfolio', desc: 'Showcase research projects, hackathon wins, certifications, and skills' },
   { src: '/screenshots/04-incubator-programs.png', caption: 'Incubation Programs', desc: 'Manage cohorts, startup pipeline, milestones, and mentor assignments' },
+  { src: '/screenshots/05-corporate-dashboard.png', caption: 'Corporate Dashboard', desc: '278 active challenges, collaboration pipeline, and startup discovery' },
   { src: '/screenshots/05-marketplace.png', caption: 'Challenge Marketplace', desc: 'Browse 278+ open innovation challenges with filters and search' },
-  { src: '/screenshots/06-settings.png', caption: 'Settings & Billing', desc: 'Profile, security, billing, plan management, and currency preferences' },
   { src: '/screenshots/07-directory.png', caption: 'Ecosystem Directory', desc: '30+ profiles with persona filters, connect buttons, and faceted search' },
   { src: '/screenshots/08-academia-portfolio.png', caption: 'Academic Portfolio', desc: 'Research projects with funding, publications, and grant tracking' },
 ];
