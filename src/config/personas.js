@@ -73,11 +73,12 @@ export const PERSONA_NAV = {
   ],
   academia: [
     ...COMMON_NAV,
-    { to: '/dashboard/marketplace',     label: 'Marketplace',    icon: 'Target' },
-    { to: '/dashboard/startups',        label: 'Startups',       icon: 'Rocket' },
-    { to: '/dashboard/ipr',             label: 'IPR Database',   icon: 'Shield' },
-    { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
-    { to: '/dashboard/mentors',         label: 'Mentors',        icon: 'Users' },
+    { to: '/dashboard/academia/research',      label: 'Research',      icon: 'FlaskConical' },
+    { to: '/dashboard/academia/publications',  label: 'Publications',  icon: 'BookOpen' },
+    { to: '/dashboard/academia/grants',        label: 'Grants',        icon: 'DollarSign' },
+    { to: '/dashboard/marketplace',            label: 'Marketplace',   icon: 'Target' },
+    { to: '/dashboard/startups',               label: 'Startups',      icon: 'Rocket' },
+    { to: '/dashboard/ipr',                    label: 'IPR Database',  icon: 'Shield' },
   ],
   corporate: [
     { to: '/dashboard/corporate',            label: 'My Dashboard',    icon: 'LayoutDashboard', end: true },

@@ -438,6 +438,23 @@ export const labEnhAPI = {
   deletePublication:  (id)         => del(`/lab-enh/publications/${id}`),
 };
 
+// ── Academia Enhancement (Phase 16G) ────────────────────────
+export const academiaEnhAPI = {
+  dashboard:            ()           => get('/academia-enh/dashboard'),
+  listProjects:         ()           => get('/academia-enh/projects'),
+  createProject:        (data)       => post('/academia-enh/projects', data),
+  updateProject:        (id, data)   => put(`/academia-enh/projects/${id}`, data),
+  deleteProject:        (id)         => del(`/academia-enh/projects/${id}`),
+  listPublications:     ()           => get('/academia-enh/publications'),
+  createPublication:    (data)       => post('/academia-enh/publications', data),
+  updatePublication:    (id, data)   => put(`/academia-enh/publications/${id}`, data),
+  deletePublication:    (id)         => del(`/academia-enh/publications/${id}`),
+  listGrants:           ()           => get('/academia-enh/grants'),
+  createGrant:          (data)       => post('/academia-enh/grants', data),
+  updateGrant:          (id, data)   => put(`/academia-enh/grants/${id}`, data),
+  deleteGrant:          (id)         => del(`/academia-enh/grants/${id}`),
+};
+
 // ── Student Enhancement (Phase 16F) ─────────────────────────
 export const studentEnhAPI = {
   dashboard:            ()           => get('/student-enh/dashboard'),

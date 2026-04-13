@@ -70,6 +70,7 @@ import FeatureMap           from './pages/dashboard/FeatureMap';
 import AdminAnalytics       from './pages/dashboard/AdminAnalytics';
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
+import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -165,6 +166,9 @@ export default function App() {
             <Route path="student/portfolio"      element={<StudentPortfolio />} />
             <Route path="student/certifications" element={<StudentPortfolio />} />
             <Route path="student/mentorships"    element={<StudentMentorships />} />
+            <Route path="academia/research"      element={<AcademiaPortfolio />} />
+            <Route path="academia/publications"  element={<AcademiaPortfolio />} />
+            <Route path="academia/grants"        element={<AcademiaPortfolio />} />
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />

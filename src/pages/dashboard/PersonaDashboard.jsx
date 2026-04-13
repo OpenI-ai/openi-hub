@@ -62,17 +62,20 @@ const DASHBOARD_CONFIG = {
   academia: {
     subtitle: 'Academic Innovation Dashboard',
     stats: [
-      { key: 'applications', label: 'My Applications', icon: Target, color: '#2563eb', to: '/dashboard/marketplace' },
-      { key: 'publications', label: 'Publications', icon: FileText, color: '#7c3aed', to: '/dashboard/profile' },
-      { key: 'patents', label: 'Patents', icon: Shield, color: '#16a34a', to: '/dashboard/ipr' },
+      { key: 'research_projects', label: 'Research Projects', icon: FlaskConical, color: G, to: '/dashboard/academia/research' },
+      { key: 'publications', label: 'Publications', icon: BookOpen, color: '#7c3aed', to: '/dashboard/academia/publications' },
+      { key: 'grants_active', label: 'Active Grants', icon: DollarSign, color: '#16a34a', to: '/dashboard/academia/grants' },
+      { key: 'applications', label: 'Applications', icon: Target, color: '#2563eb', to: '/dashboard/marketplace' },
+      { key: 'connections', label: 'Connections', icon: Link2, color: '#ec4899', to: '/dashboard/network' },
       { key: 'lab_bookings', label: 'Lab Bookings', icon: FlaskConical, color: '#14b8a6', to: '/dashboard/infrastructure' },
     ],
     quickActions: [
-      { label: 'Browse Challenges', desc: 'Apply to innovation challenges', icon: Target, to: '/dashboard/marketplace', color: G },
-      { label: 'IPR Database', desc: 'Patents and intellectual property', icon: Shield, to: '/dashboard/ipr', color: '#7c3aed' },
-      { label: 'Book Lab', desc: 'Reserve lab infrastructure', icon: FlaskConical, to: '/dashboard/infrastructure', color: '#14b8a6' },
-      { label: 'Find Mentors', desc: 'Connect with industry experts', icon: Users, to: '/dashboard/mentors', color: '#ec4899' },
-      { label: 'Browse Startups', desc: 'Collaborate with startups', icon: Rocket, to: '/dashboard/startups', color: '#f59e0b' },
+      { label: 'Add Research', desc: 'Track your research projects and collaborations', icon: FlaskConical, to: '/dashboard/academia/research', color: G },
+      { label: 'Add Publication', desc: 'Journal papers, conference proceedings, preprints', icon: BookOpen, to: '/dashboard/academia/publications', color: '#7c3aed' },
+      { label: 'Track Grants', desc: 'Manage grant applications and funding', icon: DollarSign, to: '/dashboard/academia/grants', color: '#16a34a' },
+      { label: 'Browse Challenges', desc: 'Apply to innovation challenges', icon: Target, to: '/dashboard/marketplace', color: '#2563eb' },
+      { label: 'Explore Directory', desc: 'Find collaborators, startups, and labs', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
+      { label: 'Browse Startups', desc: 'Find collaboration opportunities', icon: Rocket, to: '/dashboard/startups', color: '#f59e0b' },
     ],
   },
   government: {
