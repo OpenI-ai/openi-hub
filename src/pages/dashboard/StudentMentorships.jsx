@@ -20,7 +20,7 @@ export default function StudentMentorships() {
     try {
       const params = filter ? { status: filter } : {};
       const res = await studentEnhAPI.listMentorships(params);
-      setMentorships(res.data?.mentorships || []);
+      setMentorships(res.mentorships || res.data?.mentorships || []);
     } catch { toast.error('Failed to load mentorships'); }
     setLoading(false);
   };

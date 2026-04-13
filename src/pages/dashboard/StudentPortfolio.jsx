@@ -26,8 +26,8 @@ export default function StudentPortfolio() {
     setLoading(true);
     try {
       const [p, c] = await Promise.all([studentEnhAPI.listProjects(), studentEnhAPI.listCertifications()]);
-      setProjects(p.data?.projects || []);
-      setCertifications(c.data?.certifications || []);
+      setProjects(p.projects || p.data?.projects || []);
+      setCertifications(c.certifications || c.data?.certifications || []);
     } catch { toast.error('Failed to load data'); }
     setLoading(false);
   };

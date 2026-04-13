@@ -34,9 +34,9 @@ export default function AcademiaPortfolio() {
       const [p, pub, g] = await Promise.all([
         academiaEnhAPI.listProjects(), academiaEnhAPI.listPublications(), academiaEnhAPI.listGrants()
       ]);
-      setProjects(p.data?.projects || []);
-      setPublications(pub.data?.publications || []);
-      setGrants(g.data?.grants || []);
+      setProjects(p.projects || p.data?.projects || []);
+      setPublications(pub.publications || pub.data?.publications || []);
+      setGrants(g.grants || g.data?.grants || []);
     } catch { toast.error('Failed to load data'); }
     setLoading(false);
   };
