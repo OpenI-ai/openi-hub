@@ -1,0 +1,3361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OpenI Hub — Platform Testing Guide v2.0</title>
+<style>
+body { font-family: 'Lexend', 'Segoe UI', Arial, sans-serif; color: #3D3D3D; background: #F7F5F0; margin: 40px; line-height: 1.6; }
+h1 { color: #D4A843; font-size: 28px; border-bottom: 3px solid #D4A843; padding-bottom: 10px; }
+h2 { color: #0D2137; font-size: 22px; background: #0D2137; color: #D4A843; padding: 10px 16px; border-radius: 4px; margin-top: 40px; }
+h3 { color: #0D2137; font-size: 18px; border-left: 4px solid #D4A843; padding-left: 12px; margin-top: 24px; }
+h4 { color: #0D2137; font-size: 16px; margin-top: 20px; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13px; }
+th { background: #0D2137; color: #D4A843; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+tr:nth-child(even) { background: #f0ede6; }
+code { background: #e8e4dc; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+strong { color: #0D2137; }
+hr { border: none; border-top: 2px solid #D4A843; margin: 30px 0; }
+a { color: #D4A843; }
+</style>
+</head>
+<body>
+<h1>OpenI Hub — Platform Testing Guide v2.0</h1>
+<p><strong>Date:</strong> 13 April 2026
+<strong>Prepared by:</strong> OpenI Partners
+<strong>For:</strong> QA Team / End-User Testing
+<strong>Platform Version:</strong> Phase 25 (Feature-complete through AI Telemetry)</p>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-environment-urls">Environment URLs</a></li>
+<li><a href="#2-demo-accounts">Demo Accounts</a></li>
+<li><a href="#3-platform-overview">Platform Overview</a></li>
+<li><a href="#4-test-case-legend">Test Case Legend</a></li>
+<li><a href="#5-tc-auth-authentication--onboarding">TC-AUTH: Authentication &amp; Onboarding</a></li>
+<li><a href="#6-tc-startup-startup-persona">TC-STARTUP: Startup Persona</a></li>
+<li><a href="#7-tc-corp-corporate-persona">TC-CORP: Corporate Persona</a></li>
+<li><a href="#8-tc-inv-investor-persona">TC-INV: Investor Persona</a></li>
+<li><a href="#9-tc-inc-incubator-persona">TC-INC: Incubator Persona</a></li>
+<li><a href="#10-tc-acc-accelerator-persona">TC-ACC: Accelerator Persona</a></li>
+<li><a href="#11-tc-ment-mentor-persona">TC-MENT: Mentor Persona</a></li>
+<li><a href="#12-tc-lab-lab-persona">TC-LAB: Lab Persona</a></li>
+<li><a href="#13-tc-sp-service-provider-persona">TC-SP: Service Provider Persona</a></li>
+<li><a href="#14-tc-stu-student-persona">TC-STU: Student Persona</a></li>
+<li><a href="#15-tc-acad-academia-persona">TC-ACAD: Academia Persona</a></li>
+<li><a href="#16-tc-govt-government-persona">TC-GOVT: Government Persona</a></li>
+<li><a href="#17-tc-srch-search--discovery">TC-SRCH: Search &amp; Discovery</a></li>
+<li><a href="#18-tc-dir-directory--connections">TC-DIR: Directory &amp; Connections</a></li>
+<li><a href="#19-tc-lic-licensing--billing">TC-LIC: Licensing &amp; Billing</a></li>
+<li><a href="#20-tc-pub-public-pages">TC-PUB: Public Pages</a></li>
+<li><a href="#21-tc-set-settings">TC-SET: Settings</a></li>
+<li><a href="#22-tc-admin-admin-features">TC-ADMIN: Admin Features</a></li>
+<li><a href="#23-tc-edge-edge-cases--error-handling">TC-EDGE: Edge Cases &amp; Error Handling</a></li>
+<li><a href="#24-known-issues--limitations">Known Issues &amp; Limitations</a></li>
+<li><a href="#25-support--escalation">Support &amp; Escalation</a></li>
+</ol>
+<hr>
+<h2>1. Environment URLs</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Frontend</strong></td>
+<td><a href="https://openi-hub.vercel.app">https://openi-hub.vercel.app</a></td>
+</tr>
+<tr>
+<td><strong>Backend API</strong></td>
+<td><a href="https://openi-hub-production.up.railway.app">https://openi-hub-production.up.railway.app</a></td>
+</tr>
+<tr>
+<td><strong>CMS Admin</strong></td>
+<td><a href="https://openi-hub-cms-production.up.railway.app/admin/">https://openi-hub-cms-production.up.railway.app/admin/</a></td>
+</tr>
+<tr>
+<td><strong>API Base</strong></td>
+<td><a href="https://openi-hub-production.up.railway.app/api">https://openi-hub-production.up.railway.app/api</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. Demo Accounts</h2>
+<p>All demo accounts use <strong>password: <code>Demo@123</code></strong> and <strong>MFA code: <code>123456</code></strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Persona</th>
+<th>Email</th>
+<th>Role Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Startup</td>
+<td><a href="mailto:startup@demo.openi.ai">startup@demo.openi.ai</a></td>
+<td>Provider</td>
+</tr>
+<tr>
+<td>Student</td>
+<td><a href="mailto:student@demo.openi.ai">student@demo.openi.ai</a></td>
+<td>Provider</td>
+</tr>
+<tr>
+<td>Academia</td>
+<td><a href="mailto:academia@demo.openi.ai">academia@demo.openi.ai</a></td>
+<td>Provider</td>
+</tr>
+<tr>
+<td>Corporate</td>
+<td><a href="mailto:corporate@demo.openi.ai">corporate@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Government</td>
+<td><a href="mailto:govt@demo.openi.ai">govt@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Investor</td>
+<td><a href="mailto:investor@demo.openi.ai">investor@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Lab</td>
+<td><a href="mailto:lab@demo.openi.ai">lab@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Incubator</td>
+<td><a href="mailto:incubator@demo.openi.ai">incubator@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Accelerator</td>
+<td><a href="mailto:accelerator@demo.openi.ai">accelerator@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Service Provider</td>
+<td><a href="mailto:serviceprovider@demo.openi.ai">serviceprovider@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+<tr>
+<td>Mentor</td>
+<td><a href="mailto:mentor@demo.openi.ai">mentor@demo.openi.ai</a></td>
+<td>Seeker</td>
+</tr>
+</tbody></table>
+<p><strong>Admin account:</strong> <a href="mailto:admin@drdo.gov.in">admin@drdo.gov.in</a> / Admin@123</p>
+<p><strong>Organizations (Phase 21):</strong></p>
+<ul>
+<li>Tata Innovation Corp — Enterprise tier, 10 seats</li>
+<li>Ministry of Innovation — Pro tier, 20 seats</li>
+</ul>
+<hr>
+<h2>3. Platform Overview</h2>
+<p><strong>Architecture:</strong> React + Vite (frontend) | Node.js + Express (backend) | PostgreSQL (90+ tables) | Strapi v4 (CMS)</p>
+<p><strong>11 Persona Types:</strong></p>
+<ul>
+<li><strong>Providers</strong> (3): Startup, Student, Academia</li>
+<li><strong>Seekers</strong> (8): Corporate, Government, Investor, Lab, Incubator, Accelerator, Service Provider, Mentor</li>
+</ul>
+<p><strong>Key Features by Phase:</strong></p>
+<ul>
+<li>Phases 1-3: Multi-persona auth, profiles, file upload, licensing (Free/Pro/Enterprise)</li>
+<li>Phases 4-5: Public pages, CMS integration</li>
+<li>Phase 6: Email notifications (Resend)</li>
+<li>Phases 7-9: Service Provider persona, PDF export, corporate enhancements</li>
+<li>Phases 10-11: Rich startup profiles (15 sections), investor overhaul (deal pipeline, 8-vector eval)</li>
+<li>Phase 12: Government impact analytics</li>
+<li>Phase 13: Taxonomy overhaul (856+ entries across 5 types)</li>
+<li>Phase 14: FTS + pgvector semantic search + global search</li>
+<li>Phase 15: AI query parsing (natural language to structured filters)</li>
+<li>Phase 16A-E: Incubator, accelerator, service provider, mentor, lab enhancements</li>
+<li>Phase 17: Landing page + pricing rehash</li>
+<li>Phase 18: Connections / networking (LinkedIn-style)</li>
+<li>Phase 19: Feature access gating per tier</li>
+<li>Phase 20: Onboarding wizard</li>
+<li>Phase 21: Organization admin + bulk licensing</li>
+<li>Phase 22: Feature discovery + changelog</li>
+<li>Phase 24: Admin analytics dashboard</li>
+<li>Phase 25: AI usage telemetry</li>
+</ul>
+<hr>
+<h2>4. Test Case Legend</h2>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ID</strong></td>
+<td>Unique test case identifier (e.g., AUTH-01)</td>
+</tr>
+<tr>
+<td><strong>Test</strong></td>
+<td>What to test — step-by-step action</td>
+</tr>
+<tr>
+<td><strong>Expected</strong></td>
+<td>Expected outcome</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P0 = blocker, P1 = critical, P2 = important, P3 = nice-to-have</td>
+</tr>
+</tbody></table>
+<p><strong>Status markers for QA team:</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Not tested</li>
+<li>[PASS] Passed</li>
+<li>[FAIL] Failed — add bug description</li>
+<li>[SKIP] Skipped — add reason</li>
+</ul>
+<hr>
+<h2>5. TC-AUTH: Authentication &amp; Onboarding</h2>
+<h3>5.1 Registration</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AUTH-01</td>
+<td>Navigate to <code>/register</code>. Verify persona picker grid shows all 11 persona types with icons and descriptions.</td>
+<td>All 11 cards visible: Startup, Student, Academia, Corporate, Government, Investor, Lab, Incubator, Accelerator, Service Provider, Mentor</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-02</td>
+<td>Select &quot;Startup&quot; persona. Fill required fields (name, email, password, confirm password, city, sector). Submit.</td>
+<td>Registration success, redirect to login, welcome email sent to address.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-03</td>
+<td>Select &quot;Corporate&quot; persona. Verify that profile fields differ from Startup (should show company_name, industry, employee_count, etc.).</td>
+<td>Corporate-specific fields displayed (not startup fields like TRL, stage).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-04</td>
+<td>Try to register with an already-used email.</td>
+<td>Error: &quot;Email already registered&quot; or similar. No duplicate user created.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-05</td>
+<td>Try to register with password shorter than 8 characters.</td>
+<td>Validation error before submission.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-06</td>
+<td>Try to register with mismatched password and confirm password.</td>
+<td>Validation error before submission.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-07</td>
+<td>Navigate to <code>/register?type=investor</code>. Verify the investor persona is pre-selected.</td>
+<td>Investor card pre-selected, investor-specific fields displayed.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>AUTH-08</td>
+<td>Register each of the 11 persona types (use unique emails). Verify each redirects to login after success.</td>
+<td>All 11 registrations succeed. Each gets a welcome email.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>5.2 Login &amp; MFA</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AUTH-10</td>
+<td>Navigate to <code>/dashboard/login</code>. Enter valid demo credentials (<a href="mailto:startup@demo.openi.ai">startup@demo.openi.ai</a> / Demo@123).</td>
+<td>MFA screen appears asking for 6-digit code.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-11</td>
+<td>Enter MFA code <code>123456</code>.</td>
+<td>Login success, redirect to <code>/dashboard</code>. JWT token stored. User name + persona visible in top bar.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-12</td>
+<td>Enter wrong MFA code (e.g., <code>000000</code>).</td>
+<td>Error: &quot;Invalid MFA code&quot; or similar. Stays on MFA screen.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-13</td>
+<td>Enter wrong password on login.</td>
+<td>Error: &quot;Invalid credentials&quot; or similar. No login.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-14</td>
+<td>Enter non-existent email on login.</td>
+<td>Error: &quot;Invalid credentials&quot;. Does not reveal whether email exists.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-15</td>
+<td>After successful login, refresh the page.</td>
+<td>User remains logged in (token persists). Dashboard reloads correctly.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-16</td>
+<td>Click logout. Then try to access <code>/dashboard/home</code>.</td>
+<td>Redirect to <code>/dashboard/login</code>. Protected routes inaccessible.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AUTH-17</td>
+<td>Login as each of the 11 demo accounts. Verify each lands on persona-specific dashboard.</td>
+<td>Each persona sees its own nav sidebar and dashboard stats.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>5.3 Onboarding (Phase 20)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AUTH-20</td>
+<td>Register a brand new user (any persona). After login, verify redirect to onboarding wizard.</td>
+<td>New user sees <code>/dashboard/onboarding</code> with persona-specific steps and progress bar.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-21</td>
+<td>Complete each step of the onboarding wizard (varies by persona).</td>
+<td>Progress bar advances. Steps are persona-specific (e.g., startup: profile → sector/tech → pitch deck → browse challenges).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-22</td>
+<td>Click &quot;Skip&quot; at any point during onboarding.</td>
+<td>Onboarding marked as skipped. User taken to DashboardHome.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>AUTH-23</td>
+<td>After completing onboarding, navigate away and come back. Verify onboarding does NOT show again.</td>
+<td>Onboarding wizard does not appear for users who completed/skipped it.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. TC-STARTUP: Startup Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:startup@demo.openi.ai">startup@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>6.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STRT-01</td>
+<td>After login, navigate to <code>/dashboard/home</code>.</td>
+<td>Persona dashboard shows: stat cards (applications, challenges matched, meetings, profile completion %), quick actions, recommendations section.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-02</td>
+<td>Verify recommendations widget shows recommended challenges and/or partner matches.</td>
+<td>At least 1 recommended challenge or partner displayed (based on sector/tech overlap scoring).</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>6.2 Profile (Rich Startup Profile — 15 Sections)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STRT-10</td>
+<td>Navigate to <code>/dashboard/profile</code>.</td>
+<td>Profile page loads with all fields pre-populated (or blank for unfilled).</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-11</td>
+<td>Edit basic profile fields: startup_name, tagline, website, city, state, founding_year. Click Save.</td>
+<td>Fields saved. Toast/success message. Refresh page — changes persist.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-12</td>
+<td>Edit sector using taxonomy selector. Search for &quot;Healthcare&quot;. Select a sub-sector. Save.</td>
+<td>Sector saved with taxonomy ID. Shows correct label after save.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-13</td>
+<td>Add technology tags using taxonomy tag selector. Add &quot;AI/ML&quot; and &quot;Blockchain&quot;. Save.</td>
+<td>Tags saved as array. Displayed as pills/chips on profile.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-14</td>
+<td>Upload a logo via FileUpload component (drag-and-drop or click).</td>
+<td>Image uploaded to Cloudinary. Preview shown. Logo URL saved to profile.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-15</td>
+<td>Upload a pitch deck (PDF).</td>
+<td>File uploaded to Cloudinary. Download link saved. Visible in profile.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-16</td>
+<td>Edit business fields: business_model, revenue_model, product_type, employee_range. Save.</td>
+<td>Fields saved correctly. Dropdowns show correct selected values after reload.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-17</td>
+<td>Edit financial fields: revenue_range, MRR, ARR, growth_rate, burn_rate, runway_months. Save.</td>
+<td>Numeric fields saved. Currency format displayed correctly.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-18</td>
+<td>Edit social URLs: twitter, github, crunchbase, youtube, product_hunt. Save.</td>
+<td>URLs saved. Displayed as clickable links.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-19</td>
+<td>Add startup_type, mission, vision, video_url fields. Save.</td>
+<td>All text fields saved correctly. Video URL renders if valid.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>6.3 Child Sections (8 Tables)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STRT-20</td>
+<td>Navigate to Products section. Click &quot;Add Product&quot;. Fill name, description, URL, status. Save.</td>
+<td>Product created. Appears in list.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-21</td>
+<td>Edit an existing product. Change description. Save.</td>
+<td>Changes persisted.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-22</td>
+<td>Delete a product. Confirm deletion.</td>
+<td>Product removed from list.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-23</td>
+<td>Add a Team Member: name, role, LinkedIn URL, bio. Save.</td>
+<td>Team member created and visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-24</td>
+<td>Add a Funding Round: round_type (Seed/Series A/etc.), amount, currency (INR/USD), investor_names, date. Save.</td>
+<td>Funding round created. Amount displayed with correct currency.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-25</td>
+<td>Add a Client: company_name, sector, contract_value, start_date. Save.</td>
+<td>Client created and listed.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-26</td>
+<td>Add a Patent: title, patent_number, status (filed/granted/pending), filing_date. Save.</td>
+<td>Patent created and listed.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-27</td>
+<td>Add a Competitor: name, website, description. Save.</td>
+<td>Competitor created.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-28</td>
+<td>Add News: title, source, URL, published_date. Save.</td>
+<td>News item created.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-29</td>
+<td>Add an Acquisition: company_name, date, amount. Save.</td>
+<td>Acquisition created.</td>
+<td>P3</td>
+</tr>
+<tr>
+<td>STRT-30</td>
+<td>View full public profile at <code>/dashboard/startup-profile/:id</code>. Verify all 8 child sections render.</td>
+<td>Products, Team, Funding, Clients, Patents, Competitors, News, Acquisitions all visible with data.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>6.4 Marketplace &amp; Applications</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STRT-40</td>
+<td>Navigate to Marketplace (<code>/dashboard/marketplace</code>).</td>
+<td>List of open challenges loads. Search bar, sort dropdown, filters visible.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-41</td>
+<td>Use keyword search to find challenges (e.g., &quot;supply chain&quot;).</td>
+<td>Results filtered by keyword. Relevance ranking applied (FTS).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-42</td>
+<td>Filter by challenge_type (Partner/Source/Invest).</td>
+<td>Only challenges of selected type shown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-43</td>
+<td>Sort by &quot;Newest first&quot;, &quot;Deadline soonest&quot;, &quot;Most applications&quot;.</td>
+<td>Order changes correctly per sort option.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-44</td>
+<td>Click a challenge to view detail. Verify title, description, requirements, sector, deadline, FAQ accordion.</td>
+<td>All challenge details displayed. FAQ items expandable.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-45</td>
+<td>Click &quot;Apply&quot; on a challenge. Fill application form. Submit.</td>
+<td>Application submitted. Success message. Application appears in &quot;My Applications&quot;.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-46</td>
+<td>Navigate to My Applications. Verify the just-submitted application appears with status.</td>
+<td>Application listed with status &quot;submitted&quot; or similar.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>STRT-47</td>
+<td>Try to apply to the same challenge again.</td>
+<td>Error: &quot;Already applied&quot; or button disabled. No duplicate application.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-48</td>
+<td>Verify sector + challenge_type facet chips appear below search bar. Click a chip.</td>
+<td>Results filter to that facet value.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>6.5 Other Startup Nav Items</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STRT-50</td>
+<td>Navigate to Startup Discovery (<code>/dashboard/startups</code>). Search for a startup.</td>
+<td>Startup cards load. Search works with FTS.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STRT-51</td>
+<td>Navigate to IPR Database (<code>/dashboard/ipr</code>).</td>
+<td>IPR list loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-52</td>
+<td>Navigate to Infrastructure (<code>/dashboard/infrastructure</code>).</td>
+<td>Infrastructure list loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-53</td>
+<td>Navigate to DeepTech Qualification (<code>/dashboard/deeptech</code>).</td>
+<td>DeepTech assessment page loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>STRT-54</td>
+<td>Navigate to Feedback (<code>/dashboard/feedback</code>).</td>
+<td>Feedback page loads. Can submit feedback.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. TC-CORP: Corporate Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:corporate@demo.openi.ai">corporate@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>7.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-01</td>
+<td>Navigate to <code>/dashboard/corporate</code>.</td>
+<td>Corporate dashboard shows: challenge stats, conversion funnel, recommendations widget.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CORP-02</td>
+<td>Verify recommendations widget shows recommended startups (based on industry/sector overlap).</td>
+<td>At least 1 recommended startup displayed with match score.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>7.2 Challenge Management</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-10</td>
+<td>Navigate to Challenges (<code>/dashboard/corporate/challenges</code>). Verify list loads.</td>
+<td>Challenges listed with status badges, application counts, deadline.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CORP-11</td>
+<td>Click &quot;New Challenge&quot;. Verify template picker shows 6 built-in templates.</td>
+<td>Templates: AI Defect Detection, Predictive Maintenance, Supply Chain, Cybersecurity, Clean Energy, HealthTech.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-12</td>
+<td>Select a template. Verify form pre-fills with template data.</td>
+<td>Title, description, requirements, sector populated from template.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-13</td>
+<td>Create a new challenge manually (no template). Fill: title, description, problem_statement, sector, deadline, challenge_type (Partner). Set visibility to Public. Submit.</td>
+<td>Challenge created. Appears in list with status &quot;draft&quot;.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CORP-14</td>
+<td>Edit the challenge. Change status from &quot;draft&quot; to &quot;open&quot;. Save.</td>
+<td>Status updated. Challenge now visible in marketplace.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CORP-15</td>
+<td>Set visibility to &quot;Private&quot;. Verify a share_token is generated. Copy share link.</td>
+<td>Share token UUID visible. &quot;Copy link&quot; button works.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-16</td>
+<td>Open the share link in incognito/different browser (logged out).</td>
+<td>SharedChallenge page loads with challenge details (no auth required).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-17</td>
+<td>Filter challenges by: status (open/draft/closed), challenge_type, sector, search keyword, sort (newest/oldest/deadline).</td>
+<td>Each filter works independently and in combination.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-18</td>
+<td>Export a challenge as PDF.</td>
+<td>PDF downloads with OpenI branding (Lexend font, gold/dark theme, logo). Contains challenge details.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-19</td>
+<td>Social share: Click LinkedIn share button on a challenge.</td>
+<td>LinkedIn share dialog opens with pre-filled challenge URL.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>CORP-20</td>
+<td>Social share: Click X (Twitter) share button.</td>
+<td>X share dialog opens with pre-filled text and URL.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>7.3 Challenge Templates</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-25</td>
+<td>Save a custom template from an existing challenge.</td>
+<td>Template created. Appears in template list alongside built-in templates.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-26</td>
+<td>Delete a custom template.</td>
+<td>Template removed. Built-in templates cannot be deleted.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>7.4 Applications &amp; Rating</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-30</td>
+<td>View applications on a challenge (requires a startup to have applied).</td>
+<td>Application list shows: startup name, status, submission date.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CORP-31</td>
+<td>Rate an applicant with 1-5 stars. Add evaluation notes. Save.</td>
+<td>Rating + notes saved. Star display updated.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-32</td>
+<td>Add application notes (internal notes about an applicant).</td>
+<td>Notes saved. Multiple notes can be added per application.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>CORP-33</td>
+<td>Add application documents (upload file linked to applicant).</td>
+<td>Document uploaded and linked to application.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>7.5 Team Sharing</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-35</td>
+<td>Add a team member to a challenge (requires another registered corporate user). Set role to &quot;editor&quot;.</td>
+<td>Member added. They can view and edit the challenge.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-36</td>
+<td>Change member role to &quot;viewer&quot;.</td>
+<td>Role updated. Member can only view (not edit).</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>CORP-37</td>
+<td>Remove a team member.</td>
+<td>Member removed. No longer has access.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>7.6 Collaborations</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-40</td>
+<td>Create a collaboration from an awarded challenge.</td>
+<td>Collaboration created. Kanban board shows stages.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-41</td>
+<td>View collaboration milestones. Verify auto-generated milestones per stage.</td>
+<td>Milestones listed with checkboxes. Progress bar reflects completion.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-42</td>
+<td>Toggle a milestone checkbox (complete/incomplete).</td>
+<td>Milestone status updates. Progress bar recalculates.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-43</td>
+<td>Add a custom milestone. Edit its title. Delete it.</td>
+<td>CRUD operations work on milestones.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>CORP-44</td>
+<td>Add a task with assignee, priority, due date.</td>
+<td>Task created and listed.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-45</td>
+<td>Mark a task as complete.</td>
+<td>Task status updated.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>CORP-46</td>
+<td>View collaboration budget: estimated vs spent.</td>
+<td>Budget bar displayed with color coding (green/yellow/red based on spend %).</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>7.7 Startup Search &amp; Recommendations</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CORP-50</td>
+<td>Navigate to Corporate Startup Search. Search for &quot;healthcare deeptech&quot;.</td>
+<td>Results returned via FTS. Startup cards with sector, stage, city.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-51</td>
+<td>Click &quot;Recommended Startups&quot; on a specific challenge.</td>
+<td>Recommended startups shown with match score. &quot;Invite to Apply&quot; button visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CORP-52</td>
+<td>Click &quot;Invite to Apply&quot;.</td>
+<td>Invite email sent to startup. Success message.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. TC-INV: Investor Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:investor@demo.openi.ai">investor@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>8.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INV-01</td>
+<td>Navigate to dashboard.</td>
+<td>Investor dashboard shows: deal stats, portfolio summary, recommended startups.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>8.2 Deal Pipeline (7 Stages)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INV-10</td>
+<td>Navigate to Deal Pipeline (<code>/dashboard/investor/deals</code>).</td>
+<td>Kanban board with 7 columns: Sourced, Evaluating, LOI, Diligence, Term Sheet, Closed, Passed.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INV-11</td>
+<td>Create a new deal: startup name, sector, stage, ticket_size, currency.</td>
+<td>Deal created in &quot;Sourced&quot; stage. Card appears on kanban.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INV-12</td>
+<td>Move a deal from &quot;Sourced&quot; to &quot;Evaluating&quot; (drag or status update).</td>
+<td>Deal moves to next column. Auto-generated milestones created for new stage.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-13</td>
+<td>Continue moving deal through all stages: LOI → Diligence → Term Sheet → Closed.</td>
+<td>Deal progresses. Milestones auto-generated at each stage.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-14</td>
+<td>Move a deal to &quot;Passed&quot; (rejected).</td>
+<td>Deal moves to Passed column.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-15</td>
+<td>Click on a deal card to view detail.</td>
+<td>Deal detail page shows: startup info, current stage, evaluation, milestones tab, tasks tab.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INV-16</td>
+<td>Edit deal details: update notes, change ticket_size. Save.</td>
+<td>Changes saved.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>8.3 8-Vector Evaluation</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INV-20</td>
+<td>On a deal detail page, click &quot;Add Evaluation&quot;.</td>
+<td>Evaluation form with 8 sliders: Market, Team, Tech, Traction, Financials, IP, Scalability, Strategic Fit (each 1-5).</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INV-21</td>
+<td>Set all 8 vectors (e.g., Market=4, Team=5, Tech=3, Traction=4, Financials=3, IP=2, Scalability=4, StrategicFit=5). Save.</td>
+<td>Evaluation saved. Overall score auto-computed (average of 8 vectors = 3.75).</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INV-22</td>
+<td>View evaluation history on a deal.</td>
+<td>Multiple evaluations listed with date, overall score, per-vector breakdown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-23</td>
+<td>Edit an existing evaluation. Change one vector. Save.</td>
+<td>Overall score recalculated. Updated evaluation persisted.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>8.4 Deal Milestones &amp; Tasks</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INV-30</td>
+<td>View milestones on a deal.</td>
+<td>Auto-generated milestones for current stage listed with checkboxes.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-31</td>
+<td>Toggle milestone completion.</td>
+<td>Status updates.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-32</td>
+<td>Add a custom milestone.</td>
+<td>Custom milestone created.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>INV-33</td>
+<td>Add a task with assignee, priority, due date. Mark as complete.</td>
+<td>Task CRUD works.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>8.5 Portfolio Management</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INV-40</td>
+<td>Navigate to Portfolio (<code>/dashboard/investor/portfolio</code>).</td>
+<td>Portfolio card grid shows: companies, stats (active/exited/failed), total invested.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INV-41</td>
+<td>Add a company to portfolio: name, sector, entry_date, amount_invested, currency, stage.</td>
+<td>Company added. Card appears in grid.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-42</td>
+<td>Edit portfolio company: update status to &quot;exited&quot;. Add exit_amount, exit_date, exit_multiple.</td>
+<td>Exit tracked. Card shows &quot;Exited&quot; badge. ROI/multiple calculated.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INV-43</td>
+<td>Mark a portfolio company as &quot;failed&quot;.</td>
+<td>Status updated. Stats reflect the change.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. TC-INC: Incubator Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:incubator@demo.openi.ai">incubator@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>9.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-01</td>
+<td>Navigate to dashboard.</td>
+<td>Incubator dashboard shows: program count, pipeline stats, mentor pool size, portfolio health.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>9.2 Programs</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-10</td>
+<td>Navigate to Programs (<code>/dashboard/incubator/programs</code>).</td>
+<td>Program list loads. Demo: &quot;T-Hub DeepTech Cohort 2026&quot; visible.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INC-11</td>
+<td>Create a new program: name, description, program_type, duration_months, funding_amount, currency, start_date, end_date. Submit.</td>
+<td>Program created. 6 auto-seeded milestones generated.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INC-12</td>
+<td>Click on a program to view detail.</td>
+<td>Program detail page with 4 tabs: Pipeline, Milestones, Mentors, Portfolio Health.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INC-13</td>
+<td>Edit program: change description, funding_amount. Save.</td>
+<td>Changes saved.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-14</td>
+<td>Delete a program.</td>
+<td>Program removed. Associated data cleaned up.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>9.3 Startup Pipeline (6-stage)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-20</td>
+<td>On program detail, view Pipeline tab.</td>
+<td>Kanban with stages: Applied, Screening, Interview, Selected, Graduated, Rejected/Dropped.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>INC-21</td>
+<td>Add a startup to pipeline: search directory, select a startup.</td>
+<td>Startup added in &quot;Applied&quot; stage.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-22</td>
+<td>Move startup through stages: Applied → Screening → Interview → Selected → Graduated.</td>
+<td>Stage updates correctly at each step.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-23</td>
+<td>Move a startup to &quot;Rejected&quot;.</td>
+<td>Startup shown in Rejected column.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-24</td>
+<td>Remove a startup from pipeline.</td>
+<td>Startup removed from program.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>9.4 Milestones</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-30</td>
+<td>View Milestones tab on a program.</td>
+<td>Auto-generated milestones visible (e.g., Orientation, Mid-Program Review, Demo Day, Graduation).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-31</td>
+<td>Toggle milestone completion.</td>
+<td>Status updates. Progress bar reflects change.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-32</td>
+<td>Add a custom milestone. Edit it. Delete it.</td>
+<td>CRUD operations work.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>9.5 Mentor Pool &amp; Assignments</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-40</td>
+<td>Navigate to Mentor Pool (<code>/dashboard/incubator/mentors</code>).</td>
+<td>Mentor pool list loads.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-41</td>
+<td>Add a mentor to pool: search directory for mentor-type users, select one. Add expertise, hourly_rate.</td>
+<td>Mentor added to pool.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-42</td>
+<td>On program detail, Mentors tab: Assign a mentor to a startup in the pipeline.</td>
+<td>Assignment created. Mentor-startup link visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-43</td>
+<td>Update assignment status. Remove assignment.</td>
+<td>CRUD operations work.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>9.6 Portfolio Health (Phase 16B.4)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-50</td>
+<td>On program detail, click Portfolio Health tab.</td>
+<td>Portfolio Health dashboard loads: KPI cards, radar chart, at-risk callout, per-startup score strip.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-51</td>
+<td>Click &quot;Add Evaluation&quot; for a startup. Fill 8 vectors (1-5 each) + checkpoint (Entry/Mid-program/Demo Day/Graduation). Save.</td>
+<td>Evaluation saved. Overall auto-computed. Radar chart updates.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-52</td>
+<td>Add a second evaluation for the same startup (different checkpoint).</td>
+<td>Both evaluations listed. Radar shows overlay (current vs previous). Trend view available.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>INC-53</td>
+<td>Verify at-risk detection: create evaluation with overall &lt; 3.</td>
+<td>Startup flagged as &quot;At Risk&quot; in callout.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>9.7 Service Partners</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INC-60</td>
+<td>Navigate to Service Partners (<code>/dashboard/program/service-partners</code>).</td>
+<td>Service partners list loads. Demo: CloudBoost Services visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-61</td>
+<td>Click &quot;Add Partner&quot;. Search directory for service providers. Select one.</td>
+<td>Directory picker modal shows SP-type users with &quot;already_added&quot; flag.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-62</td>
+<td>Fill partner details: service_category, perk_description, perk_value, currency. Save.</td>
+<td>Partner linked. Card appears in grid.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>INC-63</td>
+<td>Edit partner. Delete partner.</td>
+<td>CRUD operations work.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>10. TC-ACC: Accelerator Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:accelerator@demo.openi.ai">accelerator@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>10.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-01</td>
+<td>Navigate to dashboard.</td>
+<td>Accelerator dashboard shows: batch count, pipeline stats, demo day stats, partner count.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>10.2 Batches</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-10</td>
+<td>Navigate to Batches (<code>/dashboard/accelerator/batches</code>).</td>
+<td>Batch list loads. Demo: &quot;JFS Accelerator Batch 7 FinTech&quot; visible.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>ACC-11</td>
+<td>Create a new batch: name, focus_area, duration_weeks, investment_amount, currency, equity_percentage, start_date, end_date. Submit.</td>
+<td>Batch created. 7 auto-seeded milestones generated.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>ACC-12</td>
+<td>Click on a batch to view detail.</td>
+<td>Batch detail page with tabs: Pipeline, Milestones, Portfolio Health.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>ACC-13</td>
+<td>Edit batch: change investment_amount, equity. Save.</td>
+<td>Changes saved.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-14</td>
+<td>Delete a batch.</td>
+<td>Batch removed.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>10.3 Startup Pipeline (with pitch_order + traction_metrics)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-20</td>
+<td>View Pipeline tab on batch detail.</td>
+<td>Kanban with stages: Applied, Screening, Interview, Selected, Graduated, Rejected/Dropped.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>ACC-21</td>
+<td>Add a startup to pipeline.</td>
+<td>Startup added.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-22</td>
+<td>Update pitch_order for a startup.</td>
+<td>Pitch order saved and displayed.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>ACC-23</td>
+<td>Update traction_metrics for a startup.</td>
+<td>Traction metrics saved.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>ACC-24</td>
+<td>Move startup through all stages.</td>
+<td>Stage progression works.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>10.4 Demo Days</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-30</td>
+<td>Navigate to Partners &amp; Network tab. Click Demo Days tab.</td>
+<td>Demo day list loads.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-31</td>
+<td>Create a demo day: event_name, date, venue, max_investors, investors_invited. Submit.</td>
+<td>Demo day created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-32</td>
+<td>Update demo day: add investors_attended, deals_closed, funding_raised.</td>
+<td>Stats updated.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>ACC-33</td>
+<td>Delete a demo day.</td>
+<td>Demo day removed.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>10.5 Corporate Partners &amp; Investor Network</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-40</td>
+<td>View Corporate Partners tab.</td>
+<td>Partner list loads. Demo: HDFC Bank, Razorpay, AWS visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-41</td>
+<td>Add a corporate partner: company_name, type, description, investment_amount, currency.</td>
+<td>Partner created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-42</td>
+<td>View Investor Network tab.</td>
+<td>Investor list loads. Demo: Peak XV, Blume, Mumbai Angels visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-43</td>
+<td>Add an investor to network: name, firm, type, check_size, currency.</td>
+<td>Investor added.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-44</td>
+<td>Edit/delete partners and investors.</td>
+<td>CRUD operations work.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>10.6 Batch Milestones &amp; Portfolio Health</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-50</td>
+<td>View Milestones tab.</td>
+<td>7 auto-seeded milestones visible. Toggle completion works.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-51</td>
+<td>View Portfolio Health tab.</td>
+<td>Portfolio health dashboard loads (same component as incubator). Radar chart, at-risk, trend.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACC-52</td>
+<td>Add evaluation for a batch startup.</td>
+<td>Evaluation saved. Dashboard updates.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>10.7 Service Partners</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC-60</td>
+<td>Navigate to Service Partners. Verify same page as incubator but header says &quot;Batch Service Partners&quot;.</td>
+<td>Header text differs by persona. Functionality identical.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. TC-MENT: Mentor Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:mentor@demo.openi.ai">mentor@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>11.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MENT-01</td>
+<td>Navigate to dashboard.</td>
+<td>Mentor dashboard shows: session count, mentee count, availability status, expertise areas.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>11.2 Sessions (Phase 16D)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MENT-10</td>
+<td>Navigate to Sessions (<code>/dashboard/mentor/sessions</code>).</td>
+<td>Session list loads.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>MENT-11</td>
+<td>Create a new session: mentee (search), topic, date, duration, meeting_link. Submit.</td>
+<td>Session created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>MENT-12</td>
+<td>Edit a session: change date, add notes. Save.</td>
+<td>Changes saved.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>MENT-13</td>
+<td>Delete a session.</td>
+<td>Session removed.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>MENT-14</td>
+<td>View completed sessions vs upcoming sessions.</td>
+<td>Sessions organized by status/date.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>11.3 Availability (Phase 16D)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MENT-20</td>
+<td>Navigate to Availability (<code>/dashboard/mentor/availability</code>).</td>
+<td>Availability settings load.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>MENT-21</td>
+<td>Set availability slots: day_of_week, start_time, end_time. Save.</td>
+<td>Availability saved.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>MENT-22</td>
+<td>Clear all availability. Save.</td>
+<td>Availability cleared.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>11.4 Other Nav Items</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MENT-30</td>
+<td>Navigate to Startup Discovery. Search for startups.</td>
+<td>Results load.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>MENT-31</td>
+<td>Navigate to Projects.</td>
+<td>Project list loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>MENT-32</td>
+<td>Navigate to Feedback. Submit feedback.</td>
+<td>Feedback submitted.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>12. TC-LAB: Lab Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:lab@demo.openi.ai">lab@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>12.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAB-01</td>
+<td>Navigate to dashboard.</td>
+<td>Lab dashboard shows: equipment count, active bookings, publications count, project count.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>12.2 Equipment (Phase 16E)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAB-10</td>
+<td>Navigate to Equipment (<code>/dashboard/lab/equipment</code>).</td>
+<td>Equipment catalog loads.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LAB-11</td>
+<td>Add equipment: name, description, type, status (available/in-use/maintenance), hourly_rate, currency. Submit.</td>
+<td>Equipment created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LAB-12</td>
+<td>Edit equipment: change status, update rate. Save.</td>
+<td>Changes saved.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LAB-13</td>
+<td>Delete equipment.</td>
+<td>Equipment removed.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>12.3 Bookings (Phase 16E)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAB-20</td>
+<td>View Bookings tab.</td>
+<td>Booking list loads.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LAB-21</td>
+<td>Create a booking: select equipment, requester info, start_date, end_date, purpose. Submit.</td>
+<td>Booking created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LAB-22</td>
+<td>Update booking status (approve/reject).</td>
+<td>Status updated.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>12.4 Publications (Phase 16E)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAB-30</td>
+<td>Navigate to Publications (<code>/dashboard/lab/publications</code>).</td>
+<td>Publication list loads.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LAB-31</td>
+<td>Add a publication: title, authors, journal, DOI, publication_date. Submit.</td>
+<td>Publication created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LAB-32</td>
+<td>Delete a publication.</td>
+<td>Publication removed.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>13. TC-SP: Service Provider Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:serviceprovider@demo.openi.ai">serviceprovider@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>13.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SP-01</td>
+<td>Navigate to dashboard.</td>
+<td>SP dashboard shows: services offered count, certifications count, client connections, reviews.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>13.2 Services (Phase 16C)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SP-10</td>
+<td>Navigate to Services (<code>/dashboard/sp/services</code>).</td>
+<td>Services tab active. Service catalog loads.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-11</td>
+<td>Create a service: title, description, category (from 12 categories), pricing_type, price, currency. Submit.</td>
+<td>Service created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SP-12</td>
+<td>Edit a service: change price, update description. Save.</td>
+<td>Changes saved.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SP-13</td>
+<td>Delete a service.</td>
+<td>Service removed.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>13.3 Clients (Phase 16C)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SP-20</td>
+<td>Click Clients tab.</td>
+<td>Client list loads.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SP-21</td>
+<td>Add a client: company_name, sector, project_description, start_date, status. Submit.</td>
+<td>Client created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SP-22</td>
+<td>Edit a client. Delete a client.</td>
+<td>CRUD works.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>13.4 Reviews (Phase 16C)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SP-30</td>
+<td>Click Reviews tab.</td>
+<td>Reviews list loads (reviews FROM other users about this SP).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SP-31</td>
+<td>Login as a different user (e.g., startup). Navigate to SP&#39;s directory listing. Submit a review (rating 1-5, comment).</td>
+<td>Review created. Visible on SP&#39;s reviews tab.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>14. TC-STU: Student Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:student@demo.openi.ai">student@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>14.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STU-01</td>
+<td>Navigate to dashboard.</td>
+<td>Student dashboard shows: stat cards (matches, applications, meetings), quick actions, recommendations.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>14.2 Profile</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STU-10</td>
+<td>Navigate to Profile. Verify student-specific fields: institution, degree, graduation_year, skills, research_interests.</td>
+<td>Student profile fields visible (different from startup fields).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STU-11</td>
+<td>Edit profile fields. Save.</td>
+<td>Fields saved correctly.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>14.3 Navigation</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STU-20</td>
+<td>Verify student nav sidebar contains: Dashboard, Marketplace, Mentors, Directory, Meetings, Events, Knowledge, Documents, Network, Features, What&#39;s New, Settings.</td>
+<td>All nav items present and navigable.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STU-21</td>
+<td>Navigate to Mentors page.</td>
+<td>Mentors directory loads. Can search/filter mentors.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>STU-22</td>
+<td>Navigate to Marketplace. Browse challenges. Apply to one.</td>
+<td>Application flow works same as startup.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>15. TC-ACAD: Academia Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:academia@demo.openi.ai">academia@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>15.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACAD-01</td>
+<td>Navigate to dashboard.</td>
+<td>Academia dashboard shows: stat cards, quick actions, recommendations.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>15.2 Profile</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACAD-10</td>
+<td>Navigate to Profile. Verify academia-specific fields: institution, department, designation, research_areas, publications_count.</td>
+<td>Academia profile fields visible.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACAD-11</td>
+<td>Edit profile fields. Save.</td>
+<td>Fields saved.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>15.3 Navigation</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACAD-20</td>
+<td>Verify academia nav contains: Dashboard, Marketplace, Mentors, Startup Discovery, Directory, Meetings, Events, Knowledge, Documents, Network, Features, What&#39;s New, Settings.</td>
+<td>All nav items present and navigable.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ACAD-21</td>
+<td>Navigate to Startup Discovery. Search for startups.</td>
+<td>Results load.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>16. TC-GOVT: Government Persona</h2>
+<p><strong>Login as:</strong> <a href="mailto:govt@demo.openi.ai">govt@demo.openi.ai</a> / Demo@123 / MFA: 123456</p>
+<h3>16.1 Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GOVT-01</td>
+<td>Navigate to dashboard.</td>
+<td>Government dashboard shows: 5 stat cards (startups tracked, total funding, deeptech count, active programs, unicorn candidates) + 6 quick actions.</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>16.2 Impact Analytics</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GOVT-10</td>
+<td>Verify dashboard shows sector/stage/city/state breakdowns.</td>
+<td>Impact analytics sections visible with data.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>16.3 Challenges/RFPs</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GOVT-20</td>
+<td>Navigate to Challenges/RFPs (<code>/dashboard/corporate/challenges</code>).</td>
+<td>Challenge management page loads (shared with corporate).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>GOVT-21</td>
+<td>Create a challenge/RFP.</td>
+<td>Challenge created successfully (government uses corporate challenge system).</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>16.4 Other Nav Items</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GOVT-30</td>
+<td>Navigate to Startup Discovery.</td>
+<td>Results load.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>GOVT-31</td>
+<td>Navigate to Watchlist. Add a startup to watchlist.</td>
+<td>Startup added. Visible in watchlist.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>GOVT-32</td>
+<td>Navigate to Evaluations.</td>
+<td>Evaluation page loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>GOVT-33</td>
+<td>Navigate to Cohorts.</td>
+<td>Cohort page loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>GOVT-34</td>
+<td>Navigate to Projects.</td>
+<td>Project page loads.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>GOVT-35</td>
+<td>Navigate to Govt API Integrations.</td>
+<td>Integration page loads.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>17. TC-SRCH: Search &amp; Discovery</h2>
+<h3>17.1 Global Search (Public)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SRCH-01</td>
+<td>Navigate to <code>/search</code> (no login required).</td>
+<td>Global search page loads with search bar, mode toggles, tabs (All/Challenges/Startups/People).</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SRCH-02</td>
+<td>Type &quot;supply chain&quot; in keyword mode. Press enter.</td>
+<td>Results appear across All tab. Challenges, startups, and people with &quot;supply chain&quot; shown. Relevance ranking applied.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SRCH-03</td>
+<td>Click &quot;Challenges&quot; tab.</td>
+<td>Only challenge results shown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-04</td>
+<td>Click &quot;Startups&quot; tab.</td>
+<td>Only startup results shown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-05</td>
+<td>Click &quot;People&quot; tab.</td>
+<td>Only directory profile results shown.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>17.2 Semantic Search</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SRCH-10</td>
+<td>Toggle to &quot;Semantic&quot; mode. Search for &quot;companies building smart factory solutions&quot;.</td>
+<td>Results returned via pgvector cosine similarity. Results may include entities that don&#39;t literally contain the search words but are semantically related.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-11</td>
+<td>Verify semantic search requires Pro/Enterprise tier. Login as Free-tier user. Try semantic toggle.</td>
+<td>UpgradeCTA or feature gate message shown. Semantic search blocked for Free tier.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>17.3 AI Ask (Natural Language)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SRCH-20</td>
+<td>Toggle to &quot;AI&quot; mode (brain icon). Search for &quot;early-stage deeptech healthcare startups in Bangalore&quot;.</td>
+<td>InterpretationBanner shows: intent=startups, filters (sector=Healthcare, city=Bangalore, is_deeptech=true), confidence %, keywords. Results filtered accordingly.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SRCH-21</td>
+<td>Search &quot;cybersecurity challenges for partnership&quot;.</td>
+<td>InterpretationBanner: intent=challenges, sector=Cybersecurity, challenge_type=partner. Results filtered.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-22</td>
+<td>Search &quot;investors in fintech&quot;.</td>
+<td>InterpretationBanner: intent=directory, sector=FinTech, persona_type=investor. People tab auto-selected.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-23</td>
+<td>Search a vague term like &quot;innovation&quot;.</td>
+<td>Low confidence shown. Fallback to keywords-only FTS. Banner shows fallback_used indicator.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-24</td>
+<td>Search gibberish &quot;xyzzy quux blurb&quot;.</td>
+<td>Cascade fallback: AI → keywords → semantic. Banner shows fallback_used=semantic. Some loosely related results or empty.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>SRCH-25</td>
+<td>Repeat the same AI search query. Verify &quot;cached: true&quot; indicator (response cache hit).</td>
+<td>Second query returns faster. Interpretation identical.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>SRCH-26</td>
+<td>Verify AI search requires Pro/Enterprise. Login as Free-tier user. Try AI toggle.</td>
+<td>Feature gate blocks AI search for Free tier. UpgradeCTA shown.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>17.4 Autocomplete</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SRCH-30</td>
+<td>Type in search bar. After debounce, autocomplete suggestions appear.</td>
+<td>Suggestions from taxonomy (sectors, technologies) and entity names. Up to 8 results.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SRCH-31</td>
+<td>Click a suggestion.</td>
+<td>Search executed with that term.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>18. TC-DIR: Directory &amp; Connections</h2>
+<h3>18.1 Directory</h3>
+<p><strong>Login as any demo account.</strong></p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DIR-01</td>
+<td>Navigate to Directory (<code>/dashboard/directory</code>).</td>
+<td>Directory loads with user cards, search bar, filters (persona type, city, sector, skill), sort dropdown.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>DIR-02</td>
+<td>Search for &quot;deeptech&quot;.</td>
+<td>Results filtered by FTS. Relevance ranking applied.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>DIR-03</td>
+<td>Filter by persona_type: &quot;investor&quot;.</td>
+<td>Only investor profiles shown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>DIR-04</td>
+<td>Filter by city: &quot;Mumbai&quot;.</td>
+<td>Only users in Mumbai shown.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-05</td>
+<td>Sort by &quot;Name A-Z&quot;, &quot;Newest&quot;, &quot;Relevance&quot;.</td>
+<td>Sort order changes correctly.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-06</td>
+<td>Click persona_type facet chips.</td>
+<td>Results filter to clicked type.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-07</td>
+<td>Click on a user card.</td>
+<td>UserProfile page loads (<code>/dashboard/profile/:id</code>) with profile details + ConnectButton + MutualConnectionsBadge.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>18.2 Connections (Phase 18)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DIR-10</td>
+<td>Navigate to My Network (<code>/dashboard/network</code>).</td>
+<td>Network page loads: connection tabs (All / Incoming / Outgoing), connection count, search.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>DIR-11</td>
+<td>On a UserProfile page, click &quot;Connect&quot; button. Select relationship_type (colleague/advisor/investor/partner/mentor/other).</td>
+<td>Connection request sent. Button changes to &quot;Pending&quot;.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>DIR-12</td>
+<td>Login as the recipient. Navigate to My Network → Incoming tab.</td>
+<td>Incoming connection request visible from sender.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>DIR-13</td>
+<td>Accept the connection request.</td>
+<td>Connection established. Both users see each other in &quot;All&quot; tab.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>DIR-14</td>
+<td>Decline a connection request.</td>
+<td>Request removed. Sender sees status changed.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>DIR-15</td>
+<td>Withdraw a pending outgoing request.</td>
+<td>Request removed from outgoing tab.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>DIR-16</td>
+<td>Remove an existing connection.</td>
+<td>Connection removed from both users&#39; networks.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>DIR-17</td>
+<td>View mutual connections on a user&#39;s profile.</td>
+<td>MutualConnectionsBadge shows count of shared connections.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-18</td>
+<td>Verify connection count badge on nav item.</td>
+<td>Network nav shows unread/pending count badge.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-19</td>
+<td>Block a user.</td>
+<td>User blocked. Cannot send connection requests to you.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-20</td>
+<td>Verify 50/day rate limit on connection requests. (Test by verifying the limit exists conceptually — do not actually send 50.)</td>
+<td>After 50 requests/day, subsequent requests return rate limit error.</td>
+<td>P3</td>
+</tr>
+</tbody></table>
+<h3>18.3 ContextualTip (Phase 22)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DIR-25</td>
+<td>Visit Directory for the first time (clear localStorage).</td>
+<td>ContextualTip tooltip appears with helpful hint (e.g., &quot;Use filters to narrow results&quot;).</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>DIR-26</td>
+<td>Dismiss the tip. Revisit Directory.</td>
+<td>Tip does NOT appear again (localStorage stores seen state).</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>19. TC-LIC: Licensing &amp; Billing</h2>
+<h3>19.1 Plan Display</h3>
+<p><strong>Login as any demo account.</strong></p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIC-01</td>
+<td>Navigate to Settings (<code>/dashboard/settings</code>). Click Billing tab.</td>
+<td>Current plan displayed (Free/Pro/Enterprise). Plan comparison cards visible.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LIC-02</td>
+<td>Verify Free tier shows: 1 challenge, 3 applications, 5 meetings, 5 uploads. AI/Portfolio/Deals locked.</td>
+<td>Feature limits correct per Free tier.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LIC-03</td>
+<td>Verify Pro tier shows: 5 challenges, 20 applications, 50 meetings, 100 uploads, AI Ask 50/day, semantic search, 8-vector evaluation, portfolio health, deal pipeline.</td>
+<td>Feature limits correct per Pro tier.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-04</td>
+<td>Verify Enterprise tier shows: unlimited everything + multi-currency + service partners + SSO + audit logs.</td>
+<td>Feature limits correct per Enterprise tier.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>19.2 Usage Tracking</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIC-10</td>
+<td>On Settings Billing tab, verify usage meters show current usage vs limit.</td>
+<td>Meters display: challenges used/limit, applications used/limit, meetings used/limit, uploads used/limit.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-11</td>
+<td>(Pro/Enterprise user) Verify AI Ask quota display: &quot;AI Ask: X/50 today&quot; or &quot;unlimited&quot;.</td>
+<td>Quota shown with today&#39;s usage count.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>19.3 Feature Access Gating (Phase 19)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIC-20</td>
+<td>As Free-tier user, try to access AI Search (toggle AI mode in search).</td>
+<td>UpgradeCTA component shown instead of results. &quot;Upgrade to Pro for AI Search&quot; or similar message.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LIC-21</td>
+<td>As Free-tier user, try to access Semantic Search.</td>
+<td>Feature gated. UpgradeCTA shown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-22</td>
+<td>As Free-tier incubator/accelerator, try to access Portfolio Health tab.</td>
+<td>Tab shows UpgradeCTA instead of dashboard.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-23</td>
+<td>As Free-tier investor, try to access Deal Pipeline.</td>
+<td>Feature gated. UpgradeCTA shown.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-24</td>
+<td>As Free-tier user, try to add Service Partners.</td>
+<td>Feature gated. UpgradeCTA shown.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>LIC-25</td>
+<td>As Free-tier user, try to create more challenges than limit (1).</td>
+<td>After 1 challenge, next attempt returns usage limit error.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-26</td>
+<td>As Free-tier user, try to submit more applications than limit (3).</td>
+<td>After 3 applications, next attempt returns usage limit error.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>19.4 Razorpay Checkout</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIC-30</td>
+<td>Click &quot;Upgrade to Pro&quot; button.</td>
+<td>Razorpay checkout modal opens with plan details (INR 999/mo).</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LIC-31</td>
+<td>Complete payment with test card.</td>
+<td>Payment verified. User plan updated to Pro. Success message. Payment history entry created.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LIC-32</td>
+<td>After upgrade, verify previously-gated features are now accessible.</td>
+<td>AI Search, semantic search, deal pipeline, portfolio health all work.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-33</td>
+<td>Download invoice for a payment.</td>
+<td>PDF invoice downloads with OpenI branding.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-34</td>
+<td>Cancel subscription.</td>
+<td>Subscription cancelled. Downgraded to Free at period end. Cancellation email sent.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>19.5 Feature Access API</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIC-40</td>
+<td>GET <code>/api/subscription/feature-access</code>.</td>
+<td>Returns full feature map for current tier: ai_search_daily_cap, can_access_portfolio_health, can_access_deal_pipeline, etc. + current usage.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>LIC-41</td>
+<td>(Pro user) Verify ai_consumption in response: queries, tokens, cost this month.</td>
+<td>AI consumption metrics returned.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>20. TC-PUB: Public Pages</h2>
+<h3>20.1 Landing Page</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PUB-01</td>
+<td>Navigate to <code>/landing</code> (no auth).</td>
+<td>Landing page loads: Hero, Features grid (12 cards), Pricing (3 tiers), Testimonials (3), FAQs (7), Persona picker.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>PUB-02</td>
+<td>Verify hero subheadline mentions: 11 personas, AI-powered, plain English, 8-vector, portfolio health.</td>
+<td>Updated hero copy from Phase 17.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-03</td>
+<td>Verify features grid has 12 cards including: AI Ask, Semantic Search, Rich Startup Profiles, Investor Deal Pipeline, Portfolio Health, Service Partner Network, Multi-Currency.</td>
+<td>All 12 feature cards present with icons.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-04</td>
+<td>Verify pricing cards: Free (locked AI/Portfolio/Deal badges), Pro (INR 999/mo, AI Ask 50/day, semantic search), Enterprise (INR 4,999/mo, unlimited).</td>
+<td>Pricing reflects Phase 17 rehash.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>PUB-05</td>
+<td>Click &quot;Get Started&quot; on a pricing card.</td>
+<td>Redirects to <code>/register</code> (or register with plan pre-selected).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-06</td>
+<td>Verify testimonials display 3 quotes about AI Ask, deal pipeline, portfolio health.</td>
+<td>Phase 17 testimonial content.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>PUB-07</td>
+<td>Expand FAQs. Verify 7 items including AI Ask, portfolio health, multi-currency.</td>
+<td>FAQs expandable. Content accurate.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>PUB-08</td>
+<td>Verify persona picker grid shows all 11 types. Click one.</td>
+<td>Redirects to <code>/register?type=&lt;persona&gt;</code>.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-09</td>
+<td>Verify platform stats: &quot;11 Persona Types&quot;, &quot;228+ API Endpoints&quot;, &quot;AI Semantic Search&quot;, &quot;8-Vector Evaluation Framework&quot;.</td>
+<td>Stats reflect Phase 17 platform-capability numbers (not ecosystem numbers).</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>PUB-10</td>
+<td>Verify CMS-driven content loads (or fallback defaults if CMS down).</td>
+<td>Content loads. If CMS is slow/down, hardcoded defaults render instantly.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>20.2 Public Marketplace</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PUB-20</td>
+<td>Navigate to <code>/marketplace</code> (no auth).</td>
+<td>Public marketplace loads with open challenges. Search bar and filters visible.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>PUB-21</td>
+<td>Search for a challenge keyword.</td>
+<td>Results filtered. FTS works.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-22</td>
+<td>Click a challenge for details.</td>
+<td>Public challenge detail page loads with title, description, requirements, sector.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-23</td>
+<td>Verify &quot;Apply&quot; button prompts login (since user is not authenticated).</td>
+<td>Redirect to login or prompt to register.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>20.3 Public Reports</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PUB-30</td>
+<td>Navigate to <code>/reports</code> (no auth).</td>
+<td>Reports page loads with 16 sector reports from openi.ai/insights.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>PUB-31</td>
+<td>Click a report.</td>
+<td>External link opens to openi.ai/insights report.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-32</td>
+<td>Click &quot;Download PDF&quot; on a report.</td>
+<td>PDF downloads with OpenI branding.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>20.4 Shared Challenge</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PUB-40</td>
+<td>Access a shared challenge URL: <code>/challenges/share/&lt;token&gt;</code>.</td>
+<td>SharedChallenge page loads with challenge details. No auth required.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-41</td>
+<td>Access an invalid share token.</td>
+<td>404 or &quot;Challenge not found&quot; error page.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>20.5 SearchBar in Public Layout</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PUB-50</td>
+<td>On Landing page, verify SearchBar is visible in the header.</td>
+<td>SearchBar with mode toggles (keyword/semantic/AI) in PublicLayout header.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>PUB-51</td>
+<td>Type a search query in the header SearchBar. Press enter.</td>
+<td>Redirects to <code>/search</code> with query pre-filled and mode preserved.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>21. TC-SET: Settings</h2>
+<p><strong>Login as any demo account.</strong></p>
+<h3>21.1 General Settings</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SET-01</td>
+<td>Navigate to Settings (<code>/dashboard/settings</code>).</td>
+<td>Settings page loads with tabs: Account, Billing, etc.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SET-02</td>
+<td>Change password: enter current password, new password, confirm. Submit.</td>
+<td>Password changed. Success message. Can login with new password.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SET-03</td>
+<td>Try to change password with wrong current password.</td>
+<td>Error: &quot;Current password incorrect&quot; or similar.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>21.2 Preferred Currency (Phase 16B.2)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SET-10</td>
+<td>On Profile/Account section, find &quot;Preferred Currency&quot; selector.</td>
+<td>Dropdown with INR and USD options.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SET-11</td>
+<td>Change preferred currency from INR to USD. Save.</td>
+<td>Preference saved. Reflected in auth context. Currency-formatted displays update.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>21.3 Billing Tab</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SET-20</td>
+<td>Click Billing tab.</td>
+<td>Plan display, usage meters, plan comparison, payment history.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SET-21</td>
+<td>Verify usage meters reflect actual usage.</td>
+<td>Meters show correct counts (challenges, applications, meetings, uploads used vs limit).</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SET-22</td>
+<td>(Pro/Enterprise) Verify AI Usage card shows: queries this month, tokens consumed, estimated cost.</td>
+<td>AI usage metrics displayed correctly.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>21.4 Organization (Phase 21)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SET-30</td>
+<td>Navigate to Organization (<code>/dashboard/organization</code>).</td>
+<td>OrgAdmin page loads. Org details + member list.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SET-31</td>
+<td>(Org admin) Invite a new member: enter email, select role.</td>
+<td>Invitation sent. Member appears in list as &quot;invited&quot;.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SET-32</td>
+<td>(Org admin) Change a member&#39;s role.</td>
+<td>Role updated.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>SET-33</td>
+<td>(Org admin) Remove a member.</td>
+<td>Member removed from org.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>SET-34</td>
+<td>Verify seat usage: &quot;X of Y seats used&quot; display.</td>
+<td>Seat count accurate vs org license.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>22. TC-ADMIN: Admin Features</h2>
+<p><strong>Login as:</strong> <a href="mailto:admin@drdo.gov.in">admin@drdo.gov.in</a> / Admin@123</p>
+<h3>22.1 Analytics Dashboard (Phase 24)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADM-01</td>
+<td>Navigate to Admin Analytics (<code>/dashboard/admin/analytics</code>).</td>
+<td>Analytics dashboard loads: overview cards, time-series chart, persona breakdown pie chart, conversion funnel bar chart, feature adoption bar chart.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>ADM-02</td>
+<td>Verify overview cards show: total users, active users (30d), total challenges, total applications.</td>
+<td>Numbers populated from DB.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ADM-03</td>
+<td>Verify time-series chart (Recharts line chart) shows registrations/logins over time.</td>
+<td>Line chart renders with date-based x-axis.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ADM-04</td>
+<td>Verify persona breakdown pie chart shows distribution across 11 persona types.</td>
+<td>Pie chart renders. Slices labeled.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ADM-05</td>
+<td>Verify conversion funnel: registered → profile_complete → first_action → active.</td>
+<td>Funnel bar chart renders with decreasing bars.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ADM-06</td>
+<td>Verify feature adoption chart: which features are most used.</td>
+<td>Bar chart with feature names and usage counts.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>22.2 AI Telemetry (Phase 25)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADM-10</td>
+<td>On Admin Analytics, verify AI Telemetry section: summary stats (total queries, avg tokens, total cost, error rate), daily usage chart, top users table, queries by type breakdown.</td>
+<td>AI telemetry data rendered.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ADM-11</td>
+<td>Verify daily usage chart shows AI query count over time.</td>
+<td>Chart renders with date axis.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>ADM-12</td>
+<td>Verify top users table shows: user, query count, tokens, cost.</td>
+<td>Table populated.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>22.3 Onboarding Funnel (Phase 20)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADM-20</td>
+<td>GET <code>/api/onboarding/admin/funnel</code> (or view in admin UI).</td>
+<td>Funnel data returned: completion rates per persona, drop-off points.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>22.4 CMS Seed (Admin)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADM-30</td>
+<td>POST <code>/api/admin/seed-cms</code> (admin only).</td>
+<td>CMS re-seeded. Testimonials, FAQs, pricing, landing page content updated.</td>
+<td>P3</td>
+</tr>
+</tbody></table>
+<h3>22.5 Organization License Management (Phase 21)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADM-40</td>
+<td>POST <code>/api/org/admin/create-license</code> — create org license.</td>
+<td>Organization license created.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>ADM-41</td>
+<td>GET <code>/api/org/admin/list</code> — list all organizations.</td>
+<td>All orgs returned with seat counts and plan info.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>23. TC-EDGE: Edge Cases &amp; Error Handling</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EDGE-01</td>
+<td>Access a protected route without auth token (e.g., GET <code>/api/profile/me</code> with no header).</td>
+<td>401 Unauthorized response.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EDGE-02</td>
+<td>Access an admin-only route as non-admin (e.g., GET <code>/api/audit</code>).</td>
+<td>403 Forbidden response.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EDGE-03</td>
+<td>Send a malformed JSON body to a POST endpoint.</td>
+<td>400 Bad Request. Graceful error message.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>EDGE-04</td>
+<td>Access a non-existent route (e.g., <code>/api/nonexistent</code>).</td>
+<td>404 Not Found.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>EDGE-05</td>
+<td>Try to create a resource that violates unique constraints (e.g., duplicate email).</td>
+<td>DB constraint error caught. Meaningful error message returned. No crash.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>EDGE-06</td>
+<td>Upload a file larger than the allowed size.</td>
+<td>Error: &quot;File too large&quot; or similar. Upload rejected.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>EDGE-07</td>
+<td>Upload a non-allowed file type (e.g., .exe).</td>
+<td>Error: &quot;Invalid file type&quot; or similar. Upload rejected.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>EDGE-08</td>
+<td>Try to access another user&#39;s private data (e.g., GET another user&#39;s profile edit endpoint).</td>
+<td>403 or ownership check prevents access.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EDGE-09</td>
+<td>Rapidly send multiple requests to rate-limited endpoint (AI search).</td>
+<td>After rate limit hit (20/min/IP), 429 Too Many Requests returned.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>EDGE-10</td>
+<td>Test with expired JWT token.</td>
+<td>401 Unauthorized. User prompted to re-login.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EDGE-11</td>
+<td>Test XSS: submit <code>&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;</code> as a profile field.</td>
+<td>Script not executed. Input sanitized or escaped in display.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EDGE-12</td>
+<td>Test SQL injection: submit <code>&#39;; DROP TABLE users;--</code> as input.</td>
+<td>Input parameterized. No SQL injection. DB unaffected.</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EDGE-13</td>
+<td>Stress test: Open multiple browser tabs logged in as same user. Perform actions in parallel.</td>
+<td>No data corruption. Sessions handled correctly.</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>EDGE-14</td>
+<td>Test with CMS (Strapi) down/unreachable.</td>
+<td>Landing page and public pages render with hardcoded fallback defaults. No error screen.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>EDGE-15</td>
+<td>Test mobile responsiveness: Open frontend on mobile viewport (375px width).</td>
+<td>Pages render correctly. Nav collapses to hamburger menu. Forms usable.</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>24. Known Issues &amp; Limitations</h2>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Description</th>
+<th>Workaround</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Railway SMTP blocked</strong></td>
+<td>Railway blocks ports 25/465/587. SMTP-based email sending fails on Railway.</td>
+<td>Resend REST API (HTTPS port 443) is the primary email transport. SMTP is fallback for local dev only.</td>
+</tr>
+<tr>
+<td><strong>lucide-react v0.294</strong></td>
+<td>Does not include <code>Handshake</code> or <code>LinkedIn</code>/<code>X</code> (Twitter) icons.</td>
+<td><code>Link2</code> icon used for Service Partners. Inline SVGs (<code>LinkedInIcon</code>, <code>XIcon</code>) used for social icons.</td>
+</tr>
+<tr>
+<td><strong>CMS fallback</strong></td>
+<td>If Strapi CMS is slow or down (5s timeout), landing page sections fall back to hardcoded defaults.</td>
+<td>Acceptable behavior. CMS is optional enhancement.</td>
+</tr>
+<tr>
+<td><strong>Cloudinary dependency</strong></td>
+<td>File uploads require Cloudinary env vars. If not set, uploads fail with 500.</td>
+<td>Ensure <code>CLOUDINARY_CLOUD_NAME</code>, <code>CLOUDINARY_API_KEY</code>, <code>CLOUDINARY_API_SECRET</code> are set on Railway.</td>
+</tr>
+<tr>
+<td><strong>OpenAI API dependency</strong></td>
+<td>AI search and semantic search require <code>OPENAI_API_KEY</code>. If not set or invalid, AI features return errors.</td>
+<td>Ensure API key is valid and set on Railway. Cost: ~$0.0003/query.</td>
+</tr>
+<tr>
+<td><strong>MFA hardcoded for demo</strong></td>
+<td>Demo accounts all use MFA code <code>123456</code>. This is for testing convenience only.</td>
+<td>Production accounts should use proper TOTP app-based MFA.</td>
+</tr>
+<tr>
+<td><strong>No real-time updates</strong></td>
+<td>Platform uses REST API polling. No WebSocket/SSE for live updates.</td>
+<td>Refresh page to see latest data.</td>
+</tr>
+<tr>
+<td><strong>Single currency per amount</strong></td>
+<td>Each monetary field stores its own currency. No FX conversion.</td>
+<td>Users see amounts in their entered currency. No conversion to preferred currency.</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>25. Support &amp; Escalation</h2>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Contact</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Website</strong></td>
+<td><a href="https://openi.ai">https://openi.ai</a></td>
+</tr>
+<tr>
+<td><strong>Email</strong></td>
+<td><a href="mailto:OpenIhub@openi.ai">OpenIhub@openi.ai</a></td>
+</tr>
+<tr>
+<td><strong>LinkedIn</strong></td>
+<td><a href="https://www.linkedin.com/company/openi-partners/">https://www.linkedin.com/company/openi-partners/</a></td>
+</tr>
+<tr>
+<td><strong>X (Twitter)</strong></td>
+<td><a href="https://x.com/OpenIPartners">https://x.com/OpenIPartners</a></td>
+</tr>
+<tr>
+<td><strong>GitHub (Frontend)</strong></td>
+<td><a href="https://github.com/RajeevBanduni/openi-hub">https://github.com/RajeevBanduni/openi-hub</a></td>
+</tr>
+<tr>
+<td><strong>GitHub (Backend)</strong></td>
+<td><a href="https://github.com/RajeevBanduni/openi-hub-backend">https://github.com/RajeevBanduni/openi-hub-backend</a></td>
+</tr>
+<tr>
+<td><strong>GitHub (CMS)</strong></td>
+<td><a href="https://github.com/RajeevBanduni/openi-hub-cms">https://github.com/RajeevBanduni/openi-hub-cms</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>26. Feature Discovery &amp; Changelog (Phase 22)</h2>
+<h3>26.1 Feature Map</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FEAT-01</td>
+<td>Navigate to Features (<code>/dashboard/features</code>).</td>
+<td>FeatureMap page loads: interactive grid of 28+ features, each with tier badge (Free/Pro/Enterprise), descriptions.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>FEAT-02</td>
+<td>Verify tier badges are plan-aware: Free-tier user sees Pro/Enterprise features as &quot;locked&quot;.</td>
+<td>Locked features show upgrade indicator. Unlocked features for current tier are highlighted.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>FEAT-03</td>
+<td>Click on a feature card.</td>
+<td>Feature detail or tooltip expands with description, tier info, link to relevant page.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h3>26.2 What&#39;s New</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FEAT-10</td>
+<td>Navigate to What&#39;s New (<code>/dashboard/whats-new</code>).</td>
+<td>Changelog page loads with 5 release entries.</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>FEAT-11</td>
+<td>Verify each release entry has: version/date, title, list of changes.</td>
+<td>Entries formatted with clear release notes.</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Appendix A: API Endpoint Quick Reference</h2>
+<h3>Public (No Auth)</h3>
+<ul>
+<li><code>GET /api/public/challenges</code> — list open challenges</li>
+<li><code>GET /api/public/challenges/:id</code> — challenge detail</li>
+<li><code>GET /api/public/challenges/share/:token</code> — shared private challenge</li>
+<li><code>GET /api/public/reports</code> — sector reports</li>
+<li><code>GET /api/public/reports/:id/pdf</code> — download report PDF</li>
+<li><code>GET /api/public/stats</code> — platform stats</li>
+<li><code>GET /api/public/landing-content</code> — CMS landing content</li>
+<li><code>GET /api/public/taxonomy</code> — taxonomy (5 types, 856+ entries)</li>
+<li><code>GET /api/public/search</code> — global FTS search</li>
+<li><code>GET /api/public/search/suggest</code> — autocomplete</li>
+<li><code>GET /api/public/search/semantic</code> — pgvector semantic search (Pro+)</li>
+<li><code>GET /api/public/search/ai</code> — AI natural language search (Pro+)</li>
+</ul>
+<h3>Auth</h3>
+<ul>
+<li><code>POST /api/auth/register</code> — register</li>
+<li><code>POST /api/auth/login</code> — login (returns JWT)</li>
+<li><code>GET /api/auth/me</code> — current user</li>
+<li><code>PUT /api/auth/change-password</code> — change password</li>
+<li><code>PUT /api/auth/profile</code> — update profile (name, preferred_currency)</li>
+</ul>
+<h3>Subscription</h3>
+<ul>
+<li><code>GET /api/subscription/plans</code> — list plans</li>
+<li><code>GET /api/subscription/feature-access</code> — feature map for current tier</li>
+<li><code>GET /api/subscription/my-plan</code> — current plan details</li>
+<li><code>POST /api/subscription/create-order</code> — Razorpay order</li>
+<li><code>POST /api/subscription/verify-payment</code> — verify Razorpay payment</li>
+<li><code>POST /api/subscription/cancel</code> — cancel subscription</li>
+<li><code>GET /api/subscription/invoice/:paymentId</code> — download invoice PDF</li>
+</ul>
+<h3>Admin</h3>
+<ul>
+<li><code>GET /api/admin/analytics/overview</code> — analytics overview</li>
+<li><code>GET /api/admin/analytics/timeseries</code> — time-series data</li>
+<li><code>GET /api/admin/analytics/personas</code> — persona breakdown</li>
+<li><code>GET /api/admin/analytics/funnel</code> — conversion funnel</li>
+<li><code>GET /api/admin/analytics/feature-adoption</code> — feature adoption</li>
+<li><code>GET /api/admin/analytics/ai-telemetry</code> — AI usage telemetry</li>
+<li><code>POST /api/admin/seed-cms</code> — re-seed CMS content</li>
+</ul>
+<hr>
+<p><em>End of Testing Guide v2.0</em></p>
+
+</body>
+</html>
