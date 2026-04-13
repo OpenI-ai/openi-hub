@@ -5,12 +5,12 @@ const G = '#D5AA5B';
 const SLIDES = [
   { src: '/screenshots/01-login.png', caption: 'Secure Login', desc: 'MFA-protected sign-in with quick demo access for 11 persona types' },
   { src: '/screenshots/02-startup-dashboard.png', caption: 'Startup Dashboard', desc: 'Persona-specific stats, quick actions, and meeting scheduler' },
-  { src: '/screenshots/03-student-portfolio.png', caption: 'Student Portfolio', desc: 'Showcase projects, certifications, and track mentorships' },
-  { src: '/screenshots/04-investor-deals.png', caption: 'Investor Deal Pipeline', desc: '7-stage kanban with 8-vector evaluations and milestones' },
+  { src: '/screenshots/03-student-dashboard.png', caption: 'Student Dashboard', desc: '3 projects, 4 certifications, mentorship tracking, and quick actions' },
+  { src: '/screenshots/04-incubator-programs.png', caption: 'Incubation Programs', desc: 'Manage cohorts, startup pipeline, milestones, and mentor assignments' },
   { src: '/screenshots/05-marketplace.png', caption: 'Challenge Marketplace', desc: 'Browse 278+ open innovation challenges with filters and search' },
   { src: '/screenshots/06-settings.png', caption: 'Settings & Billing', desc: 'Profile, security, billing, plan management, and currency preferences' },
   { src: '/screenshots/07-directory.png', caption: 'Ecosystem Directory', desc: '30+ profiles with persona filters, connect buttons, and faceted search' },
-  { src: '/screenshots/08-academia-research.png', caption: 'Academic Portfolio', desc: 'Track research projects, publications, and grant applications' },
+  { src: '/screenshots/08-features.png', caption: 'Feature Map', desc: '28+ platform features with Free/Pro/Enterprise tier badges' },
 ];
 
 export default function PlatformSlideshow() {
