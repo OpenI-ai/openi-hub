@@ -3,7 +3,7 @@
 **Date:** 13 April 2026
 **Prepared by:** OpenI Partners
 **For:** QA Team / End-User Testing
-**Platform Version:** Phase 25 (Feature-complete through AI Telemetry)
+**Platform Version:** Phase 25 + 16F/16G (Feature-complete through AI Telemetry + Student & Academia enhancements)
 
 ---
 
@@ -98,6 +98,8 @@ All demo accounts use **password: `Demo@123`** and **MFA code: `123456`**.
 - Phase 19: Feature access gating per tier
 - Phase 20: Onboarding wizard
 - Phase 21: Organization admin + bulk licensing
+- Phase 16F: Student persona enhancement (projects, certifications, mentorships)
+- Phase 16G: Academia persona enhancement (research projects, publications, grants)
 - Phase 22: Feature discovery + changelog
 - Phase 24: Admin analytics dashboard
 - Phase 25: AI usage telemetry
@@ -603,22 +605,66 @@ All demo accounts use **password: `Demo@123`** and **MFA code: `123456`**.
 
 | ID | Test | Expected | Priority |
 |----|------|----------|----------|
-| STU-01 | Navigate to dashboard. | Student dashboard shows: stat cards (matches, applications, meetings), quick actions, recommendations. | P0 |
+| STU-01 | Navigate to dashboard. | Student dashboard shows 5 stat cards: My Projects, Certifications, Applications, Active Mentorships, Connections. 6 quick actions visible. | P0 |
+| STU-02 | Verify seed data counts: 3 projects, 4 certifications, 1 active mentorship. | Stat cards show correct counts from demo seed. | P1 |
 
 ### 14.2 Profile
 
 | ID | Test | Expected | Priority |
 |----|------|----------|----------|
-| STU-10 | Navigate to Profile. Verify student-specific fields: institution, degree, graduation_year, skills, research_interests. | Student profile fields visible (different from startup fields). | P1 |
-| STU-11 | Edit profile fields. Save. | Fields saved correctly. | P1 |
+| STU-10 | Navigate to Profile. Verify student-specific fields: institution (required), degree, department, graduation_year, city, state, research_areas, skills, project_title, project_desc, bio, looking_for, linkedin_url, portfolio_url, resume_url. | 15 student profile fields visible (different from startup fields). | P1 |
+| STU-11 | Edit profile fields: change institution, add skills tags, update bio. Save. | Fields saved correctly. Refresh confirms persistence. | P1 |
 
 ### 14.3 Navigation
 
 | ID | Test | Expected | Priority |
 |----|------|----------|----------|
-| STU-20 | Verify student nav sidebar contains: Dashboard, Marketplace, Mentors, Directory, Meetings, Events, Knowledge, Documents, Network, Features, What's New, Settings. | All nav items present and navigable. | P1 |
-| STU-21 | Navigate to Mentors page. | Mentors directory loads. Can search/filter mentors. | P1 |
-| STU-22 | Navigate to Marketplace. Browse challenges. Apply to one. | Application flow works same as startup. | P1 |
+| STU-15 | Verify student nav sidebar contains: Overview, My Profile, Directory, My Network, Messaging, Meetings, Events, Knowledge, Documents, Organization, Features, What's New, Settings, **My Portfolio**, **Mentorships**, Marketplace, Startups, Watchlist. | All nav items present and navigable. Portfolio and Mentorships are new Phase 16F items. | P0 |
+
+### 14.4 Portfolio — Projects Tab (Phase 16F)
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| STU-20 | Navigate to My Portfolio (`/dashboard/student/portfolio`). | StudentPortfolio page loads with 2 tabs: Projects, Certifications. Projects tab active by default. | P0 |
+| STU-21 | Verify seed projects: "Swarm Robotics for Disaster Response" (research/in_progress, featured), "SmartCampus IoT Dashboard" (hackathon/completed, award), "NLP-based Patent Prior Art Search" (capstone/completed). | 3 project cards visible with correct types, statuses, tech stack pills, and featured indicator. | P0 |
+| STU-22 | Click "Add Project". Fill: title, description, project_type (hackathon), tech_stack ("React, Python"), status (idea), start_date. Save. | Project created. Card appears in grid. Toast success. | P0 |
+| STU-23 | Click edit icon on a project. Change status from "idea" to "in_progress". Add github_url. Save. | Project updated. Status badge changes color. GitHub icon link appears. | P1 |
+| STU-24 | Click delete icon on a project. Confirm. | Project removed from grid. Count decreases. | P1 |
+| STU-25 | Verify project card shows: title, type badge, status badge (color-coded), tech_stack as pills, collaborators, date range, awards_won highlight, GitHub/Demo/Paper links. | All fields render correctly on card. | P1 |
+| STU-26 | Toggle "Feature this project" checkbox in edit modal. Save. | Card gets gold left border (featured indicator). Featured project appears first. | P2 |
+
+### 14.5 Portfolio — Certifications Tab (Phase 16F)
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| STU-30 | Click Certifications tab. | Tab switches. 4 seed certifications visible: Deep Learning Specialization, AWS Cloud Practitioner, ROS2 Workshop, SIH Finalist. | P0 |
+| STU-31 | Click "Add Certification". Fill: title, provider, cert_type (course), skills_gained ("Python, ML"), completion_date. Save. | Certification created. Card appears. | P0 |
+| STU-32 | Edit a certification: change provider, add credential_url. Save. | Changes saved. "View Credential" link appears on card. | P1 |
+| STU-33 | Delete a certification. | Certification removed. | P1 |
+| STU-34 | Verify certification card shows: title, provider, type badge (color-coded), skills as pills, completion date, expiry warning (if approaching), credential link. | All fields render correctly. | P1 |
+| STU-35 | Verify cert_type options: certification, course, workshop, bootcamp, competition, award, scholarship. | All 7 types available in dropdown. Each has distinct badge color. | P2 |
+
+### 14.6 Mentorships (Phase 16F)
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| STU-40 | Navigate to Mentorships (`/dashboard/student/mentorships`). | Mentorship tracker page loads. Status filter chips visible (All/Seeking/Requested/Active/Completed/Declined). | P0 |
+| STU-41 | Verify seed mentorships: "Swarm Robotics Research Guidance" (active, mentor: Dr. Vikram Sharma, 3 sessions), "Patent Filing Process" (seeking, external: Prof. Raghunath Iyer). | 2 mentorship cards visible with correct statuses, mentor names, session counts. | P0 |
+| STU-42 | Click "New Mentorship". Fill: topic, mentor_name (external), message. Save. | Mentorship request created with status "seeking". | P0 |
+| STU-43 | On a "seeking" mentorship card, click "Mark Requested". | Status changes to "requested". Badge color updates. | P1 |
+| STU-44 | On a "requested" mentorship card, click "Mark Active". | Status changes to "active". started_at auto-set. | P1 |
+| STU-45 | On an "active" mentorship card, click "Mark Completed". | Status changes to "completed". completed_at auto-set. | P1 |
+| STU-46 | Edit a mentorship: add notes, increase session count, add rating (1-5). Save. | Changes saved. Notes shown in card. Stars displayed. | P1 |
+| STU-47 | Filter by status: click "Active" chip. | Only active mentorships shown. Count in chip matches. | P1 |
+| STU-48 | Delete a mentorship record. | Record removed. | P2 |
+
+### 14.7 Other Student Nav Items
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| STU-50 | Navigate to Marketplace. Browse challenges. Apply to one. | Application flow works same as startup. | P1 |
+| STU-51 | Navigate to Startups. Search for startups. | Results load with cards. | P1 |
+| STU-52 | Navigate to Watchlist. | Watchlist page loads. Can add/remove startups. | P2 |
 
 ---
 
@@ -630,21 +676,66 @@ All demo accounts use **password: `Demo@123`** and **MFA code: `123456`**.
 
 | ID | Test | Expected | Priority |
 |----|------|----------|----------|
-| ACAD-01 | Navigate to dashboard. | Academia dashboard shows: stat cards, quick actions, recommendations. | P0 |
+| ACAD-01 | Navigate to dashboard. | Academia dashboard shows 6 stat cards: Research Projects, Publications, Active Grants, Applications, Connections, Lab Bookings. 6 quick actions visible. | P0 |
+| ACAD-02 | Verify seed data counts: 3 research projects, 4 publications, 1 active grant. | Stat cards show correct counts from demo seed. | P1 |
 
 ### 15.2 Profile
 
 | ID | Test | Expected | Priority |
 |----|------|----------|----------|
-| ACAD-10 | Navigate to Profile. Verify academia-specific fields: institution, department, designation, research_areas, publications_count. | Academia profile fields visible. | P1 |
-| ACAD-11 | Edit profile fields. Save. | Fields saved. | P1 |
+| ACAD-10 | Navigate to Profile. Verify academia-specific fields: institution_name (required), institution_type (University/Research Institute/College/Think Tank/Other), department, designation, city, state, website, research_areas, publications_count, patents_count, bio, offerings, linkedin_url, google_scholar_url. | 14 academia profile fields visible. | P1 |
+| ACAD-11 | Edit profile fields: change designation, add research_areas tags, update bio. Save. | Fields saved correctly. | P1 |
 
 ### 15.3 Navigation
 
 | ID | Test | Expected | Priority |
 |----|------|----------|----------|
-| ACAD-20 | Verify academia nav contains: Dashboard, Marketplace, Mentors, Startup Discovery, Directory, Meetings, Events, Knowledge, Documents, Network, Features, What's New, Settings. | All nav items present and navigable. | P1 |
-| ACAD-21 | Navigate to Startup Discovery. Search for startups. | Results load. | P1 |
+| ACAD-15 | Verify academia nav sidebar contains: Overview, My Profile, Directory, My Network, Messaging, Meetings, Events, Knowledge, Documents, Organization, Features, What's New, Settings, **Research**, **Publications**, **Grants**, Marketplace, Startups, IPR Database. | All nav items present. Research, Publications, and Grants are new Phase 16G items. | P0 |
+
+### 15.4 Research Projects Tab (Phase 16G)
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| ACAD-20 | Navigate to Research (`/dashboard/academia/research`). | AcademiaPortfolio page loads with 3 tabs: Research, Publications, Grants. Research tab active. | P0 |
+| ACAD-21 | Verify seed projects: "AI-Driven Drug Discovery for Tropical Diseases" (govt_funded/ongoing, ₹45L DST-SERB, featured), "Quantum Error Correction for NISQ Devices" (fundamental/completed), "Smart Agriculture IoT Framework" (collaborative/proposed). | 3 research cards visible with correct types, statuses, funding, domain pills. | P0 |
+| ACAD-22 | Click "Add Research". Fill: title, description, project_type (applied), domain ("AI/ML, Healthcare"), status (ongoing), funding_amount, funding_currency (INR), funding_source, start_date, collaborators, partner_institutions. Save. | Research project created. Card appears with funding and domain tags. | P0 |
+| ACAD-23 | Edit a research project: change status to "completed", add outcomes, add paper_url. Save. | Changes saved. Status badge updates. Paper link appears. | P1 |
+| ACAD-24 | Delete a research project. | Project removed. | P1 |
+| ACAD-25 | Verify project card shows: title, type badge, status badge (color-coded), domain pills, funding amount with currency, funding source, partner institutions, date range, paper link, featured indicator. | All fields render correctly. | P1 |
+| ACAD-26 | Toggle "Feature this project" checkbox. Save. | Gold left border appears. Featured project sorted first. | P2 |
+| ACAD-27 | Test currency toggle: create project with USD funding. | Amount displayed with $ prefix and US formatting. | P2 |
+
+### 15.5 Publications Tab (Phase 16G)
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| ACAD-30 | Click Publications tab. | Tab switches. 4 seed publications visible: GNN Survey (journal, 42 citations, open access), Topological Codes (journal, 28 citations), IoT Sensor Networks (conference, 5 citations, open access), Molecular Fingerprinting (preprint, 0 citations, open access). | P0 |
+| ACAD-31 | Click "Add Publication". Fill: title, pub_type (journal), authors ("S. Iyer, M. Krishnan"), journal_or_venue, doi_url, keywords ("AI, Drug Discovery"), publication_date, citations_count. Save. | Publication created. Card shows authors, venue, DOI link, keywords. | P0 |
+| ACAD-32 | Edit a publication: increase citations_count, add paper_url. Save. | Changes saved. PDF link appears. | P1 |
+| ACAD-33 | Delete a publication. | Publication removed. | P1 |
+| ACAD-34 | Verify publication card shows: title, authors, pub_type badge (color-coded), journal/venue (italic), open access badge, citation count, keywords as pills, DOI link, PDF link, date. | All fields render correctly. | P1 |
+| ACAD-35 | Verify pub_type options: journal, conference, book_chapter, thesis, preprint, patent, technical_report, other. | All 8 types available. Each has distinct badge color. | P2 |
+| ACAD-36 | Toggle "Open Access" checkbox. Save. | Green "Open Access" badge appears on card. | P2 |
+
+### 15.6 Grants Tab (Phase 16G)
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| ACAD-40 | Click Grants tab. | Tab switches. 3 seed grants visible: DST-SERB (government/active, ₹45L), SERB Early Career (government/completed, ₹20L), TCS Fellowship (industry/applied, $75K). | P0 |
+| ACAD-41 | Click "Add Grant". Fill: title, granting_body, grant_type (government), amount, currency (INR), status (applied), start_date, end_date, project_title, co_investigators. Save. | Grant created. Card shows granting body, amount, status badge. | P0 |
+| ACAD-42 | Edit a grant: change status from "applied" to "approved". Save. | Status badge color changes (yellow → purple). | P1 |
+| ACAD-43 | Delete a grant. | Grant removed. | P1 |
+| ACAD-44 | Verify grant card shows: title, granting body, type badge, status badge (color-coded), amount with currency, project title, co-investigators, date range. | All fields render correctly. | P1 |
+| ACAD-45 | Verify grant_type options: government, industry, foundation, internal, international, other. | All 6 types available. | P2 |
+| ACAD-46 | Verify grant status options: applied, approved, active, completed, rejected. | All 5 statuses available with distinct colors (yellow/purple/green/blue/red). | P2 |
+
+### 15.7 Other Academia Nav Items
+
+| ID | Test | Expected | Priority |
+|----|------|----------|----------|
+| ACAD-50 | Navigate to Marketplace. Browse challenges. | Challenges load. Can apply. | P1 |
+| ACAD-51 | Navigate to Startups. Search for startups. | Results load. | P1 |
+| ACAD-52 | Navigate to IPR Database. | IPR list loads. | P2 |
 
 ---
 
