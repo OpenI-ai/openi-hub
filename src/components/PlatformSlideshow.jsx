@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 const G = '#D5AA5B';
 
 const SLIDES = [
-  { src: '/screenshots/01-landing.png', caption: 'Landing Page', desc: 'Public-facing homepage with AI search, 11 persona types, and pricing' },
+  { src: '/screenshots/01-login.png', caption: 'Secure Login', desc: 'MFA-protected sign-in with quick demo access for 11 persona types' },
   { src: '/screenshots/02-startup-dashboard.png', caption: 'Startup Dashboard', desc: 'Persona-specific stats, quick actions, and meeting scheduler' },
   { src: '/screenshots/03-student-portfolio.png', caption: 'Student Portfolio', desc: 'Showcase projects, certifications, and track mentorships' },
   { src: '/screenshots/04-investor-deals.png', caption: 'Investor Deal Pipeline', desc: '7-stage kanban with 8-vector evaluations and milestones' },
