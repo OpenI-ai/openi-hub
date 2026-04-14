@@ -68,6 +68,11 @@ import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 import FeatureMap           from './pages/dashboard/FeatureMap';
 import AdminAnalytics       from './pages/dashboard/AdminAnalytics';
+import AdminConsole         from './pages/dashboard/AdminConsole';
+import AdminUsers           from './pages/dashboard/AdminUsers';
+import AdminChallenges      from './pages/dashboard/AdminChallenges';
+import AdminStartups        from './pages/dashboard/AdminStartups';
+import AdminLicenses        from './pages/dashboard/AdminLicenses';
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
 import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
@@ -173,6 +178,11 @@ export default function App() {
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />
             <Route path="admin/analytics"    element={<AdminAnalytics />} />
+            <Route path="admin/console"      element={<AdminConsole />} />
+            <Route path="admin/users"        element={<AdminUsers />} />
+            <Route path="admin/challenges"   element={<AdminChallenges />} />
+            <Route path="admin/startups"     element={<AdminStartups />} />
+            <Route path="admin/licenses"     element={<AdminLicenses />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

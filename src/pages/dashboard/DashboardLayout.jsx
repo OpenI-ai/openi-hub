@@ -11,7 +11,7 @@ import {
   Star, Zap, Calendar, UserCheck, ThumbsUp, Link2,
   Search, User, CalendarCheck, TrendingUp, Landmark,
   FlaskConical, Home, Target, Link, Map, Sparkles, Briefcase, Clock,
-  BarChart3,
+  BarChart3, Megaphone, CreditCard,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS } from "../../config/personas";
 import SearchBar from "../../components/SearchBar";
@@ -71,7 +71,12 @@ const NAV = [
   { to: "/dashboard/sme",            label: "SME Experts",      Icon: UserCheck,       roles: ["admin","evaluator"] },
   { to: "/dashboard/feedback",       label: "Feedback",         Icon: ThumbsUp,        roles: ["admin","evaluator"] },
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
-  { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"], badge: "NEW" },
+  { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"] },
+  { to: "/dashboard/admin/console",   label: "Admin Console",  Icon: Shield,          roles: ["admin"], badge: "NEW" },
+  { to: "/dashboard/admin/users",     label: "User Mgmt",      Icon: Users,           roles: ["admin"] },
+  { to: "/dashboard/admin/challenges",label: "Challenges",     Icon: Megaphone,       roles: ["admin"] },
+  { to: "/dashboard/admin/startups",  label: "Startup Data",   Icon: Building2,       roles: ["admin"] },
+  { to: "/dashboard/admin/licenses",  label: "Licenses",       Icon: CreditCard,      roles: ["admin"] },
 ];
 
 const MOCK_NOTIFS = [

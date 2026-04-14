@@ -566,3 +566,29 @@ export const crawlAPI = {
   // Phase 23: Imported startups
   listImported:    (params = {})     => get(`/crawl/imported?${new URLSearchParams(params)}`),
 };
+
+// ── Admin Console (Phase 28) ────────────────────────────────
+export const adminAPI = {
+  // System
+  systemHealth:       ()            => get('/admin/system-health'),
+  // Users
+  listUsers:          (params = {}) => get(`/admin/users?${new URLSearchParams(params)}`),
+  getUser:            (id)          => get(`/admin/users/${id}`),
+  updateUser:         (id, data)    => put(`/admin/users/${id}`, data),
+  overridePlan:       (id, plan)    => put(`/admin/users/${id}/plan`, { plan }),
+  toggleActive:       (id)          => put(`/admin/users/${id}/toggle-active`),
+  deleteUser:         (id)          => del(`/admin/users/${id}`),
+  // Challenges
+  listChallenges:     (params = {}) => get(`/admin/challenges?${new URLSearchParams(params)}`),
+  updateChallengeStatus: (id, status) => put(`/admin/challenges/${id}/status`, { status }),
+  toggleFeature:      (id)          => put(`/admin/challenges/${id}/feature`),
+  deleteChallenge:    (id)          => del(`/admin/challenges/${id}`),
+  // Startups
+  listStartups:       (params = {}) => get(`/admin/startups?${new URLSearchParams(params)}`),
+  updateStartup:      (id, data)    => put(`/admin/startups/${id}`, data),
+  deleteStartup:      (id)          => del(`/admin/startups/${id}`),
+  findDuplicates:     ()            => get('/admin/startups/duplicates'),
+  // Licenses
+  listLicenses:       (params = {}) => get(`/admin/licenses?${new URLSearchParams(params)}`),
+  resetUsage:         (id, feature) => put(`/admin/licenses/${id}/reset-usage`, { feature }),
+};
