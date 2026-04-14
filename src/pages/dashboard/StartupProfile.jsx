@@ -26,6 +26,16 @@ function TRLBadge({ trl }) {
   return <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${colors[trl] || 'bg-gray-100 text-gray-600'}`}>TRL {trl}</span>;
 }
 
+function formatFundingDisplay(val) {
+  if (!val) return '-';
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  if (isNaN(num)) return val;
+  if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
+  if (num >= 1e3) return `$${(num / 1e3).toFixed(0)}K`;
+  return `$${num}`;
+}
+
 export default function StartupProfile() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -42,35 +52,49 @@ export default function StartupProfile() {
     startupAPI.get(id)
       .then(data => {
         const s = data.startup || data;
-        // Normalize backend fields to what UI expects
+        // Normalize backend fields to what UI expects (handles both startup_profiles and legacy startups)
+        const displayName = s.company_name || s.name || '';
         const normalized = {
           ...s,
-          name: s.name || '',
-          logo: s.logo || (s.name ? s.name.split(' ').map(w => w[0]).join('').slice(0, 2) : '??'),
+          name: displayName,
+          logo: s.logo_url || s.logo || (displayName ? displayName.split(' ').map(w => w[0]).join('').slice(0, 2) : '??'),
+          logo_url: s.logo_url || null,
           sector: s.sector || '',
-          technology: s.technology || '',
-          location: s.location || '',
+          technology: s.technologies || s.technology || '',
+          location: [s.city, s.state, s.country].filter(Boolean).join(', ') || s.location || '',
           status: s.status || 'Active',
           stage: s.stage || '',
           openi_cluster: s.openi_cluster || '',
-          trl: s.trl || 0,
+          trl: s.tech_readiness || s.trl || 0,
           score: s.score || 0,
-          deeptech: s.deeptech || false,
-          founded: s.founded || '',
-          employees: s.employees || 0,
-          revenue: s.revenue || 0,
-          funding: s.funding || 0,
+          deeptech: s.is_deeptech || s.deeptech || false,
+          founded: s.founded_year || s.founded || '',
+          employees: s.team_size || s.employee_range || s.employees || 0,
+          revenue: s.arr || s.revenue || 0,
+          funding: s.funding_raised || s.funding || 0,
           patents: s.patents || 0,
-          description: s.description || '',
+          description: s.description || s.tagline || '',
+          tagline: s.tagline || '',
+          website: s.website || '',
+          domain_name: s.domain_name || '',
+          linkedin_url: s.linkedin_url || '',
+          twitter_url: s.twitter_url || '',
           solutions: s.solutions || [],
           clients: s.clients || [],
           awards: s.awards || [],
           founders: s.founders || [],
-          investors: s.investors || [],
+          investors: s.investor_names ? (typeof s.investor_names === 'string' ? s.investor_names.split(',').map(n => ({ name: n.trim() })) : s.investor_names) : s.investors || [],
           milestones: s.milestones || [],
           financials: s.financials || [],
           shareholding: s.shareholding || [],
           board: s.board || [],
+          valuation: s.valuation || 0,
+          mission: s.mission || '',
+          vision: s.vision || '',
+          business_model: s.business_model || '',
+          revenue_model: s.revenue_model || '',
+          dpiit_number: s.dpiit_number || '',
+          import_metadata: s.import_metadata || null,
         };
         setStartup(normalized);
         setWatchlisted(normalized.watchlisted || false);
@@ -108,9 +132,13 @@ export default function StartupProfile() {
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-start justify-between gap-6">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-primary-500 flex items-center justify-center text-dark-950 text-xl font-display font-bold flex-shrink-0">
-                {startup.logo}
-              </div>
+              {startup.logo_url ? (
+                <img src={startup.logo_url} alt="" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-primary-500 flex items-center justify-center text-dark-950 text-xl font-display font-bold flex-shrink-0">
+                  {startup.logo}
+                </div>
+              )}
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-white text-2xl font-display font-bold">{startup.name}</h1>
@@ -343,7 +371,7 @@ export default function StartupProfile() {
                     <Lock size={16} className="text-gray-400" />
                   </div>
                   <div className="grid grid-cols-3 gap-4 mb-6">
-                    {[['Revenue (FY24)', `₹${(startup.revenue / 100000).toFixed(1)}L`, 'text-accent-600'], ['Total Funding', `₹${(startup.funding / 1000000).toFixed(1)}Cr`, 'text-primary-600'], ['Employees', startup.employees, 'text-blue-600']].map(([k,v,c]) => (
+                    {[['Total Funding', formatFundingDisplay(startup.funding), 'text-primary-600'], ['Valuation', formatFundingDisplay(startup.valuation), 'text-accent-600'], ['Team Size', startup.employees || '-', 'text-blue-600']].map(([k,v,c]) => (
                       <div key={k} className="p-4 bg-gray-50 rounded-xl text-center border border-gray-100">
                         <div className={`text-2xl font-display font-bold ${c}`}>{v}</div>
                         <div className="text-xs text-gray-500 mt-1">{k}</div>
@@ -540,13 +568,13 @@ export default function StartupProfile() {
               <h4 className="font-semibold text-gray-800 text-sm mb-4">Quick Stats</h4>
               <div className="space-y-3">
                 {[
-                  { label: 'OpenI Score', value: `${startup.score}/100`, icon: Star, color: 'text-primary-500' },
-                  { label: 'TRL', value: startup.trl, icon: Target, color: 'text-blue-500' },
-                  { label: 'Employees', value: startup.employees, icon: Users, color: 'text-green-500' },
-                  { label: 'Patents', value: startup.patents, icon: Shield, color: 'text-purple-500' },
-                  { label: 'Funding', value: `₹${(startup.funding / 1000000).toFixed(1)}Cr`, icon: DollarSign, color: 'text-yellow-500' },
-                  { label: 'Revenue (FY24)', value: `₹${(startup.revenue / 100000).toFixed(1)}L`, icon: TrendingUp, color: 'text-accent-500' },
-                ].map(stat => (
+                  startup.trl ? { label: 'TRL', value: `Level ${startup.trl}`, icon: Target, color: 'text-blue-500' } : null,
+                  startup.employees ? { label: 'Team Size', value: startup.employees, icon: Users, color: 'text-green-500' } : null,
+                  startup.funding ? { label: 'Funding Raised', value: formatFundingDisplay(startup.funding), icon: DollarSign, color: 'text-yellow-500' } : null,
+                  startup.valuation ? { label: 'Valuation', value: formatFundingDisplay(startup.valuation), icon: TrendingUp, color: 'text-accent-500' } : null,
+                  startup.founded ? { label: 'Founded', value: startup.founded, icon: Calendar, color: 'text-gray-500' } : null,
+                  startup.dpiit_number ? { label: 'DPIIT', value: startup.dpiit_number, icon: Shield, color: 'text-purple-500' } : null,
+                ].filter(Boolean).map(stat => (
                   <div key={stat.label} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <stat.icon size={14} className={stat.color} />
@@ -558,22 +586,28 @@ export default function StartupProfile() {
               </div>
             </div>
 
-            {/* OpenI Engagement */}
+            {/* Links */}
             <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h4 className="font-semibold text-gray-800 text-sm mb-4">OpenI Engagement</h4>
+              <h4 className="font-semibold text-gray-800 text-sm mb-4">Links</h4>
               <div className="space-y-2 text-sm">
-                {[
-                  { label: 'Status', value: startup.status, badge: true },
-                  { label: 'Active Project', value: 'OI/2023/CAIR/AI-001', badge: false },
-                  { label: 'Assigned Lab', value: 'DRDO CAIR', badge: false },
-                  { label: 'Program Manager', value: 'Dr. Priya Sharma', badge: false },
-                  { label: 'Mentor', value: 'Prof. Sunita Rao', badge: false },
-                ].map(item => (
-                  <div key={item.label} className="flex justify-between items-center">
-                    <span className="text-gray-500">{item.label}</span>
-                    {item.badge ? <span className="px-2 py-0.5 bg-accent-100 text-accent-700 rounded-full text-xs font-semibold">{item.value}</span> : <span className="font-medium text-gray-800 text-right text-xs">{item.value}</span>}
-                  </div>
-                ))}
+                {startup.website && (
+                  <a href={startup.website.startsWith('http') ? startup.website : `https://${startup.website}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <Globe size={14} /> {startup.domain_name || 'Website'}
+                  </a>
+                )}
+                {startup.linkedin_url && (
+                  <a href={startup.linkedin_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <ExternalLink size={14} /> LinkedIn
+                  </a>
+                )}
+                {startup.twitter_url && (
+                  <a href={startup.twitter_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <ExternalLink size={14} /> X / Twitter
+                  </a>
+                )}
+                {!startup.website && !startup.linkedin_url && !startup.twitter_url && (
+                  <p className="text-gray-400">No links available</p>
+                )}
               </div>
             </div>
 
@@ -582,12 +616,10 @@ export default function StartupProfile() {
               <h4 className="font-semibold text-gray-800 text-sm mb-4">Verification Status</h4>
               <div className="space-y-2">
                 {[
-                  { label: 'DPIIT Registration', ok: true },
-                  { label: 'GSTIN Verified', ok: true },
-                  { label: 'CIN / MCA21', ok: true },
-                  { label: 'Citizenship Check', ok: true },
-                  { label: 'Financials Audited', ok: false },
-                  { label: 'Security Clearance', ok: false },
+                  { label: 'DPIIT Registration', ok: !!startup.dpiit_number },
+                  { label: 'GSTIN Verified', ok: !!startup.gstin },
+                  { label: 'CIN / MCA21', ok: !!startup.cin },
+                  { label: 'Profile Complete', ok: !!(startup.description && startup.sector) },
                 ].map(v => (
                   <div key={v.label} className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">{v.label}</span>
