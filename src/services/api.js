@@ -565,6 +565,19 @@ export const crawlAPI = {
   listJobs:        ()                => get('/crawl/jobs'),
   // Phase 23: Imported startups
   listImported:    (params = {})     => get(`/crawl/imported?${new URLSearchParams(params)}`),
+  // Phase 29: Enrichment
+  enrichProfile:     (userId)         => post(`/crawl/enrich/${userId}`),
+  batchEnrich:       ()               => post('/crawl/enrich/batch'),
+  listEnrichment:    (params = {})    => get(`/crawl/enrichment?${new URLSearchParams(params)}`),
+  enrichmentStats:   ()               => get('/crawl/enrichment/stats'),
+  getEnrichment:     (id)             => get(`/crawl/enrichment/${id}`),
+  approveEnrichment: (id, fields)     => put(`/crawl/enrichment/${id}/approve`, { fields }),
+  rejectEnrichment:  (id, reason)     => put(`/crawl/enrichment/${id}/reject`, { reason }),
+  requestCrawl:      (query)          => post('/crawl/request', { query }),
+  myRequests:        ()               => get('/crawl/requests/mine'),
+  listSchedules:     ()               => get('/crawl/schedules'),
+  createSchedule:    (data)           => post('/crawl/schedules', data),
+  toggleSchedule:    (id)             => put(`/crawl/schedules/${id}/toggle`),
 };
 
 // ── Admin Console (Phase 28) ────────────────────────────────
@@ -588,6 +601,7 @@ export const adminAPI = {
   updateStartup:      (id, data)    => put(`/admin/startups/${id}`, data),
   deleteStartup:      (id)          => del(`/admin/startups/${id}`),
   findDuplicates:     ()            => get('/admin/startups/duplicates'),
+  mergeStartups:     (primary_id, secondary_ids) => post('/admin/startups/merge', { primary_id, secondary_ids }),
   // Licenses
   listLicenses:       (params = {}) => get(`/admin/licenses?${new URLSearchParams(params)}`),
   resetUsage:         (id, feature) => put(`/admin/licenses/${id}/reset-usage`, { feature }),

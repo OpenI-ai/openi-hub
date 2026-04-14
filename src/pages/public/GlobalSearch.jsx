@@ -4,7 +4,7 @@ import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brai
 import PublicLayout from '../../components/PublicLayout';
 import SearchBar from '../../components/SearchBar';
 import UpgradeCTA from '../../components/UpgradeCTA';
-import { publicAPI } from '../../services/api';
+import { publicAPI, crawlAPI, getToken } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const G = '#D5AA5B';
@@ -216,13 +216,9 @@ export default function GlobalSearch() {
                 </Section>
               )}
 
-              {/* No results */}
+              {/* No results + on-demand crawl CTA */}
               {totalResults === 0 && (
-                <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
-                  <Search size={40} style={{ color: '#ddd', marginBottom: 12 }} />
-                  <p style={{ fontSize: 16 }}>No results found for "{q}"</p>
-                  <p style={{ fontSize: 13 }}>Try different keywords or check the spelling</p>
-                </div>
+                <NoResultsCTA query={q} />
               )}
             </div>
           )}
@@ -230,6 +226,51 @@ export default function GlobalSearch() {
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </PublicLayout>
+  );
+}
+
+function NoResultsCTA({ query }) {
+  const [requested, setRequested] = useState(false);
+  const isLoggedIn = !!getToken();
+
+  const handleRequest = async () => {
+    try {
+      await crawlAPI.requestCrawl(query);
+      setRequested(true);
+      toast.success('Request submitted! We\'ll add this startup to our database.');
+    } catch (err) {
+      toast.error(err.message || 'Request failed');
+    }
+  };
+
+  return (
+    <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
+      <Search size={40} style={{ color: '#ddd', marginBottom: 12 }} />
+      <p style={{ fontSize: 16 }}>No results found for "{query}"</p>
+      <p style={{ fontSize: 13, marginBottom: 24 }}>Try different keywords or check the spelling</p>
+      {isLoggedIn && (
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20, maxWidth: 420, margin: '0 auto', textAlign: 'left' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <Rocket size={16} style={{ color: '#D4A843' }} />
+            <span style={{ fontWeight: 600, color: '#0D2137', fontSize: 14 }}>Can't find what you're looking for?</span>
+          </div>
+          <p style={{ fontSize: 12, color: '#666', margin: '0 0 12px' }}>
+            We can search the web for "{query}" and add it to our database. You'll be notified when it's available.
+          </p>
+          <button
+            onClick={handleRequest}
+            disabled={requested}
+            style={{
+              background: requested ? '#f3f4f6' : '#D4A843', color: requested ? '#999' : '#0D2137',
+              border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13,
+              fontWeight: 600, cursor: requested ? 'default' : 'pointer', width: '100%',
+            }}
+          >
+            {requested ? 'Request Submitted — We\'ll notify you' : `Fetch data for "${query}"`}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

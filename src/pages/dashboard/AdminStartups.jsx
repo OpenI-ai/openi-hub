@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import {
   Building2, Search, ChevronLeft, ChevronRight, Edit3, Trash2, ArrowLeft,
-  XCircle, Check, Zap, Copy, ExternalLink
+  XCircle, Check, Zap, Copy, ExternalLink, GitMerge
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
@@ -96,7 +96,7 @@ export default function AdminStartups() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
-        {/* Duplicates panel */}
+        {/* Duplicates panel with merge/delete */}
         {duplicates && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-5">
             <div className="flex items-center justify-between mb-3">
@@ -106,15 +106,67 @@ export default function AdminStartups() {
             {duplicates.length === 0 ? (
               <p className="text-xs text-yellow-600">No duplicates detected.</p>
             ) : (
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {duplicates.slice(0, 20).map((d, i) => (
-                  <div key={i} className="bg-white rounded-lg p-3 text-xs">
-                    <p className="font-semibold text-gray-700 mb-1">"{d.norm_name}" ({d.count} entries)</p>
-                    <div className="flex flex-wrap gap-2">
+              <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                {duplicates.slice(0, 30).map((d, i) => (
+                  <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold text-gray-700 text-sm">"{d.norm_name}" <span className="text-gray-400 font-normal">({d.count} entries)</span></p>
+                      <button
+                        onClick={async () => {
+                          if (!d.entries?.length || d.entries.length < 2) return;
+                          // Auto-select entry with most fields as primary
+                          const primary = d.entries.reduce((best, e) => (e.fields_filled || 0) > (best.fields_filled || 0) ? e : best, d.entries[0]);
+                          const secondaryIds = d.entries.filter(e => e.user_id !== primary.user_id).map(e => e.user_id);
+                          if (!confirm(`Merge ${secondaryIds.length} entries into "${primary.company_name}" (user_id: ${primary.user_id})? Others will be deleted.`)) return;
+                          try {
+                            await adminAPI.mergeStartups(primary.user_id, secondaryIds);
+                            toast.success('Merged successfully');
+                            setDuplicates(prev => prev.filter((_, idx) => idx !== i));
+                            fetchStartups();
+                          } catch (err) { toast.error(err.message); }
+                        }}
+                        className="flex items-center gap-1 px-3 py-1 bg-primary-50 text-primary-700 border border-primary-200 rounded-lg text-xs font-semibold hover:bg-primary-100"
+                      >
+                        <GitMerge size={12} /> Merge
+                      </button>
+                    </div>
+                    <div className="space-y-1.5">
                       {d.entries.map((e, j) => (
-                        <span key={j} className={`px-2 py-0.5 rounded-full ${e.imported ? 'bg-indigo-50 text-indigo-600' : 'bg-green-50 text-green-600'}`}>
-                          {e.company_name} ({e.country || '?'})
-                        </span>
+                        <div key={j} className="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`px-2 py-0.5 rounded-full text-xs flex-shrink-0 ${e.imported ? 'bg-indigo-50 text-indigo-600' : 'bg-green-50 text-green-600'}`}>
+                              {e.imported ? 'CSV' : 'Organic'}
+                            </span>
+                            <span className="text-xs text-gray-700 font-medium truncate">{e.company_name}</span>
+                            <span className="text-xs text-gray-400">{e.country || '?'}</span>
+                            {e.website && <span className="text-xs text-primary-500 truncate max-w-[120px]">{e.website}</span>}
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-1">
+                              <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                <div className="h-1.5 rounded-full bg-primary-500" style={{ width: `${(e.fields_filled || 0) * 10}%` }} />
+                              </div>
+                              <span className="text-xs text-gray-400">{e.fields_filled || 0}/10</span>
+                            </div>
+                            <button
+                              onClick={async () => {
+                                if (!confirm(`Delete "${e.company_name}"?`)) return;
+                                try {
+                                  await adminAPI.deleteStartup(e.user_id);
+                                  toast.success('Deleted');
+                                  setDuplicates(prev => prev.map((group, idx) => idx === i
+                                    ? { ...group, entries: group.entries.filter((_, ej) => ej !== j), count: group.count - 1 }
+                                    : group
+                                  ).filter(g => g.count > 1));
+                                  fetchStartups();
+                                } catch (err) { toast.error(err.message); }
+                              }}
+                              className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
