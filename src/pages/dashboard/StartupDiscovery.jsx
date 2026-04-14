@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { startupAPI } from '../../services/api';
+import { startupAPI, publicAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { Search, Cpu, MapPin, Users, DollarSign, Bookmark, BookmarkCheck, SlidersHorizontal, ChevronLeft, ChevronRight, Globe, Building2, Calendar } from 'lucide-react';
+import { Search, Cpu, MapPin, Users, DollarSign, Bookmark, BookmarkCheck, SlidersHorizontal, ChevronLeft, ChevronRight, Globe, Building2, Calendar, X } from 'lucide-react';
 
-const SECTORS = ['All', 'Defence Electronics', 'Aerospace & Defence', 'Cybersecurity', 'Robotics & Autonomous Systems', 'Life Sciences & CBRN', 'Semiconductors', 'AI / ML', 'SaaS', 'FinTech', 'HealthTech', 'EdTech', 'CleanTech', 'AgriTech', 'IoT'];
 const STAGES = ['All', 'Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Pre-revenue'];
 
 function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
@@ -97,6 +96,17 @@ export default function StartupDiscovery() {
   const [page, setPage] = useState(1);
   const limit = 24;
 
+  // Taxonomy from API
+  const [taxonomySectors, setTaxonomySectors] = useState([]);
+  const [taxonomyTechs, setTaxonomyTechs] = useState([]);
+
+  useEffect(() => {
+    publicAPI.getTaxonomy().then(data => {
+      if (data.sectors) setTaxonomySectors(['All', ...data.sectors.filter(s => !s.parent_id).map(s => s.name).sort()]);
+      if (data.technologies) setTaxonomyTechs(data.technologies.filter(t => !t.parent_id).map(t => t.name).sort());
+    }).catch(() => {});
+  }, []);
+
   const fetchStartups = useCallback(async () => {
     setLoading(true);
     try {
@@ -160,30 +170,66 @@ export default function StartupDiscovery() {
         </button>
       </div>
 
+      {/* Active filter chips */}
+      {(sector !== 'All' || stage !== 'All' || deeptech) && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {sector !== 'All' && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-50 text-primary-700 text-xs rounded-full border border-primary-200">
+              {sector} <button onClick={() => { setSector('All'); setPage(1); }}><X size={12} /></button>
+            </span>
+          )}
+          {stage !== 'All' && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+              {stage} <button onClick={() => { setStage('All'); setPage(1); }}><X size={12} /></button>
+            </span>
+          )}
+          {deeptech && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">
+              DeepTech <button onClick={() => { setDeeptech(false); setPage(1); }}><X size={12} /></button>
+            </span>
+          )}
+          <button onClick={() => { setSector('All'); setStage('All'); setDeeptech(false); setPage(1); }}
+            className="text-xs text-gray-500 hover:text-gray-700 underline">Clear all</button>
+        </div>
+      )}
+
       {/* Filters Panel */}
       {showFilters && (
         <div className="bg-white rounded-xl border border-gray-200 p-5 mb-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 block">Sector</label>
-              <div className="space-y-1.5 max-h-60 overflow-y-auto">
-                {SECTORS.map(s => (
-                  <label key={s} className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="sector" checked={sector === s} onChange={() => handleFilterChange(setSector)(s)} className="text-primary-500" />
-                    <span className="text-sm text-gray-700">{s}</span>
+              <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
+                {(taxonomySectors.length > 1 ? taxonomySectors : ['All', 'SaaS/Enterprise', 'AI/ML', 'FinTech', 'HealthTech', 'EdTech', 'DeepTech', 'IoT', 'CleanTech', 'Cybersecurity', 'Defence', 'MarTech', 'E-commerce/D2C', 'AgriTech', 'Biotech', 'FoodTech', 'Gaming', 'Mobility', 'MediaTech', 'PropTech', 'Social Impact']).map(s => (
+                  <label key={s} className="flex items-center gap-2 cursor-pointer py-0.5">
+                    <input type="radio" name="sector" checked={sector === s} onChange={() => handleFilterChange(setSector)(s)} className="text-primary-500 w-3.5 h-3.5" />
+                    <span className="text-xs text-gray-700">{s}</span>
                   </label>
                 ))}
               </div>
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 block">Stage</label>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {STAGES.map(s => (
-                  <label key={s} className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="stage" checked={stage === s} onChange={() => handleFilterChange(setStage)(s)} className="text-primary-500" />
-                    <span className="text-sm text-gray-700">{s}</span>
+                  <label key={s} className="flex items-center gap-2 cursor-pointer py-0.5">
+                    <input type="radio" name="stage" checked={stage === s} onChange={() => handleFilterChange(setStage)(s)} className="text-primary-500 w-3.5 h-3.5" />
+                    <span className="text-xs text-gray-700">{s}</span>
                   </label>
                 ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 block">Technology</label>
+              <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
+                {taxonomyTechs.length > 0 ? taxonomyTechs.map(t => (
+                  <button key={t} onClick={() => setSearchInput(prev => prev === t ? '' : t)}
+                    className={`block w-full text-left px-2 py-1 rounded text-xs transition-all ${searchInput === t ? 'bg-primary-100 text-primary-700 font-semibold' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    {t}
+                  </button>
+                )) : (
+                  <p className="text-xs text-gray-400">Loading...</p>
+                )}
               </div>
             </div>
             <div>
@@ -191,13 +237,13 @@ export default function StartupDiscovery() {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={deeptech} onChange={e => { setDeeptech(e.target.checked); setPage(1); }} className="rounded text-primary-500" />
-                  <span className="text-sm text-gray-700 flex items-center gap-1"><Cpu size={12} className="text-primary-500" /> DeepTech Only</span>
+                  <span className="text-xs text-gray-700 flex items-center gap-1"><Cpu size={12} className="text-primary-500" /> DeepTech Only</span>
                 </label>
               </div>
             </div>
           </div>
           <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-            <button onClick={() => { setSector('All'); setStage('All'); setDeeptech(false); setPage(1); }} className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm">Reset Filters</button>
+            <button onClick={() => { setSector('All'); setStage('All'); setDeeptech(false); setSearchInput(''); setPage(1); }} className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm">Reset Filters</button>
           </div>
         </div>
       )}
