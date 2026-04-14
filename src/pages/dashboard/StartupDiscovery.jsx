@@ -25,7 +25,6 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
             <div className="flex items-center gap-2">
               <h3 className="font-display font-bold text-gray-900 text-sm truncate">{startup.company_name}</h3>
               {startup.is_deeptech && <Cpu size={12} className="text-primary-500 flex-shrink-0" />}
-              {startup.is_featured && <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 text-[10px] font-bold rounded flex-shrink-0">FEATURED</span>}
             </div>
             <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1"><MapPin size={10} /> {location}</div>
           </div>
