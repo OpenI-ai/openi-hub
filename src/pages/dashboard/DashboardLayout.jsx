@@ -51,7 +51,15 @@ const ICON_MAP = {
 // roles: undefined = visible to all, array = only listed roles see it
 const NAV = [
   { to: "/dashboard",                label: "Overview",         Icon: LayoutDashboard, end: true },
-  { to: "/dashboard/evaluate",       label: "8-Vector Eval",    Icon: ClipboardCheck,  badge: "NEW", roles: ["admin","evaluator"] },
+  // ── Admin Console (Phase 28) — top of nav for admin users ──
+  { to: "/dashboard/admin/console",   label: "Admin Console",  Icon: Shield,          roles: ["admin"], badge: "NEW" },
+  { to: "/dashboard/admin/users",     label: "User Mgmt",      Icon: Users,           roles: ["admin"] },
+  { to: "/dashboard/admin/challenges",label: "Mod. Challenges", Icon: Megaphone,      roles: ["admin"] },
+  { to: "/dashboard/admin/startups",  label: "Startup Data",   Icon: Building2,       roles: ["admin"] },
+  { to: "/dashboard/admin/licenses",  label: "Licenses",       Icon: CreditCard,      roles: ["admin"] },
+  { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"] },
+  // ── Legacy admin + shared items ──
+  { to: "/dashboard/evaluate",       label: "8-Vector Eval",    Icon: ClipboardCheck,  roles: ["admin","evaluator"] },
   { to: "/dashboard/startups",       label: "Startups",         Icon: Rocket },
   { to: "/dashboard/evaluations",    label: "Programs",         Icon: FileText,        roles: ["admin","evaluator"] },
   { to: "/dashboard/cohorts",        label: "Cohorts",          Icon: GraduationCap,   roles: ["admin"] },
@@ -63,7 +71,7 @@ const NAV = [
   { to: "/dashboard/register",       label: "Register Startup", Icon: Database,        roles: ["admin"] },
   { to: "/dashboard/pipeline",       label: "Pipeline",         Icon: GitBranch,       roles: ["admin","evaluator"] },
   { to: "/dashboard/projects",       label: "Projects",         Icon: FolderKanban,    roles: ["admin","evaluator"] },
-  { to: "/dashboard/messaging",      label: "Messaging",        Icon: MessageSquare,   badge: "NEW" },
+  { to: "/dashboard/messaging",      label: "Messaging",        Icon: MessageSquare },
   { to: "/dashboard/documents",      label: "Documents",        Icon: FolderOpen },
   { to: "/dashboard/watchlist",      label: "Watchlists",       Icon: Star,            roles: ["admin","startup"] },
   { to: "/dashboard/deeptech",       label: "DeepTech Qual.",   Icon: Zap,             roles: ["admin","evaluator"] },
@@ -71,12 +79,6 @@ const NAV = [
   { to: "/dashboard/sme",            label: "SME Experts",      Icon: UserCheck,       roles: ["admin","evaluator"] },
   { to: "/dashboard/feedback",       label: "Feedback",         Icon: ThumbsUp,        roles: ["admin","evaluator"] },
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
-  { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"] },
-  { to: "/dashboard/admin/console",   label: "Admin Console",  Icon: Shield,          roles: ["admin"], badge: "NEW" },
-  { to: "/dashboard/admin/users",     label: "User Mgmt",      Icon: Users,           roles: ["admin"] },
-  { to: "/dashboard/admin/challenges",label: "Challenges",     Icon: Megaphone,       roles: ["admin"] },
-  { to: "/dashboard/admin/startups",  label: "Startup Data",   Icon: Building2,       roles: ["admin"] },
-  { to: "/dashboard/admin/licenses",  label: "Licenses",       Icon: CreditCard,      roles: ["admin"] },
 ];
 
 const MOCK_NOTIFS = [
