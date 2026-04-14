@@ -4,7 +4,8 @@ import {
   Globe, RefreshCw, Play, Pause, CheckCircle2, XCircle, Clock,
   AlertCircle, Search, Filter, ChevronDown, ExternalLink, Plus,
   Download, Eye, ThumbsUp, ThumbsDown, Zap, Database, TrendingUp,
-  Activity, AlertTriangle, RotateCcw, Settings, Info, Loader2
+  Activity, AlertTriangle, RotateCcw, Settings, Info, Loader2,
+  Upload, MapPin, Building2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { crawlAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -80,6 +81,14 @@ export default function StartupCrawling() {
   const [loading, setLoading] = useState(true);
   const [triggerSource, setTriggerSource] = useState(null);
 
+  // Phase 23: Imported startups state
+  const [importedData, setImportedData] = useState({ startups: [], total: 0, countries: [], sectors: [], page: 1, limit: 50 });
+  const [importSearch, setImportSearch] = useState('');
+  const [importCountry, setImportCountry] = useState('');
+  const [importSector, setImportSector] = useState('');
+  const [importPage, setImportPage] = useState(1);
+  const [importLoading, setImportLoading] = useState(false);
+
   // ── Fetch data on mount ────────────────────────────────────
   const fetchAll = useCallback(async () => {
     try {
@@ -101,6 +110,27 @@ export default function StartupCrawling() {
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // Phase 23: Fetch imported startups
+  const fetchImported = useCallback(async () => {
+    setImportLoading(true);
+    try {
+      const params = { page: importPage, limit: 50 };
+      if (importSearch) params.search = importSearch;
+      if (importCountry) params.country = importCountry;
+      if (importSector) params.sector = importSector;
+      const data = await crawlAPI.listImported(params);
+      setImportedData(data);
+    } catch (err) {
+      // silently fail if endpoint not deployed yet
+    } finally {
+      setImportLoading(false);
+    }
+  }, [importPage, importSearch, importCountry, importSector]);
+
+  useEffect(() => {
+    if (activeTab === 'imported') fetchImported();
+  }, [activeTab, fetchImported]);
 
   // ── Derived ────────────────────────────────────────────────
   const sectors = [...new Set(crawledStartups.map(s => s.sector).filter(Boolean))];
@@ -173,6 +203,7 @@ export default function StartupCrawling() {
 
   const tabs = [
     { id: 'discovered', label: 'Discovered Startups', count: crawledStartups.length },
+    { id: 'imported', label: 'Imported Startups', count: stats.imported_total || 0 },
     { id: 'sources', label: 'Crawl Sources', count: sources.length },
     { id: 'jobs', label: 'Crawl Jobs', count: jobs.length },
   ];
@@ -211,8 +242,8 @@ export default function StartupCrawling() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard label="Total Indexed" value={stats.total_indexed.toLocaleString()} sub="Across all sources" icon={Database} color="bg-primary-500" />
+          <StatCard label="Imported" value={(stats.imported_total || 0).toLocaleString()} sub="Bulk CSV imports" icon={Upload} color="bg-indigo-500" />
           <StatCard label="Pending Review" value={pendingCount} sub="Needs your attention" icon={AlertCircle} color="bg-yellow-400" />
-          <StatCard label="Approved" value={approvedCount} sub="Added to database" icon={CheckCircle2} color="bg-accent-500" />
           <StatCard label="Active Sources" value={stats.active_sources} sub={`of ${stats.total_sources} configured`} icon={Globe} color="bg-blue-500" />
         </div>
 
@@ -453,6 +484,180 @@ export default function StartupCrawling() {
                     </button>
                   )}
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Imported Startups Tab (Phase 23) ── */}
+        {activeTab === 'imported' && (
+          <div>
+            {/* Breakdowns */}
+            {importedData.countries?.length > 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+                <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><MapPin size={14} /> By Country</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {importedData.countries.map(c => (
+                      <button
+                        key={c.country}
+                        onClick={() => { setImportCountry(importCountry === c.country ? '' : c.country); setImportPage(1); }}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                          importCountry === c.country ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {c.country} <span className="font-bold ml-0.5">{parseInt(c.count).toLocaleString()}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><Building2 size={14} /> By Sector</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {importedData.sectors.map(s => (
+                      <button
+                        key={s.sector}
+                        onClick={() => { setImportSector(importSector === s.sector ? '' : s.sector); setImportPage(1); }}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                          importSector === s.sector ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {s.sector} <span className="font-bold ml-0.5">{parseInt(s.count).toLocaleString()}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Search + active filters */}
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1 relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  value={importSearch}
+                  onChange={e => { setImportSearch(e.target.value); setImportPage(1); }}
+                  placeholder="Search imported startups by name, sector, tagline..."
+                  className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-400"
+                />
+              </div>
+              {(importCountry || importSector || importSearch) && (
+                <button
+                  onClick={() => { setImportCountry(''); setImportSector(''); setImportSearch(''); setImportPage(1); }}
+                  className="px-3 py-2 text-xs font-semibold text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            {/* Results count */}
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-gray-500">
+                Showing {importedData.startups?.length || 0} of {(importedData.total || 0).toLocaleString()} imported startups
+                {importCountry && <span className="ml-1 text-primary-600 font-medium">in {importCountry}</span>}
+                {importSector && <span className="ml-1 text-primary-600 font-medium">· {importSector}</span>}
+              </p>
+            </div>
+
+            {/* Table */}
+            {importLoading ? (
+              <LoadingSkeleton type="card" />
+            ) : (importedData.startups || []).length === 0 ? (
+              <div className="text-center py-16 text-gray-400">
+                <Upload size={40} className="mx-auto mb-3 opacity-30" />
+                <p className="font-medium">No imported startups found</p>
+                <p className="text-sm mt-1">Run the CSV import script to populate this section</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Company</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Sector</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Location</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Stage</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Founded</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Team</th>
+                      <th className="text-right px-4 py-3 font-semibold text-gray-600">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importedData.startups.map(s => (
+                      <tr key={s.user_id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            {s.logo_url ? (
+                              <img src={s.logo_url} alt="" className="w-8 h-8 rounded-lg object-cover bg-gray-100" onError={e => { e.target.style.display='none'; }} />
+                            ) : (
+                              <div className="w-8 h-8 bg-primary-50 rounded-lg flex items-center justify-center text-xs font-bold text-primary-600 flex-shrink-0">
+                                {(s.company_name || '??').slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="font-semibold text-gray-900 truncate">{s.company_name}</p>
+                              {s.tagline && <p className="text-xs text-gray-400 truncate max-w-[200px]">{s.tagline}</p>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {s.sector ? (
+                            <span className="px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-medium rounded-full">{s.sector}</span>
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                          {s.is_deeptech && (
+                            <span className="ml-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                              <Zap size={9} className="inline -mt-0.5" /> Deep
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {[s.city, s.country].filter(Boolean).join(', ') || <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">{s.stage || <span className="text-gray-300">—</span>}</td>
+                        <td className="px-4 py-3 text-gray-600">{s.founded_year || <span className="text-gray-300">—</span>}</td>
+                        <td className="px-4 py-3 text-gray-600">{s.employee_range || <span className="text-gray-300">—</span>}</td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {s.website && (
+                              <a href={s.website.startsWith('http') ? s.website : `https://${s.website}`} target="_blank" rel="noreferrer"
+                                className="p-1.5 text-gray-400 hover:text-primary-600 transition-colors" title="Website">
+                                <ExternalLink size={14} />
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Pagination */}
+                {importedData.total > 50 && (
+                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-t border-gray-200">
+                    <p className="text-xs text-gray-500">
+                      Page {importedData.page || importPage} of {Math.ceil(importedData.total / 50)}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setImportPage(p => Math.max(1, p - 1))}
+                        disabled={importPage <= 1}
+                        className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft size={14} />
+                      </button>
+                      <button
+                        onClick={() => setImportPage(p => p + 1)}
+                        disabled={importPage >= Math.ceil(importedData.total / 50)}
+                        className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
