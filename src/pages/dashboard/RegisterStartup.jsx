@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { startupAPI } from '../../services/api';
+import { startupAPI, publicAPI } from '../../services/api';
 import { CheckCircle2, ChevronRight, ChevronLeft, Upload, AlertCircle, Building2, Users, DollarSign, Cpu, FileText, Shield } from 'lucide-react';
 
 const STEPS = [
@@ -13,7 +13,8 @@ const STEPS = [
   { id: 6, title: 'Review & Submit', icon: Shield },
 ];
 
-const OPENI_CLUSTERS = [
+// Fallbacks — overridden by taxonomy API on mount
+let OPENI_CLUSTERS = [
   'Aeronautics & Unmanned Systems', 'Armaments & Combat Engineering',
   'Combat Vehicles & Engineering', 'Electronics & Communication Systems',
   'Life Sciences & CBRN', 'Materials & Stealth', 'Missiles & Strategic Systems',
@@ -21,18 +22,8 @@ const OPENI_CLUSTERS = [
   'Cyber & Information Systems', 'Robotics & Autonomous Systems', 'Other',
 ];
 
-const SECTORS = [
-  'Defence Electronics', 'Aerospace & Defence', 'Cybersecurity', 'Robotics & Autonomous Systems',
-  'Life Sciences & CBRN', 'Materials Science', 'Missiles & Propulsion', 'Naval & Maritime',
-  'Semiconductors & Microelectronics', 'AI / ML', 'Quantum Technologies', 'Space Tech',
-];
-
-const TECHNOLOGIES = [
-  'Artificial Intelligence', 'Machine Learning', 'Computer Vision', 'Sensor Fusion',
-  'Quantum Computing', 'Post-Quantum Cryptography', 'Robotics / ROS2', 'Edge AI',
-  'RF / Radar Systems', 'EO/IR Systems', 'Autonomous Navigation', 'Blockchain',
-  'Advanced Materials', 'Additive Manufacturing', 'Biotechnology', 'Neuromorphic Computing',
-];
+let SECTORS = [];
+let TECHNOLOGIES = [];
 
 const FUNDING_STAGES = ['Bootstrapped', 'Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C+', 'Listed'];
 
@@ -40,6 +31,15 @@ export default function RegisterStartup() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [sectors, setSectors] = useState(SECTORS);
+  const [technologies, setTechnologies] = useState(TECHNOLOGIES);
+
+  useEffect(() => {
+    publicAPI.getTaxonomy().then(data => {
+      if (data.sectors) setSectors(data.sectors.filter(s => !s.parent_id).map(s => s.name).sort());
+      if (data.technologies) setTechnologies(data.technologies.filter(t => !t.parent_id).map(t => t.name).sort());
+    }).catch(() => {});
+  }, []);
   const [verifying, setVerifying] = useState({ gstin: false, dpiit: false, cin: false });
   const [verified, setVerified] = useState({ gstin: false, dpiit: false, cin: false });
 
@@ -258,14 +258,14 @@ export default function RegisterStartup() {
                   <label className="text-sm font-medium text-gray-700 mb-1.5 block">Primary Sector *</label>
                   <select value={form.sector} onChange={e => update('sector', e.target.value)} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400">
                     <option value="">Select sector</option>
-                    {SECTORS.map(s => <option key={s}>{s}</option>)}
+                    {sectors.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1.5 block">Core Technology *</label>
                   <select value={form.technology} onChange={e => update('technology', e.target.value)} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400">
                     <option value="">Select technology</option>
-                    {TECHNOLOGIES.map(t => <option key={t}>{t}</option>)}
+                    {technologies.map(t => <option key={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>

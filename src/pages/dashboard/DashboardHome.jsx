@@ -18,21 +18,8 @@ const VECTORS = [
   "Financials", "Info Visibility", "GRC", "Step Change",
 ];
 
-const SCORE_DIST = [
-  { range: "80-100", label: "Excellent", pct: 24, color: "#16a34a" },
-  { range: "60-79",  label: "Good",      pct: 41, color: "#D5AA5B" },
-  { range: "40-59",  label: "Average",   pct: 27, color: "#d97706" },
-  { range: "0-39",   label: "Poor",      pct: 8,  color: "#ef4444" },
-];
-
-const SECTORS = [
-  { label: "Defence AI",    pct: 35, color: "#D5AA5B" },
-  { label: "Cybersecurity", pct: 22, color: "#C9983F" },
-  { label: "Quantum Tech",  pct: 15, color: "#16a34a" },
-  { label: "UAV Systems",   pct: 12, color: "#7c3aed" },
-  { label: "Space Tech",    pct: 8,  color: "#3b82f6" },
-  { label: "Other",         pct: 8,  color: "#94a3b8" },
-];
+// These are populated from API — fallback defaults shown while loading
+const SECTOR_COLORS = ["#D5AA5B", "#16a34a", "#3b82f6", "#7c3aed", "#d97706", "#ef4444", "#94a3b8", "#C9983F", "#06b6d4", "#f59e0b"];
 
 const QUICK_ACTIONS = [
   { label: "Startup Discovery", desc: "Browse & filter startups", to: "/dashboard/startups",        Icon: Search,         bg: "#fff8ec", fg: "#D5AA5B", border: "rgba(213,170,91,0.2)" },
@@ -87,6 +74,13 @@ export default function DashboardHome() {
     { label: "Under Review", pct: 0, color: "#D5AA5B" },
     { label: "Needs Work",   pct: 0, color: "#ef4444" },
   ]);
+  const [sectorDist, setSectorDist] = useState([]);
+  const [scoreDist, setScoreDist] = useState([
+    { range: "80-100", label: "Excellent", pct: 25, color: "#16a34a" },
+    { range: "60-79",  label: "Good",      pct: 25, color: "#D5AA5B" },
+    { range: "40-59",  label: "Average",   pct: 25, color: "#d97706" },
+    { range: "0-39",   label: "Poor",      pct: 25, color: "#ef4444" },
+  ]);
 
   useEffect(() => {
     // Fetch dashboard stats
@@ -107,6 +101,16 @@ export default function DashboardHome() {
         }
       })
       .catch(() => {}); // keep fallback values on error
+
+    // Fetch real sector distribution from startup_profiles
+    dashboardAPI.stats().then(data => {
+      if (data.sectorDistribution) {
+        const total = data.sectorDistribution.reduce((sum, s) => sum + parseInt(s.count), 0) || 1;
+        setSectorDist(data.sectorDistribution.slice(0, 8).map((s, i) => ({
+          label: s.sector, pct: Math.round((parseInt(s.count) / total) * 100), color: SECTOR_COLORS[i % SECTOR_COLORS.length],
+        })));
+      }
+    }).catch(() => {});
 
     // Fetch recent evaluations
     evaluationAPI.list({ limit: 5, sort: 'recent' })
@@ -302,10 +306,10 @@ export default function DashboardHome() {
               <div style={{
                 width: 90, height: 90, borderRadius: "50%", flexShrink: 0,
                 background: `conic-gradient(
-                  ${SCORE_DIST[0].color} 0% ${SCORE_DIST[0].pct}%,
-                  ${SCORE_DIST[1].color} ${SCORE_DIST[0].pct}% ${SCORE_DIST[0].pct + SCORE_DIST[1].pct}%,
-                  ${SCORE_DIST[2].color} ${SCORE_DIST[0].pct + SCORE_DIST[1].pct}% ${SCORE_DIST[0].pct + SCORE_DIST[1].pct + SCORE_DIST[2].pct}%,
-                  ${SCORE_DIST[3].color} ${SCORE_DIST[0].pct + SCORE_DIST[1].pct + SCORE_DIST[2].pct}% 100%
+                  ${scoreDist[0].color} 0% ${scoreDist[0].pct}%,
+                  ${scoreDist[1].color} ${scoreDist[0].pct}% ${scoreDist[0].pct + scoreDist[1].pct}%,
+                  ${scoreDist[2].color} ${scoreDist[0].pct + scoreDist[1].pct}% ${scoreDist[0].pct + scoreDist[1].pct + scoreDist[2].pct}%,
+                  ${scoreDist[3].color} ${scoreDist[0].pct + scoreDist[1].pct + scoreDist[2].pct}% 100%
                 )`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
@@ -319,7 +323,7 @@ export default function DashboardHome() {
                 </div>
               </div>
               <div style={{ flex: 1 }}>
-                {SCORE_DIST.map(s => (
+                {scoreDist.map(s => (
                   <div key={s.range} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
                     <span style={{ fontSize: 11, color: "#555", flex: 1 }}>{s.label}</span>
@@ -415,7 +419,9 @@ export default function DashboardHome() {
           <h3 style={{ margin:"0 0 18px", color:"#1a1a1a", fontSize:14, fontWeight:600 }}>
             Startups by Sector
           </h3>
-          {SECTORS.map(({ label, pct, color }) => (
+          {(sectorDist.length > 0 ? sectorDist : [
+            { label: "Loading...", pct: 0, color: "#e5e7eb" },
+          ]).map(({ label, pct, color }) => (
             <div key={label} style={{ marginBottom: 12 }}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom: 4 }}>
                 <span style={{ fontSize: 12, color: "#555" }}>{label}</span>

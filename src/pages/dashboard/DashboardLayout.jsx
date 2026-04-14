@@ -81,21 +81,14 @@ const NAV = [
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
 ];
 
-const MOCK_NOTIFS = [
-  { id:1, title:"New evaluation submitted for ArmorTech AI",    time:"2 min ago",   read:false, color:"#D5AA5B" },
-  { id:2, title:"DroneShield procurement approved",             time:"1 hour ago",  read:false, color:"#16a34a" },
-  { id:3, title:"Quarterly review scheduled for 15 May",        time:"3 hours ago", read:false, color:"#3b82f6" },
-  { id:4, title:"New startup BioDefend registered",             time:"Yesterday",   read:true,  color:"#7c3aed" },
-  { id:5, title:"QKD pilot reached 82% completion",             time:"Yesterday",   read:true,  color:"#d97706" },
-  { id:6, title:"Mentor assignment updated for CyberVault",     time:"2 days ago",  read:true,  color:"#ef4444" },
-];
+// Notifications — empty until platform has a real notification system
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState(MOCK_NOTIFS);
+  const [notifications, setNotifications] = useState([]);
   const unreadCount = notifications.filter(n => !n.read).length;
   const [pendingConns, setPendingConns] = useState(0);
 
