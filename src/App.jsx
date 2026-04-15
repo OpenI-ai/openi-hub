@@ -23,6 +23,7 @@ import CorporateChallenges      from './pages/dashboard/CorporateChallenges';
 import CorporateCollaborations  from './pages/dashboard/CorporateCollaborations';
 import InvestorDeals            from './pages/dashboard/InvestorDeals';
 import InvestorPortfolio        from './pages/dashboard/InvestorPortfolio';
+import InvestorDealRequests     from './pages/dashboard/InvestorDealRequests';
 import IncubatorPrograms        from './pages/dashboard/IncubatorPrograms';
 import IncubatorProgramDetail   from './pages/dashboard/IncubatorProgramDetail';
 import IncubatorMentorPool      from './pages/dashboard/IncubatorMentorPool';
@@ -122,6 +123,7 @@ export default function App() {
             <Route path="corporate/search"   element={<CorporateStartupSearch />} />
             <Route path="corporate/challenges" element={<CorporateChallenges />} />
             <Route path="corporate/collabs"  element={<CorporateCollaborations />} />
+            <Route path="investor/deal-requests" element={<InvestorDealRequests />} />
             <Route path="investor/deals"     element={<InvestorDeals />} />
             <Route path="investor/portfolio" element={<InvestorPortfolio />} />
             <Route path="incubator/programs"          element={<IncubatorPrograms />} />

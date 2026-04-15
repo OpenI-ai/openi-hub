@@ -307,6 +307,13 @@ export const investorAPI = {
   listPortfolio:        ()              => get('/investor/portfolio'),
   addToPortfolio:       (data)          => post('/investor/portfolio', data),
   updatePortfolio:      (id, data)      => put(`/investor/portfolio/${id}`, data),
+  // Phase 31: Deal Sourcing
+  listDealRequests:     ()              => get('/investor/deal-requests'),
+  createDealRequest:    (data)          => post('/investor/deal-requests', data),
+  getDealRequest:       (id)            => get(`/investor/deal-requests/${id}`),
+  updateDealRequest:    (id, data)      => put(`/investor/deal-requests/${id}`, data),
+  updateDealRequestApp: (drId, appId, d) => put(`/investor/deal-requests/${drId}/applications/${appId}`, d),
+  promoteToPipeline:    (drId, appId)   => post(`/investor/deal-requests/${drId}/promote/${appId}`),
 };
 
 // ── Incubator Features (Phase 16A) ───────────────────────────
@@ -549,6 +556,10 @@ export const publicAPI = {
   semanticSearch:    (q, type = 'startups', limit = 10) => get(`/public/search/semantic?q=${encodeURIComponent(q)}&type=${type}&limit=${limit}`),
   // AI query-parsing (Phase 15)
   aiSearch:          (q, limit = 10) => get(`/public/search/ai?q=${encodeURIComponent(q)}&limit=${limit}`),
+  // Phase 31: Public deal requests
+  listDealRequests:  (params = {})   => get(`/public/deal-requests?${new URLSearchParams(params)}`),
+  getDealRequest:    (id)            => get(`/public/deal-requests/${id}`),
+  applyToDealRequest: (id, data)     => post(`/deal-requests/${id}/apply`, data),
 };
 
 // ── Crawling ────────────────────────────────────────────────
