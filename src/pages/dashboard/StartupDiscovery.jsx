@@ -200,7 +200,7 @@ export default function StartupDiscovery() {
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 block">Sector</label>
               <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
-                {(taxonomySectors.length > 1 ? taxonomySectors : ['All', 'SaaS/Enterprise', 'AI/ML', 'FinTech', 'HealthTech', 'EdTech', 'DeepTech', 'IoT', 'CleanTech', 'Cybersecurity', 'Defence', 'MarTech', 'E-commerce/D2C', 'AgriTech', 'Biotech', 'FoodTech', 'Gaming', 'Mobility', 'MediaTech', 'PropTech', 'Social Impact']).map(s => (
+                {(taxonomySectors.length > 1 ? taxonomySectors : ['All', 'Financial Services', 'Healthcare', 'IT & Software', 'AI & Data Science', 'Manufacturing', 'Retail & Consumer', 'Energy & Utilities', 'Education', 'Defence & Aerospace', 'Agriculture', 'Automotive & Mobility', 'Pharmaceuticals & Life Sciences', 'Media & Entertainment', 'FMCG / CPG', 'Marketing & Advertising', 'Electronics & IoT', 'Deep Technology', 'Cybersecurity', 'Real Estate & Construction', 'Social Impact', 'Climate & Sustainability', 'Telecom', 'Logistics & Supply Chain', 'Travel & Hospitality']).map(s => (
                   <label key={s} className="flex items-center gap-2 cursor-pointer py-0.5">
                     <input type="radio" name="sector" checked={sector === s} onChange={() => handleFilterChange(setSector)(s)} className="text-primary-500 w-3.5 h-3.5" />
                     <span className="text-xs text-gray-700">{s}</span>
