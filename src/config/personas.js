@@ -112,7 +112,7 @@ export const PERSONA_NAV = {
     { to: '/dashboard/startups',           label: 'Explore Startups',   icon: 'Rocket' },
     { to: '/dashboard/directory',          label: 'Directory',          icon: 'Search' },
     { to: '/dashboard/marketplace',        label: 'Marketplace',        icon: 'Target' },
-    { to: '/dashboard/investor/deals',     label: 'Deal Pipeline',      icon: 'Target' },
+    { to: '/dashboard/investor/deals',     label: 'Deal Pipeline',      icon: 'GitBranch' },
     { to: '/dashboard/investor/portfolio', label: 'Portfolio',           icon: 'Briefcase' },
     { to: '/dashboard/watchlist',          label: 'Watchlist',          icon: 'Star' },
     { to: '/dashboard/network',            label: 'My Network',         icon: 'Users' },
