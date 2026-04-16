@@ -1,15 +1,18 @@
 /**
- * OpenI Hub — UpgradeCTA (Phase 19)
+ * OpenI Hub — UpgradeCTA (Phase 19 + Phase 37)
  * Graceful upgrade prompt card shown when a feature is gated by plan tier.
- * Props: feature (display name), plan (current), message (optional override)
+ * Phase 37: Persona-aware messaging — providers see "Growth", seekers see "Pro/Enterprise".
+ * Props: feature (display name), plan (current), message (optional override), category ('provider'|'seeker')
  */
 import { Link } from 'react-router-dom';
 import { Lock, ArrowRight } from 'lucide-react';
+import { PLAN_LABELS } from '../config/personas';
 
 const G = '#D5AA5B';
 
-export default function UpgradeCTA({ feature, plan = 'free', message, compact = false }) {
-  const defaultMsg = `${feature} requires a ${plan === 'free' ? 'Pro or Enterprise' : 'Enterprise'} plan.`;
+export default function UpgradeCTA({ feature, plan = 'free', message, compact = false, category }) {
+  const upgradeTarget = category === 'provider' ? 'Growth' : (plan === 'free' ? 'Pro' : 'Enterprise');
+  const defaultMsg = `${feature} requires a ${upgradeTarget} plan.`;
 
   if (compact) {
     return (
@@ -56,7 +59,7 @@ export default function UpgradeCTA({ feature, plan = 'free', message, compact = 
         View Plans & Upgrade <ArrowRight size={16} />
       </Link>
       <p style={{ fontSize: 11, color: '#999', marginTop: 12 }}>
-        Currently on: <strong>{plan === 'free' ? 'Free' : plan === 'pro' ? 'Pro' : 'Enterprise'}</strong> plan
+        Currently on: <strong>{PLAN_LABELS[plan] || plan}</strong> plan
       </p>
     </div>
   );

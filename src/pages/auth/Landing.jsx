@@ -245,6 +245,7 @@ function FAQItem({ question, answer, isOpen, onToggle }) {
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [cms, setCms] = useState(null);
+  const [pricingTab, setPricingTab] = useState('seeker');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -718,70 +719,116 @@ export default function Landing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {(pricing?.plans || [
-            {
-              name: 'Free',
-              price: '₹0',
-              priceNote: '/forever',
-              features: [
-                'All 11 persona types + full directory access',
-                'Keyword search (FTS) across ecosystem',
-                'Source startups, students, and academia',
-                '1 challenge / 3 applications / month',
-                '5 meetings + 5 file uploads / month',
-                'Basic dashboards + profile builder',
-                'AI Intelligence — Pro tier',
-              ],
-              cta: 'Start Free',
-              ctaLink: '/register',
-              featured: false,
-            },
-            {
-              name: 'Pro',
-              price: '₹999',
-              priceNote: '/month',
-              features: [
-                'Everything in Free, plus:',
-                '100 AI tokens/month for AI Intelligence',
-                'AI Startup Evaluator (8-vector scoring)',
-                'AI Smart Recommendations with narratives',
-                'AI Challenge Advisor + Application Analyzer',
-                'AI Ask — 50 natural-language searches/day',
-                'Semantic search (pgvector matching)',
-                'Investor Deal Pipeline + Portfolio Health',
-                '5 challenges / 20 apps / 50 meetings / 100 uploads',
-              ],
-              cta: 'Upgrade to Pro',
-              ctaLink: '/register',
-              featured: true,
-            },
-            {
-              name: 'Enterprise',
-              price: '₹4,999',
-              priceNote: '/month',
-              features: [
-                'Everything in Pro, plus:',
-                'Unlimited AI tokens + AI Ask searches',
-                'Unlimited challenges, apps, meetings, uploads',
-                'Multi-currency (INR + USD) native',
-                'Service Partner network (cloud/legal/HR perks)',
-                'Dedicated account manager',
-                'Custom integrations + white-label',
-                'SSO, audit logs, SLA guarantees',
-                'Data export + API access',
-              ],
-              cta: 'Contact Sales',
-              ctaLink: '/register',
-              featured: false,
-            },
-          ]).map((plan, i) => (
-            <PricingCard key={i} {...plan} />
-          ))}
+        {/* Phase 37: Tabbed pricing — Provider vs Seeker */}
+        <div className="flex justify-center gap-2 mb-10">
+          <button onClick={() => setPricingTab('seeker')}
+            style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'seeker' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'seeker' ? `${GOLD}12` : '#fff', color: pricingTab === 'seeker' ? GOLD : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
+            For Corporates, Investors & Programs
+          </button>
+          <button onClick={() => setPricingTab('provider')}
+            style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'provider' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'provider' ? `${GOLD}12` : '#fff', color: pricingTab === 'provider' ? GOLD : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
+            For Startups, Students & Academia
+          </button>
         </div>
 
+        {pricingTab === 'provider' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <PricingCard
+              name="Free"
+              price="₹0"
+              priceNote="/forever"
+              features={[
+                'Full profile with all sections',
+                'Apply to 5 challenges / month',
+                'Apply to 3 investor deal requests / month',
+                '5 conversations, 3 meetings / month',
+                '3 file uploads, 10 connection requests / month',
+                'Standard search ranking',
+                'Basic dashboard & profile builder',
+              ]}
+              cta="Start Free"
+              ctaLink="/register"
+            />
+            <PricingCard
+              name="Growth"
+              price="₹499"
+              priceNote="/month"
+              featured
+              features={[
+                'Everything in Free, plus:',
+                'Unlimited applications & connections',
+                'Featured badge + priority search ranking',
+                'Who viewed my profile (last 30 days)',
+                'Watchlist alerts — know when you are shortlisted',
+                'Application insights (seen / shortlisted / rejected)',
+                'AI profile score recommendations',
+                '25 meetings + 50 file uploads / month',
+                'Unlimited messaging',
+              ]}
+              cta="Upgrade to Growth"
+              ctaLink="/register"
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <PricingCard
+              name="Free"
+              price="₹0"
+              priceNote="/forever"
+              features={[
+                'Full directory + keyword search (FTS)',
+                'Find startups, students, and academia',
+                '1 active challenge / month',
+                'Deal pipeline (3 deals max)',
+                '5 application reviews / month',
+                '10 messages, 5 meetings / month',
+                '5 file uploads / month',
+              ]}
+              cta="Start Free"
+              ctaLink="/register"
+            />
+            <PricingCard
+              name="Pro"
+              price="₹2,499"
+              priceNote="/month"
+              featured
+              features={[
+                'Everything in Free, plus:',
+                '200 AI tokens/month for AI Intelligence',
+                'AI Startup Evaluator (8-vector scoring)',
+                'AI Smart Recommendations + Challenge Advisor',
+                'AI Ask — 50 natural-language searches/day',
+                'Semantic search (pgvector matching)',
+                '10 active challenges, full deal pipeline',
+                '50 app reviews, unlimited messaging & meetings',
+                '100 file uploads / month',
+              ]}
+              cta="Upgrade to Pro"
+              ctaLink="/register"
+            />
+            <PricingCard
+              name="Enterprise"
+              price="₹9,999"
+              priceNote="/month"
+              features={[
+                'Everything in Pro, plus:',
+                'Unlimited AI tokens + AI Ask searches',
+                'Unlimited challenges, reviews, uploads',
+                'Multi-seat organization admin',
+                'Service Partner network access',
+                'Multi-currency (INR + USD)',
+                'SSO, audit logs, SLA guarantees',
+                'API access + data export',
+                'Dedicated account manager',
+              ]}
+              cta="Contact Sales"
+              ctaLink="/register"
+            />
+          </div>
+        )}
+
         <p className="text-center text-sm mt-8" style={{ color: GRAY }}>
-          {pricing?.footer_note || 'All plans include SSL encryption, daily backups, and access to all 11 persona types. Annual billing saves ~17%. AI Ask and semantic search are Pro+ features.'}
+          All plans include SSL encryption, daily backups, and access to all 11 persona types. Annual billing saves ~17%.
         </p>
       </Section>
 

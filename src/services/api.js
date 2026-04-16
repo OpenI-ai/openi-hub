@@ -76,6 +76,15 @@ export const subscriptionAPI = {
   featureAccess: ()       => get('/subscription/feature-access'),
 };
 
+// ── Profile Views & Provider Analytics (Phase 37) ─────────────
+export const profileViewAPI = {
+  recordView:          (userId)  => post(`/profile-views/${userId}`, {}),
+  whoViewedMe:         ()        => get('/profile-views/who-viewed'),
+  viewStats:           ()        => get('/profile-views/stats'),
+  watchlistAlerts:     ()        => get('/watchlist-alerts'),
+  applicationInsights: ()        => get('/application-insights'),
+};
+
 // ── Auth ────────────────────────────────────────────────────
 export const authAPI = {
   login:          (email, password) => post('/auth/login', { email, password }),

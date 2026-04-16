@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI, subscriptionAPI } from '../../services/api';
+import { getPersonaCategory, PLAN_LABELS } from '../../config/personas';
 import toast from 'react-hot-toast';
 import {
   User, Mail, Shield, Lock, Save, Eye, EyeOff,
@@ -19,11 +20,17 @@ const card = {
 };
 
 const FEATURE_LABELS = {
+  // Usage-counted features
   challenge_create: 'Challenges Created',
   application_submit: 'Applications Submitted',
+  application_review: 'Applications Reviewed',
+  deal_request_apply: 'Deal Request Applications',
+  conversation_create: 'Conversations Started',
+  connection_request: 'Connection Requests',
   meeting_create: 'Meetings Scheduled',
   file_upload: 'Files Uploaded',
   ai_search_daily_cap: 'AI Ask (daily)',
+  // Boolean flags
   semantic_search: 'Semantic Search',
   can_access_portfolio_health: 'Portfolio Health',
   can_access_deal_pipeline: 'Deal Pipeline',
@@ -32,9 +39,25 @@ const FEATURE_LABELS = {
   multi_currency_enabled: 'Multi-Currency',
   can_create_programs_batches: 'Programs & Batches',
   eight_vector_evaluation: '8-Vector Evaluation',
+  // Provider Growth features
+  featured_badge: 'Featured Badge',
+  search_ranking_boost: 'Priority Search Ranking',
+  who_viewed_profile: 'Who Viewed My Profile',
+  watchlist_alerts: 'Watchlist Add Alerts',
+  application_insights: 'Application Insights',
+  profile_score_ai: 'AI Profile Recommendations',
+  multi_seat_org_admin: 'Multi-Seat Org Admin',
+  api_access: 'API Access',
+  sso_audit_logs: 'SSO & Audit Logs',
 };
 // Features that are boolean flags (not counted usage)
-const BOOLEAN_FEATURES = ['semantic_search', 'can_access_portfolio_health', 'can_access_deal_pipeline', 'can_access_service_partners', 'rich_profile_sections_unlocked', 'multi_currency_enabled', 'can_create_programs_batches', 'eight_vector_evaluation'];
+const PROVIDER_BOOLEAN = ['featured_badge', 'search_ranking_boost', 'who_viewed_profile', 'watchlist_alerts', 'application_insights', 'profile_score_ai'];
+const SEEKER_BOOLEAN = ['semantic_search', 'can_access_deal_pipeline', 'can_access_portfolio_health', 'can_access_service_partners', 'eight_vector_evaluation', 'can_create_programs_batches', 'rich_profile_sections_unlocked', 'multi_seat_org_admin', 'api_access', 'sso_audit_logs'];
+const PROVIDER_USAGE = ['application_submit', 'deal_request_apply', 'conversation_create', 'connection_request', 'meeting_create', 'file_upload'];
+const SEEKER_USAGE = ['challenge_create', 'application_review', 'conversation_create', 'meeting_create', 'file_upload'];
+
+// Legacy compat
+const BOOLEAN_FEATURES = [...new Set([...PROVIDER_BOOLEAN, ...SEEKER_BOOLEAN])];
 const USAGE_FEATURES = ['challenge_create', 'application_submit', 'meeting_create', 'file_upload'];
 
 export default function Settings() {

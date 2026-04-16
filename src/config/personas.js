@@ -451,3 +451,33 @@ export const ORG_NAME_FIELD = {
   accelerator:      'accelerator_name',
   service_provider: 'company_name',
 };
+
+// ── Phase 37: Plan Configuration per Persona Category ────────
+export const PLAN_CONFIG = {
+  provider: {
+    plans: [
+      { name: 'free', label: 'Free', price: 0, priceNote: '/forever' },
+      { name: 'provider_growth', label: 'Growth', price: 499, priceNote: '/month' },
+    ],
+    upgradeTarget: 'provider_growth',
+    upgradeLabel: 'Growth',
+  },
+  seeker: {
+    plans: [
+      { name: 'free', label: 'Free', price: 0, priceNote: '/forever' },
+      { name: 'seeker_pro', label: 'Pro', price: 2499, priceNote: '/month' },
+      { name: 'seeker_enterprise', label: 'Enterprise', price: 9999, priceNote: '/month' },
+    ],
+    upgradeTarget: 'seeker_pro',
+    upgradeLabel: 'Pro',
+  },
+};
+
+export const PLAN_LABELS = {
+  free: 'Free',
+  provider_growth: 'Growth',
+  seeker_pro: 'Pro',
+  seeker_enterprise: 'Enterprise',
+  pro: 'Pro (Legacy)',
+  enterprise: 'Enterprise (Legacy)',
+};
