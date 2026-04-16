@@ -725,7 +725,7 @@ export default function CorporateChallenges() {
           <select value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
             style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
             <option value="">All Sectors</option>
-            {(taxonomy.sectors || []).map(s => <option key={s} value={s}>{s}</option>)}
+            {(taxonomy.sectors || []).map(s => { const name = typeof s === 'string' ? s : s.name; return <option key={name} value={name}>{name}</option>; })}
           </select>
           <select value={filters.sort} onChange={e => setFilters(f => ({ ...f, sort: e.target.value }))}
             style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
