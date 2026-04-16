@@ -723,7 +723,7 @@ export default function Landing() {
         <div className="flex justify-center gap-2 mb-10">
           <button onClick={() => setPricingTab('seeker')}
             style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'seeker' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'seeker' ? `${GOLD}12` : '#fff', color: pricingTab === 'seeker' ? GOLD : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
-            For Corporates, Investors & Programs
+            For Corporates, Investors, Govt & Innovation Seekers
           </button>
           <button onClick={() => setPricingTab('provider')}
             style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'provider' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'provider' ? `${GOLD}12` : '#fff', color: pricingTab === 'provider' ? GOLD : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
