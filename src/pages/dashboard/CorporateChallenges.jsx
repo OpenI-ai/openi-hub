@@ -4,7 +4,7 @@ import {
   Target, Plus, ChevronLeft, Clock, CheckCircle, XCircle,
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
   MapPin, FileText, HelpCircle, Trash2, ChevronDown, ChevronUp,
-  X, Search, Download,
+  X, Search, Download, Sparkles, Brain, BarChart3, Zap,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -112,6 +112,14 @@ export default function CorporateChallenges() {
   const [templates, setTemplates] = useState({ builtin: [], saved: [] });
   const [filters, setFilters] = useState({ status: 'all', sector: '', search: '', sort: 'newest' });
   const [recommendedStartups, setRecommendedStartups] = useState([]);
+  // Phase 35: Corporate AI Intelligence
+  const [aiAdvisorLoading, setAiAdvisorLoading] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState(null);
+  const [evaluatingAppId, setEvaluatingAppId] = useState(null);
+  const [evaluations, setEvaluations] = useState({});
+  const [analysisData, setAnalysisData] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   useEffect(() => { load(); loadTaxonomy(); }, []);
   useEffect(() => { load(); }, [filters]);
@@ -168,6 +176,44 @@ export default function CorporateChallenges() {
       toast.success(`Application ${status}`);
       loadDetail(selected);
     } catch (err) { toast.error(err.message); }
+  };
+
+  // Phase 35: AI handlers
+  const runAiAdvisor = async () => {
+    if (!form.title && !form.description) return toast.error('Enter a title or description first');
+    setAiAdvisorLoading(true);
+    try {
+      const data = await corporateAPI.aiAdvisor({ title: form.title, description: form.description, problem_statement: form.problem_statement });
+      if (data.ai_available === false) { toast('AI not available — ' + (data.message || '')); return; }
+      setAiSuggestions(data);
+      toast.success('AI suggestions ready');
+    } catch (err) { toast.error(err.message); }
+    finally { setAiAdvisorLoading(false); }
+  };
+
+  const runAiEvaluate = async (appId) => {
+    if (!detail) return;
+    setEvaluatingAppId(appId);
+    try {
+      const data = await corporateAPI.aiEvaluate({ challenge_id: detail.id, application_id: appId });
+      if (data.ai_available === false) { toast('AI not available'); return; }
+      setEvaluations(prev => ({ ...prev, [appId]: data }));
+      toast.success('AI evaluation complete');
+    } catch (err) { toast.error(err.message); }
+    finally { setEvaluatingAppId(null); }
+  };
+
+  const runAiAnalysis = async () => {
+    if (!detail) return;
+    setAnalysisLoading(true);
+    try {
+      const data = await corporateAPI.aiAnalyze(detail.id);
+      if (data.ai_available === false) { toast('AI not available'); return; }
+      setAnalysisData(data);
+      setShowAnalysis(true);
+      toast.success('AI analysis complete');
+    } catch (err) { toast.error(err.message); }
+    finally { setAnalysisLoading(false); }
   };
 
   const startEdit = () => {
@@ -389,12 +435,78 @@ export default function CorporateChallenges() {
         )}
 
         {/* Applications */}
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>
-          <Users size={15} style={{ verticalAlign: -3, marginRight: 6 }} />Applications ({(detail.applications || []).length})
-        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
+            <Users size={15} style={{ verticalAlign: -3, marginRight: 6 }} />Applications ({(detail.applications || []).length})
+          </h3>
+          {(detail.applications || []).length > 0 && (
+            <div style={{ display: 'flex', gap: 6 }}>
+              {showAnalysis && analysisData && (
+                <button onClick={() => setShowAnalysis(false)}
+                  style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f3f4f6', color: '#333', border: '1px solid #ddd', cursor: 'pointer' }}>
+                  Show Applications
+                </button>
+              )}
+              <button onClick={runAiAnalysis} disabled={analysisLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', border: 'none', cursor: analysisLoading ? 'wait' : 'pointer', opacity: analysisLoading ? 0.7 : 1 }}>
+                {analysisLoading ? <Loader2 size={11} className="animate-spin" /> : <BarChart3 size={11} />} AI Analysis
+              </button>
+            </div>
+          )}
+        </div>
+        {/* Phase 35: AI Analysis Panel */}
+        {showAnalysis && analysisData && (
+          <div style={{ marginBottom: 16 }}>
+            {analysisData.top_pick && (
+              <div style={{ ...card, padding: 16, marginBottom: 10, border: '2px solid #7c3aed', background: '#faf5ff' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Zap size={13} /> Top Pick
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>
+                  {(detail.applications || []).find(a => a.id === analysisData.top_pick.application_id)?.startup_name || 'Startup'}
+                </div>
+                <div style={{ fontSize: 11, color: '#555', marginTop: 4, lineHeight: 1.5 }}>{analysisData.top_pick.rationale}</div>
+              </div>
+            )}
+            <div style={{ display: 'grid', gap: 8 }}>
+              {(analysisData.analyses || []).sort((a, b) => (a.ranking || 99) - (b.ranking || 99)).map(analysis => {
+                const app = (detail.applications || []).find(a => a.id === analysis.application_id) || {};
+                return (
+                  <div key={analysis.application_id} style={{ ...card, padding: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>
+                        #{analysis.ranking} {app.startup_name || `Application #${analysis.application_id}`}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ width: 60, height: 6, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden' }}>
+                          <div style={{ width: `${analysis.fit_score || 0}%`, height: '100%', borderRadius: 3, background: analysis.fit_score >= 70 ? '#16a34a' : analysis.fit_score >= 40 ? '#f59e0b' : '#dc2626' }} />
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: analysis.fit_score >= 70 ? '#16a34a' : analysis.fit_score >= 40 ? '#f59e0b' : '#dc2626' }}>{analysis.fit_score}/100</span>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 11, color: '#555', marginBottom: 6, lineHeight: 1.5 }}>{analysis.summary}</div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {(analysis.strengths || []).length > 0 && (
+                        <div style={{ flex: 1 }}>
+                          {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', margin: '0 3px 3px 0' }}>{s}</span>)}
+                        </div>
+                      )}
+                      {(analysis.weaknesses || []).length > 0 && (
+                        <div style={{ flex: 1 }}>
+                          {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626', margin: '0 3px 3px 0' }}>{w}</span>)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {(detail.applications || []).length === 0 ? (
           <div style={{ ...card, padding: 30, textAlign: 'center', color: '#999', fontSize: 13 }}>No applications yet</div>
-        ) : (
+        ) : (!showAnalysis) && (
           <div style={{ display: 'grid', gap: 10 }}>
             {(detail.applications || []).map(app => {
               const as = APP_STATUS[app.status] || APP_STATUS.applied;
@@ -457,7 +569,7 @@ export default function CorporateChallenges() {
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {app.status === 'applied' && (
                       <>
                         <button onClick={() => updateAppStatus(app.id, 'shortlisted')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#fefce815', color: '#ca8a04', border: '1px solid #fde68a', cursor: 'pointer' }}>
@@ -473,7 +585,49 @@ export default function CorporateChallenges() {
                         <CheckCircle size={11} style={{ verticalAlign: -2 }} /> Select
                       </button>
                     )}
+                    {/* Phase 35: AI Evaluate */}
+                    <button onClick={() => runAiEvaluate(app.id)} disabled={evaluatingAppId === app.id}
+                      style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: evaluations[app.id] ? '#f0fdf4' : 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: evaluations[app.id] ? '#16a34a' : '#fff', border: evaluations[app.id] ? '1px solid #bbf7d0' : 'none', cursor: evaluatingAppId === app.id ? 'wait' : 'pointer', opacity: evaluatingAppId === app.id ? 0.7 : 1 }}>
+                      {evaluatingAppId === app.id ? <Loader2 size={11} className="animate-spin" style={{ verticalAlign: -2 }} /> : <Sparkles size={11} style={{ verticalAlign: -2 }} />} {evaluations[app.id] ? 'Re-evaluate' : 'AI Evaluate'}
+                    </button>
                   </div>
+
+                  {/* Phase 35: AI Evaluation Results */}
+                  {evaluations[app.id] && (
+                    <div style={{ marginTop: 10, background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 10, padding: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span><Brain size={12} style={{ verticalAlign: -2 }} /> AI Evaluation</span>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: evaluations[app.id].overall_score >= 3.5 ? '#16a34a' : evaluations[app.id].overall_score >= 2.5 ? '#f59e0b' : '#dc2626' }}>{evaluations[app.id].overall_score}/5</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 8 }}>
+                        {[
+                          { k: 'solution_fit', l: 'Solution Fit' }, { k: 'tech_maturity', l: 'Tech Maturity' },
+                          { k: 'scalability', l: 'Scalability' }, { k: 'integration_feasibility', l: 'Integration' },
+                          { k: 'team_capability', l: 'Team' }, { k: 'cost_effectiveness', l: 'Cost' },
+                          { k: 'innovation_score', l: 'Innovation' }, { k: 'strategic_alignment', l: 'Strategy' },
+                        ].map(v => (
+                          <div key={v.k} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 10, color: '#666', width: 65, flexShrink: 0 }}>{v.l}</span>
+                            <div style={{ flex: 1, height: 5, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden' }}>
+                              <div style={{ width: `${((evaluations[app.id][v.k] || 0) / 5) * 100}%`, height: '100%', borderRadius: 3, background: '#7c3aed' }} />
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed', width: 14 }}>{evaluations[app.id][v.k] || '-'}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {evaluations[app.id].explanation && <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5, marginBottom: 6 }}>{evaluations[app.id].explanation}</div>}
+                      {(evaluations[app.id].red_flags || []).length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+                          {evaluations[app.id].red_flags.map((f, i) => <span key={i} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626' }}>{f}</span>)}
+                        </div>
+                      )}
+                      {evaluations[app.id].recommended_action && (
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: evaluations[app.id].recommended_action === 'shortlist' ? '#f0fdf4' : evaluations[app.id].recommended_action === 'reject' ? '#fef2f2' : '#eff6ff', color: evaluations[app.id].recommended_action === 'shortlist' ? '#16a34a' : evaluations[app.id].recommended_action === 'reject' ? '#dc2626' : '#2563eb' }}>
+                          AI: {evaluations[app.id].recommended_action}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -624,6 +778,84 @@ export default function CorporateChallenges() {
               style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
             <textarea placeholder="Detailed problem statement — describe what you need solved, constraints, and expectations..." rows={4} value={form.problem_statement} onChange={e => setForm(p => ({ ...p, problem_statement: e.target.value }))}
               style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+
+            {/* Phase 35: AI Advisor */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button type="button" onClick={runAiAdvisor} disabled={aiAdvisorLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', border: 'none', cursor: aiAdvisorLoading ? 'wait' : 'pointer', opacity: aiAdvisorLoading ? 0.7 : 1 }}>
+                {aiAdvisorLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} AI Advisor
+              </button>
+              <span style={{ fontSize: 10, color: '#999' }}>Get AI suggestions for sectors, technologies, budget, and more</span>
+            </div>
+
+            {aiSuggestions && (
+              <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Brain size={14} /> AI Suggestions
+                  <button onClick={() => setAiSuggestions(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={12} /></button>
+                </div>
+                {aiSuggestions.refined_problem_statement && (
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Refined Problem Statement</div>
+                    <div style={{ fontSize: 11, color: '#333', lineHeight: 1.5, marginBottom: 4 }}>{aiSuggestions.refined_problem_statement}</div>
+                    <button onClick={() => setForm(f => ({ ...f, problem_statement: aiSuggestions.refined_problem_statement }))}
+                      style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
+                  </div>
+                )}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {aiSuggestions.sectors?.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Sectors</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 4 }}>
+                        {aiSuggestions.sectors.map(s => <span key={s} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#eff6ff', color: '#2563eb' }}>{s}</span>)}
+                      </div>
+                      <button onClick={() => setForm(f => ({ ...f, sectors: [...new Set([...f.sectors, ...(aiSuggestions.sectors || [])])] }))}
+                        style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
+                    </div>
+                  )}
+                  {aiSuggestions.technologies?.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Technologies</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 4 }}>
+                        {aiSuggestions.technologies.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
+                      </div>
+                      <button onClick={() => setForm(f => ({ ...f, technologies: [...new Set([...f.technologies, ...(aiSuggestions.technologies || [])])] }))}
+                        style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
+                    </div>
+                  )}
+                  {aiSuggestions.budget_range && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Budget</div>
+                      <div style={{ fontSize: 11, color: '#333', marginBottom: 4 }}>{aiSuggestions.budget_range}</div>
+                      <button onClick={() => setForm(f => ({ ...f, budget_range: aiSuggestions.budget_range }))}
+                        style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
+                    </div>
+                  )}
+                  {aiSuggestions.timeline && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Timeline</div>
+                      <div style={{ fontSize: 11, color: '#333', marginBottom: 4 }}>{aiSuggestions.timeline}</div>
+                      <button onClick={() => setForm(f => ({ ...f, timeline: aiSuggestions.timeline }))}
+                        style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
+                    </div>
+                  )}
+                </div>
+                {aiSuggestions.evaluation_criteria?.length > 0 && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Evaluation Criteria</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {aiSuggestions.evaluation_criteria.map((c, i) => <span key={i} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef3c7', color: '#92400e' }}>{c}</span>)}
+                    </div>
+                  </div>
+                )}
+                {aiSuggestions.suggestions?.length > 0 && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Tips</div>
+                    {aiSuggestions.suggestions.map((s, i) => <div key={i} style={{ fontSize: 10, color: '#666', marginBottom: 2 }}>- {s}</div>)}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Timeline & logistics */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>

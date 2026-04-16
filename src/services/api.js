@@ -243,7 +243,7 @@ export const corporateAPI = {
   dashboard:         ()              => get('/corporate/dashboard'),
   getTaxonomy:       ()              => get('/corporate/taxonomy'),
   searchStartups:    (params = {})   => get(`/corporate/startups?${new URLSearchParams(params)}`),
-  recommendations:   ()              => get('/corporate/recommendations'),
+  recommendations:   (params = {})   => get(`/corporate/recommendations?${new URLSearchParams(params)}`),
   createChallenge:   (data)          => post('/corporate/challenges', data),
   listChallenges:    (params = {})   => get(`/corporate/challenges?${new URLSearchParams(params)}`),
   getChallenge:      (id)            => get(`/corporate/challenges/${id}`),
@@ -279,6 +279,12 @@ export const corporateAPI = {
   createTask:        (coId, data)    => post(`/corporate/collaborations/${coId}/tasks`, data),
   updateTask:        (coId, tid, data) => put(`/corporate/collaborations/${coId}/tasks/${tid}`, data),
   deleteTask:        (coId, tid)     => del(`/corporate/collaborations/${coId}/tasks/${tid}`),
+  // Phase 35: Corporate AI Intelligence
+  aiEvaluate:        (data)          => post('/corporate/evaluations', data),
+  listEvaluations:   (challengeId)   => get(`/corporate/evaluations/${challengeId}`),
+  updateEvaluation:  (id, data)      => put(`/corporate/evaluations/${id}`, data),
+  aiAdvisor:         (data)          => post('/corporate/challenges/ai-advisor', data),
+  aiAnalyze:         (challengeId)   => post(`/corporate/challenges/${challengeId}/ai-analyze`),
 };
 
 // ── Investor Features ─────────────────────────────────────────

@@ -6,7 +6,7 @@ import { PERSONAS } from '../../config/personas';
 import {
   Building2, FolderKanban, Target, Link2, Star, Users,
   Search, Plus, ArrowRight, Loader2, TrendingUp, Clock,
-  CheckCircle, AlertCircle,
+  CheckCircle, AlertCircle, Sparkles, RefreshCw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -31,6 +31,8 @@ export default function CorporateDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recs, setRecs] = useState([]);
+  const [recsAiEnhanced, setRecsAiEnhanced] = useState(false);
+  const [recsRefreshing, setRecsRefreshing] = useState(false);
 
   useEffect(() => { loadDashboard(); loadRecs(); }, []);
 
@@ -43,7 +45,7 @@ export default function CorporateDashboard() {
   };
 
   const loadRecs = async () => {
-    try { const d = await corporateAPI.recommendations(); setRecs(d.recommendations || []); } catch {}
+    try { const d = await corporateAPI.recommendations(); setRecs(d.recommendations || []); setRecsAiEnhanced(d.ai_enhanced || false); } catch {}
   };
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
@@ -239,11 +241,19 @@ export default function CorporateDashboard() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
               <TrendingUp size={15} style={{ verticalAlign: -3, marginRight: 6, color: G }} />Recommended Startups
+              {recsAiEnhanced && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#faf5ff', color: '#7c3aed', marginLeft: 8 }}><Sparkles size={9} style={{ verticalAlign: -1 }} /> AI Enhanced</span>}
             </h2>
-            <button onClick={() => navigate('/dashboard/corporate/search')}
-              style={{ fontSize: 11, fontWeight: 600, color: G, background: 'none', border: 'none', cursor: 'pointer' }}>
-              See all →
-            </button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button onClick={async () => { setRecsRefreshing(true); try { const d = await corporateAPI.recommendations({ refresh: true }); setRecs(d.recommendations || []); setRecsAiEnhanced(d.ai_enhanced || false); } catch {} setRecsRefreshing(false); }}
+                disabled={recsRefreshing}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: '#7c3aed', background: 'none', border: 'none', cursor: recsRefreshing ? 'wait' : 'pointer', opacity: recsRefreshing ? 0.6 : 1 }}>
+                {recsRefreshing ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />} Refresh AI
+              </button>
+              <button onClick={() => navigate('/dashboard/corporate/search')}
+                style={{ fontSize: 11, fontWeight: 600, color: G, background: 'none', border: 'none', cursor: 'pointer' }}>
+                See all →
+              </button>
+            </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
             {recs.slice(0, 6).map(r => (
@@ -271,10 +281,19 @@ export default function CorporateDashboard() {
                     <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>
                   ))}
                 </div>
-                <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#999' }}>
+                {/* AI narrative */}
+                {r.fit_narrative && (
+                  <div style={{ fontSize: 10, color: '#555', lineHeight: 1.4, marginBottom: 6 }}>{r.fit_narrative}</div>
+                )}
+                <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#999', flexWrap: 'wrap' }}>
                   {r.tech_readiness && <span>TRL {r.tech_readiness}</span>}
                   {r.is_deeptech && <span style={{ color: '#7c3aed', fontWeight: 600 }}>DeepTech</span>}
-                  {r.match_score > 0 && <span style={{ color: G, fontWeight: 600 }}>{r.match_score}pt match</span>}
+                  {r.match_score > 0 && <span style={{ color: G, fontWeight: 600 }}>{r.match_score >= 100 ? `${r.match_score}/100` : `${r.match_score}pt`} match</span>}
+                  {r.recommended_action && (
+                    <span style={{ fontWeight: 600, color: r.recommended_action === 'shortlist' ? '#16a34a' : r.recommended_action === 'skip' ? '#999' : '#2563eb' }}>
+                      {r.recommended_action}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
