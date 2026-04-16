@@ -218,6 +218,12 @@ export const govtIntegrationAPI = {
   list: ()    => get('/integrations'),
   sync: (id)  => post(`/integrations/${id}/sync`),
   logs: ()    => get('/integrations/logs'),
+  // Phase 35B: AI Intelligence
+  aiEvaluate:           (data)          => post('/govt/ai/evaluate', data),
+  aiListEvaluations:    (entityId)      => get(`/govt/ai/evaluations/${entityId}`),
+  aiUpdateEvaluation:   (id, data)      => put(`/govt/ai/evaluations/${id}`, data),
+  aiAdvisor:            (data)          => post('/govt/ai/advisor', data),
+  aiAnalyze:            (entityId)      => post(`/govt/ai/analyze/${entityId}`),
 };
 
 // ── Profiles ─────────────────────────────────────────────────
@@ -320,6 +326,12 @@ export const investorAPI = {
   updateDealRequest:    (id, data)      => put(`/investor/deal-requests/${id}`, data),
   updateDealRequestApp: (drId, appId, d) => put(`/investor/deal-requests/${drId}/applications/${appId}`, d),
   promoteToPipeline:    (drId, appId)   => post(`/investor/deal-requests/${drId}/promote/${appId}`),
+  // Phase 35B: AI Intelligence
+  aiEvaluate:           (data)          => post('/investor/ai/evaluate', data),
+  aiListEvaluations:    (entityId)      => get(`/investor/ai/evaluations/${entityId}`),
+  aiUpdateEvaluation:   (id, data)      => put(`/investor/ai/evaluations/${id}`, data),
+  aiAdvisor:            (data)          => post('/investor/ai/advisor', data),
+  aiAnalyze:            (entityId)      => post(`/investor/ai/analyze/${entityId}`),
 };
 
 // ── Incubator Features (Phase 16A) ───────────────────────────
@@ -352,6 +364,12 @@ export const incubatorAPI = {
   createMilestone:      (id, data)      => post(`/incubator/programs/${id}/milestones`, data),
   updateMilestone:      (id, mid, data) => put(`/incubator/programs/${id}/milestones/${mid}`, data),
   deleteMilestone:      (id, mid)       => del(`/incubator/programs/${id}/milestones/${mid}`),
+  // Phase 35B: AI Intelligence
+  aiEvaluate:           (data)          => post('/incubator/ai/evaluate', data),
+  aiListEvaluations:    (entityId)      => get(`/incubator/ai/evaluations/${entityId}`),
+  aiUpdateEvaluation:   (id, data)      => put(`/incubator/ai/evaluations/${id}`, data),
+  aiAdvisor:            (data)          => post('/incubator/ai/advisor', data),
+  aiAnalyze:            (entityId)      => post(`/incubator/ai/analyze/${entityId}`),
 };
 
 // ── Accelerator Features (Phase 16B) ─────────────────────────
@@ -389,6 +407,12 @@ export const acceleratorAPI = {
   createBatchMilestone: (id, data)      => post(`/accelerator/batches/${id}/milestones`, data),
   updateBatchMilestone: (id, mid, data) => put(`/accelerator/batches/${id}/milestones/${mid}`, data),
   deleteBatchMilestone: (id, mid)       => del(`/accelerator/batches/${id}/milestones/${mid}`),
+  // Phase 35B: AI Intelligence
+  aiEvaluate:           (data)          => post('/accelerator/ai/evaluate', data),
+  aiListEvaluations:    (entityId)      => get(`/accelerator/ai/evaluations/${entityId}`),
+  aiUpdateEvaluation:   (id, data)      => put(`/accelerator/ai/evaluations/${id}`, data),
+  aiAdvisor:            (data)          => post('/accelerator/ai/advisor', data),
+  aiAnalyze:            (entityId)      => post(`/accelerator/ai/analyze/${entityId}`),
 };
 
 // ── Program Service Partners (Phase 16B.1, shared incubator+accelerator) ───
