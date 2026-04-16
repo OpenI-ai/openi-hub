@@ -374,7 +374,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            {hero?.badge_text || 'OPEN INNOVATION PLATFORM'}
+            {hero?.badge_text || 'AI-NATIVE INNOVATION PLATFORM'}
           </div>
 
           <h1
@@ -393,9 +393,9 @@ export default function Landing() {
             className="max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            The AI-powered open innovation platform connecting <strong style={{ color: DARK }}>11 ecosystem personas</strong> —
-            startups, corporates, investors, incubators, accelerators, and more.
-            Ask in plain English, score with our 8-vector framework, and run portfolio health in real time.
+            The AI-native open innovation platform connecting <strong style={{ color: DARK }}>11 ecosystem personas</strong> —
+            startups, corporates, investors, incubators, accelerators, students, academia, and more.
+            AI evaluates startups, narrates recommendations, advises on challenges, and analyzes applications — all with one click.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
@@ -427,7 +427,7 @@ export default function Landing() {
           </div>
 
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            {hero?.sectors_text || 'Built for Deep-Tech \u00b7 AI \u00b7 Quantum \u00b7 Defence \u00b7 Cybersecurity'}
+            {hero?.sectors_text || 'AI-Powered \u00b7 9,000+ Global Startups \u00b7 11 Persona Types \u00b7 Deep-Tech \u00b7 25+ RSS Feeds'}
           </p>
         </div>
       </section>
@@ -636,25 +636,25 @@ export default function Landing() {
       <Section bg="#fff" id="features">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Everything You Need in One Platform
+            AI-Native Innovation Intelligence
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            From startup discovery to deal closure — purpose-built tools for every stage of the innovation lifecycle.
+            From startup discovery to AI-powered evaluation and deal closure — native intelligence for every stage of the innovation lifecycle.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(features || [
-            { icon: 'Sparkles', title: 'AI Ask \u2014 Natural Language Search', description: 'Type what you need in plain English. Our gpt-4o-mini parser translates queries like "early-stage deeptech healthcare in Bangalore" into structured filters and runs FTS + vector search with an interpretation banner. Pro tier.' },
-            { icon: 'Search', title: 'Semantic Search (pgvector)', description: 'Vector embeddings across startups, challenges, and directory profiles power cosine-similarity matching. Find conceptually related entities even when keywords don\u2019t match exactly.' },
-            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner / source / invest challenges with RFI forms, data rooms, FAQs, templates, and public share links. Evaluate applicants with 1-5 star ratings and drag-and-drop pipeline.' },
-            { icon: 'Award', title: '8-Vector Evaluation Framework', description: 'Score startups across Market, Team, Tech, Traction, Financials, IP, Scalability, and Strategic Fit. Used by investors in deal pipeline and by incubators/accelerators for portfolio checkpoints.' },
-            { icon: 'Rocket', title: 'Rich Startup Profiles', description: '15-section comprehensive profile with funding rounds, clients, patents, competitors, news, acquisitions, team, products, awards, and financial metrics (MRR, ARR, burn, runway).' },
-            { icon: 'TrendingUp', title: 'Investor Deal Pipeline', description: '7-stage workflow (sourced \u2192 evaluating \u2192 LOI \u2192 diligence \u2192 term sheet \u2192 closed). Auto-generated milestones per stage, portfolio management, and exit tracking.' },
-            { icon: 'Home', title: 'Incubator & Accelerator Programs', description: 'Manage cohorts and batches with applied\u2192screening\u2192selected pipelines, mentor pools, auto-seeded milestones, demo days, corporate partners, and linked service providers.' },
-            { icon: 'BarChart3', title: 'Portfolio Health Analytics', description: 'Run 8-vector evaluations as time-series checkpoints (Entry \u2192 Mid-program \u2192 Graduation). Radar charts, at-risk startup flags, per-dimension trend tracking \u2014 all in one tab.' },
+            { icon: 'Sparkles', title: 'AI Intelligence Engine', description: 'Native AI powers every persona. 8-vector startup evaluation with explanations and red flags. AI-narrated recommendations with fit scores. Challenge advisor auto-suggests sectors, tech, and budget. Batch application analyzer ranks applicants with strengths and weaknesses.' },
+            { icon: 'Search', title: 'AI Ask + Semantic Search', description: 'Natural language search powered by GPT-4o-mini translates queries like "Series A deeptech healthcare in Bangalore" into structured filters. pgvector embeddings enable cosine-similarity matching across 9,000+ startups.' },
+            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, FAQs, templates, and public share links. AI evaluates and ranks applicants automatically. Used by corporates, government, and investors.' },
+            { icon: 'Award', title: '8-Vector AI Evaluation', description: 'AI scores startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment. Human-overridable scores with explanation, red flags, and recommended actions.' },
+            { icon: 'Rocket', title: 'Global Startup Database', description: '9,000+ enriched startup profiles with AI-powered nightly crawling from 25 RSS feeds. Unified AI pipeline extracts company names, classifies sectors, detects funding, and enriches with country, city, and DeepTech flags.' },
+            { icon: 'TrendingUp', title: 'Investor Deal Pipeline', description: '7-stage deal workflow with AI-powered evaluation. Deal sourcing marketplace, portfolio management, exit tracking. AI advisor helps design deal requests and analyze applicant startups.' },
+            { icon: 'Home', title: 'Incubator & Accelerator Programs', description: 'Manage cohorts and batches with AI-assisted startup evaluation. Mentor pools, demo days, corporate partners, auto-seeded milestones. AI advisor helps design programs and rank applicants.' },
+            { icon: 'BarChart3', title: 'Source Innovation Talent', description: 'Discover startups, students, and academia in one platform. Source student talent for internships and projects. Connect with universities and researchers for R&D collaborations. Filter by skills, research areas, and location.' },
             { icon: 'Network', title: 'Service Partner Network', description: 'Incubators and accelerators link registered Service Providers for cloud credits, legal, financial, HR, and compliance perks. Startups redeem directly. Over 12 service categories supported.' },
-            { icon: 'Globe', title: 'Multi-Currency (INR + USD)', description: 'Native support for both currencies with locale-appropriate compact display (\u20B95L, \u20B92Cr, $60K, $1.5M). No FX conversion \u2014 each amount keeps its entered currency for honest reporting.' },
+            { icon: 'Globe', title: 'Token-Based AI Credits', description: 'Pay-as-you-go AI intelligence. Pro plan includes 100 AI tokens/month. Enterprise gets unlimited. Every AI evaluation, recommendation, and analysis costs tokens, tracked transparently in your dashboard.' },
             { icon: 'Calendar', title: 'Meetings + Messaging', description: 'Schedule 1:1, group, and demo meetings with RSVP tracking. Cross-persona direct and group chat keeps collaborations moving between external stakeholders.' },
             { icon: 'Zap', title: 'DeepTech Assessment', description: '16-question qualification framework across 5 dimensions (Tech Readiness, IP Depth, Research Base, Team, Market). Standardized scoring to verify true deep-tech status.' },
           ]).map((f, i) => (
@@ -727,12 +727,11 @@ export default function Landing() {
               features: [
                 'All 11 persona types + full directory access',
                 'Keyword search (FTS) across ecosystem',
+                'Source startups, students, and academia',
                 '1 challenge / 3 applications / month',
                 '5 meetings + 5 file uploads / month',
                 'Basic dashboards + profile builder',
-                '🔒 AI Ask search — Pro tier',
-                '🔒 Portfolio Health analytics — Pro tier',
-                '🔒 Deal pipeline (investor) — Pro tier',
+                'AI Intelligence — Pro tier',
               ],
               cta: 'Start Free',
               ctaLink: '/register',
@@ -744,15 +743,14 @@ export default function Landing() {
               priceNote: '/month',
               features: [
                 'Everything in Free, plus:',
-                '✨ AI Ask — 50 natural-language searches/day',
-                '✨ Semantic search (pgvector matching)',
-                '✨ Rich Startup Profile (15 sections)',
-                '✨ 8-Vector Evaluation Framework',
-                '✨ Portfolio Health + radar analytics',
-                '✨ Investor Deal Pipeline (7-stage workflow)',
-                '✨ Incubator/Accelerator program tools',
+                '100 AI tokens/month for AI Intelligence',
+                'AI Startup Evaluator (8-vector scoring)',
+                'AI Smart Recommendations with narratives',
+                'AI Challenge Advisor + Application Analyzer',
+                'AI Ask — 50 natural-language searches/day',
+                'Semantic search (pgvector matching)',
+                'Investor Deal Pipeline + Portfolio Health',
                 '5 challenges / 20 apps / 50 meetings / 100 uploads',
-                'Recommendation engine + priority email support',
               ],
               cta: 'Upgrade to Pro',
               ctaLink: '/register',
@@ -764,10 +762,10 @@ export default function Landing() {
               priceNote: '/month',
               features: [
                 'Everything in Pro, plus:',
-                '♾️ Unlimited AI Ask searches',
-                '♾️ Unlimited challenges, apps, meetings, uploads',
-                '🌐 Multi-currency (INR + USD) native',
-                '🤝 Service Partner network (cloud/legal/HR perks)',
+                'Unlimited AI tokens + AI Ask searches',
+                'Unlimited challenges, apps, meetings, uploads',
+                'Multi-currency (INR + USD) native',
+                'Service Partner network (cloud/legal/HR perks)',
                 'Dedicated account manager',
                 'Custom integrations + white-label',
                 'SSO, audit logs, SLA guarantees',

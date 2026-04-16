@@ -214,6 +214,12 @@ export const deeptechAPI = {
 };
 
 // ── Govt API Integrations ─────────────────────────────────────
+// ── Phase 36: Innovation Source Discovery ──────────────────────
+export const discoveryAPI = {
+  students: (params = {}) => get(`/discover/students?${new URLSearchParams(params)}`),
+  academia: (params = {}) => get(`/discover/academia?${new URLSearchParams(params)}`),
+};
+
 export const govtIntegrationAPI = {
   list: ()    => get('/integrations'),
   sync: (id)  => post(`/integrations/${id}/sync`),

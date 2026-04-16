@@ -33,6 +33,8 @@ import AcceleratorPartners      from './pages/dashboard/AcceleratorPartners';
 import ProgramServicePartners   from './pages/dashboard/ProgramServicePartners';
 import StartupEvaluation from './pages/dashboard/StartupEvaluation';
 import StartupDiscovery  from './pages/dashboard/StartupDiscovery';
+import StudentDiscovery  from './pages/dashboard/StudentDiscovery';
+import AcademiaDiscovery from './pages/dashboard/AcademiaDiscovery';
 import StartupProfile    from './pages/dashboard/StartupProfile';
 import RegisterStartup   from './pages/dashboard/RegisterStartup';
 import Evaluations       from './pages/dashboard/Evaluations';
@@ -135,6 +137,8 @@ export default function App() {
             <Route path="program/service-partners"    element={<ProgramServicePartners />} />
             <Route path="evaluate"            element={<StartupEvaluation />} />
             <Route path="startups"            element={<StartupDiscovery />} />
+            <Route path="students"            element={<StudentDiscovery />} />
+            <Route path="academia"            element={<AcademiaDiscovery />} />
             <Route path="startup-profile"     element={<StartupProfile />} />
             <Route path="startup-profile/:id" element={<StartupProfile />} />
             <Route path="register"            element={<RegisterStartup />} />
