@@ -76,6 +76,14 @@ export const subscriptionAPI = {
   featureAccess: ()       => get('/subscription/feature-access'),
 };
 
+// ── AI Credit Packs (Phase 26) ────────────────────────────────
+export const creditAPI = {
+  listPacks:       ()            => get('/credits/packs'),
+  myBalance:       ()            => get('/credits/my-balance'),
+  createOrder:     (packId)      => post('/credits/create-order', { pack_id: packId }),
+  verifyPayment:   (payload)     => post('/credits/verify-payment', payload),
+};
+
 // ── Profile Views & Provider Analytics (Phase 37) ─────────────
 export const profileViewAPI = {
   recordView:          (userId)  => post(`/profile-views/${userId}`, {}),

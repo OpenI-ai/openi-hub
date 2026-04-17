@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { authAPI, subscriptionAPI } from '../../services/api';
+import { authAPI, subscriptionAPI, creditAPI } from '../../services/api';
 import { getPersonaCategory, PLAN_LABELS } from '../../config/personas';
 import toast from 'react-hot-toast';
 import {
@@ -87,18 +87,75 @@ export default function Settings() {
   const [billingLoading, setBillingLoading] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
 
+  // AI credit packs state (Phase 26)
+  const [creditPacks, setCreditPacks] = useState([]);
+  const [creditBalance, setCreditBalance] = useState(null);
+  const [creditPurchases, setCreditPurchases] = useState([]);
+  const [buyingPackId, setBuyingPackId] = useState(null);
+
   const loadBilling = async () => {
     setBillingLoading(true);
     try {
-      const [plansData, myData, featureData] = await Promise.all([
+      const [plansData, myData, featureData, packsData, balanceData] = await Promise.all([
         subscriptionAPI.getPlans(),
         subscriptionAPI.getMyPlan(),
         subscriptionAPI.featureAccess().catch(() => null),
+        creditAPI.listPacks().catch(() => ({ packs: [] })),
+        creditAPI.myBalance().catch(() => ({ balance: 0, purchases: [] })),
       ]);
       setPlans(plansData.plans || []);
       setMyPlan({ ...myData, ai_consumption: featureData?.ai_consumption || null });
+      setCreditPacks(packsData.packs || []);
+      setCreditBalance(typeof balanceData.balance === 'number' ? balanceData.balance : 0);
+      setCreditPurchases(balanceData.purchases || []);
     } catch (err) { toast.error('Failed to load billing info'); }
     finally { setBillingLoading(false); }
+  };
+
+  const handleBuyCredits = async (pack) => {
+    setBuyingPackId(pack.id);
+    try {
+      const orderData = await creditAPI.createOrder(pack.id);
+
+      const finish = async (verifyPayload) => {
+        const result = await creditAPI.verifyPayment(verifyPayload);
+        toast.success(`+${result.credits_added} AI credits added`);
+        setCreditBalance(result.balance);
+        // Refresh purchase history
+        const bal = await creditAPI.myBalance();
+        setCreditPurchases(bal.purchases || []);
+      };
+
+      if (orderData.test_mode || !window.Razorpay) {
+        await finish({
+          razorpay_payment_id: `pay_test_${Date.now()}`,
+          razorpay_order_id: orderData.order_id,
+          razorpay_signature: 'test_signature',
+          pack_id: pack.id,
+        });
+      } else {
+        const rzp = new window.Razorpay({
+          key: orderData.key,
+          order_id: orderData.order_id,
+          amount: orderData.amount,
+          currency: orderData.currency || 'INR',
+          name: 'OpenI Hub',
+          description: `${pack.name} — ${pack.credits} AI credits`,
+          prefill: { email: user?.email, name: user?.name },
+          handler: async (response) => {
+            try {
+              await finish({ ...response, pack_id: pack.id });
+            } catch (err) { toast.error(err.message || 'Payment verification failed'); }
+          },
+          modal: { ondismiss: () => setBuyingPackId(null) },
+        });
+        rzp.open();
+      }
+    } catch (err) {
+      toast.error(err.message || 'Purchase failed');
+    } finally {
+      setBuyingPackId(null);
+    }
   };
 
   const handleUpgrade = async (planId, planName) => {
@@ -517,6 +574,79 @@ export default function Settings() {
                     <button onClick={handleCancel} style={{ marginTop: 16, fontSize: 12, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>
                       Cancel subscription
                     </button>
+                  )}
+                </div>
+
+                {/* AI Credit Packs (Phase 26) */}
+                <div id="credits" style={{ ...card, padding: 24, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <div>
+                      <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Zap size={16} style={{ color: G }} />
+                        AI Credit Packs
+                      </h3>
+                      <p style={{ fontSize: 12, color: '#888', margin: '3px 0 0 0' }}>
+                        Top up extra AI credits that never expire. Used after your monthly quota runs out.
+                      </p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 11, color: '#999' }}>Your balance</div>
+                      <div style={{ fontSize: 22, fontWeight: 700, color: creditBalance > 0 ? G : '#aaa' }}>
+                        {creditBalance ?? 0} <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>credits</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(creditPacks.length || 1, 3)}, 1fr)`, gap: 12, marginTop: 14 }}>
+                    {creditPacks.map(pack => {
+                      const isBestValue = creditPacks.length > 0 && pack.price_per_credit === Math.min(...creditPacks.map(x => x.price_per_credit));
+                      const isBuying = buyingPackId === pack.id;
+                      return (
+                        <div key={pack.id} style={{ border: isBestValue ? `2px solid ${G}` : '1px solid #eee', borderRadius: 12, padding: 16, position: 'relative', background: isBestValue ? '#fffbeb' : '#fff' }}>
+                          {isBestValue && <div style={{ position: 'absolute', top: -9, right: 12, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: G, color: '#fff', letterSpacing: 0.4 }}>BEST VALUE</div>}
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{pack.name}</div>
+                          <div style={{ fontSize: 20, fontWeight: 700, color: G, marginBottom: 2 }}>₹{pack.price_inr}</div>
+                          <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>
+                            <strong style={{ color: '#1a1a1a' }}>{pack.credits}</strong> credits · ₹{pack.price_per_credit}/credit
+                          </div>
+                          <p style={{ fontSize: 11, color: '#777', margin: '4px 0 12px 0', minHeight: 28 }}>
+                            {pack.description}
+                          </p>
+                          <button
+                            onClick={() => handleBuyCredits(pack)}
+                            disabled={isBuying || buyingPackId !== null}
+                            style={{
+                              width: '100%', padding: '8px 12px', borderRadius: 8,
+                              background: isBuying || buyingPackId !== null ? '#ddd' : G,
+                              color: '#fff', border: 'none', fontSize: 12, fontWeight: 600,
+                              cursor: isBuying || buyingPackId !== null ? 'not-allowed' : 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                            }}
+                          >
+                            {isBuying ? <><Loader2 size={11} className="animate-spin" /> Processing…</> : 'Buy'}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {creditPurchases.length > 0 && (
+                    <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid #f3f4f6' }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#666', marginBottom: 6 }}>Recent purchases</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {creditPurchases.slice(0, 5).map(p => (
+                          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#666' }}>
+                            <span>{p.pack_name || `${p.credits} credits`} · {new Date(p.created_at).toLocaleDateString()}</span>
+                            <span style={{
+                              fontWeight: 600,
+                              color: p.status === 'paid' ? '#16a34a' : p.status === 'failed' ? '#dc2626' : '#999',
+                            }}>
+                              {p.status === 'paid' ? `+${p.credits} · ₹${p.amount_inr}` : p.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
 
