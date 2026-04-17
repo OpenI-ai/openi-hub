@@ -87,47 +87,40 @@ export default function CorporateStartupSearch() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
               {startups.map(s => (
-                <div key={s.id} style={{ ...card, padding: 16, cursor: 'pointer' }}
+                <div key={s.id} style={{ ...card, padding: 12, cursor: 'pointer' }}
                   onClick={() => navigate(`/dashboard/startup-profile/${s.id}`)}
                   onMouseEnter={e => e.currentTarget.style.borderColor = G}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                   {/* Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 10, background: `${G}12`, color: G, fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${G}30`, flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: `${G}12`, color: G, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${G}30`, flexShrink: 0 }}>
                       {s.name?.[0]}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
-                      {(s.city || s.state) && <div style={{ fontSize: 11, color: '#888' }}><MapPin size={10} style={{ verticalAlign: -1 }} /> {s.city}{s.state ? `, ${s.state}` : ''}</div>}
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                      {(s.city || s.state) && <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><MapPin size={9} style={{ verticalAlign: -1 }} /> {s.city}{s.state ? `, ${s.state}` : ''}</div>}
                     </div>
-                    {s.is_deeptech && <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe' }}><Cpu size={9} style={{ verticalAlign: -1 }} /> DeepTech</span>}
+                    {s.is_deeptech && <Cpu size={12} style={{ color: '#7c3aed', flexShrink: 0 }} />}
                   </div>
 
-                  {s.tagline && <p style={{ fontSize: 12, color: '#666', marginBottom: 10, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{s.tagline}</p>}
+                  {s.tagline && <p style={{ fontSize: 11, color: '#666', marginBottom: 8, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{s.tagline}</p>}
 
-                  {/* Taxonomy tags */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
-                    {(s.taxonomy_sectors || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                    {(s.taxonomy_technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
-                    {(s.taxonomy_usecases || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
-                  </div>
-
-                  {/* Stats row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#888', paddingTop: 10, borderTop: '1px solid #f5f5f5' }}>
-                    <span>{s.stage || '—'}</span>
-                    <span>TRL {s.tech_readiness || '—'}</span>
-                    <span>{s.sector || '—'}</span>
+                  {/* Primary chips */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 8 }}>
+                    {s.sector && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb', maxWidth: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.sector}</span>}
+                    {s.stage && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#f3f4f6', color: '#555' }}>{s.stage}</span>}
+                    {s.tech_readiness && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb' }}>TRL {s.tech_readiness}</span>}
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: 'flex', gap: 6, marginTop: 10 }} onClick={e => e.stopPropagation()}>
-                    <button onClick={() => startCollab(s)} style={{ flex: 1, padding: '6px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: `${G}12`, color: G, border: `1px solid ${G}30`, cursor: 'pointer' }}>
-                      <Link2 size={12} style={{ verticalAlign: -2, marginRight: 3 }} /> Collaborate
+                  <div style={{ display: 'flex', gap: 4, paddingTop: 6, borderTop: '1px solid #f5f5f5' }} onClick={e => e.stopPropagation()}>
+                    <button onClick={() => startCollab(s)} style={{ flex: 1, padding: '5px', fontSize: 10, fontWeight: 600, borderRadius: 6, background: `${G}12`, color: G, border: `1px solid ${G}30`, cursor: 'pointer' }}>
+                      <Link2 size={10} style={{ verticalAlign: -1, marginRight: 2 }} /> Collab
                     </button>
-                    <button onClick={() => navigate('/dashboard/messaging')} style={{ padding: '6px 10px', fontSize: 11, borderRadius: 7, background: '#f9fafb', color: '#666', border: '1px solid #e5e7eb', cursor: 'pointer' }}>
-                      <MessageSquare size={12} style={{ verticalAlign: -2 }} />
+                    <button onClick={() => navigate('/dashboard/messaging')} style={{ padding: '5px 8px', fontSize: 10, borderRadius: 6, background: '#f9fafb', color: '#666', border: '1px solid #e5e7eb', cursor: 'pointer' }}>
+                      <MessageSquare size={10} style={{ verticalAlign: -1 }} />
                     </button>
                   </div>
                 </div>

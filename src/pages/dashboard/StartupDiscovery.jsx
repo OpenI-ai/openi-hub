@@ -21,73 +21,56 @@ function formatFunding(val) {
 
 function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
   const initials = (startup.company_name || '').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const location = [startup.city, startup.state, startup.country].filter(Boolean).join(', ') || '—';
+  const location = [startup.city, startup.state, startup.country].filter(Boolean).join(', ');
 
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-200 transition-all cursor-pointer group">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex items-start gap-3 min-w-0">
+    <div onClick={onClick} className="bg-white rounded-xl border border-gray-200 p-3 hover:shadow-md hover:border-primary-200 transition-all cursor-pointer">
+      {/* Header: logo + name + watchlist */}
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex items-start gap-2 min-w-0 flex-1">
           {startup.logo_url ? (
-            <img src={startup.logo_url} alt="" className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+            <img src={startup.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 bg-gray-50" />
           ) : (
-            <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center text-dark-950 font-bold text-sm flex-shrink-0">{initials}</div>
+            <div className="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center text-dark-950 font-bold text-xs flex-shrink-0">{initials}</div>
           )}
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1">
               <h3 className="font-display font-bold text-gray-900 text-sm truncate">{startup.company_name}</h3>
-              {startup.is_deeptech && <Cpu size={12} className="text-primary-500 flex-shrink-0" />}
+              {startup.is_deeptech && <Cpu size={11} className="text-primary-500 flex-shrink-0" />}
             </div>
-            <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1"><MapPin size={10} /> {location}</div>
+            {location && <div className="text-[11px] text-gray-500 mt-0.5 flex items-center gap-0.5 truncate"><MapPin size={9} className="flex-shrink-0" /> <span className="truncate">{location}</span></div>}
           </div>
         </div>
         <button onClick={e => { e.stopPropagation(); onWatchlist(startup.id); }}
-          className={`p-1.5 rounded-lg transition-all flex-shrink-0 ${watchlisted ? 'text-primary-500 bg-primary-50' : 'text-gray-300 hover:text-primary-400'}`}>
-          {watchlisted ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+          className={`p-1 rounded transition-all flex-shrink-0 ${watchlisted ? 'text-primary-500 bg-primary-50' : 'text-gray-300 hover:text-primary-400'}`}>
+          {watchlisted ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
         </button>
       </div>
 
-      <p className="text-xs text-gray-600 leading-relaxed mb-3 line-clamp-2">{startup.tagline || startup.description || 'No description available'}</p>
-
-      <div className="flex gap-1.5 mb-3 flex-wrap">
-        {startup.sector && <span className="px-2 py-0.5 bg-primary-50 text-primary-700 border border-primary-100 text-xs rounded-full truncate max-w-[140px]">{startup.sector}</span>}
-        {startup.stage && <span className={`px-2 py-0.5 text-xs rounded-full ${startup.stage?.includes('Series') ? 'bg-accent-100 text-accent-700' : 'bg-gray-100 text-gray-600'}`}>{startup.stage}</span>}
-        {startup.tech_readiness && <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">TRL {startup.tech_readiness}</span>}
-      </div>
-
-      {(startup.technologies || []).length > 0 && (
-        <div className="flex gap-1 mb-3 flex-wrap">
-          {(startup.technologies || []).slice(0, 3).map((t, i) => (
-            <span key={i} className="px-2 py-0.5 bg-yellow-50 text-yellow-700 text-[10px] rounded-full">{t}</span>
-          ))}
-          {(startup.technologies || []).length > 3 && (
-            <span className="px-2 py-0.5 text-gray-500 text-[10px]">+{startup.technologies.length - 3}</span>
-          )}
-        </div>
+      {/* Tagline */}
+      {(startup.tagline || startup.description) && (
+        <p className="text-[11px] text-gray-600 leading-snug mb-2 line-clamp-2">{startup.tagline || startup.description}</p>
       )}
 
-      <div className="grid grid-cols-3 gap-2 text-center mt-3 pt-3 border-t border-gray-100">
+      {/* Primary chips: sector + stage */}
+      <div className="flex gap-1 mb-2 flex-wrap">
+        {startup.sector && <span className="px-1.5 py-0.5 bg-primary-50 text-primary-700 border border-primary-100 text-[10px] rounded-full truncate max-w-[120px]">{startup.sector}</span>}
+        {startup.stage && <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${startup.stage?.includes('Series') ? 'bg-accent-100 text-accent-700' : 'bg-gray-100 text-gray-600'}`}>{startup.stage}</span>}
+        {startup.tech_readiness && <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded-full">TRL {startup.tech_readiness}</span>}
+      </div>
+
+      {/* Inline compact stats footer */}
+      <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-[10px] text-gray-500">
         {startup.founded_year && (
-          <div>
-            <div className="text-sm font-bold text-gray-800 flex items-center justify-center gap-1"><Calendar size={11} className="text-gray-400" /> {startup.founded_year}</div>
-            <div className="text-xs text-gray-400">Founded</div>
-          </div>
+          <span className="inline-flex items-center gap-0.5"><Calendar size={9} /> {startup.founded_year}</span>
         )}
         {startup.team_size && (
-          <div>
-            <div className="text-sm font-bold text-gray-800 flex items-center justify-center gap-1"><Users size={11} className="text-gray-400" /> {startup.team_size}</div>
-            <div className="text-xs text-gray-400">Team</div>
-          </div>
+          <span className="inline-flex items-center gap-0.5"><Users size={9} /> {startup.team_size}</span>
         )}
         {startup.funding_raised ? (
-          <div>
-            <div className="text-sm font-bold text-gray-800 flex items-center justify-center gap-1"><DollarSign size={11} className="text-gray-400" /> {formatFunding(startup.funding_raised)}</div>
-            <div className="text-xs text-gray-400">Raised</div>
-          </div>
+          <span className="inline-flex items-center gap-0.5 font-semibold text-accent-700"><DollarSign size={9} /> {formatFunding(startup.funding_raised)}</span>
         ) : startup.domain_name ? (
-          <div>
-            <div className="text-sm font-bold text-gray-800 flex items-center justify-center gap-1"><Globe size={11} className="text-gray-400" /> <span className="truncate text-xs">{startup.domain_name}</span></div>
-            <div className="text-xs text-gray-400">Domain</div>
-          </div>
+          <span className="inline-flex items-center gap-0.5 truncate"><Globe size={9} /> <span className="truncate max-w-[90px]">{startup.domain_name}</span></span>
         ) : null}
       </div>
     </div>
@@ -199,7 +182,7 @@ export default function StartupDiscovery() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
             {startups.map(startup => (
               <StartupCard
                 key={startup.id}
@@ -209,7 +192,7 @@ export default function StartupDiscovery() {
                 onClick={() => navigate(`/dashboard/startup-profile/${startup.user_id || startup.id}`)}
               />
             ))}
-            </div>
+          </div>
 
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
