@@ -8,52 +8,10 @@
  *  - onClear: () => void              — clear all
  *  - facets: { stage: { [name]: count }, sector: { [name]: count } }
  */
-import React, { useState } from 'react';
-import { Search, Filter, X, ChevronDown, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { Search, Filter } from 'lucide-react';
 
 const G = '#D5AA5B';
-
-function TechTree({ technologies, selected, onSelect }) {
-  const roots = technologies.filter(t => !t.parent_id);
-  const getChildren = (parentId) => technologies.filter(t => t.parent_id === parentId);
-  const [expanded, setExpanded] = useState({});
-
-  return (
-    <div>
-      {roots.map(root => {
-        const children = getChildren(root.id);
-        const isExp = expanded[root.id];
-        return (
-          <div key={root.id}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0', cursor: 'pointer' }}
-              onClick={() => { onSelect(root.name); if (children.length) setExpanded(p => ({ ...p, [root.id]: !p[root.id] })); }}>
-              {children.length > 0 && (isExp ? <ChevronDown size={12} style={{ color: '#888' }} /> : <ChevronRight size={12} style={{ color: '#888' }} />)}
-              <span style={{ fontSize: 12, fontWeight: selected === root.name ? 700 : 400, color: selected === root.name ? G : '#555' }}>{root.name}</span>
-            </div>
-            {isExp && children.map(child => {
-              const grandChildren = getChildren(child.id);
-              return (
-                <div key={child.id} style={{ paddingLeft: 20 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 0', cursor: 'pointer' }}
-                    onClick={() => { onSelect(child.name); if (grandChildren.length) setExpanded(p => ({ ...p, [child.id]: !p[child.id] })); }}>
-                    {grandChildren.length > 0 && (expanded[child.id] ? <ChevronDown size={10} /> : <ChevronRight size={10} />)}
-                    <span style={{ fontSize: 11, fontWeight: selected === child.name ? 700 : 400, color: selected === child.name ? G : '#666' }}>{child.name}</span>
-                  </div>
-                  {expanded[child.id] && grandChildren.map(gc => (
-                    <div key={gc.id} style={{ paddingLeft: 20, padding: '2px 0 2px 20px', cursor: 'pointer' }}
-                      onClick={() => onSelect(gc.name)}>
-                      <span style={{ fontSize: 11, fontWeight: selected === gc.name ? 700 : 400, color: selected === gc.name ? G : '#777' }}>{gc.name}</span>
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 const DEFAULT_STAGES = ['Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Late Stage'];
 
@@ -117,20 +75,40 @@ export default function TaxonomyFilterPanel({ taxonomy, filters, onChange, onCle
         </div>
       )}
 
-      {/* Technology tree */}
+      {/* Technology (dropdown with optgroups for hierarchy) */}
       {(taxonomy.technologies || []).length > 0 && (
         <div style={{ marginBottom: 14 }}>
-          <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>
-            Technology
-            {filters.technology && <button onClick={() => onChange('technology', '')} style={{ float: 'right', background: 'none', border: 'none', fontSize: 10, color: '#dc2626', cursor: 'pointer' }}>clear</button>}
-          </label>
-          <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #eee', borderRadius: 8, padding: 8, background: '#fafafa' }}>
-            <TechTree
-              technologies={taxonomy.technologies}
-              selected={filters.technology || ''}
-              onSelect={v => onChange('technology', filters.technology === v ? '' : v)}
-            />
-          </div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Technology</label>
+          <select
+            value={filters.technology || ''}
+            onChange={e => onChange('technology', e.target.value)}
+            style={{ width: '100%', padding: '7px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}
+          >
+            <option value="">All Technologies</option>
+            {taxonomy.technologies
+              .filter(t => !t.parent_id)
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(root => {
+                const children = taxonomy.technologies
+                  .filter(c => c.parent_id === root.id)
+                  .sort((a, b) => a.name.localeCompare(b.name));
+                // Root is always selectable. If it has children, wrap children in an optgroup under it.
+                return (
+                  <React.Fragment key={root.id}>
+                    <option value={root.name}>{root.name}</option>
+                    {children.length > 0 && (
+                      <optgroup label={'  └─ ' + root.name}>
+                        {children.map(child => (
+                          <option key={child.id} value={child.name}>
+                            &nbsp;&nbsp;{child.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+          </select>
         </div>
       )}
 
