@@ -618,6 +618,9 @@ export const crawlAPI = {
   getStartup:      (id)              => get(`/crawl/startups/${id}`),
   approveStartup:  (id)              => put(`/crawl/startups/${id}/approve`),
   rejectStartup:   (id, reason)      => put(`/crawl/startups/${id}/reject`, { reason }),
+  approveBatch:    (payload)         => post('/crawl/startups/batch/approve', payload),
+  rejectBatch:     (ids, reason)     => post('/crawl/startups/batch/reject', { ids, reason }),
+  runSchedule:     (id)              => post(`/crawl/schedules/${id}/run`),
   listJobs:        ()                => get('/crawl/jobs'),
   // Phase 23: Imported startups
   listImported:    (params = {})     => get(`/crawl/imported?${new URLSearchParams(params)}`),

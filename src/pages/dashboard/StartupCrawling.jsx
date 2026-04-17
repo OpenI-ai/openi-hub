@@ -75,6 +75,10 @@ export default function StartupCrawling() {
 
   // Discovered (crawled_startups)
   const [crawledStartups, setCrawledStartups] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [confidenceFilter, setConfidenceFilter] = useState(0);
+  const [statusFilter, setStatusFilter] = useState('pending_review');
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   // ── Fetch ─────────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
@@ -127,6 +131,7 @@ export default function StartupCrawling() {
 
   useEffect(() => { if (activeTab === 'enrichment') fetchEnrichment(); }, [activeTab, fetchEnrichment]);
   useEffect(() => { if (activeTab === 'imported') fetchImported(); }, [activeTab, fetchImported]);
+  useEffect(() => { if (activeTab === 'discovered') fetchJobs(); }, [activeTab, fetchJobs]);
 
   // ── Handlers ──────────────────────────────────────────────
   const handleBatchEnrich = async () => {
@@ -161,6 +166,68 @@ export default function StartupCrawling() {
       setSchedules(prev => prev.map(s => s.id === id ? updated : s));
       toast.success(updated.is_enabled ? 'Schedule enabled' : 'Schedule paused');
     } catch (err) { toast.error(err.message); }
+  };
+
+  const handleRunScheduleNow = async (id, name) => {
+    try {
+      await crawlAPI.runSchedule(id);
+      toast.success(`Triggered "${name}" — running in background`);
+      setTimeout(() => { fetchJobs(); fetchSchedules(); }, 5000);
+    } catch (err) { toast.error(err.message); }
+  };
+
+  // ── Bulk approve / reject on Discovered tab ────────────────
+  const toggleSelected = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllFiltered = (list) => {
+    setSelectedIds(new Set(list.map(s => s.id)));
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Approve ${selectedIds.size} selected startups? This will promote each to startup_profiles.`)) return;
+    setBulkBusy(true);
+    try {
+      const r = await crawlAPI.approveBatch({ ids: Array.from(selectedIds) });
+      toast.success(`Approved: ${r.promoted} promoted, ${r.skipped} already existed, ${r.errors} errors`);
+      clearSelection();
+      fetchJobs(); fetchStats();
+    } catch (err) { toast.error(err.message); }
+    finally { setBulkBusy(false); }
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Reject ${selectedIds.size} selected startups?`)) return;
+    setBulkBusy(true);
+    try {
+      const r = await crawlAPI.rejectBatch(Array.from(selectedIds), 'bulk rejection');
+      toast.success(`Rejected ${r.rejected} startups`);
+      clearSelection();
+      fetchJobs(); fetchStats();
+    } catch (err) { toast.error(err.message); }
+    finally { setBulkBusy(false); }
+  };
+
+  const handleAutoApprove = async () => {
+    const threshold = parseFloat(prompt('Auto-approve all pending startups with AI confidence ≥', '0.8'));
+    if (!threshold || threshold < 0 || threshold > 1) return;
+    if (!confirm(`Auto-approve ALL pending startups with confidence ≥ ${threshold}? This cannot be easily undone.`)) return;
+    setBulkBusy(true);
+    try {
+      const r = await crawlAPI.approveBatch({ auto_confidence_min: threshold });
+      toast.success(`Auto-approved: ${r.promoted} promoted, ${r.skipped} already existed, ${r.errors} errors (of ${r.total} candidates)`);
+      clearSelection();
+      fetchJobs(); fetchStats();
+    } catch (err) { toast.error(err.message); }
+    finally { setBulkBusy(false); }
   };
 
   // ── Tab config ────────────────────────────────────────────
@@ -423,44 +490,154 @@ export default function StartupCrawling() {
         )}
 
         {/* ═══ DISCOVERED TAB ═══ */}
-        {activeTab === 'discovered' && (
-          <div>
-            {crawledStartups.length === 0 ? (
-              <div className="text-center py-16 text-gray-400">
-                <Globe size={40} className="mx-auto mb-3 text-gray-200" />
-                <p className="font-semibold text-gray-500">No discovered startups yet</p>
-                <p className="text-sm mt-1">Startups found via RSS feeds and user requests will appear here</p>
+        {activeTab === 'discovered' && (() => {
+          const filtered = crawledStartups.filter(s =>
+            (statusFilter === 'all' || s.status === statusFilter) &&
+            (Number(s.ai_confidence || 0) >= confidenceFilter)
+          );
+          const allSelectedOnPage = filtered.length > 0 && filtered.every(s => selectedIds.has(s.id));
+          return (
+            <div>
+              {/* Filter bar */}
+              <div className="bg-white rounded-xl border border-gray-200 p-3 mb-3 flex items-center gap-3 flex-wrap">
+                <select
+                  value={statusFilter}
+                  onChange={e => { setStatusFilter(e.target.value); clearSelection(); }}
+                  className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg"
+                >
+                  <option value="pending_review">Pending review</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="all">All</option>
+                </select>
+                <label className="text-sm text-gray-600 flex items-center gap-2">
+                  Min confidence:
+                  <input
+                    type="range" min="0" max="1" step="0.05"
+                    value={confidenceFilter}
+                    onChange={e => setConfidenceFilter(parseFloat(e.target.value))}
+                    className="w-32"
+                  />
+                  <span className="font-mono text-xs w-8">{confidenceFilter.toFixed(2)}</span>
+                </label>
+                <span className="text-sm text-gray-500 ml-auto">{filtered.length} matching{statusFilter === 'pending_review' ? ' pending' : ''}</span>
+                <button
+                  onClick={handleAutoApprove}
+                  disabled={bulkBusy}
+                  className="px-3 py-1.5 bg-accent-50 text-accent-700 border border-accent-200 rounded-lg text-xs font-semibold disabled:opacity-50"
+                >
+                  <Zap size={12} className="inline mr-1" /> Auto-approve high confidence
+                </button>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {crawledStartups.map(s => (
-                  <div key={s.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-gray-800">{s.name}</span>
-                        <span className={`px-2 py-0.5 text-xs rounded-full ${s.status === 'approved' ? 'bg-accent-100 text-accent-700' : s.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{s.status}</span>
-                      </div>
-                      <p className="text-xs text-gray-500 line-clamp-1">{s.description || 'No description'}</p>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                        {s.sector && <span>{s.sector}</span>}
-                        {s.source && <span>via {s.source}</span>}
-                        {s.website && <a href={s.website} target="_blank" rel="noreferrer" className="text-primary-500"><ExternalLink size={10} /></a>}
-                      </div>
-                    </div>
-                    {s.status === 'pending_review' && (
-                      <div className="flex gap-2 flex-shrink-0">
-                        <button onClick={async () => { try { await crawlAPI.approveStartup(s.id); toast.success('Approved'); fetchJobs(); } catch(e) { toast.error(e.message); } }}
-                          className="px-3 py-1.5 bg-accent-50 text-accent-700 border border-accent-200 rounded-lg text-xs font-semibold">Approve</button>
-                        <button onClick={async () => { try { await crawlAPI.rejectStartup(s.id); toast.success('Rejected'); fetchJobs(); } catch(e) { toast.error(e.message); } }}
-                          className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold">Reject</button>
-                      </div>
-                    )}
+
+              {/* Selection bar (sticky) */}
+              {selectedIds.size > 0 && (
+                <div className="bg-primary-50 border border-primary-200 rounded-xl p-3 mb-3 flex items-center gap-3 sticky top-4 z-10 shadow-sm">
+                  <span className="text-sm font-semibold text-primary-800">{selectedIds.size} selected</span>
+                  <button onClick={clearSelection} className="text-xs text-gray-500 hover:text-gray-800 underline">Clear</button>
+                  <div className="ml-auto flex gap-2">
+                    <button
+                      onClick={handleBulkApprove}
+                      disabled={bulkBusy}
+                      className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs font-semibold hover:bg-accent-700 disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {bulkBusy ? <Loader2 size={12} className="animate-spin" /> : <ThumbsUp size={12} />}
+                      Approve {selectedIds.size}
+                    </button>
+                    <button
+                      onClick={handleBulkReject}
+                      disabled={bulkBusy}
+                      className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 disabled:opacity-50 flex items-center gap-1"
+                    >
+                      <ThumbsDown size={12} /> Reject {selectedIds.size}
+                    </button>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                </div>
+              )}
+
+              {filtered.length === 0 ? (
+                <div className="text-center py-16 text-gray-400">
+                  <Globe size={40} className="mx-auto mb-3 text-gray-200" />
+                  <p className="font-semibold text-gray-500">
+                    {crawledStartups.length === 0 ? 'No discovered startups yet' : 'No startups match your filters'}
+                  </p>
+                  <p className="text-sm mt-1">
+                    {crawledStartups.length === 0
+                      ? 'Startups found via RSS feeds and user requests will appear here'
+                      : 'Try lowering the confidence threshold or changing the status filter'}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Select-all row */}
+                  <label className="flex items-center gap-2 text-xs text-gray-500 mb-2 ml-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={allSelectedOnPage}
+                      onChange={() => allSelectedOnPage ? clearSelection() : selectAllFiltered(filtered)}
+                      className="rounded border-gray-300"
+                    />
+                    {allSelectedOnPage ? 'Deselect all' : `Select all ${filtered.length}`}
+                  </label>
+                  <div className="space-y-2">
+                    {filtered.map(s => {
+                      const isSelected = selectedIds.has(s.id);
+                      const conf = Number(s.ai_confidence || 0);
+                      return (
+                        <div
+                          key={s.id}
+                          onClick={() => s.status === 'pending_review' && toggleSelected(s.id)}
+                          className={`bg-white rounded-xl border p-4 flex items-start gap-3 transition-colors ${
+                            isSelected ? 'border-primary-400 bg-primary-50/30' : 'border-gray-200 hover:border-gray-300'
+                          } ${s.status === 'pending_review' ? 'cursor-pointer' : ''}`}
+                        >
+                          {s.status === 'pending_review' && (
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleSelected(s.id)}
+                              onClick={e => e.stopPropagation()}
+                              className="mt-1 rounded border-gray-300 flex-shrink-0"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-semibold text-gray-800">{s.name}</span>
+                              <span className={`px-2 py-0.5 text-xs rounded-full ${s.status === 'approved' ? 'bg-accent-100 text-accent-700' : s.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{s.status}</span>
+                              {conf > 0 && (
+                                <span className={`px-2 py-0.5 text-xs rounded-full font-mono ${conf >= 0.8 ? 'bg-accent-50 text-accent-700' : conf >= 0.5 ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                                  conf {conf.toFixed(2)}
+                                </span>
+                              )}
+                              {s.deeptech && <span className="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-700 font-semibold">DEEPTECH</span>}
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-2">{s.ai_description || s.description || 'No description'}</p>
+                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400 flex-wrap">
+                              {s.ai_sector && <span className="text-gray-600">{s.ai_sector}</span>}
+                              {s.ai_stage && <span>· {s.ai_stage}</span>}
+                              {s.funding_amount && <span className="text-accent-700 font-semibold">· {(Number(s.funding_amount) / 1e6).toFixed(1)}M {s.funding_currency}</span>}
+                              {s.country && <span>· {s.country}</span>}
+                              {s.source && <span>· via {s.source}</span>}
+                              {s.website && <a href={s.website} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-primary-500"><ExternalLink size={10} /></a>}
+                            </div>
+                          </div>
+                          {s.status === 'pending_review' && (
+                            <div className="flex gap-2 flex-shrink-0">
+                              <button onClick={async (e) => { e.stopPropagation(); try { await crawlAPI.approveStartup(s.id); toast.success('Approved'); fetchJobs(); } catch(err) { toast.error(err.message); } }}
+                                className="px-3 py-1.5 bg-accent-50 text-accent-700 border border-accent-200 rounded-lg text-xs font-semibold hover:bg-accent-100">Approve</button>
+                              <button onClick={async (e) => { e.stopPropagation(); try { await crawlAPI.rejectStartup(s.id); toast.success('Rejected'); fetchJobs(); } catch(err) { toast.error(err.message); } }}
+                                className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100">Reject</button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ═══ JOBS & SCHEDULES TAB ═══ */}
         {activeTab === 'jobs' && (
@@ -488,10 +665,19 @@ export default function StartupCrawling() {
                           {s.last_run_status && <span className={s.last_run_status === 'completed' ? 'text-accent-600' : 'text-red-500'}>{s.last_run_status}</span>}
                         </div>
                       </div>
-                      <button onClick={() => handleToggleSchedule(s.id)}
-                        className={`p-2 rounded-lg border transition-all ${s.is_enabled ? 'border-yellow-300 text-yellow-600 hover:bg-yellow-50' : 'border-accent-300 text-accent-600 hover:bg-accent-50'}`}>
-                        {s.is_enabled ? <Pause size={14} /> : <Play size={14} />}
-                      </button>
+                      <div className="flex gap-2">
+                        {s.is_enabled && (
+                          <button onClick={() => handleRunScheduleNow(s.id, s.name)}
+                            title="Run now (bypass cron)"
+                            className="p-2 rounded-lg border border-primary-300 text-primary-600 hover:bg-primary-50 transition-all">
+                            <RefreshCw size={14} />
+                          </button>
+                        )}
+                        <button onClick={() => handleToggleSchedule(s.id)}
+                          className={`p-2 rounded-lg border transition-all ${s.is_enabled ? 'border-yellow-300 text-yellow-600 hover:bg-yellow-50' : 'border-accent-300 text-accent-600 hover:bg-accent-50'}`}>
+                          {s.is_enabled ? <Pause size={14} /> : <Play size={14} />}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
