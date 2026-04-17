@@ -58,6 +58,8 @@ export default function StartupCrawling() {
   const [enrichSearch, setEnrichSearch] = useState('');
   const [enrichFilter, setEnrichFilter] = useState('all');
   const [batchRunning, setBatchRunning] = useState(false);
+  const [enrichSelectedIds, setEnrichSelectedIds] = useState(() => new Set());
+  const [enrichBulkBusy, setEnrichBulkBusy] = useState(false);
 
   // Imported
   const [importedData, setImportedData] = useState({ startups: [], total: 0, countries: [], sectors: [] });
@@ -158,6 +160,58 @@ export default function StartupCrawling() {
       toast.success('Enrichment rejected');
       fetchEnrichment(); fetchStats();
     } catch (err) { toast.error(err.message); }
+  };
+
+  // ── Bulk handlers for Enrichment Queue ───────────────────────
+  const toggleEnrichSelected = (id) => {
+    setEnrichSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const selectAllEnrichFiltered = (list) => setEnrichSelectedIds(new Set(list.map(i => i.id)));
+  const clearEnrichSelection = () => setEnrichSelectedIds(new Set());
+
+  const handleBulkApproveEnrich = async () => {
+    if (enrichSelectedIds.size === 0) return;
+    if (!confirm(`Apply enrichment to ${enrichSelectedIds.size} selected profile${enrichSelectedIds.size > 1 ? 's' : ''}? All available scraped fields will be applied to each.`)) return;
+    setEnrichBulkBusy(true);
+    try {
+      const r = await crawlAPI.approveEnrichmentBatch({ ids: Array.from(enrichSelectedIds) });
+      toast.success(`Applied: ${r.applied} applied, ${r.skipped} skipped, ${r.errors} errors`);
+      clearEnrichSelection();
+      fetchEnrichment(); fetchStats();
+    } catch (err) { toast.error(err.message); }
+    finally { setEnrichBulkBusy(false); }
+  };
+
+  const handleBulkRejectEnrich = async () => {
+    if (enrichSelectedIds.size === 0) return;
+    if (!confirm(`Reject ${enrichSelectedIds.size} selected enrichments?`)) return;
+    setEnrichBulkBusy(true);
+    try {
+      const r = await crawlAPI.rejectEnrichmentBatch(Array.from(enrichSelectedIds), 'bulk rejection');
+      toast.success(`Rejected ${r.rejected} enrichments`);
+      clearEnrichSelection();
+      fetchEnrichment(); fetchStats();
+    } catch (err) { toast.error(err.message); }
+    finally { setEnrichBulkBusy(false); }
+  };
+
+  const handleAutoApplyEnrich = async () => {
+    const input = prompt('Auto-apply all pending enrichments that have at least N scraped fields. Enter N (1-5):', '2');
+    const minFields = parseInt(input || '', 10);
+    if (!minFields || minFields < 1 || minFields > 5) return;
+    if (!confirm(`Auto-apply ALL pending enrichments with ≥ ${minFields} scraped fields? This cannot be easily undone.`)) return;
+    setEnrichBulkBusy(true);
+    try {
+      const r = await crawlAPI.approveEnrichmentBatch({ auto_min_fields: minFields });
+      toast.success(`Auto-applied: ${r.applied} applied, ${r.skipped} skipped, ${r.errors} errors (of ${r.total})`);
+      clearEnrichSelection();
+      fetchEnrichment(); fetchStats();
+    } catch (err) { toast.error(err.message); }
+    finally { setEnrichBulkBusy(false); }
   };
 
   const handleToggleSchedule = async (id) => {
@@ -281,15 +335,18 @@ export default function StartupCrawling() {
         </div>
 
         {/* ═══ ENRICHMENT TAB ═══ */}
-        {activeTab === 'enrichment' && (
+        {activeTab === 'enrichment' && (() => {
+          const pendingEnrichItems = enrichItems.filter(i => i.status === 'pending');
+          const allPendingSelected = pendingEnrichItems.length > 0 && pendingEnrichItems.every(i => enrichSelectedIds.has(i.id));
+          return (
           <div>
-            <div className="flex gap-3 mb-4">
-              <div className="relative flex-1">
+            <div className="flex gap-3 mb-4 flex-wrap">
+              <div className="relative flex-1 min-w-[200px]">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input value={enrichSearch} onChange={e => { setEnrichSearch(e.target.value); setEnrichPage(1); }}
+                <input value={enrichSearch} onChange={e => { setEnrichSearch(e.target.value); setEnrichPage(1); clearEnrichSelection(); }}
                   placeholder="Search by domain or company name..." className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-400" />
               </div>
-              <select value={enrichFilter} onChange={e => { setEnrichFilter(e.target.value); setEnrichPage(1); }}
+              <select value={enrichFilter} onChange={e => { setEnrichFilter(e.target.value); setEnrichPage(1); clearEnrichSelection(); }}
                 className="px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white">
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -297,7 +354,35 @@ export default function StartupCrawling() {
                 <option value="rejected">Rejected</option>
                 <option value="error">Error</option>
               </select>
+              <button onClick={handleAutoApplyEnrich}
+                disabled={enrichBulkBusy}
+                className="px-3 py-2.5 bg-accent-50 text-accent-700 border border-accent-200 rounded-xl text-sm font-semibold disabled:opacity-50 flex items-center gap-2">
+                <Zap size={13} /> Auto-apply good-quality
+              </button>
             </div>
+
+            {/* Selection bar */}
+            {enrichSelectedIds.size > 0 && (
+              <div className="bg-primary-50 border border-primary-200 rounded-xl p-3 mb-3 flex items-center gap-3 sticky top-4 z-10 shadow-sm">
+                <span className="text-sm font-semibold text-primary-800">{enrichSelectedIds.size} selected</span>
+                <button onClick={clearEnrichSelection} className="text-xs text-gray-500 hover:text-gray-800 underline">Clear</button>
+                <div className="ml-auto flex gap-2">
+                  <button
+                    onClick={handleBulkApproveEnrich}
+                    disabled={enrichBulkBusy}
+                    className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs font-semibold hover:bg-accent-700 disabled:opacity-50 flex items-center gap-1">
+                    {enrichBulkBusy ? <Loader2 size={12} className="animate-spin" /> : <ThumbsUp size={12} />}
+                    Apply {enrichSelectedIds.size}
+                  </button>
+                  <button
+                    onClick={handleBulkRejectEnrich}
+                    disabled={enrichBulkBusy}
+                    className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 disabled:opacity-50 flex items-center gap-1">
+                    <ThumbsDown size={12} /> Reject {enrichSelectedIds.size}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {enrichItems.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
@@ -307,9 +392,35 @@ export default function StartupCrawling() {
               </div>
             ) : (
               <div className="space-y-3">
-                {enrichItems.map(item => (
-                  <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4">
+                {pendingEnrichItems.length > 0 && (
+                  <label className="flex items-center gap-2 text-xs text-gray-500 ml-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={allPendingSelected}
+                      onChange={() => allPendingSelected ? clearEnrichSelection() : selectAllEnrichFiltered(pendingEnrichItems)}
+                      className="rounded border-gray-300"
+                    />
+                    {allPendingSelected ? 'Deselect all pending' : `Select all ${pendingEnrichItems.length} pending`}
+                  </label>
+                )}
+                {enrichItems.map(item => {
+                  const isSelected = enrichSelectedIds.has(item.id);
+                  return (
+                  <div key={item.id}
+                    onClick={() => item.status === 'pending' && toggleEnrichSelected(item.id)}
+                    className={`bg-white rounded-xl border p-4 transition-colors ${
+                      isSelected ? 'border-primary-400 bg-primary-50/30' : 'border-gray-200 hover:border-gray-300'
+                    } ${item.status === 'pending' ? 'cursor-pointer' : ''}`}>
                     <div className="flex items-start justify-between gap-3">
+                      {item.status === 'pending' && (
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleEnrichSelected(item.id)}
+                          onClick={e => e.stopPropagation()}
+                          className="mt-1 rounded border-gray-300 flex-shrink-0"
+                        />
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-gray-800 text-sm">{item.company_name || item.target_domain || 'Unknown'}</span>
@@ -358,11 +469,11 @@ export default function StartupCrawling() {
                       {/* Actions */}
                       {item.status === 'pending' && (
                         <div className="flex flex-col gap-2 flex-shrink-0">
-                          <button onClick={() => handleApproveEnrich(item.id)}
+                          <button onClick={(e) => { e.stopPropagation(); handleApproveEnrich(item.id); }}
                             className="flex items-center gap-1 px-3 py-1.5 bg-accent-50 text-accent-700 border border-accent-200 rounded-lg text-xs font-semibold hover:bg-accent-100">
                             <ThumbsUp size={12} /> Apply
                           </button>
-                          <button onClick={() => handleRejectEnrich(item.id)}
+                          <button onClick={(e) => { e.stopPropagation(); handleRejectEnrich(item.id); }}
                             className="flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100">
                             <ThumbsDown size={12} /> Reject
                           </button>
@@ -370,7 +481,8 @@ export default function StartupCrawling() {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -389,7 +501,8 @@ export default function StartupCrawling() {
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
 
         {/* ═══ IMPORTED TAB ═══ */}
         {activeTab === 'imported' && (
