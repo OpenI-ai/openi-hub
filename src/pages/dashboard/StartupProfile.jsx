@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
-import { startupAPI } from '../../services/api';
+import { startupAPI, profileViewAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   MapPin, Users, TrendingUp, Award, Shield, ChevronRight,
@@ -43,6 +43,10 @@ export default function StartupProfile() {
       .then(data => {
         const s = data.startup || data;
         setStartup(s);
+        // Record profile view (fire-and-forget, server dedups per day)
+        if (s?.user_id) {
+          profileViewAPI.recordView(s.user_id).catch(() => {});
+        }
       })
       .catch(err => {
         toast.error(err.message || 'Failed to load startup profile');

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { personaDashboardAPI, meetingAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
+import WhoViewedProfile from '../../components/WhoViewedProfile';
 import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
@@ -260,6 +261,11 @@ export default function PersonaDashboard() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Who viewed your profile — providers only (Phase 37) */}
+      <div style={{ marginBottom: 16 }}>
+        <WhoViewedProfile />
       </div>
 
       {/* Common mini-stats row */}
