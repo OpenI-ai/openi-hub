@@ -10,13 +10,21 @@ import {
 } from 'lucide-react';
 
 function formatFunding(val) {
-  if (!val) return '-';
+  if (!val) return null;
   const num = typeof val === 'string' ? parseFloat(val) : val;
-  if (isNaN(num)) return val;
+  if (!Number.isFinite(num) || num <= 0) return null;
   if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
   if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
   if (num >= 1e3) return `$${(num / 1e3).toFixed(0)}K`;
   return `$${num}`;
+}
+
+// Validate that team_size is a positive integer before showing
+function validTeamSize(val) {
+  if (val == null) return null;
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  if (!Number.isInteger(num) || num < 1) return null;
+  return num;
 }
 
 function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
@@ -47,10 +55,15 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
         </button>
       </div>
 
-      {/* Tagline */}
-      {(startup.tagline || startup.description) && (
-        <p className="text-[11px] text-gray-600 leading-snug mb-2 line-clamp-2">{startup.tagline || startup.description}</p>
-      )}
+      {/* Tagline (defensively filters numeric/date values from bad CSV data) */}
+      {(() => {
+        const raw = startup.tagline || startup.description;
+        if (!raw) return null;
+        const s = String(raw).trim();
+        // Skip pure numbers or ISO dates
+        if (/^[0-9]+(\.[0-9]+)?$/.test(s) || /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s)) return null;
+        return <p className="text-[11px] text-gray-600 leading-snug mb-2 line-clamp-2">{s}</p>;
+      })()}
 
       {/* Primary chips: sector + stage */}
       <div className="flex gap-1 mb-2 flex-wrap">
@@ -60,19 +73,28 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
       </div>
 
       {/* Inline compact stats footer */}
-      <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-[10px] text-gray-500">
-        {startup.founded_year && (
-          <span className="inline-flex items-center gap-0.5"><Calendar size={9} /> {startup.founded_year}</span>
-        )}
-        {startup.team_size && (
-          <span className="inline-flex items-center gap-0.5"><Users size={9} /> {startup.team_size}</span>
-        )}
-        {startup.funding_raised ? (
-          <span className="inline-flex items-center gap-0.5 font-semibold text-accent-700"><DollarSign size={9} /> {formatFunding(startup.funding_raised)}</span>
-        ) : startup.domain_name ? (
-          <span className="inline-flex items-center gap-0.5 truncate"><Globe size={9} /> <span className="truncate max-w-[90px]">{startup.domain_name}</span></span>
-        ) : null}
-      </div>
+      {(() => {
+        const fundingStr = formatFunding(startup.funding_raised);
+        const teamSize = validTeamSize(startup.team_size);
+        const foundedYear = Number.isInteger(Number(startup.founded_year)) && Number(startup.founded_year) >= 1900 ? startup.founded_year : null;
+        const hasAny = fundingStr || teamSize || foundedYear || startup.domain_name;
+        if (!hasAny) return null;
+        return (
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-[10px] text-gray-500">
+            {foundedYear && (
+              <span className="inline-flex items-center gap-0.5"><Calendar size={9} /> {foundedYear}</span>
+            )}
+            {teamSize && (
+              <span className="inline-flex items-center gap-0.5"><Users size={9} /> {teamSize}</span>
+            )}
+            {fundingStr ? (
+              <span className="inline-flex items-center gap-0.5 font-semibold text-accent-700"><DollarSign size={9} /> {fundingStr}</span>
+            ) : startup.domain_name ? (
+              <span className="inline-flex items-center gap-0.5 truncate"><Globe size={9} /> <span className="truncate max-w-[90px]">{startup.domain_name}</span></span>
+            ) : null}
+          </div>
+        );
+      })()}
     </div>
   );
 }
