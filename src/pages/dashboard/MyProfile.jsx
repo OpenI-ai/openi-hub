@@ -288,6 +288,8 @@ export default function MyProfile() {
   const [profileData, setProfileData] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // Auto-trigger auto-fill when arriving from registration: /dashboard/profile?autofill=1
+  const autoStart = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('autofill') === '1';
 
   useEffect(() => {
     loadProfile();
@@ -395,9 +397,9 @@ export default function MyProfile() {
         )}
       </div>
 
-      {/* Phase 38: Self-service auto-fill — startups only */}
-      {user?.role === 'startup' && (
-        <AutoFillMyProfile currentProfile={profileData} onApplied={loadProfile} />
+      {/* Phase 38: Self-service auto-fill — startups only. autoStart triggered after registration. */}
+      {user?.role === 'startup' && !loading && (
+        <AutoFillMyProfile currentProfile={profileData} onApplied={loadProfile} autoStart={autoStart} />
       )}
 
       {/* Profile form */}

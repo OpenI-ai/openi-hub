@@ -111,12 +111,13 @@ export default function RegisterStartup() {
       .then(() => {
         toast.success('Startup registered successfully');
         setSubmitted(true);
-        setTimeout(() => navigate('/dashboard/startups'), 2000);
+        // Send newcomers to their profile with ?autofill=1 so the auto-fill CTA auto-opens
+        setTimeout(() => navigate('/dashboard/profile?autofill=1'), 2000);
       })
       .catch(err => {
         toast.error(err.message || 'Registration failed, saved locally');
         setSubmitted(true);
-        setTimeout(() => navigate('/dashboard/startups'), 2000);
+        setTimeout(() => navigate('/dashboard/profile?autofill=1'), 2000);
       })
       .finally(() => setSubmitting(false));
   };

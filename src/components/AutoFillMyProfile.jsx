@@ -8,9 +8,10 @@
  *  - currentProfile: the user's current startup_profiles row (used for diff rendering)
  *  - onApplied: () => void — called after successful apply so parent can refetch
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Sparkles, RefreshCw, Check, X, ExternalLink, Loader2, Info } from 'lucide-react';
+import { Sparkles, RefreshCw, Check, X, ExternalLink, Loader2, Info, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { crawlAPI } from '../services/api';
 
 const G = '#D5AA5B';
@@ -83,13 +84,43 @@ function FieldPreview({ type, value }) {
   return <span style={{ fontSize: 12, color: '#374151', whiteSpace: 'pre-wrap' }}>{String(value)}</span>;
 }
 
-export default function AutoFillMyProfile({ currentProfile, onApplied }) {
+export default function AutoFillMyProfile({ currentProfile, onApplied, autoStart = false }) {
   const [busy, setBusy] = useState(false);
   const [enrichment, setEnrichment] = useState(null);
   const [polished, setPolished] = useState(null);
   const [selected, setSelected] = useState(() => new Set(FIELDS.map(f => f.key)));
   const [applying, setApplying] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [quota, setQuota] = useState(null);
+  const [autoTriggered, setAutoTriggered] = useState(false);
+
+  // Load quota on mount so the CTA can show "2 left this month"
+  useEffect(() => {
+    let alive = true;
+    crawlAPI.autoFillQuota()
+      .then(q => { if (alive) setQuota(q); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  // Auto-trigger from registration (?autofill=1). Runs once when quota loads
+  // and only if the user has a website URL and available quota.
+  useEffect(() => {
+    if (!autoStart || autoTriggered || busy || enrichment || !quota) return;
+    const hasWebsite = !!(currentProfile?.website || currentProfile?.domain_name);
+    const canRun = quota.unlimited || quota.remaining > 0;
+    if (hasWebsite && canRun) {
+      setAutoTriggered(true);
+      runAutoFill(false);
+      // Clean URL so a page refresh doesn't re-trigger
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('autofill');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart, quota, currentProfile, autoTriggered, busy, enrichment]);
 
   const runAutoFill = async (force = false) => {
     setBusy(true);
@@ -97,6 +128,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied }) {
       const r = await crawlAPI.autoFillMyProfile(force);
       setEnrichment(r.enrichment);
       setPolished(r.polished);
+      if (r.quota) setQuota(r.quota);
       // Default-select only fields that would actually add new info
       const next = new Set();
       FIELDS.forEach(f => {
@@ -108,6 +140,10 @@ export default function AutoFillMyProfile({ currentProfile, onApplied }) {
       if (r.fresh) toast.success('Found your public info!');
       else toast('Showing your recent scan', { icon: '🔄' });
     } catch (err) {
+      // If quota exceeded, refetch to reflect latest state (belt & braces)
+      if (/auto-fill|quota|growth plan/i.test(err?.message || '')) {
+        crawlAPI.autoFillQuota().then(q => setQuota(q)).catch(() => {});
+      }
       toast.error(err.message || 'Auto-fill failed');
     } finally {
       setBusy(false);
@@ -144,6 +180,52 @@ export default function AutoFillMyProfile({ currentProfile, onApplied }) {
   if (!enrichment) {
     const needsHelp = isEmpty(currentProfile?.description) || (currentProfile?.description?.length || 0) < 30;
     const hasWebsite = !!(currentProfile?.website || currentProfile?.domain_name);
+    const exhausted = quota && !quota.unlimited && quota.remaining === 0;
+    const quotaText = quota
+      ? (quota.unlimited
+          ? 'Unlimited auto-fills on your plan'
+          : `${quota.remaining} of ${quota.cap} auto-fill${quota.cap > 1 ? 's' : ''} left this month`)
+      : null;
+
+    // Exhausted → upgrade CTA
+    if (exhausted) {
+      return (
+        <div style={{
+          background: 'linear-gradient(135deg, #fff7e6 0%, #fffbeb 100%)',
+          border: '1px solid #fde68a', borderRadius: 14, padding: 16, marginBottom: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Lock size={18} style={{ color: '#d97706' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: '#78350f' }}>
+                You have used all {quota.cap} auto-fills this month
+              </h4>
+              <p style={{ fontSize: 12, color: '#92400e', margin: '3px 0 10px 0' }}>
+                Upgrade to the <strong>Growth plan (₹499/mo)</strong> for unlimited auto-fills plus profile views, watchlist alerts, and search ranking boost.
+              </p>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <Link to="/dashboard/settings" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '7px 14px', borderRadius: 8,
+                  background: '#d97706', color: 'white', fontWeight: 600, fontSize: 12,
+                  textDecoration: 'none',
+                }}>
+                  Upgrade plan
+                </Link>
+                <button
+                  onClick={() => setDismissed(true)}
+                  style={{ fontSize: 11, color: '#888', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div style={{
@@ -158,9 +240,16 @@ export default function AutoFillMyProfile({ currentProfile, onApplied }) {
             <Sparkles size={18} style={{ color: needsHelp ? '#d97706' : '#0284c7' }} />
           </div>
           <div style={{ flex: 1 }}>
-            <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: needsHelp ? '#78350f' : '#0c4a6e' }}>
-              {needsHelp ? 'Short on time? Let us fill in your profile' : 'Auto-fill from your website'}
-            </h4>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: needsHelp ? '#78350f' : '#0c4a6e' }}>
+                {needsHelp ? 'Short on time? Let us fill in your profile' : 'Auto-fill from your website'}
+              </h4>
+              {quotaText && (
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: 'white', color: '#666', border: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>
+                  {quotaText}
+                </span>
+              )}
+            </div>
             <p style={{ fontSize: 12, color: needsHelp ? '#92400e' : '#075985', margin: '3px 0 10px 0' }}>
               We'll scan your website and public sources, then let you review each field before it's saved.
               {!hasWebsite && <strong> Add your website URL first.</strong>}
@@ -196,6 +285,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied }) {
 
   // Diff/review UI
   const scrapedFields = FIELDS.filter(f => !isEmpty(getScrapedValue(enrichment, f.scrapedField)));
+  const canRescan = !quota || quota.unlimited || quota.remaining > 0;
 
   return (
     <div style={{ background: 'white', border: `1px solid ${G}40`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
@@ -203,17 +293,24 @@ export default function AutoFillMyProfile({ currentProfile, onApplied }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={16} style={{ color: G }} />
           <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>Review auto-fill results</h4>
+          {quota && !quota.unlimited && (
+            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fafafa', color: '#666', border: '1px solid #e5e7eb' }}>
+              {quota.remaining} of {quota.cap} left
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button
-            onClick={() => runAutoFill(true)}
-            disabled={busy}
-            title="Rescan"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 7, background: 'white', color: '#666', border: '1px solid #e5e7eb', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}
-          >
-            {busy ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
-            Rescan
-          </button>
+          {canRescan && (
+            <button
+              onClick={() => runAutoFill(true)}
+              disabled={busy}
+              title={quota && !quota.unlimited ? `Uses 1 of your ${quota.remaining} remaining auto-fills` : 'Rescan'}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 7, background: 'white', color: '#666', border: '1px solid #e5e7eb', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}
+            >
+              {busy ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
+              Rescan
+            </button>
+          )}
           <button
             onClick={() => { setEnrichment(null); setPolished(null); }}
             style={{ padding: '5px 10px', borderRadius: 7, background: 'white', color: '#666', border: '1px solid #e5e7eb', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}

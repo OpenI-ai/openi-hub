@@ -640,6 +640,7 @@ export const crawlAPI = {
   // Phase 38: Self-service auto-fill for startup owners
   autoFillMyProfile: (force = false)        => post('/enrich/my-profile', { force }),
   applyMyAutoFill:   (enrichmentId, fields) => post('/enrich/my-profile/apply', { enrichment_id: enrichmentId, fields }),
+  autoFillQuota:     ()                     => get('/enrich/my-profile/quota'),
 };
 
 // ── Admin Console (Phase 28) ────────────────────────────────
