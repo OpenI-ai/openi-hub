@@ -4,6 +4,7 @@ import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
 import { profileAPI, startupProfileAPI, publicAPI } from '../../services/api';
 import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
+import AutoFillMyProfile from '../../components/AutoFillMyProfile';
 import toast from 'react-hot-toast';
 
 const inputStyle = {
@@ -393,6 +394,11 @@ export default function MyProfile() {
           </p>
         )}
       </div>
+
+      {/* Phase 38: Self-service auto-fill — startups only */}
+      {user?.role === 'startup' && (
+        <AutoFillMyProfile currentProfile={profileData} onApplied={loadProfile} />
+      )}
 
       {/* Profile form */}
       <div className="rounded-xl p-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>

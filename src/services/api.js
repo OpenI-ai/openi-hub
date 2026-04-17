@@ -637,6 +637,9 @@ export const crawlAPI = {
   listSchedules:     ()               => get('/crawl/schedules'),
   createSchedule:    (data)           => post('/crawl/schedules', data),
   toggleSchedule:    (id)             => put(`/crawl/schedules/${id}/toggle`),
+  // Phase 38: Self-service auto-fill for startup owners
+  autoFillMyProfile: (force = false)        => post('/enrich/my-profile', { force }),
+  applyMyAutoFill:   (enrichmentId, fields) => post('/enrich/my-profile/apply', { enrichment_id: enrichmentId, fields }),
 };
 
 // ── Admin Console (Phase 28) ────────────────────────────────
