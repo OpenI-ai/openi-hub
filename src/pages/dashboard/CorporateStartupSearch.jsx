@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { corporateAPI, watchlistAPI } from '../../services/api';
+import { corporateAPI } from '../../services/api';
 import {
-  Search, Filter, Rocket, Star, Link2, MessageSquare,
-  X, Loader2, MapPin, Zap, TrendingUp, Cpu,
+  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
 
 const G = '#D5AA5B';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -48,9 +48,6 @@ export default function CorporateStartupSearch() {
 
   const setFilter = (key, val) => { setFilters(p => ({ ...p, [key]: val })); setPage(1); };
   const clearFilters = () => { setFilters({ sector: '', func: '', technology: '', usecase: '', stage: '', search: '' }); setPage(1); };
-  const hasFilters = Object.values(filters).some(v => v);
-
-  const stages = ['Ideation', 'Pre-seed', 'Seed', 'Series A', 'Series B', 'Growth'];
 
   const startCollab = async (startup) => {
     try {
@@ -60,124 +57,26 @@ export default function CorporateStartupSearch() {
   };
 
   return (
-    <div style={{ padding: 24, display: 'flex', gap: 20 }}>
-      {/* Left Filter Panel */}
-      <div style={{ width: 260, flexShrink: 0 }}>
-        <div style={{ ...card, padding: 16, position: 'sticky', top: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-              <Filter size={14} style={{ marginRight: 6, verticalAlign: -2 }} />Filters
-            </h3>
-            {hasFilters && <button onClick={clearFilters} style={{ fontSize: 11, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>Clear all</button>}
-          </div>
-
-          {/* Search */}
-          <div style={{ position: 'relative', marginBottom: 14 }}>
-            <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
-            <input type="text" value={filters.search} onChange={e => setFilter('search', e.target.value)}
-              placeholder="Search startups..."
-              style={{ width: '100%', padding: '8px 10px 8px 30px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb' }}
-              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
-          </div>
-
-          {/* Sector */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Sector</label>
-            <select value={filters.sector} onChange={e => setFilter('sector', e.target.value)}
-              style={{ width: '100%', padding: '7px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}>
-              <option value="">All Sectors</option>
-              {taxonomy.sectors.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-            </select>
-          </div>
-
-          {/* Function */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Function</label>
-            <select value={filters.func} onChange={e => setFilter('func', e.target.value)}
-              style={{ width: '100%', padding: '7px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}>
-              <option value="">All Functions</option>
-              {taxonomy.functions.map(f => <option key={f.id} value={f.name}>{f.name}</option>)}
-            </select>
-          </div>
-
-          {/* Technology (dropdown with optgroups for hierarchy) */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Technology</label>
-            <select
-              value={filters.technology || ''}
-              onChange={e => setFilter('technology', e.target.value)}
-              style={{ width: '100%', padding: '7px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}
-            >
-              <option value="">All Technologies</option>
-              {(taxonomy.technologies || [])
-                .filter(t => !t.parent_id)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map(root => {
-                  const children = (taxonomy.technologies || [])
-                    .filter(c => c.parent_id === root.id)
-                    .sort((a, b) => a.name.localeCompare(b.name));
-                  return (
-                    <React.Fragment key={root.id}>
-                      <option value={root.name}>{root.name}</option>
-                      {children.length > 0 && (
-                        <optgroup label={'  └─ ' + root.name}>
-                          {children.map(child => (
-                            <option key={child.id} value={child.name}>&nbsp;&nbsp;{child.name}</option>
-                          ))}
-                        </optgroup>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-            </select>
-          </div>
-
-          {/* Use Case */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Use Case</label>
-            <select value={filters.usecase} onChange={e => setFilter('usecase', e.target.value)}
-              style={{ width: '100%', padding: '7px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}>
-              <option value="">All Use Cases</option>
-              {taxonomy.usecases.map(u => <option key={u.id} value={u.name}>{u.name}</option>)}
-            </select>
-          </div>
-
-          {/* Stage */}
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Stage</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-              {stages.map(s => (
-                <button key={s} onClick={() => setFilter('stage', filters.stage === s ? '' : s)}
-                  style={{ padding: '4px 10px', fontSize: 11, borderRadius: 20, border: `1px solid ${filters.stage === s ? G : '#e5e7eb'}`,
-                    background: filters.stage === s ? G : '#fff', color: filters.stage === s ? '#fff' : '#666', cursor: 'pointer' }}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
+    <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Discover Startups</h2>
+          <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0 0' }}>{total.toLocaleString()} startups found</p>
         </div>
       </div>
 
-      {/* Results */}
-      <div style={{ flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-            Discover Startups
-          </h2>
-          <span style={{ fontSize: 12, color: '#888' }}>{total} startups found</span>
-        </div>
+      {/* Top horizontal filter bar */}
+      <TaxonomyFilterPanel
+        taxonomy={taxonomy}
+        filters={filters}
+        onChange={setFilter}
+        onClear={clearFilters}
+        facets={{}}
+        showDeeptech={false}
+      />
 
-        {/* Active filter chips */}
-        {hasFilters && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-            {Object.entries(filters).filter(([, v]) => v).map(([k, v]) => (
-              <span key={k} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', fontSize: 11, borderRadius: 20, background: `${G}12`, color: G, border: `1px solid ${G}30` }}>
-                {k}: {v} <X size={12} style={{ cursor: 'pointer' }} onClick={() => setFilter(k, '')} />
-              </span>
-            ))}
-          </div>
-        )}
-
+      <div>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 60 }}><Loader2 size={24} className="animate-spin" style={{ color: G }} /></div>
         ) : startups.length === 0 ? (
@@ -188,7 +87,7 @@ export default function CorporateStartupSearch() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
               {startups.map(s => (
                 <div key={s.id} style={{ ...card, padding: 16, cursor: 'pointer' }}
                   onClick={() => navigate(`/dashboard/startup-profile/${s.id}`)}

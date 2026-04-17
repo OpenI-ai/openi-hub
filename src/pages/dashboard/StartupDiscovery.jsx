@@ -6,7 +6,7 @@ import LoadingSkeleton from '../../components/LoadingSkeleton';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
 import {
   Search, Cpu, MapPin, Users, DollarSign, Bookmark, BookmarkCheck,
-  ChevronLeft, ChevronRight, Globe, Calendar, X,
+  ChevronLeft, ChevronRight, Globe, Calendar,
 } from 'lucide-react';
 
 function formatFunding(val) {
@@ -164,93 +164,74 @@ export default function StartupDiscovery() {
 
   const totalPages = Math.ceil(total / limit);
 
-  const activeFilterChips = Object.entries(filters)
-    .filter(([k, v]) => v && k !== 'search' && v !== false)
-    .map(([k, v]) => ({ key: k, value: typeof v === 'boolean' ? 'DeepTech' : v }));
-
   return (
-    <div className="p-6" style={{ display: 'flex', gap: 20, maxWidth: 1400, margin: '0 auto' }}>
-      {/* Left filter panel */}
-      <div style={{ width: 260, flexShrink: 0 }}>
-        <TaxonomyFilterPanel
-          taxonomy={taxonomy}
-          filters={filters}
-          onChange={setFilter}
-          onClear={clearFilters}
-          facets={facets}
-        />
+    <div className="p-6" style={{ maxWidth: 1600, margin: '0 auto' }}>
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-gray-900">Discover Startups</h1>
+          <p className="text-gray-500 text-sm mt-0.5">{total.toLocaleString()} startups · Search and filter the ecosystem</p>
+        </div>
+        {watchlist.length > 0 && (
+          <p className="text-sm text-primary-600">
+            <BookmarkCheck size={14} className="inline mr-1" />
+            {watchlist.length} in watchlist
+          </p>
+        )}
       </div>
 
-      {/* Results */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-display font-bold text-gray-900">Discover Startups</h1>
-            <p className="text-gray-500 text-sm mt-0.5">{total.toLocaleString()} startups · Search and filter the ecosystem</p>
-          </div>
-          {watchlist.length > 0 && (
-            <p className="text-sm text-primary-600">
-              <BookmarkCheck size={14} className="inline mr-1" />
-              {watchlist.length} in watchlist
-            </p>
-          )}
+      {/* Top horizontal filter bar */}
+      <TaxonomyFilterPanel
+        taxonomy={taxonomy}
+        filters={filters}
+        onChange={setFilter}
+        onClear={clearFilters}
+        facets={facets}
+      />
+
+      {loading ? (
+        <LoadingSkeleton type="card" />
+      ) : startups.length === 0 ? (
+        <div className="text-center py-16">
+          <Search size={40} className="mx-auto text-gray-200 mb-4" />
+          <h3 className="font-semibold text-gray-600">No startups match your filters</h3>
+          <p className="text-gray-400 text-sm mt-1">Try clearing filters or adjusting the search term</p>
         </div>
-
-        {activeFilterChips.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {activeFilterChips.map(({ key, value }) => (
-              <span key={key} className="inline-flex items-center gap-1 px-3 py-1 bg-primary-50 text-primary-700 text-xs rounded-full border border-primary-200">
-                {key}: {value} <button onClick={() => setFilter(key, key === 'deeptech' ? false : '')}><X size={12} /></button>
-              </span>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {startups.map(startup => (
+              <StartupCard
+                key={startup.id}
+                startup={startup}
+                watchlisted={watchlist.includes(startup.id)}
+                onWatchlist={toggleWatchlist}
+                onClick={() => navigate(`/dashboard/startup-profile/${startup.user_id || startup.id}`)}
+              />
             ))}
-            <button onClick={clearFilters} className="text-xs text-gray-500 hover:text-gray-700 underline">Clear all</button>
-          </div>
-        )}
-
-        {loading ? (
-          <LoadingSkeleton type="card" />
-        ) : startups.length === 0 ? (
-          <div className="text-center py-16">
-            <Search size={40} className="mx-auto text-gray-200 mb-4" />
-            <h3 className="font-semibold text-gray-600">No startups match your filters</h3>
-            <p className="text-gray-400 text-sm mt-1">Try clearing filters or adjusting the search term</p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {startups.map(startup => (
-                <StartupCard
-                  key={startup.id}
-                  startup={startup}
-                  watchlisted={watchlist.includes(startup.id)}
-                  onWatchlist={toggleWatchlist}
-                  onClick={() => navigate(`/dashboard/startup-profile/${startup.user_id || startup.id}`)}
-                />
-              ))}
             </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft size={15} /> Previous
-                </button>
-                <span className="text-sm text-gray-600 px-4">Page {page} of {totalPages}</span>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Next <ChevronRight size={15} />
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft size={15} /> Previous
+              </button>
+              <span className="text-sm text-gray-600 px-4">Page {page} of {totalPages}</span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Next <ChevronRight size={15} />
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
