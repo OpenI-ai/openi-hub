@@ -50,7 +50,7 @@ const ICON_MAP = {
 
 // roles: undefined = visible to all, array = only listed roles see it
 const NAV = [
-  { to: "/dashboard",                label: "Overview",         Icon: LayoutDashboard, end: true },
+  { to: "/dashboard",                label: "My Dashboard",     Icon: LayoutDashboard, end: true },
   // ── Admin Console (Phase 28) — top of nav for admin users ──
   { to: "/dashboard/admin/console",   label: "Admin Console",  Icon: Shield,          roles: ["admin"], badge: "NEW" },
   { to: "/dashboard/admin/users",     label: "User Mgmt",      Icon: Users,           roles: ["admin"] },

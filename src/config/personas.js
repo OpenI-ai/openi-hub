@@ -36,9 +36,11 @@ export const PERSONAS = {
 };
 
 // ── Navigation per Persona ─────────────────────────────────
-// Common nav items shared across all personas
+// Common nav items shared across all personas.
+// NOTE: Settings is rendered separately at the bottom of the sidebar in
+// DashboardLayout.jsx — do NOT include it here or it will show up twice.
 const COMMON_NAV = [
-  { to: '/dashboard',            label: 'Overview',    icon: 'LayoutDashboard', end: true },
+  { to: '/dashboard',            label: 'My Dashboard', icon: 'LayoutDashboard', end: true },
   { to: '/dashboard/profile',    label: 'My Profile',  icon: 'User' },
   { to: '/dashboard/directory',  label: 'Directory',   icon: 'Search' },
   { to: '/dashboard/network',   label: 'My Network',  icon: 'Users' },
@@ -50,7 +52,6 @@ const COMMON_NAV = [
   { to: '/dashboard/organization',  label: 'Organization',   icon: 'Building2' },
   { to: '/dashboard/features',     label: 'Features',       icon: 'Map' },
   { to: '/dashboard/whats-new',    label: "What's New",     icon: 'Sparkles' },
-  { to: '/dashboard/settings',      label: 'Settings',       icon: 'Settings' },
 ];
 
 export const PERSONA_NAV = {
@@ -96,7 +97,6 @@ export const PERSONA_NAV = {
     { to: '/dashboard/events',               label: 'Events',          icon: 'Calendar' },
     { to: '/dashboard/knowledge',            label: 'Knowledge',       icon: 'BookOpen' },
     { to: '/dashboard/documents',            label: 'Documents',       icon: 'FolderOpen' },
-    { to: '/dashboard/settings',             label: 'Settings',        icon: 'Settings' },
   ],
   government: [
     ...COMMON_NAV,
@@ -111,7 +111,7 @@ export const PERSONA_NAV = {
     { to: '/dashboard/govt-apis',            label: 'Govt. APIs',        icon: 'Link2' },
   ],
   investor: [
-    { to: '/dashboard',                    label: 'Overview',           icon: 'LayoutDashboard', end: true },
+    { to: '/dashboard',                    label: 'My Dashboard',       icon: 'LayoutDashboard', end: true },
     { to: '/dashboard/profile',            label: 'My Profile',         icon: 'User' },
     { to: '/dashboard/startups',           label: 'Find Startups',      icon: 'Rocket' },
     { to: '/dashboard/students',          label: 'Find Students',      icon: 'GraduationCap' },
@@ -132,7 +132,6 @@ export const PERSONA_NAV = {
     { to: '/dashboard/organization',       label: 'Organization',       icon: 'Building2' },
     { to: '/dashboard/features',           label: 'Features',           icon: 'Map' },
     { to: '/dashboard/whats-new',          label: "What's New",         icon: 'Sparkles' },
-    { to: '/dashboard/settings',           label: 'Settings',           icon: 'Settings' },
   ],
   mentor: [
     ...COMMON_NAV,
