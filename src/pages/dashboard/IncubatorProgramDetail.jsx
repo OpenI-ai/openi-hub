@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
 import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
+import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
   Users, Target, GraduationCap, Edit3, Clock, BarChart3
@@ -158,6 +159,11 @@ export default function IncubatorProgramDetail() {
           <Stat icon={Target} label="Total Seats" value={program.total_seats || '—'} color={G} />
           <Stat icon={Calendar} label="Duration" value={program.duration_months ? `${program.duration_months}mo` : '—'} color="#8b5cf6" />
         </div>
+      </div>
+
+      {/* Phase 40: Program team */}
+      <div style={{ marginBottom: 16 }}>
+        <CollaboratorsPanel entityType="incubator_program" entityId={program.id} title="Program Team" />
       </div>
 
       {/* Tabs */}

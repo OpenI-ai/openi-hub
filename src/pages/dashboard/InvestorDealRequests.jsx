@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { investorAPI, publicAPI } from '../../services/api';
+import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import {
   Plus, X, ChevronDown, ChevronRight, Eye, Users, Clock,
   CheckCircle, XCircle, ArrowRight, Briefcase, TrendingUp,
@@ -143,6 +144,11 @@ export default function InvestorDealRequests() {
 
           {selected.sectors?.length > 0 && <div className="mt-3 flex flex-wrap gap-1">{selected.sectors.map(s => <span key={s} className="px-2 py-0.5 bg-primary-50 text-primary-700 text-xs rounded-full">{s}</span>)}</div>}
           {selected.technologies?.length > 0 && <div className="mt-2 flex flex-wrap gap-1">{selected.technologies.map(t => <span key={t} className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">{t}</span>)}</div>}
+        </div>
+
+        {/* Phase 40: Collaboration team */}
+        <div className="mb-4">
+          <CollaboratorsPanel entityType="deal_request" entityId={selected.id} title="Deal Team" />
         </div>
 
         {/* Applications */}

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { acceleratorAPI } from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
+import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
   Users, Target, Rocket, Clock, Zap, MapPin, Globe, DollarSign, BarChart3
@@ -141,6 +142,11 @@ export default function AcceleratorBatchDetail() {
           <Stat icon={Calendar} label="Duration" value={batch.duration_weeks ? `${batch.duration_weeks}w` : '—'} color="#8b5cf6" />
           <Stat icon={MapPin} label="Location" value={batch.is_virtual ? 'Virtual' : (batch.location || '—')} color="#ec4899" />
         </div>
+      </div>
+
+      {/* Phase 40: Batch team */}
+      <div style={{ marginBottom: 16 }}>
+        <CollaboratorsPanel entityType="accelerator_batch" entityId={batch.id} title="Batch Team" />
       </div>
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 14, borderBottom: '1px solid #eee', flexWrap: 'wrap' }}>

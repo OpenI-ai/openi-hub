@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { corporateAPI } from '../../services/api';
+import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import {
   Target, Plus, ChevronLeft, Clock, CheckCircle, XCircle,
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
@@ -433,6 +434,11 @@ export default function CorporateChallenges() {
             </div>
           </div>
         )}
+
+        {/* Phase 40: Collaboration team */}
+        <div style={{ marginBottom: 16 }}>
+          <CollaboratorsPanel entityType="challenge" entityId={detail.id} title="Challenge Team" />
+        </div>
 
         {/* Applications */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>

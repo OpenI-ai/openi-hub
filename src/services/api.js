@@ -572,6 +572,18 @@ export const challengeAPI = {
   profileCheck:     ()            => get('/challenges/profile-check'),
 };
 
+// ── Generic Collaboration (Phase 40) ──────────────────────────
+// Works across challenge, deal_request, govt_program, etc.
+export const collabAPI = {
+  list:         (entityType, entityId)                     => get(`/collaborators/${entityType}/${entityId}`),
+  invite:       (entityType, entityId, payload)            => post(`/collaborators/${entityType}/${entityId}`, payload),
+  updateRole:   (entityType, entityId, collabId, role)     => put(`/collaborators/${entityType}/${entityId}/${collabId}`, { role }),
+  remove:       (entityType, entityId, collabId)           => del(`/collaborators/${entityType}/${entityId}/${collabId}`),
+  listReviews:  (entityType, entityId)                     => get(`/reviews/${entityType}/${entityId}`),
+  submitReview: (entityType, entityId, payload)            => post(`/reviews/${entityType}/${entityId}`, payload),
+  myCollaborations: ()                                     => get('/my/collaborations'),
+};
+
 // ── Persona Dashboard ─────────────────────────────────────────
 export const personaDashboardAPI = {
   dashboard: () => get('/persona/dashboard'),
