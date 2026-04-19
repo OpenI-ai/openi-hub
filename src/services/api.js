@@ -665,6 +665,17 @@ export const crawlAPI = {
   autoFillQuota:     ()                     => get('/enrich/my-profile/quota'),
 };
 
+// ── Directory Crawlers (Phase 51) ──────────────────────────
+// Admin-only: run directory-source crawlers (YC, Product Hunt, etc.),
+// view run history and per-source stats, bulk auto-approve rows.
+export const directoryCrawlAPI = {
+  stats:             ()                       => get('/directory-crawl/stats'),
+  listRuns:          (params = {})            => get(`/directory-crawl/runs?${new URLSearchParams(params)}`),
+  getRun:            (id)                     => get(`/directory-crawl/runs/${id}`),
+  runYC:             (params = {})            => post('/directory-crawl/run/yc', params),
+  autoApprove:       (source, limit = 500)    => post(`/directory-crawl/approve/${source}`, { limit }),
+};
+
 // ── Admin Console (Phase 28) ────────────────────────────────
 export const adminAPI = {
   // System
