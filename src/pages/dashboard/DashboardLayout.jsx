@@ -11,7 +11,7 @@ import {
   Star, Zap, Calendar, UserCheck, ThumbsUp, Link2,
   Search, User, CalendarCheck, TrendingUp, Landmark,
   FlaskConical, Home, Target, Link, Map, Sparkles, Briefcase, Clock,
-  BarChart3, Megaphone, CreditCard,
+  BarChart3, Megaphone, CreditCard, BadgeCheck,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS } from "../../config/personas";
 import SearchBar from "../../components/SearchBar";
@@ -44,7 +44,7 @@ const ICON_MAP = {
   FolderKanban, MessageSquare, GitBranch, FolderOpen, Star, Zap,
   Calendar, UserCheck, ThumbsUp, Link2, Search, User, CalendarCheck,
   TrendingUp, Landmark, FlaskConical, Home, Target, Link,
-  Map, Sparkles, Briefcase, Clock, BarChart3,
+  Map, Sparkles, Briefcase, Clock, BarChart3, BadgeCheck,
   Handshake: Link, // Handshake not in lucide-react 0.294 — alias to Link
 };
 

@@ -76,6 +76,9 @@ import AdminUsers           from './pages/dashboard/AdminUsers';
 import AdminChallenges      from './pages/dashboard/AdminChallenges';
 import AdminStartups        from './pages/dashboard/AdminStartups';
 import AdminLicenses        from './pages/dashboard/AdminLicenses';
+import AdminClaims          from './pages/dashboard/AdminClaims';
+import MyClaims             from './pages/dashboard/MyClaims';
+import ClaimVerify          from './pages/auth/ClaimVerify';
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
 import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
@@ -107,6 +110,7 @@ export default function App() {
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/reports"            element={<PublicReports />} />
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
+          <Route path="/claims/verify/:token"    element={<ClaimVerify />} />
           <Route path="/search"                  element={<GlobalSearch />} />
           <Route path="/dashboard/login" element={<Login />} />
 
@@ -189,6 +193,8 @@ export default function App() {
             <Route path="admin/challenges"   element={<AdminChallenges />} />
             <Route path="admin/startups"     element={<AdminStartups />} />
             <Route path="admin/licenses"     element={<AdminLicenses />} />
+            <Route path="admin/claims"       element={<AdminClaims />} />
+            <Route path="claims"              element={<MyClaims />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>

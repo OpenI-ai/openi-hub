@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Shield, Users, Megaphone, Building2, CreditCard, BarChart3, ScrollText,
-  Activity, Globe, Database, TrendingUp, AlertCircle
+  Activity, Globe, Database, TrendingUp, AlertCircle, BadgeCheck
 } from 'lucide-react';
 import { adminAPI, analyticsAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -45,6 +45,7 @@ export default function AdminConsole() {
     { to: '/dashboard/admin/challenges', label: 'Challenge Moderation', desc: 'Review, approve, feature, or block challenges.', icon: Megaphone, color: 'bg-orange-500' },
     { to: '/dashboard/admin/startups', label: 'Startup Data', desc: 'Manage startup profiles. Find and merge duplicates.', icon: Building2, color: 'bg-green-500' },
     { to: '/dashboard/admin/licenses', label: 'Licenses & Plans', desc: 'Override subscription plans. Reset usage quotas.', icon: CreditCard, color: 'bg-purple-500' },
+    { to: '/dashboard/admin/claims', label: 'Profile Claims', desc: 'Review founder claims on imported startup profiles.', icon: BadgeCheck, color: 'bg-amber-500' },
     { to: '/dashboard/admin/analytics', label: 'Analytics', desc: 'Platform metrics, funnel, feature adoption, AI telemetry.', icon: BarChart3, color: 'bg-primary-500' },
     { to: '/dashboard/crawling', label: 'Crawling & Imports', desc: 'Manage crawl sources, review imported startups.', icon: Globe, color: 'bg-indigo-500' },
   ];

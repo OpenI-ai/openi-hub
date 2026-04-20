@@ -59,6 +59,7 @@ export const PERSONA_NAV = {
     ...COMMON_NAV,
     { to: '/dashboard/marketplace',     label: 'Marketplace',    icon: 'Target' },
     { to: '/dashboard/startups',        label: 'Startups',       icon: 'Rocket' },
+    { to: '/dashboard/claims',          label: 'My Claims',      icon: 'BadgeCheck' },
     { to: '/dashboard/ipr',             label: 'IPR',            icon: 'Shield' },
     { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
     { to: '/dashboard/deeptech',        label: 'DeepTech Qual.', icon: 'Zap' },

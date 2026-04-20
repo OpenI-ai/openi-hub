@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
+import { claimAPI } from '../../services/api';
 import {
-  Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X,
+  Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
 
 const inputStyle = {
@@ -155,6 +156,10 @@ export default function Register() {
   const [profileData, setProfileData] = useState({});
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
+  // Phase 53: claim detection state
+  const [claimCandidates, setClaimCandidates] = useState([]);
+  const [claimSubmitting, setClaimSubmitting] = useState(false);
+  const [claimResult, setClaimResult] = useState(null);
 
   const updateField = (fieldName, value) => {
     setProfileData(prev => ({ ...prev, [fieldName]: value }));
@@ -168,11 +173,35 @@ export default function Register() {
     setLoading(true);
     try {
       await register(name.trim(), email.trim(), password, personaType, orgName || undefined);
+      // Phase 53: after startup registration, detect matching imported startups
+      if (personaType === 'startup') {
+        try {
+          const res = await claimAPI.detect();
+          if (Array.isArray(res?.candidates) && res.candidates.length > 0) {
+            setClaimCandidates(res.candidates);
+          }
+        } catch {
+          // Silent failure — not blocking the success screen
+        }
+      }
       setStep(3);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Phase 53: handle claim submission from modal
+  const submitClaim = async (candidate) => {
+    setClaimSubmitting(true);
+    try {
+      const res = await claimAPI.request({ target_startup_user_id: candidate.user_id });
+      setClaimResult({ success: true, ...res, company_name: candidate.company_name });
+    } catch (err) {
+      setClaimResult({ success: false, error: err.message });
+    } finally {
+      setClaimSubmitting(false);
     }
   };
 
@@ -310,25 +339,99 @@ export default function Register() {
             </div>
           )}
 
-          {/* Step 3: Success */}
+          {/* Step 3: Success + Phase 53 claim detection */}
           {step === 3 && (
-            <div className="text-center py-6">
-              <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: '#D5AA5B15' }}>
-                <Check size={32} style={{ color: '#D5AA5B' }} />
+            <div className="py-6">
+              {/* Phase 53 — Claim candidate modal */}
+              {claimCandidates.length > 0 && !claimResult && (
+                <div className="mb-4 p-4 rounded-xl border" style={{ background: '#FFF8E6', borderColor: '#D5AA5B40' }}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <Building2 size={20} style={{ color: '#D5AA5B' }} />
+                    <div>
+                      <h3 className="text-sm font-bold mb-1" style={{ color: '#1a1a1a' }}>Is this your company?</h3>
+                      <p className="text-xs" style={{ color: '#6b7280' }}>
+                        We found {claimCandidates.length} existing {claimCandidates.length === 1 ? 'listing' : 'listings'} matching your domain. Claim yours to take ownership.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {claimCandidates.slice(0, 3).map((c) => (
+                      <div key={c.user_id} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {c.logo_url && <img src={c.logo_url} alt="" className="w-8 h-8 rounded" onError={e => e.target.style.display = 'none'} />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate" style={{ color: '#1a1a1a' }}>{c.company_name}</p>
+                            <p className="text-xs truncate" style={{ color: '#9ca3af' }}>{c.website} · {c.sector || 'Unknown sector'}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => submitClaim(c)}
+                          disabled={claimSubmitting}
+                          className="ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
+                          style={{ background: '#D5AA5B', color: '#fff' }}>
+                          {claimSubmitting ? '...' : 'Claim'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setClaimCandidates([])}
+                    className="w-full text-xs text-center mt-3"
+                    style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Not my company — skip
+                  </button>
+                </div>
+              )}
+
+              {/* Phase 53 — Claim result feedback */}
+              {claimResult && (
+                <div className="mb-4 p-4 rounded-xl border" style={{
+                  background: claimResult.success ? '#ECFDF5' : '#FEF2F2',
+                  borderColor: claimResult.success ? '#10B98140' : '#EF444440',
+                }}>
+                  {claimResult.success ? (
+                    <>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Check size={18} style={{ color: '#10B981' }} />
+                        <h3 className="text-sm font-bold" style={{ color: '#065F46' }}>Claim submitted</h3>
+                      </div>
+                      <p className="text-xs" style={{ color: '#047857' }}>{claimResult.next_step}</p>
+                      {claimResult.verification_method === 'domain_auto' && (
+                        <p className="text-xs mt-2" style={{ color: '#047857' }}>
+                          Check <strong>{email}</strong> for a confirmation link (valid 48h).
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle size={18} style={{ color: '#EF4444' }} />
+                        <h3 className="text-sm font-bold" style={{ color: '#991B1B' }}>Claim failed</h3>
+                      </div>
+                      <p className="text-xs" style={{ color: '#B91C1C' }}>{claimResult.error}</p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: '#D5AA5B15' }}>
+                  <Check size={32} style={{ color: '#D5AA5B' }} />
+                </div>
+                <h2 className="text-lg font-bold mb-2" style={{ color: '#1a1a1a' }}>Welcome to OpenI Hub!</h2>
+                <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
+                  Your {persona.label.toLowerCase()} account has been created. Complete your profile to get discovered by the ecosystem.
+                </p>
+                <button onClick={() => navigate('/dashboard/profile')}
+                  className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
+                  style={{ background: '#D5AA5B', color: '#fff' }}>
+                  Complete My Profile
+                </button>
+                <button onClick={() => navigate('/dashboard')}
+                  className="w-full py-2 rounded-xl text-sm mt-2" style={{ color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  Go to Dashboard
+                </button>
               </div>
-              <h2 className="text-lg font-bold mb-2" style={{ color: '#1a1a1a' }}>Welcome to OpenI Hub!</h2>
-              <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
-                Your {persona.label.toLowerCase()} account has been created. Complete your profile to get discovered by the ecosystem.
-              </p>
-              <button onClick={() => navigate('/dashboard/profile')}
-                className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
-                style={{ background: '#D5AA5B', color: '#fff' }}>
-                Complete My Profile
-              </button>
-              <button onClick={() => navigate('/dashboard')}
-                className="w-full py-2 rounded-xl text-sm mt-2" style={{ color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer' }}>
-                Go to Dashboard
-              </button>
             </div>
           )}
         </div>

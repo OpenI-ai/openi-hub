@@ -676,6 +676,21 @@ export const directoryCrawlAPI = {
   autoApprove:       (source, limit = 500)    => post(`/directory-crawl/approve/${source}`, { limit }),
 };
 
+// ── Profile Claiming (Phase 53) ─────────────────────────────
+export const claimAPI = {
+  // User endpoints
+  detect:       ()                            => post('/claims/detect', {}),
+  request:      (data)                        => post('/claims/request', data),
+  mine:         ()                            => get('/claims/mine'),
+  verify:       (token)                       => get(`/claims/verify/${token}`),
+  // Admin endpoints
+  list:         (params = {})                 => get(`/claims?${new URLSearchParams(params)}`),
+  detail:       (id)                          => get(`/claims/${id}`),
+  approve:      (id, admin_note)              => put(`/claims/${id}/approve`, { admin_note }),
+  reject:       (id, admin_note)              => put(`/claims/${id}/reject`, { admin_note }),
+  rollback:     (id, admin_note)              => post(`/claims/${id}/rollback`, { admin_note }),
+};
+
 // ── Admin Console (Phase 28) ────────────────────────────────
 export const adminAPI = {
   // System
