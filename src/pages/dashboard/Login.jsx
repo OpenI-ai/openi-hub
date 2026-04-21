@@ -174,7 +174,7 @@ export default function Login() {
           ) : (
             <>
               <h2 className="font-semibold text-lg mb-2" style={{ color: '#1a1a1a' }}>Two-Factor Authentication</h2>
-              <p className="text-sm mb-6" style={{ color: '#6b7280' }}>Enter the 6-digit OTP sent to your registered device.</p>
+              <p className="text-sm mb-6" style={{ color: '#6b7280' }}>Enter the 6-digit code from your authenticator app.</p>
 
               {error && (
                 <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
@@ -198,7 +198,7 @@ export default function Login() {
                     onFocus={e => { e.target.style.borderColor = '#D5AA5B'; e.target.style.backgroundColor = '#ffffff'; }}
                     onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.backgroundColor = '#f9fafb'; }}
                   />
-                  <p className="text-xs mt-2 text-center" style={{ color: '#9ca3af' }}>Demo OTP: 123456</p>
+                  <p className="text-xs mt-2 text-center" style={{ color: '#9ca3af' }}>Open your authenticator app (Google Authenticator, 1Password, Authy) and enter the current code.</p>
                 </div>
 
                 <button

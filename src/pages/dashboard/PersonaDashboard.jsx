@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { personaDashboardAPI, meetingAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
 import WhoViewedProfile from '../../components/WhoViewedProfile';
+import MfaBanner from '../../components/MfaBanner';
 import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
@@ -237,6 +238,9 @@ export default function PersonaDashboard() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+      {/* Phase 54: MFA enrollment nudge (hidden for demo/admin + already-enrolled users) */}
+      <MfaBanner />
+
       {/* Welcome Card */}
       <div style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: `${persona.color || G}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -101,6 +101,15 @@ export const authAPI = {
   updateProfile:  (data)            => put('/auth/profile', data),
 };
 
+// ── MFA (Phase 54) ─────────────────────────────────────────
+export const mfaAPI = {
+  status:  ()                    => get('/auth/mfa/status'),
+  setup:   ()                    => post('/auth/mfa/setup'),
+  enable:  (code)                => post('/auth/mfa/enable',  { code }),
+  disable: (password, code)      => post('/auth/mfa/disable', { password, code }),
+  verify:  (mfa_token, code)     => post('/auth/mfa/verify',  { mfa_token, code }),
+};
+
 // ── Dashboard ───────────────────────────────────────────────
 export const dashboardAPI = {
   stats: () => get('/dashboard/stats'),
