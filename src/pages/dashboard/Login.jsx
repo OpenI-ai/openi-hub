@@ -84,7 +84,7 @@ export default function Login() {
           <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a', fontFamily: 'Lexend, Inter, sans-serif' }}>
             Open<span style={{ color: '#D5AA5B' }}>I</span> Hub
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Secure portal for startup ecosystem</p>
+          <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Secure platform for Open Innovation Ecosystem</p>
         </div>
 
         {/* Card */}
