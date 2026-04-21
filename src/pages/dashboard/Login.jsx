@@ -21,6 +21,11 @@ export default function Login() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
 
+  // Quick-login demo panel is gated by ?demo=1 in the URL. Prevents public exposure
+  // of admin@drdo.gov.in / Admin@123 etc. while keeping the convenience for testing.
+  const showDemoAccounts = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('demo') === '1';
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -76,7 +81,9 @@ export default function Login() {
           >
             <Shield size={26} style={{ color: '#ffffff' }} />
           </div>
-          <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a', fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>OpenI Hub</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a', fontFamily: 'Lexend, Inter, sans-serif' }}>
+            Open<span style={{ color: '#D5AA5B' }}>I</span> Hub
+          </h1>
           <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Secure portal for startup ecosystem</p>
         </div>
 
@@ -151,25 +158,28 @@ export default function Login() {
                 </button>
               </form>
 
-              {/* Demo accounts */}
-              <div className="mt-6 pt-5" style={{ borderTop: '1px solid #f3f4f6' }}>
-                <p className="text-xs text-center mb-3" style={{ color: '#9ca3af' }}>Quick login (click to fill credentials)</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {DEMO_ACCOUNTS.map(({ email: e, password: p, role }) => (
-                    <button
-                      key={e}
-                      onClick={() => { setEmail(e); setPassword(p); }}
-                      className="text-left px-3 py-2 rounded-lg transition-all"
-                      style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
-                      onMouseEnter={el => { el.currentTarget.style.borderColor = '#D5AA5B'; el.currentTarget.style.backgroundColor = '#fffbf0'; }}
-                      onMouseLeave={el => { el.currentTarget.style.borderColor = '#e5e7eb'; el.currentTarget.style.backgroundColor = '#f9fafb'; }}
-                    >
-                      <div className="text-xs font-medium" style={{ color: '#D5AA5B' }}>{role}</div>
-                      <div className="text-[10px] truncate" style={{ color: '#9ca3af' }}>{e}</div>
-                    </button>
-                  ))}
+              {/* Demo accounts — shown only when login URL includes ?demo=1. Hidden from
+                  public visitors to avoid exposing credentials (e.g. admin@drdo.gov.in). */}
+              {showDemoAccounts && (
+                <div className="mt-6 pt-5" style={{ borderTop: '1px solid #f3f4f6' }}>
+                  <p className="text-xs text-center mb-3" style={{ color: '#9ca3af' }}>Quick login (click to fill credentials)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DEMO_ACCOUNTS.map(({ email: e, password: p, role }) => (
+                      <button
+                        key={e}
+                        onClick={() => { setEmail(e); setPassword(p); }}
+                        className="text-left px-3 py-2 rounded-lg transition-all"
+                        style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+                        onMouseEnter={el => { el.currentTarget.style.borderColor = '#D5AA5B'; el.currentTarget.style.backgroundColor = '#fffbf0'; }}
+                        onMouseLeave={el => { el.currentTarget.style.borderColor = '#e5e7eb'; el.currentTarget.style.backgroundColor = '#f9fafb'; }}
+                      >
+                        <div className="text-xs font-medium" style={{ color: '#D5AA5B' }}>{role}</div>
+                        <div className="text-[10px] truncate" style={{ color: '#9ca3af' }}>{e}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           ) : (
             <>
@@ -228,7 +238,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-xs mt-6" style={{ color: '#9ca3af' }}>
-          &copy; 2024 OpenI Hub. All rights reserved.
+          &copy; {new Date().getFullYear()} OpenI Hub. All rights reserved.
         </p>
       </div>
     </div>
