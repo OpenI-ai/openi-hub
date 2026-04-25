@@ -265,6 +265,18 @@ export const profileAPI = {
   getPublic:      (userId)  => get(`/profile/${userId}`),
 };
 
+// ── Phase 7 (P7) — Profile Score AI ──────────────────────────
+// Layered on top of Phase 55 deterministic completeness score.
+// v1: startup persona only. On-demand, 30-day cache, 5/day rate limit.
+export const profileScoreAiAPI = {
+  // Trigger or return cached. Pass force=true to bypass cache (still rate-limited).
+  analyze:      (force = false) => post('/profile-score/analyze', { force }),
+  // Read cached only — never compute. Returns nulls if never analyzed.
+  getAnalysis:  ()              => get('/profile-score/analysis'),
+  // Admin: force-recompute for any user, bypasses cache + rate limit.
+  analyzeUser:  (userId)        => post(`/admin/profile-score/analyze/${userId}`, {}),
+};
+
 // ── Startup Profile Sections (child tables) ──────────────────
 export const startupProfileAPI = {
   // section = products | team | funding | clients | patents | competitors | news | acquisitions

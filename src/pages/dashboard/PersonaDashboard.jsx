@@ -5,6 +5,7 @@ import { personaDashboardAPI, meetingAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
 import WhoViewedProfile from '../../components/WhoViewedProfile';
 import MfaBanner from '../../components/MfaBanner';
+import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
 import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
@@ -271,6 +272,11 @@ export default function PersonaDashboard() {
       <div style={{ marginBottom: 16 }}>
         <WhoViewedProfile />
       </div>
+
+      {/* Phase 7 (P7) — AI Profile Insights (startup persona only in v1) */}
+      {role === 'startup' && (
+        <ProfileScoreAiCard completenessScore={data?.profile_score ?? null} />
+      )}
 
       {/* Common mini-stats row */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
