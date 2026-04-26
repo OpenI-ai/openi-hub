@@ -5,7 +5,7 @@ import { connectionAPI } from "../../services/api";
 import {
   LayoutDashboard, Rocket, ClipboardCheck, BookOpen,
   Shield, Settings, LogOut, Menu, X,
-  Bell, GraduationCap, ChevronRight, Database,
+  Bell, HelpCircle, GraduationCap, ChevronRight, Database,
   Users, Building2, Globe, FileText,
   FolderKanban, MessageSquare, GitBranch, FolderOpen,
   Star, Zap, Calendar, UserCheck, ThumbsUp, Link2,
@@ -177,6 +177,7 @@ export default function DashboardLayout() {
               key={to}
               to={to}
               end={end}
+              id={`tour-nav-${(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
               onClick={() => setSidebarOpen(false)}
               style={({ isActive }) => ({
                 display:"flex", alignItems:"center", gap:10,
@@ -314,6 +315,22 @@ export default function DashboardLayout() {
 
           {/* Right side */}
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            {/* P4 — Take a tour replay button */}
+            <button
+              id="tour-topbar-take-tour"
+              onClick={() => window.dispatchEvent(new CustomEvent('openi-replay-tour'))}
+              title="Take a tour"
+              style={{
+                padding:8, color: C.textMuted,
+                background: "transparent", border:"none", cursor:"pointer",
+                borderRadius:8, transition:"background 0.15s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = C.goldLight}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <HelpCircle size={16} />
+            </button>
+
             {/* Notification bell */}
             <div style={{ position:"relative" }}>
               <button

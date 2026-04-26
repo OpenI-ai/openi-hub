@@ -6,6 +6,7 @@ import { PERSONAS } from '../../config/personas';
 import WhoViewedProfile from '../../components/WhoViewedProfile';
 import MfaBanner from '../../components/MfaBanner';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
+import TourWrapper from '../../components/TourWrapper';
 import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
@@ -242,8 +243,11 @@ export default function PersonaDashboard() {
       {/* Phase 54: MFA enrollment nudge (hidden for demo/admin + already-enrolled users) */}
       <MfaBanner />
 
+      {/* P4 — UI walkthrough overlay */}
+      {user?.role && <TourWrapper role={user.role} />}
+
       {/* Welcome Card */}
-      <div style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: `${persona.color || G}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <PersonaIcon size={22} style={{ color: persona.color || G }} />
         </div>
@@ -274,7 +278,9 @@ export default function PersonaDashboard() {
       </div>
 
       {/* Phase 7 (P7) — AI Profile Insights (s24 P7b: enabled for all personas with scoring config) */}
-      <ProfileScoreAiCard completenessScore={data?.profile_score ?? null} />
+      <div id="tour-profile-score">
+        <ProfileScoreAiCard completenessScore={data?.profile_score ?? null} />
+      </div>
 
 
       {/* Common mini-stats row */}
@@ -296,7 +302,7 @@ export default function PersonaDashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 20 }}>
+      <div id="tour-stat-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 20 }}>
         {stats.map(s => (
           <div key={s.key} style={{ ...card, padding: 18, cursor: 'pointer' }} onClick={() => navigate(s.to)}
             onMouseEnter={e => e.currentTarget.style.borderColor = s.color}
@@ -315,7 +321,7 @@ export default function PersonaDashboard() {
       {/* Two column: Quick Actions + Upcoming Meetings */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         {/* Quick Actions */}
-        <div>
+        <div id="tour-quick-actions">
           <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Quick Actions</h2>
           <div style={{ display: 'grid', gap: 10 }}>
             {(config.quickActions || []).map(a => (

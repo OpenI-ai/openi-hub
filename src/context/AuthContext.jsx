@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { seedFromUser } from '../services/tourService';
 
 const AuthContext = createContext(null);
 
@@ -16,7 +17,9 @@ export function AuthProvider({ children }) {
       const storedToken = localStorage.getItem('openi_token');
       const storedUser  = localStorage.getItem('openi_user');
       if (storedToken && storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        seedFromUser(parsed);
       }
     } catch {
       localStorage.removeItem('openi_token');
@@ -50,6 +53,7 @@ export function AuthProvider({ children }) {
     setUser(userData);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
+    seedFromUser(userData);
     return true;
   };
 
@@ -67,6 +71,7 @@ export function AuthProvider({ children }) {
     setUser(userData);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
+    seedFromUser(userData);
     setMfaStep(false);
     setMfaToken(null);
     return true;
@@ -85,6 +90,7 @@ export function AuthProvider({ children }) {
     setUser(userData);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
+    seedFromUser(userData);
     return data;
   };
 

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { corporateAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
+import TourWrapper from '../../components/TourWrapper';
 import {
   Building2, FolderKanban, Target, Link2, Star, Users,
   Search, Plus, ArrowRight, Loader2, TrendingUp, Clock,
@@ -79,8 +80,11 @@ export default function CorporateDashboard() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+      {/* P4 — UI walkthrough overlay */}
+      <TourWrapper role="corporate" />
+
       {/* Welcome */}
-      <div style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: '#16a34a15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Building2 size={22} style={{ color: '#16a34a' }} />
         </div>
@@ -136,7 +140,7 @@ export default function CorporateDashboard() {
         </div>
 
         {/* Collaboration Pipeline */}
-        <div>
+        <div id="tour-corp-pipeline">
           <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Collaboration Pipeline</h2>
           <div style={{ ...card, padding: 18 }}>
             {pipeline.map(p => (
@@ -153,7 +157,7 @@ export default function CorporateDashboard() {
           </div>
 
           {/* Recent Applications */}
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, marginTop: 20 }}>Recent Applications</h2>
+          <h2 id="tour-corp-applications" style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, marginTop: 20 }}>Recent Applications</h2>
           <div style={{ ...card, padding: 0 }}>
             {(data?.recent_applications || []).length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center', color: '#999', fontSize: 13 }}>No applications yet</div>
@@ -241,7 +245,7 @@ export default function CorporateDashboard() {
 
       {/* Recommended Startups */}
       {recs.length > 0 && (
-        <div style={{ marginTop: 20 }}>
+        <div id="tour-corp-recommended" style={{ marginTop: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
               <TrendingUp size={15} style={{ verticalAlign: -3, marginRight: 6, color: G }} />Recommended Startups

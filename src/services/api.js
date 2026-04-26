@@ -611,6 +611,11 @@ export const personaDashboardAPI = {
   dashboard: () => get('/persona/dashboard'),
 };
 
+// ── P4 — UI Walkthroughs ──────────────────────────────────────
+export const tourAPI = {
+  markSeen: (role) => post(`/auth/tours/${role}/seen`, {}),
+};
+
 // ── Meetings ──────────────────────────────────────────────────
 export const meetingAPI = {
   list:        (params = {}) => get(`/meetings?${new URLSearchParams(params)}`),
