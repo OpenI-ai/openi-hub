@@ -273,10 +273,9 @@ export default function PersonaDashboard() {
         <WhoViewedProfile />
       </div>
 
-      {/* Phase 7 (P7) — AI Profile Insights (startup persona only in v1) */}
-      {role === 'startup' && (
-        <ProfileScoreAiCard completenessScore={data?.profile_score ?? null} />
-      )}
+      {/* Phase 7 (P7) — AI Profile Insights (s24 P7b: enabled for all personas with scoring config) */}
+      <ProfileScoreAiCard completenessScore={data?.profile_score ?? null} />
+
 
       {/* Common mini-stats row */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>

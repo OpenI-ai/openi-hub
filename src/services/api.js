@@ -267,7 +267,8 @@ export const profileAPI = {
 
 // ── Phase 7 (P7) — Profile Score AI ──────────────────────────
 // Layered on top of Phase 55 deterministic completeness score.
-// v1: startup persona only. On-demand, 30-day cache, 5/day rate limit.
+// s24 (P7b): all 11 personas supported. Manual=30d cache + 5/day rate limit.
+//            Auto-compute on save (P7c) is server-side, debounced 5min, 24h cache.
 export const profileScoreAiAPI = {
   // Trigger or return cached. Pass force=true to bypass cache (still rate-limited).
   analyze:      (force = false) => post('/profile-score/analyze', { force }),
@@ -737,4 +738,6 @@ export const adminAPI = {
   // Licenses
   listLicenses:       (params = {}) => get(`/admin/licenses?${new URLSearchParams(params)}`),
   resetUsage:         (id, feature) => put(`/admin/licenses/${id}/reset-usage`, { feature }),
+  // P7d (s24): Profile Score AI distribution (histogram + per-persona + outliers + intent)
+  profileScoreDistribution: ()       => get('/admin/profile-score/distribution'),
 };

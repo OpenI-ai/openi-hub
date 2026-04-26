@@ -4,14 +4,14 @@
  * Admin-only page.
  */
 import { useState, useEffect } from 'react';
-import { analyticsAPI } from '../../services/api';
+import { analyticsAPI, adminAPI } from '../../services/api';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import {
   Users, Target, TrendingUp, Building2, Loader2, BarChart3,
-  ArrowUpRight, UserPlus, Link2, Briefcase,
+  ArrowUpRight, UserPlus, Link2, Briefcase, Sparkles, AlertCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -46,6 +46,9 @@ export default function AdminAnalytics() {
   const [tsData, setTsData] = useState([]);
   const [tsMetric, setTsMetric] = useState('registrations');
   const [tsPeriod, setTsPeriod] = useState('30d');
+  // P7d (s24): profile AI score distribution. Loaded in same Promise.all but
+  // tolerant of missing endpoint (older backend deploys) — null = "skip panel".
+  const [aiDist, setAiDist] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -54,12 +57,14 @@ export default function AdminAnalytics() {
       analyticsAPI.personas(),
       analyticsAPI.featureAdoption(),
       analyticsAPI.timeseries({ metric: tsMetric, period: tsPeriod }),
-    ]).then(([ov, fn, ps, fa, ts]) => {
+      adminAPI.profileScoreDistribution().catch(() => null),  // tolerate 404 on older backends
+    ]).then(([ov, fn, ps, fa, ts, dist]) => {
       setOverview(ov);
       setFunnel(fn.funnel || []);
       setPersonas(ps.personas || []);
       setAdoption((fa.features || []).filter(f => f.users > 0).sort((a, b) => b.users - a.users));
       setTsData(ts.data || []);
+      setAiDist(dist);
     }).catch(err => toast.error(err.message)).finally(() => setLoading(false));
   }, []);
 
@@ -219,6 +224,181 @@ export default function AdminAnalytics() {
           </table>
         </div>
       </div>
+
+      {/* P7d (s24) — Profile AI Quality distribution */}
+      {aiDist && <ProfileAiPanel data={aiDist} />}
+    </div>
+  );
+}
+
+// ── P7d: Profile AI Quality panel ────────────────────────────
+// Shows histogram (10 buckets), per-persona stats, bottom-20 outliers, and
+// auto-vs-manual intent split for the last 30 days. Tolerant of empty data
+// (renders "no analyses yet" rather than crashing).
+function ProfileAiPanel({ data }) {
+  const summary = data.summary || {};
+  const hist = data.histogram || [];
+  const perPersona = data.per_persona || [];
+  const outliers = data.outliers || [];
+  const intent30d = data.intent_30d || [];
+
+  // Map width_bucket output (1..10) to label "0-10","10-20",… "90-100".
+  // Bucket 11 (=100 exactly) and bucket 0 (out-of-range) are merged into "90-100".
+  const histChart = Array.from({ length: 10 }, (_, i) => {
+    const lo = i * 10;
+    const hi = lo + 10;
+    const label = `${lo}-${hi}`;
+    let n = 0;
+    for (const row of hist) {
+      const b = parseInt(row.bucket);
+      if (b === i + 1 || (i === 9 && (b === 10 || b === 11))) n += parseInt(row.n) || 0;
+    }
+    return { range: label, count: n };
+  });
+
+  const totalAnalyzed = parseInt(summary.total_analyzed) || 0;
+
+  return (
+    <div style={{ ...card, marginTop: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+        <Sparkles size={16} style={{ color: G }} />
+        <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Profile AI Quality</h3>
+        <span style={{ fontSize: 11, color: '#888', marginLeft: 'auto' }}>
+          {totalAnalyzed} analyzed · mean {summary.overall_mean ?? '—'} · median {summary.overall_median ?? '—'}
+        </span>
+      </div>
+      <p style={{ fontSize: 11, color: '#888', marginTop: 0, marginBottom: 16 }}>
+        Phase 7 GPT quality scores across all personas. Helps spot low-quality cohorts and individual outliers for coaching nudges.
+      </p>
+
+      {totalAnalyzed === 0 ? (
+        <div style={{ textAlign: 'center', padding: 40, color: '#bbb', fontSize: 13 }}>
+          No AI analyses yet. Scores populate as users click "Re-analyze" or save profiles (auto-compute).
+        </div>
+      ) : (
+        <>
+          {/* Row 1: Histogram + Intent breakdown */}
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Score Distribution (0–100, 10 buckets)</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={histChart}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="range" tick={{ fontSize: 9 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={G} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Last 30d activity</div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #eee', color: '#999' }}>
+                    <th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: 600 }}>Trigger</th>
+                    <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Calls</th>
+                    <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Success</th>
+                    <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Latency</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {intent30d.length === 0 ? (
+                    <tr><td colSpan={4} style={{ padding: 12, textAlign: 'center', color: '#ccc' }}>No data</td></tr>
+                  ) : intent30d.map((r, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                      <td style={{ padding: '4px 6px', textTransform: 'capitalize', fontWeight: 600 }}>{r.intent}</td>
+                      <td style={{ padding: '4px 6px', textAlign: 'right' }}>{r.n}</td>
+                      <td style={{ padding: '4px 6px', textAlign: 'right', color: '#16a34a' }}>{r.success_n}</td>
+                      <td style={{ padding: '4px 6px', textAlign: 'right', color: '#888' }}>{r.avg_latency_ms ? `${Math.round(r.avg_latency_ms)}ms` : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Row 2: Per-persona stats */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Per-persona quality stats</div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                    <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>Persona</th>
+                    <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Total</th>
+                    <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Analyzed</th>
+                    <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Coverage</th>
+                    <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Mean</th>
+                    <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Median</th>
+                    <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Range</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {perPersona.map((p, i) => {
+                    const cov = p.total > 0 ? Math.round((p.analyzed / p.total) * 100) : 0;
+                    const meanColor = p.mean >= 70 ? '#16a34a' : p.mean >= 40 ? '#f59e0b' : p.mean != null ? '#ef4444' : '#bbb';
+                    return (
+                      <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                        <td style={{ padding: '6px 8px', fontWeight: 600, textTransform: 'capitalize' }}>{(p.persona_type || '—').replace(/_/g, ' ')}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.total}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.analyzed}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', color: cov >= 50 ? '#16a34a' : '#888' }}>{cov}%</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: meanColor }}>{p.mean ?? '—'}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.median ?? '—'}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>
+                          {p.min != null && p.max != null ? `${p.min}–${p.max}` : '—'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Row 3: Bottom outliers */}
+          {outliers.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <AlertCircle size={12} style={{ color: '#ef4444' }} />
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#555' }}>Bottom 20 outliers — coaching candidates</div>
+              </div>
+              <div style={{ overflowX: 'auto', maxHeight: 320, overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #eee', color: '#999', position: 'sticky', top: 0, background: '#fff' }}>
+                      <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>User</th>
+                      <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>Persona</th>
+                      <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>AI Score</th>
+                      <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Completeness</th>
+                      <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>Profile</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {outliers.map((o, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                        <td style={{ padding: '6px 8px' }}>
+                          <div style={{ fontWeight: 600 }}>{o.display_name || `User ${o.user_id}`}</div>
+                          <div style={{ fontSize: 10, color: '#999' }}>{o.email}</div>
+                        </td>
+                        <td style={{ padding: '6px 8px', textTransform: 'capitalize', color: '#666' }}>{(o.persona_type || '—').replace(/_/g, ' ')}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#ef4444' }}>{o.profile_score_ai}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>{o.profile_score ?? '—'}</td>
+                        <td style={{ padding: '6px 8px' }}>
+                          <a href={`/profile/${o.user_id}`} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: G, textDecoration: 'none', fontWeight: 600 }}>
+                            View →
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

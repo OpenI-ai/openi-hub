@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { corporateAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
+import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
 import {
   Building2, FolderKanban, Target, Link2, Star, Users,
   Search, Plus, ArrowRight, Loader2, TrendingUp, Clock,
@@ -90,6 +91,9 @@ export default function CorporateDashboard() {
           <p style={{ fontSize: 13, color: '#666', margin: 0 }}>Corporate Innovation Dashboard</p>
         </div>
       </div>
+
+      {/* Phase 7 (P7) — AI Profile Insights (s24 P7b: corporate persona) */}
+      <ProfileScoreAiCard />
 
       {/* Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14, marginBottom: 20 }}>
