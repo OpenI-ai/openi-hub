@@ -4,6 +4,7 @@ import { acceleratorAPI } from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
+import ReviewPanel from '../../components/ReviewPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
   Users, Target, Rocket, Clock, Zap, MapPin, Globe, DollarSign, BarChart3
@@ -147,6 +148,11 @@ export default function AcceleratorBatchDetail() {
       {/* Phase 40: Batch team */}
       <div style={{ marginBottom: 16 }}>
         <CollaboratorsPanel entityType="accelerator_batch" entityId={batch.id} title="Batch Team" />
+      </div>
+
+      {/* Phase 40 (P8): Reviews */}
+      <div style={{ marginBottom: 16 }}>
+        <ReviewPanel entityType="accelerator_batch" entityId={batch.id} title="Batch Reviews" />
       </div>
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 14, borderBottom: '1px solid #eee', flexWrap: 'wrap' }}>

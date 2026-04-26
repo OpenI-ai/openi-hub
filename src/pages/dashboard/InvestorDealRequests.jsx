@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { investorAPI, publicAPI } from '../../services/api';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
+import ReviewPanel from '../../components/ReviewPanel';
 import {
   Plus, X, ChevronDown, ChevronRight, Eye, Users, Clock,
   CheckCircle, XCircle, ArrowRight, Briefcase, TrendingUp,
@@ -149,6 +150,11 @@ export default function InvestorDealRequests() {
         {/* Phase 40: Collaboration team */}
         <div className="mb-4">
           <CollaboratorsPanel entityType="deal_request" entityId={selected.id} title="Deal Team" />
+        </div>
+
+        {/* Phase 40 (P8): Reviews */}
+        <div className="mb-4">
+          <ReviewPanel entityType="deal_request" entityId={selected.id} title="Deal Reviews" />
         </div>
 
         {/* Applications */}

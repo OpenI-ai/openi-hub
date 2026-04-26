@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
 import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
+import ReviewPanel from '../../components/ReviewPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
   Users, Target, GraduationCap, Edit3, Clock, BarChart3
@@ -164,6 +165,11 @@ export default function IncubatorProgramDetail() {
       {/* Phase 40: Program team */}
       <div style={{ marginBottom: 16 }}>
         <CollaboratorsPanel entityType="incubator_program" entityId={program.id} title="Program Team" />
+      </div>
+
+      {/* Phase 40 (P8): Reviews */}
+      <div style={{ marginBottom: 16 }}>
+        <ReviewPanel entityType="incubator_program" entityId={program.id} title="Program Reviews" />
       </div>
 
       {/* Tabs */}
