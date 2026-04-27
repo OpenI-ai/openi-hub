@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { crawlAPI, directoryCrawlAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import PipelineHealth from '../../components/PipelineHealth';
 
 function StatCard({ label, value, sub, icon: Icon, color }) {
   return (
@@ -238,7 +239,7 @@ function DirectoriesTab() {
 }
 
 export default function StartupCrawling() {
-  const [activeTab, setActiveTab] = useState('enrichment');
+  const [activeTab, setActiveTab] = useState('health');
   const [loading, setLoading] = useState(true);
 
   // Stats
@@ -480,6 +481,7 @@ export default function StartupCrawling() {
 
   // ── Tab config ────────────────────────────────────────────
   const tabs = [
+    { id: 'health', label: 'Pipeline Health', count: 0 },
     { id: 'enrichment', label: 'Enrichment Queue', count: enrichStats.pending || 0 },
     { id: 'imported', label: 'Imported Startups', count: stats.imported_total || 0 },
     { id: 'discovered', label: 'Discovered', count: crawledStartups.length },
@@ -946,6 +948,9 @@ export default function StartupCrawling() {
             </div>
           );
         })()}
+
+        {/* ═══ PIPELINE HEALTH TAB — PHASE 58 ═══ */}
+        {activeTab === 'health' && <PipelineHealth />}
 
         {/* ═══ DIRECTORIES TAB — PHASE 51 ═══ */}
         {activeTab === 'directories' && <DirectoriesTab />}

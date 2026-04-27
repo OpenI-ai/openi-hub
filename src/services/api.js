@@ -669,6 +669,8 @@ export const crawlAPI = {
   rejectBatch:     (ids, reason)     => post('/crawl/startups/batch/reject', { ids, reason }),
   runSchedule:     (id)              => post(`/crawl/schedules/${id}/run`),
   listJobs:        ()                => get('/crawl/jobs'),
+  // Phase 58: Unified pipeline health (worker + watchdog + retries + RSS auto-disable + pool)
+  pipelineHealth:  ()                => get('/pipeline/health'),
   // Phase 23: Imported startups
   listImported:    (params = {})     => get(`/crawl/imported?${new URLSearchParams(params)}`),
   // Phase 29: Enrichment
