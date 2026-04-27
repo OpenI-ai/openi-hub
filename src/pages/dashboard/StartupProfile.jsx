@@ -3,10 +3,11 @@ import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { startupAPI, profileViewAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
 import {
   MapPin, Users, TrendingUp, Award, Shield, ChevronRight,
   ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target,
-  DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase
+  DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles
 } from 'lucide-react';
 
 function TRLBadge({ trl }) {
@@ -116,6 +117,15 @@ export default function StartupProfile() {
                   <TRLBadge trl={trl} />
                   {startup.stage && <span className="px-2.5 py-1 bg-dark-800 text-dark-300 text-xs rounded-lg">{startup.stage}</span>}
                   {startup.business_model && <span className="px-2.5 py-1 bg-dark-800 text-primary-400 text-xs rounded-lg">{startup.business_model}</span>}
+                  {startup.import_metadata?.cluster_label && (
+                    <span
+                      title="Auto-assigned semantic cluster (s21 K=100)"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-dark-800 text-amber-300 text-xs rounded-lg border border-amber-500/20"
+                    >
+                      <Sparkles size={11} />
+                      <span className="font-mono">{startup.import_metadata.cluster_label}</span>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -368,6 +378,9 @@ export default function StartupProfile() {
             </div>
           </div>
         </div>
+
+        {/* Q3 (s21): Similar Startups via cluster-mate discovery */}
+        <SimilarStartupsPanel startupId={startup.user_id || startup.id} limit={8} />
       </div>
     </div>
   );

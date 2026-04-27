@@ -123,6 +123,8 @@ export const startupAPI = {
   update:         (id, data)    => put(`/startups/${id}`, data),
   delete:         (id)          => del(`/startups/${id}`),
   getEvaluations: (id)          => get(`/startups/${id}/evaluations`),
+  // Q3 (s27): cluster-mate discovery via s21 K=100 clusters
+  getSimilar:     (id, limit = 8) => get(`/startups/${id}/similar?limit=${limit}`),
 };
 
 // ── Evaluations ─────────────────────────────────────────────
