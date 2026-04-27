@@ -62,12 +62,13 @@ export default function StartupWatchlist() {
         const startups = sData.startups || sData || [];
         const normalizedStartups = startups.map(s => ({
           id: s.id,
-          name: s.name || '',
+          name: s.company_name || s.name || '',
+          logo_url: s.logo_url || null,
           sector: s.sector || '',
           score: s.score ? (s.score / 20) : null,
           stage: s.stage || s.pipeline_stage || 'Application',
           status: s.status || 'Pending',
-          deeptech: s.deeptech || false,
+          deeptech: s.is_deeptech || s.deeptech || false,
         }));
         setAllStartups(normalizedStartups);
       })
@@ -298,7 +299,21 @@ export default function StartupWatchlist() {
                   const ss = STATUS_STYLE[s.status] || STATUS_STYLE['Pending'];
                   return (
                     <div key={s.id} style={{ ...card, padding: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, border: '1.5px solid rgba(213,170,91,0.25)', flexShrink: 0 }}>{s.name[0]}</div>
+                      {s.logo_url ? (
+                        <img
+                          src={s.logo_url}
+                          alt=""
+                          style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'contain', background: '#fafafa', border: '1px solid #eee', flexShrink: 0 }}
+                          onError={(e) => {
+                            const fallback = document.createElement('div');
+                            fallback.textContent = (s.name || '?').charAt(0).toUpperCase();
+                            fallback.style.cssText = `width:40px;height:40px;border-radius:10px;background:rgba(213,170,91,0.12);color:${G};font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(213,170,91,0.25);flex-shrink:0;`;
+                            e.target.replaceWith(fallback);
+                          }}
+                        />
+                      ) : (
+                        <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, border: '1.5px solid rgba(213,170,91,0.25)', flexShrink: 0 }}>{(s.name || '?').charAt(0).toUpperCase()}</div>
+                      )}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' }}>
                           <span style={{ color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>{s.name}</span>
@@ -370,7 +385,21 @@ export default function StartupWatchlist() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {availableToAdd.map(s => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#fafafa', borderRadius: 9, border: '1px solid #eee' }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{s.name[0]}</div>
+                  {s.logo_url ? (
+                    <img
+                      src={s.logo_url}
+                      alt=""
+                      style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'contain', background: '#fff', border: '1px solid #eee', flexShrink: 0 }}
+                      onError={(e) => {
+                        const fallback = document.createElement('div');
+                        fallback.textContent = (s.name || '?').charAt(0).toUpperCase();
+                        fallback.style.cssText = `width:32px;height:32px;border-radius:8px;background:rgba(213,170,91,0.12);color:${G};font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;`;
+                        e.target.replaceWith(fallback);
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{(s.name || '?').charAt(0).toUpperCase()}</div>
+                  )}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{s.name}</div>
                     <div style={{ fontSize: 11, color: '#888' }}>{s.sector} · {s.stage}</div>

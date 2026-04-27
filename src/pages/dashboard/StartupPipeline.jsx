@@ -75,7 +75,8 @@ export default function StartupPipeline() {
         const rows = data.startups || data || [];
         const normalized = rows.map(s => ({
           id: s.id,
-          name: s.name || '',
+          name: s.company_name || s.name || '',
+          logo_url: s.logo_url || null,
           sector: s.sector || '',
           score: s.score ? (s.score / 20) : null, // convert 0-100 to 0-5 for display
           stage: PIPELINE_STAGE_MAP[s.pipeline_stage] || PIPELINE_STAGE_MAP[s.status] || 'application',
@@ -196,7 +197,21 @@ export default function StartupPipeline() {
                           onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                            <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{s.name[0]}</div>
+                            {s.logo_url ? (
+                              <img
+                                src={s.logo_url}
+                                alt=""
+                                style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'contain', background: '#fafafa', border: '1px solid #eee', flexShrink: 0 }}
+                                onError={(e) => {
+                                  const fallback = document.createElement('div');
+                                  fallback.textContent = (s.name || '?').charAt(0).toUpperCase();
+                                  fallback.style.cssText = `width:28px;height:28px;border-radius:7px;background:rgba(213,170,91,0.12);color:${G};font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(213,170,91,0.2);flex-shrink:0;`;
+                                  e.target.replaceWith(fallback);
+                                }}
+                              />
+                            ) : (
+                              <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{(s.name || '?').charAt(0).toUpperCase()}</div>
+                            )}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
                               <div style={{ fontSize: 10, color: '#888' }}>{s.sector}</div>
@@ -242,7 +257,21 @@ export default function StartupPipeline() {
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{s.name[0]}</div>
+                  {s.logo_url ? (
+                    <img
+                      src={s.logo_url}
+                      alt=""
+                      style={{ width: 36, height: 36, borderRadius: 9, objectFit: 'contain', background: '#fafafa', border: '1px solid #eee', flexShrink: 0 }}
+                      onError={(e) => {
+                        const fallback = document.createElement('div');
+                        fallback.textContent = (s.name || '?').charAt(0).toUpperCase();
+                        fallback.style.cssText = `width:36px;height:36px;border-radius:9px;background:rgba(213,170,91,0.12);color:${G};font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(213,170,91,0.2);flex-shrink:0;`;
+                        e.target.replaceWith(fallback);
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{(s.name || '?').charAt(0).toUpperCase()}</div>
+                  )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 600 }}>{s.name}</div>
                     <div style={{ color: '#888', fontSize: 11 }}>{s.sector} · {s.program}</div>

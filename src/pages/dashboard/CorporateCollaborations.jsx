@@ -308,9 +308,23 @@ export default function CorporateCollaborations() {
                       onMouseEnter={e => e.currentTarget.style.borderColor = stage.color}
                       onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                        <div style={{ width: 30, height: 30, borderRadius: 8, background: `${G}12`, color: G, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {(co.startup_name || co.title || '?')[0]}
-                        </div>
+                        {co.logo_url ? (
+                          <img
+                            src={co.logo_url}
+                            alt=""
+                            style={{ width: 30, height: 30, borderRadius: 8, objectFit: 'contain', background: '#fafafa', border: '1px solid #eee', flexShrink: 0 }}
+                            onError={(e) => {
+                              const fallback = document.createElement('div');
+                              fallback.textContent = (co.startup_name || co.title || '?').charAt(0).toUpperCase();
+                              fallback.style.cssText = `width:30px;height:30px;border-radius:8px;background:${G}12;color:${G};font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;`;
+                              e.target.replaceWith(fallback);
+                            }}
+                          />
+                        ) : (
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: `${G}12`, color: G, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {(co.startup_name || co.title || '?').charAt(0).toUpperCase()}
+                          </div>
+                        )}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{co.startup_name || 'Unknown Startup'}</div>
                           {co.title && <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{co.title}</div>}
