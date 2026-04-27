@@ -32,6 +32,17 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
+      // If backend short-circuited MFA (demo personas / mfa_bypass_login=true),
+      // login() set user + saved localStorage. mfaStep stays false → navigate now.
+      // If MFA is required, mfaStep flips true and we render the OTP form instead.
+      // Read user from localStorage (state may not be flushed yet) to decide route.
+      const stored = localStorage.getItem('openi_user');
+      const u = stored ? JSON.parse(stored) : null;
+      if (u) {
+        if (u.profile_completed === false) navigate('/dashboard/profile');
+        else navigate('/dashboard');
+      }
+      // else: MFA path — stay on this page, mfaStep is now true and the form switches.
     } catch (err) {
       setError(err.message);
     } finally {

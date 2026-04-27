@@ -95,6 +95,14 @@ function RootRoute() {
   return user ? <Navigate to="/dashboard" replace /> : <Landing />;
 }
 
+// ── Login route: redirect to dashboard if already authenticated ────
+// Defense in depth alongside Login.jsx's post-success navigate. Handles the
+// case where AuthContext state lifts before the imperative navigate runs.
+function LoginRoute() {
+  const { user } = useAuth();
+  return user ? <Navigate to="/dashboard" replace /> : <Login />;
+}
+
 // ── App ───────────────────────────────────────────────────────
 export default function App() {
   return (
@@ -112,7 +120,7 @@ export default function App() {
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
           <Route path="/claims/verify/:token"    element={<ClaimVerify />} />
           <Route path="/search"                  element={<GlobalSearch />} />
-          <Route path="/dashboard/login" element={<Login />} />
+          <Route path="/dashboard/login" element={<LoginRoute />} />
 
           {/* Protected dashboard shell */}
           <Route
