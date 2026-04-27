@@ -82,6 +82,8 @@ import ClaimVerify          from './pages/auth/ClaimVerify';
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
 import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
+import Clusters            from './pages/dashboard/Clusters';
+import ClusterDetail       from './pages/dashboard/ClusterDetail';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -203,6 +205,8 @@ export default function App() {
             <Route path="admin/licenses"     element={<AdminLicenses />} />
             <Route path="admin/claims"       element={<AdminClaims />} />
             <Route path="claims"              element={<MyClaims />} />
+            <Route path="clusters"            element={<Clusters />} />
+            <Route path="clusters/:id"        element={<ClusterDetail />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>
