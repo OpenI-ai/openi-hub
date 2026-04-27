@@ -126,21 +126,6 @@ export default function TourWrapper({ role, forceStart = false }) {
     return () => window.removeEventListener('openi-replay-tour', onReplay);
   }, [role]);
 
-  // Multi-page navigation handler.
-  const goToStep = useCallback((idx) => {
-    const step = steps[idx];
-    if (!step) return;
-    if (step.route && step.route !== location.pathname) {
-      navigate(step.route);
-      // brief pause for destination render before resuming
-      setRun(false);
-      setStepIndex(idx);
-      setTimeout(() => setRun(true), 450);
-    } else {
-      setStepIndex(idx);
-    }
-  }, [steps, location.pathname, navigate]);
-
   const onCallback = useCallback((data) => {
     const { status, action, index, type } = data;
 
@@ -152,24 +137,54 @@ export default function TourWrapper({ role, forceStart = false }) {
       return;
     }
 
-    // User advanced/back-stepped — handle multi-page navigation if needed.
-    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+    // STEP_AFTER fires after Joyride finishes a step. In `continuous` mode
+    // Joyride advances internally — we only intervene when:
+    //   (a) the next step has a `route` that differs from current pathname
+    //       (multi-page tours need an explicit navigate + remount), OR
+    //   (b) target_not_found, where we step over the missing anchor.
+    // For plain same-page advance, sync our local stepIndex passively so
+    // replay knows where to resume, but DON'T re-set Joyride's stepIndex
+    // (controlled + continuous is a v3 footgun — causes the tooltip to
+    // freeze on the first step).
+    if (type === EVENTS.STEP_AFTER) {
       const nextIdx = index + (action === ACTIONS.PREV ? -1 : 1);
-      if (nextIdx >= 0 && nextIdx < steps.length) {
-        goToStep(nextIdx);
-      } else {
-        // Off the end → finish
+      if (nextIdx < 0 || nextIdx >= steps.length) {
         setRun(false);
         setStepIndex(0);
         markTourSeen(role);
+        return;
       }
+      const nextStep = steps[nextIdx];
+      if (nextStep?.route && nextStep.route !== location.pathname) {
+        // Route change required — pause, navigate, remount with new index.
+        setRun(false);
+        setStepIndex(nextIdx);
+        navigate(nextStep.route);
+        setTimeout(() => setRun(true), 450);
+      } else {
+        // Same-page advance — just track index, let Joyride drive.
+        setStepIndex(nextIdx);
+      }
+      return;
     }
 
-    // Dev hint: warn if a target ID never resolved.
-    if (type === EVENTS.TARGET_NOT_FOUND && import.meta.env.DEV) {
-      console.warn(`[TourWrapper] target not found for step ${index}:`, steps[index]?.target);
+    // Target missing — skip past it.
+    if (type === EVENTS.TARGET_NOT_FOUND) {
+      if (import.meta.env.DEV) {
+        console.warn(`[TourWrapper] target not found for step ${index}:`, steps[index]?.target);
+      }
+      const nextIdx = index + 1;
+      if (nextIdx >= steps.length) {
+        setRun(false);
+        setStepIndex(0);
+        markTourSeen(role);
+      } else {
+        setRun(false);
+        setStepIndex(nextIdx);
+        setTimeout(() => setRun(true), 100);
+      }
     }
-  }, [role, steps, goToStep]);
+  }, [role, steps, location.pathname, navigate]);
 
   // No-op if no role, no def, no steps, or admin.
   if (!role || !tourDef || !steps.length) return null;
