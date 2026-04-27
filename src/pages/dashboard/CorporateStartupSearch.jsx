@@ -95,9 +95,24 @@ export default function CorporateStartupSearch() {
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                   {/* Header */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: `${G}12`, color: G, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${G}30`, flexShrink: 0 }}>
-                      {s.name?.[0]}
-                    </div>
+                    {s.logo_url ? (
+                      <img
+                        src={s.logo_url}
+                        alt=""
+                        style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'contain', background: '#fafafa', border: '1px solid #eee', flexShrink: 0 }}
+                        onError={(e) => {
+                          // Favicon 404 (e.g. mobikwik): swap in initial-letter avatar.
+                          const fallback = document.createElement('div');
+                          fallback.textContent = (s.name || '?').charAt(0).toUpperCase();
+                          fallback.style.cssText = `width:32px;height:32px;border-radius:8px;background:${G}12;color:${G};font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;border:1px solid ${G}30;flex-shrink:0;`;
+                          e.target.replaceWith(fallback);
+                        }}
+                      />
+                    ) : (
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${G}12`, color: G, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${G}30`, flexShrink: 0 }}>
+                        {(s.name || '?').charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
                       {(s.city || s.state) && <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><MapPin size={9} style={{ verticalAlign: -1 }} /> {s.city}{s.state ? `, ${s.state}` : ''}</div>}
