@@ -127,33 +127,35 @@ const startupSteps = [
   },
 ];
 
-// ── STUDENT — 10 steps ──────────────────────────────────────────────────
+// ── STUDENT — 11 steps ──────────────────────────────────────────────────
 const studentSteps = [
-  { target: '#tour-welcome',          title: 'Welcome, Student',         content: 'This tour shows you how to build a great academic profile and connect with startups, mentors and corporate challenges.', placement: 'bottom', disableBeacon: true },
-  { target: '#tour-stat-cards',       title: 'Your Activity',            content: 'Track your projects, certifications, applications and active mentorships at a glance.', placement: 'bottom' },
-  { target: '#tour-profile-score',    title: 'Build a Standout Profile', content: 'A complete profile with projects and skills gets noticed faster. Aim for 80+ on the completeness score.', placement: 'top' },
-  { target: '#tour-quick-actions',    title: 'Quick Actions',            content: 'Add a project, browse open challenges or find a mentor — all from this panel.', placement: 'top' },
-  { target: navTarget('my-portfolio'),title: 'Your Portfolio',           content: 'Add projects, certifications and achievements. This is what corporates see when they search.', placement: 'right' },
-  { target: navTarget('mentorships'), title: 'Mentorships',              content: 'Browse and request mentors who match your interests. Active mentorships appear here.', placement: 'right' },
-  { target: navTarget('marketplace'), title: 'Open Challenges',          content: 'Many corporates run challenges open to students. Filter by sector and apply individually or as a team.', placement: 'right' },
-  { target: navTarget('startups'),    title: 'Discover Startups',        content: 'Looking for an internship or thesis collaboration? Search startups by domain and reach out directly.', placement: 'right' },
-  { target: navTarget('watchlist'),   title: 'Save for Later',           content: 'Bookmark startups, mentors or challenges you want to revisit. Watchlist syncs across devices.', placement: 'right' },
-  { target: '#tour-topbar-take-tour', title: 'Replay anytime',           content: 'Click this icon to revisit the tour whenever you want.', placement: 'bottom' },
+  { target: '#tour-welcome',                       title: 'Welcome, Student',         content: 'This tour shows you how to build a great academic profile and connect with startups, mentors and corporate challenges.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-stat-cards',                    title: 'Your Activity',            content: 'Track your projects, certifications, applications and active mentorships at a glance.', placement: 'bottom' },
+  { target: '#tour-profile-score',                 title: 'Build a Standout Profile', content: 'A complete profile with projects and skills gets noticed faster. Aim for 80+ on the completeness score.', placement: 'top' },
+  { target: '#tour-quick-actions',                 title: 'Quick Actions',            content: 'Add a project, browse open challenges or find a mentor — all from this panel.', placement: 'top' },
+  { target: navTarget('my-portfolio'),             title: 'Your Portfolio',           content: 'Add projects, certifications and achievements. This is what corporates see when they search.', placement: 'right' },
+  { target: navTarget('mentorships'),              title: 'Mentorships',              content: 'Browse and request mentors who match your interests. Active mentorships appear here.', placement: 'right' },
+  { target: navTarget('marketplace'),              title: 'Open Challenges',          content: 'Many corporates run challenges open to students. Filter by sector and apply individually or as a team.', placement: 'right' },
+  { target: navTarget('startups'),                 title: 'Discover Startups',        content: 'Looking for an internship or thesis collaboration? Search startups by domain and reach out directly.', placement: 'right' },
+  { target: navTarget('recommended-for-you'),     title: 'Recommended for You',      content: 'Personalised startup recommendations based on your research areas and skills. The "+N cluster" badge means we lifted that startup up the list because it matches your topical cluster.', placement: 'right' },
+  { target: navTarget('watchlist'),                title: 'Save for Later',           content: 'Bookmark startups, mentors or challenges you want to revisit. Watchlist syncs across devices.', placement: 'right' },
+  { target: '#tour-topbar-take-tour',              title: 'Replay anytime',           content: 'Click this icon to revisit the tour whenever you want.', placement: 'bottom' },
 ];
 
-// ── ACADEMIA — 11 steps ─────────────────────────────────────────────────
+// ── ACADEMIA — 12 steps ─────────────────────────────────────────────────
 const academiaSteps = [
-  { target: '#tour-welcome',           title: 'Welcome, Academic',        content: 'OpenI Hub helps universities and research institutes connect with startups, file IPR, track grants and run programs.', placement: 'bottom', disableBeacon: true },
-  { target: '#tour-stat-cards',        title: 'Your Research Activity',   content: 'Active research projects, publications, grants, applications, lab bookings — all surfaced here.', placement: 'bottom' },
-  { target: '#tour-profile-score',     title: 'Institutional Profile',    content: 'Complete your institution profile so startups and funders can find you. Higher completeness = better discoverability.', placement: 'top' },
-  { target: '#tour-quick-actions',     title: 'Quick Actions',            content: 'Add research, publications, grants in one click.', placement: 'top' },
-  { target: navTarget('research'),     title: 'Research Projects',        content: 'Manage all your active and completed research projects with collaborators, funding and outputs.', placement: 'right' },
-  { target: navTarget('publications'), title: 'Publications',             content: 'Track your published papers with citation counts and DOI. Boosts your profile score.', placement: 'right' },
-  { target: navTarget('grants'),       title: 'Grants',                   content: 'Manage active grants — total value, duration, sponsor and milestones.', placement: 'right' },
-  { target: navTarget('ipr-database'), title: 'IPR Database',             content: 'Record patents, copyrights and trademarks owned by your institution.', placement: 'right' },
-  { target: navTarget('marketplace'),  title: 'Industry Challenges',      content: 'Corporates often partner with academia on RFPs. Browse open challenges and apply.', placement: 'right' },
-  { target: navTarget('startups'),     title: 'Find Startups',            content: 'Discover startups for collaboration, mentoring or industry-academic projects.', placement: 'right' },
-  { target: '#tour-topbar-take-tour',  title: 'Replay anytime',           content: 'You can replay this tour any time from the top bar.', placement: 'bottom' },
+  { target: '#tour-welcome',                       title: 'Welcome, Academic',        content: 'OpenI Hub helps universities and research institutes connect with startups, file IPR, track grants and run programs.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-stat-cards',                    title: 'Your Research Activity',   content: 'Active research projects, publications, grants, applications, lab bookings — all surfaced here.', placement: 'bottom' },
+  { target: '#tour-profile-score',                 title: 'Institutional Profile',    content: 'Complete your institution profile so startups and funders can find you. Higher completeness = better discoverability.', placement: 'top' },
+  { target: '#tour-quick-actions',                 title: 'Quick Actions',            content: 'Add research, publications, grants in one click.', placement: 'top' },
+  { target: navTarget('research'),                 title: 'Research Projects',        content: 'Manage all your active and completed research projects with collaborators, funding and outputs.', placement: 'right' },
+  { target: navTarget('publications'),             title: 'Publications',             content: 'Track your published papers with citation counts and DOI. Boosts your profile score.', placement: 'right' },
+  { target: navTarget('grants'),                   title: 'Grants',                   content: 'Manage active grants — total value, duration, sponsor and milestones.', placement: 'right' },
+  { target: navTarget('ipr-database'),             title: 'IPR Database',             content: 'Record patents, copyrights and trademarks owned by your institution.', placement: 'right' },
+  { target: navTarget('marketplace'),              title: 'Industry Challenges',      content: 'Corporates often partner with academia on RFPs. Browse open challenges and apply.', placement: 'right' },
+  { target: navTarget('startups'),                 title: 'Find Startups',            content: 'Discover startups for collaboration, mentoring or industry-academic projects.', placement: 'right' },
+  { target: navTarget('recommended-for-you'),     title: 'Recommended for You',      content: 'Personalised startup recommendations based on your research areas and offerings. We bridge your academic cluster to the closest startup clusters — the "+N cluster" badge shows how much that match lifted the row.', placement: 'right' },
+  { target: '#tour-topbar-take-tour',              title: 'Replay anytime',           content: 'You can replay this tour any time from the top bar.', placement: 'bottom' },
 ];
 
 // ── CORPORATE — 12 steps ────────────────────────────────────────────────
