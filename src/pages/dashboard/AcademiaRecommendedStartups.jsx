@@ -8,9 +8,9 @@
  * (handles rare/specialized vocabulary like "Hypersonics", "Defence Tech").
  */
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Sparkles, Cpu, MapPin, TrendingUp, Loader2 } from 'lucide-react';
+import { Sparkles, Cpu, MapPin, TrendingUp, Loader2, ArrowRight } from 'lucide-react';
 import { academiaEnhAPI } from '../../services/api';
 
 const G = '#D5AA5B';
@@ -60,9 +60,25 @@ export default function AcademiaRecommendedStartups() {
         </div>
       ) : startups.length === 0 ? (
         <div style={{ ...card, textAlign: 'center', padding: 40, cursor: 'auto' }}>
-          <p style={{ color: '#888', fontSize: 14, margin: 0 }}>
-            No recommendations yet. Add research areas and offerings (consulting, supervision, lab access, etc.) to your profile to get matched.
+          <Sparkles size={32} style={{ color: G, marginBottom: 12, opacity: 0.6 }} />
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>
+            No recommendations yet
+          </h3>
+          <p style={{ color: '#666', fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
+            Add <b>research areas</b> and <b>offerings</b> (consulting, supervision, lab access, etc.) to your profile.<br />
+            We'll match you with startups in adjacent technical clusters.
           </p>
+          <Link
+            to="/dashboard/profile"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: G, color: '#0D2137',
+              padding: '8px 16px', borderRadius: 8,
+              fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            Complete your profile <ArrowRight size={14} />
+          </Link>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
