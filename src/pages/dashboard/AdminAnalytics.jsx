@@ -52,6 +52,8 @@ export default function AdminAnalytics() {
   // s34 P1.3: Stage B cluster_boost telemetry (s30 backend endpoint).
   // Same tolerance pattern — null = older backend, skip panel.
   const [boostImpact, setBoostImpact] = useState(null);
+  // s38: click-through analytics (s36 backend endpoint). null = older backend.
+  const [clickImpact, setClickImpact] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -62,7 +64,8 @@ export default function AdminAnalytics() {
       analyticsAPI.timeseries({ metric: tsMetric, period: tsPeriod }),
       adminAPI.profileScoreDistribution().catch(() => null),  // tolerate 404 on older backends
       adminAPI.clusterBoostImpact(30).catch(() => null),      // s34: tolerate 404
-    ]).then(([ov, fn, ps, fa, ts, dist, boost]) => {
+      adminAPI.clusterClickImpact(30).catch(() => null),      // s38: tolerate 404
+    ]).then(([ov, fn, ps, fa, ts, dist, boost, click]) => {
       setOverview(ov);
       setFunnel(fn.funnel || []);
       setPersonas(ps.personas || []);
@@ -70,6 +73,7 @@ export default function AdminAnalytics() {
       setTsData(ts.data || []);
       setAiDist(dist);
       setBoostImpact(boost);
+      setClickImpact(click);
     }).catch(err => toast.error(err.message)).finally(() => setLoading(false));
   }, []);
 
@@ -235,6 +239,9 @@ export default function AdminAnalytics() {
 
       {/* s34 P1.3 — Stage B cluster_boost impact (s30 telemetry surfaced) */}
       {boostImpact && <BoostImpactPanel data={boostImpact} />}
+
+      {/* s38 — Click-through analytics (s36 telemetry surfaced) */}
+      {clickImpact && <ClickImpactPanel data={clickImpact} />}
     </div>
   );
 }
@@ -524,6 +531,166 @@ function Kpi({ label, value, color = '#1a1a1a', bold = false }) {
     <div style={{ background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 8, padding: '8px 10px' }}>
       <div style={{ fontSize: 9, color: '#888', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: bold ? 800 : 600, color, marginTop: 2 }}>{value}</div>
+    </div>
+  );
+}
+
+// ── s38: Click-through analytics panel ──────────────────────
+// Surfaces s36 telemetry: how often users click recommended startups
+// (CTR), broken down by persona, plus top-clicked startups + clusters,
+// plus a boosted-vs-unboosted CTR comparison (does cluster_boost convert?).
+// Backend endpoint: GET /admin/clusters/click-impact.
+function ClickImpactPanel({ data }) {
+  const perPersona = data.per_persona || [];
+  const topStartups = data.top_clicked_startups || [];
+  const topClusters = data.top_clicked_clusters || [];
+  const lift = data.lift_effect || {};
+  const windowDays = data.window_days || 30;
+
+  // Aggregate totals across all personas in the window.
+  const totalImpressions = perPersona.reduce((s, p) => s + (parseInt(p.n_impressions, 10) || 0), 0);
+  const totalClicks = perPersona.reduce((s, p) => s + (parseInt(p.n_clicks, 10) || 0), 0);
+  const totalUniqueClickers = perPersona.reduce((s, p) => s + (parseInt(p.unique_clickers, 10) || 0), 0);
+  const overallCtr = totalImpressions > 0
+    ? ((totalClicks * 100) / totalImpressions).toFixed(2)
+    : '0.00';
+
+  // Lift effect: did boost actually convert?
+  const boostedCtr = parseFloat(lift.boosted_ctr_pct);
+  const unboostedCtr = parseFloat(lift.unboosted_ctr_pct);
+  const liftDelta = (Number.isFinite(boostedCtr) && Number.isFinite(unboostedCtr))
+    ? (boostedCtr - unboostedCtr).toFixed(2)
+    : null;
+
+  return (
+    <div style={card}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: DARK }}>
+          Click-Through Analytics <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>· last {windowDays}d</span>
+        </h3>
+        <span style={{ fontSize: 10, color: '#aaa' }}>s36 telemetry</span>
+      </div>
+
+      {/* Headline KPIs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 16 }}>
+        <Kpi label="Impressions" value={totalImpressions.toLocaleString()} />
+        <Kpi label="Clicks" value={totalClicks.toLocaleString()} />
+        <Kpi label="Overall CTR" value={`${overallCtr}%`} color={parseFloat(overallCtr) >= 5 ? '#16a34a' : '#1a1a1a'} bold />
+        <Kpi label="Unique clickers" value={totalUniqueClickers} />
+        <Kpi
+          label="Boost lift Δ"
+          value={liftDelta != null ? `${liftDelta > 0 ? '+' : ''}${liftDelta}%` : '—'}
+          color={liftDelta != null && parseFloat(liftDelta) > 0 ? '#16a34a' : liftDelta != null && parseFloat(liftDelta) < 0 ? '#ef4444' : '#888'}
+          bold
+        />
+      </div>
+
+      {/* Boosted vs Unboosted CTR comparison */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+        <div style={{ background: '#fff7e6', border: '1px solid #ffe7b0', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ fontSize: 10, color: '#a06600', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Boosted impressions</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: DARK, marginTop: 4 }}>
+            {(parseInt(lift.boosted_impressions, 10) || 0).toLocaleString()} impressions →
+            {' '}{parseInt(lift.boosted_clicks, 10) || 0} clicks
+            {' '}<span style={{ color: '#a06600' }}>({lift.boosted_ctr_pct ?? '—'}%)</span>
+          </div>
+        </div>
+        <div style={{ background: '#f5f5f5', border: '1px solid #eee', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Unboosted impressions</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: DARK, marginTop: 4 }}>
+            {(parseInt(lift.unboosted_impressions, 10) || 0).toLocaleString()} impressions →
+            {' '}{parseInt(lift.unboosted_clicks, 10) || 0} clicks
+            {' '}<span style={{ color: '#666' }}>({lift.unboosted_ctr_pct ?? '—'}%)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+        {/* Per-persona table */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Per-persona</div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                  <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Persona</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Calls</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Impressions</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Clicks</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>CTR</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Boosted</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Users</th>
+                </tr>
+              </thead>
+              <tbody>
+                {perPersona.length === 0 ? (
+                  <tr><td colSpan={7} style={{ padding: 16, textAlign: 'center', color: '#ccc' }}>No data yet</td></tr>
+                ) : perPersona.map((p, i) => {
+                  const ctr = parseFloat(p.ctr_pct) || 0;
+                  const ctrColor = ctr >= 5 ? '#16a34a' : ctr >= 1 ? '#f59e0b' : ctr > 0 ? '#888' : '#ccc';
+                  return (
+                    <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                      <td style={{ padding: '6px 8px', fontWeight: 600, textTransform: 'capitalize' }}>{p.persona_role}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.n_calls}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>{p.n_impressions}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.n_clicks}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: ctrColor }}>{p.ctr_pct ?? '—'}%</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#a06600' }}>{p.n_boosted_clicks}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>{p.unique_clickers}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ fontSize: 10, color: '#aaa', marginTop: 8, lineHeight: 1.5 }}>
+            <b>CTR</b> = clicks ÷ impressions. <b>Boosted</b> = clicks where the row had cluster_boost &gt; 0. Higher boosted-CTR than baseline means cluster bridge is converting, not just decorating.
+          </div>
+        </div>
+
+        {/* Right column: top startups + clusters stacked */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Top clicked startups</div>
+          <div style={{ overflowY: 'auto', maxHeight: 200, marginBottom: 12 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+              <tbody>
+                {topStartups.length === 0 ? (
+                  <tr><td style={{ padding: 8, textAlign: 'center', color: '#ccc' }}>None</td></tr>
+                ) : topStartups.slice(0, 8).map((s, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                    <td style={{ padding: '4px 6px' }}>
+                      <div style={{ fontWeight: 600, color: DARK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                        {s.company_name || `#${s.user_id}`}
+                      </div>
+                    </td>
+                    <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 700, color: G }}>{s.n_clicks}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Top clicked clusters</div>
+          <div style={{ overflowY: 'auto', maxHeight: 200 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+              <tbody>
+                {topClusters.length === 0 ? (
+                  <tr><td style={{ padding: 8, textAlign: 'center', color: '#ccc' }}>None</td></tr>
+                ) : topClusters.slice(0, 8).map((c, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                    <td style={{ padding: '4px 6px' }}>
+                      <div style={{ fontWeight: 600, color: DARK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                        {c.cluster_label || `#${c.cluster_id}`}
+                      </div>
+                    </td>
+                    <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 700, color: G }}>{c.n_clicks}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
