@@ -753,4 +753,6 @@ export const adminAPI = {
   resetUsage:         (id, feature) => put(`/admin/licenses/${id}/reset-usage`, { feature }),
   // P7d (s24): Profile Score AI distribution (histogram + per-persona + outliers + intent)
   profileScoreDistribution: ()       => get('/admin/profile-score/distribution'),
+  // s30 P1.3: Stage B cluster_boost telemetry (summary + per_persona + top_anchor_clusters)
+  clusterBoostImpact:       (windowDays = 30) => get(`/admin/clusters/boost-impact?window_days=${windowDays}`),
 };

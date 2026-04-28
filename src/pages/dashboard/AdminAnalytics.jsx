@@ -49,6 +49,9 @@ export default function AdminAnalytics() {
   // P7d (s24): profile AI score distribution. Loaded in same Promise.all but
   // tolerant of missing endpoint (older backend deploys) — null = "skip panel".
   const [aiDist, setAiDist] = useState(null);
+  // s34 P1.3: Stage B cluster_boost telemetry (s30 backend endpoint).
+  // Same tolerance pattern — null = older backend, skip panel.
+  const [boostImpact, setBoostImpact] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -58,13 +61,15 @@ export default function AdminAnalytics() {
       analyticsAPI.featureAdoption(),
       analyticsAPI.timeseries({ metric: tsMetric, period: tsPeriod }),
       adminAPI.profileScoreDistribution().catch(() => null),  // tolerate 404 on older backends
-    ]).then(([ov, fn, ps, fa, ts, dist]) => {
+      adminAPI.clusterBoostImpact(30).catch(() => null),      // s34: tolerate 404
+    ]).then(([ov, fn, ps, fa, ts, dist, boost]) => {
       setOverview(ov);
       setFunnel(fn.funnel || []);
       setPersonas(ps.personas || []);
       setAdoption((fa.features || []).filter(f => f.users > 0).sort((a, b) => b.users - a.users));
       setTsData(ts.data || []);
       setAiDist(dist);
+      setBoostImpact(boost);
     }).catch(err => toast.error(err.message)).finally(() => setLoading(false));
   }, []);
 
@@ -227,6 +232,9 @@ export default function AdminAnalytics() {
 
       {/* P7d (s24) — Profile AI Quality distribution */}
       {aiDist && <ProfileAiPanel data={aiDist} />}
+
+      {/* s34 P1.3 — Stage B cluster_boost impact (s30 telemetry surfaced) */}
+      {boostImpact && <BoostImpactPanel data={boostImpact} />}
     </div>
   );
 }
@@ -399,6 +407,123 @@ function ProfileAiPanel({ data }) {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+// ── s34 P1.3: Stage B cluster_boost impact panel ─────────────
+// Surfaces the s30 telemetry: how often the cluster_boost actually changes
+// the top-10 ranking, broken down by persona, and which anchor clusters get
+// picked most often. Backend endpoint: GET /admin/clusters/boost-impact.
+function BoostImpactPanel({ data }) {
+  const summary = data.summary || {};
+  const perPersona = data.per_persona || [];
+  const topAnchors = data.top_anchor_clusters || [];
+  const windowDays = data.window_days || 30;
+
+  const pctLift = summary.total_calls > 0
+    ? Math.round((summary.calls_with_lift / summary.total_calls) * 100)
+    : 0;
+
+  return (
+    <div style={card}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: DARK }}>
+          Cluster Boost Impact <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>· last {windowDays}d</span>
+        </h3>
+        <span style={{ fontSize: 10, color: '#aaa' }}>Stage B telemetry</span>
+      </div>
+
+      {/* Headline KPIs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 16 }}>
+        <Kpi label="Total calls" value={summary.total_calls || 0} />
+        <Kpi label="Calls with lift" value={`${summary.calls_with_lift || 0} (${pctLift}%)`} color={pctLift >= 50 ? '#16a34a' : '#f59e0b'} />
+        <Kpi label="Avg # boosted/call" value={summary.avg_n_boosted ?? '—'} />
+        <Kpi label="Avg # lifted/call" value={summary.avg_n_lifted ?? '—'} />
+        <Kpi label="Max lift" value={summary.overall_max_lift ?? '—'} color={G} bold />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+        {/* Per-persona table */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Per-persona</div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                  <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Persona</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Calls</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>% w/ lift</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Avg boosted</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Avg lifted</th>
+                  <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Max lift</th>
+                </tr>
+              </thead>
+              <tbody>
+                {perPersona.length === 0 ? (
+                  <tr><td colSpan={6} style={{ padding: 16, textAlign: 'center', color: '#ccc' }}>No recommendation calls yet</td></tr>
+                ) : perPersona.map((p, i) => {
+                  const pct = parseFloat(p.pct_calls_with_lift) || 0;
+                  const liftColor = p.max_lift >= 50 ? '#16a34a' : p.max_lift >= 10 ? '#f59e0b' : p.max_lift > 0 ? '#888' : '#ccc';
+                  return (
+                    <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                      <td style={{ padding: '6px 8px', fontWeight: 600, textTransform: 'capitalize' }}>{p.persona_role}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.total_calls}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: pct >= 50 ? '#16a34a' : '#888' }}>{pct.toFixed(0)}%</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.avg_n_boosted ?? '—'}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.avg_n_lifted ?? '—'}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: liftColor }}>{p.max_lift ?? '—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ fontSize: 10, color: '#aaa', marginTop: 8, lineHeight: 1.5 }}>
+            <b>Lift</b> = ranks a startup gained because of cluster boost. High max_lift on sparse-overlap personas (investor, academia) shows the bridge is doing real work.
+          </div>
+        </div>
+
+        {/* Top anchor clusters */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Top anchor clusters</div>
+          <div style={{ overflowY: 'auto', maxHeight: 280 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                  <th style={{ textAlign: 'left',  padding: '4px 6px', fontWeight: 600 }}>Cluster</th>
+                  <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Picks</th>
+                  <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Members</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topAnchors.length === 0 ? (
+                  <tr><td colSpan={3} style={{ padding: 12, textAlign: 'center', color: '#ccc' }}>None</td></tr>
+                ) : topAnchors.map((c, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                    <td style={{ padding: '4px 6px' }}>
+                      <div style={{ fontWeight: 600, color: DARK }}>{c.cluster_label || `#${c.cluster_id}`}</div>
+                      <div style={{ fontSize: 9, color: '#aaa' }}>id {c.cluster_id}</div>
+                    </td>
+                    <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 700, color: G }}>{c.picks}</td>
+                    <td style={{ padding: '4px 6px', textAlign: 'right', color: '#888' }}>{c.member_count ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Tiny KPI tile used inside BoostImpactPanel
+function Kpi({ label, value, color = '#1a1a1a', bold = false }) {
+  return (
+    <div style={{ background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 8, padding: '8px 10px' }}>
+      <div style={{ fontSize: 9, color: '#888', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</div>
+      <div style={{ fontSize: 16, fontWeight: bold ? 800 : 600, color, marginTop: 2 }}>{value}</div>
     </div>
   );
 }
