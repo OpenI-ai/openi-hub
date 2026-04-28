@@ -84,6 +84,9 @@ import StudentMentorships  from './pages/dashboard/StudentMentorships';
 import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
 import Clusters            from './pages/dashboard/Clusters';
 import ClusterDetail       from './pages/dashboard/ClusterDetail';
+// s32 P1.4 — Discovery surfaces consuming cluster-bridge endpoints
+import StudentRecommendedStartups  from './pages/dashboard/StudentRecommendedStartups';
+import AcademiaRecommendedStartups from './pages/dashboard/AcademiaRecommendedStartups';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -191,9 +194,12 @@ export default function App() {
             <Route path="student/portfolio"      element={<StudentPortfolio />} />
             <Route path="student/certifications" element={<StudentPortfolio />} />
             <Route path="student/mentorships"    element={<StudentMentorships />} />
+            {/* s32 P1.4 — Discovery surface consuming cluster-bridge endpoint */}
+            <Route path="student/recommended-startups"  element={<StudentRecommendedStartups />} />
             <Route path="academia/research"      element={<AcademiaPortfolio />} />
             <Route path="academia/publications"  element={<AcademiaPortfolio />} />
             <Route path="academia/grants"        element={<AcademiaPortfolio />} />
+            <Route path="academia/recommended-startups" element={<AcademiaRecommendedStartups />} />
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />

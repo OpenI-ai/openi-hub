@@ -537,6 +537,8 @@ export const academiaEnhAPI = {
   createGrant:          (data)       => post('/academia-enh/grants', data),
   updateGrant:          (id, data)   => put(`/academia-enh/grants/${id}`, data),
   deleteGrant:          (id)         => del(`/academia-enh/grants/${id}`),
+  // s32 P1.4 Discovery surface — startups recommended via cluster bridge
+  recommendedStartups:  ()           => get('/academia/recommended-startups'),
 };
 
 // ── Student Enhancement (Phase 16F) ─────────────────────────
@@ -554,6 +556,8 @@ export const studentEnhAPI = {
   createMentorship:     (data)       => post('/student-enh/mentorships', data),
   updateMentorship:     (id, data)   => put(`/student-enh/mentorships/${id}`, data),
   deleteMentorship:     (id)         => del(`/student-enh/mentorships/${id}`),
+  // s32 P1.4 Discovery surface — startups recommended via cluster bridge
+  recommendedStartups:  ()           => get('/student/recommended-startups'),
 };
 
 // ── Onboarding (Phase 20) ───────────────────────────────────
