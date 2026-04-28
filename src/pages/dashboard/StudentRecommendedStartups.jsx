@@ -14,9 +14,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Sparkles, Cpu, MapPin, TrendingUp, ExternalLink, Loader2, ArrowRight } from 'lucide-react';
-import { studentEnhAPI } from '../../services/api';
+import { studentEnhAPI, recommendationsAPI } from '../../services/api';
 
 const G = '#D5AA5B';
+const SOURCE = 'student_recommended_startups';
 const card = {
   background: '#fff',
   border: '1px solid #eee',
@@ -44,6 +45,19 @@ export default function StudentRecommendedStartups() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCardClick = (s) => {
+    // s36: fire-and-forget click telemetry. Don't block navigation.
+    recommendationsAPI.trackClick({
+      persona_role: 'student',
+      target_startup_id: s.user_id,
+      cluster_boost: parseInt(s.cluster_boost, 10) || 0,
+      boost_lift: parseInt(s.boost_lift, 10) || 0,
+      match_score: parseInt(s.match_score, 10) || 0,
+      source_surface: SOURCE,
+    }).catch(() => {});
+    navigate(`/dashboard/startup/${s.user_id}`);
   };
 
   return (
@@ -94,7 +108,7 @@ export default function StudentRecommendedStartups() {
               <div
                 key={`${s.user_id}-${i}`}
                 style={card}
-                onClick={() => navigate(`/dashboard/startup/${s.user_id}`)}
+                onClick={() => handleCardClick(s)}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = G; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#eee'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; }}
               >

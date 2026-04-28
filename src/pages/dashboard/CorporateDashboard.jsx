@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { corporateAPI } from '../../services/api';
+import { corporateAPI, recommendationsAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
 import TourWrapper from '../../components/TourWrapper';
@@ -266,7 +266,18 @@ export default function CorporateDashboard() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
             {recs.slice(0, 6).map(r => (
               <div key={r.user_id} style={{ ...card, padding: 14, cursor: 'pointer' }}
-                onClick={() => navigate('/dashboard/directory')}
+                onClick={() => {
+                  // s36: fire-and-forget click telemetry. Don't block navigation.
+                  recommendationsAPI.trackClick({
+                    persona_role: 'corporate',
+                    target_startup_id: r.user_id,
+                    cluster_boost: parseInt(r.cluster_boost, 10) || 0,
+                    boost_lift: parseInt(r.boost_lift, 10) || 0,
+                    match_score: parseInt(r.match_score, 10) || 0,
+                    source_surface: 'corporate_dashboard_recs',
+                  }).catch(() => {});
+                  navigate(`/dashboard/startup/${r.user_id}`);
+                }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = G}
                 onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>

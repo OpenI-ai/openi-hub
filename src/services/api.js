@@ -560,6 +560,13 @@ export const studentEnhAPI = {
   recommendedStartups:  ()           => get('/student/recommended-startups'),
 };
 
+// ── s36 Recommendations click-through analytics ──────────────
+// trackClick fires a POST and returns immediately (204). Don't await on
+// the click handler — navigation must not be gated by analytics.
+export const recommendationsAPI = {
+  trackClick: (payload) => post('/recommendations/click', payload),
+};
+
 // ── Onboarding (Phase 20) ───────────────────────────────────
 export const onboardingAPI = {
   getStatus:     ()         => get('/onboarding/status'),
@@ -755,4 +762,6 @@ export const adminAPI = {
   profileScoreDistribution: ()       => get('/admin/profile-score/distribution'),
   // s30 P1.3: Stage B cluster_boost telemetry (summary + per_persona + top_anchor_clusters)
   clusterBoostImpact:       (windowDays = 30) => get(`/admin/clusters/boost-impact?window_days=${windowDays}`),
+  // s36: click-through analytics (per_persona CTR + top startups + top clusters + lift effect)
+  clusterClickImpact:       (windowDays = 30) => get(`/admin/clusters/click-impact?window_days=${windowDays}`),
 };

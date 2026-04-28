@@ -85,8 +85,12 @@ import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
 import Clusters            from './pages/dashboard/Clusters';
 import ClusterDetail       from './pages/dashboard/ClusterDetail';
 // s32 P1.4 — Discovery surfaces consuming cluster-bridge endpoints
-import StudentRecommendedStartups  from './pages/dashboard/StudentRecommendedStartups';
-import AcademiaRecommendedStartups from './pages/dashboard/AcademiaRecommendedStartups';
+import StudentRecommendedStartups    from './pages/dashboard/StudentRecommendedStartups';
+import AcademiaRecommendedStartups   from './pages/dashboard/AcademiaRecommendedStartups';
+// s36 — Discovery surfaces for investor/incubator/accelerator
+import InvestorRecommendedStartups    from './pages/dashboard/InvestorRecommendedStartups';
+import IncubatorRecommendedStartups   from './pages/dashboard/IncubatorRecommendedStartups';
+import AcceleratorRecommendedStartups from './pages/dashboard/AcceleratorRecommendedStartups';
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -200,6 +204,10 @@ export default function App() {
             <Route path="academia/publications"  element={<AcademiaPortfolio />} />
             <Route path="academia/grants"        element={<AcademiaPortfolio />} />
             <Route path="academia/recommended-startups" element={<AcademiaRecommendedStartups />} />
+            {/* s36 — Discovery surfaces for investor/incubator/accelerator */}
+            <Route path="investor/recommended-startups"    element={<InvestorRecommendedStartups />} />
+            <Route path="incubator/recommended-startups"   element={<IncubatorRecommendedStartups />} />
+            <Route path="accelerator/recommended-startups" element={<AcceleratorRecommendedStartups />} />
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />

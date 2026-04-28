@@ -1,20 +1,18 @@
 /**
- * P1.4 (s32) — Academia Recommended Startups
+ * s36 — Accelerator Recommended Startups (Stage B Discovery surface).
  *
- * Consumes GET /api/academia/recommended-startups (academia/faculty persona only).
- * The backend uses cluster-bridge logic: faculty's research_areas/offerings →
- * academia-cluster anchors → bridged startup-cluster IDs → boosted top-10.
- * Falls back to user's own embedding-assigned cluster_id when lexical match misses
- * (handles rare/specialized vocabulary like "Hypersonics", "Defence Tech").
+ * Consumes GET /api/accelerator/recommended-startups (existing s28 endpoint).
+ * Same card pattern as Investor/Incubator surfaces with cluster-match badge,
+ * boost_lift indicator, and click-through tracking.
  */
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Sparkles, Cpu, MapPin, TrendingUp, Loader2, ArrowRight } from 'lucide-react';
-import { academiaEnhAPI, recommendationsAPI } from '../../services/api';
+import { acceleratorAPI, recommendationsAPI } from '../../services/api';
 
 const G = '#D5AA5B';
-const SOURCE = 'academia_recommended_startups';
+const SOURCE = 'accelerator_recommended_startups';
 const card = {
   background: '#fff',
   border: '1px solid #eee',
@@ -25,7 +23,7 @@ const card = {
   transition: 'border-color 0.15s, box-shadow 0.15s',
 };
 
-export default function AcademiaRecommendedStartups() {
+export default function AcceleratorRecommendedStartups() {
   const navigate = useNavigate();
   const [startups, setStartups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +33,7 @@ export default function AcademiaRecommendedStartups() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await academiaEnhAPI.recommendedStartups();
+      const data = await acceleratorAPI.recommendedStartups();
       setStartups(Array.isArray(data) ? data : []);
     } catch (err) {
       toast.error(err.message || 'Failed to load recommendations');
@@ -45,9 +43,8 @@ export default function AcademiaRecommendedStartups() {
   };
 
   const handleCardClick = (s) => {
-    // s36: fire-and-forget click telemetry. Don't block navigation.
     recommendationsAPI.trackClick({
-      persona_role: 'academia',
+      persona_role: 'accelerator',
       target_startup_id: s.user_id,
       cluster_boost: parseInt(s.cluster_boost, 10) || 0,
       boost_lift: parseInt(s.boost_lift, 10) || 0,
@@ -64,7 +61,7 @@ export default function AcademiaRecommendedStartups() {
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>
         <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>
-          Startups matching your research areas and what you offer to industry, ranked by topical alignment.
+          Startups matching your accelerator's focus sectors, ranked for batch fit.
         </p>
       </div>
 
@@ -79,8 +76,8 @@ export default function AcademiaRecommendedStartups() {
             No recommendations yet
           </h3>
           <p style={{ color: '#666', fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
-            Add <b>research areas</b> and <b>offerings</b> (consulting, supervision, lab access, etc.) to your profile.<br />
-            We'll match you with startups in adjacent technical clusters.
+            Add <b>focus sectors</b> to your accelerator profile.<br />
+            We'll match you with startups working in those areas, excluding ones already in your batches.
           </p>
           <Link
             to="/dashboard/profile"
@@ -156,7 +153,7 @@ export default function AcademiaRecommendedStartups() {
                   )}
                   {boosted && (
                     <span
-                      title={lift > 0 ? `Lifted by ${lift} ranks via cluster match` : 'Matched your research cluster'}
+                      title={lift > 0 ? `Lifted by ${lift} ranks via cluster match` : 'Matched your focus cluster'}
                       style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#a06600', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
                     >
                       <TrendingUp size={10} />
