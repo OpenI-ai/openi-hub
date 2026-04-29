@@ -1,12 +1,37 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import * as Sentry from '@sentry/react';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
 import './index.css';
 
+// Sentry — must init before React renders so route + error capture work.
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    release: import.meta.env.VITE_SENTRY_RELEASE,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
+    ],
+    tracesSampleRate: parseFloat(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+    replaysSessionSampleRate: 0.0,
+    replaysOnErrorSampleRate: 1.0,
+    sendDefaultPii: false,
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <Sentry.ErrorBoundary fallback={({ error }) => (
+      <div style={{ padding: 24, fontFamily: 'system-ui' }}>
+        <h2>Something went wrong.</h2>
+        <p>The error has been reported. Please refresh to continue.</p>
+      </div>
+    )}>
+      <App />
+    </Sentry.ErrorBoundary>
     <Toaster
       position="top-right"
       toastOptions={{
