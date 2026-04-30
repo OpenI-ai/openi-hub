@@ -71,11 +71,15 @@ function DirectoriesTab() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Auto-refresh every 10s while any run is active
+  // Auto-refresh every 30s while any run is active. Skips when the tab is
+  // hidden so background tabs don't hammer the API. s43 — bumped from 10s
+  // because each refresh fan-outs to several crawl endpoints; with 583K
+  // startup_profiles the cumulative cost is non-trivial.
   useEffect(() => {
     const active = runs.some(r => r.status === 'running');
     if (!active) return;
-    const t = setInterval(load, 10000);
+    const tick = () => { if (!document.hidden) load(); };
+    const t = setInterval(tick, 30000);
     return () => clearInterval(t);
   }, [runs, load]);
 
