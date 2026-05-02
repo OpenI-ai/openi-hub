@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FileText, ArrowRight, Calendar, User, BookOpen, ExternalLink,
+  FileText, ArrowRight, Calendar, User, BookOpen, ExternalLink, Download,
   Zap, Shield, FlaskConical, Heart, Cpu, Layers,
   TrendingUp, ShoppingBag, Shirt, Globe, Building2, Brain,
 } from 'lucide-react';
@@ -255,6 +255,7 @@ function ReportCard({ report }) {
         {/* Action button — link to openi.ai report page */}
         <a
           href={reportUrl}
+          download
           target="_blank"
           rel="noopener noreferrer"
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all"
@@ -262,7 +263,7 @@ function ReportCard({ report }) {
           onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
           onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
-          <ExternalLink size={14} /> Read Report
+          <Download size={14} /> Download Report
         </a>
       </div>
     </div>
