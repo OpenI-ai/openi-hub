@@ -27,7 +27,7 @@ export default function Knowledge() {
           date: a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : a.date || '',
           summary: a.summary || a.content || '',
           tags: a.tags || [],
-          views: a.views || 0,
+          views: a.views || 0, pdf_url: a.pdf_url || null,
         }));
         setArticles(normalized);
       })
@@ -118,8 +118,8 @@ export default function Knowledge() {
               </div>
             ) : (
               <div className="flex gap-3">
-                <button className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"><ExternalLink size={14} /> Read Full Report</button>
-                <button className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2"><Download size={14} /> Download PDF</button>
+                <a href={selected.pdf_url || "/"} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
+                <a href={selected.pdf_url || "/"} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download PDF</a>
               </div>
             )}
           </div>
