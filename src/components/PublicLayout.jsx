@@ -183,7 +183,7 @@ export default function PublicLayout({ children }) {
               <h4 className="text-sm font-bold mb-4 text-white">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/dashboard/login" className="hover:text-white transition-colors">Sign In</Link></li>
-                <li><a href="mailto:contact@openi.tech" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="mailto:info@openi.ai" className="hover:text-white transition-colors">Contact</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
               </ul>

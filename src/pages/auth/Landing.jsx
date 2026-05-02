@@ -46,12 +46,14 @@ function XIcon({ size = 18, color = 'currentColor' }) {
   );
 }
 
-// ── Default content (used when CMS is unavailable) ─────────
+// ── Default content (shown only if /api/public/landing-content fails) ─────────
+// Backend normally returns live DB-counted stats which override these defaults.
+// Match backend labels so visual layout doesn't shift on hydration.
 const DEFAULT_STATS = [
-  { value: '11', label: 'Persona Types' },
-  { value: '228+', label: 'API Endpoints' },
-  { value: 'AI', label: 'Semantic Search' },
-  { value: '8-Vector', label: 'Evaluation Framework' },
+  { value: '\u2014', label: 'Global Startups' },
+  { value: '\u2014', label: 'Registered Users' },
+  { value: '\u2014', label: 'Challenges Posted' },
+  { value: '\u2014', label: 'Applications Submitted' },
 ];
 
 const DEFAULT_PARTNERS = ['DRDO', 'DPIIT', 'iDEX', 'NASSCOM', 'Startup India', 'AIM'];
@@ -242,6 +244,14 @@ function FAQItem({ question, answer, isOpen, onToggle }) {
 // ═══════════════════════════════════════════════════════════════
 // LANDING PAGE
 // ═══════════════════════════════════════════════════════════════
+// Look up a live stat value by label substring from cms.stats array.
+// cms.stats is shaped: [{value: '583K+', label: 'Global Startups'}, ...]
+function statValue(cmsStats, labelSubstr, fallback = '') {
+  if (!Array.isArray(cmsStats)) return fallback;
+  const hit = cmsStats.find(s => s.label?.toLowerCase().includes(labelSubstr.toLowerCase()));
+  return hit?.value || fallback;
+}
+
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [cms, setCms] = useState(null);
@@ -261,8 +271,14 @@ export default function Landing() {
   };
 
   // Phase 17c: CMS re-seeded with Phase 10-21 content. CMS is now canonical source.
-  // Hardcoded defaults serve as fallback when CMS is unreachable.
+  // Backend /landing-content already injects live DB counts into cms.stats[].
   const stats = cms?.stats || DEFAULT_STATS;
+  // s47: Hero subtitle pulls the live "Global Startups" count from cms.stats by label match.
+  // Fallback string used until cms loads (avoids hardcoding stale numbers in the bundle).
+  const liveStartupsValue = statValue(cms?.stats, 'Global Startups', '');
+  const liveSectorsText = liveStartupsValue
+    ? `AI-Powered \u00b7 ${liveStartupsValue} Startups \u00b7 11 Personas \u00b7 200 AI Clusters \u00b7 Deep-Tech`
+    : 'AI-Powered \u00b7 11 Personas \u00b7 200 AI Clusters \u00b7 Deep-Tech \u00b7 Real-Time Search';
   const testimonials = cms?.testimonials || DEFAULT_TESTIMONIALS;
   const faqs = cms?.faqs || DEFAULT_FAQS;
   const features = null;                     // Inline 12-card grid (not CMS-managed)
@@ -428,7 +444,7 @@ export default function Landing() {
           </div>
 
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            {hero?.sectors_text || 'AI-Powered \u00b7 9,000+ Global Startups \u00b7 11 Persona Types \u00b7 Deep-Tech \u00b7 25+ RSS Feeds'}
+            {hero?.sectors_text || liveSectorsText}
           </p>
         </div>
       </section>
@@ -647,10 +663,10 @@ export default function Landing() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(features || [
             { icon: 'Sparkles', title: 'AI Intelligence Engine', description: 'Native AI powers every persona. 8-vector startup evaluation with explanations and red flags. AI-narrated recommendations with fit scores. Challenge advisor auto-suggests sectors, tech, and budget. Batch application analyzer ranks applicants with strengths and weaknesses.' },
-            { icon: 'Search', title: 'AI Ask + Semantic Search', description: 'Natural language search powered by GPT-4o-mini translates queries like "Series A deeptech healthcare in Bangalore" into structured filters. pgvector embeddings enable cosine-similarity matching across 9,000+ startups.' },
+            { icon: 'Search', title: 'AI Ask + Semantic Search', description: `Natural language search powered by GPT-4o-mini translates queries like "Series A deeptech healthcare in Bangalore" into structured filters. pgvector embeddings enable cosine-similarity matching across ${liveStartupsValue || '500K+'} startups grouped into 200 AI clusters.` },
             { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, FAQs, templates, and public share links. AI evaluates and ranks applicants automatically. Used by corporates, government, and investors.' },
             { icon: 'Award', title: '8-Vector AI Evaluation', description: 'AI scores startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment. Human-overridable scores with explanation, red flags, and recommended actions.' },
-            { icon: 'Rocket', title: 'Global Startup Database', description: '9,000+ enriched startup profiles with AI-powered nightly crawling from 25 RSS feeds. Unified AI pipeline extracts company names, classifies sectors, detects funding, and enriches with country, city, and DeepTech flags.' },
+            { icon: 'Rocket', title: 'Global Startup Database', description: `${liveStartupsValue || '500K+'} enriched startup profiles with AI-powered nightly crawling from 25 RSS feeds. Unified AI pipeline extracts company names, classifies sectors, detects funding, and enriches with country, city, and DeepTech flags.` },
             { icon: 'TrendingUp', title: 'Investor Deal Pipeline', description: '7-stage deal workflow with AI-powered evaluation. Deal sourcing marketplace, portfolio management, exit tracking. AI advisor helps design deal requests and analyze applicant startups.' },
             { icon: 'Home', title: 'Incubator & Accelerator Programs', description: 'Manage cohorts and batches with AI-assisted startup evaluation. Mentor pools, demo days, corporate partners, auto-seeded milestones. AI advisor helps design programs and rank applicants.' },
             { icon: 'BarChart3', title: 'Source Innovation Talent', description: 'Discover startups, students, and academia in one platform. Source student talent for internships and projects. Connect with universities and researchers for R&D collaborations. Filter by skills, research areas, and location.' },
@@ -665,21 +681,65 @@ export default function Landing() {
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════
-          TESTIMONIALS
+          WHAT'S NEW (s47) — recently shipped capabilities
           ═══════════════════════════════════════════════════════════ */}
-      <Section bg={LIGHT_GRAY}>
+      <Section bg={LIGHT_GRAY} id="whats-new">
         <div className="text-center mb-14">
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-bold tracking-wide"
+            style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
+          >
+            <Sparkles size={14} />
+            WHAT&apos;S NEW
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            What Our Users Say
+            Recently Shipped
           </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            Hear from corporates, investors, and startups who are building on OpenI.
+          <p className="text-base max-w-2xl mx-auto" style={{ color: GRAY }}>
+            The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, and a 39\u00d7 larger startup database.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => <TestimonialCard key={i} {...t} />)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <div
+              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+              style={{ background: GOLD_LIGHT }}
+            >
+              <Database size={22} style={{ color: GOLD }} />
+            </div>
+            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>{liveStartupsValue || '500K+'} Startup Database</h3>
+            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
+              Bulk-imported and AI-clustered into 200 semantic groups. Every profile has a 1536-dim embedding for cosine-similarity search across the full corpus.
+            </p>
+          </div>
+          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <div
+              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+              style={{ background: GOLD_LIGHT }}
+            >
+              <Network size={22} style={{ color: GOLD }} />
+            </div>
+            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Multi-Space Cluster Bridge</h3>
+            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
+              Students and academics get personalized startup matches by bridging their persona-space cluster (e.g. Robotics, Hypersonics) to relevant startup clusters \u2014 with measurable boost lift on every recommendation.
+            </p>
+          </div>
+          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <div
+              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+              style={{ background: GOLD_LIGHT }}
+            >
+              <BarChart3 size={22} style={{ color: GOLD }} />
+            </div>
+            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Click-Impact Analytics</h3>
+            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
+              Every recommendation surface tracks impressions, clicks, and per-cluster CTR. Admins can see which AI matches actually convert \u2014 closing the loop on recommendation quality.
+            </p>
+          </div>
         </div>
       </Section>
+
+      {/* TESTIMONIALS section removed s47 \u2014 no real testimonials yet, will restore once collected. */}
 
       {/* ═══════════════════════════════════════════════════════════
           FAQ
@@ -924,7 +984,7 @@ export default function Landing() {
               <h4 className="text-sm font-bold mb-4 text-white">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/dashboard/login" className="hover:text-white transition-colors">Sign In</Link></li>
-                <li><a href="mailto:contact@openi.tech" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="mailto:info@openi.ai" className="hover:text-white transition-colors">Contact</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
               </ul>

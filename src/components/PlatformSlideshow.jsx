@@ -3,14 +3,17 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 const G = '#D5AA5B';
 
 const SLIDES = [
-  { src: '/screenshots/01-login.png', caption: 'Secure Login', desc: 'MFA-protected sign-in with quick demo access for 11 persona types' },
-  { src: '/screenshots/02-startup-dashboard.png', caption: 'Startup Dashboard', desc: 'Persona-specific stats, quick actions, and meeting scheduler' },
+  { src: '/screenshots/01-login.png', caption: 'Secure Login', desc: 'MFA-protected sign-in with quick demo access for all 11 persona types' },
+  { src: '/screenshots/02-startup-dashboard.png', caption: 'Startup Dashboard', desc: 'Persona-specific stats, AI profile score, quick actions, and meeting scheduler' },
   { src: '/screenshots/03-student-portfolio.png', caption: 'Student Portfolio', desc: 'Showcase research projects, hackathon wins, certifications, and skills' },
-  { src: '/screenshots/04-incubator-programs.png', caption: 'Incubation Programs', desc: 'Manage cohorts, startup pipeline, milestones, and mentor assignments' },
-  { src: '/screenshots/05-corporate-dashboard.png', caption: 'Corporate Dashboard', desc: '278 active challenges, collaboration pipeline, and startup discovery' },
-  { src: '/screenshots/05-marketplace.png', caption: 'Challenge Marketplace', desc: 'Browse 278+ open innovation challenges with filters and search' },
-  { src: '/screenshots/07-directory.png', caption: 'Ecosystem Directory', desc: '30+ profiles with persona filters, connect buttons, and faceted search' },
-  { src: '/screenshots/08-academia-portfolio.png', caption: 'Academic Portfolio', desc: 'Research projects with funding, publications, and grant tracking' },
+  { src: '/screenshots/04-incubator-programs.png', caption: 'Incubation Programs', desc: 'Manage cohorts, startup pipeline, milestones, mentors, and 8-vector portfolio health' },
+  { src: '/screenshots/05-corporate-dashboard.png', caption: 'Corporate Dashboard', desc: 'AI-recommended startups, challenge pipeline, and ecosystem intelligence at a glance' },
+  { src: '/screenshots/05-marketplace.png', caption: 'Challenge Marketplace', desc: 'Browse open innovation challenges with AI-powered filters and semantic search' },
+  { src: '/screenshots/07-directory.png', caption: 'Ecosystem Directory', desc: '583K+ startup profiles with persona filters, AI Ask, and faceted search' },
+  { src: '/screenshots/08-academia-portfolio.png', caption: 'Academic Portfolio', desc: 'Research projects with funding, publications, grants, and AI matchmaking' },
+  { src: '/screenshots/09-recommended-startups.png', caption: 'AI Recommended for You', desc: 'Personalized startup matches with cluster-bridge boost across 200 AI clusters' },
+  { src: '/screenshots/10-ai-profile-score.png', caption: '8-Vector AI Profile Score', desc: 'Radar chart with strengths, red flags, and AI-narrated improvement actions' },
+  { src: '/screenshots/11-investor-dashboard.png', caption: 'Investor Dashboard', desc: '7-stage deal pipeline, AI-evaluated startups, and 583K-startup sourcing engine' },
 ];
 
 export default function PlatformSlideshow() {
