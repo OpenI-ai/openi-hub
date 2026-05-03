@@ -325,9 +325,14 @@ export default function StartupCrawling() {
     try { const s = await crawlAPI.listSchedules(); setSchedules(s || []); } catch {}
   }, []);
 
+  // s48 progressive render — flip `loading` off as soon as the FAST path
+  // (fetchStats) returns; lists fade in independently when they arrive.
+  // Was: Promise.all blocked the whole page on the slowest call (~1s).
   useEffect(() => {
-    Promise.all([fetchStats(), fetchEnrichment(), fetchJobs(), fetchSchedules()])
-      .finally(() => setLoading(false));
+    fetchStats().finally(() => setLoading(false));
+    fetchEnrichment();
+    fetchJobs();
+    fetchSchedules();
   }, []);
 
   useEffect(() => { if (activeTab === 'enrichment') fetchEnrichment(); }, [activeTab, fetchEnrichment]);
