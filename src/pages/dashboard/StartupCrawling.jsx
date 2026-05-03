@@ -486,7 +486,7 @@ export default function StartupCrawling() {
   // ── Tab config ────────────────────────────────────────────
   const tabs = [
     { id: 'health', label: 'Pipeline Health', count: 0 },
-    { id: 'enrichment', label: 'Enrichment Queue', count: enrichStats.pending || 0 },
+    { id: 'enrichment', label: 'Pending Review', count: enrichStats.pending || 0 },
     { id: 'imported', label: 'Imported Startups', count: stats.imported_total || 0 },
     { id: 'discovered', label: 'Discovered', count: crawledStartups.length },
     { id: 'directories', label: 'Directories (Phase 51)', count: 0 },
@@ -519,7 +519,7 @@ export default function StartupCrawling() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard label="Total Startups" value={stats.imported_total || 0} sub="In startup_profiles" icon={Database} color="bg-primary-500" />
-          <StatCard label="Enrichment Queue" value={enrichStats.pending || 0} sub={`${enrichStats.approved || 0} approved, ${enrichStats.rejected || 0} rejected`} icon={Zap} color="bg-yellow-400" />
+          <StatCard label="Pending Admin Review" value={enrichStats.pending || 0} sub={`${enrichStats.approved || 0} approved · ${enrichStats.rejected || 0} rejected · awaiting human decision`} icon={Zap} color="bg-yellow-400" />
           <StatCard label="Pending Review" value={stats.pending_review || 0} sub={`${(stats.approved || 0).toLocaleString()} approved`} icon={Eye} color="bg-blue-500" />
           <StatCard label="Schedules" value={schedules.filter(s => s.is_enabled).length} sub={`${schedules.length} total configured`} icon={Calendar} color="bg-indigo-500" />
         </div>

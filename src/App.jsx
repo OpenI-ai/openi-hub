@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthContext';
@@ -25,10 +26,10 @@ import InvestorDeals            from './pages/dashboard/InvestorDeals';
 import InvestorPortfolio        from './pages/dashboard/InvestorPortfolio';
 import InvestorDealRequests     from './pages/dashboard/InvestorDealRequests';
 import IncubatorPrograms        from './pages/dashboard/IncubatorPrograms';
-import IncubatorProgramDetail   from './pages/dashboard/IncubatorProgramDetail';
+const IncubatorProgramDetail   = lazy(() => import('./pages/dashboard/IncubatorProgramDetail'));
 import IncubatorMentorPool      from './pages/dashboard/IncubatorMentorPool';
 import AcceleratorBatches       from './pages/dashboard/AcceleratorBatches';
-import AcceleratorBatchDetail   from './pages/dashboard/AcceleratorBatchDetail';
+const AcceleratorBatchDetail   = lazy(() => import('./pages/dashboard/AcceleratorBatchDetail'));
 import AcceleratorPartners      from './pages/dashboard/AcceleratorPartners';
 import ProgramServicePartners   from './pages/dashboard/ProgramServicePartners';
 import StartupEvaluation from './pages/dashboard/StartupEvaluation';
@@ -70,7 +71,9 @@ import LabPublications      from './pages/dashboard/LabPublications';
 import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 import FeatureMap           from './pages/dashboard/FeatureMap';
-import AdminAnalytics       from './pages/dashboard/AdminAnalytics';
+// s48 — lazy-loaded so recharts (~121 KB gz) is only fetched
+// when user navigates to one of these admin/portfolio surfaces.
+const AdminAnalytics       = lazy(() => import('./pages/dashboard/AdminAnalytics'));
 import AdminConsole         from './pages/dashboard/AdminConsole';
 import AdminUsers           from './pages/dashboard/AdminUsers';
 import AdminChallenges      from './pages/dashboard/AdminChallenges';
@@ -117,6 +120,8 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        {/* s48 — Suspense boundary for lazy-loaded routes (recharts surfaces) */}
+        <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
         <Routes>
           {/* Root → Landing for guests, Dashboard for authenticated users */}
           <Route path="/" element={<RootRoute />} />
@@ -224,6 +229,7 @@ export default function App() {
             <Route path="settings"            element={<Settings />} />
           </Route>
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );
