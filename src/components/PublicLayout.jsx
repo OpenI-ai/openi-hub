@@ -2,8 +2,9 @@
  * PublicLayout — Shared header/footer for all public (non-auth) pages.
  * Matches the Landing.jsx brand styling: gold (#D5AA5B) primary, dark theme footer.
  */
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, ArrowRight } from 'lucide-react';
+import { Shield, ArrowRight, Menu, X } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 // Brand colors (same as Landing.jsx)
@@ -33,6 +34,7 @@ function XIcon({ size = 18, color = 'currentColor' }) {
 export default function PublicLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const isActive = (path) => location.pathname === path;
   // Hide the inline header SearchBar on the /search page itself — it has its own hero bar
   const showHeaderSearch = location.pathname !== '/search';
@@ -125,8 +127,92 @@ export default function PublicLayout({ children }) {
             >
               Get Started
             </Link>
+            {/* Mobile hamburger — only visible below md breakpoint */}
+            <button
+              type="button"
+              aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen(o => !o)}
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
+              style={{ color: DARK }}
+            >
+              {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile nav drawer — visible only below md breakpoint when open */}
+        {mobileNavOpen && (
+          <div
+            className="md:hidden border-t"
+            style={{ background: '#fff', borderColor: BORDER }}
+          >
+            <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+              <Link
+                to="/marketplace"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={navLinkStyle('/marketplace')}
+              >
+                Marketplace
+              </Link>
+              <Link
+                to="/reports"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={navLinkStyle('/reports')}
+              >
+                Reports
+              </Link>
+              <Link
+                to="/#how-it-works"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: GRAY }}
+              >
+                How It Works
+              </Link>
+              <Link
+                to="/#pricing"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: GRAY }}
+              >
+                Pricing
+              </Link>
+              <Link
+                to="/dashboard/login"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors font-semibold"
+                style={{ color: DARK }}
+              >
+                Sign In
+              </Link>
+              <div className="flex items-center gap-3 pt-3 mt-2 border-t" style={{ borderColor: BORDER }}>
+                <a
+                  href="https://www.linkedin.com/company/openi-partners/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg"
+                  style={{ color: GRAY }}
+                >
+                  <LinkedInIcon size={18} />
+                </a>
+                <a
+                  href="https://x.com/OpenIPartners"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="X"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg"
+                  style={{ color: GRAY }}
+                >
+                  <XIcon size={18} />
+                </a>
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* ═══ CONTENT ═══ */}
