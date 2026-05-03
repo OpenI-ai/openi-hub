@@ -5,7 +5,7 @@ import {
   Search, Calendar, MessageSquare, FileText, Award, Database,
   Zap, TrendingUp, CheckCircle2, Rocket, Building2, Landmark,
   GraduationCap, FlaskConical, Home, BookOpen, ChevronDown, ChevronUp,
-  BarChart3, Globe, Star, UserPlus,
+  BarChart3, Globe, Star, UserPlus, Menu, X,
 } from 'lucide-react';
 import { publicAPI } from '../../services/api';
 import SearchBar from '../../components/SearchBar';
@@ -256,6 +256,7 @@ export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [cms, setCms] = useState(null);
   const [pricingTab, setPricingTab] = useState('seeker');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -364,8 +365,92 @@ export default function Landing() {
             >
               Get Started
             </Link>
+            {/* Mobile hamburger — only visible below md breakpoint */}
+            <button
+              type="button"
+              aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen(o => !o)}
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
+              style={{ color: DARK }}
+            >
+              {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile nav drawer — visible only below md breakpoint when open */}
+        {mobileNavOpen && (
+          <div
+            className="md:hidden border-t"
+            style={{ background: '#fff', borderColor: BORDER }}
+          >
+            <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+              <Link
+                to="/marketplace"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: DARK }}
+              >
+                Marketplace
+              </Link>
+              <Link
+                to="/reports"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: DARK }}
+              >
+                Reports
+              </Link>
+              <a
+                href="#how-it-works"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: DARK }}
+              >
+                How It Works
+              </a>
+              <a
+                href="#pricing"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: DARK }}
+              >
+                Pricing
+              </a>
+              <Link
+                to="/dashboard/login"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors font-semibold"
+                style={{ color: DARK }}
+              >
+                Sign In
+              </Link>
+              <div className="flex items-center gap-3 pt-3 mt-2 border-t" style={{ borderColor: BORDER }}>
+                <a
+                  href="https://www.linkedin.com/company/openi-partners/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg"
+                  style={{ color: GRAY }}
+                >
+                  <LinkedInIcon size={18} />
+                </a>
+                <a
+                  href="https://x.com/OpenIPartners"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="X"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg"
+                  style={{ color: GRAY }}
+                >
+                  <XIcon size={18} />
+                </a>
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -696,7 +781,7 @@ export default function Landing() {
             Recently Shipped
           </h2>
           <p className="text-base max-w-2xl mx-auto" style={{ color: GRAY }}>
-            The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, and a 39\u00d7 larger startup database.
+            The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, and a 39× larger startup database.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
