@@ -140,13 +140,16 @@ function FormField({ field, value, onChange }) {
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [params] = useSearchParams();
-  const personaType = params.get('type') || 'startup';
-  const persona = PERSONAS[personaType];
-  const profileFields = PROFILE_FIELDS[personaType] || [];
-  const orgField = ORG_NAME_FIELD[personaType];
+  const [params, setParams] = useSearchParams();
+  // No silent default — if ?type= is missing, user MUST pick a persona via Step 0.
+  const personaType = params.get('type');
+  const persona = personaType ? PERSONAS[personaType] : null;
+  const profileFields = personaType ? (PROFILE_FIELDS[personaType] || []) : [];
+  const orgField = personaType ? ORG_NAME_FIELD[personaType] : null;
 
-  const [step, setStep] = useState(1); // 1: Account, 2: Profile, 3: Done
+  // Step 0: Choose persona (only when ?type= is missing)
+  // Step 1: Account · Step 2: Profile · Step 3: Done
+  const [step, setStep] = useState(personaType ? 1 : 0);
   const [name, setName]       = useState('');
   const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
@@ -205,7 +208,9 @@ export default function Register() {
     }
   };
 
-  if (!persona) {
+  // Only show "Invalid persona" when an EXPLICIT bad ?type= was supplied
+  // (e.g. /register?type=garbage). When type is missing, fall through to Step 0.
+  if (personaType && !persona) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#f5f5f5' }}>
         <div className="text-center">
@@ -213,6 +218,75 @@ export default function Register() {
           <Link to="/landing" className="mt-4 inline-block text-sm font-semibold" style={{ color: '#D5AA5B' }}>
             Go back
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 0: persona picker — render dedicated screen, no stepper, no Account/Profile sections
+  if (step === 0) {
+    const PERSONA_PICKER_LIST = [
+      { key: 'startup',          desc: 'Tech startup or early-stage' },
+      { key: 'student',          desc: 'Student innovator / researcher' },
+      { key: 'academia',         desc: 'University or research institute' },
+      { key: 'corporate',        desc: 'Enterprise seeking innovation' },
+      { key: 'government',       desc: 'Government body or PSU' },
+      { key: 'investor',         desc: 'Angel, VC, PE, or fund' },
+      { key: 'mentor',           desc: 'Industry mentor or advisor' },
+      { key: 'lab',              desc: 'Lab offering resources' },
+      { key: 'incubator',        desc: 'Startup incubation program' },
+      { key: 'accelerator',      desc: 'Growth acceleration program' },
+      { key: 'service_provider', desc: 'Cloud, legal, compliance services' },
+    ];
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
+        <div className="w-full max-w-3xl">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>Choose your persona</h1>
+            <p className="text-sm mt-2" style={{ color: '#6b7280' }}>
+              Pick the role that best describes you. You can always update your profile later.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {PERSONA_PICKER_LIST.map(p => {
+              const meta = PERSONAS[p.key];
+              if (!meta) return null;
+              return (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => {
+                    setParams({ type: p.key }, { replace: true });
+                    setStep(1);
+                  }}
+                  className="rounded-xl p-4 text-center transition-all"
+                  style={{ background: '#fff', border: '1px solid #e5e7eb', cursor: 'pointer' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = meta.color;
+                    e.currentTarget.style.boxShadow = `0 4px 16px ${meta.color}20`;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
+                    style={{ background: `${meta.color}12` }}
+                  >
+                    <Building2 size={20} style={{ color: meta.color }} />
+                  </div>
+                  <div className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{meta.label}</div>
+                  <div className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{p.desc}</div>
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-center mt-8">
+            <Link to="/login" className="text-sm font-semibold" style={{ color: '#9ca3af' }}>
+              Already have an account? Sign in
+            </Link>
+          </div>
         </div>
       </div>
     );

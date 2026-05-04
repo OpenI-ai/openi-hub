@@ -641,15 +641,15 @@ export default function Landing() {
               <PersonaListItem icon={GraduationCap} label="Students — Research projects, theses, internships" color={GOLD} />
               <PersonaListItem icon={BookOpen} label="Academia — University labs, research centres, IP licensing" color={GOLD} />
             </ul>
-            <Link
-              to="/register"
+            <a
+              href="#choose-persona"
               className="inline-flex items-center gap-2 text-sm font-bold transition-all"
               style={{ color: GOLD }}
               onMouseEnter={e => e.currentTarget.style.color = GOLD_DARK}
               onMouseLeave={e => e.currentTarget.style.color = GOLD}
             >
               Join as Provider <ArrowRight size={16} />
-            </Link>
+            </a>
           </div>
 
           {/* Innovation Seekers */}
@@ -680,20 +680,20 @@ export default function Landing() {
               <PersonaListItem icon={Home} label="Incubators & Accelerators — Growth programs" color={BLUE} />
               <PersonaListItem icon={Briefcase} label="Service Providers — Cloud credits, legal, compliance, HR" color={BLUE} />
             </ul>
-            <Link
-              to="/register"
+            <a
+              href="#choose-persona"
               className="inline-flex items-center gap-2 text-sm font-bold transition-all"
               style={{ color: BLUE }}
               onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
               onMouseLeave={e => e.currentTarget.style.color = BLUE}
             >
               Join as Seeker <ArrowRight size={16} />
-            </Link>
+            </a>
           </div>
         </div>
 
         {/* ── Persona Picker Grid ──────────────────────────────────── */}
-        <div className="mt-14">
+        <div id="choose-persona" className="mt-14 scroll-mt-20">
           <h3 className="text-2xl font-bold text-center mb-2" style={{ color: DARK }}>Choose Your Persona</h3>
           <p className="text-sm text-center mb-8" style={{ color: GRAY }}>Click a persona to create your free account</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
