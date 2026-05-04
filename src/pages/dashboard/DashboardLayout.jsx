@@ -233,13 +233,24 @@ export default function DashboardLayout() {
             onClick={handleLogout}
             style={{
               display:"flex", alignItems:"center", gap:10,
-              padding:"9px 12px", borderRadius:8,
-              width:"100%", fontSize:13, fontWeight:500,
-              color: C.textMuted, background:"transparent",
-              border:"none", cursor:"pointer", transition:"all 0.15s",
+              padding:"10px 12px", borderRadius:8,
+              marginTop:6,
+              width:"100%", fontSize:13, fontWeight:600,
+              color:"#c53030",
+              background:"rgba(229,62,62,0.06)",
+              border:"1px solid rgba(229,62,62,0.18)",
+              cursor:"pointer", transition:"all 0.15s",
             }}
-            onMouseEnter={e => { e.currentTarget.style.color="#e53e3e"; e.currentTarget.style.background="rgba(229,62,62,0.07)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color=C.textMuted; e.currentTarget.style.background="transparent"; }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color="#fff";
+              e.currentTarget.style.background="#e53e3e";
+              e.currentTarget.style.borderColor="#e53e3e";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color="#c53030";
+              e.currentTarget.style.background="rgba(229,62,62,0.06)";
+              e.currentTarget.style.borderColor="rgba(229,62,62,0.18)";
+            }}
           >
             <LogOut size={15} />
             <span>Logout</span>
