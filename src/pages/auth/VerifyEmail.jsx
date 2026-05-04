@@ -1,0 +1,265 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { profileAPI } from '../../services/api';
+import { Mail, Loader2, CheckCircle, AlertCircle, Send } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// s49e: After verify succeeds, flush profileData stashed by Register Step 2 to /profile/me.
+// Cleanup is forgiving — failed PUT does not block dashboard redirect.
+async function flushPendingProfile() {
+  try {
+    const raw = sessionStorage.getItem('openi_pending_profile');
+    if (!raw) return;
+    const profileData = JSON.parse(raw);
+    sessionStorage.removeItem('openi_pending_profile');
+    const hasData = Object.values(profileData || {}).some(v =>
+      Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
+    );
+    if (hasData) {
+      try { await profileAPI.updateMyProfile(profileData); } catch { /* non-blocking */ }
+    }
+  } catch { /* sessionStorage disabled or JSON corrupt */ }
+}
+
+const inputStyle = {
+  backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
+  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14, outline: 'none',
+};
+
+export default function VerifyEmail() {
+  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { completeVerification } = useAuth();
+
+  // ── STATE ────────────────────────────────────────────────
+  const [phase, setPhase] = useState(token ? 'verifying' : 'input'); // verifying | input | done | failed
+  const [email, setEmail] = useState(searchParams.get('email') || '');
+  const [otp, setOtp] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resentAt, setResentAt] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // ── 1) Link path — auto-verify on mount when :token present ──
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/auth/verify-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok || !data.verified) {
+          setPhase('failed');
+          setErrorMsg(data.message || 'Verification link is invalid or has expired.');
+          return;
+        }
+        completeVerification({ token: data.token, user: data.user });
+        await flushPendingProfile();
+        setPhase('done');
+        toast.success('Email verified! Redirecting to your dashboard…');
+        setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
+      } catch {
+        if (!cancelled) {
+          setPhase('failed');
+          setErrorMsg('Could not verify your email right now. Please try again.');
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [token, completeVerification, navigate]);
+
+  // ── 2) OTP path — submit 6-digit code ────────────────────
+  const submitOtp = async (e) => {
+    e?.preventDefault?.();
+    setErrorMsg('');
+    if (!email.trim()) { setErrorMsg('Please enter your email.'); return; }
+    if (!/^\d{6}$/.test(otp.trim())) { setErrorMsg('OTP must be 6 digits.'); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.verified) {
+        setErrorMsg(data.message || 'Invalid code.');
+        return;
+      }
+      completeVerification({ token: data.token, user: data.user });
+      setPhase('done');
+      toast.success('Email verified! Redirecting to your dashboard…');
+      setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
+    } catch {
+      setErrorMsg('Could not verify your email right now. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ── 3) Resend — fresh link + OTP ────────────────────────
+  const resend = async () => {
+    setErrorMsg('');
+    if (!email.trim()) { setErrorMsg('Please enter your email to resend the code.'); return; }
+    setResending(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.message || 'Could not resend the code.');
+        return;
+      }
+      setResentAt(new Date());
+      toast.success('A fresh verification email has been sent.');
+      // If the user landed here after a failed link, switch them to OTP input
+      if (phase === 'failed') setPhase('input');
+    } catch {
+      setErrorMsg('Could not reach the server. Please try again.');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // ── RENDER ──────────────────────────────────────────────
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#f5f5f5' }}>
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl p-8" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center mb-3"
+              style={{ width: 56, height: 56, borderRadius: '50%', background: '#FFF8E6' }}>
+              {phase === 'done'
+                ? <CheckCircle size={28} style={{ color: '#16a34a' }} />
+                : phase === 'failed'
+                  ? <AlertCircle size={28} style={{ color: '#dc2626' }} />
+                  : <Mail size={28} style={{ color: '#D5AA5B' }} />}
+            </div>
+            <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
+              {phase === 'done' ? 'Email verified!'
+                : phase === 'failed' ? 'Verification failed'
+                : phase === 'verifying' ? 'Verifying your email…'
+                : 'Verify your email'}
+            </h1>
+            <p className="text-sm" style={{ color: '#6b7280' }}>
+              {phase === 'done' ? 'Logging you in to OpenI Hub…'
+                : phase === 'failed' ? errorMsg
+                : phase === 'verifying' ? 'Please wait a moment.'
+                : 'Enter the 6-digit code we emailed you, or click the link in the email.'}
+            </p>
+          </div>
+
+          {/* Verifying — spinner only */}
+          {phase === 'verifying' && (
+            <div className="flex justify-center py-8">
+              <Loader2 size={28} className="animate-spin" style={{ color: '#D5AA5B' }} />
+            </div>
+          )}
+
+          {/* Input — OTP form */}
+          {phase === 'input' && (
+            <form onSubmit={submitOtp} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com" style={inputStyle} autoComplete="email" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>6-digit code</label>
+                <input type="text" inputMode="numeric" pattern="\d{6}" maxLength={6}
+                  value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  style={{ ...inputStyle, fontFamily: 'Courier New, monospace', fontSize: 20, letterSpacing: 6, textAlign: 'center' }}
+                  autoComplete="one-time-code" autoFocus />
+              </div>
+              {errorMsg && (
+                <div className="flex items-start gap-2 p-2.5 rounded-lg text-xs"
+                  style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                  <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+              <button type="submit" disabled={submitting || otp.length !== 6 || !email.trim()}
+                className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
+                style={{
+                  background: (otp.length === 6 && email.trim() && !submitting) ? '#D5AA5B' : '#e5e7eb',
+                  color:      (otp.length === 6 && email.trim() && !submitting) ? '#fff' : '#9ca3af',
+                  cursor:     (otp.length === 6 && email.trim() && !submitting) ? 'pointer' : 'not-allowed',
+                }}>
+                {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
+                Verify email
+              </button>
+              <div className="text-center pt-2">
+                <button type="button" onClick={resend} disabled={resending || !email.trim()}
+                  className="text-xs font-semibold inline-flex items-center gap-1.5"
+                  style={{ color: '#D5AA5B', background: 'none', border: 'none', cursor: resending ? 'not-allowed' : 'pointer' }}>
+                  {resending ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                  {resentAt ? `Sent again at ${resentAt.toLocaleTimeString()}` : 'Resend code & link'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Failed — let them resend or jump to OTP */}
+          {phase === 'failed' && (
+            <div className="space-y-3">
+              {errorMsg && (
+                <div className="flex items-start gap-2 p-2.5 rounded-lg text-xs"
+                  style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                  <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Your email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com" style={inputStyle} autoComplete="email" />
+              </div>
+              <button onClick={resend} disabled={resending || !email.trim()}
+                className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
+                style={{
+                  background: (email.trim() && !resending) ? '#D5AA5B' : '#e5e7eb',
+                  color:      (email.trim() && !resending) ? '#fff' : '#9ca3af',
+                  cursor:     (email.trim() && !resending) ? 'pointer' : 'not-allowed',
+                }}>
+                {resending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                Send a fresh link & code
+              </button>
+              <p className="text-center text-xs" style={{ color: '#9ca3af' }}>
+                We will email you a new link and a new 6-digit code.
+              </p>
+            </div>
+          )}
+
+          {/* Done — small success message; redirect handles routing */}
+          {phase === 'done' && (
+            <div className="text-center py-4">
+              <Loader2 size={20} className="inline-block animate-spin" style={{ color: '#D5AA5B' }} />
+              <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>Taking you to your dashboard…</p>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="text-center mt-6 pt-4 border-t" style={{ borderColor: '#f3f4f6' }}>
+            <Link to="/login" className="text-xs" style={{ color: '#9ca3af' }}>
+              Back to login
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

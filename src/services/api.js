@@ -26,6 +26,20 @@ async function request(method, path, body = null, isFormData = false) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    // s49e: gated-action 403 — caller is logged in but email_verified_at IS NULL.
+    // Surface a structured error with code AND emit a global event so any
+    // un-caught path still surfaces an actionable UX (toast + redirect).
+    if (res.status === 403 && data.code === 'EMAIL_NOT_VERIFIED') {
+      try {
+        window.dispatchEvent(new CustomEvent('openi:email-not-verified', {
+          detail: { message: data.message }
+        }));
+      } catch { /* SSR / non-browser context */ }
+      const err = new Error(data.message || 'Please verify your email to perform this action.');
+      err.code = 'EMAIL_NOT_VERIFIED';
+      err.status = 403;
+      throw err;
+    }
     throw new Error(data.message || `HTTP ${res.status}`);
   }
   return data;

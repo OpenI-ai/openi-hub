@@ -1,11 +1,14 @@
-import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthContext';
 
 // Pages — Auth
 import Landing           from './pages/auth/Landing';
 import Register          from './pages/auth/Register';
+import VerifyEmail       from './pages/auth/VerifyEmail';
+import ForgotPassword    from './pages/auth/ForgotPassword';
+import ResetPassword     from './pages/auth/ResetPassword';
 
 // Pages — Public
 import PublicMarketplace from './pages/public/PublicMarketplace';
@@ -127,11 +130,40 @@ function LoginRoute() {
   return user ? <Navigate to="/dashboard" replace /> : <Login />;
 }
 
+// s49e — global handler: when ANY API call rejects with 403 EMAIL_NOT_VERIFIED,
+// route the user to /verify-email and show a toast. Must be a child of
+// BrowserRouter to access useNavigate.
+function EmailVerifyBridge() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handler = (e) => {
+      // Avoid loop if we're already on the verify page
+      if (window.location.pathname.startsWith('/verify-email')) return;
+      try {
+        const stored = localStorage.getItem('openi_user');
+        const u = stored ? JSON.parse(stored) : null;
+        const target = u?.email
+          ? `/verify-email?email=${encodeURIComponent(u.email)}`
+          : '/verify-email';
+        // Lazy import toast to avoid cycle; if missing, navigate is enough.
+        import('react-hot-toast').then(({ default: toast }) => {
+          toast.error(e?.detail?.message || 'Please verify your email to perform this action.');
+        }).catch(() => {});
+        navigate(target);
+      } catch { /* swallow — best-effort UX */ }
+    };
+    window.addEventListener('openi:email-not-verified', handler);
+    return () => window.removeEventListener('openi:email-not-verified', handler);
+  }, [navigate]);
+  return null;
+}
+
 // ── App ───────────────────────────────────────────────────────
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <EmailVerifyBridge />
         {/* s48 — Suspense boundary for lazy-loaded routes (recharts surfaces) */}
         <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
         <Routes>
@@ -141,6 +173,10 @@ export default function App() {
           {/* Public auth pages */}
           <Route path="/landing"         element={<Landing />} />
           <Route path="/register"        element={<Register />} />
+          <Route path="/verify-email"        element={<VerifyEmail />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/forgot-password"       element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/reports"            element={<PublicReports />} />
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />

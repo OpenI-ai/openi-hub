@@ -40,6 +40,13 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
     });
     const data = await res.json();
+    // s49e: Email-not-verified gate — backend issues a fresh code, client redirects to /verify-email
+    if (res.status === 403 && data.code === 'EMAIL_NOT_VERIFIED') {
+      const err = new Error(data.message || 'Please verify your email first.');
+      err.code = 'EMAIL_NOT_VERIFIED';
+      err.email = data.email || email.trim().toLowerCase();
+      throw err;
+    }
     if (!res.ok) throw new Error(data.message || 'Invalid credentials');
 
     if (data.mfa_required) {
@@ -85,13 +92,30 @@ export function AuthProvider({ children }) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Registration failed');
-    // Auto-login after registration (skip MFA for new users)
+    // s49e: backend may return { verification_required, email } instead of { token, user }
+    // when email-verify is required. Caller decides what to render next.
+    if (data.verification_required) {
+      return data;
+    }
+    // Bypass-list path (admin / *@demo.openi.ai): backend issued a session token immediately.
     const userData = { ...data.user, token: data.token };
     setUser(userData);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
     return data;
+  };
+
+  // s49e: After /verify-email or /verify-otp succeeds, backend returns { verified, token, user }.
+  // This helper finalizes the session.
+  const completeVerification = ({ token, user: userObj }) => {
+    if (!token || !userObj) return false;
+    const userData = { ...userObj, token };
+    setUser(userData);
+    localStorage.setItem('openi_token', token);
+    localStorage.setItem('openi_user', JSON.stringify(userData));
+    seedFromUser(userData);
+    return true;
   };
 
   const updateUser = (updates) => {
@@ -111,7 +135,7 @@ export function AuthProvider({ children }) {
   if (loading) return null;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, verifyMFA, mfaStep, register, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout, verifyMFA, mfaStep, register, completeVerification, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

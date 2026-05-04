@@ -44,6 +44,13 @@ export default function Login() {
       }
       // else: MFA path — stay on this page, mfaStep is now true and the form switches.
     } catch (err) {
+      // s49e: Email-not-verified — backend has already re-issued a fresh code/link.
+      // Redirect to /verify-email so the user can enter the OTP or click the new link.
+      if (err.code === 'EMAIL_NOT_VERIFIED') {
+        const target = `/verify-email?email=${encodeURIComponent(err.email || email.trim().toLowerCase())}`;
+        navigate(target, { replace: true });
+        return;
+      }
       setError(err.message);
     } finally {
       setLoading(false);
@@ -131,7 +138,12 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Password</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
+                    <Link to="/forgot-password" className="text-xs font-semibold" style={{ color: '#D5AA5B' }}>
+                      Forgot password?
+                    </Link>
+                  </div>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }} />
                     <input

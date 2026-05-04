@@ -206,8 +206,21 @@ export default function Register() {
       // as Step 1 "Organization Name"). Pass it through to backend as
       // organization_name for backward-compatible bootstrap.
       const orgFromProfile = orgField ? (profileData[orgField] || '').trim() : '';
-      await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined);
-      // Persist Step 2 profile data (was previously collected but discarded)
+      const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined);
+
+      // s49e: most users get verification_required:true and NO session token.
+      // We can't PUT /profile/me without a token, so stash profileData in
+      // sessionStorage and let VerifyEmail flush it after verify succeeds.
+      if (registerResult?.verification_required) {
+        try {
+          sessionStorage.setItem('openi_pending_profile', JSON.stringify(profileData));
+        } catch { /* sessionStorage may be disabled — not blocking */ }
+        const url = `/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`;
+        navigate(url, { replace: true });
+        return;
+      }
+
+      // Bypass-list path — session token already issued by backend; persist Step 2 data.
       const hasProfileData = Object.values(profileData).some(v =>
         Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
       );
