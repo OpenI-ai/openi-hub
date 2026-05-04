@@ -101,6 +101,18 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/dashboard/login" replace />;
 }
 
+// ── Guard: admin-only routes (s49 fix) ────────────────────────
+// Sidebar already hides admin nav for non-admins (DashboardLayout
+// roles filter) and backend rejects API calls with 401, but direct-URL
+// access landed users on an empty admin shell that looked broken.
+// This guard sends non-admin users back to the dashboard root.
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/dashboard/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 // ── Root route: show Landing for guests, Dashboard for logged-in users ────
 function RootRoute() {
   const { user } = useAuth();
@@ -216,13 +228,13 @@ export default function App() {
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
             <Route path="features"           element={<FeatureMap />} />
-            <Route path="admin/analytics"    element={<AdminAnalytics />} />
-            <Route path="admin/console"      element={<AdminConsole />} />
-            <Route path="admin/users"        element={<AdminUsers />} />
-            <Route path="admin/challenges"   element={<AdminChallenges />} />
-            <Route path="admin/startups"     element={<AdminStartups />} />
-            <Route path="admin/licenses"     element={<AdminLicenses />} />
-            <Route path="admin/claims"       element={<AdminClaims />} />
+            <Route path="admin/analytics"    element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
+            <Route path="admin/console"      element={<AdminRoute><AdminConsole /></AdminRoute>} />
+            <Route path="admin/users"        element={<AdminRoute><AdminUsers /></AdminRoute>} />
+            <Route path="admin/challenges"   element={<AdminRoute><AdminChallenges /></AdminRoute>} />
+            <Route path="admin/startups"     element={<AdminRoute><AdminStartups /></AdminRoute>} />
+            <Route path="admin/licenses"     element={<AdminRoute><AdminLicenses /></AdminRoute>} />
+            <Route path="admin/claims"       element={<AdminRoute><AdminClaims /></AdminRoute>} />
             <Route path="claims"              element={<MyClaims />} />
             <Route path="clusters"            element={<Clusters />} />
             <Route path="clusters/:id"        element={<ClusterDetail />} />
