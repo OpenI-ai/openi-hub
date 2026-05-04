@@ -2,9 +2,28 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { knowledgeAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { BookOpen, Search, Lock, Eye, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Star, Download } from 'lucide-react';
+import {
+  BookOpen, Search, Lock, Eye, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Star, Download,
+  Brain, Zap, TrendingUp, ShoppingBag, Shirt, Heart, Building2, Shield, Cpu, FlaskConical, Layers,
+} from 'lucide-react';
 
 const TYPE_ICONS = { report: FileText, article: BookOpen, sop: Bookmark, training_module: PlayCircle };
+
+// s49: per-sector icons + colors so report cards aren't all identical FileText.
+// Sector is read from the first tag (Strapi reports merge via tags[]).
+const SECTOR_ICONS = {
+  'Agentic AI': Brain, 'DeepTech': Zap, 'FinTech': TrendingUp, 'CPG': ShoppingBag,
+  'FashionTech': Shirt, 'ImpactTech': Heart, 'ConstructionTech': Building2,
+  'Cyber Security': Shield, 'AI': Cpu, 'AI/ML': Cpu, 'Defence': Shield,
+  'CleanTech': FlaskConical, 'HealthTech': Heart, 'Quantum': Layers, 'Semiconductor': Cpu,
+};
+const SECTOR_COLORS = {
+  'Agentic AI': '#8b5cf6', 'DeepTech': '#D5AA5B', 'FinTech': '#3b82f6', 'CPG': '#f97316',
+  'FashionTech': '#ec4899', 'ImpactTech': '#10b981', 'ConstructionTech': '#78716c',
+  'Cyber Security': '#ef4444', 'AI': '#6366f1', 'AI/ML': '#6366f1', 'Defence': '#16a34a',
+  'CleanTech': '#10b981', 'HealthTech': '#ef4444', 'Quantum': '#06b6d4', 'Semiconductor': '#f97316',
+};
+
 const ACCESS_COLORS = { public: 'bg-accent-100 text-accent-700', registered: 'bg-blue-100 text-blue-700', restricted: 'bg-yellow-100 text-yellow-700', classified: 'bg-red-100 text-red-700' };
 
 export default function Knowledge() {
@@ -75,12 +94,23 @@ export default function Knowledge() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filtered.map(article => {
-          const Icon = TYPE_ICONS[article.type] || BookOpen;
+          // s49: pick icon by sector (first tag), fall back to type-default, fall back to BookOpen
+          const sectorTag = (article.tags || []).find(t => SECTOR_ICONS[t]);
+          const Icon = sectorTag ? SECTOR_ICONS[sectorTag] : (TYPE_ICONS[article.type] || BookOpen);
+          const sectorColor = sectorTag ? SECTOR_COLORS[sectorTag] : '#D5AA5B';
           return (
-            <div key={article.id} onClick={() => setSelected(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group">
+            <div key={article.id} onClick={() => setSelected(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
+              style={{ transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = sectorColor; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary-200">
-                  <Icon size={22} className="text-primary-600" />
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: `${sectorColor}15`,
+                    border: `1px solid ${sectorColor}30`,
+                  }}>
+                  <Icon size={22} style={{ color: sectorColor }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-2 mb-1">
