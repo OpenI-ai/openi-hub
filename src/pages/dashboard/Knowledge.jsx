@@ -14,6 +14,14 @@ export default function Knowledge() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // s49 fix: dismiss the report modal on Escape key for keyboard users
+  useEffect(() => {
+    if (!selected) return;
+    const onKeyDown = (e) => { if (e.key === 'Escape') setSelected(null); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selected]);
+
   useEffect(() => {
     knowledgeAPI.list()
       .then(data => {
@@ -97,8 +105,14 @@ export default function Knowledge() {
       </div>
 
       {selected && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-xl shadow-2xl">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 w-full max-w-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start justify-between mb-4">
               <div>
                 <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${ACCESS_COLORS[selected.access]} mb-2 inline-block capitalize`}>{selected.access}</span>
