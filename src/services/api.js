@@ -301,6 +301,7 @@ export const corporateAPI = {
   listChallenges:    (params = {})   => get(`/corporate/challenges?${new URLSearchParams(params)}`),
   getChallenge:      (id)            => get(`/corporate/challenges/${id}`),
   updateChallenge:   (id, data)      => put(`/corporate/challenges/${id}`, data),
+  deleteChallenge:   (id)            => del(`/corporate/challenges/${id}`),
   updateApplication: (cid, aid, data) => put(`/corporate/challenges/${cid}/applications/${aid}`, data),
   createCollab:      (data)          => post('/corporate/collaborations', data),
   listCollabs:       (params = {})   => get(`/corporate/collaborations?${new URLSearchParams(params)}`),

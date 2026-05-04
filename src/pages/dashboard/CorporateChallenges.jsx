@@ -248,6 +248,21 @@ export default function CorporateChallenges() {
     finally { setSaving(false); }
   };
 
+  const deleteChallenge = async () => {
+    if (!detail) return;
+    const ok = window.confirm(
+      `Delete "${detail.title}"?\n\nThis permanently removes the challenge and ALL applications, team members, and evaluations attached to it. This cannot be undone.`
+    );
+    if (!ok) return;
+    try {
+      await corporateAPI.deleteChallenge(detail.id);
+      toast.success('Challenge deleted');
+      setSelected(null);
+      setDetail(null);
+      load();
+    } catch (err) { toast.error(err.message || 'Failed to delete challenge'); }
+  };
+
   const changeStatus = async (newStatus) => {
     try {
       await corporateAPI.updateChallenge(selected, { status: newStatus });
@@ -302,6 +317,11 @@ export default function CorporateChallenges() {
               <button onClick={startEdit}
                 style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
                 Edit
+              </button>
+              <button onClick={deleteChallenge}
+                title="Delete challenge"
+                style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: '#fff', color: '#c43c3c', border: '1px solid #c43c3c40', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Trash2 size={12} /> Delete
               </button>
               {/* Share buttons */}
               <button onClick={() => {
