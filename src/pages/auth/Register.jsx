@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
-import { claimAPI } from '../../services/api';
+import { claimAPI, profileAPI } from '../../services/api';
+import TaxonomySelect from '../../components/TaxonomySelect';
 import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
@@ -120,6 +121,19 @@ function FormField({ field, value, onChange }) {
       </div>
     );
   }
+  if (type === 'taxonomy_select') {
+    return (
+      <TaxonomySelect
+        taxonomy={field.taxonomy}
+        value={value}
+        onChange={onChange}
+        label={label}
+        required={required}
+        inputStyle={inputStyle}
+        labelClassName="block text-sm font-medium mb-1.5"
+      />
+    );
+  }
   // text, number, url, email
   return (
     <div>
@@ -155,7 +169,6 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
   const [showPwd, setShowPwd] = useState(false);
-  const [orgName, setOrgName] = useState('');
   const [profileData, setProfileData] = useState({});
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
@@ -175,7 +188,22 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      await register(name.trim(), email.trim(), password, personaType, orgName || undefined);
+      // Org name now lives in Step 2's persona-specific field (was duplicated
+      // as Step 1 "Organization Name"). Pass it through to backend as
+      // organization_name for backward-compatible bootstrap.
+      const orgFromProfile = orgField ? (profileData[orgField] || '').trim() : '';
+      await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined);
+      // Persist Step 2 profile data (was previously collected but discarded)
+      const hasProfileData = Object.values(profileData).some(v =>
+        Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
+      );
+      if (hasProfileData) {
+        try {
+          await profileAPI.updateMyProfile(profileData);
+        } catch {
+          // Don't block success screen — user can edit profile later
+        }
+      }
       // Phase 53: after startup registration, detect matching imported startups
       if (personaType === 'startup') {
         try {
@@ -346,12 +374,6 @@ export default function Register() {
               <div>
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email *</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
-                  style={inputStyle} onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Organization Name</label>
-                <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)}
-                  placeholder={`Your ${persona.label.toLowerCase()} / organization name`}
                   style={inputStyle} onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
               </div>
               <div>

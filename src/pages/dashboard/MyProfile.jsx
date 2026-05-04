@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
-import { profileAPI, startupProfileAPI, publicAPI } from '../../services/api';
+import { profileAPI, startupProfileAPI } from '../../services/api';
 import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import AutoFillMyProfile from '../../components/AutoFillMyProfile';
+import TaxonomySelect, { useTaxonomy } from '../../components/TaxonomySelect';
 import toast from 'react-hot-toast';
 
 const inputStyle = {
@@ -56,84 +57,6 @@ function MultiSelect({ options = [], value = [], onChange }) {
           {opt}
         </button>
       ))}
-    </div>
-  );
-}
-
-// ── Taxonomy data cache (loaded once per session) ──────────────
-let _taxonomyCache = null;
-let _taxonomyPromise = null;
-function useTaxonomy() {
-  const [data, setData] = useState(_taxonomyCache);
-  useEffect(() => {
-    if (_taxonomyCache) { setData(_taxonomyCache); return; }
-    if (!_taxonomyPromise) {
-      _taxonomyPromise = publicAPI.getTaxonomy().then(d => { _taxonomyCache = d; return d; }).catch(() => null);
-    }
-    _taxonomyPromise.then(d => { if (d) setData(d); });
-  }, []);
-  return data;
-}
-
-// ── TaxonomySelect — searchable dropdown for taxonomy items ────
-function TaxonomySelect({ taxonomy, value, onChange, label, required }) {
-  const tax = useTaxonomy();
-  const items = tax?.[taxonomy] || [];
-  const parents = items.filter(i => !i.parent_id);
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  // Build flat display list: parent → children grouped
-  const displayList = [];
-  parents.forEach(p => {
-    displayList.push({ name: p.name, level: 0 });
-    items.filter(c => c.parent_id === p.id).forEach(c => {
-      displayList.push({ name: c.name, level: 1 });
-    });
-  });
-
-  const filtered = displayList.filter(o => o.name.toLowerCase().includes(query.toLowerCase()));
-
-  return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
-        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
-      </label>
-      <div onClick={() => setOpen(true)}
-        style={{ ...inputStyle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ color: value ? '#1a1a1a' : '#9ca3af', fontSize: 13 }}>{value || 'Select...'}</span>
-        <ChevronDown size={13} style={{ color: '#aaa' }} />
-      </div>
-      {open && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 260, overflowY: 'auto' }}>
-          <div style={{ padding: '6px 10px', borderBottom: '1px solid #f3f4f6' }}>
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search..."
-              autoFocus style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, padding: '4px 0', background: 'transparent' }} />
-          </div>
-          {filtered.length === 0 ? (
-            <div style={{ padding: '12px 14px', fontSize: 12, color: '#999', textAlign: 'center' }}>No matches</div>
-          ) : filtered.map((o, idx) => {
-            const isSelected = value === o.name;
-            return (
-              <div key={`${o.name}-${idx}`}
-                onClick={() => { onChange(o.name); setOpen(false); setQuery(''); }}
-                style={{ padding: '8px 14px', paddingLeft: o.level > 0 ? 28 : 14, fontSize: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isSelected ? '#D5AA5B10' : 'transparent', color: isSelected ? '#D5AA5B' : (o.level === 0 ? '#1a1a1a' : '#555'), fontWeight: o.level === 0 ? 600 : 400 }}
-                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#f9fafb'; }}
-                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? '#D5AA5B10' : 'transparent'; }}>
-                <span>{o.level > 0 ? '↳ ' : ''}{o.name}</span>
-                {isSelected && <CheckCircle size={12} style={{ color: '#D5AA5B' }} />}
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
