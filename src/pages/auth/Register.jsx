@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
 import { claimAPI, profileAPI } from '../../services/api';
 import TaxonomySelect from '../../components/TaxonomySelect';
+import TaxonomyTags from '../../components/TaxonomyTags';
 import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
@@ -129,6 +130,19 @@ function FormField({ field, value, onChange }) {
         onChange={onChange}
         label={label}
         required={required}
+        inputStyle={inputStyle}
+        labelClassName="block text-sm font-medium mb-1.5"
+      />
+    );
+  }
+  if (type === 'taxonomy_tags') {
+    return (
+      <TaxonomyTags
+        taxonomy={field.taxonomy}
+        value={value || []}
+        onChange={onChange}
+        placeholder={placeholder}
+        label={label}
         inputStyle={inputStyle}
         labelClassName="block text-sm font-medium mb-1.5"
       />

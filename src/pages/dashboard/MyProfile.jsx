@@ -5,7 +5,8 @@ import { profileAPI, startupProfileAPI } from '../../services/api';
 import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import AutoFillMyProfile from '../../components/AutoFillMyProfile';
-import TaxonomySelect, { useTaxonomy } from '../../components/TaxonomySelect';
+import TaxonomySelect from '../../components/TaxonomySelect';
+import TaxonomyTags from '../../components/TaxonomyTags';
 import toast from 'react-hot-toast';
 
 const inputStyle = {
@@ -57,65 +58,6 @@ function MultiSelect({ options = [], value = [], onChange }) {
           {opt}
         </button>
       ))}
-    </div>
-  );
-}
-
-// ── TaxonomyTags — tag input with taxonomy autocomplete ────────
-function TaxonomyTags({ taxonomy, value = [], onChange, placeholder, label }) {
-  const tax = useTaxonomy();
-  const items = tax?.[taxonomy] || [];
-  const [input, setInput] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setShowSuggestions(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const addTag = (tag) => {
-    const trimmed = tag.trim();
-    if (trimmed && !value.includes(trimmed)) { onChange([...value, trimmed]); }
-    setInput(''); setShowSuggestions(false);
-  };
-
-  const suggestions = input.length >= 1
-    ? items.filter(i => i.name.toLowerCase().includes(input.toLowerCase()) && !value.includes(i.name)).slice(0, 12)
-    : [];
-
-  return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
-      <div className="flex flex-wrap gap-1.5 mb-1.5">
-        {(value || []).map((t, i) => (
-          <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-            style={{ background: '#D5AA5B15', color: '#D5AA5B', border: '1px solid #D5AA5B30' }}>
-            {t}
-            <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))}><X size={12} /></button>
-          </span>
-        ))}
-      </div>
-      <input type="text" value={input}
-        onChange={e => { setInput(e.target.value); setShowSuggestions(true); }}
-        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(input); } }}
-        onFocus={() => { if (input.length >= 1) setShowSuggestions(true); }}
-        placeholder={placeholder} style={inputStyle}
-        onBlur={() => { setTimeout(() => setShowSuggestions(false), 200); if (input.trim()) addTag(input); }} />
-      {showSuggestions && suggestions.length > 0 && (
-        <div style={{ position: 'absolute', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 200, overflowY: 'auto' }}>
-          {suggestions.map(s => (
-            <div key={s.id}
-              onClick={() => addTag(s.name)}
-              style={{ padding: '8px 14px', paddingLeft: s.level > 0 ? 24 : 14, fontSize: 12, cursor: 'pointer', color: s.level === 0 ? '#1a1a1a' : '#555', fontWeight: s.level === 0 ? 600 : 400 }}
-              onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              {s.level > 0 ? '↳ ' : ''}{s.name}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
