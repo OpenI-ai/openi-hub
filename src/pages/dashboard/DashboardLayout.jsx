@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS } from "../../config/personas";
 import SearchBar from "../../components/SearchBar";
+import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
 
 // ── OpenI brand tokens (light theme – matches openi.ai) ───────
 const C = {
@@ -84,7 +85,7 @@ const NAV = [
 // Notifications — empty until platform has a real notification system
 
 export default function DashboardLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, activeRole } = useAuth();  // Phase 60.3 (s50): read activeRole
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -97,12 +98,14 @@ export default function DashboardLayout() {
     connectionAPI.stats().then(d => setPendingConns(d.pending_incoming || 0)).catch(() => {});
   }, []);
 
-  // For admin/evaluator: use legacy NAV with role filtering
-  // For all other personas: use PERSONA_NAV config
-  const isLegacyRole = user?.role === 'admin' || user?.role === 'evaluator';
+  // Phase 60.3 (s50): nav filtering keyed on activeRole, NOT primary role.
+  // Single-role users see identical behaviour because activeRole === user.role.
+  // Multi-role users see the sidebar repaint when they switch tabs in <RoleTabs>.
+  const navRole = activeRole || user?.role;
+  const isLegacyRole = navRole === 'admin' || navRole === 'evaluator';
   const filteredNav = isLegacyRole
-    ? NAV.filter(item => !item.roles || item.roles.includes(user?.role))
-    : (PERSONA_NAV[user?.role] || PERSONA_NAV.startup).map(item => ({
+    ? NAV.filter(item => !item.roles || item.roles.includes(navRole))
+    : (PERSONA_NAV[navRole] || PERSONA_NAV.startup).map(item => ({
         ...item,
         Icon: ICON_MAP[item.icon] || LayoutDashboard,
         // Inject pending count badge on My Network nav item
@@ -473,6 +476,9 @@ export default function DashboardLayout() {
 
         {/* Page content */}
         <main style={{ flex:1, overflowY:"auto", background: C.pageBg }}>
+          {/* Phase 60.3 (s50): persistent role tabs at top of every dashboard page.
+              Hidden for admin/evaluator (single-role legacy personas) inside RoleTabs itself. */}
+          <RoleTabs />
           <Outlet />
         </main>
       </div>

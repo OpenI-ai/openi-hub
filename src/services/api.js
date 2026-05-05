@@ -11,13 +11,19 @@ export function getToken()          { return localStorage.getItem('openi_token')
 export function setToken(t)         { localStorage.setItem('openi_token', t); }
 export function removeToken()       { localStorage.removeItem('openi_token'); }
 
+// Phase 60.3 (s50): active-role header. Stored in localStorage by AuthContext;
+// authMiddleware on the server validates it against the user's roles[].
+export function getActiveRole()     { return localStorage.getItem('openi_active_role'); }
+
 // ── Core fetch wrapper ──────────────────────────────────────
 async function request(method, path, body = null, isFormData = false) {
-  const token   = getToken();
-  const headers = {};
+  const token      = getToken();
+  const activeRole = getActiveRole();
+  const headers    = {};
 
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-  if (!isFormData) headers['Content-Type'] = 'application/json';
+  if (token)      headers['Authorization']  = `Bearer ${token}`;
+  if (activeRole) headers['X-Active-Role']  = activeRole;
+  if (!isFormData) headers['Content-Type']  = 'application/json';
 
   const options = { method, headers };
   if (body) options.body = isFormData ? body : JSON.stringify(body);
@@ -52,9 +58,11 @@ const del    = (path)        => request('DELETE', path);
 
 // Blob fetch for binary downloads (PDF, etc.)
 async function blobRequest(method, path) {
-  const token = getToken();
-  const headers = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const token      = getToken();
+  const activeRole = getActiveRole();
+  const headers    = {};
+  if (token)      headers['Authorization'] = `Bearer ${token}`;
+  if (activeRole) headers['X-Active-Role'] = activeRole;
   const res = await fetch(`${BASE_URL}${path}`, { method, headers });
   if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
   return res.blob();

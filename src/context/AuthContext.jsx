@@ -5,10 +5,27 @@ const AuthContext = createContext(null);
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Phase 60.3 (s50) — multi-persona helpers
+const ACTIVE_ROLE_KEY = 'openi_active_role';
+
+function getRolesFromUser(u) {
+  if (!u) return [];
+  if (Array.isArray(u.roles) && u.roles.length) return u.roles;
+  if (u.role) return [u.role];
+  return [];
+}
+function getPrimaryRoleFromUser(u) {
+  if (!u) return null;
+  if (u.primary_role) return u.primary_role;
+  if (Array.isArray(u.roles) && u.roles.length) return u.roles[0];
+  return u.role || null;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser]               = useState(null);
   const [mfaStep, setMfaStep]         = useState(false);
   const [mfaToken, setMfaToken]       = useState(null);  // Phase 54: server-issued challenge token
+  const [activeRole, setActiveRoleState] = useState(null); // Phase 60.3
   const [loading, setLoading]         = useState(true);
 
   // Restore session from localStorage on page load
@@ -19,15 +36,32 @@ export function AuthProvider({ children }) {
       if (storedToken && storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
+        // Phase 60.3: restore active role (validated against user.roles[])
+        const stored = localStorage.getItem(ACTIVE_ROLE_KEY);
+        const roles = getRolesFromUser(parsed);
+        const resolved = (stored && roles.includes(stored)) ? stored : getPrimaryRoleFromUser(parsed);
+        setActiveRoleState(resolved);
+        if (resolved) localStorage.setItem(ACTIVE_ROLE_KEY, resolved);
         seedFromUser(parsed);
       }
     } catch {
       localStorage.removeItem('openi_token');
       localStorage.removeItem('openi_user');
+      localStorage.removeItem(ACTIVE_ROLE_KEY);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Phase 60.3 — switch active role. Persists to localStorage so api.js reads
+  // it for the X-Active-Role header on every authed request.
+  const switchRole = (role) => {
+    const roles = getRolesFromUser(user);
+    if (!role || !roles.includes(role)) return false;
+    localStorage.setItem(ACTIVE_ROLE_KEY, role);
+    setActiveRoleState(role);
+    return true;
+  };
 
   // Phase 54: login is step 1 of a possibly-two-step flow.
   // Backend returns either:
@@ -58,6 +92,9 @@ export function AuthProvider({ children }) {
     // No MFA — complete login immediately
     const userData = { ...data.user, token: data.token };
     setUser(userData);
+    const primary = getPrimaryRoleFromUser(userData);
+    setActiveRoleState(primary);
+    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
@@ -76,6 +113,9 @@ export function AuthProvider({ children }) {
 
     const userData = { ...data.user, token: data.token };
     setUser(userData);
+    const primary = getPrimaryRoleFromUser(userData);
+    setActiveRoleState(primary);
+    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
@@ -100,6 +140,9 @@ export function AuthProvider({ children }) {
     // Bypass-list path (admin / *@demo.openi.ai): backend issued a session token immediately.
     const userData = { ...data.user, token: data.token };
     setUser(userData);
+    const primary = getPrimaryRoleFromUser(userData);
+    setActiveRoleState(primary);
+    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
     localStorage.setItem('openi_token', data.token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
@@ -112,6 +155,9 @@ export function AuthProvider({ children }) {
     if (!token || !userObj) return false;
     const userData = { ...userObj, token };
     setUser(userData);
+    const primary = getPrimaryRoleFromUser(userData);
+    setActiveRoleState(primary);
+    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
     localStorage.setItem('openi_token', token);
     localStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
@@ -128,14 +174,24 @@ export function AuthProvider({ children }) {
     setUser(null);
     setMfaStep(false);
     setMfaToken(null);
+    setActiveRoleState(null);
     localStorage.removeItem('openi_token');
     localStorage.removeItem('openi_user');
+    localStorage.removeItem(ACTIVE_ROLE_KEY);
   };
 
   if (loading) return null;
 
+  // Phase 60.3 — derived role helpers, exposed for components that need them
+  const roles        = getRolesFromUser(user);
+  const primaryRole  = getPrimaryRoleFromUser(user);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, verifyMFA, mfaStep, register, completeVerification, updateUser }}>
+    <AuthContext.Provider value={{
+      user, login, logout, verifyMFA, mfaStep, register, completeVerification, updateUser,
+      // Phase 60.3 multi-persona
+      roles, primaryRole, activeRole, switchRole,
+    }}>
       {children}
     </AuthContext.Provider>
   );
