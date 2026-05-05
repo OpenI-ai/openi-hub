@@ -317,8 +317,16 @@ function ChallengeCard({ challenge: c }) {
 }
 
 function StartupCard({ startup: s }) {
+  // s50 (J10 follow-up): cards on /search were static — clicking did nothing.
+  // Now route to the dashboard startup detail page (/dashboard/startups/:id) so
+  // authed users land on the page where the Claim CTA lives. Unauth users get
+  // sent through the auth gate by ProtectedRoute and bounce back.
+  const targetId = s.user_id || s.id;
   return (
-    <div style={{ ...card, padding: 16 }}>
+    <Link
+      to={`/dashboard/startups/${targetId}`}
+      style={{ ...card, padding: 16, display: 'block', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
         {s.logo_url ? <img src={s.logo_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} /> : <Rocket size={20} style={{ color: G }} />}
         <div>
@@ -332,7 +340,7 @@ function StartupCard({ startup: s }) {
         {s.sector && <span style={{ fontSize: 10, background: '#f5f0e6', color: '#8B7355', borderRadius: 6, padding: '2px 8px' }}>{s.sector}</span>}
         {s.stage && <span style={{ fontSize: 10, background: '#eef', color: '#558', borderRadius: 6, padding: '2px 8px' }}>{s.stage}</span>}
       </div>
-    </div>
+    </Link>
   );
 }
 
