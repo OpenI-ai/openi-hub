@@ -9,11 +9,16 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // s49e: After verify succeeds, flush profileData stashed by Register Step 2 to /profile/me.
 // Cleanup is forgiving — failed PUT does not block dashboard redirect.
+// Phase 60.10 fix: read from localStorage (was sessionStorage) so the stash
+// survives Gmail opening the verify link in a new tab. Read both keys during
+// transition so any user mid-flight on the old code still has their stash flushed.
 async function flushPendingProfile() {
   try {
-    const raw = sessionStorage.getItem('openi_pending_profile');
+    const raw = localStorage.getItem('openi_pending_profile')
+             || sessionStorage.getItem('openi_pending_profile');
     if (!raw) return;
     const profileData = JSON.parse(raw);
+    localStorage.removeItem('openi_pending_profile');
     sessionStorage.removeItem('openi_pending_profile');
     const hasData = Object.values(profileData || {}).some(v =>
       Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
@@ -21,7 +26,7 @@ async function flushPendingProfile() {
     if (hasData) {
       try { await profileAPI.updateMyProfile(profileData); } catch { /* non-blocking */ }
     }
-  } catch { /* sessionStorage disabled or JSON corrupt */ }
+  } catch { /* storage disabled or JSON corrupt */ }
 }
 
 const inputStyle = {

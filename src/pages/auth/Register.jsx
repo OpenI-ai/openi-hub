@@ -505,13 +505,18 @@ export default function Register() {
       const orgFromProfile = orgField ? (profileData[orgField] || '').trim() : '';
       const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined, termsAccepted);
 
-      // s49e: most users get verification_required:true and NO session token.
-      // We can't PUT /profile/me without a token, so stash profileData in
-      // sessionStorage and let VerifyEmail flush it after verify succeeds.
+      // s49e + s50: most users get verification_required:true and NO session
+      // token. We can't PUT /profile/me without a token, so stash profileData
+      // and let VerifyEmail flush it after verify succeeds.
+      //
+      // Phase 60.10 fix: localStorage instead of sessionStorage. sessionStorage
+      // is per-tab; Gmail link clicks open verify in a NEW tab where the stash
+      // is invisible -> Step 2 data was being silently lost. localStorage is
+      // shared across tabs of the same origin so the verify-tab can flush.
       if (registerResult?.verification_required) {
         try {
-          sessionStorage.setItem('openi_pending_profile', JSON.stringify(profileData));
-        } catch { /* sessionStorage may be disabled — not blocking */ }
+          localStorage.setItem('openi_pending_profile', JSON.stringify(profileData));
+        } catch { /* localStorage may be disabled — not blocking */ }
         const url = `/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`;
         navigate(url, { replace: true });
         return;
