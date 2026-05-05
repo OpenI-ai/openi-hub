@@ -372,12 +372,20 @@ export default function MyProfile() {
       {/* Profile form */}
       <div className="rounded-xl p-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fields.map(field => (
-            <div key={field.name} className={field.type === 'textarea' || field.type === 'tags' || field.type === 'multiselect' || field.type === 'taxonomy_tags' ? 'md:col-span-2' : ''}>
-              <FormField field={field} value={profileData[field.name]}
-                onChange={val => updateField(field.name, val)} />
-            </div>
-          ))}
+          {fields.map(field => {
+            // Phase 60.10 (s50): inject the form's current country value into the
+            // state field so the State select can switch between the IN-states
+            // dropdown and free-text region input depending on country.
+            const dependentField = field.type === 'state'
+              ? { ...field, country: profileData.country || 'IN' }
+              : field;
+            return (
+              <div key={field.name} className={field.type === 'textarea' || field.type === 'tags' || field.type === 'multiselect' || field.type === 'taxonomy_tags' ? 'md:col-span-2' : ''}>
+                <FormField field={dependentField} value={profileData[field.name]}
+                  onChange={val => updateField(field.name, val)} />
+              </div>
+            );
+          })}
         </div>
 
         {/* Bottom save */}
