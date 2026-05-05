@@ -28,21 +28,51 @@ export function AuthProvider({ children }) {
   const [activeRole, setActiveRoleState] = useState(null); // Phase 60.3
   const [loading, setLoading]         = useState(true);
 
-  // Restore session from localStorage on page load
+  // Restore session from localStorage on page load.
+  // Phase 60.10 fix: also fire a background /auth/me refetch so the cached
+  // roles[] gets refreshed against the canonical backend state. Otherwise a
+  // user who added a role in a previous session would see a stale roles[]
+  // after page reload, because we only set localStorage at login time.
   useEffect(() => {
+    let active = true;
     try {
       const storedToken = localStorage.getItem('openi_token');
       const storedUser  = localStorage.getItem('openi_user');
       if (storedToken && storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
-        // Phase 60.3: restore active role (validated against user.roles[])
         const stored = localStorage.getItem(ACTIVE_ROLE_KEY);
         const roles = getRolesFromUser(parsed);
         const resolved = (stored && roles.includes(stored)) ? stored : getPrimaryRoleFromUser(parsed);
         setActiveRoleState(resolved);
         if (resolved) localStorage.setItem(ACTIVE_ROLE_KEY, resolved);
         seedFromUser(parsed);
+
+        // Background refresh — get canonical roles[] from server. If the user
+        // added/removed a role in another session, this catches it. Failure
+        // is fine — we already rendered from cache.
+        fetch(`${API_URL}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${storedToken}` },
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (!active || !data?.user) return;
+            const fresh = { ...data.user, token: storedToken };
+            setUser(fresh);
+            localStorage.setItem('openi_user', JSON.stringify(fresh));
+            // Re-resolve active role against fresh roles[] in case the cached
+            // active role is no longer valid (was removed in another session).
+            const freshRoles = getRolesFromUser(fresh);
+            const cachedActive = localStorage.getItem(ACTIVE_ROLE_KEY);
+            const nextActive = (cachedActive && freshRoles.includes(cachedActive))
+              ? cachedActive
+              : getPrimaryRoleFromUser(fresh);
+            if (nextActive) {
+              localStorage.setItem(ACTIVE_ROLE_KEY, nextActive);
+              setActiveRoleState(nextActive);
+            }
+          })
+          .catch(() => { /* silent — cache fallback is fine */ });
       }
     } catch {
       localStorage.removeItem('openi_token');
@@ -51,6 +81,7 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
+    return () => { active = false; };
   }, []);
 
   // Phase 60.3 — switch active role. Persists to localStorage so api.js reads
