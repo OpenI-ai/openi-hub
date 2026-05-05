@@ -9,6 +9,8 @@ import Register          from './pages/auth/Register';
 import VerifyEmail       from './pages/auth/VerifyEmail';
 import ForgotPassword    from './pages/auth/ForgotPassword';
 import ResetPassword     from './pages/auth/ResetPassword';
+import Terms             from './pages/auth/Terms';      // Phase 60.7 (s50)
+import Privacy           from './pages/auth/Privacy';    // Phase 60.7 (s50)
 
 // Pages — Public
 import PublicMarketplace from './pages/public/PublicMarketplace';
@@ -174,6 +176,8 @@ export default function App() {
           {/* Public auth pages */}
           <Route path="/landing"         element={<Landing />} />
           <Route path="/register"        element={<Register />} />
+          <Route path="/terms"           element={<Terms />} />     {/* Phase 60.7 (s50) */}
+          <Route path="/privacy"         element={<Privacy />} />   {/* Phase 60.7 (s50) */}
           <Route path="/verify-email"        element={<VerifyEmail />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/forgot-password"       element={<ForgotPassword />} />

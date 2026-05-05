@@ -190,13 +190,15 @@ export default function Register() {
   const [claimCandidates, setClaimCandidates] = useState([]);
   const [claimSubmitting, setClaimSubmitting] = useState(false);
   const [claimResult, setClaimResult] = useState(null);
+  // Phase 60.7: mandatory Terms + Privacy acceptance
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const updateField = (fieldName, value) => {
     setProfileData(prev => ({ ...prev, [fieldName]: value }));
   };
 
   // Validation
-  const step1Valid = name.trim() && email.trim() && password.length >= 6 && password === confirmPwd;
+  const step1Valid = name.trim() && email.trim() && password.length >= 6 && password === confirmPwd && termsAccepted;
 
   const handleRegister = async () => {
     setError('');
@@ -206,7 +208,7 @@ export default function Register() {
       // as Step 1 "Organization Name"). Pass it through to backend as
       // organization_name for backward-compatible bootstrap.
       const orgFromProfile = orgField ? (profileData[orgField] || '').trim() : '';
-      const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined);
+      const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined, termsAccepted);
 
       // s49e: most users get verification_required:true and NO session token.
       // We can't PUT /profile/me without a token, so stash profileData in
@@ -424,11 +426,48 @@ export default function Register() {
                   <p className="text-xs mt-1" style={{ color: '#ef4444' }}>Passwords do not match</p>
                 )}
               </div>
+
+              {/* Phase 60.7 (s50) — Mandatory Terms + Privacy acceptance */}
+              <label
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 10,
+                  padding: '10px 12px', marginTop: 4,
+                  background: termsAccepted ? 'rgba(213,170,91,0.08)' : '#fafafa',
+                  border: `1px solid ${termsAccepted ? '#D5AA5B66' : '#e5e7eb'}`,
+                  borderRadius: 10, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={e => setTermsAccepted(e.target.checked)}
+                  style={{ marginTop: 2, accentColor: '#D5AA5B', cursor: 'pointer', flexShrink: 0 }}
+                />
+                <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>
+                  I have read and agree to the{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer"
+                     style={{ color: '#1D4ED8', textDecoration: 'underline', fontWeight: 500 }}>
+                    Terms of Use
+                  </a>{' '}
+                  and{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                     style={{ color: '#1D4ED8', textDecoration: 'underline', fontWeight: 500 }}>
+                    Privacy Policy
+                  </a>.
+                </span>
+              </label>
+
               <button onClick={() => { setError(''); setStep(2); }} disabled={!step1Valid}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm mt-2 transition-all"
                 style={{ background: step1Valid ? '#D5AA5B' : '#e5e7eb', color: step1Valid ? '#fff' : '#9ca3af', cursor: step1Valid ? 'pointer' : 'not-allowed' }}>
                 Continue <ArrowRight size={16} />
               </button>
+              {!termsAccepted && (name.trim() || email.trim() || password) && (
+                <p className="text-xs text-center" style={{ color: '#9ca3af', marginTop: -4 }}>
+                  Please accept the Terms of Use and Privacy Policy to continue.
+                </p>
+              )}
             </div>
           )}
 

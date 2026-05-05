@@ -124,11 +124,11 @@ export function AuthProvider({ children }) {
     return true;
   };
 
-  const register = async (name, email, password, role, organization_name) => {
+  const register = async (name, email, password, role, organization_name, terms_accepted = false) => {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email: email.trim().toLowerCase(), password, role, organization_name }),
+      body: JSON.stringify({ name, email: email.trim().toLowerCase(), password, role, organization_name, terms_accepted }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Registration failed');

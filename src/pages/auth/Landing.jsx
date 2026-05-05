@@ -56,7 +56,19 @@ const DEFAULT_STATS = [
   { value: '\u2014', label: 'Applications Submitted' },
 ];
 
-const DEFAULT_PARTNERS = ['DRDO', 'DPIIT', 'iDEX', 'NASSCOM', 'Startup India', 'AIM'];
+// Phase 60.7 (s50) — real partners + logo-ready data shape.
+// Each entry has a `slug` matching a file in public/partners/<slug>.png (or .svg).
+// If the image is missing the rendering falls back to the text name.
+const DEFAULT_PARTNERS = [
+  { name: 'NAB',                          slug: 'nab' },
+  { name: 'Satin',                        slug: 'satin' },
+  { name: 'Guru Gobind Singh IP University', slug: 'ggsipu' },
+  { name: 'SonderConnect',                slug: 'sonderconnect' },
+  { name: 'Diageo',                       slug: 'diageo' },
+  { name: 'Aditya Birla Group',           slug: 'aditya-birla' },
+  { name: 'Karnataka Digital Economy Mission', slug: 'karnataka-digital-economy' },
+  { name: 'Dentsu',                       slug: 'dentsu' },
+];
 
 const DEFAULT_TESTIMONIALS = [
   { quote: 'The AI Ask search cut our startup discovery time by 80%. We just type what we need in plain English and get ranked matches across sector, stage, and deep-tech fit instantly.', name: 'Priya Sharma', role: 'VP Innovation', org: 'Tata Advanced Systems' },
@@ -81,6 +93,39 @@ function Section({ children, bg = '#fff', className = '', id = '' }) {
     <section id={id} className={`py-20 px-6 ${className}`} style={{ background: bg }}>
       <div className="max-w-6xl mx-auto">{children}</div>
     </section>
+  );
+}
+
+// ── Partner logo (Phase 60.7) ───────────────────────────────
+// Tries /partners/<slug>.png first, then .svg, then falls back to text.
+// Uses native onError to swap to .svg, and a state flag to fallback to text
+// if both image attempts fail.
+function PartnerLogo({ name, slug }) {
+  const [stage, setStage] = useState(slug ? 'png' : 'text');
+  const src = stage === 'png' ? `/partners/${slug}.png`
+            : stage === 'svg' ? `/partners/${slug}.svg`
+            : null;
+
+  if (!src) {
+    return (
+      <span className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#bbb' }}>{name}</span>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      title={name}
+      style={{
+        height: 36,
+        maxWidth: 140,
+        objectFit: 'contain',
+        opacity: 0.9,
+        filter: 'grayscale(0.2)',
+      }}
+      onError={() => setStage(stage === 'png' ? 'svg' : 'text')}
+    />
   );
 }
 
@@ -534,6 +579,28 @@ export default function Landing() {
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
             {hero?.sectors_text || liveSectorsText}
           </p>
+
+          {/* Phase 60.7 (s50) — ISO 27001 trust badge */}
+          <a
+            href="/openi-iso-27001.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-6 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all"
+            style={{
+              background: '#fff',
+              border: `1px solid ${BORDER}`,
+              color: GRAY,
+              textDecoration: 'none',
+            }}
+            title="View ISO/IEC 27001:2022 certificate (PDF)"
+            onMouseEnter={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.color = DARK; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = GRAY; }}
+          >
+            <Shield size={13} style={{ color: GOLD }} />
+            <span>ISO/IEC 27001:2022 Certified</span>
+            <span style={{ color: BORDER }}>&middot;</span>
+            <span style={{ color: GOLD }}>View Certificate</span>
+          </a>
         </div>
       </section>
 
@@ -561,6 +628,9 @@ export default function Landing() {
 
       {/* ═══════════════════════════════════════════════════════════
           PARTNER / TRUST LOGOS
+          Phase 60.7 (s50): renders <img> from public/partners/<slug>.png
+          when entry has a slug; text fallback if image fails to load OR
+          if entry is a plain string (back-compat with CMS string-array).
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-10 px-6" style={{ background: LIGHT_GRAY }}>
         <div className="max-w-6xl mx-auto text-center">
@@ -568,9 +638,14 @@ export default function Landing() {
             Ecosystem Partners &amp; Supporters
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-            {partners.map((name, i) => (
-              <span key={i} className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#bbb' }}>{name}</span>
-            ))}
+            {partners.map((p, i) => {
+              const isObject = typeof p === 'object' && p !== null;
+              const name = isObject ? p.name : p;
+              const slug = isObject ? p.slug : null;
+              return (
+                <PartnerLogo key={i} name={name} slug={slug} />
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1089,14 +1164,34 @@ export default function Landing() {
               <ul className="space-y-2 text-sm">
                 <li><Link to="/dashboard/login" className="hover:text-white transition-colors">Sign In</Link></li>
                 <li><a href="mailto:info@openi.ai" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Use</Link></li>
+                <li>
+                  <a href="/openi-iso-27001.pdf" target="_blank" rel="noopener noreferrer"
+                     className="hover:text-white transition-colors inline-flex items-center gap-1.5">
+                    <Shield size={12} style={{ color: GOLD }} /> ISO 27001 Certificate
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
 
+          {/* Phase 60.7 (s50) — ISO 27001 trust strip */}
+          <div className="border-t pt-6 mb-2 flex flex-wrap items-center justify-center gap-3 text-xs" style={{ borderColor: '#333', color: '#9ca3af' }}>
+            <Shield size={14} style={{ color: GOLD }} />
+            <span>
+              <strong style={{ color: '#fff' }}>OpenI Partners LLP</strong> is{' '}
+              <strong style={{ color: GOLD }}>ISO/IEC 27001:2022 certified</strong> by Bureau Veritas
+              (Cert. No. IND.25.7578/IS/U &middot; valid until 19 June 2028).
+            </span>
+            <a href="/openi-iso-27001.pdf" target="_blank" rel="noopener noreferrer"
+               className="underline hover:text-white">
+              View Certificate (PDF)
+            </a>
+          </div>
+
           {/* Divider */}
-          <div className="border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderColor: '#333' }}>
+          <div className="border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderColor: '#333' }}>
             <p className="text-xs">
               &copy; 2026 OpenI Hub &middot; Built for Startup and Innovation Ecosystem
             </p>
