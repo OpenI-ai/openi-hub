@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { startupAPI, profileViewAPI, claimAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -170,6 +170,10 @@ function userIsClaimEligible(user) {
 export default function StartupProfile() {
   const navigate = useNavigate();
   const { id } = useParams();
+  // s50 (J10 follow-up): callers can pass ?by=user_id to disambiguate the
+  // id-vs-user_id collision (independent SERIAL sequences in startup_profiles).
+  const [searchParams] = useSearchParams();
+  const lookupBy = searchParams.get('by') || undefined;
   const [startup, setStartup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Overview');
@@ -181,7 +185,7 @@ export default function StartupProfile() {
 
   useEffect(() => {
     if (!id) { setLoading(false); return; }
-    startupAPI.get(id)
+    startupAPI.get(id, { by: lookupBy })
       .then(data => {
         const s = data.startup || data;
         setStartup(s);
@@ -195,7 +199,7 @@ export default function StartupProfile() {
         setStartup(null);
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, lookupBy]);
 
   if (loading) return <LoadingSkeleton type="card" />;
   if (!startup) return (

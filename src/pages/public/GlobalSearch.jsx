@@ -319,12 +319,13 @@ function ChallengeCard({ challenge: c }) {
 function StartupCard({ startup: s }) {
   // s50 (J10 follow-up): cards on /search were static — clicking did nothing.
   // Now route to the dashboard startup detail page so authed users land on the
-  // page where the Claim CTA lives. Route is /dashboard/startup-profile/:id
-  // (singular, hyphenated) — there is no /dashboard/startups/:id route.
+  // page where the Claim CTA lives. Append ?by=user_id so the backend resolves
+  // by user_id first — id and user_id are independent SERIAL sequences and a
+  // number like 32 can match BOTH a row's id AND a different row's user_id.
   const targetId = s.user_id || s.id;
   return (
     <Link
-      to={`/dashboard/startup-profile/${targetId}`}
+      to={`/dashboard/startup-profile/${targetId}?by=user_id`}
       style={{ ...card, padding: 16, display: 'block', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>

@@ -165,7 +165,7 @@ export const dashboardAPI = {
 // ── Startups ────────────────────────────────────────────────
 export const startupAPI = {
   list:           (params = {}) => get(`/startups?${new URLSearchParams(params)}`),
-  get:            (id)          => get(`/startups/${id}`),
+  get:            (id, opts={})  => get(`/startups/${id}${opts.by ? `?by=${encodeURIComponent(opts.by)}` : ''}`),
   create:         (data)        => post('/startups', data),
   update:         (id, data)    => put(`/startups/${id}`, data),
   delete:         (id)          => del(`/startups/${id}`),
