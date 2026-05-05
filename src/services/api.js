@@ -132,6 +132,14 @@ export const mfaAPI = {
   verify:  (mfa_token, code)     => post('/auth/mfa/verify',  { mfa_token, code }),
 };
 
+// ── Multi-persona roles (Phase 60.4) ───────────────────────
+export const rolesAPI = {
+  list:       ()                       => get('/auth/roles'),
+  add:        (role, profile = {})     => post('/auth/roles/add',         { role, profile }),
+  setPrimary: (role)                   => post('/auth/roles/set-primary', { role }),
+  remove:     (role)                   => post('/auth/roles/remove',      { role }),
+};
+
 // ── Dashboard ───────────────────────────────────────────────
 export const dashboardAPI = {
   stats: () => get('/dashboard/stats'),

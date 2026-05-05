@@ -85,6 +85,7 @@ import AdminLicenses        from './pages/dashboard/AdminLicenses';
 import AdminClaims          from './pages/dashboard/AdminClaims';
 import MyClaims             from './pages/dashboard/MyClaims';
 import ClaimVerify          from './pages/auth/ClaimVerify';
+import AddRole              from './pages/dashboard/AddRole';     // Phase 60.4b (s50)
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
 import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
@@ -272,6 +273,7 @@ export default function App() {
             <Route path="admin/licenses"     element={<AdminRoute><AdminLicenses /></AdminRoute>} />
             <Route path="admin/claims"       element={<AdminRoute><AdminClaims /></AdminRoute>} />
             <Route path="claims"              element={<MyClaims />} />
+            <Route path="roles/add"           element={<AddRole />} />     {/* Phase 60.4b (s50) */}
             <Route path="clusters"            element={<Clusters />} />
             <Route path="clusters/:id"        element={<ClusterDetail />} />
             <Route path="settings"            element={<Settings />} />
