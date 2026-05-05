@@ -36,7 +36,13 @@ export default function VerifyEmail() {
   const { completeVerification } = useAuth();
 
   // ── STATE ────────────────────────────────────────────────
-  const [phase, setPhase] = useState(token ? 'verifying' : 'input'); // verifying | input | done | failed
+  // Phase 60.11 (s50): Link path is now CONFIRM-CLICK gated, not auto-mount.
+  // - 'confirm'  : token is in URL, show button, wait for user click
+  // - 'verifying': button clicked, POSTing to /auth/verify-email
+  // - 'input'    : no token in URL, OTP entry form
+  // - 'done'     : verified, dashboard redirect imminent
+  // - 'failed'   : token rejected (consumed twice, expired, invalid)
+  const [phase, setPhase] = useState(token ? 'confirm' : 'input');
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [otp, setOtp] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -44,40 +50,51 @@ export default function VerifyEmail() {
   const [resentAt, setResentAt] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // ── 1) Link path — auto-verify on mount when :token present ──
+  // ── 1) Cross-tab sync — if another tab finished verification, jump to dashboard.
+  // The success path writes openi_token to localStorage via completeVerification.
+  // We listen for storage events; when openi_token appears, redirect.
   useEffect(() => {
-    if (!token) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/auth/verify-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
-        });
-        const data = await res.json();
-        if (cancelled) return;
-        if (!res.ok || !data.verified) {
-          setPhase('failed');
-          setErrorMsg(data.message || 'Verification link is invalid or has expired.');
-          return;
-        }
-        completeVerification({ token: data.token, user: data.user });
-        await flushPendingProfile();
+    function onStorage(e) {
+      if (e.key === 'openi_token' && e.newValue && phase !== 'done') {
+        toast.success('Verified in another tab. Taking you to your dashboard…');
         setPhase('done');
-        toast.success('Email verified! Redirecting to your dashboard…');
-        setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
-      } catch {
-        if (!cancelled) {
-          setPhase('failed');
-          setErrorMsg('Could not verify your email right now. Please try again.');
-        }
+        setTimeout(() => navigate('/dashboard', { replace: true }), 1000);
       }
-    })();
-    return () => { cancelled = true; };
-  }, [token, completeVerification, navigate]);
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [phase, navigate]);
 
-  // ── 2) OTP path — submit 6-digit code ────────────────────
+  // ── 2) Confirm button — link path. Pre-fetchers (Gmail / Outlook Safe Links /
+  // Postmark click-tracking) do GET to render previews, which would consume a
+  // single-use token if we auto-fired on mount. Confirm-button-gate prevents that.
+  const confirmLinkVerify = async () => {
+    setErrorMsg('');
+    setPhase('verifying');
+    try {
+      const res = await fetch(`${API_URL}/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.verified) {
+        setPhase('failed');
+        setErrorMsg(data.message || 'Verification link is invalid or has expired.');
+        return;
+      }
+      completeVerification({ token: data.token, user: data.user });
+      await flushPendingProfile();
+      setPhase('done');
+      toast.success('Email verified! Redirecting to your dashboard…');
+      setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
+    } catch {
+      setPhase('failed');
+      setErrorMsg('Could not verify your email right now. Please try again.');
+    }
+  };
+
+  // ── 3) OTP path — submit 6-digit code ────────────────────
   const submitOtp = async (e) => {
     e?.preventDefault?.();
     setErrorMsg('');
@@ -96,6 +113,7 @@ export default function VerifyEmail() {
         return;
       }
       completeVerification({ token: data.token, user: data.user });
+      await flushPendingProfile();
       setPhase('done');
       toast.success('Email verified! Redirecting to your dashboard…');
       setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
@@ -106,7 +124,7 @@ export default function VerifyEmail() {
     }
   };
 
-  // ── 3) Resend — fresh link + OTP ────────────────────────
+  // ── 4) Resend — fresh link + OTP ────────────────────────
   const resend = async () => {
     setErrorMsg('');
     if (!email.trim()) { setErrorMsg('Please enter your email to resend the code.'); return; }
@@ -152,15 +170,32 @@ export default function VerifyEmail() {
               {phase === 'done' ? 'Email verified!'
                 : phase === 'failed' ? 'Verification failed'
                 : phase === 'verifying' ? 'Verifying your email…'
+                : phase === 'confirm' ? 'Confirm your email'
                 : 'Verify your email'}
             </h1>
             <p className="text-sm" style={{ color: '#6b7280' }}>
               {phase === 'done' ? 'Logging you in to OpenI Hub…'
                 : phase === 'failed' ? errorMsg
                 : phase === 'verifying' ? 'Please wait a moment.'
-                : 'Enter the 6-digit code we emailed you, or click the link in the email.'}
+                : phase === 'confirm' ? 'Click the button below to confirm this is really you.'
+                : 'Enter the 6-digit code we emailed you.'}
             </p>
           </div>
+
+          {/* Confirm — explicit button click avoids pre-fetch consumption */}
+          {phase === 'confirm' && (
+            <div className="space-y-3">
+              <button onClick={confirmLinkVerify}
+                className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
+                style={{ background: '#D5AA5B', color: '#fff', cursor: 'pointer' }}>
+                <CheckCircle size={16} /> Verify my email
+              </button>
+              <p className="text-center text-xs leading-relaxed" style={{ color: '#9ca3af' }}>
+                For security, email scanners cannot complete this step on your behalf.
+                Click the button above to confirm.
+              </p>
+            </div>
+          )}
 
           {/* Verifying — spinner only */}
           {phase === 'verifying' && (
@@ -202,6 +237,9 @@ export default function VerifyEmail() {
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
                 Verify email
               </button>
+              <p className="text-center text-xs" style={{ color: '#9ca3af' }}>
+                Or click the verification link in the email we just sent you.
+              </p>
               <div className="text-center pt-2">
                 <button type="button" onClick={resend} disabled={resending || !email.trim()}
                   className="text-xs font-semibold inline-flex items-center gap-1.5"
