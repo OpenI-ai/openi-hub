@@ -220,6 +220,10 @@ export default function App() {
             <Route path="academia"            element={<AcademiaDiscovery />} />
             <Route path="startup-profile"     element={<StartupProfile />} />
             <Route path="startup-profile/:id" element={<StartupProfile />} />
+            {/* s50 (J10): alias /dashboard/startups/:id -> startup-profile/:id so
+                external/copy-pasted deep links to startup detail render the
+                profile + claim CTA instead of falling through to a blank page. */}
+            <Route path="startups/:id"        element={<StartupProfile />} />
             <Route path="register"            element={<RegisterStartup />} />
             <Route path="evaluations"         element={<Evaluations />} />
             <Route path="cohorts"             element={<Cohorts />} />

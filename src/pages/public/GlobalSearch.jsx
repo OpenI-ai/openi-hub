@@ -318,13 +318,13 @@ function ChallengeCard({ challenge: c }) {
 
 function StartupCard({ startup: s }) {
   // s50 (J10 follow-up): cards on /search were static — clicking did nothing.
-  // Now route to the dashboard startup detail page (/dashboard/startups/:id) so
-  // authed users land on the page where the Claim CTA lives. Unauth users get
-  // sent through the auth gate by ProtectedRoute and bounce back.
+  // Now route to the dashboard startup detail page so authed users land on the
+  // page where the Claim CTA lives. Route is /dashboard/startup-profile/:id
+  // (singular, hyphenated) — there is no /dashboard/startups/:id route.
   const targetId = s.user_id || s.id;
   return (
     <Link
-      to={`/dashboard/startups/${targetId}`}
+      to={`/dashboard/startup-profile/${targetId}`}
       style={{ ...card, padding: 16, display: 'block', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
