@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
-import { startupAPI, profileViewAPI } from '../../services/api';
+import { startupAPI, profileViewAPI, claimAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
 import {
   MapPin, Users, TrendingUp, Award, Shield, ChevronRight,
   ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target,
-  DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles
+  DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
+  Flag, Loader2, X, Mail
 } from 'lucide-react';
 
 function TRLBadge({ trl }) {
@@ -30,6 +32,141 @@ function EmptySection({ message }) {
   return <p className="text-gray-400 text-sm py-4 text-center">{message}</p>;
 }
 
+/**
+ * J10 (s50): Claim Startup Modal
+ *
+ * - Fires `POST /claims/request` with { target_startup_user_id, verification_evidence }.
+ * - Backend auto-detects domain match: matching email domain -> domain_auto path
+ *   (sends confirmation email); non-matching -> admin_manual path (admin reviews).
+ * - Both paths surface in MyClaims at /dashboard/my-claims.
+ * - User must explain their relationship to the startup (founder/employee/etc) so an
+ *   admin reviewer can decide on the admin_manual path. The text is also retained as
+ *   audit trail on the domain_auto path.
+ */
+function ClaimStartupModal({ open, onClose, startup, onSuccess }) {
+  const [evidence, setEvidence] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!open) return null;
+
+  const submit = async () => {
+    if (evidence.trim().length < 20) {
+      toast.error('Please describe your relationship to this startup (at least 20 characters)');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await claimAPI.request({
+        target_startup_user_id: startup.user_id,
+        verification_evidence: evidence.trim(),
+      });
+      // Backend returns { claim_id, status, verification_method, next_step }
+      // Status will be 'email_sent' on domain-auto path or 'pending' on admin-manual path.
+      if (res?.status === 'email_sent') {
+        toast.success('Claim submitted — check your email to confirm');
+      } else {
+        toast.success('Claim submitted — awaiting admin review');
+      }
+      onSuccess?.(res);
+      onClose();
+    } catch (err) {
+      // 409 duplicate or already-claimed; 403 not eligible
+      toast.error(err?.message || 'Failed to submit claim');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(13,33,55,0.55)' }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#FFF8E6' }}>
+              <Flag size={18} style={{ color: '#B45309' }} />
+            </div>
+            <div>
+              <h2 className="text-base font-display font-bold text-gray-900">
+                Claim {startup.company_name || 'this startup'}
+              </h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Tell us how you&rsquo;re affiliated with this profile
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700" aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Info strip */}
+        <div className="rounded-lg p-3 mb-4 text-xs flex gap-2 items-start"
+             style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE' }}>
+          <Mail size={14} className="flex-shrink-0 mt-0.5" />
+          <div>
+            If your email domain matches the startup&rsquo;s website, we&rsquo;ll email you a
+            confirmation link. Otherwise, an admin will review your request manually.
+          </div>
+        </div>
+
+        {/* Evidence */}
+        <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+          Your relationship to this startup <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          value={evidence}
+          onChange={e => setEvidence(e.target.value)}
+          rows={5}
+          placeholder="e.g. I'm the founder/CTO/employee of this company. My LinkedIn: https://… Press mention: https://…"
+          className="w-full text-sm border rounded-lg p-3 outline-none focus:ring-2 focus:ring-amber-200"
+          style={{ borderColor: '#E5E7EB' }}
+          maxLength={2000}
+          disabled={submitting}
+        />
+        <div className="flex justify-between text-[11px] text-gray-400 mt-1 mb-4">
+          <span>Include role, LinkedIn URL, press cross-references where possible</span>
+          <span>{evidence.length}/2000</span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            className="flex-1 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={submitting || evidence.trim().length < 20}
+            className="flex-1 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            style={{ background: '#D5AA5B', color: '#fff' }}
+          >
+            {submitting ? <Loader2 size={14} className="animate-spin" /> : <Flag size={14} />}
+            {submitting ? 'Submitting…' : 'Submit Claim'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const CLAIM_ELIGIBLE_ROLES = new Set(['startup', 'student', 'academia']);
+function userIsClaimEligible(user) {
+  if (!user) return false;
+  const roles = Array.isArray(user.roles) && user.roles.length ? user.roles : (user.role ? [user.role] : []);
+  return roles.some(r => CLAIM_ELIGIBLE_ROLES.has(r));
+}
+
 export default function StartupProfile() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -37,6 +174,10 @@ export default function StartupProfile() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Overview');
   const [watchlisted, setWatchlisted] = useState(false);
+  // J10 (s50): Claim flow
+  const { user } = useAuth();
+  const [claimOpen, setClaimOpen] = useState(false);
+  const [claimSubmitted, setClaimSubmitted] = useState(false);
 
   useEffect(() => {
     if (!id) { setLoading(false); return; }
@@ -130,6 +271,34 @@ export default function StartupProfile() {
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
+              {/* J10 (s50): Claim CTA — visible only if startup is imported, unclaimed,
+                  not the viewer's own row, and viewer has a claim-eligible role.
+                  Submitted state shows a static "Claim Pending" pill. */}
+              {claimSubmitted ? (
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold"
+                  style={{ background: '#FFF8E6', borderColor: '#FCD34D', color: '#B45309' }}
+                  title="We received your claim — check My Claims for status"
+                >
+                  <CheckCircle2 size={13} /> Claim Submitted
+                </span>
+              ) : (
+                user
+                && startup.is_imported
+                && !startup.claimed_at
+                && startup.user_id !== user.id
+                && userIsClaimEligible(user)
+                && (
+                  <button
+                    onClick={() => setClaimOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={{ background: '#D5AA5B', color: '#0D2137' }}
+                    title="Claim ownership of this profile"
+                  >
+                    <Flag size={13} /> Claim This Profile
+                  </button>
+                )
+              )}
               <button onClick={() => setWatchlisted(!watchlisted)} className={`p-2 rounded-lg border transition-all ${watchlisted ? 'border-primary-500 bg-primary-500/20 text-primary-400' : 'border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400'}`}>
                 {watchlisted ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
               </button>
@@ -382,6 +551,14 @@ export default function StartupProfile() {
         {/* Q3 (s21): Similar Startups via cluster-mate discovery */}
         <SimilarStartupsPanel startupId={startup.user_id || startup.id} limit={8} />
       </div>
+
+      {/* J10 (s50): Claim modal */}
+      <ClaimStartupModal
+        open={claimOpen}
+        onClose={() => setClaimOpen(false)}
+        startup={startup}
+        onSuccess={() => setClaimSubmitted(true)}
+      />
     </div>
   );
 }
