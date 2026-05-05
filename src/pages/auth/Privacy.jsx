@@ -22,13 +22,13 @@ const C = {
 export default function Privacy() {
   return (
     <div style={{ background: C.pageBg, minHeight: '100vh' }}>
-      <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 24px 64px' }}>
+      <div className="legal-page-wrap" style={{ maxWidth: 820, margin: '0 auto' }}>
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: C.textMuted,
                               textDecoration: 'none', fontSize: 13, marginBottom: 16 }}>
           <ArrowLeft size={14} /> Back to home
         </Link>
 
-        <div style={{ background: C.cardBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: '32px 36px' }}>
+        <div className="legal-page-card" style={{ background: C.cardBg, border: `1px solid ${C.border}`, borderRadius: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, color: C.gold }}>
             <ShieldCheck size={20} />
             <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase' }}>

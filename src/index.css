@@ -50,3 +50,31 @@ body {
     padding: 4px 8px !important;
   }
 }
+
+/* Phase 60.7 (s50) — Terms + Privacy responsive padding */
+.legal-page-wrap {
+  padding: 32px 24px 64px;
+}
+.legal-page-card {
+  padding: 32px 36px;
+}
+@media (max-width: 640px) {
+  .legal-page-wrap { padding: 20px 12px 48px; }
+  .legal-page-card { padding: 22px 18px; border-radius: 10px !important; }
+  .legal-page-card h1 { font-size: 24px !important; }
+  .legal-page-card h2 { font-size: 16px !important; }
+  .legal-page-card p,
+  .legal-page-card li { font-size: 13.5px !important; }
+}
+
+/* s50 responsive audit — public marketplace filter selects can have
+   minWidth that overflows narrow phones. Override on small screens. */
+@media (max-width: 480px) {
+  select[style*="min-width: 180"],
+  select[style*="minWidth: 180"],
+  select[style*="min-width: 140"],
+  select[style*="minWidth: 140"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
