@@ -5,7 +5,7 @@ import {
   Search, Calendar, MessageSquare, FileText, Award, Database,
   Zap, TrendingUp, CheckCircle2, Rocket, Building2, Landmark,
   GraduationCap, FlaskConical, Home, BookOpen, ChevronDown, ChevronUp,
-  BarChart3, Globe, Star, UserPlus, Menu, X,
+  BarChart3, Globe, Star, UserPlus, Menu, X, Layers,
 } from 'lucide-react';
 import { publicAPI } from '../../services/api';
 import SearchBar from '../../components/SearchBar';
@@ -72,6 +72,7 @@ const DEFAULT_FAQS = [
   { q: 'Can incubators and accelerators track their portfolio health?', a: 'Yes. The Portfolio Health tab inside each Program or Batch shows an 8-vector radar of your portfolio average, flags at-risk startups (overall score < 3 or red flags set), and tracks each startup\u2019s progression across multiple checkpoints \u2014 so you can intervene early and measure the impact of your mentorship.' },
   { q: 'How does the Challenge Marketplace work?', a: 'Corporates, investors, and government bodies post open innovation challenges with sector tags, budget ranges, data rooms, and FAQs. Startups apply with structured proposals; seekers evaluate, rate (1-5 stars), and move applicants through a drag-and-drop pipeline into active collaborations with milestones, tasks, and budget tracking.' },
   { q: 'Does OpenI support multi-currency for global programs?', a: 'Yes. All monetary fields (funding, investment, ticket sizes, perks, etc.) support both INR and USD natively, with compact locale-appropriate display (\u20B95L, \u20B92Cr, $60K, $1.5M). Users can set their preferred currency in Settings \u2192 Profile. No FX conversion \u2014 each amount keeps its entered currency for honest reporting.' },
+  { q: 'I am an investor AND a mentor — do I need two accounts?', a: 'No. One account holds multiple roles. Sign up with your primary role, then add as many additional roles as you need from your dashboard. Each role gets its own dashboard, sidebar, and workflows; switch between them with one click using the role tabs at the top of any dashboard page. One inbox, one watchlist, separate per-role billing if you upgrade to Pro on a specific role.' },
 ];
 
 // ── Reusable section wrapper ───────────────────────────────
@@ -497,7 +498,9 @@ export default function Landing() {
           >
             The AI-native open innovation platform connecting <strong style={{ color: DARK }}>11 ecosystem personas</strong> —
             startups, corporates, investors, incubators, accelerators, students, academia, and more.
-            AI evaluates startups, narrates recommendations, advises on challenges, and analyzes applications — all with one click.
+            <br/>
+            <strong style={{ color: DARK }}>Investor and mentor? Corporate and incubator?</strong> Hold multiple roles on a single account
+            and switch between them in one click. AI evaluates startups, narrates recommendations, and advises on challenges with one click.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
@@ -781,10 +784,10 @@ export default function Landing() {
             Recently Shipped
           </h2>
           <p className="text-base max-w-2xl mx-auto" style={{ color: GRAY }}>
-            The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, and a 39× larger startup database.
+            The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, multi-role accounts, and a 39× larger startup database.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
             <div
               className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
@@ -797,6 +800,19 @@ export default function Landing() {
               Bulk-imported and AI-clustered into 200 semantic groups. Every profile has a 1536-dim embedding for cosine-similarity search across the full corpus.
             </p>
           </div>
+          {/* Phase 60.6 (s50) — multi-role feature card */}
+          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <div
+              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+              style={{ background: GOLD_LIGHT }}
+            >
+              <Layers size={22} style={{ color: GOLD }} />
+            </div>
+            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Multiple Roles, One Account</h3>
+            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
+              Mentor a startup AND fund another. Add Investor, Mentor, Corporate, or any of 11 roles to your account anytime. Switch in one click. One inbox, one watchlist, separate dashboards.
+            </p>
+          </div>
           <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
             <div
               className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
@@ -806,7 +822,7 @@ export default function Landing() {
             </div>
             <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Multi-Space Cluster Bridge</h3>
             <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Students and academics get personalized startup matches by bridging their persona-space cluster (e.g. Robotics, Hypersonics) to relevant startup clusters \u2014 with measurable boost lift on every recommendation.
+              Students and academics get personalized startup matches by bridging their persona-space cluster (e.g. Robotics, Hypersonics) to relevant startup clusters — with measurable boost lift on every recommendation.
             </p>
           </div>
           <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
@@ -818,7 +834,7 @@ export default function Landing() {
             </div>
             <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Click-Impact Analytics</h3>
             <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Every recommendation surface tracks impressions, clicks, and per-cluster CTR. Admins can see which AI matches actually convert \u2014 closing the loop on recommendation quality.
+              Every recommendation surface tracks impressions, clicks, and per-cluster CTR. Admins can see which AI matches actually convert — closing the loop on recommendation quality.
             </p>
           </div>
         </div>
@@ -861,6 +877,9 @@ export default function Landing() {
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
             {pricing?.subtitle || 'Start free. Upgrade when you need more. No credit card required.'}
+          </p>
+          <p className="text-sm max-w-2xl mx-auto mt-3" style={{ color: GRAY }}>
+            <strong style={{ color: DARK }}>Per-role plans:</strong> hold multiple roles on one account and pay only for the roles where you want Pro features. Mentor on Free + Investor on Pro? No problem.
           </p>
         </div>
 
