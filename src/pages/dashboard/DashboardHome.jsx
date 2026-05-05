@@ -50,19 +50,27 @@ const FALLBACK_STATS = [
 ];
 
 export default function DashboardHome() {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const navigate = useNavigate();
+
+  // Phase 60.3 (s50): for multi-persona accounts, honor the active role tab the
+  // user picked, not their legacy single-role column. Without this a corporate
+  // user who switched to their secondary Startup role would still be redirected
+  // to /dashboard/corporate, which then makes corporate-scoped API calls that
+  // fail/stall because the X-Active-Role header is `startup`. Fall back to
+  // user.role for back-compat with old caches that haven't been refreshed yet.
+  const effectiveRole = activeRole || user?.role;
 
   // Phase 20: redirect new users to onboarding wizard
   const ALL_PERSONA_ROLES = ['startup','student','academia','corporate','government','investor','mentor','lab','incubator','accelerator','service_provider'];
-  if (ALL_PERSONA_ROLES.includes(user?.role) && user?.onboarding_completed === false) {
+  if (ALL_PERSONA_ROLES.includes(effectiveRole) && user?.onboarding_completed === false) {
     return <Navigate to="/dashboard/onboarding" replace />;
   }
 
   // Redirect persona users to their dedicated dashboards
-  if (user?.role === 'corporate') return <Navigate to="/dashboard/corporate" replace />;
+  if (effectiveRole === 'corporate') return <Navigate to="/dashboard/corporate" replace />;
   const PERSONA_ROLES = ['startup','student','academia','government','investor','mentor','lab','incubator','accelerator'];
-  if (PERSONA_ROLES.includes(user?.role)) return <Navigate to="/dashboard/home" replace />;
+  if (PERSONA_ROLES.includes(effectiveRole)) return <Navigate to="/dashboard/home" replace />;
 
   const firstName = user?.name?.split(" ")[0] || null;
 

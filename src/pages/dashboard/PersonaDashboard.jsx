@@ -209,12 +209,14 @@ const fmtTime = (d) => {
 };
 
 export default function PersonaDashboard() {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const role = user?.role;
+  // Phase 60.3 (s50): honor activeRole for multi-persona accounts; fall back
+  // to legacy user.role for back-compat with old caches.
+  const role = activeRole || user?.role;
   const config = DASHBOARD_CONFIG[role];
   const persona = PERSONAS[role] || {};
   const PersonaIcon = ICON_MAP[persona.icon] || Rocket;
@@ -244,7 +246,7 @@ export default function PersonaDashboard() {
       <MfaBanner />
 
       {/* P4 — UI walkthrough overlay */}
-      {user?.role && <TourWrapper role={user.role} />}
+      {role && <TourWrapper role={role} />}
 
       {/* Welcome Card */}
       <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
