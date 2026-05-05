@@ -198,7 +198,7 @@ export default function VerifyEmail() {
                 : phase === 'failed' ? errorMsg
                 : phase === 'verifying' ? 'Please wait a moment.'
                 : phase === 'confirm' ? 'Click the button below to confirm this is really you.'
-                : 'Enter the 6-digit code we emailed you.'}
+                : 'Two ways to verify: enter the 6-digit code below, or click the link in our email.'}
             </p>
           </div>
 
@@ -227,6 +227,14 @@ export default function VerifyEmail() {
           {/* Input — OTP form */}
           {phase === 'input' && (
             <form onSubmit={submitOtp} className="space-y-4">
+              {/* OPTION A — Type the 6-digit code */}
+              <div className="rounded-lg p-3 text-xs" style={{ background: '#FFF8E6', border: '1px solid #FCD34D', color: '#854D0E' }}>
+                <strong>Option A — Type the 6-digit code below</strong>
+                <div className="mt-1 leading-snug">
+                  Open our email titled &ldquo;Verify your OpenI Hub email&rdquo;
+                  and copy the 6-digit code into the box below.
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -257,10 +265,28 @@ export default function VerifyEmail() {
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
                 Verify email
               </button>
-              <p className="text-center text-xs" style={{ color: '#9ca3af' }}>
-                Or click the verification link in the email we just sent you.
-              </p>
-              <div className="text-center pt-2">
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 py-1">
+                <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
+                <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>OR</span>
+                <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
+              </div>
+
+              {/* OPTION B — Click the link */}
+              <div className="rounded-lg p-3 text-xs" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF' }}>
+                <strong>Option B — Click the verification link in the email</strong>
+                <div className="mt-1 leading-snug">
+                  In the same email, click the gold &ldquo;Verify Email&rdquo; button.
+                  It opens a new tab where you confirm and we&rsquo;ll log you in automatically.
+                </div>
+              </div>
+
+              {/* Spam-folder reminder + resend */}
+              <div className="text-center text-xs leading-relaxed pt-1" style={{ color: '#6b7280' }}>
+                Don&rsquo;t see the email? Check your <strong>Spam</strong> or <strong>Promotions</strong> folder.
+              </div>
+              <div className="text-center">
                 <button type="button" onClick={resend} disabled={resending || !email.trim()}
                   className="text-xs font-semibold inline-flex items-center gap-1.5"
                   style={{ color: '#D5AA5B', background: 'none', border: 'none', cursor: resending ? 'not-allowed' : 'pointer' }}>
