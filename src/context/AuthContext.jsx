@@ -170,6 +170,24 @@ export function AuthProvider({ children }) {
     localStorage.setItem('openi_user', JSON.stringify(updated));
   };
 
+  // Phase 60.10 — after a roles change (POST /auth/roles/add etc), the backend
+  // returns the canonical updated roles list. This helper rewrites the cached
+  // user object's roles[] AND optionally flips the activeRole atomically, so
+  // RoleTabs + DashboardLayout immediately see the new state without
+  // depending on a re-fetch from /auth/me.
+  // `nextRoles` should be an array of role strings (or objects with .role).
+  const applyRolesUpdate = (nextRoles, nextActiveRole = null) => {
+    if (!user) return;
+    const rolesArray = (nextRoles || []).map(r => (typeof r === 'string' ? r : r?.role)).filter(Boolean);
+    const updated = { ...user, roles: rolesArray };
+    setUser(updated);
+    localStorage.setItem('openi_user', JSON.stringify(updated));
+    if (nextActiveRole && rolesArray.includes(nextActiveRole)) {
+      localStorage.setItem(ACTIVE_ROLE_KEY, nextActiveRole);
+      setActiveRoleState(nextActiveRole);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setMfaStep(false);
@@ -191,6 +209,8 @@ export function AuthProvider({ children }) {
       user, login, logout, verifyMFA, mfaStep, register, completeVerification, updateUser,
       // Phase 60.3 multi-persona
       roles, primaryRole, activeRole, switchRole,
+      // Phase 60.10 — atomic roles+activeRole refresh after backend mutations
+      applyRolesUpdate,
     }}>
       {children}
     </AuthContext.Provider>

@@ -51,7 +51,7 @@ const C = {
 
 export default function AddRole() {
   const navigate = useNavigate();
-  const { roles: existingRoles, switchRole } = useAuth();
+  const { roles: existingRoles, applyRolesUpdate } = useAuth();
   const [available, setAvailable] = useState([]);
   const [pickedRole, setPickedRole] = useState(null);
   const [step, setStep] = useState(1);
@@ -70,10 +70,14 @@ export default function AddRole() {
     if (!pickedRole) return;
     setSubmitting(true);
     try {
-      await rolesAPI.add(pickedRole);
+      // Backend returns { message, role, roles: [{role, is_primary, added_at}, ...] }
+      // We must refresh user.roles[] from this response BEFORE switching active role,
+      // otherwise switchRole() rejects because the new role is not yet in the cached
+      // user.roles[] (which was last seeded at login). applyRolesUpdate writes both
+      // the fresh roles[] and the new activeRole atomically to React state + localStorage.
+      const res = await rolesAPI.add(pickedRole);
+      applyRolesUpdate(res.roles || [], pickedRole);
       toast.success(`${ROLE_META[pickedRole]?.label || pickedRole} role added!`);
-      // Switch to the new role so the dashboard repaints with the right sidebar
-      switchRole(pickedRole);
       // Brief delay so the toast renders before navigation
       setTimeout(() => navigate('/dashboard', { replace: true }), 600);
     } catch (err) {
