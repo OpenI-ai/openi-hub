@@ -652,20 +652,26 @@ export default function Landing() {
           when entry has a slug; text fallback if image fails to load OR
           if entry is a plain string (back-compat with CMS string-array).
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 px-6" style={{ background: '#fff', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-wider font-semibold mb-8" style={{ color: GRAY, letterSpacing: 1.2 }}>
+      {/* s50 redesign — continuous right-to-left marquee. Logos render in a
+          single row that auto-scrolls; the partners list renders TWICE so the
+          loop animates seamlessly (translateX 0 -> -50%). Keeps logos on one
+          row regardless of viewport width. Animation pauses on hover for a11y. */}
+      <section className="py-14 px-6" style={{ background: '#fff', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, overflow: 'hidden' }}>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs uppercase tracking-wider font-semibold mb-8 text-center" style={{ color: GRAY, letterSpacing: 1.2 }}>
             Ecosystem Partners &amp; Supporters
           </p>
-          <div className="flex flex-wrap items-center justify-center" style={{ gap: 0 }}>
-            {partners.map((p, i) => {
-              const isObject = typeof p === 'object' && p !== null;
-              const name = isObject ? p.name : p;
-              const slug = isObject ? p.slug : null;
-              return (
-                <PartnerLogo key={i} name={name} slug={slug} />
-              );
-            })}
+          <div className="partner-marquee">
+            <div className="partner-marquee-track">
+              {[...partners, ...partners].map((p, i) => {
+                const isObject = typeof p === 'object' && p !== null;
+                const name = isObject ? p.name : p;
+                const slug = isObject ? p.slug : null;
+                return (
+                  <PartnerLogo key={i} name={name} slug={slug} />
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
