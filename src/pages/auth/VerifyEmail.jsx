@@ -13,20 +13,35 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 // survives Gmail opening the verify link in a new tab. Read both keys during
 // transition so any user mid-flight on the old code still has their stash flushed.
 async function flushPendingProfile() {
+  let raw = null;
   try {
-    const raw = localStorage.getItem('openi_pending_profile')
-             || sessionStorage.getItem('openi_pending_profile');
+    raw = localStorage.getItem('openi_pending_profile')
+       || sessionStorage.getItem('openi_pending_profile');
     if (!raw) return;
     const profileData = JSON.parse(raw);
-    localStorage.removeItem('openi_pending_profile');
-    sessionStorage.removeItem('openi_pending_profile');
     const hasData = Object.values(profileData || {}).some(v =>
       Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
     );
-    if (hasData) {
-      try { await profileAPI.updateMyProfile(profileData); } catch { /* non-blocking */ }
+    if (!hasData) {
+      // Empty stash — clear and exit clean
+      localStorage.removeItem('openi_pending_profile');
+      sessionStorage.removeItem('openi_pending_profile');
+      return;
     }
-  } catch { /* storage disabled or JSON corrupt */ }
+    // Phase 60.10 fix: try the PUT FIRST. Only remove the stash if it succeeds.
+    // If it fails, leave the stash in place so MyProfile.jsx (next mount) can
+    // retry. Console-log the failure so we can diagnose silent drops.
+    try {
+      await profileAPI.updateMyProfile(profileData);
+      localStorage.removeItem('openi_pending_profile');
+      sessionStorage.removeItem('openi_pending_profile');
+    } catch (err) {
+      console.warn('[verify-email] flushPendingProfile PUT failed:', err?.message || err);
+      // Stash stays intact. MyProfile loadProfile() will pick it up.
+    }
+  } catch (err) {
+    console.warn('[verify-email] flushPendingProfile parse error:', err?.message || err);
+  }
 }
 
 const inputStyle = {

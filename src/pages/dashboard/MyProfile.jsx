@@ -262,8 +262,40 @@ export default function MyProfile() {
     loadProfile();
   }, []);
 
+  // Phase 60.10 (s50) — retry path for the Step 2 stash. If VerifyEmail.jsx's
+  // flushPendingProfile failed (e.g. token race, transient 500), the stash
+  // stays in localStorage. On every MyProfile mount we retry the PUT and
+  // remove the stash on success. Empty stash + clean clear on parse error.
+  async function retryPendingStash() {
+    try {
+      const raw = localStorage.getItem('openi_pending_profile')
+               || sessionStorage.getItem('openi_pending_profile');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      const hasData = Object.values(data || {}).some(v =>
+        Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
+      );
+      if (!hasData) {
+        localStorage.removeItem('openi_pending_profile');
+        sessionStorage.removeItem('openi_pending_profile');
+        return false;
+      }
+      await profileAPI.updateMyProfile(data);
+      localStorage.removeItem('openi_pending_profile');
+      sessionStorage.removeItem('openi_pending_profile');
+      toast.success('Welcome! We finished saving your registration details.');
+      return true;
+    } catch (err) {
+      console.warn('[my-profile] pending-stash retry failed:', err?.message || err);
+      return false;
+    }
+  }
+
   const loadProfile = async () => {
     try {
+      // Try to flush any leftover registration stash first so the GET below
+      // returns the fully-populated profile instead of a half-empty one.
+      await retryPendingStash();
       const data = await profileAPI.getMyProfile();
       if (data.profile) {
         setProfileData(data.profile);
