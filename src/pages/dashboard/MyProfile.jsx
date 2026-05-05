@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
+import { COUNTRIES, INDIAN_STATES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
 import { profileAPI, startupProfileAPI } from '../../services/api';
 import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
@@ -126,10 +127,111 @@ function FormField({ field, value, onChange }) {
     portfolio_url:  { folder: 'portfolios',  accept: '.pdf,.doc,.docx' },
     resume_url:     { folder: 'resumes',     accept: '.pdf,.doc,.docx' },
   };
-  if (FILE_UPLOAD_FIELDS[name]) {
-    const cfg = FILE_UPLOAD_FIELDS[name];
+  if (FILE_UPLOAD_FIELDS[name] || type === 'logo') {
+    const cfg = FILE_UPLOAD_FIELDS[name] || { folder: 'logos', accept: 'image/*' };
     return (
       <FileUpload value={value || ''} onChange={onChange} folder={cfg.folder} accept={cfg.accept} label={label} />
+    );
+  }
+  // Phase 60.10 (s50): country select. Default India, full ISO list.
+  if (type === 'country') {
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label || 'Country'} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <select value={value || 'IN'} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+          {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+        </select>
+      </div>
+    );
+  }
+  // Phase 60.10 — state. Indian-states dropdown if country=IN, else free-text.
+  if (type === 'state') {
+    const country = field.country || 'IN';
+    if (country === 'IN') {
+      return (
+        <div>
+          <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+            {label || 'State'} {required && <span style={{ color: '#ef4444' }}>*</span>}
+          </label>
+          <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+            <option value="">Select state…</option>
+            {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+      );
+    }
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label || 'State / Region / Province'} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} style={inputStyle} placeholder="State / region / province" />
+      </div>
+    );
+  }
+  // Phase 60.10 — city. Free-text with hint placeholder until autocomplete API ships.
+  if (type === 'city') {
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label || 'City'} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} style={inputStyle}
+          placeholder={placeholder || 'e.g. Mumbai, Bengaluru, San Francisco'} maxLength={80} />
+      </div>
+    );
+  }
+  // Phase 60.10 — year select. Forward-fill 1970..currentYear.
+  if (type === 'year') {
+    const opts = yearOptions(field.min || 1970);
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <select value={value || ''} onChange={e => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                style={{ ...inputStyle, cursor: 'pointer' }}>
+          <option value="">Select year…</option>
+          {opts.map(y => <option key={y} value={y}>{y}</option>)}
+        </select>
+      </div>
+    );
+  }
+  // Phase 60.10 — money_range. Bracket dropdown + INR/USD toggle.
+  // Stored as { range, currency }. Variant 'revenue' or 'ticket'.
+  if (type === 'money_range') {
+    const ranges = field.variant === 'ticket' ? TICKET_SIZE_RANGES : MONEY_RANGES;
+    const v = (value && typeof value === 'object') ? value : { range: '', currency: 'INR' };
+    const cur = v.currency || 'INR';
+    const opts = ranges[cur] || [];
+    const setRange = (range) => onChange({ ...v, range, currency: cur });
+    const setCur = (currency) => onChange({ ...v, range: '', currency });
+    const tabBtn = (active) => ({
+      flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: active ? 600 : 500,
+      border: 'none', background: active ? '#fff' : 'transparent',
+      color: active ? '#1a1a1a' : '#6b7280',
+      borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
+      cursor: 'pointer', transition: 'all 0.15s',
+    });
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <div style={{
+          display: 'flex', background: '#f9fafb', border: '1px solid #e5e7eb',
+          borderRadius: 8, marginBottom: 6, overflow: 'hidden', maxWidth: 200,
+        }}>
+          <button type="button" onClick={() => setCur('INR')} style={tabBtn(cur === 'INR')}>INR (₹)</button>
+          <button type="button" onClick={() => setCur('USD')} style={tabBtn(cur === 'USD')}>USD ($)</button>
+        </div>
+        <select value={v.range || ''} onChange={e => setRange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+          <option value="">Select a range…</option>
+          {opts.map(o => <option key={o} value={o}>{o}</option>)}
+        </select>
+      </div>
     );
   }
   return (

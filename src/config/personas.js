@@ -204,7 +204,7 @@ export const PROFILE_FIELDS = {
     { name: 'business_model', label: 'Business Model',       type: 'select', options: ['B2B','B2C','B2B2C','D2C','B2G','SaaS'] },
     { name: 'revenue_model',  label: 'Revenue Model',        type: 'select', options: ['SaaS','Subscription','Marketplace Fee','Licensing','Freemium','Transaction Fee','Advertising','Hardware','Consulting'] },
     { name: 'product_type',   label: 'Product Type',         type: 'select', options: ['Software','Hardware','Hybrid'] },
-    { name: 'founded_year',   label: 'Founded Year',         type: 'year' },
+    // Phase 60.10 (s50): founded_year dropped — redundant with incorporation_date
     { name: 'incorporation_date', label: 'Incorporation Date', type: 'date' },
     { name: 'employee_range', label: 'Employee Range',       type: 'select', options: ['1-10','11-50','51-200','201-500','500+'] },
     // Phase 60.10 (s50): unified location triple. headquarters dropped (redundant with city).
