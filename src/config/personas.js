@@ -289,7 +289,7 @@ export const PROFILE_FIELDS = {
   ],
   corporate: [
     { name: 'company_name',        label: 'Company Name',        type: 'text',   required: true },
-    { name: 'logo_url',            label: 'Company Logo URL',    type: 'url',    placeholder: 'https://yoursite.com/logo.png' },
+    { name: 'logo_url',            label: 'Company Logo',        type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'industry',            label: 'Industry',            type: 'taxonomy_select', taxonomy: 'industries' },
     { name: 'company_size',        label: 'Company Size',        type: 'select', options: ['1-50','51-200','201-1000','1001-5000','5000+'] },
     { name: 'headquarters',        label: 'Headquarters',        type: 'text' },
@@ -322,7 +322,7 @@ export const PROFILE_FIELDS = {
   investor: [
     // ── Fund Identity ─────────────────────────────────
     { name: 'firm_name',       label: 'Firm / Fund Name',      type: 'text', required: true },
-    { name: 'logo_url',        label: 'Fund Logo URL',         type: 'url', placeholder: 'https://yoursite.com/logo.png' },
+    { name: 'logo_url',        label: 'Fund Logo',             type: 'logo', placeholder: 'https://yoursite.com/logo.png' },
     { name: 'investor_type',   label: 'Investor Type',         type: 'select', options: ['Angel','Seed Fund','Venture Capital','Private Equity','CVC (Corporate VC)','Family Office','HNI','Debt Fund','Government Fund','Impact Fund','Micro VC','Other'] },
     { name: 'investment_types', label: 'Investment Instruments', type: 'multiselect', options: ['Equity','SAFE','Convertible Note','Debt','Revenue Share','ESOP','Mezzanine','Venture Debt'] },
     { name: 'fund_size',       label: 'Fund Size',             type: 'text', placeholder: 'e.g., INR 100Cr / $10M - $50M' },
@@ -425,7 +425,7 @@ export const PROFILE_FIELDS = {
   ],
   service_provider: [
     { name: 'company_name',         label: 'Company Name',            type: 'text',   required: true },
-    { name: 'logo_url',             label: 'Company Logo URL',        type: 'url',    placeholder: 'https://yoursite.com/logo.png' },
+    { name: 'logo_url',             label: 'Company Logo',            type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'tagline',              label: 'Tagline',                  type: 'text',   placeholder: 'e.g., Empowering startups with cloud & compliance' },
     { name: 'service_categories',   label: 'Service Categories',       type: 'multiselect', options: ['Cloud Credits (AWS/Azure/GCP)','Legal Services','Financial/Accounting','Compliance/Regulatory','HR/Recruitment','Marketing/PR','IP/Patent Services','Mentorship Programs','Office Space/Co-working','Design/Branding','Software Development','Data Analytics'] },
     { name: 'description',          label: 'About the Company',        type: 'textarea' },

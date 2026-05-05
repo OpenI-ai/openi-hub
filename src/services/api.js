@@ -77,6 +77,23 @@ export const uploadAPI = {
   },
 };
 
+// Phase 60.8 (s50) — public logo upload at register time. No auth required;
+// backend rate-limits by IP. Bypasses request() wrapper to skip Authorization
+// + X-Active-Role headers that don't exist for unauthenticated users.
+export const publicUploadAPI = {
+  uploadLogo: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${BASE_URL}/public/logo-upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `Upload failed (HTTP ${res.status})`);
+    return data;
+  },
+};
+
 // ── Organizations (Phase 21) ─────────────────────────────────
 export const orgAPI = {
   getMyOrg:       ()           => get('/org/my-org'),

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
-import { claimAPI, profileAPI } from '../../services/api';
+import { claimAPI, profileAPI, publicUploadAPI } from '../../services/api';
 import TaxonomySelect from '../../components/TaxonomySelect';
 import TaxonomyTags from '../../components/TaxonomyTags';
 import {
@@ -66,6 +66,161 @@ function MultiSelect({ options = [], value = [], onChange }) {
           {opt}
         </button>
       ))}
+    </div>
+  );
+}
+
+// Phase 60.8 (s50) — LogoField: dual-mode logo input.
+// User can either UPLOAD a file from their computer (preferred) or PASTE a URL.
+// Uploads hit POST /api/public/logo-upload (no auth, 2MB image-only) and the
+// returned Cloudinary URL replaces the value, so the parent form sees a
+// normal string URL either way.
+function LogoField({ label, required, value, onChange, placeholder }) {
+  const [mode, setMode] = useState(value ? 'url' : 'upload'); // upload | url
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const onFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError('');
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file (PNG, JPG, GIF, WEBP, or SVG).');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image too large. Maximum size is 2 MB.');
+      return;
+    }
+    setUploading(true);
+    try {
+      const res = await publicUploadAPI.uploadLogo(file);
+      onChange(res.url);
+    } catch (err) {
+      setError(err.message || 'Upload failed. You can paste a URL instead.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const tabBtn = (active) => ({
+    flex: 1,
+    padding: '8px 10px',
+    fontSize: 12,
+    fontWeight: active ? 600 : 500,
+    border: 'none',
+    background: active ? '#fff' : 'transparent',
+    color: active ? '#1a1a1a' : '#6b7280',
+    borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  });
+
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+      </label>
+
+      {/* Mode toggle */}
+      <div style={{
+        display: 'flex',
+        background: '#f9fafb',
+        border: '1px solid #e5e7eb',
+        borderRadius: 10,
+        marginBottom: 8,
+        overflow: 'hidden',
+      }}>
+        <button type="button" onClick={() => setMode('upload')} style={tabBtn(mode === 'upload')}>
+          Upload from computer
+        </button>
+        <button type="button" onClick={() => setMode('url')} style={tabBtn(mode === 'url')}>
+          Paste URL
+        </button>
+      </div>
+
+      {/* Upload mode */}
+      {mode === 'upload' && (
+        <div>
+          <label
+            htmlFor={`logo-upload-${label}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              gap: 6,
+              padding: '20px 16px',
+              border: '2px dashed #e5e7eb',
+              borderRadius: 12,
+              background: '#fafafa',
+              cursor: uploading ? 'wait' : 'pointer',
+              transition: 'all 0.15s',
+              minHeight: 100,
+            }}
+            onMouseEnter={e => { if (!uploading) e.currentTarget.style.borderColor = '#D5AA5B'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}
+          >
+            {value ? (
+              <>
+                <img src={value} alt="logo preview"
+                     style={{ maxHeight: 56, maxWidth: 120, objectFit: 'contain' }}
+                     onError={e => { e.target.style.display = 'none'; }} />
+                <span style={{ fontSize: 11, color: '#6b7280' }}>
+                  {uploading ? 'Uploading…' : 'Click to replace'}
+                </span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: 24, color: '#9ca3af' }}>📷</span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: '#374151' }}>
+                  {uploading ? 'Uploading…' : 'Click to choose an image'}
+                </span>
+                <span style={{ fontSize: 11, color: '#9ca3af' }}>
+                  PNG, JPG, GIF, WEBP, SVG · max 2 MB
+                </span>
+              </>
+            )}
+          </label>
+          <input
+            id={`logo-upload-${label}`}
+            type="file"
+            accept="image/*"
+            onChange={onFile}
+            disabled={uploading}
+            style={{ display: 'none' }}
+          />
+          {value && (
+            <button
+              type="button"
+              onClick={() => { onChange(''); setError(''); }}
+              style={{
+                marginTop: 6, fontSize: 12, color: '#dc2626',
+                background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+              }}
+            >
+              Remove logo
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* URL mode */}
+      {mode === 'url' && (
+        <input
+          type="url"
+          value={value || ''}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder || 'https://yoursite.com/logo.png'}
+          style={inputStyle}
+          onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+          onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+        />
+      )}
+
+      {error && (
+        <p style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>{error}</p>
+      )}
     </div>
   );
 }
@@ -146,6 +301,11 @@ function FormField({ field, value, onChange }) {
         inputStyle={inputStyle}
         labelClassName="block text-sm font-medium mb-1.5"
       />
+    );
+  }
+  if (type === 'logo') {
+    return (
+      <LogoField label={label} required={required} value={value} onChange={onChange} placeholder={placeholder} />
     );
   }
   // text, number, url, email
