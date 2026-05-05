@@ -2,10 +2,12 @@ import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
-import { COUNTRIES, INDIAN_STATES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
+import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
 import { claimAPI, profileAPI, publicUploadAPI } from '../../services/api';
 import TaxonomySelect from '../../components/TaxonomySelect';
 import TaxonomyTags from '../../components/TaxonomyTags';
+import StateField from '../../components/StateField';
+import CityField from '../../components/CityField';
 import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
@@ -382,44 +384,34 @@ function FormField({ field, value, onChange }) {
       </div>
     );
   }
-  // Phase 60.10 — state select. Indian states when country = IN; free text otherwise.
-  // The parent form is expected to pass the current country in `field.country`.
+  // Phase 60.10e (s50) — state via shared StateField component.
+  // Country comes from the form via dependentField injection at FormField call site.
   if (type === 'state') {
-    const country = field.country || 'IN';
-    if (country === 'IN') {
-      return (
-        <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
-            {label || 'State'} {required && <span style={{ color: '#ef4444' }}>*</span>}
-          </label>
-          <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-            <option value="">Select state…</option>
-            {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-      );
-    }
     return (
-      <div>
-        <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
-          {label || 'State / Region / Province'} {required && <span style={{ color: '#ef4444' }}>*</span>}
-        </label>
-        <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} style={inputStyle} placeholder="State / region / province" />
-      </div>
+      <StateField
+        value={value}
+        onChange={onChange}
+        country={field.country || 'IN'}
+        label={label}
+        required={required}
+        inputStyle={inputStyle}
+      />
     );
   }
-  // Phase 60.10 — city. For India, autocomplete via PostalPincode (Phase 60.10d, deferred).
-  // For now, free-text input with a helpful placeholder. Will become dependent autocomplete
-  // when CityAutocomplete component lands.
+  // Phase 60.10e (s50) — city via shared CityField component (debounced autocomplete).
+  // Country + state come from form via dependentField injection.
   if (type === 'city') {
     return (
-      <div>
-        <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
-          {label || 'City'} {required && <span style={{ color: '#ef4444' }}>*</span>}
-        </label>
-        <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} style={inputStyle}
-          placeholder={placeholder || 'e.g. Mumbai, Bengaluru, San Francisco'} maxLength={80} />
-      </div>
+      <CityField
+        value={value}
+        onChange={onChange}
+        country={field.country || 'IN'}
+        state={field.state || ''}
+        label={label}
+        required={required}
+        placeholder={placeholder}
+        inputStyle={inputStyle}
+      />
     );
   }
   // Phase 60.10 — year select. Forward-fill 1970..currentYear.
@@ -778,12 +770,15 @@ export default function Register() {
                 Fill in your {persona.label.toLowerCase()} details. You can also complete this later from your profile page.
               </p>
               {profileFields.map(field => {
-                // Phase 60.10 (s50): inject the form-level current country value into the
-                // state field so the State select can switch between Indian-states dropdown
-                // and free-text-region input depending on what the user picked.
-                const dependentField = field.type === 'state'
-                  ? { ...field, country: profileData.country || 'IN' }
-                  : field;
+                // Phase 60.10e (s50): inject form-level country into state field, and
+                // both country + state into city field, so the autocomplete components
+                // can scope their fetches correctly.
+                let dependentField = field;
+                if (field.type === 'state') {
+                  dependentField = { ...field, country: profileData.country || 'IN' };
+                } else if (field.type === 'city') {
+                  dependentField = { ...field, country: profileData.country || 'IN', state: profileData.state || '' };
+                }
                 return (
                   <FormField key={field.name} field={dependentField} value={profileData[field.name]}
                     onChange={val => updateField(field.name, val)} />
