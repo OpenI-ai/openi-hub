@@ -640,7 +640,7 @@ export default function Register() {
             })}
           </div>
           <div className="text-center mt-8">
-            <Link to="/login" className="text-sm font-semibold" style={{ color: '#9ca3af' }}>
+            <Link to="/dashboard/login" className="text-sm font-semibold" style={{ color: '#9ca3af' }}>
               Already have an account? Sign in
             </Link>
           </div>

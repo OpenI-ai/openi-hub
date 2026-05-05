@@ -297,7 +297,7 @@ export default function VerifyEmail() {
 
           {/* Footer */}
           <div className="text-center mt-6 pt-4 border-t" style={{ borderColor: '#f3f4f6' }}>
-            <Link to="/login" className="text-xs" style={{ color: '#9ca3af' }}>
+            <Link to="/dashboard/login" className="text-xs" style={{ color: '#9ca3af' }}>
               Back to login
             </Link>
           </div>
