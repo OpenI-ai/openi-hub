@@ -98,8 +98,8 @@ function Section({ children, bg = '#fff', className = '', id = '' }) {
 
 // ── Partner logo (Phase 60.7) ───────────────────────────────
 // Tries /partners/<slug>.png first, then .svg, then falls back to text.
-// Uses native onError to swap to .svg, and a state flag to fallback to text
-// if both image attempts fail.
+// Sized for visual presence on the marketing strip: roomier 160x80 frame,
+// grayscale-by-default with full color on hover, subtle lift on hover.
 function PartnerLogo({ name, slug }) {
   const [stage, setStage] = useState(slug ? 'png' : 'text');
   const src = stage === 'png' ? `/partners/${slug}.png`
@@ -108,24 +108,44 @@ function PartnerLogo({ name, slug }) {
 
   if (!src) {
     return (
-      <span className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#bbb' }}>{name}</span>
+      <span className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#888' }}>
+        {name}
+      </span>
     );
   }
 
   return (
-    <img
-      src={src}
-      alt={name}
+    <div
       title={name}
+      className="partner-logo-frame"
       style={{
-        height: 36,
-        maxWidth: 140,
-        objectFit: 'contain',
-        opacity: 0.9,
-        filter: 'grayscale(0.2)',
+        flex: '0 0 auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '8px 16px',
+        transition: 'transform 0.25s ease',
       }}
-      onError={() => setStage(stage === 'png' ? 'svg' : 'text')}
-    />
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+    >
+      <img
+        src={src}
+        alt={name}
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'contain',
+          filter: 'grayscale(0.85) opacity(0.7)',
+          transition: 'filter 0.25s ease',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.filter = 'grayscale(0) opacity(1)'; }}
+        onMouseLeave={e => { e.currentTarget.style.filter = 'grayscale(0.85) opacity(0.7)'; }}
+        onError={() => setStage(stage === 'png' ? 'svg' : 'text')}
+      />
+    </div>
   );
 }
 
@@ -632,12 +652,12 @@ export default function Landing() {
           when entry has a slug; text fallback if image fails to load OR
           if entry is a plain string (back-compat with CMS string-array).
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-10 px-6" style={{ background: LIGHT_GRAY }}>
+      <section className="py-14 px-6" style={{ background: '#fff', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-wider font-semibold mb-6" style={{ color: GRAY }}>
+          <p className="text-xs uppercase tracking-wider font-semibold mb-8" style={{ color: GRAY, letterSpacing: 1.2 }}>
             Ecosystem Partners &amp; Supporters
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+          <div className="flex flex-wrap items-center justify-center" style={{ gap: 0 }}>
             {partners.map((p, i) => {
               const isObject = typeof p === 'object' && p !== null;
               const name = isObject ? p.name : p;
