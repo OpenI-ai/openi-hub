@@ -8,7 +8,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 
-export const TERMS_VERSION = '1.0';
+export const TERMS_VERSION = '1.1';
 export const TERMS_EFFECTIVE_DATE = '5 May 2026';
 
 const C = {
@@ -219,7 +219,98 @@ export default function Terms() {
             </p>
           </Section>
 
-          <Section title="16. Governing Law and Dispute Resolution">
+          <Section title="16. Force Majeure">
+            <p>
+              Neither party will be liable for any failure or delay in performing its
+              obligations under these Terms to the extent such failure or delay is caused
+              by events beyond that party&rsquo;s reasonable control, including but not
+              limited to acts of God, natural disasters, fire, flood, earthquake,
+              pandemic or epidemic, war, civil unrest, terrorism, government action,
+              changes in law, labour disputes, internet or power outages, denial-of-service
+              attacks, third-party infrastructure failures (including cloud, payment, or
+              email providers), and unavailability of public communication networks.
+            </p>
+            <p>
+              The affected party will use reasonable efforts to mitigate the impact and
+              resume performance as soon as practicable. If the force-majeure event
+              continues for more than sixty (60) consecutive days, either party may
+              terminate the affected services on written notice without further liability,
+              other than for amounts already due.
+            </p>
+          </Section>
+
+          <Section title="17. Severability">
+            <p>
+              If any provision of these Terms is held by a court or tribunal of competent
+              jurisdiction to be invalid, illegal, or unenforceable in any respect, that
+              provision will be deemed modified to the minimum extent necessary to make
+              it enforceable, and if no such modification is possible, severed from these
+              Terms. The remaining provisions will continue in full force and effect.
+              Failure by OpenI to enforce any right under these Terms is not a waiver of
+              that right.
+            </p>
+          </Section>
+
+          <Section title="18. Consumer Protection (Indian Users)">
+            <p>
+              For users who qualify as &ldquo;consumers&rdquo; under the Consumer Protection
+              Act, 2019, nothing in these Terms is intended to limit or exclude any
+              statutory rights you have that cannot lawfully be limited or excluded.
+              In particular, the limitation of liability in Section 12 does not apply to
+              the extent it would be unenforceable against a consumer under applicable
+              consumer-protection legislation.
+            </p>
+            <p>
+              Grievances relating to consumer rights may be sent to the Grievance Officer
+              at the contact address listed in Section 21 below. We will acknowledge such
+              grievances within forty-eight (48) hours and aim to resolve them within
+              thirty (30) days. Users may also seek recourse through the appropriate
+              consumer redressal authority under the Consumer Protection Act, 2019 and
+              the Consumer Protection (E-Commerce) Rules, 2020.
+            </p>
+            <p>
+              Mandatory disclosures, including the legal name of the Platform operator,
+              registered address, contact details, and refund policy, are provided in
+              Section 7 (Subscriptions, Payments, and Refunds) and Section 21 (Contact),
+              and are also accessible from the Platform&rsquo;s public footer.
+            </p>
+          </Section>
+
+          <Section title="19. Export Controls and Sanctions">
+            <p>
+              You are responsible for compliance with all applicable export-control,
+              re-export, and economic-sanctions laws and regulations, including those
+              of India, the United States (including OFAC and EAR), the European Union,
+              the United Kingdom, and the United Nations.
+            </p>
+            <p>
+              You represent and warrant that:
+            </p>
+            <ul>
+              <li>you are not a person, entity, or government with whom dealings are
+                  restricted or prohibited by any applicable sanctions list (including
+                  but not limited to the OFAC Specially Designated Nationals list, the
+                  EU Consolidated Sanctions list, the UN Security Council Consolidated
+                  list, and any list maintained by the Government of India);</li>
+              <li>you are not located in, organised under the laws of, or ordinarily
+                  resident in any country or region subject to comprehensive trade
+                  sanctions imposed by the Government of India, the United States, the
+                  European Union, the United Kingdom, or the United Nations;</li>
+              <li>you will not access, use, export, or re-export the Platform, or any
+                  data obtained through it, in violation of such laws and regulations;</li>
+              <li>you will not use the Platform to facilitate transactions involving any
+                  restricted person, entity, or jurisdiction.</li>
+            </ul>
+            <p>
+              We may suspend or terminate your access without notice if we have reasonable
+              grounds to believe your use of the Platform breaches this Section, or if
+              continued service would expose OpenI to sanctions risk. You will indemnify
+              OpenI for any loss, claim, fine, or penalty arising from your breach of
+              this Section.
+            </p>
+          </Section>
+
+          <Section title="20. Governing Law and Dispute Resolution">
             <p>
               These Terms are governed by the laws of India. Any dispute will be subject to
               the exclusive jurisdiction of the courts of Mumbai, Maharashtra, India.
@@ -228,7 +319,7 @@ export default function Terms() {
             </p>
           </Section>
 
-          <Section title="17. Contact">
+          <Section title="21. Contact">
             <p>
               Questions about these Terms? Email{' '}
               <a href="mailto:info@openi.ai" style={{ color: C.link }}>info@openi.ai</a>{' '}
