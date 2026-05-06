@@ -4,10 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import { Shield, Eye, EyeOff, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 
 const DEMO_ACCOUNTS = [
-  { email: 'admin@drdo.gov.in',    password: 'Admin@123',  role: 'Administrator' },
-  { email: 'ananya@drdo.gov.in',   password: 'Eval@123',   role: 'Evaluator' },
-  { email: 'contact@armortech.in', password: 'Start@123',  role: 'Startup' },
-  { email: 'suresh@iitd.ac.in',    password: 'Mentor@123', role: 'Mentor' },
+  // V2 demo accounts — all 11 personas, password Demo@123, MFA-bypassed via *@demo.openi.ai pattern
+  { email: 'startup@demo.openi.ai',          password: 'Demo@123', role: 'Startup' },
+  { email: 'student@demo.openi.ai',          password: 'Demo@123', role: 'Student' },
+  { email: 'academia@demo.openi.ai',         password: 'Demo@123', role: 'Academia' },
+  { email: 'corporate@demo.openi.ai',        password: 'Demo@123', role: 'Corporate' },
+  { email: 'govt@demo.openi.ai',             password: 'Demo@123', role: 'Government' },
+  { email: 'investor@demo.openi.ai',         password: 'Demo@123', role: 'Investor' },
+  { email: 'lab@demo.openi.ai',              password: 'Demo@123', role: 'Lab' },
+  { email: 'incubator@demo.openi.ai',        password: 'Demo@123', role: 'Incubator' },
+  { email: 'accelerator@demo.openi.ai',      password: 'Demo@123', role: 'Accelerator' },
+  { email: 'serviceprovider@demo.openi.ai',  password: 'Demo@123', role: 'Service Provider' },
+  { email: 'mentor@demo.openi.ai',           password: 'Demo@123', role: 'Mentor' },
 ];
 
 export default function Login() {
