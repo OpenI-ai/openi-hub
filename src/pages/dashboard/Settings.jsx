@@ -775,10 +775,15 @@ export default function Settings() {
                         <div key={p.id} style={{ border: isCurrent ? `2px solid ${G}` : '1px solid #eee', borderRadius: 14, padding: 20, background: isCurrent ? '#fffbeb' : '#fff', position: 'relative' }}>
                           {isCurrent && <div style={{ position: 'absolute', top: -10, right: 14, fontSize: 10, fontWeight: 700, padding: '2px 10px', borderRadius: 20, background: G, color: '#fff' }}>Current</div>}
                           <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{p.display_name}</div>
-                          <div style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 12 }}>
+                          <div style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 4 }}>
                             {parseFloat(p.price_monthly) === 0 ? 'Free' : `₹${parseInt(p.price_monthly)}`}
                             {parseFloat(p.price_monthly) > 0 && <span style={{ fontSize: 12, fontWeight: 400, color: '#999' }}>/mo</span>}
                           </div>
+                          {parseFloat(p.price_monthly) > 0 && (
+                            <div style={{ fontSize: 11, fontWeight: 500, color: '#999', marginBottom: 12 }}>
+                              + 18% GST · ₹{(parseFloat(p.price_monthly) * 1.18).toLocaleString('en-IN', { maximumFractionDigits: 2 })} total
+                            </div>
+                          )}
                           <div style={{ display: 'grid', gap: 6, marginBottom: 16 }}>
                             {Object.entries(features).map(([f, limit]) => (
                               <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555' }}>

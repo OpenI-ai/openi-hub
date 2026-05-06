@@ -78,7 +78,7 @@ const DEFAULT_TESTIMONIALS = [
 
 const DEFAULT_FAQS = [
   { q: 'Who can join OpenI?', a: 'Anyone in the innovation ecosystem \u2014 startups, corporates, investors, government bodies, mentors, labs, incubators, accelerators, service providers, students, and academia. All 11 persona types get a tailored dashboard, directory listing, and workflow tools.' },
-  { q: 'Is OpenI free to use?', a: 'Yes! The Free tier gives you access to the core platform including keyword search, directory, meetings, messaging, and up to 1 challenge per month. Upgrade to Pro (INR 999/mo) for AI Semantic Search, richer limits, and advanced workflows. Enterprise (INR 4,999/mo) unlocks unlimited everything plus dedicated support.' },
+  { q: 'Is OpenI free to use?', a: 'Yes! The Free tier gives you access to the core platform including keyword search, directory, meetings, messaging, and up to 1 challenge per month. Paid plans are listed exclusive of GST (18% added at checkout, per Indian Tax). Upgrade to Pro for AI Semantic Search, richer limits, and advanced workflows. Enterprise unlocks unlimited everything plus dedicated support.' },
   { q: 'What is AI Ask \u2014 and how is it different from keyword search?', a: 'AI Ask lets you type natural-language queries like \u201cearly-stage deeptech healthcare startups in Bangalore that raised Seed\u201d and our query-parser model translates that into structured filters (sector + stage + city + deeptech flag) then runs it against our FTS + vector search stack. Results come back ranked, with the AI\u2019s interpretation shown above the list so you can verify what it understood. Pro tier and above.' },
   { q: 'What is the 8-Vector Evaluation Framework?', a: 'A proprietary scoring system that evaluates startups across 8 dimensions: Market, Team, Tech, Traction, Financials, IP, Scalability, and Strategic Fit. Investors use it in their deal pipeline; incubators and accelerators run it as time-series checkpoints (Entry \u2192 Mid-program \u2192 Demo Day \u2192 Graduation) to track portfolio progress on a radar chart.' },
   { q: 'Can incubators and accelerators track their portfolio health?', a: 'Yes. The Portfolio Health tab inside each Program or Batch shows an 8-vector radar of your portfolio average, flags at-risk startups (overall score < 3 or red flags set), and tracks each startup\u2019s progression across multiple checkpoints \u2014 so you can intervene early and measure the impact of your mentorship.' },
@@ -178,8 +178,20 @@ function FeatureCard({ icon: Icon, title, description }) {
   );
 }
 
+// Compute "+ 18% GST" annotation for any INR price string like "₹2,499"
+function gstAnnotation(price) {
+  if (!price || typeof price !== 'string') return null;
+  const m = price.match(/[\d,]+/);
+  if (!m) return null;
+  const base = parseInt(m[0].replace(/,/g, ''), 10);
+  if (isNaN(base) || base === 0) return null;
+  const total = Math.round(base * 1.18);
+  return `+ 18% GST · ₹${total.toLocaleString('en-IN')} total`;
+}
+
 // ── Pricing card ───────────────────────────────────────────
 function PricingCard({ name, price, priceNote, features, cta, ctaLink, featured = false }) {
+  const tax = gstAnnotation(price);
   return (
     <div
       className="rounded-2xl p-8 relative transition-all"
@@ -204,6 +216,11 @@ function PricingCard({ name, price, priceNote, features, cta, ctaLink, featured 
           <span className="text-3xl font-bold" style={{ color: DARK }}>{price}</span>
           {priceNote && <span className="text-sm" style={{ color: GRAY }}>{priceNote}</span>}
         </div>
+        {tax && (
+          <div className="text-xs mt-1" style={{ color: GRAY }}>
+            {tax}
+          </div>
+        )}
       </div>
       <ul className="space-y-3 mb-8">
         {features.map((f, i) => (
