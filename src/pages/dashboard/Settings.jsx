@@ -840,9 +840,15 @@ export default function Settings() {
                                   const a = document.createElement('a'); a.href = url; a.download = `OpenI-Invoice-${p.id}.pdf`;
                                   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
                                 } catch (err) { toast.error('Failed to download invoice'); }
-                              }} title="Download Invoice"
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: G }}>
-                                <Download size={13} />
+                              }} title="Download GST Invoice (PDF)"
+                                style={{
+                                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                                  background: '#fff', border: `1px solid ${G}`, color: G,
+                                  fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                                  borderRadius: 6, cursor: 'pointer',
+                                }}>
+                                <Download size={12} />
+                                <span>Invoice</span>
                               </button>
                             )}
                           </div>
