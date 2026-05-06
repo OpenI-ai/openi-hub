@@ -2,13 +2,25 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 2.5
-**Last Updated:** 6 April 2026
-**Live URL:** https://openi.tech 🎉 *(soft launched 5 April 2026)*
-**Production domain:** https://www.openi.tech *(Vercel production)*
-**Apex redirect:** https://openi.tech → 308 → https://www.openi.tech
-**Backend API:** https://openi-hub-production.up.railway.app *(api.openi.tech pending Railway SSL)*
-**Fallback URL:** https://openi-hub.vercel.app *(kept for transition)*
+**Version:** 2.6
+**Last Updated:** 6 May 2026
+**Live URL:** https://openi.ai 🎉 *(production cutover from openi.tech complete)*
+**Production domain:** https://www.openi.ai *(Vercel production)*
+**Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
+**Backend API:** https://api.openi.ai *(Railway, SSL provisioned)*
+**Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
+**Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys)*
+
+### What's New in v2.6 — `.ai` Cutover, Multi-Persona V2, Email Verification, GST Invoicing
+- **Production cutover to `openi.ai`** 🌐 — All three production hostnames are LIVE: `openi.ai`, `www.openi.ai`, and `api.openi.ai` (Railway-issued SSL). Backend `allowedOrigins` carries both `.ai` (production) and `.tech` (staging) origins. The `.tech` domain is now perpetual staging — both still serve, but new traffic goes to `.ai`. Email `Reply-To` hardcoded to `info@openi.ai`; `MAIL_FROM` supports a sending subdomain.
+- **Multi-Persona V2 — `activeRole` + 11 personas** 👥 — A single user can now hold multiple persona roles (e.g., be both a Mentor and an Investor) and switch their `activeRole` to flip the entire dashboard, sidebar, redirects, and per-role billing. Two new personas added: **Service Provider** and **Mentor** demo accounts (now 11 total V2 personas). New `user_roles` table (user_id, role, is_primary, added_at). New endpoints `GET /api/auth/roles`, `POST /api/auth/roles/add`, `POST /api/auth/roles/set-primary`, `POST /api/auth/roles/remove`. Subscription rows now include `role` so each persona gets independent billing limits (Phase 60.4a).
+- **Email Verification (Link + OTP) + Password Reset** 📧 — New `email_verifications` table + `users.email_verified_at` column. Two co-equal verify paths: click magic link or paste OTP. Defeated Gmail's link-prefetch by requiring an explicit button click on the landing page and using `localStorage` cross-tab sync. Step 2 profile data stashed in `localStorage` to survive Gmail's "open in new tab". Password-reset flow uses the same email-token mechanism. 4 actions are gated behind email verification (`EMAIL_NOT_VERIFIED` error code drives a redirect to `/verify-email`).
+- **Mandatory Terms of Use Gate** 📜 — Phase 60.7 — `users.terms_version_accepted` column. Register requires `terms_accepted: true`. `TERMS_VERSION` bumped to **1.1** with new partners default. Users on an older `terms_version_accepted` are routed to a re-accept gate before they can use gated actions.
+- **GST-Compliant Tax Invoicing** 🧾 — Real Indian GST tax invoices generated as PDF (PDFKit, `services/pdfService.js`) and auto-attached to subscription receipt emails. Legal entity: **OpenI Partners LLP** (registered in Maharashtra). Includes GSTIN, HSN/SAC, 18% GST breakdown (CGST/SGST split for intrastate, IGST for interstate), reverse-charge declaration, sequential invoice numbers. Pricing cards now show "+ 18% GST · total" annotation. Settings → Billing has a discoverable **Download Invoice** button.
+- **Fuzzy Startup Search via `pg_trgm`** 🔍 — Company-name search uses PostgreSQL trigram similarity blended into the relevance ranking. Tolerates typos and partial matches. Search cards across the app are clickable and route to the dashboard detail page. `?by=user_id` query param disambiguates the id-vs-user_id collision when a search card hits the API.
+- **Location Autocomplete (State + City)** 🌍 — New Phase 60.10 register/profile dropdowns for location, money, and year. Public endpoints under `/api/public/locations/...` resolve state name → ISO code → cities via the country-state-city dataset. `StateField` and `CityField` components wired into Register Step 2 + MyProfile.
+- **"Claim This Profile"** 🏷️ — J10 ships a "Claim This Profile" button + modal on `StartupProfile`. Authenticated users can request to claim crawler-imported startup profiles. Public logo-upload endpoint (Phase 60.8a) lets unverified claimants attach a logo while the claim is in review.
+- **Owner-Deletable Challenges** 🗑️ — s49: corporate/government challenge owners can now delete their own challenges (previously admin-only).
 
 ### What's New in v2.5 — Public Pages + Landing Enhancement + Corporate Analytics
 - **Public Marketplace** (`/marketplace`) 🏪 — Fully public page (no authentication required) showing all open innovation challenges. Features search bar, sector/technology filter dropdowns, 12-card grid with company logos, tags, budget, deadline, and applicant count. Click any card for full detail view with problem statement, description, requirements, FAQs, and a "Register to Apply" CTA. Pagination supports browsing 130+ challenges.
@@ -62,8 +74,12 @@
 11. [Licensing & Payments (Razorpay)](#11-licensing--payments-razorpay)
 12. [Deployment](#12-deployment)
 13. [Test Accounts](#13-test-accounts)
-14. [Production Go-Live Plan (openi.tech)](#14-production-go-live-plan-openitech)
+14. [Production Go-Live (openi.ai) — COMPLETE](#14-production-go-live-openiai--complete)
 15. [Marketing Landing Page](#15-marketing-landing-page)
+16. [Public Pages (v2.5)](#16-public-pages-v25)
+17. [Multi-Persona V2 (`activeRole`, Phase 60.2–60.4)](#17-multi-persona-v2-activerole-phase-602604)
+18. [Email Verification, Password Reset, Terms-of-Use Gate](#18-email-verification-password-reset-terms-of-use-gate)
+19. [GST-Compliant Invoicing (OpenI Partners LLP)](#19-gst-compliant-invoicing-openi-partners-llp)
 
 ---
 
@@ -776,19 +792,25 @@ To enable webhooks, add the endpoint URL in the Razorpay dashboard (Settings →
 | Startup | contact@armortech.in | Start@123 |
 | Mentor | suresh@iitd.ac.in | Mentor@123 |
 
-### Multi-Persona Demo Accounts (all password: Demo@123, MFA OTP: 123456)
+### Multi-Persona V2 Demo Accounts (all password: Demo@123)
 
-| Persona | Email | Organisation |
-|---------|-------|--------------|
-| Startup | startup@demo.openi.ai | TechNova Labs |
-| Student | student@demo.openi.ai | IIT Bombay |
-| Academia | academia@demo.openi.ai | IISc Bangalore |
-| Corporate | corporate@demo.openi.ai | Tata Advanced Systems |
-| Government | govt@demo.openi.ai | DRDO Innovation Cell |
-| Investor | investor@demo.openi.ai | Biocon Ventures |
-| Lab | lab@demo.openi.ai | DRDO Materials Testing Lab |
-| Incubator | incubator@demo.openi.ai | T-Hub |
-| Accelerator | accelerator@demo.openi.ai | Surge by Sequoia |
+All `*@demo.openi.ai` accounts skip MFA via the `mfa_bypass_login` short-circuit in the auth flow (no OTP needed). 11 personas total as of v2.6:
+
+| Persona | Email | Notes |
+|---------|-------|-------|
+| Startup | startup@demo.openi.ai | Innovation Provider |
+| Student | student@demo.openi.ai | Innovation Provider |
+| Academia | academia@demo.openi.ai | Innovation Provider |
+| Corporate | corporate@demo.openi.ai | Innovation Seeker |
+| Government | govt@demo.openi.ai | Innovation Seeker |
+| Investor | investor@demo.openi.ai | Innovation Seeker |
+| Lab | lab@demo.openi.ai | Innovation Seeker |
+| Incubator | incubator@demo.openi.ai | Innovation Seeker |
+| Accelerator | accelerator@demo.openi.ai | Innovation Seeker |
+| **Service Provider** | serviceprovider@demo.openi.ai | New in v2.6 |
+| **Mentor** | mentor@demo.openi.ai | New in v2.6 (V2 mentor flow with persona category) |
+
+The quick-login demo panel on `/dashboard/login` is gated by `?demo=1` to keep the legacy admin/evaluator credentials out of public exposure while preserving testing convenience. Source: `DEMO_ACCOUNTS` const in `src/pages/dashboard/Login.jsx`.
 
 ### Razorpay Test Cards (for Pro/Enterprise upgrade testing)
 
@@ -802,26 +824,41 @@ For UPI test mode, use `success@razorpay` (success) or `failure@razorpay` (failu
 
 ---
 
-## 14. Production Go-Live Plan (openi.tech)
+## 14. Production Go-Live (openi.ai) — COMPLETE
 
-**Status (5 April 2026):** Planning complete, execution in progress. Domain `openi.tech` purchased on GoDaddy. Plan below captures every step, who does what, and resume points.
+**Status (6 May 2026):** ✅ Production cutover from `openi.tech` to `openi.ai` is complete. All three production hostnames are LIVE with valid SSL. The `.tech` domain is preserved as **perpetual staging** — both stacks point at the same Railway PostgreSQL, but new traffic and marketing URLs go to `.ai`. The original step-by-step go-live playbook is preserved in §14.3–14.11 below for reference and for future cutovers.
 
-### 14.1 Target Architecture
+### 14.1 Current Production Architecture
 
 ```
 Users
   │
   ▼
-https://openi.tech              ← Vercel (openi-hub frontend)
-https://www.openi.tech          ← Vercel (redirects to openi.tech)
+https://openi.ai                ← Vercel (openi-hub frontend, production)
+https://www.openi.ai            ← Vercel (apex 308 → www, both serve)
+https://app.openi.ai            ← Vercel (reserved, in allowedOrigins)
   │
-  │ API calls (VITE_API_URL)
+  │ API calls (VITE_API_URL = https://api.openi.ai/api)
   ▼
-https://api.openi.tech          ← Railway (openi-hub-backend)
+https://api.openi.ai            ← Railway (openi-hub-backend, SSL provisioned)
   │
   ▼
-Railway PostgreSQL              ← unchanged
+Railway PostgreSQL              ← shared with .tech staging stack
+
+Staging on the same backend instance:
+  https://openi.tech / www.openi.tech / app.openi.tech / api (legacy URL)
 ```
+
+### 14.0 Production Hostname Reference
+
+| Hostname | Resolves to | Role |
+|---|---|---|
+| `openi.ai` | `216.198.79.1` (Vercel apex) | Production apex (308 → www) |
+| `www.openi.ai` | `4d8d9078365453ff.vercel-dns-017.com` | Production frontend |
+| `app.openi.ai` | Vercel | Reserved (in CORS allowlist) |
+| `api.openi.ai` | `2eugdac7.up.railway.app` | Production backend |
+| `openi.tech` / `www.openi.tech` / `app.openi.tech` | Vercel | Perpetual staging |
+| `openi-hub.vercel.app` | Vercel | Preview-deploy fallback |
 
 ### 14.2 Pre-Work Completed
 
@@ -1164,21 +1201,137 @@ All public page content is structured for easy CMS migration:
 
 ---
 
+## 17. Multi-Persona V2 (`activeRole`, Phase 60.2–60.4)
+
+OpenI Hub originally bound a user to a single persona. v2.6 generalises this so one account can hold **multiple persona roles** and switch between them. The platform behaviour (sidebar, dashboard, redirects, billing limits) is driven by the user's **`activeRole`** rather than a single legacy `role` field.
+
+### 17.1 Roles Schema
+
+| Table / Column | Purpose |
+|---|---|
+| `user_roles` (user_id, role, is_primary, added_at) | One row per role a user holds. Exactly one is `is_primary=TRUE`. |
+| `users.persona_category` | Cached "provider" / "seeker" category for the primary role |
+| `users.profile_completed` | Whether Step 2 of registration is done for the primary persona |
+| `users.onboarding_step` | Onboarding progress counter |
+
+`SELF_REGISTER_ROLES` (defined in `authController.js`) is the allow-list of roles a user can self-add — admin/evaluator are excluded.
+
+### 17.2 Role Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/auth/roles` | Lists current user's roles + `available_to_add` (the SELF_REGISTER_ROLES they don't yet hold) |
+| `POST` | `/api/auth/roles/add` | Adds a `user_roles` row (`is_primary=FALSE`) + creates an empty persona profile in the role's profile table + sends a welcome email. Body: `{ role, profile? }`. |
+| `POST` | `/api/auth/roles/set-primary` | Flips `is_primary` flags so the named role becomes primary. |
+| `POST` | `/api/auth/roles/remove` | Removes a role; refused if it's the user's only role. If the removed role was primary, the oldest remaining role auto-becomes primary. |
+
+### 17.3 `activeRole` Resolution
+
+On every authenticated request, `middleware/auth.js` resolves the user's roles via subquery on `user_roles` and exposes them on `req.user.roles[]` with `is_primary` flags. The active role used for billing, sidebar, and persona-aware queries is stored client-side and sent through the request layer; backend controllers (`subscriptionController`, `personaDashboardController`, `profileController`, `enrichController`, `onboardingController`, `challengeApplyController`, `portfolioEvalsController`, `programPartnersController`, `profileViewController`, `claimController`) consume it.
+
+### 17.4 Per-Role Billing (Phase 60.4a)
+
+`user_subscriptions` rows now include the `role` column so a user with multiple personas gets independent billing limits per role. This means a user can have a Pro plan as Mentor while remaining Free as Investor. The `checkUsageLimit` middleware (`middleware/subscription.js`) keys on `(user_id, role, feature, period)`.
+
+### 17.5 Frontend Behaviour
+
+- **Login / restore:** `roles[]` is refreshed from `/auth/me` on session restore so newly added roles show up across tabs.
+- **Add role:** After `POST /roles/add` succeeds, the local cache is refreshed and the new tab appears in the role switcher.
+- **Active role honoured everywhere:** Dashboard role-based redirects use `activeRole`, not legacy `user.role` (commit `53c5041`).
+
+---
+
+## 18. Email Verification, Password Reset, Terms-of-Use Gate
+
+### 18.1 Email Verification (s49e)
+
+| Schema | Description |
+|---|---|
+| `users.email_verified_at TIMESTAMPTZ NULL` | Set when a user successfully verifies via link or OTP |
+| `email_verifications` | Pending verification rows: `(id, user_id, code, token_hash, purpose, expires_at, consumed_at)` |
+| `idx_email_verifications_user_id_active` | Partial index on un-consumed rows for the active lookup |
+| `idx_email_verifications_token_hash` | Lookup index for magic-link tokens |
+
+Two co-equal verification paths:
+
+1. **Magic link:** `https://openi.ai/verify-email?token=<long-token>` — token is hashed in DB; on click, frontend POSTs the token, backend verifies + marks consumed.
+2. **OTP:** A 6-digit code displayed in the email body; user pastes into the verify page and submits. Same row, different surface.
+
+**Gmail link-prefetch defeat:**
+- The verify landing page requires an explicit button click (no auto-verify on page load) — Gmail's bot-prefetch hits the page but doesn't click.
+- Cross-tab `localStorage` sync: when a user verifies in tab B, tab A picks up the success and continues the registration flow.
+- Step 2 profile data is stashed in `localStorage` (not just React state) so it survives Gmail's "open in new tab" behaviour where the original tab is replaced.
+
+**Gated actions:** Four sensitive actions return `EMAIL_NOT_VERIFIED` from the API if the user hasn't verified, and the frontend redirects to `/verify-email?email=<addr>`. Backend re-issues a fresh code on the redirect so the user always gets a working OTP.
+
+### 18.2 Password Reset
+
+Same email-token mechanism, with `purpose='password_reset'` on the `email_verifications` row. User clicks link → enters new password → row is consumed and the password is bcrypted.
+
+### 18.3 Terms of Use Gate (Phase 60.7)
+
+| Field | Purpose |
+|---|---|
+| `users.terms_version_accepted` | The `TERMS_VERSION` string the user has accepted |
+| `TERMS_VERSION` constant | Currently `'1.1'` (bumped with the partners refresh) |
+
+`POST /api/auth/register` requires `terms_accepted: true` in the body (returns 400 otherwise). When `TERMS_VERSION` is bumped, users with stale `terms_version_accepted` are routed to a re-accept gate before they can use gated actions.
+
+---
+
+## 19. GST-Compliant Invoicing (OpenI Partners LLP)
+
+OpenI Hub issues **real Indian GST tax invoices** for paid subscriptions. Generated as PDFs and auto-attached to subscription receipt emails.
+
+### 19.1 Legal Entity
+
+| Field | Value |
+|---|---|
+| Legal name | OpenI Partners LLP |
+| Place of business | Maharashtra, India |
+| GSTIN | Set in `services/pdfService.js` `COMPANY` constant |
+| GST rate | 18% (standard SaaS rate) |
+
+For interstate B2C (different state from Maharashtra), the full 18% is collected as **IGST**. For intrastate (within Maharashtra), it splits as **CGST 9% + SGST 9%**. Reverse-charge declaration is included as required on Indian tax invoices.
+
+### 19.2 Invoice Generator
+
+**File:** `src/services/pdfService.js` (PDFKit-based)
+
+Layout columns: Description (210 px) | HSN/SAC (60 px) | Qty (40 px) | Rate (90 px) | Amount (95 px). Includes:
+- Sequential invoice number
+- Customer billing block with optional `customer_gstin`
+- Line items with HSN/SAC code for SaaS
+- GST breakdown block (CGST/SGST or IGST)
+- Reverse-charge declaration line
+- System-generated footer with `info@openi.ai` contact
+
+### 19.3 Frontend / UX
+
+- **Pricing cards** show `+ 18% GST · total` annotation under each plan price (commit `72cb519`)
+- **Settings → Billing** has a discoverable **Download Invoice** button per payment row (`2210b10`)
+- **Email delivery:** the GST invoice is auto-attached to the subscription confirmation email (`emailService.js`, commit `57c9b29`)
+
+### 19.4 Invoice Number Sequence
+
+Sequential, gap-free numbering as required by the GST Act. The sequence is owned by the database (advisory locks prevent collisions on concurrent payments), and the formatted number includes a fiscal-year prefix.
+
+---
+
 ## Project Statistics
 
 | Metric | Count |
 |--------|-------|
-| Frontend Pages | 33+ |
-| Backend Controllers | 28 |
-| API Endpoints | 96+ |
-| Database Tables | 56+ |
-| API Service Modules | 21+ |
-| Persona Types | 10 |
-| Subscription Plans | 3 (Free / Pro / Enterprise) |
+| Frontend Pages | 60+ |
+| Backend Controllers | 62 |
+| Backend API Routes | ~480 |
+| Database Tables | 61 (in `migrate.js`; more added incrementally via `scripts/migrate-*.js`) |
+| Persona Types | 11 V2 personas |
+| Subscription Plans | 3 per role (Free / Pro / Enterprise), independent per persona |
 | Public Pages | 3 (Landing, Marketplace, Reports) |
-| Frontend Dependencies | 6 |
-| Backend Dependencies | 13 (incl. razorpay, cloudinary, multer) |
 | Lines of Seed Data | ~300 |
+| Frontend repo total commits | 198 |
+| Backend repo total commits | 258 |
 
 ---
 
@@ -1192,4 +1345,4 @@ All public page content is structured for easy CMS migration:
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 6 April 2026 (v2.5 — Public pages + landing enhancement + corporate analytics)* 🎉
+*Last updated: 6 May 2026 (v2.6 — `.ai` cutover, multi-persona V2, email verification, GST invoicing)* 🎉
