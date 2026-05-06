@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { authAPI, subscriptionAPI, creditAPI, mfaAPI } from '../../services/api';
+import { authAPI, subscriptionAPI, creditAPI, mfaAPI, billingAddressAPI } from '../../services/api';
+import BillingAddressModal from '../../components/BillingAddressModal';
 import { getPersonaCategory, PLAN_LABELS } from '../../config/personas';
 import toast from 'react-hot-toast';
 import {
@@ -87,6 +88,12 @@ export default function Settings() {
   const [billingLoading, setBillingLoading] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
 
+  // Phase 60.11 — Billing address (mandatory before checkout)
+  const [billingAddress, setBillingAddress] = useState(null);
+  const [billingModalOpen, setBillingModalOpen] = useState(false);
+  // Pending checkout deferred until the billing-address modal is satisfied.
+  const [pendingUpgrade, setPendingUpgrade] = useState(null); // { planId, planName }
+
   // AI credit packs state (Phase 26)
   const [creditPacks, setCreditPacks] = useState([]);
   const [creditBalance, setCreditBalance] = useState(null);
@@ -150,18 +157,21 @@ export default function Settings() {
   const loadBilling = async () => {
     setBillingLoading(true);
     try {
-      const [plansData, myData, featureData, packsData, balanceData] = await Promise.all([
+      const [plansData, myData, featureData, packsData, balanceData, billingAddrData] = await Promise.all([
         subscriptionAPI.getPlans(),
         subscriptionAPI.getMyPlan(),
         subscriptionAPI.featureAccess().catch(() => null),
         creditAPI.listPacks().catch(() => ({ packs: [] })),
         creditAPI.myBalance().catch(() => ({ balance: 0, purchases: [] })),
+        // 404 (no row yet) is normal — swallow to null.
+        billingAddressAPI.get().catch(() => null),
       ]);
       setPlans(plansData.plans || []);
       setMyPlan({ ...myData, ai_consumption: featureData?.ai_consumption || null });
       setCreditPacks(packsData.packs || []);
       setCreditBalance(typeof balanceData.balance === 'number' ? balanceData.balance : 0);
       setCreditPurchases(balanceData.purchases || []);
+      setBillingAddress(billingAddrData?.billing_address || null);
     } catch (err) { toast.error('Failed to load billing info'); }
     finally { setBillingLoading(false); }
   };
@@ -212,7 +222,40 @@ export default function Settings() {
     }
   };
 
+  // Phase 60.11: hard-gate Razorpay checkout on a complete billing address.
+  // If we don't have one cached, refresh from the server (defence against
+  // stale frontend state). If still missing, open the modal and remember the
+  // pending plan so we can resume the checkout once the user saves.
   const handleUpgrade = async (planId, planName) => {
+    let addr = billingAddress;
+    if (!addr) {
+      try {
+        const r = await billingAddressAPI.get();
+        addr = r?.billing_address || null;
+        setBillingAddress(addr);
+      } catch (_) { /* 404 — no row yet */ }
+    }
+    if (!addr) {
+      setPendingUpgrade({ planId, planName });
+      setBillingModalOpen(true);
+      return;
+    }
+    return runUpgrade(planId, planName);
+  };
+
+  // Called by the modal's onSaved callback. Closes the modal and, if there
+  // was a pending upgrade waiting on the address, resumes it.
+  const handleBillingSaved = (saved) => {
+    setBillingAddress(saved);
+    setBillingModalOpen(false);
+    if (pendingUpgrade) {
+      const { planId, planName } = pendingUpgrade;
+      setPendingUpgrade(null);
+      runUpgrade(planId, planName);
+    }
+  };
+
+  const runUpgrade = async (planId, planName) => {
     setUpgrading(true);
     try {
       const orderData = await subscriptionAPI.createOrder({ plan_id: planId, billing_cycle: 'monthly' });
@@ -259,7 +302,17 @@ export default function Settings() {
         });
         rzp.open();
       }
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      // Defence-in-depth: backend can refuse with BILLING_ADDRESS_REQUIRED if
+      // the row was deleted/corrupted between our local check and createOrder.
+      if (err?.code === 'BILLING_ADDRESS_REQUIRED') {
+        setPendingUpgrade({ planId, planName });
+        setBillingModalOpen(true);
+        toast('Please complete your billing details first.');
+      } else {
+        toast.error(err.message);
+      }
+    }
     finally { setUpgrading(false); }
   };
 
@@ -691,6 +744,61 @@ export default function Settings() {
                   )}
                 </div>
 
+                {/* Billing Details (Phase 60.11) — required for GST-compliant invoices */}
+                <div style={{ ...card, padding: 24, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div>
+                      <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Billing Details</h3>
+                      <p style={{ fontSize: 12, color: '#888', margin: '3px 0 0 0' }}>
+                        Required on every GST tax invoice. Your saved details are reused for all future payments.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBillingModalOpen(true)}
+                      style={{
+                        padding: '8px 16px', borderRadius: 10, border: '1px solid #e5e7eb',
+                        background: '#fff', color: '#374151', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                      }}
+                    >
+                      {billingAddress ? 'Edit' : 'Add Billing Details'}
+                    </button>
+                  </div>
+                  {billingAddress ? (
+                    <div style={{ marginTop: 8, fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
+                      <div style={{ fontWeight: 600, color: '#1a1a1a' }}>{billingAddress.legal_name}</div>
+                      <div>{billingAddress.line1}</div>
+                      {billingAddress.line2 && <div>{billingAddress.line2}</div>}
+                      <div>
+                        {[billingAddress.city, billingAddress.state, billingAddress.postal_code].filter(Boolean).join(', ')}
+                      </div>
+                      <div>{billingAddress.country}</div>
+                      {billingAddress.gstin && (
+                        <div style={{ marginTop: 4, fontFamily: 'monospace', fontSize: 12, color: '#6b7280' }}>
+                          GSTIN: {billingAddress.gstin}
+                        </div>
+                      )}
+                      {String(billingAddress.country || '').toLowerCase() !== 'india' && (
+                        <div style={{
+                          marginTop: 10, padding: '8px 12px', borderRadius: 8,
+                          background: '#fef9c3', border: '1px solid #fde68a',
+                          color: '#854d0e', fontSize: 12, lineHeight: 1.5,
+                        }}>
+                          International billing — invoices show the export-under-LUT declaration; GST is not collected.
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{
+                      marginTop: 8, padding: '12px 14px', borderRadius: 10,
+                      background: '#fef3c7', border: '1px solid #fde68a',
+                      color: '#92400e', fontSize: 13, lineHeight: 1.5,
+                    }}>
+                      No billing details on file. You'll be prompted to add them the first time you upgrade.
+                    </div>
+                  )}
+                </div>
+
                 {/* AI Credit Packs (Phase 26) */}
                 <div id="credits" style={{ ...card, padding: 24, marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -915,6 +1023,16 @@ export default function Settings() {
           ))}
         </div>
       </div>
+
+      {/* Billing Address Modal (Phase 60.11) — opens before checkout if no row,
+          and from the Edit button in the Billing Details card. */}
+      <BillingAddressModal
+        open={billingModalOpen}
+        onClose={() => { setBillingModalOpen(false); setPendingUpgrade(null); }}
+        onSaved={handleBillingSaved}
+        initial={billingAddress}
+        defaults={{ legal_name: user?.organization_name || user?.name || '' }}
+      />
     </div>
   );
 }

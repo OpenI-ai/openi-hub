@@ -115,6 +115,14 @@ export const subscriptionAPI = {
   featureAccess: ()       => get('/subscription/feature-access'),
 };
 
+// ── Billing Address (Phase 60.11) ─────────────────────────────
+// Mandatory billing details for GST-compliant invoices. One row per
+// (user, active role). The backend hard-gates Razorpay checkout on this.
+export const billingAddressAPI = {
+  get:    ()         => get('/billing-address'),
+  upsert: (payload)  => put('/billing-address', payload),
+};
+
 // ── AI Credit Packs (Phase 26) ────────────────────────────────
 export const creditAPI = {
   listPacks:       ()            => get('/credits/packs'),
