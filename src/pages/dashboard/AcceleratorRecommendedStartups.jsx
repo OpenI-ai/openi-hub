@@ -160,9 +160,18 @@ export default function AcceleratorRecommendedStartups() {
                       {lift > 0 ? `+${lift} cluster` : 'cluster match'}
                     </span>
                   )}
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#888' }}>
-                    score {s.match_score || 0}
-                  </span>
+                  {(() => {
+                    const ms = parseInt(s.match_score, 10) || 0;
+                    if (ms <= 0) return null;
+                    const label = ms >= 15 ? 'Strong match' : ms >= 8 ? 'Good match' : 'Possible match';
+                    const color = ms >= 15 ? '#0d8a3e' : ms >= 8 ? '#a06600' : '#888';
+                    const bg    = ms >= 15 ? '#e6f6ec' : ms >= 8 ? '#fff7e6' : '#f5f5f5';
+                    return (
+                      <span style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 8px', background: bg, color, borderRadius: 4, fontWeight: 600 }}>
+                        {label}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             );
