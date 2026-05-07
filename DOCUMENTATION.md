@@ -2,14 +2,43 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 2.7
-**Last Updated:** 6 May 2026 (end-of-day, post Phase 60.11 ship)
+**Version:** 2.8
+**Last Updated:** 7 May 2026 (late morning — post Phase 61 + Phase 62 ship)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 schema live)*
+**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 schema/code live)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys)*
+
+### What's New in v2.8 — Phase 61 (Crawl Sources Dedup) + Phase 62 (Weighted Recommendations) + Hotfixes
+
+Operational hardening and recommendation-quality work shipped 7 May 2026:
+
+- **Phase 61 — Crawl Sources Dedup & Idempotent Seed** 🧹 — Discovered that every backend deploy was silently inserting 8 duplicate `crawl_sources` rows because the seed used `ON CONFLICT DO NOTHING` with no conflict target and no `UNIQUE(name)` constraint existed. After ~89 deploys, production held **717 rows for 10 logical sources**. The dependent `crawled_startups` insert hard-coded literal `source_id` PKs (1,2,4,5,6) that referenced rows from the very first seed run; once those rows were deleted, SERIAL never reused the IDs and the seed started raising `crawled_startups_source_id_fkey` violations on every container boot.
+  - Migration in `src/startup.js#runMigrations`: repointed `crawled_startups.source_id` and `crawl_jobs.source_id` from each duplicate to the per-name `MIN(id)` survivor → DELETEd 707 non-survivor rows → ADDed `UNIQUE(name)` on `crawl_sources` → ADDed partial `UNIQUE INDEX idx_crawled_startups_cin_unique ON crawled_startups(cin) WHERE cin IS NOT NULL`. CIN (Companies Act unique id) chosen over UNIQUE(name) because 94 real distinct companies in production share names.
+  - Seed code rewritten in both `src/startup.js#runSeed` and `src/db/seed.js`: `crawl_sources` insert now uses `ON CONFLICT (name) DO NOTHING`. `crawled_startups` and `crawl_jobs` use name-lookup subqueries `(SELECT id FROM crawl_sources WHERE name = ...)` instead of literal PKs, with `WHERE NOT EXISTS` idempotency guards.
+  - Verified post-deploy: `crawl_sources COUNT = 10` (down from 717), `crawled_startups = 6,355` (untouched), `crawl_jobs = 6,164` (real RSS-crawler runs from Inc42, EU-Startups, TechCrunch, etc. — left alone).
+  - **Operational gotcha worth knowing:** `migrate-bootstrap.js` calls `runMigrations` from `src/startup.js`, NOT from `src/db/migrate.js`. Two migration code paths exist; only the boot path is used in production. Always edit `startup.js` for schema changes that need to ship.
+
+- **Phase 62 — Weighted Recommendations Overlap + Match Category Labels + Traction Signal** 🎯 — User feedback: investor "Recommended Startups" surface (and student/academia/accelerator/incubator/corporate equivalents) showed identical numeric scores like "score 11" on every card.
+  - **Backend SQL fix (6 sites):** old SQL gave 1 point per investor term that *substring-matched* any startup tag, producing identical scores within a tightly-tagged demo cluster. New SQL awards **3 pts** for exact case-insensitive match, **1 pt** for substring match. Tie-breakers added (funding_raised → team_size → profile_score) for investor + corporate challenge surfaces. Files updated: `investorController.js`, `studentEnhController.js`, `academiaEnhController.js`, `acceleratorController.js`, `incubatorController.js`, `corporateController.js` (2 instances).
+  - **Frontend category labels:** numeric "score X" replaced with colored chips — **Strong match** (green) when ≥15, **Good match** (amber) when ≥8, **Possible match** (gray) when 0<x<8, hidden when 0. The numeric was misleading when many cards in the same cluster legitimately tied; the chip communicates the meaningful tier.
+  - **Traction signal tail:** chip now appends a persona-relevant signal so same-tier cards have visible differentiation:
+    - Investor: prefers `funding_raised` (₹Cr/L/K), fallback `team_size`
+    - Student/Academia: prefers `team_size`, fallback funding
+    - Accelerator/Incubator: prefers `stage` (e.g. "Seed"), fallback team_size, fallback funding
+  - Backend recommend SELECT lists for non-investor controllers extended to expose `funding_raised + team_size`. Result: instead of 8 cards all reading "score 11", the surface now shows "Good match · ₹50L", "Good match · 24 employees", "Good match · Seed-stage", etc.
+
+- **Sentry noise suppression** 🔇 — Edited `src/instrument.js` to (a) skip Sentry init when `require.main` is under `src/scripts/*` (laptop one-offs no longer pollute production), (b) filter `Postgres` + `PostgresJs` OTel auto-instrumentation (kills the spurious `'sql'` TypeError; we use `pg`, not `postgres`), (c) drop `getaddrinfo ENOTFOUND` events via `beforeSend`, (d) tag environment as `'local'` when `RAILWAY_ENVIRONMENT` is unset (so laptop runs with `NODE_ENV=production` set locally don't appear in prod Sentry).
+
+- **discoveryController hotfix** 🩹 — Investor sidebar → Find Students / Find Academia returned 500 with `column "persona_type" does not exist`. 5 SQL JOINs in `src/controllers/discoveryController.js` referenced `u.persona_type` on the `users` table, which has no such column. The actual columns are `users.role` (legacy single-persona) and `users.persona_category` (provider/seeker bucket). `persona_type` only exists on `directory_profiles`, not on `users`. Fixed by replacing all 5 occurrences with `u.role`.
+
+- **OpenI logo navigation** 🏠 — Brand-mark logo in 4 places was a bare `<img>` with no link. Wrapped each in `<Link>`: `Login.jsx` → `/`, `DashboardLayout.jsx` sidebar → `/dashboard` (RouterLink alias to avoid collision with lucide-react's `Link` icon), `PublicLayout.jsx` footer → `/`, `Landing.jsx` footer → `/`.
+
+- **Vercel SSL UI non-issue diagnosed** 🔒 — Vercel project page shows "Attempting to create SSL certificates" with red icons next to `openi.ai` and `www.openi.ai`. Reality: HTTP 200 on all hostnames, valid Let's Encrypt R13 certs (issued 6 May 2026, valid until 4 Aug 2026), all recent deployments `READY`. UI is showing stale state from a queued cert renewal job. Action: wait for self-heal; do **NOT** click Refresh/Renew or remove-and-re-add domains.
+
+- **DNS correction** — Earlier session notes claimed `openi.ai` DNS lives on GoDaddy nameservers (`ns53/ns54.domaincontrol.com`). Confirmed on 7 May 2026 that DNS is actually on **Cloudflare** (`crystal.ns.cloudflare.com`, `neil.ns.cloudflare.com`). GoDaddy is registration only.
 
 ### What's New in v2.7 — Phase 60.11: GST Invoice Compliance End-to-End
 The GST invoice baseline shipped in v2.6 is now **fully compliant with Indian GST law** and validated end-to-end on real production data. Three fixes:
