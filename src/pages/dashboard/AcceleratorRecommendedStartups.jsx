@@ -166,9 +166,17 @@ export default function AcceleratorRecommendedStartups() {
                     const label = ms >= 15 ? 'Strong match' : ms >= 8 ? 'Good match' : 'Possible match';
                     const color = ms >= 15 ? '#0d8a3e' : ms >= 8 ? '#a06600' : '#888';
                     const bg    = ms >= 15 ? '#e6f6ec' : ms >= 8 ? '#fff7e6' : '#f5f5f5';
+                    const fr = parseFloat(s.funding_raised) || 0;
+                    const ts = parseInt(s.team_size, 10) || 0;
+                    const stage = (s.stage || '').trim();
+                    let tail = stage || '';
+                    if (!tail && ts > 0) tail = `${ts} employees`;
+                    if (!tail && fr >= 10000000) tail = `₹${(fr / 10000000).toFixed(fr >= 100000000 ? 0 : 1)}Cr`;
+                    else if (!tail && fr >= 100000) tail = `₹${(fr / 100000).toFixed(fr >= 1000000 ? 0 : 1)}L`;
+                    else if (!tail && fr > 0) tail = `₹${Math.round(fr / 1000)}K`;
                     return (
                       <span style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 8px', background: bg, color, borderRadius: 4, fontWeight: 600 }}>
-                        {label}
+                        {label}{tail ? ` · ${tail}` : ''}
                       </span>
                     );
                   })()}
