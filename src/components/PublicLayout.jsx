@@ -224,11 +224,13 @@ export default function PublicLayout({ children }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             {/* Logo & tagline */}
             <div className="col-span-2">
-              <img
-                src="/openi-logo.png"
-                alt="OpenI"
-                style={{ height: 36, width: 'auto', maxWidth: 120, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-              />
+              <Link to="/" aria-label="Go to OpenI home" className="inline-block">
+                <img
+                  src="/openi-logo.png"
+                  alt="OpenI"
+                  style={{ height: 36, width: 'auto', maxWidth: 120, objectFit: 'contain', filter: 'brightness(0) invert(1)', cursor: 'pointer' }}
+                />
+              </Link>
               <p className="text-sm mt-4 max-w-xs leading-relaxed">
                 The open innovation platform connecting India&apos;s deep-tech ecosystem. Partner. Source. Invest.
               </p>

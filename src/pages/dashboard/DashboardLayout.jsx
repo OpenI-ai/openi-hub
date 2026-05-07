@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { connectionAPI } from "../../services/api";
 import {
@@ -152,15 +152,20 @@ export default function DashboardLayout() {
           borderBottom: `1px solid ${C.sidebarBorder}`,
           flexShrink:0,
         }}>
-          <img
-            src="/openi-logo.png"
-            alt="OpenI"
-            style={{ height:34, width:"auto", maxWidth:100, objectFit:"contain" }}
-            onError={e => {
-              e.target.style.display = "none";
-              e.target.nextSibling.style.display = "flex";
-            }}
-          />
+          <RouterLink to="/dashboard" aria-label="Go to dashboard home" style={{ display:"inline-flex", alignItems:"center" }}>
+            <img
+              src="/openi-logo.png"
+              alt="OpenI"
+              style={{ height:34, width:"auto", maxWidth:100, objectFit:"contain", cursor:"pointer" }}
+              onError={e => {
+                e.target.style.display = "none";
+                // Logo is now wrapped in <RouterLink>; fallback is the link's next sibling.
+                if (e.target.parentElement && e.target.parentElement.nextSibling) {
+                  e.target.parentElement.nextSibling.style.display = "flex";
+                }
+              }}
+            />
+          </RouterLink>
           <div style={{
             display:"none", width:34, height:34, borderRadius:9,
             background: C.gold, alignItems:"center", justifyContent:"center", flexShrink:0,

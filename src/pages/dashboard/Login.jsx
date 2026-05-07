@@ -91,16 +91,21 @@ export default function Login() {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img
-            src="/openi-logo.png"
-            alt="OpenI"
-            className="mx-auto mb-4"
-            style={{ height: 60, width: 'auto', maxWidth: 200, objectFit: 'contain', display: 'block' }}
-            onError={e => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'inline-flex';
-            }}
-          />
+          <Link to="/" aria-label="Go to OpenI home" className="inline-block">
+            <img
+              src="/openi-logo.png"
+              alt="OpenI"
+              className="mx-auto mb-4"
+              style={{ height: 60, width: 'auto', maxWidth: 200, objectFit: 'contain', display: 'block', cursor: 'pointer' }}
+              onError={e => {
+                e.target.style.display = 'none';
+                // Logo is now wrapped in <Link>; fallback Shield div is the Link's next sibling.
+                if (e.target.parentElement && e.target.parentElement.nextSibling) {
+                  e.target.parentElement.nextSibling.style.display = 'inline-flex';
+                }
+              }}
+            />
+          </Link>
           <div
             className="items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-md mx-auto"
             style={{ backgroundColor: '#D5AA5B', display: 'none' }}
