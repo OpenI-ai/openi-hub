@@ -227,6 +227,7 @@ export const eventAPI = {
   list:     (params = {}) => get(`/events?${new URLSearchParams(params)}`),
   get:      (id)          => get(`/events/${id}`),
   create:   (data)        => post('/events', data),
+  publish:  (id)          => post(`/events/${id}/publish`),
   register: (id)          => post(`/events/${id}/register`),
 };
 

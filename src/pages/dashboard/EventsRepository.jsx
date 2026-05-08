@@ -7,10 +7,15 @@ import {
   CheckCircle2, AlertCircle, ArrowRight, X,
 } from 'lucide-react';
 import { eventAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
 const G = '#D5AA5B';
 const GH = '#C9983F';
+
+// Phase 66 — roles allowed to create events. Mirrors backend
+// eventController.CREATE_ROLES exactly.
+const CREATE_ROLES = ['admin','corporate','government','investor','incubator','accelerator','lab'];
 
 const card = {
   background: '#ffffff',
@@ -19,6 +24,8 @@ const card = {
   boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
 };
 
+// Phase 66 (Bug C fix) — single canonical key set. Filters used to render twice
+// because the previous map had both lowercase and capitalized keys.
 const EVENT_TYPES = {
   hackathon:   { label: 'Hackathon',    color: '#7c3aed', bg: '#f5f3ff', icon: Zap },
   workshop:    { label: 'Workshop',     color: '#0284c7', bg: '#f0f9ff', icon: BookOpen },
@@ -26,12 +33,6 @@ const EVENT_TYPES = {
   demo_day:    { label: 'Demo Day',     color: G,          bg: '#fff8ec', icon: Trophy },
   webinar:     { label: 'Webinar',      color: '#ea580c', bg: '#fff7ed', icon: Video },
   networking:  { label: 'Networking',   color: '#dc2626', bg: '#fef2f2', icon: Users },
-  Hackathon:   { label: 'Hackathon',    color: '#7c3aed', bg: '#f5f3ff', icon: Zap },
-  Workshop:    { label: 'Workshop',     color: '#0284c7', bg: '#f0f9ff', icon: BookOpen },
-  Conference:  { label: 'Conference',   color: '#16a34a', bg: '#f0fdf4', icon: Mic },
-  'Demo Day':  { label: 'Demo Day',     color: G,          bg: '#fff8ec', icon: Trophy },
-  Webinar:     { label: 'Webinar',      color: '#ea580c', bg: '#fff7ed', icon: Video },
-  Networking:  { label: 'Networking',   color: '#dc2626', bg: '#fef2f2', icon: Users },
 };
 
 const STATUS_STYLE = {
@@ -56,7 +57,43 @@ const normalizeEventType = (t) => {
   return t.toLowerCase().replace(/\s+/g, '_');
 };
 
+const EMPTY_FORM = {
+  title: '',
+  description: '',
+  type: 'workshop',
+  start_date: '',
+  end_date: '',
+  location: '',
+  is_virtual: false,
+  capacity: '',
+  tags: '',
+};
+
+const normalizeEvent = (e) => ({
+  ...e,
+  type: normalizeEventType(e.type),
+  status: normalizeEventStatus(e.status),
+  date: fmtDate(e.start_date),
+  endDate: fmtDate(e.end_date),
+  location: e.location || '—',
+  mode: e.is_virtual ? 'Online' : 'In-Person',
+  organiser: e.organization_name || e.organiser || 'OpenI Hub',
+  registrations: Number(e.registered) || 0,
+  capacity: Number(e.capacity) || 100,
+  description: e.description || '',
+  tags: e.tags || [],
+  agenda: e.agenda || [],
+  speakers: e.speakers || [],
+  visibility: e.visibility || 'public',
+  created_by: e.created_by,
+  organization_name: e.organization_name || null,
+});
+
 export default function EventsRepository() {
+  const { user, roles } = useAuth();
+  const canCreate = (roles || []).some(r => CREATE_ROLES.includes(r));
+  const userId = user?.id;
+
   const [events, setEvents]     = useState([]);
   const [loading, setLoading]   = useState(true);
   const [view, setView]         = useState('grid');
@@ -64,27 +101,15 @@ export default function EventsRepository() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch]     = useState('');
   const [selected, setSelected] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm]         = useState(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     eventAPI.list()
       .then(data => {
         const raw = data.events || data || [];
-        setEvents(raw.map(e => ({
-          ...e,
-          type: normalizeEventType(e.type),
-          status: normalizeEventStatus(e.status),
-          date: fmtDate(e.start_date),
-          endDate: fmtDate(e.end_date),
-          location: e.location || '—',
-          mode: e.is_virtual ? 'Online' : 'In-Person',
-          organiser: e.organiser || 'OpenI Hub',
-          registrations: Number(e.registered) || 0,
-          capacity: Number(e.capacity) || 100,
-          description: e.description || '',
-          tags: e.tags || [],
-          agenda: e.agenda || [],
-          speakers: e.speakers || [],
-        })));
+        setEvents(raw.map(normalizeEvent));
       })
       .catch(err => toast.error(err.message || 'Failed to load events'))
       .finally(() => setLoading(false));
@@ -102,6 +127,50 @@ export default function EventsRepository() {
       .catch(err => toast.error(err.message || 'Failed to register'));
   };
 
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!form.title.trim()) {
+      toast.error('Event title is required');
+      return;
+    }
+    setSubmitting(true);
+    const payload = {
+      title: form.title.trim(),
+      description: form.description.trim() || null,
+      type: form.type,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
+      location: form.location.trim() || null,
+      is_virtual: !!form.is_virtual,
+      capacity: form.capacity ? Number(form.capacity) : null,
+      tags: form.tags.trim() ? form.tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+    };
+    try {
+      const created = await eventAPI.create(payload);
+      const norm = normalizeEvent(created);
+      setEvents(prev => [norm, ...prev]);
+      toast.success('Event saved as draft — only you can see it until you publish');
+      setShowCreate(false);
+      setForm(EMPTY_FORM);
+    } catch (err) {
+      toast.error(err.message || 'Failed to create event');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handlePublish = async (evId) => {
+    try {
+      const updated = await eventAPI.publish(evId);
+      const norm = normalizeEvent(updated);
+      setEvents(prev => prev.map(e => e.id === evId ? norm : e));
+      if (selected && selected.id === evId) setSelected(norm);
+      toast.success('Event published — visible to everyone now');
+    } catch (err) {
+      toast.error(err.message || 'Failed to publish event');
+    }
+  };
+
   const filtered = events.filter(e => {
     const matchType   = typeFilter === 'All' || e.type === typeFilter;
     const matchStatus = statusFilter === 'All' || e.status === statusFilter;
@@ -113,7 +182,13 @@ export default function EventsRepository() {
   if (loading) return <LoadingSkeleton type="card" />;
 
   if (selected) {
-    return <EventDetail event={selected} onBack={() => setSelected(null)} onRegister={handleRegister} />;
+    return <EventDetail
+      event={selected}
+      onBack={() => setSelected(null)}
+      onRegister={handleRegister}
+      onPublish={handlePublish}
+      currentUserId={userId}
+    />;
   }
 
   return (
@@ -124,12 +199,15 @@ export default function EventsRepository() {
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Events Repository</h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Hackathons, workshops, demo days and conferences for the OpenI startup ecosystem</p>
         </div>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}
-          onMouseEnter={e => e.currentTarget.style.background = GH}
-          onMouseLeave={e => e.currentTarget.style.background = G}
-        >
-          <Plus size={14} /> Create Event
-        </button>
+        {canCreate && (
+          <button onClick={() => setShowCreate(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}
+            onMouseEnter={e => e.currentTarget.style.background = GH}
+            onMouseLeave={e => e.currentTarget.style.background = G}
+          >
+            <Plus size={14} /> Create Event
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -189,8 +267,78 @@ export default function EventsRepository() {
       {/* Grid view */}
       {view === 'grid' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
-          {filtered.map(ev => <EventCard key={ev.id} ev={ev} onClick={() => setSelected(ev)} />)}
-          {filtered.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#aaa', fontSize: 13 }}>No events found</div>}
+          {filtered.map(ev => <EventCard key={ev.id} ev={ev} currentUserId={userId} onClick={() => setSelected(ev)} />)}
+          {filtered.length === 0 && (
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#aaa', fontSize: 13 }}>
+              No events found{canCreate ? <> · <button onClick={() => setShowCreate(true)} style={{ background: 'none', border: 'none', color: G, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>Create the first one</button></> : null}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Phase 66 — Create Event modal */}
+      {showCreate && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowCreate(false); }}
+        >
+          <form onSubmit={handleCreate} style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 560, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 12px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+              <div>
+                <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>Create Event</h3>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Saved as a draft. Only you can see it until you publish.</p>
+              </div>
+              <button type="button" onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 4 }}><X size={18} /></button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
+              <Field label="Event Title *">
+                <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} maxLength={500} required placeholder="e.g., DefTech Demo Day Bengaluru 2026" style={fieldInputStyle} />
+              </Field>
+
+              <Field label="Type">
+                <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} style={fieldInputStyle}>
+                  {Object.entries(EVENT_TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                </select>
+              </Field>
+
+              <Field label="Description">
+                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} maxLength={5000} rows={3} placeholder="What's the event about?" style={{ ...fieldInputStyle, resize: 'vertical' }} />
+              </Field>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <Field label="Start Date">
+                  <input type="datetime-local" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} style={fieldInputStyle} />
+                </Field>
+                <Field label="End Date">
+                  <input type="datetime-local" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} style={fieldInputStyle} />
+                </Field>
+              </div>
+
+              <Field label="Location">
+                <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} maxLength={500} placeholder="City or venue (or leave blank for virtual)" style={fieldInputStyle} />
+              </Field>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#1a1a1a' }}>
+                <input type="checkbox" checked={form.is_virtual} onChange={e => setForm(f => ({ ...f, is_virtual: e.target.checked }))} />
+                Virtual / Online event
+              </label>
+
+              <Field label="Capacity">
+                <input type="number" min={0} max={100000} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} placeholder="e.g., 200" style={fieldInputStyle} />
+              </Field>
+
+              <Field label="Tags" hint="Comma-separated">
+                <input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="defence, ai, demo" style={fieldInputStyle} />
+              </Field>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button type="button" onClick={() => setShowCreate(false)} disabled={submitting} style={{ flex: 1, padding: '10px 16px', background: '#fff', color: '#555', border: '1.5px solid #ddd', borderRadius: 9, cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600 }}>Cancel</button>
+              <button type="submit" disabled={submitting} style={{ flex: 1, padding: '10px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700, opacity: submitting ? 0.7 : 1 }}>
+                {submitting ? 'Saving…' : 'Save as Draft'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
@@ -230,20 +378,52 @@ export default function EventsRepository() {
   );
 }
 
-function EventCard({ ev, onClick }) {
+// Phase 66 — small layout helpers used by the Create Event modal.
+const fieldInputStyle = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '9px 11px',
+  background: '#fff',
+  border: '1.5px solid #e5e5e5',
+  borderRadius: 8,
+  fontSize: 13,
+  color: '#1a1a1a',
+  outline: 'none',
+};
+
+function Field({ label, hint, children }) {
+  return (
+    <label style={{ display: 'block' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#444' }}>{label}</span>
+        {hint ? <span style={{ fontSize: 10, color: '#999' }}>{hint}</span> : null}
+      </div>
+      {children}
+    </label>
+  );
+}
+
+function EventCard({ ev, currentUserId, onClick }) {
   const et = EVENT_TYPES[ev.type] || EVENT_TYPES.workshop;
   const ss = STATUS_STYLE[ev.status] || STATUS_STYLE['Upcoming'];
   const EIcon = et.icon;
   const regPct = Math.round((ev.registrations / ev.capacity) * 100);
+  const isMyDraft = ev.visibility === 'draft' && currentUserId && ev.created_by === currentUserId;
 
   return (
-    <div style={{ ...card, overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+    <div style={{ ...card, overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s', position: 'relative' }}
       onClick={onClick}
       onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'}
       onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'}
     >
       {/* Top colour bar */}
       <div style={{ height: 4, background: et.color }} />
+      {/* Phase 66 draft badge — only visible to the creator */}
+      {isMyDraft && (
+        <div style={{ position: 'absolute', top: 12, right: 12, fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 20, background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }}>
+          DRAFT — only you
+        </div>
+      )}
       <div style={{ padding: 20 }}>
         {/* Type & status */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -254,6 +434,9 @@ function EventCard({ ev, onClick }) {
         </div>
 
         <h3 style={{ margin: '0 0 8px', color: '#1a1a1a', fontSize: 14, fontWeight: 700, lineHeight: 1.4 }}>{ev.title}</h3>
+        {ev.organization_name && (
+          <div style={{ margin: '0 0 8px', fontSize: 11, color: '#888', fontStyle: 'italic' }}>Hosted by {ev.organization_name}</div>
+        )}
         <p style={{ margin: '0 0 14px', color: '#666', fontSize: 12, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{ev.description}</p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
@@ -289,17 +472,25 @@ function EventCard({ ev, onClick }) {
   );
 }
 
-function EventDetail({ event: ev, onBack, onRegister }) {
+function EventDetail({ event: ev, onBack, onRegister, onPublish, currentUserId }) {
   const et = EVENT_TYPES[ev.type] || EVENT_TYPES.workshop;
   const ss = STATUS_STYLE[ev.status] || STATUS_STYLE['Upcoming'];
   const EIcon = et.icon;
   const regPct = Math.round((ev.registrations / ev.capacity) * 100);
+  const isMyDraft = ev.visibility === 'draft' && currentUserId && ev.created_by === currentUserId;
 
   return (
     <div style={{ padding: 28, maxWidth: 900, background: '#f5f5f5', minHeight: '100%' }}>
       <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, color: G, fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, padding: 0 }}>
         ← Events
       </button>
+
+      {isMyDraft && (
+        <div style={{ marginBottom: 16, padding: '10px 14px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 9, color: '#92400e', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <span><strong>This event is a draft.</strong> Only you can see it. Click Publish to make it visible to all OpenI users.</span>
+          <button onClick={() => onPublish && onPublish(ev.id)} style={{ padding: '6px 14px', background: '#92400e', color: '#fff', border: 'none', borderRadius: 7, cursor: 'pointer', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>Publish</button>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ ...card, padding: 28, marginBottom: 20 }}>
@@ -321,7 +512,7 @@ function EventDetail({ event: ev, onBack, onRegister }) {
           {[
             { icon: Calendar, label: 'Date',         value: `${ev.date}${ev.date !== ev.endDate ? ` – ${ev.endDate}` : ''}` },
             { icon: MapPin,   label: 'Location',     value: ev.location },
-            { icon: Users,    label: 'Organiser',    value: ev.organiser },
+            { icon: Users,    label: 'Hosted by',    value: ev.organization_name || ev.organiser || 'OpenI Hub' },
             { icon: Users,    label: 'Registrations',value: `${ev.registrations} / ${ev.capacity}` },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
