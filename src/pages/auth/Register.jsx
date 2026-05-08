@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { PERSONAS, PROFILE_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
+import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
 import { claimAPI, profileAPI, publicUploadAPI } from '../../services/api';
 import TaxonomySelect from '../../components/TaxonomySelect';
@@ -459,7 +459,10 @@ export default function Register() {
   // No silent default — if ?type= is missing, user MUST pick a persona via Step 0.
   const personaType = params.get('type');
   const persona = personaType ? PERSONAS[personaType] : null;
-  const profileFields = personaType ? (PROFILE_FIELDS[personaType] || []) : [];
+  // Phase 65: Step 2 now shows a short list (~6 fields). Full PROFILE_FIELDS
+  // remains the source of truth for My Profile. This unblocks Shameel-style
+  // complaints that the signup form is too long.
+  const profileFields = personaType ? (REGISTER_FIELDS[personaType] || PROFILE_FIELDS[personaType] || []) : [];
   const orgField = personaType ? ORG_NAME_FIELD[personaType] : null;
 
   // Step 0: Choose persona (only when ?type= is missing)
@@ -766,9 +769,17 @@ export default function Register() {
           {/* Step 2: Profile Details */}
           {step === 2 && (
             <div className="space-y-4">
-              <p className="text-sm mb-2" style={{ color: '#6b7280' }}>
-                Fill in your {persona.label.toLowerCase()} details. You can also complete this later from your profile page.
-              </p>
+              {/* Phase 65: short signup form. Nudge users that completing
+                  the full profile from MyProfile drives discoverability. */}
+              <div className="rounded-xl p-3 mb-2 text-xs flex gap-2 items-start"
+                   style={{ background: '#FFF8E6', border: '1px solid #D5AA5B40', color: '#7C5A1F' }}>
+                <Building2 size={14} className="flex-shrink-0 mt-0.5" />
+                <div>
+                  Just the basics for now — you can complete the rest from{' '}
+                  <span className="font-semibold">My Profile</span> after signup. The more you fill in,
+                  the better your visibility in search and recommendations.
+                </div>
+              </div>
               {profileFields.map(field => {
                 // Phase 60.10e (s50): inject form-level country into state field, and
                 // both country + state into city field, so the autocomplete components
@@ -797,9 +808,12 @@ export default function Register() {
                   {loading ? 'Creating...' : 'Create Account'}
                 </button>
               </div>
+              {/* Phase 65: promote skip to a real secondary action so people
+                  who just want an account can get one in <10s. */}
               <button onClick={handleRegister} disabled={loading}
-                className="w-full text-xs text-center mt-1" style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer' }}>
-                Skip profile details — I'll complete later
+                className="w-full py-2.5 rounded-xl text-sm font-medium border transition-all"
+                style={{ background: '#fff', color: '#6b7280', borderColor: '#e5e7eb' }}>
+                Skip for now — finish profile after signup
               </button>
             </div>
           )}

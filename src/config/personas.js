@@ -224,22 +224,22 @@ export const PROFILE_FIELDS = {
     { name: 'is_deeptech',    label: 'Is DeepTech?',         type: 'checkbox' },
     // ── Business Traction ─────────────────────────────
     { name: 'revenue_range',  label: 'Revenue Range',        type: 'select', options: ['Pre-revenue','<1 Cr','1-10 Cr','10-50 Cr','50-100 Cr','>100 Cr'] },
-    { name: 'customer_count', label: 'Number of Customers',  type: 'number' },
-    { name: 'mrr',            label: 'MRR (Monthly Recurring Revenue)', type: 'number' },
-    { name: 'arr',            label: 'ARR (Annual Recurring Revenue)', type: 'number' },
+    { name: 'customer_count', label: 'Number of Customers',  type: 'number', min: 0 },
+    { name: 'mrr',            label: 'MRR (Monthly Recurring Revenue)', type: 'number', min: 0 },
+    { name: 'arr',            label: 'ARR (Annual Recurring Revenue)', type: 'number', min: 0 },
     { name: 'growth_rate',    label: 'Growth Rate',          type: 'text', placeholder: 'e.g., 3x YoY, 25% MoM' },
     { name: 'unit_economics', label: 'Unit Economics (CAC, LTV)', type: 'textarea' },
     // ── Financials ────────────────────────────────────
-    { name: 'funding_raised', label: 'Total Funding Raised', type: 'number' },
+    { name: 'funding_raised', label: 'Total Funding Raised', type: 'number', min: 0 },
     { name: 'funding_raised_currency', label: 'Funding Currency', type: 'select', options: ['INR','USD'] },
-    { name: 'total_funding_rounds', label: 'Total Funding Rounds', type: 'number' },
+    { name: 'total_funding_rounds', label: 'Total Funding Rounds', type: 'number', min: 0 },
     { name: 'last_funding_date', label: 'Last Funding Date', type: 'date' },
-    { name: 'last_funding_amount', label: 'Last Funding Amount', type: 'number' },
+    { name: 'last_funding_amount', label: 'Last Funding Amount', type: 'number', min: 0 },
     { name: 'last_funding_amount_currency', label: 'Last Funding Currency', type: 'select', options: ['INR','USD'] },
-    { name: 'total_investors', label: 'Total Investors',     type: 'number' },
+    { name: 'total_investors', label: 'Total Investors',     type: 'number', min: 0 },
     { name: 'investor_names', label: 'Key Investors',        type: 'tags', placeholder: 'e.g., Sequoia, Accel, SoftBank' },
     { name: 'burn_rate',      label: 'Monthly Burn Rate',    type: 'text', placeholder: 'e.g., INR 15L/month' },
-    { name: 'runway_months',  label: 'Runway (months)',      type: 'number' },
+    { name: 'runway_months',  label: 'Runway (months)',      type: 'number', min: 0, max: 600 },
     // ── Awards & Recognition ──────────────────────────
     { name: 'awards',              label: 'Awards',                type: 'tags', placeholder: 'e.g., NASSCOM DeepTech, CII Award' },
     { name: 'certifications',      label: 'Certifications',        type: 'tags', placeholder: 'e.g., ISO 27001, SOC 2' },
@@ -283,8 +283,8 @@ export const PROFILE_FIELDS = {
     { name: 'city',             label: 'City',                type: 'city' },
     { name: 'website',          label: 'Website',             type: 'url' },
     { name: 'research_areas',   label: 'Research Areas',      type: 'tags', placeholder: 'e.g., AI, Materials Science' },
-    { name: 'publications_count', label: 'Publications Count', type: 'number' },
-    { name: 'patents_count',    label: 'Patents Count',       type: 'number' },
+    { name: 'publications_count', label: 'Publications Count', type: 'number', min: 0 },
+    { name: 'patents_count',    label: 'Patents Count',       type: 'number', min: 0 },
     { name: 'bio',              label: 'About',               type: 'textarea' },
     { name: 'offerings',        label: 'What We Offer',       type: 'multiselect', options: ['Research Collaboration','IP Licensing','Consulting','Student Interns','Lab Access','Joint Publications'] },
     { name: 'linkedin_url',     label: 'LinkedIn URL',        type: 'url' },
@@ -342,11 +342,11 @@ export const PROFILE_FIELDS = {
     { name: 'looking_for',     label: 'Looking For',            type: 'multiselect', options: ['DeepTech','AI/ML','Defence','Healthcare','CleanTech','FinTech','SaaS','B2B','B2C','Hardware','Biotech','SpaceTech','EdTech'] },
     { name: 'investment_thesis', label: 'Investment Thesis',    type: 'textarea', placeholder: 'Describe your investment philosophy, what you look for in startups, and your competitive advantage as an investor' },
     // ── Track Record ──────────────────────────────────
-    { name: 'portfolio_count', label: 'Portfolio Companies',     type: 'number' },
-    { name: 'investments_made', label: 'Total Investments Made', type: 'number' },
+    { name: 'portfolio_count', label: 'Portfolio Companies',     type: 'number', min: 0 },
+    { name: 'investments_made', label: 'Total Investments Made', type: 'number', min: 0 },
     { name: 'notable_exits',   label: 'Notable Exits',          type: 'tags', placeholder: 'e.g., Acquired by Cisco 2023, IPO 2024' },
     { name: 'follow_on_capacity', label: 'Follow-on Capacity?', type: 'checkbox' },
-    { name: 'average_response_days', label: 'Avg Response Time (days)', type: 'number' },
+    { name: 'average_response_days', label: 'Avg Response Time (days)', type: 'number', min: 0, max: 365 },
     // ── Team ──────────────────────────────────────────
     { name: 'team_partners',   label: 'Partner Names',          type: 'tags', placeholder: 'e.g., Rajiv Menon, Priya Shah' },
     { name: 'co_investor_preferences', label: 'Co-Investor Preferences', type: 'textarea', placeholder: 'Preferred co-investors, syndication style, lead vs follow' },
@@ -364,14 +364,14 @@ export const PROFILE_FIELDS = {
     { name: 'designation',      label: 'Designation',           type: 'text' },
     { name: 'organisation',     label: 'Organisation',          type: 'text' },
     { name: 'expertise',        label: 'Expertise Areas',       type: 'tags', placeholder: 'e.g., Strategy, Technology, Fundraising' },
-    { name: 'years_experience', label: 'Years of Experience',   type: 'number' },
+    { name: 'years_experience', label: 'Years of Experience',   type: 'number', min: 0, max: 80 },
     { name: 'country',          label: 'Country',               type: 'country' },
     { name: 'state',            label: 'State',                 type: 'state' },
     { name: 'city',             label: 'City',                  type: 'city' },
     { name: 'bio',              label: 'About Me',              type: 'textarea' },
-    { name: 'max_mentees',      label: 'Max Mentees',           type: 'number' },
+    { name: 'max_mentees',      label: 'Max Mentees',           type: 'number', min: 0, max: 10000 },
     { name: 'offering',         label: 'What I Offer',          type: 'multiselect', options: ['Strategy','Technology','Fundraising','Marketing','Operations','Legal','Product','HR'] },
-    { name: 'hourly_rate',      label: 'Hourly Rate',           type: 'number' },
+    { name: 'hourly_rate',      label: 'Hourly Rate',           type: 'number', min: 0 },
     { name: 'hourly_rate_currency', label: 'Rate Currency',     type: 'select', options: ['INR','USD'] },
     { name: 'availability',     label: 'Availability',          type: 'select', options: ['available','busy','limited'] },
     { name: 'linkedin_url',     label: 'LinkedIn URL',          type: 'url' },
@@ -388,9 +388,9 @@ export const PROFILE_FIELDS = {
     { name: 'equipment',      label: 'Equipment Available',  type: 'tags', placeholder: 'e.g., 3D Printer, CNC, Spectrum Analyzer' },
     { name: 'capabilities',   label: 'Capabilities',         type: 'tags', placeholder: 'e.g., Prototyping, Testing, Simulation' },
     { name: 'certifications', label: 'Certifications',       type: 'tags', placeholder: 'e.g., ISO 9001, NABL' },
-    { name: 'capacity',       label: 'Capacity (people)',    type: 'number' },
-    { name: 'hourly_rate',    label: 'Hourly Rate',    type: 'number' },
-    { name: 'daily_rate',     label: 'Daily Rate',     type: 'number' },
+    { name: 'capacity',       label: 'Capacity (people)',    type: 'number', min: 0, max: 10000 },
+    { name: 'hourly_rate',    label: 'Hourly Rate',    type: 'number', min: 0 },
+    { name: 'daily_rate',     label: 'Daily Rate',     type: 'number', min: 0 },
     { name: 'rate_currency',  label: 'Rate Currency',  type: 'select', options: ['INR','USD'] },
     { name: 'contact_person', label: 'Contact Person',       type: 'text' },
     { name: 'linkedin_url',   label: 'LinkedIn URL',         type: 'url' },
@@ -405,10 +405,10 @@ export const PROFILE_FIELDS = {
     { name: 'description',      label: 'About',               type: 'textarea' },
     { name: 'focus_sectors',    label: 'Focus Sectors',        type: 'tags', placeholder: 'e.g., AI, HealthTech, CleanTech' },
     { name: 'program_duration', label: 'Program Duration',     type: 'text',   placeholder: 'e.g., 6 months' },
-    { name: 'cohort_size',      label: 'Cohort Size',          type: 'number' },
-    { name: 'equity_taken',     label: 'Equity Taken (%)',     type: 'number' },
+    { name: 'cohort_size',      label: 'Cohort Size',          type: 'number', min: 0, max: 10000 },
+    { name: 'equity_taken',     label: 'Equity Taken (%)',     type: 'number', min: 0, max: 100 },
     { name: 'funding_offered',  label: 'Funding Offered',      type: 'money_range', variant: 'ticket' },
-    { name: 'portfolio_count',  label: 'Portfolio Count',      type: 'number' },
+    { name: 'portfolio_count',  label: 'Portfolio Count',      type: 'number', min: 0 },
     { name: 'services',         label: 'Services Offered',     type: 'multiselect', options: ['Office Space','Mentorship','Funding','Legal','Networking','Marketing','Technical Support'] },
     { name: 'linkedin_url',     label: 'LinkedIn URL',         type: 'url' },
   ],
@@ -422,10 +422,10 @@ export const PROFILE_FIELDS = {
     { name: 'description',      label: 'About',               type: 'textarea' },
     { name: 'focus_sectors',    label: 'Focus Sectors',        type: 'tags', placeholder: 'e.g., DeepTech, SaaS' },
     { name: 'program_duration', label: 'Program Duration',     type: 'text',   placeholder: 'e.g., 3 months' },
-    { name: 'batch_size',       label: 'Batch Size',           type: 'number' },
-    { name: 'equity_taken',     label: 'Equity Taken (%)',     type: 'number' },
+    { name: 'batch_size',       label: 'Batch Size',           type: 'number', min: 0, max: 10000 },
+    { name: 'equity_taken',     label: 'Equity Taken (%)',     type: 'number', min: 0, max: 100 },
     { name: 'funding_offered',  label: 'Funding Offered',      type: 'money_range', variant: 'ticket' },
-    { name: 'portfolio_count',  label: 'Portfolio Count',      type: 'number' },
+    { name: 'portfolio_count',  label: 'Portfolio Count',      type: 'number', min: 0 },
     { name: 'demo_day',         label: 'Has Demo Day?',        type: 'checkbox' },
     { name: 'services',         label: 'Services Offered',     type: 'multiselect', options: ['Office Space','Mentorship','Funding','Legal','Networking','Marketing','Technical Support','Corporate Partnerships'] },
     { name: 'corporate_partners', label: 'Corporate Partners', type: 'tags', placeholder: 'e.g., Google, Microsoft' },
@@ -444,8 +444,8 @@ export const PROFILE_FIELDS = {
     { name: 'state',                label: 'State',                    type: 'state' },
     { name: 'city',                 label: 'City',                     type: 'city' },
     { name: 'website',              label: 'Website',                  type: 'url' },
-    { name: 'team_size',            label: 'Team Size',                type: 'number' },
-    { name: 'years_in_business',    label: 'Years in Business',        type: 'number' },
+    { name: 'team_size',            label: 'Team Size',                type: 'number', min: 0 },
+    { name: 'years_in_business',    label: 'Years in Business',        type: 'number', min: 0, max: 200 },
     { name: 'certifications',       label: 'Certifications',           type: 'tags', placeholder: 'e.g., ISO 27001, SOC 2, AWS Partner' },
     { name: 'client_testimonials',  label: 'Client Testimonials',      type: 'textarea' },
     { name: 'portfolio_url',        label: 'Portfolio / Case Studies URL', type: 'url' },
@@ -455,6 +455,39 @@ export const PROFILE_FIELDS = {
     { name: 'linkedin_url',         label: 'LinkedIn URL',             type: 'url' },
   ],
 };
+
+// Phase 65 — short-form field list shown during Step 2 of registration.
+// Goal: keep signup fast (≤7 fields). Fields are picked from PROFILE_FIELDS
+// by name so all the input rendering, validation, and min/max bounds defined
+// above are reused. Anything not in this list is filled later from My Profile.
+//
+// Strategy per persona:
+//   - the required identity field (e.g. company_name)
+//   - 1–2 high-signal classification fields (sector, type) for recommendations
+//   - location triple (country/state/city) for matching
+//   - a short description so search has something to index
+const REGISTER_FIELD_NAMES = {
+  startup:          ['company_name','sector','stage','country','state','city','description'],
+  student:          ['institution','country','state','city','research_areas','bio'],
+  academia:         ['institution_name','designation','country','state','city','research_areas'],
+  corporate:        ['company_name','industry','country','state','city','description'],
+  government:       ['body_name','body_type','country','state','city','focus_areas'],
+  investor:         ['firm_name','investor_type','country','state','city','focus_sectors'],
+  mentor:           ['organisation','expertise','country','state','city','bio'],
+  lab:              ['lab_name','lab_type','country','state','city','capabilities'],
+  incubator:        ['incubator_name','country','state','city','description','focus_sectors'],
+  accelerator:      ['accelerator_name','country','state','city','description','focus_sectors'],
+  service_provider: ['company_name','service_categories','country','state','city','description'],
+};
+
+export const REGISTER_FIELDS = Object.fromEntries(
+  Object.entries(REGISTER_FIELD_NAMES).map(([persona, names]) => {
+    const fullList = PROFILE_FIELDS[persona] || [];
+    const byName = new Map(fullList.map(f => [f.name, f]));
+    const picked = names.map(n => byName.get(n)).filter(Boolean);
+    return [persona, picked];
+  })
+);
 
 // Helper: get the primary "org name" field key for each persona
 export const ORG_NAME_FIELD = {
