@@ -593,7 +593,17 @@ export default function Register() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
         <div className="w-full max-w-3xl">
-          <div className="text-center mb-8">
+          {/* Phase 65c: brand mark on persona-picker too. */}
+          <div className="text-center mb-6">
+            <Link to="/" aria-label="Go to OpenI home" className="inline-block">
+              <img
+                src="/openi-logo.png"
+                alt="OpenI"
+                className="mx-auto mb-3"
+                style={{ height: 56, width: 'auto', maxWidth: 200, objectFit: 'contain', display: 'block', cursor: 'pointer' }}
+                onError={e => { e.target.style.display = 'none'; }}
+              />
+            </Link>
             <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>Choose your persona</h1>
             <p className="text-sm mt-2" style={{ color: '#6b7280' }}>
               Pick the role that best describes you. You can always update your profile later.
@@ -647,9 +657,28 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
       <div className="w-full max-w-lg">
-        {/* Header */}
+        {/* Header — Phase 65c: OpenI brand mark (matches Login.jsx pattern). The
+            persona-color chip below indicates which persona is being registered.
+            Logo links to /; Shield in persona-color is the onError fallback. */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3 shadow-md" style={{ background: persona.color }}>
+          <Link to="/" aria-label="Go to OpenI home" className="inline-block">
+            <img
+              src="/openi-logo.png"
+              alt="OpenI"
+              className="mx-auto mb-3"
+              style={{ height: 56, width: 'auto', maxWidth: 200, objectFit: 'contain', display: 'block', cursor: 'pointer' }}
+              onError={e => {
+                e.target.style.display = 'none';
+                if (e.target.parentElement && e.target.parentElement.nextSibling) {
+                  e.target.parentElement.nextSibling.style.display = 'inline-flex';
+                }
+              }}
+            />
+          </Link>
+          <div
+            className="items-center justify-center w-14 h-14 rounded-2xl mb-3 shadow-md mx-auto"
+            style={{ background: persona.color, display: 'none' }}
+          >
             <Shield size={26} color="#fff" />
           </div>
           <h1 className="text-xl font-bold" style={{ color: '#1a1a1a' }}>Join as {persona.label}</h1>

@@ -34,7 +34,20 @@ export default function ClaimVerify() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
-      <div className="w-full max-w-md rounded-2xl p-8 shadow-sm" style={{ background: '#fff' }}>
+      <div className="w-full max-w-md">
+        {/* Phase 65c — OpenI brand mark */}
+        <div className="text-center mb-4">
+          <Link to="/" aria-label="Go to OpenI home" className="inline-block">
+            <img
+              src="/openi-logo.png"
+              alt="OpenI"
+              className="mx-auto"
+              style={{ height: 48, width: 'auto', maxWidth: 180, objectFit: 'contain', display: 'block', cursor: 'pointer' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          </Link>
+        </div>
+        <div className="w-full rounded-2xl p-8 shadow-sm" style={{ background: '#fff' }}>
         {state === 'loading' && (
           <div className="text-center py-6">
             <Loader2 size={40} className="mx-auto mb-4 animate-spin" style={{ color: G }} />
@@ -78,6 +91,7 @@ export default function ClaimVerify() {
             </Link>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

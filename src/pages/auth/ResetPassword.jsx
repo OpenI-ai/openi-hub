@@ -49,6 +49,18 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#f5f5f5' }}>
       <div className="w-full max-w-md">
+        {/* Phase 65c — OpenI brand mark */}
+        <div className="text-center mb-4">
+          <Link to="/" aria-label="Go to OpenI home" className="inline-block">
+            <img
+              src="/openi-logo.png"
+              alt="OpenI"
+              className="mx-auto"
+              style={{ height: 48, width: 'auto', maxWidth: 180, objectFit: 'contain', display: 'block', cursor: 'pointer' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          </Link>
+        </div>
         <div className="bg-white rounded-2xl p-8" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center mb-3"

@@ -23,6 +23,17 @@ export default function Privacy() {
   return (
     <div style={{ background: C.pageBg, minHeight: '100vh' }}>
       <div className="legal-page-wrap" style={{ maxWidth: 820, margin: '0 auto' }}>
+        {/* Phase 65c — OpenI brand mark */}
+        <div style={{ textAlign: 'center', paddingTop: 24, paddingBottom: 8 }}>
+          <Link to="/" aria-label="Go to OpenI home" style={{ display: 'inline-block' }}>
+            <img
+              src="/openi-logo.png"
+              alt="OpenI"
+              style={{ height: 44, width: 'auto', maxWidth: 180, objectFit: 'contain', display: 'block', cursor: 'pointer' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          </Link>
+        </div>
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: C.textMuted,
                               textDecoration: 'none', fontSize: 13, marginBottom: 16 }}>
           <ArrowLeft size={14} /> Back to home
