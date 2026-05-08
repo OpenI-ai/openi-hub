@@ -2,14 +2,29 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 2.9
-**Last Updated:** 8 May 2026 (late morning — post Phase 64 + 65 + 65b ship)
+**Version:** 3.0
+**Last Updated:** 8 May 2026 (noon — post Phase 65c + CLIENT_URL fix)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
 **Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b schema/code live)*
+**Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
-**Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys)*
+**Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v3.0 — Phase 65c (Brand-Mark Consistency) + CLIENT_URL Fix (Cross-Origin Stash Recovery)
+
+Triggered by Shameel Abdulla and the testing team on 8 May 2026 noon: even after the Phase 64/65/65b backend fixes shipped, registered profile data still wasn't reflecting in the dashboard. The actual root cause was an environment-config drift — not a code bug.
+
+- **`CLIENT_URL` env-var fix on Railway** 🔗 — `CLIENT_URL` was still set to `https://openi-hub.vercel.app` (the legacy Vercel preview hostname). `emailVerificationController.js` builds verify URLs as `${CLIENT_URL}/verify-email/${token}`, so emails sent users to `openi-hub.vercel.app` while they had registered on `openi.ai`. **localStorage is partitioned per-origin** — the Step 2 profile stash (`openi_pending_profile`) written on `openi.ai` was invisible to the verify-tab on `openi-hub.vercel.app`. Result: `flushPendingProfile()` in `VerifyEmail.jsx` saw no stash and returned silently. The user landed on a blank profile and reported "data isn't reflecting."
+  - **Fix:** `railway variables --set "CLIENT_URL=https://openi.ai"`. Container env now reads the canonical hostname.
+  - **Verified live** by driving Chrome through the Amber Kinetics demo startup account: edit Tagline → Save Profile → `PUT /api/profile/me 200` → `startup_profiles.updated_at` advanced → `directory_profiles.tagline` synced → `users.profile_completed = true`.
+  - **Latent in two other places:** password-reset and claim-verify links share the same `CLIENT_URL`. They will now route correctly post-fix, but the same trap will recur if the canonical hostname ever moves again. **Audit `railway variables` whenever canonical hostnames change.**
+
+- **Phase 65c — OpenI brand mark on every auth and legal page** 🎨 (commit `1779402`) — Phase 11 (7 May) wired the OpenI logo into Login, DashboardLayout sidebar, PublicLayout footer, and Landing — but missed every page in `src/pages/auth/`. Result: registration, verify-email, forgot-password, reset-password, claim-verify, terms, and privacy all rendered without the OpenI brand mark, so users dropping in mid-flow had no idea what site they were on.
+  - Each affected page now renders `/openi-logo.png` inside a `<Link to="/">` with an `onError` fallback. Register.jsx keeps the persona-color Shield as a hidden secondary fallback (since it also communicates persona color).
+  - Pages touched: `Register.jsx` (Step 0 persona picker + main view), `VerifyEmail.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx`, `ClaimVerify.jsx`, `Terms.jsx`, `Privacy.jsx`. 7 files, 106 insertions.
+  - Verified live: deployed bundle `index-BoNt9zWA.js` contains 3 references to `/openi-logo.png`; visual confirmation via screenshot at `https://openi.ai/register?type=startup`.
 
 ### What's New in v2.9 — Phase 64 (Profile Save Coerce) + Phase 65 (Range Guard + Crawl-Overwrite Protection + Cleanup) + Phase 65b (Empty-String to NULL)
 
@@ -365,8 +380,10 @@ PORT=5000
 DATABASE_URL=postgresql://user:pass@host:5432/db
 JWT_SECRET=your_secret_key
 JWT_EXPIRES_IN=7d
-CLIENT_URL=https://openi-hub.vercel.app
+CLIENT_URL=https://openi.ai
 ```
+
+> ⚠️ **`CLIENT_URL` audit checklist** (8 May 2026 lesson learned): `CLIENT_URL` MUST match the canonical user-facing origin where users register. It is concatenated by `emailVerificationController.js`, `claimController.js`, and the password-reset flow into the user-clickable links inside outbound emails. If `CLIENT_URL` ever drifts from the registration origin (e.g. you change canonical domain or accidentally leave a preview hostname here), email-link landings will arrive on a different origin from registration, **localStorage will be partitioned per-origin**, and the Step 2 profile stash will silently fail to flush. Run `railway variables | grep CLIENT_URL` after any DNS / domain rename to confirm. Same applies to `VITE_API_URL` on Vercel for API origin.
 
 ---
 
@@ -1575,4 +1592,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 8 May 2026 late morning (v2.9 — Phase 64 + 65 + 65b: profile save coerce + numeric range guard + crawl-overwrite protection + dummy-data cleanup + empty-string-to-NULL sweep)* 🎉
+*Last updated: 8 May 2026 noon (v3.0 — Phase 65c brand-mark consistency on every auth/legal page + CLIENT_URL Railway env-var fix that resolved the cross-origin localStorage stash partition; full Chrome-driven E2E save verified on Amber Kinetics demo account)* 🎉
