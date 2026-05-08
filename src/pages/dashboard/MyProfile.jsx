@@ -252,9 +252,24 @@ export default function MyProfile() {
   const [saving, setSaving] = useState(false);
   // Auto-trigger auto-fill when arriving from registration: /dashboard/profile?autofill=1
   const autoStart = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('autofill') === '1';
+  // Phase 65d (8 May): VerifyEmail.jsx redirects post-verify to
+  // /dashboard/profile?fresh=1 so we know the row was just-now written by
+  // flushPendingProfile. If the first GET returns an emptier-looking row
+  // than the stash had, retry once with a short delay so the post-PUT
+  // search-vector / profile-score recompute has settled.
+  const isPostVerifyFresh = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('fresh') === '1';
 
   useEffect(() => {
     loadProfile();
+    // After first load on a post-verify fresh redirect, strip the query so
+    // a hard refresh by the user does NOT re-trigger the retry behaviour.
+    if (isPostVerifyFresh && typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('fresh');
+      window.history.replaceState({}, '', url.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Phase 60.10 (s50) — retry path for the Step 2 stash. If VerifyEmail.jsx's
@@ -286,12 +301,45 @@ export default function MyProfile() {
     }
   }
 
+  // Phase 65d helper — on a post-verify fresh mount, the first GET may race
+  // with the search_vector rebuild / profile_score recompute that fires
+  // after PUT /profile/me. We treat any plain-text-only row with most
+  // persona fields blank as "looks empty" and retry once.
+  function looksEmpty(profile) {
+    if (!profile) return true;
+    // Count persona-relevant non-empty fields beyond the registration defaults.
+    const skip = new Set(['id','user_id','created_at','updated_at','search_vector','embedding']);
+    let populated = 0;
+    for (const [k, v] of Object.entries(profile)) {
+      if (skip.has(k)) continue;
+      if (v === null || v === undefined || v === '') continue;
+      if (Array.isArray(v) && v.length === 0) continue;
+      populated++;
+    }
+    return populated < 3;
+  }
+
   const loadProfile = async () => {
     try {
       // Try to flush any leftover registration stash first so the GET below
       // returns the fully-populated profile instead of a half-empty one.
-      await retryPendingStash();
-      const data = await profileAPI.getMyProfile();
+      const flushed = await retryPendingStash();
+
+      let data = await profileAPI.getMyProfile();
+
+      // Phase 65d: post-verify fresh-load retry. If we're arriving via
+      // /dashboard/profile?fresh=1, the row was just written by
+      // flushPendingProfile() in VerifyEmail.jsx — but the GET can race
+      // with the post-PUT cleanup. Retry once after 500ms if the first
+      // response looks empty.
+      if ((isPostVerifyFresh || flushed) && looksEmpty(data?.profile)) {
+        await new Promise(r => setTimeout(r, 500));
+        try {
+          const retry = await profileAPI.getMyProfile();
+          if (retry?.profile && !looksEmpty(retry.profile)) data = retry;
+        } catch { /* fall through with original data */ }
+      }
+
       if (data.profile) {
         setProfileData(data.profile);
       }

@@ -106,8 +106,14 @@ export default function VerifyEmail() {
       completeVerification({ token: data.token, user: data.user });
       await flushPendingProfile();
       setPhase('done');
-      toast.success('Email verified! Redirecting to your dashboard…');
-      setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
+      // Phase 65d: land users directly on /dashboard/profile with ?fresh=1
+      // so MyProfile force-refetches the freshly-saved row. Previously we
+      // redirected to /dashboard (home) which caused users who navigated
+      // to My Profile during the post-verify session to see an empty form
+      // even though their data was in the DB. The ?fresh=1 flag lets
+      // MyProfile detect "post-verify" mount and skip any stale React state.
+      toast.success('Email verified! Loading your profile…');
+      setTimeout(() => navigate('/dashboard/profile?fresh=1', { replace: true }), 1500);
     } catch {
       setPhase('failed');
       setErrorMsg('Could not verify your email right now. Please try again.');
@@ -135,8 +141,14 @@ export default function VerifyEmail() {
       completeVerification({ token: data.token, user: data.user });
       await flushPendingProfile();
       setPhase('done');
-      toast.success('Email verified! Redirecting to your dashboard…');
-      setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
+      // Phase 65d: land users directly on /dashboard/profile with ?fresh=1
+      // so MyProfile force-refetches the freshly-saved row. Previously we
+      // redirected to /dashboard (home) which caused users who navigated
+      // to My Profile during the post-verify session to see an empty form
+      // even though their data was in the DB. The ?fresh=1 flag lets
+      // MyProfile detect "post-verify" mount and skip any stale React state.
+      toast.success('Email verified! Loading your profile…');
+      setTimeout(() => navigate('/dashboard/profile?fresh=1', { replace: true }), 1500);
     } catch {
       setErrorMsg('Could not verify your email right now. Please try again.');
     } finally {
