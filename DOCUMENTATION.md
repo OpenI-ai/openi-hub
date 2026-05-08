@@ -2,12 +2,12 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 3.1
-**Last Updated:** 8 May 2026 (afternoon — post Phase 65d + 65e)
+**Version:** 3.2
+**Last Updated:** 8 May 2026 (evening — post Phase 65e + Phase 63 backfill section + table-count correction)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b schema/code live)*
+**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b schema/code live; `audit_logs` materialised in Phase 63)*
 **Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
@@ -122,6 +122,17 @@ Operational hardening and recommendation-quality work shipped 7 May 2026:
 - **Vercel SSL UI non-issue diagnosed** 🔒 — Vercel project page shows "Attempting to create SSL certificates" with red icons next to `openi.ai` and `www.openi.ai`. Reality: HTTP 200 on all hostnames, valid Let's Encrypt R13 certs (issued 6 May 2026, valid until 4 Aug 2026), all recent deployments `READY`. UI is showing stale state from a queued cert renewal job. Action: wait for self-heal; do **NOT** click Refresh/Renew or remove-and-re-add domains.
 
 - **DNS correction** — Earlier session notes claimed `openi.ai` DNS lives on GoDaddy nameservers (`ns53/ns54.domaincontrol.com`). Confirmed on 7 May 2026 that DNS is actually on **Cloudflare** (`crystal.ns.cloudflare.com`, `neil.ns.cloudflare.com`). GoDaddy is registration only.
+
+### What's New in v2.8.1 — Phase 63 (Audit Logs Backfill)
+
+Shipped 7 May 2026. Audit middleware has existed since Phase 28, but the `audit_logs` table only lived in `src/db/migrate.js` — which is **not** invoked in production (`RUN_MIGRATIONS_ON_BOOT` is disabled, and `migrate-bootstrap.js` calls `runMigrations` from `src/startup.js`). Result: every audited write since Phase 28 was logging `relation "audit_logs" does not exist` and silently dropping the audit row. The middleware swallowed the error in a `.catch((err) => console.error(...))` so the platform appeared healthy while the audit trail was completely empty.
+
+- **Phase 63 — Backfill `audit_logs` in prod** 📒 (commit `6e52de2`) — Added the table + 2 indexes inside `src/startup.js#runMigrations` so the next `migrate-bootstrap.js` run materialises it.
+  - **Schema:** `id SERIAL PK, user_id INTEGER REFERENCES users, action VARCHAR(100), entity_type VARCHAR(50), entity_id INTEGER, details JSONB, ip_address VARCHAR(50), created_at TIMESTAMP`.
+  - **Indexes:** `(user_id, created_at DESC)` and `(created_at DESC)` — supports the two read paths in `auditController.js` (per-user audit trail + global recent-activity feed for `adminController.js:148`).
+  - **Rollout:** push to main → Railway autodeploy → `railway ssh` → `node src/scripts/migrate-bootstrap.js`.
+  - **Verification:** `to_regclass('audit_logs') = 'audit_logs'`, `count = 0` immediately after migration, fresh Railway logs free of `Audit log failed`.
+  - **General lesson:** `.catch((err) => console.error(...))` in middleware can hide a broken-for-months invariant. Periodically grep Railway logs for `failed:` / `does not exist` to surface silent middleware failures. The same pattern caused Phase 64's profile-save 500s to go unreported until Shameel flagged them on 8 May.
 
 ### What's New in v2.7 — Phase 60.11: GST Invoice Compliance End-to-End
 The GST invoice baseline shipped in v2.6 is now **fully compliant with Indian GST law** and validated end-to-end on real production data. Three fixes:
@@ -1597,7 +1608,7 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 | Frontend Pages | 60+ |
 | Backend Controllers | 63 (added `billingAddressController` in Phase 60.11) |
 | Backend API Routes | ~482 (+`GET`/`PUT /api/billing-address`) |
-| Database Tables | 63 (added `billing_addresses` and `invoice_sequences` in Phase 60.11) |
+| Database Tables | 64 (added `billing_addresses` and `invoice_sequences` in Phase 60.11; `audit_logs` materialised in prod in Phase 63) |
 | Persona Types | 11 V2 personas |
 | Subscription Plans | 3 per role (Free / Pro / Enterprise), independent per persona |
 | Public Pages | 3 (Landing, Marketplace, Reports) |
@@ -1618,4 +1629,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 8 May 2026 afternoon (v3.1 — Phase 65d post-verify redirect with retry-once + Phase 65e Step 2 trimmed to 3 fields per persona). All 8 phases shipped today (64, 65 #1-#4, 65b, 65c, 65d, 65e) cover all 11 personas where applicable.* 🎉
+*Last updated: 8 May 2026 evening (v3.2 — added v2.8.1 Phase 63 backfill section, corrected Database Tables count 63 → 64). Active phase chain shipped 7-8 May: Phase 63 (`audit_logs` backfill, 7 May), then 8 phases on 8 May (64, 65 #1-#4, 65b, 65c, 65d, 65e) covering all 11 personas where applicable.* 🎉
