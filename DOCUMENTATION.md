@@ -2,8 +2,8 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 3.0
-**Last Updated:** 8 May 2026 (noon — post Phase 65c + CLIENT_URL fix)
+**Version:** 3.1
+**Last Updated:** 8 May 2026 (afternoon — post Phase 65d + 65e)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
@@ -11,6 +11,32 @@
 **Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v3.1 — Phase 65d (Post-Verify Redirect + Retry-Once) + Phase 65e (3-Field Signup)
+
+Triggered by user screenshots showing Test_Startup3 with an empty My Profile after verify-email even though the DB row was populated, plus user feedback that 7 fields was still too many for first-time signups.
+
+- **Phase 65d — Post-verify redirect lands on populated My Profile** 🪞 (commit `ce9b303`) — Even with the CLIENT_URL fix (Phase 18), users completing verify-email and navigating to My Profile saw an EMPTY form because the GET raced with the post-PUT cleanup (search_vector rebuild + profile_score recompute) that runs after `flushPendingProfile()`. Re-login showed the data correctly because by then the cleanup had settled. Fix:
+  1. `VerifyEmail.jsx` (both link + OTP paths): redirect post-verify from `/dashboard` to `/dashboard/profile?fresh=1`. Toast copy changed to "Loading your profile…".
+  2. `MyProfile.jsx`: detects `?fresh=1`, runs `loadProfile()` as before, but if the first GET response looks empty (fewer than 3 populated persona fields beyond registration defaults), retries the GET once after 500ms so the post-PUT cleanup settles. Strips `?fresh=1` from the URL on first load so a hard refresh does not re-trigger the retry.
+  - Persona-agnostic — the same `VerifyEmail.jsx` and `MyProfile.jsx` serve all 11 personas.
+  - **General lesson:** any UI that reads from a row immediately after writing it should expect the read to be transiently empty for a few hundred ms while async post-write side-effects finish.
+
+- **Phase 65e — Trim Step 2 of registration from 7 fields to 3** ✂️ (commit `2af1551`) — Phase 65 cut Step 2 from 45 to 7 fields. User feedback: 7 is still a wall. Trimmed to 3 high-signal fields per persona. Strategy: required identity field + one classification field (drives recommendation engine) + one short text field (drives Directory cards and search vector). Everything else moves to My Profile. Per-persona breakdown:
+  - startup → company_name, sector, tagline
+  - student → institution, research_areas, bio
+  - academia → institution_name, research_areas, bio
+  - corporate → company_name, industry, description
+  - government → body_name, body_type, description
+  - investor → firm_name, investor_type, bio
+  - mentor → organisation, expertise, bio
+  - lab → lab_name, lab_type, description
+  - incubator → incubator_name, focus_sectors, description
+  - accelerator → accelerator_name, focus_sectors, description
+  - service_provider → company_name, service_categories, tagline
+  - The prominent "Skip for now" secondary button from Phase 65 stays in place.
+  - All 11 personas verified to have 3 valid `REGISTER_FIELDS` entries that map to real `PROFILE_FIELDS` names.
+  - Bundle `index-GFNaJBuK.js` confirmed live with 65d + 65e markers.
 
 ### What's New in v3.0 — Phase 65c (Brand-Mark Consistency) + CLIENT_URL Fix (Cross-Origin Stash Recovery)
 
@@ -1592,4 +1618,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 8 May 2026 noon (v3.0 — Phase 65c brand-mark consistency on every auth/legal page + CLIENT_URL Railway env-var fix that resolved the cross-origin localStorage stash partition; full Chrome-driven E2E save verified on Amber Kinetics demo account)* 🎉
+*Last updated: 8 May 2026 afternoon (v3.1 — Phase 65d post-verify redirect with retry-once + Phase 65e Step 2 trimmed to 3 fields per persona). All 8 phases shipped today (64, 65 #1-#4, 65b, 65c, 65d, 65e) cover all 11 personas where applicable.* 🎉
