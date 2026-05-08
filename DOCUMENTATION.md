@@ -2,14 +2,56 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 2.8
-**Last Updated:** 7 May 2026 (late morning — post Phase 61 + Phase 62 ship)
+**Version:** 2.9
+**Last Updated:** 8 May 2026 (late morning — post Phase 64 + 65 + 65b ship)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 schema/code live)*
+**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b schema/code live)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys)*
+
+### What's New in v2.9 — Phase 64 (Profile Save Coerce) + Phase 65 (Range Guard + Crawl-Overwrite Protection + Cleanup) + Phase 65b (Empty-String to NULL)
+
+Triggered by user feedback from Shameel Abdulla on 8 May 2026: profile save was 500ing silently, the Number-of-Customers field accepted negatives, the Step 2 registration form was 45 fields long, and the public Marketplace was showing dummy demo challenges.
+
+- **Phase 64 — Profile Save Coerce + Error Log** 💾 (commit `a474bb4`) — `PUT /api/profile/me` was returning HTTP 500 in 8 ms with no server-side log because `res.status(500).json({message: err.message})` consumed the error without ever calling `console.error`. Reproduced via direct SQL: of 14 plausible payload shapes, exactly one fails — a comma-separated **string** going into a `text[]` column raises `malformed array literal: …`. Likely culprits: `awards`, `certifications`, `accelerator_programs`, `investor_names`, `technologies`, `focus_areas`, all rendered with `TagInput` on the registration form.
+  - Added `coerceUpdates(table, updates)` in `profileController.js`. Per-table column type maps (`ARRAY_COLUMNS`, `NUMERIC_COLUMNS`, `DATE_COLUMNS`) drawn from live prod `information_schema`.
+  - Rules: `text[]` accepts arrays as-is; comma-strings split-trim-array; `''` drops the field. Numeric `''` → drop; numeric strings → `Number()`; NaN → drop. DATE `''` → drop (PG rejects empty strings for DATE).
+  - Added `console.error` in the 500 catch block: `[updateMyProfile] FAILED user_id=… table=… cols=[…] err=…` so future regressions surface in Railway logs immediately.
+  - 15 local unit cases pass. Verified end-to-end on prod with a Shameel-style payload: 500 → 200, fields stored correctly, then reverted to baseline.
+
+- **Phase 65 — Range Guard + Crawl-Overwrite Protection + Dummy-Data Cleanup** 🛡️ (commits `b0258fd` backend + `3c67260` frontend)
+  1. **Numeric range guard.** Frontend `personas.js`: every `type:'number'` field gains explicit `min: 0` and a meaningful `max` where one exists — `tech_readiness 1-9`, `equity_taken 0-100`, `runway_months 0-600`, `years_experience 0-80`, `years_in_business 0-200`, `average_response_days 0-365`, `capacity / max_mentees / cohort_size / batch_size 0-10000`, year columns capped at `current_year+5` (or `+10` for graduation). Backend `profileController.coerceUpdates`: new `NUMERIC_RANGES` per-persona table; default floor `min: 0` for any numeric column without an explicit range. Out-of-range values silently dropped so the rest of the payload still saves. Belt-and-braces against direct API callers who bypass the frontend.
+  2. **Short Step 2 registration form.** New `REGISTER_FIELDS` export in `personas.js` — short per-persona list (~6 fields) for Step 2. PROFILE_FIELDS still drives My Profile so users can fill the long form later. For startup the short list is `company_name *, sector, stage, country, state, city, description`. `Register.jsx` Step 2 imports the short list, adds a yellow nudge banner ("Just the basics for now — you can complete the rest from My Profile after signup. The more you fill in, the better your visibility in search and recommendations.") and replaces the previously-tiny gray skip link with a real outlined secondary button: "Skip for now — finish profile after signup". Net effect: startup signup drops from 45 fields to 7.
+  3. **Crawl-overwrite protection.** Three layers:
+     - `deepEnrichService.enrichStartup` per-row guard: skips `is_imported = false OR claimed_at IS NOT NULL` regardless of how the function was invoked. Returns `{skipped: true, reason: 'profile owned by user'}`.
+     - `deepEnrichService.enrichBatch` SQL: JOINs `users` and adds `AND u.is_imported = TRUE AND u.claimed_at IS NULL` to the eligibility predicate. The cron never even considers human-owned profiles.
+     - All `=` writes in `deepEnrichService.enrichStartup` (sector, business_model, revenue_model — Phase 50 had explicitly overridden these "because deep-enrich is fresher than RSS"; the argument doesn't extend to claimed/self-registered profiles), `enrichController.applyEnrichment`, and `enrichController.applyEnrichmentRow` (admin paths) converted to `COALESCE(col, $N)`. Admin-applied enrichment is now strictly fill-only. `applyMyProfile` (where the user explicitly opts in via the Auto-Fill UI) intentionally left as direct overwrite.
+  4. **Dummy-data cleanup script (`phase65-cleanup-dummy-data.js`).** Single-transaction delete of public-facing dummy content:
+     - 3 demo corporate challenges (ids 11, 12, 13 — Tata Advanced Systems samples by `corporate@demo.openi.ai`)
+     - 793 `@synthetic.openi.ai` users (497 students + 296 academia from a 28-Apr-2026 synthetic seed batch). Cascades 296 academia + 497 student profiles + 793 directory_profiles + 793 user_roles via existing `ON DELETE CASCADE` FKs.
+     - 294 seeded cohorts (`created_by IS NULL`)
+     - 490 seeded events (`created_by IS NULL`)
+     - **Preserved:** all 11 `*@demo.openi.ai` accounts (ids 7-17), all 5 legacy DRDO/armortech/iitd test accounts (ids 2-6), all ~577k `@import.openi.ai` real RSS-crawled startups, all real human signups (Vanessa, Shameel, Sharad, etc.).
+     - Pre-flight verified zero applications, zero NO-ACTION FK rows, zero cohort_startups, zero event_registrations depend on these. Final clean run took 1.5 seconds.
+     - **Operational gotcha:** the original cleanup script's sanity check used `NOT IN (SELECT id FROM users)` antijoin against 580k+ users with no covering index. That hung for minutes holding row exclusive locks on `challenges` (the DELETE was earlier in the same transaction). When the SSH transport was killed, the DB transaction stayed alive holding all its locks; had to `pg_terminate_backend()` orphaned sessions to release. **Lesson:** trust `ON DELETE CASCADE` FKs, never run `NOT IN (SELECT … FROM users)` antijoins as defensive checks on this DB. Stopping `railway ssh` does NOT roll back the transaction inside the container.
+
+- **Phase 65b — Empty-String to NULL on Plain-Text Profile Columns** 🧼 (commit `0fc8bb7`) — Phase 65's `COALESCE(col, $N)` enrichment guards treat NULL as "user has not filled this in yet, safe to fill." But the controller was still letting empty strings reach text/url/select columns. A user who hit Save with an empty tagline or website would store `''`, which `COALESCE` treats as a value and skips. Net effect: empty form on Day 1 would silently lock the user out of crawler-driven auto-fill forever.
+  - **Fix:** added an `else` branch in `coerceUpdates` — for any non-array, non-numeric, non-date column, drop whitespace-only strings (`if (typeof v === 'string' && v.trim() === '') delete updates[col]`). Booleans, numbers, and other non-string scalars fall through untouched. 16 local unit cases pass.
+  - **One-shot sweep (`phase65b-empty-string-to-null.js`).** Per-table sweep that NULL'd existing `''` text values across all 11 persona profile tables + `directory_profiles`. Each table runs in its own transaction so a failure on one doesn't block others. Idempotent.
+  - **Sweep results:** 4,558 rows updated total. Bulk was `startup_profiles.startup_type` (4,550 rows from a historical CSV import). Other touches: `startup_profiles.tagline` (1), `startup_profiles.description` (1), `corporate_profiles.city/logo_url` (1+1), `directory_profiles.tagline/city/logo_url` (2+1+1). Sweep took ~4 minutes (583k rows × 41 text columns).
+  - **Verified end-to-end on prod:** `PUT /profile/me {tagline:""}` now correctly returns `400 No valid fields to update` (the only field was dropped) instead of storing `''`. Mixed payloads (empty tagline + valid description + invalid customer_count) save the valid pieces and preserve the rest.
+
+- **E2E test bundle.** 29/29 controller-level checks pass + HTTP integration test pass against `https://api.openi.ai`:
+  - T1: Profile save with messy payload (Phase 64) — 7/7 (comma-string → array, `''` for date dropped, numeric string coerced, plain text saved)
+  - T2: Negative number guard (Phase 65) — 6/6 (-5, -1000, TRL 0, runway 9999 all dropped; 0 accepted; valid description survives)
+  - T3: Dummy-data cleanup — 6/6 (challenges/cohorts/events tables empty; @synthetic users gone; cascades verified)
+  - T4: Demo + legacy accounts preserved — 4/4
+  - T5: ~577k `@import.openi.ai` real crawled startups untouched — 2/2
+  - T6: `enrichStartup(601902)` skips Shameel — 2/2
+  - T7: Public marketplace + directory checks — 2/2
+  - HTTP: login as `startup@demo.openi.ai` → PUT with negative + comma-string + valid fields, verify behavior, revert.
 
 ### What's New in v2.8 — Phase 61 (Crawl Sources Dedup) + Phase 62 (Weighted Recommendations) + Hotfixes
 
@@ -1533,4 +1575,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 6 May 2026 end-of-day (v2.7 — Phase 60.11 GST invoice compliance shipped, first invoice issued)* 🎉
+*Last updated: 8 May 2026 late morning (v2.9 — Phase 64 + 65 + 65b: profile save coerce + numeric range guard + crawl-overwrite protection + dummy-data cleanup + empty-string-to-NULL sweep)* 🎉
