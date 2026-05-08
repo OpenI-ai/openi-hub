@@ -456,28 +456,32 @@ export const PROFILE_FIELDS = {
   ],
 };
 
-// Phase 65 — short-form field list shown during Step 2 of registration.
-// Goal: keep signup fast (≤7 fields). Fields are picked from PROFILE_FIELDS
-// by name so all the input rendering, validation, and min/max bounds defined
-// above are reused. Anything not in this list is filled later from My Profile.
+// Phase 65e (8 May 2026) — trimmed Step 2 to a strict 3-field minimum per
+// persona. Was 7 in Phase 65; reduced because a 7-field form is still a
+// "wall" for first-time users. Strategy per persona:
+//   1. the required identity field (e.g. company_name) — primary key into
+//      directory and persona profile tables
+//   2. one high-signal classification (sector / industry / expertise / etc.)
+//      — without this, recommendation engine has zero signal for new users
+//   3. one short text field (tagline / bio / description) — gives search
+//      vector and Directory cards something to render
 //
-// Strategy per persona:
-//   - the required identity field (e.g. company_name)
-//   - 1–2 high-signal classification fields (sector, type) for recommendations
-//   - location triple (country/state/city) for matching
-//   - a short description so search has something to index
+// Everything else (stage, location triple, urls, financials, technologies)
+// moves to My Profile, where the user fills it in at their own pace.
+// REGISTER_FIELDS is still picked by name from PROFILE_FIELDS so all input
+// rendering / validation / min-max bounds are reused.
 const REGISTER_FIELD_NAMES = {
-  startup:          ['company_name','sector','stage','country','state','city','description'],
-  student:          ['institution','country','state','city','research_areas','bio'],
-  academia:         ['institution_name','designation','country','state','city','research_areas'],
-  corporate:        ['company_name','industry','country','state','city','description'],
-  government:       ['body_name','body_type','country','state','city','focus_areas'],
-  investor:         ['firm_name','investor_type','country','state','city','focus_sectors'],
-  mentor:           ['organisation','expertise','country','state','city','bio'],
-  lab:              ['lab_name','lab_type','country','state','city','capabilities'],
-  incubator:        ['incubator_name','country','state','city','description','focus_sectors'],
-  accelerator:      ['accelerator_name','country','state','city','description','focus_sectors'],
-  service_provider: ['company_name','service_categories','country','state','city','description'],
+  startup:          ['company_name','sector','tagline'],
+  student:          ['institution','research_areas','bio'],
+  academia:         ['institution_name','research_areas','bio'],
+  corporate:        ['company_name','industry','description'],
+  government:       ['body_name','body_type','description'],
+  investor:         ['firm_name','investor_type','bio'],
+  mentor:           ['organisation','expertise','bio'],
+  lab:              ['lab_name','lab_type','description'],
+  incubator:        ['incubator_name','focus_sectors','description'],
+  accelerator:      ['accelerator_name','focus_sectors','description'],
+  service_provider: ['company_name','service_categories','tagline'],
 };
 
 export const REGISTER_FIELDS = Object.fromEntries(
