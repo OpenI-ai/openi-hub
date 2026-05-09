@@ -36,16 +36,18 @@ const CANVAS_H = 1100;
 const HUB_X = CANVAS_W / 2;
 const HUB_Y = CANVAS_H / 2;
 
-const SECTOR_RADIUS = 230;        // distance from hub centre to sector centre
-const LEAF_RING_INNER = 380;      // first ring of leaves (closer to sector)
-const LEAF_RING_OUTER = 470;      // second ring (further out, alternating)
+const SECTOR_RADIUS = 240;        // distance from hub centre to sector centre
+const LEAF_RING_INNER = 420;      // single ring (per-sector triangle handles fan)
 
 const HUB_W = 180;
 const HUB_H = 180;
 const SECTOR_W = 200;
 const SECTOR_H = 60;
-const LEAF_W = 200;
-const LEAF_H = 48;
+// Phase 68 — leaf is now a circle + label-below pair. The bounding box is
+// the circle width × (circle + label) so react-flow centres correctly.
+const LEAF_DISC = 64;             // diameter of the circular logo well
+const LEAF_W = 130;               // wider than disc so the label can wrap
+const LEAF_H = 100;               // disc + gap + 2-line label
 
 // Top-N caps
 const MAX_SECTORS = 6;
@@ -118,72 +120,90 @@ function SectorNode({ data }) {
 }
 
 function LeafNode({ data }) {
+  // Org-chart style leaf: white circular logo well + 2-line name label below.
+  // The circle echoes the hub and the inner logo plate inside the leaf,
+  // visually unifying the diagram. No card border around the whole leaf —
+  // only the disc has a border so the geometry feels lighter.
   return (
     <div
       style={{
         width: LEAF_W,
         height: LEAF_H,
-        background: '#FFFFFF',
-        border: '1px solid #E2E8F0',
-        borderRadius: 24,
         display: 'flex',
-        gap: 8,
+        flexDirection: 'column',
         alignItems: 'center',
-        padding: '4px 10px 4px 4px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
         cursor: 'pointer',
-        transition: 'border-color 120ms, box-shadow 120ms, transform 120ms',
+        background: 'transparent',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#D4A843';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 168, 67, 0.18)';
-        e.currentTarget.style.transform = 'scale(1.02)';
+        const disc = e.currentTarget.querySelector('[data-disc]');
+        if (disc) {
+          disc.style.borderColor = '#D4A843';
+          disc.style.boxShadow = '0 6px 16px rgba(212, 168, 67, 0.25)';
+          disc.style.transform = 'scale(1.06)';
+        }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = '#E2E8F0';
-        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.06)';
-        e.currentTarget.style.transform = 'scale(1)';
+        const disc = e.currentTarget.querySelector('[data-disc]');
+        if (disc) {
+          disc.style.borderColor = '#E2E8F0';
+          disc.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.08)';
+          disc.style.transform = 'scale(1)';
+        }
       }}
     >
       <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
       <div
+        data-disc
         style={{
-          width: 36,
-          height: 36,
+          width: LEAF_DISC,
+          height: LEAF_DISC,
           borderRadius: '50%',
-          background: '#F1F5F9',
-          flexShrink: 0,
+          background: '#FFFFFF',
+          border: '1.5px solid #E2E8F0',
+          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
+          transition: 'border-color 140ms, box-shadow 140ms, transform 140ms',
+          flexShrink: 0,
         }}
       >
         {data.logo_url ? (
           <img
             src={data.logo_url}
             alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ width: '78%', height: '78%', objectFit: 'contain' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
           />
         ) : (
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#94A3B8' }}>
+          <span style={{ fontSize: 22, fontWeight: 700, color: '#94A3B8' }}>
             {(data.company_name || '?').charAt(0).toUpperCase()}
           </span>
         )}
       </div>
       <div
         style={{
-          flex: 1,
-          minWidth: 0,
-          fontSize: 12,
+          marginTop: 6,
+          fontSize: 11,
           fontWeight: 600,
           color: '#0D2137',
+          textAlign: 'center',
+          lineHeight: 1.25,
+          // 2-line clamp so long names do not break the radial layout.
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
+          width: '100%',
+          padding: '0 2px',
+          // Soft white plate behind text so it stays readable when the
+          // leaf overlaps the dotted background or an edge.
+          background: 'rgba(250, 251, 252, 0.85)',
+          borderRadius: 6,
         }}
       >
         {data.company_name || 'Unnamed'}
