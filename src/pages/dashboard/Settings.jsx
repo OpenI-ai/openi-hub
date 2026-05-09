@@ -901,10 +901,43 @@ export default function Settings() {
                 {/* Plan Comparison (anchor for ?focus=plans deep links) */}
                 <div ref={plansAnchorRef} id="plans" style={{ ...card, padding: 24, scrollMarginTop: 80 }}>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Plans</h3>
+                  {/* Phase 70: rank-aware plan comparison.
+                     Plan rank lets the comparison tell upgrade from downgrade
+                     correctly. Free=0, mid tier=1 (provider_growth, seeker_pro,
+                     legacy "pro"), top tier=2 (seeker_enterprise, legacy
+                     "enterprise"). Anything unknown sorts to 0 so the user
+                     never gets a misleading Upgrade prompt. */}
+                  {(() => null)()}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
                     {plans.map(p => {
                       const isCurrent = p.name === currentPlan;
                       const features = p.features || {};
+                      const planRank = (n) => {
+                        if (n === 'free') return 0;
+                        if (n === 'seeker_enterprise' || n === 'enterprise') return 2;
+                        return 1; // provider_growth, seeker_pro, legacy 'pro'
+                      };
+                      const targetRank = planRank(p.name);
+                      const currentRank = planRank(currentPlan);
+                      const direction = targetRank > currentRank ? 'upgrade' : targetRank < currentRank ? 'downgrade' : 'same';
+
+                      // Phase 70: feature row rendering — boolean flags should
+                      // not show "true/mo" / "false/mo". Tell quota features
+                      // (numeric monthly caps) from boolean flags by typeof.
+                      const renderFeatureValue = (limit) => {
+                        if (limit === -1) return 'Unlimited';
+                        if (typeof limit === 'boolean') return limit ? 'Included' : 'Not included';
+                        if (typeof limit === 'number') return `${limit}/mo`;
+                        // Fallback for unexpected shapes (string, null, undefined): just stringify.
+                        return String(limit);
+                      };
+                      const featureColor = (limit) => {
+                        if (typeof limit === 'boolean' && !limit) return '#9ca3af';
+                        return '#16a34a';
+                      };
+                      const FeatureIcon = (limit) =>
+                        typeof limit === 'boolean' && !limit ? X : Check;
+
                       return (
                         <div key={p.id} style={{ border: isCurrent ? `2px solid ${G}` : '1px solid #eee', borderRadius: 14, padding: 20, background: isCurrent ? '#fffbeb' : '#fff', position: 'relative' }}>
                           {isCurrent && <div style={{ position: 'absolute', top: -10, right: 14, fontSize: 10, fontWeight: 700, padding: '2px 10px', borderRadius: 20, background: G, color: '#fff' }}>Current</div>}
@@ -919,26 +952,42 @@ export default function Settings() {
                             </div>
                           )}
                           <div style={{ display: 'grid', gap: 6, marginBottom: 16 }}>
-                            {Object.entries(features).map(([f, limit]) => (
-                              <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555' }}>
-                                <Check size={12} style={{ color: '#16a34a' }} />
-                                {FEATURE_LABELS[f] || f}: {limit === -1 ? 'Unlimited' : `${limit}/mo`}
-                              </div>
-                            ))}
+                            {Object.entries(features).map(([f, limit]) => {
+                              const Icon = FeatureIcon(limit);
+                              return (
+                                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555' }}>
+                                  <Icon size={12} style={{ color: featureColor(limit) }} />
+                                  {FEATURE_LABELS[f] || f}: {renderFeatureValue(limit)}
+                                </div>
+                              );
+                            })}
                           </div>
-                          {!isCurrent && p.name !== 'free' && (
+                          {/* Direction-aware action button */}
+                          {!isCurrent && direction === 'upgrade' && (
                             <button onClick={() => handleUpgrade(p.id, p.display_name)} disabled={upgrading}
                               style={{ width: '100%', padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 10,
                                 background: G, color: '#fff', border: 'none', cursor: upgrading ? 'wait' : 'pointer' }}>
                               {upgrading ? 'Processing...' : `Upgrade to ${p.display_name}`}
                             </button>
                           )}
-                          {!isCurrent && p.name === 'free' && currentPlan !== 'free' && (
+                          {!isCurrent && direction === 'downgrade' && p.name === 'free' && (
                             <button onClick={handleCancel}
                               style={{ width: '100%', padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 10,
                                 background: '#fff', color: '#666', border: '1px solid #ddd', cursor: 'pointer' }}>
                               Downgrade to Free
                             </button>
+                          )}
+                          {!isCurrent && direction === 'downgrade' && p.name !== 'free' && (
+                            // Mid-tier downgrade from a top-tier plan (eg Enterprise → Pro).
+                            // The current backend has no direct mid-tier downgrade endpoint,
+                            // so route the user to a contact link rather than firing a
+                            // misleading "Upgrade" CTA. Plain neutral button.
+                            <a
+                              href={`mailto:support@openi.ai?subject=Downgrade%20request%20to%20${encodeURIComponent(p.display_name)}&body=I%20would%20like%20to%20downgrade%20my%20OpenI%20Hub%20subscription%20from%20${encodeURIComponent(myPlan?.plan?.display_name || currentPlan)}%20to%20${encodeURIComponent(p.display_name)}.`}
+                              style={{ width: '100%', display: 'block', textAlign: 'center', textDecoration: 'none', padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 10,
+                                background: '#fff', color: '#666', border: '1px solid #ddd', cursor: 'pointer' }}>
+                              Downgrade to {p.display_name}
+                            </a>
                           )}
                           {isCurrent && (
                             <div style={{ textAlign: 'center', fontSize: 12, color: G, fontWeight: 600 }}>Your current plan</div>
