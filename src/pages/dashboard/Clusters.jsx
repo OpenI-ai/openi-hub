@@ -60,7 +60,7 @@ export default function Clusters() {
           <div>
             <h1 className="text-2xl font-semibold text-[#0D2137]">Startup Clusters</h1>
             <p className="text-sm text-gray-600">
-              Browse the 100 semantic clusters extracted from the OpenI startup directory
+              Browse {data.total ? `the ${data.total.toLocaleString()}` : 'the'} semantic clusters extracted from the OpenI startup directory
             </p>
           </div>
         </div>
