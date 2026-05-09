@@ -16,6 +16,7 @@ import {
 import { PERSONA_NAV, PERSONAS } from "../../config/personas";
 import SearchBar from "../../components/SearchBar";
 import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
+import PlanBadge from "../../components/PlanBadge"; // Phase 68 — plan visibility
 
 // ── OpenI brand tokens (light theme – matches openi.ai) ───────
 const C = {
@@ -222,8 +223,10 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        {/* Bottom – settings + logout */}
+        {/* Bottom – plan badge + settings + logout */}
         <div style={{ padding:"8px", flexShrink:0, borderTop: `1px solid ${C.sidebarBorder}` }}>
+          {/* Phase 68 — plan visibility on every dashboard page */}
+          <PlanBadge variant="sidebar" />
           <NavLink
             to="/dashboard/settings"
             style={({ isActive }) => ({
@@ -463,6 +466,13 @@ export default function DashboardLayout() {
             </div>
             {user && (
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                {/* Phase 68 — compact plan pill, hidden on small screens to
+                    keep the topbar uncluttered. Sidebar PlanBadge is the
+                    primary surface; this is a glance-affordance for users
+                    on a wide screen. */}
+                <div className="hidden md:block">
+                  <PlanBadge variant="topbar" />
+                </div>
                 <div style={{
                   width:28, height:28, borderRadius:"50%",
                   background: C.goldLight, color: C.gold,

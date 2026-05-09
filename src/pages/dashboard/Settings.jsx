@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI, subscriptionAPI, creditAPI, mfaAPI, billingAddressAPI } from '../../services/api';
 import BillingAddressModal from '../../components/BillingAddressModal';
@@ -63,7 +64,16 @@ const USAGE_FEATURES = ['challenge_create', 'application_submit', 'meeting_creat
 
 export default function Settings() {
   const { user, logout, updateUser } = useAuth();
-  const [tab, setTab] = useState('profile');
+  const [searchParams] = useSearchParams();
+  // Phase 68: deep-link support for plan visibility surfaces.
+  // Other pages link to /dashboard/settings?tab=billing or
+  // ?tab=billing&focus=plans so users land directly on the right tab and,
+  // optionally, scroll the plan-comparison grid into view.
+  const initialTab = ['profile', 'security', 'billing', 'notifications'].includes(searchParams.get('tab'))
+    ? searchParams.get('tab')
+    : 'profile';
+  const [tab, setTab] = useState(initialTab);
+  const plansAnchorRef = useRef(null);
 
   // Profile form
   const [name, setName] = useState(user?.name || '');
@@ -107,6 +117,22 @@ export default function Settings() {
   const [mfaBusy, setMfaBusy]             = useState(false);
   const [mfaDisablePw, setMfaDisablePw]   = useState('');
   const [showMfaDisable, setShowMfaDisable] = useState(false);
+
+  // Phase 68: deep-link to plan comparison.
+  // When the user lands here via ?tab=billing&focus=plans, scroll the
+  // plan-comparison block into view as soon as it has rendered. Fires
+  // once `myPlan` loads (which is what triggers the billing tab content
+  // to render its full DOM tree).
+  useEffect(() => {
+    if (tab !== 'billing') return;
+    if (searchParams.get('focus') !== 'plans') return;
+    if (!myPlan) return; // wait for billing data to populate
+    // setTimeout 0 to land after the browser has painted the new DOM.
+    const t = setTimeout(() => {
+      plansAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [tab, myPlan, searchParams]);
 
   useEffect(() => {
     if (tab === 'security') {
@@ -872,8 +898,8 @@ export default function Settings() {
                   )}
                 </div>
 
-                {/* Plan Comparison */}
-                <div style={{ ...card, padding: 24 }}>
+                {/* Plan Comparison (anchor for ?focus=plans deep links) */}
+                <div ref={plansAnchorRef} id="plans" style={{ ...card, padding: 24, scrollMarginTop: 80 }}>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Plans</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
                     {plans.map(p => {

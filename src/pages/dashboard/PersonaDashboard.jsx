@@ -7,6 +7,7 @@ import WhoViewedProfile from '../../components/WhoViewedProfile';
 import MfaBanner from '../../components/MfaBanner';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
 import TourWrapper from '../../components/TourWrapper';
+import PlanHeroTile from '../../components/PlanHeroTile'; // Phase 68 — plan visibility
 import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
   FlaskConical, Home, Zap, ArrowRight, Loader2, Target, Star, FolderKanban,
@@ -273,6 +274,9 @@ export default function PersonaDashboard() {
           </div>
         )}
       </div>
+
+      {/* Phase 68 — current plan + Upgrade affordance, all 11 personas */}
+      <PlanHeroTile />
 
       {/* Who viewed your profile — providers only (Phase 37) */}
       <div style={{ marginBottom: 16 }}>

@@ -19,8 +19,10 @@ export default defineConfig({
         },
       },
     },
-    // Cosmetic: main bundle sits ~1.3 MB even after manualChunks above.
-    // Real fix would be route-level React.lazy(); deferred until a real perf complaint.
-    chunkSizeWarningLimit: 1500,
+    // Cosmetic: main bundle sits ~1.5 MB even after manualChunks above
+    // (Phase 67 added @xyflow/react ~200 KB, Phase 68 added a couple of
+    // small plan-visibility components). Real fix would be route-level
+    // React.lazy(); deferred until a real perf complaint.
+    chunkSizeWarningLimit: 1600,
   },
 });
