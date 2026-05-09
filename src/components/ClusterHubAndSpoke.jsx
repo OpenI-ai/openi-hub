@@ -33,19 +33,19 @@ import {
 import '@xyflow/react/dist/style.css';
 
 // ── Layout constants ──────────────────────────────────────────────────
-const CANVAS_W = 1100;
-const CANVAS_H = 720;
+const CANVAS_W = 1400;
+const CANVAS_H = 900;
 const HUB_X = CANVAS_W / 2;
 const HUB_Y = CANVAS_H / 2;
 
-const SECTOR_RADIUS = 220;        // distance from hub to sector node centre
-const LEAF_RADIUS_BASE = 360;     // base distance from hub to leaf node centre
-const LEAF_FAN_DEG = 38;          // half-angle (degrees) the leaves fan around their sector
+const SECTOR_RADIUS = 280;        // distance from hub to sector node centre
+const LEAF_RADIUS_BASE = 480;     // base distance from hub to leaf node centre
+const LEAF_FAN_DEG = 50;          // half-angle (degrees) the leaves fan around their sector
 
-const HUB_W = 180;
-const HUB_H = 180;
-const SECTOR_W = 200;
-const SECTOR_H = 56;
+const HUB_W = 200;
+const HUB_H = 200;
+const SECTOR_W = 220;
+const SECTOR_H = 60;
 const LEAF_W = 240;
 const LEAF_H = 64;
 
@@ -228,15 +228,12 @@ function buildGraph(cluster, startups) {
     draggable: false,
   });
 
-  const sectors = (cluster.top_sectors || []).slice(0, MAX_SECTORS);
-  if (sectors.length === 0) return { nodes, edges };
+  const candidateSectors = (cluster.top_sectors || []).slice(0, MAX_SECTORS);
+  if (candidateSectors.length === 0) return { nodes, edges };
 
-  // Determine the "weight" (member count) for each sector to allocate leaves proportionally.
-  const totalSectorWeight = sectors.reduce((sum, s) => sum + (s.n || 1), 0);
-
-  // Filter startups to those whose sector is in the top-6 list.
-  const sectorSet = new Set(sectors.map((s) => s.sector));
-  const eligible = (startups || []).filter((s) => s.sector && sectorSet.has(s.sector)).slice(0, MAX_LEAVES);
+  // Filter startups to those whose sector is in the top-N candidate list.
+  const candidateSet = new Set(candidateSectors.map((s) => s.sector));
+  const eligible = (startups || []).filter((s) => s.sector && candidateSet.has(s.sector)).slice(0, MAX_LEAVES);
 
   // Group eligible startups by sector.
   const leavesBySector = {};
@@ -244,7 +241,13 @@ function buildGraph(cluster, startups) {
     (leavesBySector[s.sector] = leavesBySector[s.sector] || []).push(s);
   }
 
-  // Layout: distribute sectors evenly around the hub.
+  // Skip empty sectors entirely — only render sector nodes that have leaves
+  // attached. With clusters dominated by a single sector this is the
+  // difference between "balanced ring" and "lopsided pile".
+  const sectors = candidateSectors.filter((s) => (leavesBySector[s.sector] || []).length > 0);
+  if (sectors.length === 0) return { nodes, edges };
+
+  // Layout: distribute the surviving sectors evenly around the hub.
   const sectorAngleStep = 360 / sectors.length;
   // Start at top-12-o'clock so the diagram reads left-to-right symmetrically.
   const sectorAngleStart = -90;
@@ -334,7 +337,11 @@ export default function ClusterHubAndSpoke({ cluster, startups, onLeafClick }) {
     if (onLeafClick) {
       onLeafClick(userId);
     } else {
-      navigate(`/dashboard/startup/${userId}`);
+      // Use the s50 alias `/dashboard/startups/:id?by=user_id` so the
+      // route resolves to <StartupProfile /> with explicit user_id lookup
+      // (the singular `/dashboard/startup/:id` path is NOT registered and
+      // falls through to a blank page).
+      navigate(`/dashboard/startups/${userId}?by=user_id`);
     }
   };
 
@@ -342,7 +349,11 @@ export default function ClusterHubAndSpoke({ cluster, startups, onLeafClick }) {
     <div
       style={{
         width: '100%',
-        height: CANVAS_H,
+        // Use viewport-relative height so the diagram never dominates the
+        // page: 70vh on tall screens, capped at the design CANVAS_H.
+        // React Flow fitView handles the zoom-to-fit inside this box.
+        height: `min(${CANVAS_H}px, 70vh)`,
+        minHeight: 520,
         background: '#FAFBFC',
         border: '1px solid #E2E8F0',
         borderRadius: 12,

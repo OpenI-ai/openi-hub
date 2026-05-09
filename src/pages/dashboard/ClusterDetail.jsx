@@ -180,7 +180,14 @@ export default function ClusterDetail() {
         {startups.startups.map((s) => (
           <Link
             key={s.id}
-            to={`/dashboard/startup/${s.user_id || s.id}`}
+            to={
+              // s50 alias: plural /startups/:id resolves to <StartupProfile />.
+              // Singular /startup/:id is NOT a registered route. Pass ?by=user_id
+              // to disambiguate the id-vs-user_id collision (s50 J10 follow-up).
+              s.user_id
+                ? `/dashboard/startups/${s.user_id}?by=user_id`
+                : `/dashboard/startups/${s.id}`
+            }
             className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-[#D4A843] hover:shadow-sm transition-all"
           >
             <div className="flex items-start gap-3">
