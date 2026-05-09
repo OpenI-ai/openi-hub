@@ -2,8 +2,8 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 3.6
-**Last Updated:** 9 May 2026 (late afternoon — post Phase 69: SECONDARY_NAV refactor + plain-English jargon sweep)
+**Version:** 3.7
+**Last Updated:** 9 May 2026 (evening — post Phase 70: rank-aware plan comparison + boolean feature rendering)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
@@ -11,6 +11,33 @@
 **Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v3.7 — Phase 70 (Rank-Aware Plan Comparison + Boolean Feature Rendering)
+
+User screenshot from an Enterprise account surfaced two bugs in the Settings → Billing → Plans panel:
+
+1. **"Upgrade to Pro Plan" button shown to an Enterprise user.** From Enterprise, Pro is a downgrade not an upgrade. The previous code branched only on "is this the free plan or not" which always lit up an Upgrade CTA on every paid plan card.
+2. **Boolean feature flags rendered as `true/mo` / `false/mo`.** `${limit}/mo` blindly stringified the value. Quota features (numeric monthly caps) and boolean flags (semantic_search, can_access_deal_pipeline, etc.) were rendered identically.
+
+**Fix shipped (`b0ea791`):**
+
+- **`planRank()` helper** in `Settings.jsx`: free=0, mid tier=1 (provider_growth, seeker_pro, legacy "pro"), top tier=2 (seeker_enterprise, legacy "enterprise"). Anything unknown sorts to 0 so the user never gets a misleading Upgrade prompt. Direction is `upgrade` / `downgrade` / `same` based on the rank delta between the target plan and `currentPlan`.
+- **Three button branches:**
+  - `direction === 'upgrade'` → existing `handleUpgrade` flow, gold CTA, "Upgrade to {plan}".
+  - `direction === 'downgrade' && p.name === 'free'` → existing `handleCancel` flow, neutral button, "Downgrade to Free".
+  - `direction === 'downgrade' && p.name !== 'free'` → mailto link to `support@openi.ai` with a pre-filled subject and body. Backend has no direct mid-tier downgrade endpoint, so routing to support is the honest answer rather than firing a misleading "Upgrade" CTA. **Future:** add `POST /subscription/change-plan` that handles both up and down across all tiers, prorated via Razorpay.
+- **`renderFeatureValue(limit)`** branches on `typeof`:
+  - boolean `true` → green Check icon, "Included"
+  - boolean `false` → grey X icon, "Not included"
+  - number `-1` → green Check, "Unlimited"
+  - number `N` → green Check, `N/mo`
+  - other → defensive fallback `String(limit)`
+- **No backend changes.** Plan rank thresholds match the seed in `startup.js#subscription_plans` (free, provider_growth, seeker_pro, seeker_enterprise) plus the legacy "pro" / "enterprise" rows that were renamed in the migration block but may still appear in old data.
+
+**Lessons (Phase 70):**
+- **Compare ranks, not names.** Whenever a UI affords moving between tiers, model the tiers as a partial order (numeric rank, with ties for tiers in the same row of the catalog) and let the rank delta drive the verb. Hardcoding "is this the free plan" gates breaks the moment a third tier ships.
+- **`typeof` branching is the cheap, correct way to pick a renderer for a value of mixed type.** Stringifying booleans with a unit suffix is a footgun.
+- **Honest mailto > misleading CTA.** When the backend has no path for the action a UI is implying (mid-tier downgrade), route to a human rather than fire a button that does the wrong thing.
 
 ### What's New in v3.6 — Phase 69 (Universal Sidebar Meta Block + Plain-English Jargon Sweep)
 
