@@ -78,7 +78,7 @@ const NAV = [
   { to: "/dashboard/watchlist",      label: "Watchlists",       Icon: Star,            roles: ["admin","startup"] },
   { to: "/dashboard/deeptech",       label: "DeepTech Qual.",   Icon: Zap,             roles: ["admin","evaluator"] },
   { to: "/dashboard/events",         label: "Events",           Icon: Calendar },
-  { to: "/dashboard/sme",            label: "SME Experts",      Icon: UserCheck,       roles: ["admin","evaluator"] },
+  { to: "/dashboard/sme",            label: "Subject-Matter Experts", Icon: UserCheck,    roles: ["admin","evaluator"] },
   { to: "/dashboard/feedback",       label: "Feedback",         Icon: ThumbsUp,        roles: ["admin","evaluator"] },
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
 ];

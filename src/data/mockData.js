@@ -255,7 +255,7 @@ export const PROGRAMS = [
     applications: 35, shortlisted: 10, selected: 4,
     criteria: [
       { name: 'Technical Solution', weight: 40 },
-      { name: 'Field Readiness (TRL)', weight: 30 },
+      { name: 'Field Readiness (Tech Readiness Level)', weight: 30 },
       { name: 'Cost Effectiveness', weight: 20 },
       { name: 'Team Experience', weight: 10 },
     ],

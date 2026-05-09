@@ -28,7 +28,7 @@ const SECTIONS = [
     questions: [
       { id: 'q1', text: 'Is the core technology based on original R&D or novel IP developed by the startup?', weight: 3 },
       { id: 'q2', text: 'Does the technology involve cutting-edge fields such as AI/ML, Quantum, Biotech, Nanotechnology, Advanced Materials, or Space Tech?', weight: 3 },
-      { id: 'q3', text: 'Is the technology currently at TRL 4 or above (demonstrated in lab / relevant environment)?', weight: 2 },
+      { id: 'q3', text: 'Is the technology currently at Tech Readiness Level 4 or above (demonstrated in lab / relevant environment)?', weight: 2 },
       { id: 'q4', text: 'Has the technology been validated through peer-reviewed research, patents, or independent testing?', weight: 2 },
     ],
   },

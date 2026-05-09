@@ -12,10 +12,23 @@ import {
   Flag, Loader2, X, Mail
 } from 'lucide-react';
 
-function TRLBadge({ trl }) {
+// Phase 69: TRL renamed to "Tech Readiness" everywhere visible. Tooltip
+// explains the 1-9 NASA scale for users who do not know the term.
+const TRL_TOOLTIP =
+  'Tech Readiness Level (TRL): NASA standard 1–9 scale.\n' +
+  '1 = basic concept · 4 = lab demo · 6 = prototype in relevant environment · 9 = proven in production.';
+
+function TechReadinessBadge({ trl }) {
   if (!trl) return null;
   const colors = ['', 'bg-gray-200 text-gray-700', 'bg-gray-300 text-gray-700', 'bg-blue-100 text-blue-700', 'bg-blue-200 text-blue-800', 'bg-yellow-100 text-yellow-800', 'bg-yellow-200 text-yellow-800', 'bg-orange-100 text-orange-800', 'bg-accent-100 text-accent-700', 'bg-accent-200 text-accent-800'];
-  return <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${colors[trl] || 'bg-gray-100 text-gray-600'}`}>TRL {trl}</span>;
+  return (
+    <span
+      title={TRL_TOOLTIP}
+      className={`px-2.5 py-1 rounded-lg text-xs font-bold ${colors[trl] || 'bg-gray-100 text-gray-600'}`}
+    >
+      Tech Readiness {trl}
+    </span>
+  );
 }
 
 function formatFunding(val) {
@@ -259,7 +272,7 @@ export default function StartupProfile() {
                   {startup.founded_year && <span className="flex items-center gap-1"><Calendar size={13} /> Founded {startup.founded_year}</span>}
                 </div>
                 <div className="flex items-center gap-3 mt-2 flex-wrap">
-                  <TRLBadge trl={trl} />
+                  <TechReadinessBadge trl={trl} />
                   {startup.stage && <span className="px-2.5 py-1 bg-dark-800 text-dark-300 text-xs rounded-lg">{startup.stage}</span>}
                   {startup.business_model && <span className="px-2.5 py-1 bg-dark-800 text-primary-400 text-xs rounded-lg">{startup.business_model}</span>}
                   {startup.import_metadata?.cluster_label && (
@@ -407,7 +420,7 @@ export default function StartupProfile() {
                       technologies.length > 0 && ['Technologies', technologies.join(', ')],
                       startup.product_type && ['Product Type', startup.product_type],
                       startup.business_model && ['Business Model', startup.business_model],
-                      trl > 0 && ['TRL', `Level ${trl}`],
+                      trl > 0 && ['Tech Readiness', `Level ${trl}`],
                       startup.startup_type && ['Startup Type', startup.startup_type],
                     ].filter(Boolean).map(([k, v]) => (
                       <div key={k} className="p-3 bg-gray-50 rounded-lg">
@@ -420,7 +433,7 @@ export default function StartupProfile() {
 
                 {trl > 0 && (
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
-                    <h3 className="font-display font-bold text-gray-900 mb-3">TRL Progression</h3>
+                    <h3 className="font-display font-bold text-gray-900 mb-3" title={TRL_TOOLTIP}>Tech Readiness Progression</h3>
                     <div className="flex gap-1 mt-4">
                       {[1,2,3,4,5,6,7,8,9].map(level => (
                         <div key={level} className="flex-1">
@@ -428,7 +441,7 @@ export default function StartupProfile() {
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 text-sm text-gray-600 text-center">Currently at TRL {trl}</div>
+                    <div className="mt-3 text-sm text-gray-600 text-center" title={TRL_TOOLTIP}>Currently at Tech Readiness Level {trl}</div>
                   </div>
                 )}
 
@@ -489,7 +502,7 @@ export default function StartupProfile() {
               <h4 className="font-semibold text-gray-800 text-sm mb-4">Quick Stats</h4>
               <div className="space-y-3">
                 {[
-                  trl > 0 && { label: 'TRL', value: `Level ${trl}`, icon: Target, color: 'text-blue-500' },
+                  trl > 0 && { label: 'Tech Readiness', value: `Level ${trl}`, icon: Target, color: 'text-blue-500', tooltip: TRL_TOOLTIP },
                   startup.team_size && { label: 'Team Size', value: startup.team_size || startup.employee_range, icon: Users, color: 'text-green-500' },
                   funding && { label: 'Funding Raised', value: funding, icon: DollarSign, color: 'text-yellow-500' },
                   valuation && { label: 'Valuation', value: valuation, icon: TrendingUp, color: 'text-accent-500' },

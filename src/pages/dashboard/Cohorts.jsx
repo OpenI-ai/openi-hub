@@ -55,7 +55,7 @@ function CohortDetail({ cohort, onClose }) {
                       <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center text-dark-950 font-bold">{startup.logo}</div>
                       <div className="flex-1">
                         <h3 className="font-bold text-gray-900">{startup.name}</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">{startup.sector} · TRL {startup.trl}</p>
+                        <p className="text-xs text-gray-500 mt-0.5" title="Tech Readiness Level (1=concept · 9=proven in production)">{startup.sector} · Tech Readiness {startup.trl}</p>
                         <div className="flex gap-2 mt-2">
                           <span className="px-2 py-0.5 bg-accent-100 text-accent-700 text-xs rounded-full">Active</span>
                           {startup.deeptech && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">DeepTech</span>}

@@ -113,7 +113,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
                   <tr>
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">Startup</th>
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">Sector</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">TRL</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500" title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness</th>
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">AI Score</th>
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">Stage</th>
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">Action</th>
@@ -121,9 +121,10 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
                 </thead>
                 <tbody>
                   {applicants.map((startup, i) => {
-                    const stages = ['L1 Screening', 'L2 Technical', 'L3 Committee', 'Selected', 'Waitlisted'];
+                    // Phase 69 jargon sweep: rename L1/L2/L3 to plain-English review tiers.
+                    const stages = ['Initial Screening', 'Technical Review', 'Committee Review', 'Selected', 'Waitlisted'];
                     const stg = stages[Math.min(i, stages.length - 1)];
-                    const stgColor = { Selected: 'text-accent-700 bg-accent-100', 'L3 Committee': 'text-blue-700 bg-blue-100', Waitlisted: 'text-yellow-700 bg-yellow-100' };
+                    const stgColor = { Selected: 'text-accent-700 bg-accent-100', 'Committee Review': 'text-blue-700 bg-blue-100', Waitlisted: 'text-yellow-700 bg-yellow-100' };
                     return (
                       <tr key={startup.id} className="border-b border-gray-50 hover:bg-gray-50">
                         <td className="py-3 px-4">
@@ -136,7 +137,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-xs text-gray-600">{startup.sector}</td>
-                        <td className="py-3 px-4 text-xs font-bold text-blue-600">TRL {startup.trl}</td>
+                        <td className="py-3 px-4 text-xs font-bold text-blue-600" title="Tech Readiness Level (1=concept · 9=proven in production)">Level {startup.trl}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1.5">
                             <Star size={12} className="text-primary-500" />
@@ -226,7 +227,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
                 <BarChart3 size={20} className="text-primary-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-primary-800">Automated Pre-screening Complete</p>
-                  <p className="text-xs text-primary-700 mt-0.5">AI has pre-screened all {program.applications} applications against this program's criteria. {program.shortlisted} startups have been recommended for L2 Technical Review based on sector match, TRL, and startup score.</p>
+                  <p className="text-xs text-primary-700 mt-0.5">AI has pre-screened all {program.applications} applications against this program's criteria. {program.shortlisted} startups have been recommended for Technical Review based on sector match, Tech Readiness, and startup score.</p>
                 </div>
               </div>
             </div>
@@ -237,7 +238,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
                   <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center text-dark-950 font-bold flex-shrink-0">{startup.logo}</div>
                   <div className="flex-1">
                     <div className="font-semibold text-gray-800 text-sm">{startup.name}</div>
-                    <div className="text-xs text-gray-500">{startup.sector} · TRL {startup.trl} · {startup.location}</div>
+                    <div className="text-xs text-gray-500" title="Tech Readiness Level (1=concept · 9=proven in production)">{startup.sector} · Tech Readiness {startup.trl} · {startup.location}</div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
@@ -258,7 +259,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
         {/* Committee Review */}
         {activeStage === 'committee' && (
           <div>
-            <h2 className="font-display font-bold text-gray-900 mb-4">L3 Committee Review Panel</h2>
+            <h2 className="font-display font-bold text-gray-900 mb-4">Committee Review Panel</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="lg:col-span-2 space-y-4">
                 {allStartups.slice(0, 3).map(startup => (
@@ -269,7 +270,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
                         <h3 className="font-bold text-gray-900">{startup.name}</h3>
                         <p className="text-xs text-gray-500">{startup.description.slice(0, 80)}...</p>
                         <div className="flex gap-2 mt-2">
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">TRL {startup.trl}</span>
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded" title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness {startup.trl}</span>
                           <span className="px-2 py-0.5 bg-primary-100 text-primary-700 text-xs rounded">Score: {startup.score}</span>
                           {startup.deeptech && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded">DeepTech</span>}
                         </div>
@@ -330,7 +331,7 @@ function EvaluationDetail({ program, onClose, allStartups = [] }) {
             </div>
             <p className="text-sm text-gray-600 mb-4">{selectedApp.description}</p>
             <div className="grid grid-cols-3 gap-3 mb-4">
-              {[['TRL', selectedApp.trl], ['Score', selectedApp.score], ['Patents', selectedApp.patents]].map(([k, v]) => (
+              {[['Tech Readiness', selectedApp.trl], ['Score', selectedApp.score], ['Patents', selectedApp.patents]].map(([k, v]) => (
                 <div key={k} className="text-center bg-gray-50 rounded-lg p-3">
                   <div className="font-bold text-gray-800 text-lg">{v}</div>
                   <div className="text-xs text-gray-500">{k}</div>
@@ -383,7 +384,7 @@ export default function Evaluations() {
                 { name: 'Defence Relevance', weight: 20 },
                 { name: 'Team Capability', weight: 20 },
                 { name: 'Market Potential', weight: 15 },
-                { name: 'TRL & Readiness', weight: 20 },
+                { name: 'Tech Readiness', weight: 20 },
               ],
             };
           }
@@ -401,7 +402,7 @@ export default function Evaluations() {
             criteria: [
               { name: 'Technical Innovation', weight: 25 }, { name: 'Defence Relevance', weight: 20 },
               { name: 'Team Capability', weight: 20 }, { name: 'Market Potential', weight: 15 },
-              { name: 'TRL & Readiness', weight: 20 },
+              { name: 'Tech Readiness', weight: 20 },
             ],
           }];
         }

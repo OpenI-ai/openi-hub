@@ -24,9 +24,9 @@ const VECTORS = [
     hex: "#60a5fa",
     desc: "Clarity of purpose / mission, well-articulated business choices & non-choices, business model development.",
     criteria: [
-      "Mission, Vision & OKRs", "3-Year Plan", "Annual Operating Plan", "Quarterly Review",
+      "Mission, Vision & Objectives & Key Results (OKRs)", "3-Year Plan", "Annual Operating Plan", "Quarterly Review",
       "Technology & Trend Awareness", "New Products", "New Geographies",
-      "Joint Ventures (JVs)", "Business Environmental Factors",
+      "Joint Ventures", "Business Environmental Factors",
     ],
   },
   {

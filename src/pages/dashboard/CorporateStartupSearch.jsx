@@ -126,7 +126,7 @@ export default function CorporateStartupSearch() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 8 }}>
                     {s.sector && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb', maxWidth: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.sector}</span>}
                     {s.stage && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#f3f4f6', color: '#555' }}>{s.stage}</span>}
-                    {s.tech_readiness && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb' }}>TRL {s.tech_readiness}</span>}
+                    {s.tech_readiness && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb' }} title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness {s.tech_readiness}</span>}
                   </div>
 
                   {/* Actions */}

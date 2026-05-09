@@ -159,7 +159,7 @@ export default function IncubatorMentorPool() {
               </div>
               <div>
                 <label style={lbl}>Expertise (comma-separated)</label>
-                <input value={form.expertise} onChange={e => setForm({ ...form, expertise: e.target.value })} placeholder="DeepTech, Fundraising, GTM" style={inp} />
+                <input value={form.expertise} onChange={e => setForm({ ...form, expertise: e.target.value })} placeholder="DeepTech, Fundraising, Go-to-Market" style={inp} />
               </div>
               <div>
                 <label style={lbl}>Hours per Month</label>

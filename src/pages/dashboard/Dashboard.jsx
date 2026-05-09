@@ -78,7 +78,7 @@ export default function Dashboard() {
         <StatCard label="Startups Incubated" value={s.startupsCohorted} sub="Across 8 cohorts" icon={Building2} color="bg-orange-500" to="/dashboard/cohorts" />
         <StatCard label="IPR Filed" value={s.iprFiled} sub="Patents + Trademarks" icon={Shield} color="bg-indigo-500" to="/dashboard/ipr" />
         <StatCard label="Expert Mentors" value={s.mentors} sub="Academia, Industry, OpenI" icon={Award} color="bg-yellow-500" to="/dashboard/mentors" />
-        <StatCard label="Avg. TRL" value={s.avgTRL} sub="Across active projects" icon={Target} color="bg-teal-500" />
+        <StatCard label="Avg. Tech Readiness" value={s.avgTRL} sub="Across active projects" icon={Target} color="bg-teal-500" />
       </div>
 
       {/* Charts row */}

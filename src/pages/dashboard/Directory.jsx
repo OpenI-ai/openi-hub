@@ -466,7 +466,7 @@ function buildDetailSections(role, prof) {
     if (prof.stage)          baseFields.push({ label: 'Stage', value: prof.stage });
     if (prof.founded_year)   baseFields.push({ label: 'Founded', value: prof.founded_year });
     if (prof.team_size)      baseFields.push({ label: 'Team Size', value: prof.team_size });
-    if (prof.tech_readiness) baseFields.push({ label: 'TRL', value: prof.tech_readiness });
+    if (prof.tech_readiness) baseFields.push({ label: 'Tech Readiness', value: prof.tech_readiness });
     if (prof.is_deeptech)    baseFields.push({ label: 'DeepTech', value: 'Yes' });
     if (prof.dpiit_number)   baseFields.push({ label: 'DPIIT', value: prof.dpiit_number });
   } else if (role === 'student') {

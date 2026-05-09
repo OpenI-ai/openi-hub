@@ -305,7 +305,7 @@ export default function CorporateDashboard() {
                   <div style={{ fontSize: 10, color: '#555', lineHeight: 1.4, marginBottom: 6 }}>{r.fit_narrative}</div>
                 )}
                 <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#999', flexWrap: 'wrap' }}>
-                  {r.tech_readiness && <span>TRL {r.tech_readiness}</span>}
+                  {r.tech_readiness && <span title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness {r.tech_readiness}</span>}
                   {r.is_deeptech && <span style={{ color: '#7c3aed', fontWeight: 600 }}>DeepTech</span>}
                   {r.match_score > 0 && <span style={{ color: G, fontWeight: 600 }}>{r.match_score >= 100 ? `${r.match_score}/100` : `${r.match_score}pt`} match</span>}
                   {r.recommended_action && (

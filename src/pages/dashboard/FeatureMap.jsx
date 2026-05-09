@@ -30,7 +30,7 @@ const FEATURES = [
     items: [
       { icon: Rocket, title: 'Rich Startup Profile', desc: '15-section comprehensive profile with funding rounds, team, patents, clients, and metrics.', tier: 'pro', link: '/dashboard/profile' },
       { icon: Target, title: 'Challenge Marketplace', desc: 'Browse and apply to open innovation challenges from corporates, investors, and government.', tier: 'free', link: '/dashboard/marketplace' },
-      { icon: Shield, title: 'DeepTech Assessment', desc: 'TRL-based qualification framework for defence, quantum, biotech, and advanced materials.', tier: 'free', link: '/dashboard/deeptech' },
+      { icon: Shield, title: 'DeepTech Assessment', desc: 'Tech-Readiness-based qualification framework for defence, quantum, biotech, and advanced materials.', tier: 'free', link: '/dashboard/deeptech' },
     ],
   },
   {

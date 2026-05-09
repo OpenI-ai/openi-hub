@@ -232,7 +232,7 @@ export const PROFILE_FIELDS = {
     // ── Technology & Innovation ───────────────────────
     { name: 'technologies',   label: 'Technologies',         type: 'taxonomy_tags', taxonomy: 'technologies', placeholder: 'Search technologies...' },
     { name: 'focus_areas',    label: 'Focus Areas / Use Cases', type: 'taxonomy_tags', taxonomy: 'usecases', placeholder: 'Search use cases...' },
-    { name: 'tech_readiness', label: 'Tech Readiness (TRL 1-9)', type: 'number', min: 1, max: 9 },
+    { name: 'tech_readiness', label: 'Tech Readiness Level (1=concept · 9=proven in production)', type: 'number', min: 1, max: 9 },
     { name: 'is_deeptech',    label: 'Is DeepTech?',         type: 'checkbox' },
     // ── Business Traction ─────────────────────────────
     { name: 'revenue_range',  label: 'Revenue Range',        type: 'select', options: ['Pre-revenue','<1 Cr','1-10 Cr','10-50 Cr','50-100 Cr','>100 Cr'] },
@@ -240,7 +240,7 @@ export const PROFILE_FIELDS = {
     { name: 'mrr',            label: 'MRR (Monthly Recurring Revenue)', type: 'number', min: 0 },
     { name: 'arr',            label: 'ARR (Annual Recurring Revenue)', type: 'number', min: 0 },
     { name: 'growth_rate',    label: 'Growth Rate',          type: 'text', placeholder: 'e.g., 3x YoY, 25% MoM' },
-    { name: 'unit_economics', label: 'Unit Economics (CAC, LTV)', type: 'textarea' },
+    { name: 'unit_economics', label: 'Unit Economics — Customer Acquisition Cost (CAC) and Lifetime Value (LTV)', type: 'textarea' },
     // ── Financials ────────────────────────────────────
     { name: 'funding_raised', label: 'Total Funding Raised', type: 'number', min: 0 },
     { name: 'funding_raised_currency', label: 'Funding Currency', type: 'select', options: ['INR','USD'] },
@@ -317,7 +317,7 @@ export const PROFILE_FIELDS = {
     { name: 'annual_revenue',      label: 'Annual Revenue',      type: 'money_range', variant: 'revenue' },
     { name: 'contact_person',      label: 'Contact Person',      type: 'text' },
     { name: 'contact_designation', label: 'Contact Designation', type: 'text' },
-    { name: 'looking_for',         label: 'Looking For',         type: 'multiselect', options: ['PoC','Pilot','Procurement','Co-development','Investment','Licensing'] },
+    { name: 'looking_for',         label: 'Looking For',         type: 'multiselect', options: ['Proof of Concept','Pilot','Procurement','Co-development','Investment','Licensing'] },
     { name: 'linkedin_url',        label: 'LinkedIn URL',        type: 'url' },
   ],
   government: [
@@ -333,7 +333,7 @@ export const PROFILE_FIELDS = {
     { name: 'focus_areas',  label: 'Focus Areas',              type: 'tags', placeholder: 'e.g., Defence, Smart Cities' },
     { name: 'programs',     label: 'Programs',                 type: 'tags', placeholder: 'e.g., iDEX, Make in India' },
     { name: 'contact_person', label: 'Contact Person',         type: 'text' },
-    { name: 'looking_for',   label: 'Looking For',             type: 'multiselect', options: ['Innovation Partners','PoC','Procurement','Technology Transfer'] },
+    { name: 'looking_for',   label: 'Looking For',             type: 'multiselect', options: ['Innovation Partners','Proof of Concept','Procurement','Technology Transfer'] },
     { name: 'linkedin_url',  label: 'LinkedIn URL',            type: 'url' },
   ],
   investor: [

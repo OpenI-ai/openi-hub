@@ -277,7 +277,7 @@ export default function RegisterStartup() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">Technology Readiness Level (TRL) *</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1.5 block" title="NASA standard 1-9 scale: 1=basic concept, 4=lab demo, 6=prototype in relevant environment, 9=proven in production">Tech Readiness Level <span className="text-gray-500 font-normal">(1 = concept · 9 = proven in production)</span> *</label>
                   <div className="flex items-center gap-3">
                     <input type="range" min="1" max="9" value={form.trl} onChange={e => update('trl', e.target.value)} className="flex-1 accent-primary-500" />
                     <div className="w-10 h-10 rounded-full bg-primary-500 text-dark-950 font-bold text-lg flex items-center justify-center flex-shrink-0">{form.trl}</div>
@@ -418,7 +418,7 @@ export default function RegisterStartup() {
                 {[
                   { title: 'Basic Information', fields: [['Company', form.companyName || '—'], ['Founded', form.founded || '—'], ['City', form.city || '—'], ['State', form.state || '—']] },
                   { title: 'Team', fields: [['Founder', form.founderName || '—'], ['Role', form.founderRole || '—'], ['Team Size', form.teamSize || '—']] },
-                  { title: 'Technology', fields: [['Sector', form.sector || '—'], ['Technology', form.technology || '—'], ['OpenI Cluster', form.openiCluster || '—'], ['TRL', form.trl], ['DeepTech', form.isDeeptech ? 'Yes – Applying' : 'No']] },
+                  { title: 'Technology', fields: [['Sector', form.sector || '—'], ['Technology', form.technology || '—'], ['OpenI Cluster', form.openiCluster || '—'], ['Tech Readiness', form.trl], ['DeepTech', form.isDeeptech ? 'Yes – Applying' : 'No']] },
                   { title: 'Financial', fields: [['Stage', form.fundingStage || '—'], ['Funding', form.totalFunding ? `₹${Number(form.totalFunding).toLocaleString('en-IN')}` : '—'], ['Revenue', form.revenue ? `₹${Number(form.revenue).toLocaleString('en-IN')}` : '—']] },
                   { title: 'Legal', fields: [['GSTIN', `${form.gstin || '—'} ${verified.gstin ? '✓' : ''}`], ['CIN', `${form.cin || '—'} ${verified.cin ? '✓' : ''}`], ['DPIIT', `${form.dpiit || '—'} ${verified.dpiit ? '✓' : ''}`]] },
                 ].map(section => (
