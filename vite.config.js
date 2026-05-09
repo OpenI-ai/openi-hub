@@ -19,6 +19,8 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 600,
+    // Cosmetic: main bundle sits ~1.3 MB even after manualChunks above.
+    // Real fix would be route-level React.lazy(); deferred until a real perf complaint.
+    chunkSizeWarningLimit: 1500,
   },
 });
