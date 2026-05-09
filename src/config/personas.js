@@ -145,6 +145,7 @@ export const PERSONA_NAV = {
     { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
     { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
     { to: '/dashboard/startups',            label: 'Startups',     icon: 'Rocket' },
+    { to: '/dashboard/clusters',            label: 'Clusters',     icon: 'Layers' },
     { to: '/dashboard/projects',            label: 'Projects',     icon: 'FolderKanban' },
     { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
   ],
@@ -154,6 +155,7 @@ export const PERSONA_NAV = {
     { to: '/dashboard/lab/bookings',     label: 'Bookings',       icon: 'CalendarCheck' },
     { to: '/dashboard/lab/publications', label: 'Publications',   icon: 'FileText' },
     { to: '/dashboard/startups',         label: 'Startups',       icon: 'Rocket' },
+    { to: '/dashboard/clusters',         label: 'Clusters',       icon: 'Layers' },
     { to: '/dashboard/ipr',              label: 'IPR Database',   icon: 'Shield' },
   ],
   incubator: [
@@ -188,6 +190,7 @@ export const PERSONA_NAV = {
     { to: '/dashboard/sp/reviews',      label: 'Reviews',           icon: 'Star' },
     { to: '/dashboard/marketplace',     label: 'Marketplace',       icon: 'Target' },
     { to: '/dashboard/startups',        label: 'Find Startups',     icon: 'Rocket' },
+    { to: '/dashboard/clusters',        label: 'Clusters',          icon: 'Layers' },
   ],
 };
 
