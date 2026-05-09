@@ -13,7 +13,7 @@ import {
   FlaskConical, Home, Target, Link, Map, Sparkles, Briefcase, Clock,
   BarChart3, Megaphone, CreditCard, BadgeCheck,
 } from "lucide-react";
-import { PERSONA_NAV, PERSONAS } from "../../config/personas";
+import { PERSONA_NAV, PERSONAS, SECONDARY_NAV } from "../../config/personas";
 import SearchBar from "../../components/SearchBar";
 import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
 import PlanBadge from "../../components/PlanBadge"; // Phase 68 — plan visibility
@@ -221,6 +221,55 @@ export default function DashboardLayout() {
               )}
             </NavLink>
           ))}
+
+          {/* Phase 69 — meta nav block (Organization / Features / What's New).
+              Separator above; same NavLink visual language but rendered from
+              the persona-agnostic SECONDARY_NAV array so every persona sees
+              these regardless of how they build their primary nav. */}
+          {!isLegacyRole && (
+            <>
+              <div style={{
+                margin: "10px 6px 6px",
+                height: 1,
+                background: C.sidebarBorder,
+              }} />
+              {SECONDARY_NAV.map(({ to, label, icon, end }) => {
+                const Icon = ICON_MAP[icon] || LayoutDashboard;
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    id={`tour-nav-${(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+                    onClick={() => setSidebarOpen(false)}
+                    style={({ isActive }) => ({
+                      display:"flex", alignItems:"center", gap:10,
+                      padding:"9px 12px", borderRadius:8, marginBottom:2,
+                      fontSize:13, fontWeight: isActive ? 600 : 500,
+                      textDecoration:"none",
+                      transition:"all 0.15s",
+                      background: isActive ? C.activeBg : "transparent",
+                      color: isActive ? C.activeText : C.textSecond,
+                      border: isActive ? `1px solid ${C.activeBorder}` : "1px solid transparent",
+                    })}
+                    onMouseEnter={e => {
+                      if (!e.currentTarget.style.background.includes("0.10")) {
+                        e.currentTarget.style.background = C.hoverBg;
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!e.currentTarget.style.background.includes("0.10")) {
+                        e.currentTarget.style.background = "transparent";
+                      }
+                    }}
+                  >
+                    <Icon size={15} style={{ flexShrink:0 }} />
+                    <span style={{ flex:1 }}>{label}</span>
+                  </NavLink>
+                );
+              })}
+            </>
+          )}
         </nav>
 
         {/* Bottom – plan badge + settings + logout */}

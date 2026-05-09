@@ -48,10 +48,18 @@ const COMMON_NAV = [
   { to: '/dashboard/meetings',   label: 'Meetings',    icon: 'CalendarCheck' },
   { to: '/dashboard/events',     label: 'Events',      icon: 'Calendar' },
   { to: '/dashboard/knowledge',  label: 'Knowledge',   icon: 'BookOpen' },
-  { to: '/dashboard/documents',      label: 'Documents',      icon: 'FolderOpen' },
-  { to: '/dashboard/organization',  label: 'Organization',   icon: 'Building2' },
-  { to: '/dashboard/features',     label: 'Features',       icon: 'Map' },
-  { to: '/dashboard/whats-new',    label: "What's New",     icon: 'Sparkles' },
+  { to: '/dashboard/documents',  label: 'Documents',   icon: 'FolderOpen' },
+];
+
+// Phase 69 — meta / info nav items that every persona should see, rendered
+// in a separate sidebar block below the persona-specific items in
+// DashboardLayout.jsx. Pulled out of COMMON_NAV so personas like corporate
+// and investor that build their primary nav from scratch (instead of
+// spreading COMMON_NAV) still get these without manual duplication.
+export const SECONDARY_NAV = [
+  { to: '/dashboard/organization', label: 'Organization', icon: 'Building2' },
+  { to: '/dashboard/features',     label: 'Features',     icon: 'Map' },
+  { to: '/dashboard/whats-new',    label: "What's New",   icon: 'Sparkles' },
 ];
 
 export const PERSONA_NAV = {
@@ -96,6 +104,7 @@ export const PERSONA_NAV = {
     { to: '/dashboard/corporate/collabs',    label: 'Collaborations',  icon: 'Link2' },
     { to: '/dashboard/watchlist',            label: 'Watchlist',       icon: 'Star' },
     { to: '/dashboard/projects',             label: 'Projects',        icon: 'FolderKanban' },
+    { to: '/dashboard/network',              label: 'My Network',      icon: 'Users' },
     { to: '/dashboard/messaging',            label: 'Messaging',       icon: 'MessageSquare' },
     { to: '/dashboard/meetings',             label: 'Meetings',        icon: 'CalendarCheck' },
     { to: '/dashboard/events',               label: 'Events',          icon: 'Calendar' },
@@ -136,9 +145,9 @@ export const PERSONA_NAV = {
     { to: '/dashboard/knowledge',          label: 'Knowledge',          icon: 'BookOpen' },
     { to: '/dashboard/documents',          label: 'Documents',          icon: 'FolderOpen' },
     { to: '/dashboard/deeptech',           label: 'DeepTech',           icon: 'Zap' },
-    { to: '/dashboard/organization',       label: 'Organization',       icon: 'Building2' },
-    { to: '/dashboard/features',           label: 'Features',           icon: 'Map' },
-    { to: '/dashboard/whats-new',          label: "What's New",         icon: 'Sparkles' },
+    // Phase 69: Organization / Features / What's New now live in SECONDARY_NAV
+    // and render in a separate bottom block via DashboardLayout. Removed
+    // here to avoid double-rendering.
   ],
   mentor: [
     ...COMMON_NAV,
