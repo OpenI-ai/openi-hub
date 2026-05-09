@@ -31,4 +31,6 @@ export const clusterAPI = {
   list: (params) => get(`/clusters${qs(params)}`),
   getOne: (id) => get(`/clusters/${id}`),
   listStartups: (id, params) => get(`/clusters/${id}/startups${qs(params)}`),
+  // Phase 68: top-N startups per sector for the hub-and-spoke diagram.
+  representatives: (id, params) => get(`/clusters/${id}/representatives${qs(params)}`),
 };

@@ -30,6 +30,10 @@ export default function ClusterDetail() {
 
   const [cluster, setCluster] = useState(null);
   const [startups, setStartups] = useState({ startups: [], total: 0 });
+  // Phase 68: representatives = top 3 per sector, used by the hub-and-spoke
+  // diagram. Separate from `startups` (which is the full sortable+paginated
+  // table view) so list pagination/sort never disturbs the diagram.
+  const [representatives, setRepresentatives] = useState([]);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('score_desc');
   const [loading, setLoading] = useState(true);
@@ -39,12 +43,18 @@ export default function ClusterDetail() {
     setLoading(true);
     setError(null);
     try {
-      const [c, s] = await Promise.all([
+      const [c, s, r] = await Promise.all([
         clusterAPI.getOne(id),
         clusterAPI.listStartups(id, { page, pageSize: PAGE_SIZE, sort }),
+        // Diagram leaves: top 3 per sector, max 6 sectors.
+        // Failure here must not break the list view, so catch and degrade.
+        clusterAPI
+          .representatives(id, { per_sector: 3, max_sectors: 6 })
+          .catch(() => ({ startups: [] })),
       ]);
       setCluster(c);
       setStartups(s);
+      setRepresentatives(r.startups || []);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -144,16 +154,23 @@ export default function ClusterDetail() {
         </div>
       )}
 
-      {/* Hub-and-spoke diagram (top 20 highest-scoring members, grouped by top sectors) */}
-      {cluster && startups.startups.length > 0 && (
+      {/* Hub-and-spoke diagram — top 3 startups per sector, balanced across
+          the cluster's top 6 sectors. Falls back to startups.startups (the
+          table view's data) only if the dedicated endpoint failed. */}
+      {cluster && (representatives.length > 0 || startups.startups.length > 0) && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-semibold text-[#0D2137]">Map of representative startups</h2>
             <span className="text-[11px] text-gray-500">
-              Top {Math.min(20, startups.startups.length)} by profile score · click a node to open
+              {representatives.length > 0
+                ? `Top 3 per sector · click a node to open`
+                : `Top ${Math.min(20, startups.startups.length)} by profile score · click a node to open`}
             </span>
           </div>
-          <ClusterHubAndSpoke cluster={cluster} startups={startups.startups} />
+          <ClusterHubAndSpoke
+            cluster={cluster}
+            startups={representatives.length > 0 ? representatives : startups.startups}
+          />
         </div>
       )}
 

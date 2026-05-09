@@ -272,19 +272,27 @@ function buildGraph(cluster, startups) {
     const leaves = leavesBySector[sec.sector] || [];
     if (leaves.length === 0) return;
 
-    // Fan leaves OUTWARD from the sector. Spread them across the wedge the
-    // sector owns; alternate inner/outer ring so adjacent leaves do not
-    // collide along the same arc.
-    const fanStart = sectorAngleDeg - halfWedge;
-    const fanEnd = sectorAngleDeg + halfWedge;
-    const fanStep = leaves.length > 1 ? (fanEnd - fanStart) / (leaves.length - 1) : 0;
+    // With Phase 68's representatives endpoint each sector has at most 3
+    // leaves. Fan them in a tight outward triangle: 1 leaf goes straight
+    // out, 2 leaves split ±LEAF_FAN_DEG, 3 leaves use centre + ±LEAF_FAN_DEG.
+    // Single ring radius per sector — no inner/outer alternation needed.
+    const fanOffsets = (() => {
+      if (leaves.length === 1) return [0];
+      if (leaves.length === 2) return [-15, 15];
+      // 3+: centre + ± half-wedge (capped so leaves never bleed past the
+      // owned wedge, which prevents collisions with neighbouring sectors).
+      const span = Math.min(20, halfWedge - 4);
+      return leaves.map((_, j, arr) => {
+        if (arr.length === 1) return 0;
+        return -span + (j * (span * 2)) / (arr.length - 1);
+      });
+    })();
 
     leaves.forEach((leaf, j) => {
-      const leafAngleDeg = leaves.length > 1 ? fanStart + j * fanStep : sectorAngleDeg;
+      const leafAngleDeg = sectorAngleDeg + fanOffsets[j];
       const leafAngleRad = rad(leafAngleDeg);
-      const leafRadius = j % 2 === 0 ? LEAF_RING_INNER : LEAF_RING_OUTER;
-      const lx = HUB_X + leafRadius * Math.cos(leafAngleRad);
-      const ly = HUB_Y + leafRadius * Math.sin(leafAngleRad);
+      const lx = HUB_X + LEAF_RING_INNER * Math.cos(leafAngleRad);
+      const ly = HUB_Y + LEAF_RING_INNER * Math.sin(leafAngleRad);
 
       const leafId = `leaf-${i}-${j}`;
       nodes.push({
