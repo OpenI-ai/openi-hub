@@ -2,22 +2,20 @@
  * ClusterHubAndSpoke.jsx — Phase 67: hub-and-spoke radial diagram of a
  * cluster's most representative startups.
  *
- * Two-tier radial layout, modelled after the Agentic-AI-Ecosystem reference:
- *   Level 0 (centre): the cluster itself (label + total members).
- *   Level 1: the top 6 sectors among cluster members (from cluster.top_sectors).
- *   Level 2: up to 20 highest-scoring startups, attached to the matching
- *            Level-1 sector. Startups whose sector is not in the top 6 are
- *            silently dropped from the diagram (they remain in the table view).
+ * Layout faithful to the reference (Agentic-AI-Ecosystem) image:
+ *   - Hub at the GEOMETRIC CENTRE of the canvas.
+ *   - Up to 6 sector nodes evenly distributed in a full 360° ring around
+ *     the hub. Empty sectors stay in the ring as anchors so the diagram
+ *     reads as a balanced wheel, not a one-sided pile.
+ *   - Leaves attach OUTSIDE their parent sector (further from the hub),
+ *     fanning radially outward in a wedge that does not overlap
+ *     neighbouring sector wedges. Compact cards: logo + name only.
  *
- * Renders with @xyflow/react. We compute node positions manually so the layout
- * is deterministic and matches the reference image; react-flow only gives us
- * the canvas, edges, and pan/zoom plumbing. No physics simulation.
- *
- * Read-only. Click a startup leaf → /dashboard/startup/:user_id.
+ * Read-only. Click a leaf → /dashboard/startups/:user_id?by=user_id.
  *
  * Props:
  *   - cluster:  { cluster_id, cluster_label, member_count, top_sectors: [{sector, n}] }
- *   - startups: array of { id, user_id, company_name, tagline, sector, logo_url, profile_score, ... }
+ *   - startups: array of { id, user_id, company_name, sector, logo_url, profile_score, ... }
  *   - onLeafClick: (userId) => void (optional; defaults to in-app navigate)
  */
 
@@ -34,24 +32,28 @@ import '@xyflow/react/dist/style.css';
 
 // ── Layout constants ──────────────────────────────────────────────────
 const CANVAS_W = 1400;
-const CANVAS_H = 900;
+const CANVAS_H = 1100;
 const HUB_X = CANVAS_W / 2;
 const HUB_Y = CANVAS_H / 2;
 
-const SECTOR_RADIUS = 280;        // distance from hub to sector node centre
-const LEAF_RADIUS_BASE = 480;     // base distance from hub to leaf node centre
-const LEAF_FAN_DEG = 50;          // half-angle (degrees) the leaves fan around their sector
+const SECTOR_RADIUS = 230;        // distance from hub centre to sector centre
+const LEAF_RING_INNER = 380;      // first ring of leaves (closer to sector)
+const LEAF_RING_OUTER = 470;      // second ring (further out, alternating)
 
-const HUB_W = 200;
-const HUB_H = 200;
-const SECTOR_W = 220;
+const HUB_W = 180;
+const HUB_H = 180;
+const SECTOR_W = 200;
 const SECTOR_H = 60;
-const LEAF_W = 240;
-const LEAF_H = 64;
+const LEAF_W = 200;
+const LEAF_H = 48;
 
 // Top-N caps
 const MAX_SECTORS = 6;
 const MAX_LEAVES = 20;
+
+// Edge styling — thin grey lines like the reference image
+const HUB_TO_SECTOR_EDGE = { stroke: '#94A3B8', strokeWidth: 1.25 };
+const SECTOR_TO_LEAF_EDGE = { stroke: '#CBD5E1', strokeWidth: 1 };
 
 // ── Custom node renderers ─────────────────────────────────────────────
 function HubNode({ data }) {
@@ -69,14 +71,14 @@ function HubNode({ data }) {
         justifyContent: 'center',
         boxShadow: '0 8px 24px rgba(13, 33, 55, 0.18)',
         textAlign: 'center',
-        padding: 16,
+        padding: 18,
       }}
     >
       <Handle type="source" position={Position.Top} style={{ visibility: 'hidden' }} />
       <div style={{ fontSize: 11, color: '#D4A843', fontFamily: 'monospace', marginBottom: 4 }}>
         Cluster #{data.cluster_id}
       </div>
-      <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.2, marginBottom: 4 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2, marginBottom: 4 }}>
         {data.label}
       </div>
       <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -123,30 +125,32 @@ function LeafNode({ data }) {
         height: LEAF_H,
         background: '#FFFFFF',
         border: '1px solid #E2E8F0',
-        borderRadius: 10,
+        borderRadius: 24,
         display: 'flex',
         gap: 8,
         alignItems: 'center',
-        padding: '8px 10px',
+        padding: '4px 10px 4px 4px',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
         cursor: 'pointer',
-        transition: 'border-color 120ms, box-shadow 120ms',
+        transition: 'border-color 120ms, box-shadow 120ms, transform 120ms',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = '#D4A843';
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 168, 67, 0.18)';
+        e.currentTarget.style.transform = 'scale(1.02)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = '#E2E8F0';
         e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.06)';
+        e.currentTarget.style.transform = 'scale(1)';
       }}
     >
       <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
       <div
         style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
+          width: 36,
+          height: 36,
+          borderRadius: '50%',
           background: '#F1F5F9',
           flexShrink: 0,
           display: 'flex',
@@ -165,37 +169,24 @@ function LeafNode({ data }) {
             }}
           />
         ) : (
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#94A3B8' }}>
             {(data.company_name || '?').charAt(0).toUpperCase()}
           </span>
         )}
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: '#0D2137',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {data.company_name || 'Unnamed'}
-        </div>
-        {data.tagline && (
-          <div
-            style={{
-              fontSize: 10,
-              color: '#64748B',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {data.tagline}
-          </div>
-        )}
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#0D2137',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {data.company_name || 'Unnamed'}
       </div>
     </div>
   );
@@ -204,8 +195,7 @@ function LeafNode({ data }) {
 const nodeTypes = { hub: HubNode, sector: SectorNode, leaf: LeafNode };
 
 // ── Geometry helpers ──────────────────────────────────────────────────
-const deg = (rad) => (rad * 180) / Math.PI;
-const rad = (d) => (d * Math.PI) / 180;
+const rad = (deg) => (deg * Math.PI) / 180;
 
 /**
  * Build nodes + edges array for react-flow.
@@ -215,7 +205,7 @@ function buildGraph(cluster, startups) {
   const nodes = [];
   const edges = [];
 
-  // Hub (centre)
+  // Hub at the centre.
   nodes.push({
     id: 'hub',
     type: 'hub',
@@ -228,29 +218,33 @@ function buildGraph(cluster, startups) {
     draggable: false,
   });
 
-  const candidateSectors = (cluster.top_sectors || []).slice(0, MAX_SECTORS);
-  if (candidateSectors.length === 0) return { nodes, edges };
+  // Take the top-N sectors as the ring anchors (always render all of them,
+  // even if some end up with zero attached leaves — that is what gives the
+  // diagram its balanced wheel shape, like the reference image).
+  const sectors = (cluster.top_sectors || []).slice(0, MAX_SECTORS);
+  if (sectors.length === 0) return { nodes, edges };
 
-  // Filter startups to those whose sector is in the top-N candidate list.
-  const candidateSet = new Set(candidateSectors.map((s) => s.sector));
-  const eligible = (startups || []).filter((s) => s.sector && candidateSet.has(s.sector)).slice(0, MAX_LEAVES);
+  // Filter the top-20 leaves to those whose sector is in the ring.
+  const sectorSet = new Set(sectors.map((s) => s.sector));
+  const eligible = (startups || [])
+    .filter((s) => s.sector && sectorSet.has(s.sector))
+    .slice(0, MAX_LEAVES);
 
-  // Group eligible startups by sector.
+  // Group leaves by sector.
   const leavesBySector = {};
   for (const s of eligible) {
     (leavesBySector[s.sector] = leavesBySector[s.sector] || []).push(s);
   }
 
-  // Skip empty sectors entirely — only render sector nodes that have leaves
-  // attached. With clusters dominated by a single sector this is the
-  // difference between "balanced ring" and "lopsided pile".
-  const sectors = candidateSectors.filter((s) => (leavesBySector[s.sector] || []).length > 0);
-  if (sectors.length === 0) return { nodes, edges };
-
-  // Layout: distribute the surviving sectors evenly around the hub.
+  // Distribute sector anchors evenly around the hub, full 360°.
   const sectorAngleStep = 360 / sectors.length;
-  // Start at top-12-o'clock so the diagram reads left-to-right symmetrically.
+  // Start at -90° (12 o'clock) so the ring reads symmetrically.
   const sectorAngleStart = -90;
+
+  // Half-wedge each sector "owns" — leaves cannot stray past this without
+  // overlapping the neighbouring sector's leaves. Leave a 6° gap on each
+  // side as breathing room.
+  const halfWedge = sectorAngleStep / 2 - 6;
 
   sectors.forEach((sec, i) => {
     const sectorAngleDeg = sectorAngleStart + i * sectorAngleStep;
@@ -272,22 +266,23 @@ function buildGraph(cluster, startups) {
       source: 'hub',
       target: sectorId,
       type: 'straight',
-      style: { stroke: '#94A3B8', strokeWidth: 1.5 },
+      style: HUB_TO_SECTOR_EDGE,
     });
 
     const leaves = leavesBySector[sec.sector] || [];
     if (leaves.length === 0) return;
 
-    // Fan leaves around the sector's outward direction within ±LEAF_FAN_DEG.
-    const fanStart = sectorAngleDeg - LEAF_FAN_DEG;
-    const fanEnd = sectorAngleDeg + LEAF_FAN_DEG;
+    // Fan leaves OUTWARD from the sector. Spread them across the wedge the
+    // sector owns; alternate inner/outer ring so adjacent leaves do not
+    // collide along the same arc.
+    const fanStart = sectorAngleDeg - halfWedge;
+    const fanEnd = sectorAngleDeg + halfWedge;
     const fanStep = leaves.length > 1 ? (fanEnd - fanStart) / (leaves.length - 1) : 0;
 
     leaves.forEach((leaf, j) => {
       const leafAngleDeg = leaves.length > 1 ? fanStart + j * fanStep : sectorAngleDeg;
       const leafAngleRad = rad(leafAngleDeg);
-      // Stagger leaf radius slightly so adjacent leaves don't overlap.
-      const leafRadius = LEAF_RADIUS_BASE + (j % 2 === 0 ? 0 : 30);
+      const leafRadius = j % 2 === 0 ? LEAF_RING_INNER : LEAF_RING_OUTER;
       const lx = HUB_X + leafRadius * Math.cos(leafAngleRad);
       const ly = HUB_Y + leafRadius * Math.sin(leafAngleRad);
 
@@ -299,7 +294,6 @@ function buildGraph(cluster, startups) {
         data: {
           user_id: leaf.user_id || leaf.id,
           company_name: leaf.company_name,
-          tagline: leaf.tagline,
           logo_url: leaf.logo_url,
         },
         draggable: false,
@@ -310,7 +304,7 @@ function buildGraph(cluster, startups) {
         source: sectorId,
         target: leafId,
         type: 'straight',
-        style: { stroke: '#CBD5E1', strokeWidth: 1 },
+        style: SECTOR_TO_LEAF_EDGE,
       });
     });
   });
@@ -349,11 +343,12 @@ export default function ClusterHubAndSpoke({ cluster, startups, onLeafClick }) {
     <div
       style={{
         width: '100%',
-        // Use viewport-relative height so the diagram never dominates the
-        // page: 70vh on tall screens, capped at the design CANVAS_H.
-        // React Flow fitView handles the zoom-to-fit inside this box.
-        height: `min(${CANVAS_H}px, 70vh)`,
-        minHeight: 520,
+        // The diagram needs a square-ish aspect to read as a circle.
+        // Use viewport-relative height capped at the design canvas size,
+        // with a generous floor so the ring does not get cramped on
+        // smaller laptops.
+        height: `min(${CANVAS_H}px, 80vh)`,
+        minHeight: 640,
         background: '#FAFBFC',
         border: '1px solid #E2E8F0',
         borderRadius: 12,
@@ -365,12 +360,12 @@ export default function ClusterHubAndSpoke({ cluster, startups, onLeafClick }) {
         nodeTypes={nodeTypes}
         onNodeClick={handleClick}
         fitView
-        fitViewOptions={{ padding: 0.15 }}
+        fitViewOptions={{ padding: 0.12 }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable
         proOptions={{ hideAttribution: true }}
-        minZoom={0.4}
+        minZoom={0.3}
         maxZoom={1.6}
       >
         <Background color="#E2E8F0" gap={24} />
