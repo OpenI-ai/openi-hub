@@ -20,6 +20,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { clusterAPI } from '../../services/clusterAPI';
+import ClusterHubAndSpoke from '../../components/ClusterHubAndSpoke';
 
 const PAGE_SIZE = 20;
 
@@ -140,6 +141,19 @@ export default function ClusterDetail() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Hub-and-spoke diagram (top 20 highest-scoring members, grouped by top sectors) */}
+      {cluster && startups.startups.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-[#0D2137]">Map of representative startups</h2>
+            <span className="text-[11px] text-gray-500">
+              Top {Math.min(20, startups.startups.length)} by profile score · click a node to open
+            </span>
+          </div>
+          <ClusterHubAndSpoke cluster={cluster} startups={startups.startups} />
         </div>
       )}
 
