@@ -37,7 +37,11 @@ const HUB_X = CANVAS_W / 2;
 const HUB_Y = CANVAS_H / 2;
 
 const SECTOR_RADIUS = 240;        // distance from hub centre to sector centre
-const LEAF_RING_INNER = 420;      // single ring (per-sector triangle handles fan)
+const LEAF_RING_INNER = 470;      // distance from hub centre to leaf centre
+                                  // Bumped 420→470 so the per-sector fan has
+                                  // ~7.3px / degree of arc (instead of 6.5)
+                                  // and adjacent leaves never collide even
+                                  // with a 3-leaf wedge.
 
 const HUB_W = 180;
 const HUB_H = 180;
@@ -292,18 +296,23 @@ function buildGraph(cluster, startups) {
     const leaves = leavesBySector[sec.sector] || [];
     if (leaves.length === 0) return;
 
-    // With Phase 68's representatives endpoint each sector has at most 3
-    // leaves. Fan them in a tight outward triangle: 1 leaf goes straight
-    // out, 2 leaves split ±LEAF_FAN_DEG, 3 leaves use centre + ±LEAF_FAN_DEG.
-    // Single ring radius per sector — no inner/outer alternation needed.
+    // With Phase 68 representatives endpoint each sector has at most 2
+    // leaves by default. Fan rule:
+    //   1 leaf  -> straight out (centre of wedge)
+    //   2 leaves -> split ±18° (≈ 295px arc gap at radius 470, comfortably
+    //               clear of the 130px leaf width)
+    //   3+ leaves -> centre + symmetric span, capped so the outermost
+    //               leaves never bleed past the wedge boundary; minimum
+    //               spacing between adjacent leaves is enforced via
+    //               MIN_LEAF_GAP_DEG so labels never collide.
+    const MIN_LEAF_GAP_DEG = 16; // ≈ 130px arc gap at radius 470 = leaf width
     const fanOffsets = (() => {
       if (leaves.length === 1) return [0];
-      if (leaves.length === 2) return [-15, 15];
-      // 3+: centre + ± half-wedge (capped so leaves never bleed past the
-      // owned wedge, which prevents collisions with neighbouring sectors).
-      const span = Math.min(20, halfWedge - 4);
+      if (leaves.length === 2) return [-18, 18];
+      const wedgeMax = halfWedge - 4;
+      const requiredHalfSpan = ((leaves.length - 1) / 2) * MIN_LEAF_GAP_DEG;
+      const span = Math.min(wedgeMax, Math.max(20, requiredHalfSpan));
       return leaves.map((_, j, arr) => {
-        if (arr.length === 1) return 0;
         return -span + (j * (span * 2)) / (arr.length - 1);
       });
     })();

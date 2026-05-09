@@ -49,7 +49,7 @@ export default function ClusterDetail() {
         // Diagram leaves: top 3 per sector, max 6 sectors.
         // Failure here must not break the list view, so catch and degrade.
         clusterAPI
-          .representatives(id, { per_sector: 3, max_sectors: 6 })
+          .representatives(id, { per_sector: 2, max_sectors: 6 })
           .catch(() => ({ startups: [] })),
       ]);
       setCluster(c);
@@ -163,7 +163,7 @@ export default function ClusterDetail() {
             <h2 className="text-sm font-semibold text-[#0D2137]">Map of representative startups</h2>
             <span className="text-[11px] text-gray-500">
               {representatives.length > 0
-                ? `Top 3 per sector · click a node to open`
+                ? `Top 2 per sector · click a node to open`
                 : `Top ${Math.min(20, startups.startups.length)} by profile score · click a node to open`}
             </span>
           </div>
