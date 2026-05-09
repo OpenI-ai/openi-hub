@@ -2,15 +2,121 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 3.2
-**Last Updated:** 8 May 2026 (evening — post Phase 65e + Phase 63 backfill section + table-count correction)
+**Version:** 3.6
+**Last Updated:** 9 May 2026 (late afternoon — post Phase 69: SECONDARY_NAV refactor + plain-English jargon sweep)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b schema/code live; `audit_logs` materialised in Phase 63)*
+**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 schema/code live; `audit_logs` materialised in Phase 63; `events.visibility / published_at / organization_name` added in Phase 66; cluster validator widened in Phase 67; `GET /clusters/:id/representatives` added in Phase 68)*
 **Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v3.6 — Phase 69 (Universal Sidebar Meta Block + Plain-English Jargon Sweep)
+
+Two unrelated UX cleanups shipped on 9 May 2026 late afternoon:
+
+**Part A — SECONDARY_NAV refactor: every persona sees Organization / Features / What's New** (`0cce579`)
+
+- **Trigger:** user reported "What's New" was only visible on the Investor persona. Investigation: `corporate` and `investor` persona blocks in `src/config/personas.js` build their primary nav from scratch instead of spreading `COMMON_NAV`. Investor happened to include Organization, Features, What's New as inline duplicates. Corporate skipped them entirely. Result: What's New only rendered for Investor.
+- **Fix:**
+  - Pulled `Organization`, `Features`, `What's New` out of `COMMON_NAV` into a new exported `SECONDARY_NAV` array.
+  - `DashboardLayout.jsx` renders `SECONDARY_NAV` in the same `<nav>` element as the primary persona nav, separated by a thin divider, using identical `NavLink` visual language.
+  - Hidden for legacy roles (admin / evaluator) to match the existing `isLegacyRole` gate.
+  - Removed the now-redundant inline copies from the investor persona block (would have double-rendered).
+  - Bonus: added `My Network` to corporate inline (Network is a real feature, not a meta item; corporate's hand-built nav was missing it).
+- **Net effect:** every non-legacy persona now sees Organization / Features / What's New automatically, regardless of how they build their primary nav. Future `SECONDARY_NAV` additions propagate to every persona without per-block edits.
+
+**Part B — Plain-English jargon sweep** (`48e806a`)
+
+- **Trigger:** user feedback after seeing "TRL: Level 1" on a startup profile — "new user will never understand, what is TRL? we need to fix it." Audit found 32 references across 14 files, plus several other startup-domain abbreviations (POC, L1/L2/L3, OKR, GTM, SME, CAC/LTV) that a non-domain user would not parse.
+- **Replacements applied:**
+  - **TRL → Tech Readiness** everywhere visible (20+ surfaces). Hover tooltip on every Tech Readiness surface explains the 1-9 NASA scale: *"1 = basic concept · 4 = lab demo · 6 = prototype in relevant environment · 9 = proven in production"*. Surfaces touched: `StartupProfile.jsx` (badge component renamed `TRLBadge` → `TechReadinessBadge`, sidebar quick-stat, progression heading, label list), `Evaluations.jsx` (table column header, body cells, shortlisting banner, criteria definitions), `Directory.jsx`, `StartupDiscovery.jsx`, `CorporateStartupSearch.jsx`, `CorporateDashboard.jsx`, `Cohorts.jsx`, `Dashboard.jsx`, `RegisterStartup.jsx`, `FeatureMap.jsx`, `DeepTechQualification.jsx`, `personas.js` (form field label now reads `Tech Readiness Level (1=concept · 9=proven in production)`), `mockData.js` (criteria fixture).
+  - **POC / PoC → "Proof of Concept"** (4 spots): `personas.js` corporate + government `looking_for` multiselect options, plus `tours.js` collaboration tour copy. The `looking_for` columns are `text[]` with no CHECK constraint, so existing rows storing `"PoC"` continue to render correctly; new rows from the renamed dropdown will store `"Proof of Concept"`.
+  - **L1 / L2 / L3 review tiers → plain-English** in `Evaluations.jsx`: `L1 Screening` → `Initial Screening`, `L2 Technical` → `Technical Review`, `L3 Committee` → `Committee Review`. `stgColor` map key updated to match.
+  - **OKR → "Objectives & Key Results"** in `StartupEvaluation.jsx` criteria.
+  - **CAC, LTV → full forms** in `personas.js` Unit Economics field label (`Customer Acquisition Cost (CAC) and Lifetime Value (LTV)`).
+  - **MRR/ARR shorthand → "recurring revenue"** in `tours.js` investor copy.
+  - **GTM → "Go-to-Market"** in `IncubatorMentorPool.jsx` mentor expertise placeholder.
+  - **SME → "Subject-Matter Experts"** in `DashboardLayout.jsx` admin nav.
+  - **JVs → "Joint Ventures"** in `StartupEvaluation.jsx` (the parenthetical "JVs" was redundant with the spelled-out form right before it).
+- **New helper component:** `src/components/TechReadinessLabel.jsx` — drop-in label + tooltip pair for any future surface that wants the consistent treatment.
+- **No backend changes.** All edits are presentation-layer.
+
+**Lessons (Phase 69):**
+- **`spread COMMON_NAV` is the intended pattern; bespoke nav blocks need quarterly drift audits.** Two of eleven personas had drifted off the shared baseline. The refactor moves "meta" items into `SECONDARY_NAV` so they propagate regardless of how a persona builds its primary nav.
+- **The DB lets you rename enum-like option labels safely** when the column is `text[]` with no CHECK constraint. Be explicit in commit messages about why this is safe — reviewers should not have to deduce the rule.
+- **A `title` attribute is a free, accessible tooltip** for short explanations (NASA TRL scale here). No tooltip library needed for one-line help text.
+
+### What's New in v3.5 — Phase 68 (Cluster Representatives Endpoint + Plan Visibility Surfaces + Circular Leaf Refactor)
+
+Two parallel concerns shipped on 9 May 2026 afternoon:
+
+**Part A — Hub-and-spoke balanced via dedicated representatives endpoint**
+
+- **Backend** (`5372a80` in `openi-hub-backend`) — new `GET /clusters/:id/representatives?per_sector=2&max_sectors=6` returns top-N startups per sector via `ROW_NUMBER() OVER (PARTITION BY sp.sector ORDER BY dp.profile_score DESC NULLS LAST, sp.id)` window function inside a CTE. Single round-trip, single `cluster_id` index scan. Reuses the validator (cid 0-999) and `users.is_active` join from the existing list endpoint.
+- **Frontend** (`28224f7`) — `clusterAPI.representatives(id, params)` in `services/clusterAPI.js`. ClusterDetail makes a third parallel fetch (`Promise.all([getOne, listStartups, representatives.catch(degrade)])`) and passes the result to `ClusterHubAndSpoke`. The table view continues to drive its own pagination from `listStartups`. Defensive fallback: representatives endpoint failure silently uses table-view data so the page never breaks.
+- **Why it was needed:** Phase 67's hub-and-spoke pulled leaves from the top 20 by profile_score. On monolithic clusters (e.g. Cluster #110 "Influencer Marketing" where 9,913 of 10,269 members are MarTech) all 20 leaves piled into one wedge while the other 5 sectors had no leaves. The diagram was structurally a wheel but visually a one-sided pile. The dedicated endpoint balances leaves across sectors regardless of natural distribution.
+- **Default cap is 2 per sector × 6 sectors = 12 leaves max** (commit `02bdf25`). 3-per-sector was tested and ruled out: at radius 470 the arc spacing was too tight for 130px-wide leaf cards. 2-per-sector with ±18° split gives ~263px arc gap between leaf centres. The endpoint accepts `per_sector` 1-8 so future callers can request more if the layout supports it.
+
+**Part B — Plan visibility / upgrade UX (the "no persona knows what plan they are on" complaint)**
+
+- **Trigger:** user-flagged that none of the 11 personas could see which plan they were on without burrowing into Settings → Billing. Single buried entry point for upgrade.
+- **Audit findings (no backend change required):**
+  - `users.current_plan` already exists, populated at login via `middleware/auth.js#USER_BASE_FIELDS`, returned on `GET /auth/me`.
+  - Plan model is **per-user, not per-role** — `user_subscriptions.user_id` joins to `users`, no `role` column. Multi-role users have one subscription that covers all their roles.
+  - `subscriptionAPI.getMyPlan()` returns full plan + usage + payments shape from `GET /subscription/my-plan`. Used by Settings → Billing tab for live data.
+- **Three new surfaces** (`2836c25`):
+  1. **Sidebar PlanBadge** (`PlanBadge variant="sidebar"`) — gold-accented chip above Logout in `DashboardLayout.jsx` sidebar footer. Shows plan label (Free / Growth / Pro / Enterprise), plus an "Upgrade" link (free) or "Manage subscription" link (paid). Visible on every dashboard page.
+  2. **Top-bar PlanBadge** (`variant="topbar"`) — compact pill beside the user avatar. Hidden on small screens (< 768px) to keep the topbar uncluttered.
+  3. **PlanHeroTile in `PersonaDashboard.jsx`** — top-of-dashboard tile inserted between the Welcome card and WhoViewedProfile. Free users see a gradient-gold card with **persona-aware copy** (`"Unlock Growth: featured badge..."` for providers; `"Unlock Pro: semantic search..."` for seekers) plus a prominent gold Upgrade button. Paid users see a quiet manage-subscription chip. Single dispatcher = all 11 personas covered on first paint.
+- **Settings.jsx deep-link plumbing** (same commit) — added `useSearchParams` import, `?tab=billing` initialiser for the `tab` state, `?focus=plans` `useEffect` that scrolls `plansAnchorRef.scrollIntoView({behavior:'smooth'})` after `myPlan` loads. Plan-comparison div tagged `id="plans"` with `scrollMarginTop: 80` so the OpenI topbar does not occlude the heading. All click-throughs from the new surfaces point to `/dashboard/settings?tab=billing&focus=plans`.
+- **Role-switch behaviour verified:**
+  - PlanBadge reads `user` only → label stays consistent across role tabs (correct, since plan is per-user).
+  - PlanHeroTile reads `user` AND `activeRole` → pitch copy flips between provider and seeker pitch on `switchRole()` for multi-role users. The plan label itself stays consistent.
+
+**Part C — Circular leaf refactor (visual polish)**
+
+- **`93671a3`** — leaf nodes converted from pill-shaped cards to org-chart style: white circular logo well (64px diameter) with the company name as a 2-line clamped label below. Hover state lives on the disc only (gold border + shadow + 1.06× scale). The label sits on a translucent white plate so text stays readable when overlapping the dotted canvas background. Echoes the round hub at the centre and unifies the diagram visually.
+- **`02bdf25`** — `LEAF_RING_INNER` bumped 420 → 470 so each degree of arc covers ~7.3px (vs 6.5 at 420). Per-sector fan rule rewritten to enforce a `MIN_LEAF_GAP_DEG` floor (16°, ≈ 130px arc gap = leaf width) so labels never collide regardless of how many leaves a sector has.
+
+**Lessons (Phase 68):**
+- **Window functions over app-side bucketing.** Earlier consideration was to fetch `pageSize=100` and slice client-side for top-N-per-sector. The dedicated endpoint with `ROW_NUMBER() OVER (PARTITION BY sector)` is cleaner: less data over the wire, no app code to bucket, the SQL is the single canonical place for ordering rules. Two-deploy cost worth it.
+- **`AuthContext.user.current_plan` is the cheap read-time source.** Already populated at login, no extra API call needed for first-paint plan UI. Settings → Billing still fetches live `subscriptionAPI.getMyPlan()` for usage / `period_end` / payments because the user already paid the click-to-Settings cost.
+- **Single dispatcher is gold.** `PersonaDashboard.jsx` renders all 11 personas through one config. Wiring a feature there gives 11× reach for one edit.
+- **Deep-link the click-target, not the surface.** `?tab=billing&focus=plans` is the magic: tab opens correctly AND plan grid scrolls into view AND the `useEffect` waits on `myPlan` to populate so there is no race. Saves the user two clicks every time.
+- **Apostrophes in heredocs are still a trap.** `ClusterDetail's` and `ClusterHubAndSpoke's` blew up the first commit attempt. The "no contractions" rule extends to possessives.
+
+### What's New in v3.4 — Phase 67 (Cluster Validator Widen + Nav Extension + Hub-and-Spoke v1)
+
+Triggered by user screenshot — clicking any cluster card with `cluster_id >= 100` returned `400 Invalid cluster id (expected 0-99)`. Cluster Browser page on `https://openi.ai/dashboard/clusters` showed 200 clusters but ids 100+ were unreachable. Four changes shipped on 9 May 2026 morning:
+
+- **Backend validator widened** (`a0e3c65`) — `clusterController.js#getCluster` and `listClusterStartups`: hardcoded `cid > 99` → `cid > 999`. Prod has K=200 (cluster ids 0-199, 281,302 startup members in ids ≥ 100, all previously inaccessible). The validator was correct for the original K=100 from the early s21 rollout but never updated when K was bumped during persona clustering rollout (`cluster-startups-sampled.js` defaults to K=200). Cap of 999 leaves headroom; existence check still happens via the SQL `summary.member_count === 0` 404 path. Top-of-file JSDoc updated.
+- **Frontend subtitle data-bound** (`41a738d`) — `Clusters.jsx:63` was rendering `Browse the 100 semantic clusters` as static text. Now reads `data.total` from the API so the header matches the result count two divs below (200 in prod).
+- **Nav extended to all 8 Innovation Seekers** (`5b786d1`) — Clusters entry was wired only to corporate, government, investor, incubator, accelerator (5/8 seekers). Added to mentor, lab, service_provider `PERSONA_NAV` blocks in `src/config/personas.js`. The page itself was already persona-agnostic; this was discoverability only, not access control.
+- **Hub-and-spoke radial diagram on ClusterDetail** (`64ad4b4` original, refined in `9a050ee` and Phase 68) — replaced bare table-only ClusterDetail with a two-tier radial graph above the existing table. Hub at the centre, six sector nodes evenly distributed in a full 360° ring, leaves attached outside their parent sector. Implementation: new `src/components/ClusterHubAndSpoke.jsx`, uses `@xyflow/react` v12 (~200 KB) with manual radial node positioning (no physics simulation). Click a leaf navigates to `/dashboard/startups/:user_id?by=user_id` (the s50 alias — singular `/dashboard/startup/:id` is NOT a registered route, latent bug surfaced and fixed in the same phase via `2f21f15`).
+
+**Lessons (Phase 67):**
+- **Stale validator bounds.** Hardcoded `0-99` lived in `clusterController.js` for over a year. Rule of thumb: never hardcode an upper bound that depends on data shape — use a generous ceiling and let SQL existence checks 404 anything that does not exist.
+- **Discoverability vs auth.** The nav was the only persona gate on Clusters; the route itself had no role guard. Direct-URL bypass already worked. The fix was about visibility, not access control.
+- **`@xyflow/react` over D3 for read-only diagrams.** D3-force would have been overkill — wrong vibe (constantly moving nodes), bigger bundle. React-flow gave us canvas + edges + pan/zoom for free; the radial math (cos/sin around the hub with a per-sector fan) is ~30 lines.
+
+### What's New in v3.3 — Phase 66 (Events Multi-Persona Create + Draft Visibility + Org Attribution)
+
+Triggered on 8 May 2026 evening by user screenshot showing the "Create Event" button on Events Repository did nothing when clicked. Investigation surfaced three distinct bugs, plus one schema design choice and one CHECK-constraint hotfix:
+
+- **Bug A — Frontend Create Event button had no `onClick`** (`6f2d218`) — `EventsRepository.jsx:127` rendered a styled button with no handler at all. Wired `setShowCreate(true)` and built a controlled 9-field modal calling `eventAPI.create()` (title, description, type, start_date, end_date, location, is_virtual, capacity 0-100000, tags). Phase 65 numeric range guard reused on `capacity`.
+- **Bug B — Backend `POST /events` was admin-only** (`27945c1`) — even with the button wired, every non-admin would have hit 403. Widened to admin + corporate + government + investor + incubator + accelerator + lab via new `eventController.CREATE_ROLES` constant. Excluded: startup, student, academia, mentor, service_provider (these consume events; the seven program-running personas create them).
+- **Bug C — `EVENT_TYPES` had duplicate lowercase + Title-Case keys** — object literal had both `hackathon` and `Hackathon` etc., so `Object.keys()` returned 12 and the type-filter chip row rendered every chip twice. Deduped to lowercase only.
+- **Visibility model** — new `events.visibility` (`draft|public|archived` CHECK), `events.published_at TIMESTAMP`, `events.organization_name TEXT`. New events default to `visibility='draft'`. Drafts are visible only to creator + admins (404 to others — no information leak via URL). New `POST /events/:id/publish` route — creator-only or admin — flips `visibility='public'`, stamps `published_at=NOW()`, audit-logged. Existing 5 seed events backfilled to `visibility='public'`, `published_at=created_at`.
+- **Org attribution fallback chain** — `events.organization_name` snapshotted at create-time via `resolveOrgName(client, user)`: `users.organization_name` → `corporate_profiles.company_name` → `incubator_profiles.incubator_name` → `accelerator_profiles.accelerator_name` → `lab_profiles.lab_name` → `government_profiles.body_name` → `investor_profiles.firm_name` → `users.name` (last-resort). Frontend EventCard / EventDetail show "Hosted by `{organization_name}`".
+- **Schema collision avoided** — existing `events.status` is TIME state (`upcoming|ongoing|completed|cancelled`), NOT visibility. Added a separate `visibility` column. Two concerns → two columns.
+- **Hotfix** (`553a622`) — E2E caught `events_type_check` violation: DB requires Title Case (`'Workshop'`, `'Demo Day'`) but frontend sends lowercase keys (`workshop`, `demo_day`). Added `canonicalizeType()` map + `TYPE_MAP` at top of `eventController.js`, used in both `create()` (before INSERT) and `list()` (filter parameter). Already-canonical strings fall through.
+
+**Lessons (Phase 66):**
+- **When the user reports "this button does nothing on a deployed page", check the Network tab BEFORE the cache.** If no XHR fires at all, it's a code bug. If an XHR fires and gets a stale response, it's the cache. The 7 May User Management bug was cache; the 8 May Create Event bug was a missing handler. Same symptom, different root cause.
+- **When frontend uses snake_case enum keys for code-friendliness AND DB uses Title Case for display-friendliness, the controller is the right translation point.** Don't ALTER the CHECK to add lowercase variants — that bloats the constraint and risks data drift.
+- **Don't overload an existing column for a new concern.** `events.status` is time-state; adding visibility-state to it would have produced ambiguous queries forever.
 
 ### What's New in v3.1 — Phase 65d (Post-Verify Redirect + Retry-Once) + Phase 65e (3-Field Signup)
 
