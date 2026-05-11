@@ -103,14 +103,26 @@ export default function DashboardLayout() {
   // Multi-role users see the sidebar repaint when they switch tabs in <RoleTabs>.
   const navRole = activeRole || user?.role;
   const isLegacyRole = navRole === 'admin' || navRole === 'evaluator';
-  const filteredNav = isLegacyRole
+
+  // Phase 71d — PERSONA_NAV is now a { groups: [{key, items: []}] } shape.
+  // Map every item to inject the resolved icon + pending-count badge once,
+  // then keep the group structure so DashboardLayout can render dividers.
+  const decorate = (item) => ({
+    ...item,
+    Icon: ICON_MAP[item.icon] || LayoutDashboard,
+    badge: item.to === '/dashboard/network' && pendingConns > 0 ? String(pendingConns) : item.badge,
+  });
+
+  const personaGroups = isLegacyRole
+    ? null
+    : (() => {
+        const cfg = PERSONA_NAV[navRole] || PERSONA_NAV.startup;
+        return cfg.groups.map((g) => ({ key: g.key, items: g.items.map(decorate) }));
+      })();
+
+  const legacyNav = isLegacyRole
     ? NAV.filter(item => !item.roles || item.roles.includes(navRole))
-    : (PERSONA_NAV[navRole] || PERSONA_NAV.startup).map(item => ({
-        ...item,
-        Icon: ICON_MAP[item.icon] || LayoutDashboard,
-        // Inject pending count badge on My Network nav item
-        badge: item.to === '/dashboard/network' && pendingConns > 0 ? String(pendingConns) : item.badge,
-      }));
+    : null;
 
   const handleLogout = () => {
     logout();
@@ -180,46 +192,69 @@ export default function DashboardLayout() {
 
         {/* Nav links */}
         <nav style={{ flex:1, padding:"12px 8px", overflowY:"auto" }}>
-          {filteredNav.map(({ to, label, Icon, end, badge }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              id={`tour-nav-${(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
-              onClick={() => setSidebarOpen(false)}
-              style={({ isActive }) => ({
-                display:"flex", alignItems:"center", gap:10,
-                padding:"9px 12px", borderRadius:8, marginBottom:2,
-                fontSize:13, fontWeight: isActive ? 600 : 500,
-                textDecoration:"none",
-                transition:"all 0.15s",
-                background: isActive ? C.activeBg : "transparent",
-                color: isActive ? C.activeText : C.textSecond,
-                border: isActive ? `1px solid ${C.activeBorder}` : "1px solid transparent",
-              })}
-              onMouseEnter={e => {
-                if (!e.currentTarget.style.background.includes("0.10")) {
-                  e.currentTarget.style.background = C.hoverBg;
-                }
-              }}
-              onMouseLeave={e => {
-                if (!e.currentTarget.style.background.includes("0.10")) {
-                  e.currentTarget.style.background = "transparent";
-                }
-              }}
-            >
-              <Icon size={15} style={{ flexShrink:0 }} />
-              <span style={{ flex:1 }}>{label}</span>
-              {badge && (
-                <span style={{
-                  fontSize:9, fontWeight:700, padding:"2px 6px",
-                  background: C.gold, color: "#fff", borderRadius:20,
-                }}>
-                  {badge}
-                </span>
-              )}
-            </NavLink>
-          ))}
+          {/* Phase 71d — persona nav renders as canonical 5 groups with
+              subtle dividers; legacy roles (admin / evaluator) keep the
+              flat NAV list so admin tools are not forced into the same
+              shape. renderNavItem keeps both paths visually identical. */}
+          {(() => {
+            const renderNavItem = ({ to, label, Icon, end, badge }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                id={`tour-nav-${(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+                onClick={() => setSidebarOpen(false)}
+                style={({ isActive }) => ({
+                  display:"flex", alignItems:"center", gap:10,
+                  padding:"9px 12px", borderRadius:8, marginBottom:2,
+                  fontSize:13, fontWeight: isActive ? 600 : 500,
+                  textDecoration:"none",
+                  transition:"all 0.15s",
+                  background: isActive ? C.activeBg : "transparent",
+                  color: isActive ? C.activeText : C.textSecond,
+                  border: isActive ? `1px solid ${C.activeBorder}` : "1px solid transparent",
+                })}
+                onMouseEnter={e => {
+                  if (!e.currentTarget.style.background.includes("0.10")) {
+                    e.currentTarget.style.background = C.hoverBg;
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!e.currentTarget.style.background.includes("0.10")) {
+                    e.currentTarget.style.background = "transparent";
+                  }
+                }}
+              >
+                <Icon size={15} style={{ flexShrink:0 }} />
+                <span style={{ flex:1 }}>{label}</span>
+                {badge && (
+                  <span style={{
+                    fontSize:9, fontWeight:700, padding:"2px 6px",
+                    background: C.gold, color: "#fff", borderRadius:20,
+                  }}>
+                    {badge}
+                  </span>
+                )}
+              </NavLink>
+            );
+
+            const divider = (key) => (
+              <div key={`div-${key}`} style={{
+                margin: "10px 6px 6px",
+                height: 1,
+                background: C.sidebarBorder,
+              }} />
+            );
+
+            if (isLegacyRole) {
+              return legacyNav.map(renderNavItem);
+            }
+
+            return personaGroups.flatMap((g, idx) => {
+              const items = g.items.map(renderNavItem);
+              return idx === 0 ? items : [divider(g.key), ...items];
+            });
+          })()}
 
           {/* Phase 69 — meta nav block (Organization / Features / What's New).
               Separator above; same NavLink visual language but rendered from

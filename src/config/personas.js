@@ -36,26 +36,122 @@ export const PERSONAS = {
 };
 
 // ── Navigation per Persona ─────────────────────────────────
-// Common nav items shared across all personas.
+// Phase 71d (11 May 2026) — canonical sidebar structure across every
+// persona. Five groups, rendered with subtle <hr> dividers in
+// DashboardLayout.jsx so a user switching personas always sees the same
+// mental model in the same order.
+//
+//   GROUP 1 — Your hub        (My Dashboard, My Profile)
+//   GROUP 2 — Recommended     (Recommended for You — only personas that have it)
+//   GROUP 3 — Discover        (Find Startups / Find Students / Find Academia /
+//                              Directory / Innovation Map — same order for ALL)
+//   GROUP 4 — Persona actions (each persona's unique items: Challenges,
+//                              Sessions, Programs, Marketplace, Deal Sourcing, …)
+//   GROUP 5 — Workspace       (Watchlist, Projects, My Network, Messaging,
+//                              Meetings, Events, Knowledge, Documents — same
+//                              order for personas that include them)
+//
+// SECONDARY_NAV (Organization / Features / What's New) renders below in a
+// separate sidebar block, unchanged from Phase 69.
+//
 // NOTE: Settings is rendered separately at the bottom of the sidebar in
 // DashboardLayout.jsx — do NOT include it here or it will show up twice.
-const COMMON_NAV = [
-  { to: '/dashboard',            label: 'My Dashboard', icon: 'LayoutDashboard', end: true },
-  { to: '/dashboard/profile',    label: 'My Profile',  icon: 'User' },
-  { to: '/dashboard/directory',  label: 'Directory',   icon: 'Search' },
-  { to: '/dashboard/network',   label: 'My Network',  icon: 'Users' },
-  { to: '/dashboard/messaging',  label: 'Messaging',   icon: 'MessageSquare' },
-  { to: '/dashboard/meetings',   label: 'Meetings',    icon: 'CalendarCheck' },
-  { to: '/dashboard/events',     label: 'Events',      icon: 'Calendar' },
-  { to: '/dashboard/knowledge',  label: 'Knowledge',   icon: 'BookOpen' },
-  { to: '/dashboard/documents',  label: 'Documents',   icon: 'FolderOpen' },
+
+// Per-persona dashboard route override. Defaults to '/dashboard'.
+const DASHBOARD_HOME = {
+  corporate: '/dashboard/corporate',
+};
+
+// Group 3 — Discover. Identical order across every persona; "Find Startups"
+// uses a persona-specific route when one exists (corporate has its own
+// search page, others use /dashboard/startups).
+const FIND_STARTUPS_ROUTE = {
+  corporate: '/dashboard/corporate/search',
+};
+
+const discoverGroup = (role) => [
+  { to: FIND_STARTUPS_ROUTE[role] || '/dashboard/startups', label: 'Find Startups',  icon: 'Rocket' },
+  { to: '/dashboard/students',                              label: 'Find Students',  icon: 'GraduationCap' },
+  { to: '/dashboard/academia',                              label: 'Find Academia',  icon: 'BookOpen' },
+  { to: '/dashboard/directory',                             label: 'Directory',      icon: 'Search' },
+  { to: '/dashboard/clusters',                              label: 'Innovation Map', icon: 'Layers' },
 ];
 
+// Group 5 — Workspace. Same order for every persona that includes it. A
+// persona can omit any item by passing { workspace: ['watchlist', ...] }
+// listing only the keys it wants. Default = all items.
+const WORKSPACE_ITEMS = {
+  watchlist: { to: '/dashboard/watchlist',  label: 'Watchlist',    icon: 'Star' },
+  projects:  { to: '/dashboard/projects',   label: 'Projects',     icon: 'FolderKanban' },
+  network:   { to: '/dashboard/network',    label: 'My Network',   icon: 'Users' },
+  messaging: { to: '/dashboard/messaging',  label: 'Messaging',    icon: 'MessageSquare' },
+  meetings:  { to: '/dashboard/meetings',   label: 'Meetings',     icon: 'CalendarCheck' },
+  events:    { to: '/dashboard/events',     label: 'Events',       icon: 'Calendar' },
+  knowledge: { to: '/dashboard/knowledge',  label: 'Knowledge',    icon: 'BookOpen' },
+  documents: { to: '/dashboard/documents',  label: 'Documents',    icon: 'FolderOpen' },
+};
+const DEFAULT_WORKSPACE_KEYS = Object.keys(WORKSPACE_ITEMS);
+
+/**
+ * Build the canonical 5-group nav structure for a persona.
+ *
+ * @param {string} role - persona role key (e.g. 'corporate')
+ * @param {object} cfg
+ * @param {?{to:string,label:string,icon:string}} cfg.recommended - optional Recommended-for-You link
+ * @param {Array} cfg.actions - persona-specific action items (Group 4)
+ * @param {?Array<string>} cfg.workspace - keys from WORKSPACE_ITEMS (default: all)
+ * @returns {{groups: Array<{key:string, items:Array}>}}
+ */
+function buildPersonaNav(role, { recommended = null, actions = [], workspace = DEFAULT_WORKSPACE_KEYS } = {}) {
+  const groups = [];
+
+  // GROUP 1 — Your hub
+  groups.push({
+    key: 'hub',
+    items: [
+      { to: DASHBOARD_HOME[role] || '/dashboard', label: 'My Dashboard', icon: 'LayoutDashboard', end: true },
+      { to: '/dashboard/profile',                 label: 'My Profile',   icon: 'User' },
+    ],
+  });
+
+  // GROUP 2 — Recommended (right under My Profile per Phase 71d decision)
+  if (recommended) {
+    groups.push({
+      key: 'recommended',
+      items: [recommended],
+    });
+  }
+
+  // GROUP 3 — Discover (always identical order)
+  groups.push({
+    key: 'discover',
+    items: discoverGroup(role),
+  });
+
+  // GROUP 4 — Persona-specific actions
+  if (actions.length > 0) {
+    groups.push({
+      key: 'actions',
+      items: actions,
+    });
+  }
+
+  // GROUP 5 — Workspace
+  const wsItems = workspace
+    .map((k) => WORKSPACE_ITEMS[k])
+    .filter(Boolean);
+  if (wsItems.length > 0) {
+    groups.push({
+      key: 'workspace',
+      items: wsItems,
+    });
+  }
+
+  return { groups };
+}
+
 // Phase 69 — meta / info nav items that every persona should see, rendered
-// in a separate sidebar block below the persona-specific items in
-// DashboardLayout.jsx. Pulled out of COMMON_NAV so personas like corporate
-// and investor that build their primary nav from scratch (instead of
-// spreading COMMON_NAV) still get these without manual duplication.
+// in a separate sidebar block below the persona-specific items.
 export const SECONDARY_NAV = [
   { to: '/dashboard/organization', label: 'Organization', icon: 'Building2' },
   { to: '/dashboard/features',     label: 'Features',     icon: 'Map' },
@@ -63,144 +159,97 @@ export const SECONDARY_NAV = [
 ];
 
 export const PERSONA_NAV = {
-  startup: [
-    ...COMMON_NAV,
-    { to: '/dashboard/marketplace',     label: 'Marketplace',    icon: 'Target' },
-    { to: '/dashboard/startups',        label: 'Startups',       icon: 'Rocket' },
-    { to: '/dashboard/claims',          label: 'My Claims',      icon: 'BadgeCheck' },
-    { to: '/dashboard/ipr',             label: 'IPR',            icon: 'Shield' },
-    { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
-    { to: '/dashboard/deeptech',        label: 'DeepTech Qual.', icon: 'Zap' },
-    { to: '/dashboard/feedback',        label: 'Feedback',       icon: 'ThumbsUp' },
-  ],
-  student: [
-    ...COMMON_NAV,
-    { to: '/dashboard/student/portfolio',          label: 'My Portfolio',         icon: 'FolderKanban' },
-    { to: '/dashboard/student/mentorships',        label: 'Mentorships',          icon: 'Users' },
-    { to: '/dashboard/marketplace',                label: 'Marketplace',          icon: 'Target' },
-    { to: '/dashboard/startups',                   label: 'Startups',             icon: 'Rocket' },
-    { to: '/dashboard/student/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
-    { to: '/dashboard/watchlist',                  label: 'Watchlist',            icon: 'Star' },
-  ],
-  academia: [
-    ...COMMON_NAV,
-    { to: '/dashboard/academia/research',           label: 'Research',             icon: 'FlaskConical' },
-    { to: '/dashboard/academia/publications',       label: 'Publications',         icon: 'BookOpen' },
-    { to: '/dashboard/academia/grants',             label: 'Grants',               icon: 'DollarSign' },
-    { to: '/dashboard/marketplace',                 label: 'Marketplace',          icon: 'Target' },
-    { to: '/dashboard/startups',                    label: 'Startups',             icon: 'Rocket' },
-    { to: '/dashboard/academia/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
-    { to: '/dashboard/ipr',                         label: 'IPR Database',         icon: 'Shield' },
-  ],
-  corporate: [
-    { to: '/dashboard/corporate',            label: 'My Dashboard',    icon: 'LayoutDashboard', end: true },
-    { to: '/dashboard/profile',              label: 'My Profile',      icon: 'User' },
-    { to: '/dashboard/directory',            label: 'Directory',       icon: 'Search' },
-    { to: '/dashboard/corporate/search',     label: 'Find Startups',   icon: 'Rocket' },
-    { to: '/dashboard/students',            label: 'Find Students',   icon: 'GraduationCap' },
-    { to: '/dashboard/academia',            label: 'Find Academia',   icon: 'BookOpen' },
-    { to: '/dashboard/clusters',             label: 'Innovation Map',  icon: 'Layers' },
-    { to: '/dashboard/corporate/challenges', label: 'Challenges',      icon: 'Target' },
-    { to: '/dashboard/corporate/collabs',    label: 'Collaborations',  icon: 'Link2' },
-    { to: '/dashboard/watchlist',            label: 'Watchlist',       icon: 'Star' },
-    { to: '/dashboard/projects',             label: 'Projects',        icon: 'FolderKanban' },
-    { to: '/dashboard/network',              label: 'My Network',      icon: 'Users' },
-    { to: '/dashboard/messaging',            label: 'Messaging',       icon: 'MessageSquare' },
-    { to: '/dashboard/meetings',             label: 'Meetings',        icon: 'CalendarCheck' },
-    { to: '/dashboard/events',               label: 'Events',          icon: 'Calendar' },
-    { to: '/dashboard/knowledge',            label: 'Knowledge',       icon: 'BookOpen' },
-    { to: '/dashboard/documents',            label: 'Documents',       icon: 'FolderOpen' },
-  ],
-  government: [
-    ...COMMON_NAV,
-    { to: '/dashboard/corporate/challenges', label: 'Challenges/RFPs', icon: 'Target' },
-    { to: '/dashboard/startups',             label: 'Find Startups',     icon: 'Rocket' },
-    { to: '/dashboard/students',            label: 'Find Students',     icon: 'GraduationCap' },
-    { to: '/dashboard/academia',            label: 'Find Academia',     icon: 'BookOpen' },
-    { to: '/dashboard/clusters',             label: 'Innovation Map',    icon: 'Layers' },
-    { to: '/dashboard/evaluations',          label: 'Programs',          icon: 'FileText' },
-    { to: '/dashboard/cohorts',              label: 'Cohorts',           icon: 'GraduationCap' },
-    { to: '/dashboard/projects',             label: 'Projects',          icon: 'FolderKanban' },
-    { to: '/dashboard/watchlist',            label: 'Watchlist',         icon: 'Star' },
-    { to: '/dashboard/govt-apis',            label: 'Govt. APIs',        icon: 'Link2' },
-  ],
-  investor: [
-    { to: '/dashboard',                    label: 'My Dashboard',       icon: 'LayoutDashboard', end: true },
-    { to: '/dashboard/profile',            label: 'My Profile',         icon: 'User' },
-    { to: '/dashboard/startups',           label: 'Find Startups',      icon: 'Rocket' },
-    { to: '/dashboard/investor/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
-    { to: '/dashboard/students',          label: 'Find Students',      icon: 'GraduationCap' },
-    { to: '/dashboard/academia',          label: 'Find Academia',      icon: 'BookOpen' },
-    { to: '/dashboard/clusters',           label: 'Innovation Map',     icon: 'Layers' },
-    { to: '/dashboard/directory',          label: 'Directory',          icon: 'Search' },
-    { to: '/dashboard/marketplace',        label: 'Marketplace',        icon: 'Target' },
-    { to: '/dashboard/investor/deal-requests', label: 'Deal Sourcing',  icon: 'FileText' },
-    { to: '/dashboard/investor/deals',     label: 'Deal Pipeline',      icon: 'GitBranch' },
-    { to: '/dashboard/investor/portfolio', label: 'Portfolio',           icon: 'Briefcase' },
-    { to: '/dashboard/watchlist',          label: 'Watchlist',          icon: 'Star' },
-    { to: '/dashboard/network',            label: 'My Network',         icon: 'Users' },
-    { to: '/dashboard/messaging',          label: 'Messaging',          icon: 'MessageSquare' },
-    { to: '/dashboard/meetings',           label: 'Meetings',           icon: 'CalendarCheck' },
-    { to: '/dashboard/events',             label: 'Events',             icon: 'Calendar' },
-    { to: '/dashboard/knowledge',          label: 'Knowledge',          icon: 'BookOpen' },
-    { to: '/dashboard/documents',          label: 'Documents',          icon: 'FolderOpen' },
-    { to: '/dashboard/deeptech',           label: 'DeepTech',           icon: 'Zap' },
-    // Phase 69: Organization / Features / What's New now live in SECONDARY_NAV
-    // and render in a separate bottom block via DashboardLayout. Removed
-    // here to avoid double-rendering.
-  ],
-  mentor: [
-    ...COMMON_NAV,
-    { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
-    { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
-    { to: '/dashboard/startups',            label: 'Startups',     icon: 'Rocket' },
-    { to: '/dashboard/clusters',            label: 'Innovation Map', icon: 'Layers' },
-    { to: '/dashboard/projects',            label: 'Projects',     icon: 'FolderKanban' },
-    { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
-  ],
-  lab: [
-    ...COMMON_NAV,
-    { to: '/dashboard/lab/equipment',    label: 'Equipment',      icon: 'FlaskConical' },
-    { to: '/dashboard/lab/bookings',     label: 'Bookings',       icon: 'CalendarCheck' },
-    { to: '/dashboard/lab/publications', label: 'Publications',   icon: 'FileText' },
-    { to: '/dashboard/startups',         label: 'Startups',       icon: 'Rocket' },
-    { to: '/dashboard/clusters',         label: 'Innovation Map', icon: 'Layers' },
-    { to: '/dashboard/ipr',              label: 'IPR Database',   icon: 'Shield' },
-  ],
-  incubator: [
-    ...COMMON_NAV,
-    { to: '/dashboard/incubator/programs',       label: 'Programs',         icon: 'GraduationCap' },
-    { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
-    { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
-    { to: '/dashboard/startups',                 label: 'Find Startups',     icon: 'Rocket' },
-    { to: '/dashboard/incubator/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
-    { to: '/dashboard/students',                 label: 'Find Students',     icon: 'GraduationCap' },
-    { to: '/dashboard/academia',                 label: 'Find Academia',     icon: 'BookOpen' },
-    { to: '/dashboard/clusters',                 label: 'Innovation Map',   icon: 'Layers' },
-    { to: '/dashboard/projects',                 label: 'Projects',         icon: 'FolderKanban' },
-  ],
-  accelerator: [
-    ...COMMON_NAV,
-    { to: '/dashboard/accelerator/batches',      label: 'Batches',          icon: 'Zap' },
-    { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
-    { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
-    { to: '/dashboard/startups',                 label: 'Find Startups',     icon: 'Rocket' },
-    { to: '/dashboard/accelerator/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
-    { to: '/dashboard/students',                 label: 'Find Students',     icon: 'GraduationCap' },
-    { to: '/dashboard/academia',                 label: 'Find Academia',     icon: 'BookOpen' },
-    { to: '/dashboard/clusters',                 label: 'Innovation Map',   icon: 'Layers' },
-    { to: '/dashboard/watchlist',                label: 'Watchlist',        icon: 'Star' },
-    { to: '/dashboard/projects',                 label: 'Projects',         icon: 'FolderKanban' },
-  ],
-  service_provider: [
-    ...COMMON_NAV,
-    { to: '/dashboard/sp/services',     label: 'My Services',       icon: 'Briefcase' },
-    { to: '/dashboard/sp/clients',      label: 'Clients',           icon: 'Building2' },
-    { to: '/dashboard/sp/reviews',      label: 'Reviews',           icon: 'Star' },
-    { to: '/dashboard/marketplace',     label: 'Marketplace',       icon: 'Target' },
-    { to: '/dashboard/startups',        label: 'Find Startups',     icon: 'Rocket' },
-    { to: '/dashboard/clusters',        label: 'Innovation Map',    icon: 'Layers' },
-  ],
+  startup: buildPersonaNav('startup', {
+    actions: [
+      { to: '/dashboard/marketplace',     label: 'Marketplace',    icon: 'Target' },
+      { to: '/dashboard/claims',          label: 'My Claims',      icon: 'BadgeCheck' },
+      { to: '/dashboard/ipr',             label: 'IPR',            icon: 'Shield' },
+      { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
+      { to: '/dashboard/deeptech',        label: 'DeepTech Qual.', icon: 'Zap' },
+      { to: '/dashboard/feedback',        label: 'Feedback',       icon: 'ThumbsUp' },
+    ],
+  }),
+  student: buildPersonaNav('student', {
+    recommended: { to: '/dashboard/student/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    actions: [
+      { to: '/dashboard/student/portfolio',   label: 'My Portfolio',  icon: 'FolderKanban' },
+      { to: '/dashboard/student/mentorships', label: 'Mentorships',   icon: 'Users' },
+      { to: '/dashboard/marketplace',         label: 'Marketplace',   icon: 'Target' },
+    ],
+  }),
+  academia: buildPersonaNav('academia', {
+    recommended: { to: '/dashboard/academia/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    actions: [
+      { to: '/dashboard/academia/research',     label: 'Research',     icon: 'FlaskConical' },
+      { to: '/dashboard/academia/publications', label: 'Publications', icon: 'BookOpen' },
+      { to: '/dashboard/academia/grants',       label: 'Grants',       icon: 'DollarSign' },
+      { to: '/dashboard/marketplace',           label: 'Marketplace',  icon: 'Target' },
+      { to: '/dashboard/ipr',                   label: 'IPR Database', icon: 'Shield' },
+    ],
+  }),
+  corporate: buildPersonaNav('corporate', {
+    actions: [
+      { to: '/dashboard/corporate/challenges', label: 'Challenges',     icon: 'Target' },
+      { to: '/dashboard/corporate/collabs',    label: 'Collaborations', icon: 'Link2' },
+    ],
+  }),
+  government: buildPersonaNav('government', {
+    actions: [
+      { to: '/dashboard/corporate/challenges', label: 'Challenges/RFPs', icon: 'Target' },
+      { to: '/dashboard/evaluations',          label: 'Programs',        icon: 'FileText' },
+      { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
+      { to: '/dashboard/govt-apis',            label: 'Govt. APIs',      icon: 'Link2' },
+    ],
+  }),
+  investor: buildPersonaNav('investor', {
+    recommended: { to: '/dashboard/investor/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    actions: [
+      { to: '/dashboard/marketplace',            label: 'Marketplace',   icon: 'Target' },
+      { to: '/dashboard/investor/deal-requests', label: 'Deal Sourcing', icon: 'FileText' },
+      { to: '/dashboard/investor/deals',         label: 'Deal Pipeline', icon: 'GitBranch' },
+      { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
+      { to: '/dashboard/deeptech',               label: 'DeepTech',      icon: 'Zap' },
+    ],
+  }),
+  mentor: buildPersonaNav('mentor', {
+    actions: [
+      { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
+      { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
+      { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
+    ],
+  }),
+  lab: buildPersonaNav('lab', {
+    actions: [
+      { to: '/dashboard/lab/equipment',    label: 'Equipment',    icon: 'FlaskConical' },
+      { to: '/dashboard/lab/bookings',     label: 'Bookings',     icon: 'CalendarCheck' },
+      { to: '/dashboard/lab/publications', label: 'Publications', icon: 'FileText' },
+      { to: '/dashboard/ipr',              label: 'IPR Database', icon: 'Shield' },
+    ],
+  }),
+  incubator: buildPersonaNav('incubator', {
+    recommended: { to: '/dashboard/incubator/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    actions: [
+      { to: '/dashboard/incubator/programs',       label: 'Programs',         icon: 'GraduationCap' },
+      { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
+      { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
+    ],
+  }),
+  accelerator: buildPersonaNav('accelerator', {
+    recommended: { to: '/dashboard/accelerator/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    actions: [
+      { to: '/dashboard/accelerator/batches',      label: 'Batches',            icon: 'Zap' },
+      { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
+      { to: '/dashboard/program/service-partners', label: 'Service Partners',   icon: 'Link2' },
+    ],
+  }),
+  service_provider: buildPersonaNav('service_provider', {
+    actions: [
+      { to: '/dashboard/sp/services', label: 'My Services', icon: 'Briefcase' },
+      { to: '/dashboard/sp/clients',  label: 'Clients',     icon: 'Building2' },
+      { to: '/dashboard/sp/reviews',  label: 'Reviews',     icon: 'Star' },
+      { to: '/dashboard/marketplace', label: 'Marketplace', icon: 'Target' },
+    ],
+  }),
 };
 
 // ── Profile Field Definitions per Persona ───────────────────
