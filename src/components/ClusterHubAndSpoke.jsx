@@ -31,18 +31,27 @@ import {
 import '@xyflow/react/dist/style.css';
 
 // ── Layout constants ──────────────────────────────────────────────────
-const CANVAS_W = 1400;
-const CANVAS_H = 1100;
+// Canvas grew from 1400x1100 to 1700x1500 in Phase 71b to give the
+// subgroup tier room to breathe. The diagram still pans inside the
+// react-flow viewport so smaller windows still see everything.
+const CANVAS_W = 1700;
+const CANVAS_H = 1500;
 const HUB_X = CANVAS_W / 2;
 const HUB_Y = CANVAS_H / 2;
 
 // Phase 71 — three concentric rings:
 //   SECTOR_RADIUS    → sector pills
-//   SUBGROUP_RADIUS  → optional sub-group pills (skipped when no subgroup data)
-//   LEAF_RING_INNER  → leaf cards (bumped 470→520 to give subgroups breathing room)
-const SECTOR_RADIUS = 240;
-const SUBGROUP_RADIUS = 360;
-const LEAF_RING_INNER = 520;
+//   SUBGROUP_RADIUS  → BASE radius for sub-group pills; grows per-sector
+//                       in Phase 71b when the sector has many subgroups so
+//                       arc length per pill stays clear of overlap.
+//   LEAF_RING_INNER  → leaf cards. Phase 71b derives this per-sector as
+//                       (effective subgroup radius) + LEAF_RING_GAP so
+//                       leaves never collide with their parent subgroup.
+const SECTOR_RADIUS = 280;
+const SUBGROUP_RADIUS = 460;
+const LEAF_RING_GAP = 200;            // distance from subgroup ring to leaf ring
+const LEAF_RING_INNER = SUBGROUP_RADIUS + LEAF_RING_GAP;
+const SUBGROUP_PILL_PITCH = 180;       // approx widest pill + label gap
 
 const HUB_W = 180;
 const HUB_H = 180;
@@ -337,16 +346,36 @@ function buildGraph(cluster, startups, subgroups = []) {
     // ── Phase 71 three-tier path ────────────────────────────────────────
     if (useSubgroupTier && subBySector[sec.sector]) {
       const sgList = subBySector[sec.sector].slice(0, 6);  // cap subgroup fan
-      const sgStep = sgList.length === 1
-        ? 0
-        : Math.min((halfWedge * 2) / (sgList.length - 1), 14);
+
+      // Phase 71b — adaptive subgroup radius. With N subgroups inside
+      // this sector's wedge, each pill needs SUBGROUP_PILL_PITCH px of
+      // arc to clear its neighbour. Required radius:
+      //   r >= (N * pitch) / wedgeRad
+      // We use the larger of the base SUBGROUP_RADIUS and the required
+      // radius, then push leaves out by LEAF_RING_GAP so leaves never
+      // collide with the subgroup pill in front of them.
+      const wedgeRad = rad(halfWedge * 2);
+      const requiredR =
+        sgList.length <= 1
+          ? SUBGROUP_RADIUS
+          : Math.max(
+              SUBGROUP_RADIUS,
+              (sgList.length * SUBGROUP_PILL_PITCH) / wedgeRad,
+            );
+      const sgRadius = requiredR;
+      const leafRadius = sgRadius + LEAF_RING_GAP;
+
+      // Now spacing in *degrees* — once radius accommodates the pitch,
+      // the angular step is the wedge divided evenly across N pills.
+      const sgStep =
+        sgList.length === 1 ? 0 : (halfWedge * 2) / sgList.length;
       const sgStart = -((sgList.length - 1) / 2) * sgStep;
 
       sgList.forEach((sg, sgIdx) => {
         const sgAngleDeg = sectorAngleDeg + (sgStart + sgIdx * sgStep);
         const sgAngleRad = rad(sgAngleDeg);
-        const sgx = HUB_X + SUBGROUP_RADIUS * Math.cos(sgAngleRad);
-        const sgy = HUB_Y + SUBGROUP_RADIUS * Math.sin(sgAngleRad);
+        const sgx = HUB_X + sgRadius * Math.cos(sgAngleRad);
+        const sgy = HUB_Y + sgRadius * Math.sin(sgAngleRad);
 
         const sgNodeId = `sg-${i}-${sg.subgroup_id}`;
         nodes.push({
@@ -366,14 +395,17 @@ function buildGraph(cluster, startups, subgroups = []) {
 
         const leaves = (leavesBySectorAndSub[`${sec.sector}::${sg.subgroup_id}`] || []).slice(0, 2);
         if (leaves.length === 0) return;
-        const leafStep = leaves.length === 1 ? 0 : 6;
+        // Leaves get a wider angular gap so the two cards under one
+        // subgroup never overlap. 6° at radius 660 = ~69px arc — clear
+        // of the 130px LEAF_W only when paired ±halfStep, so use ±5°.
+        const leafStep = leaves.length === 1 ? 0 : 10;
         const leafStart = -((leaves.length - 1) / 2) * leafStep;
 
         leaves.forEach((leaf, j) => {
           const leafAngleDeg = sgAngleDeg + (leafStart + j * leafStep);
           const leafAngleRad = rad(leafAngleDeg);
-          const lx = HUB_X + LEAF_RING_INNER * Math.cos(leafAngleRad);
-          const ly = HUB_Y + LEAF_RING_INNER * Math.sin(leafAngleRad);
+          const lx = HUB_X + leafRadius * Math.cos(leafAngleRad);
+          const ly = HUB_Y + leafRadius * Math.sin(leafAngleRad);
           const leafId = `leaf-${i}-${sg.subgroup_id}-${j}`;
           nodes.push({
             id: leafId,
