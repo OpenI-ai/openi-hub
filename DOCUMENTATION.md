@@ -2,15 +2,109 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 3.7
-**Last Updated:** 9 May 2026 (evening — post Phase 70: rank-aware plan comparison + boolean feature rendering)
+**Version:** 3.8
+**Last Updated:** 11 May 2026 (late evening — post Phase 71/71b/71c/71d/71e + Phase 72: Innovation Map sub-group drill-down, canonical 5-group sidebar, Corporate Recommended for You, auto-populating persona-aware What's New)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway, SSL provisioned, Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 schema/code live; `audit_logs` materialised in Phase 63; `events.visibility / published_at / organization_name` added in Phase 66; cluster validator widened in Phase 67; `GET /clusters/:id/representatives` added in Phase 68)*
-**Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*
+**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `sme_experts` DROPPED Phase 71d.)*
+**Backend env:** `CLIENT_URL = https://openi.ai` *(corrected 8 May from legacy `openi-hub.vercel.app`)*. `OPENAI_API_KEY` set (used by Phase 72 What's New translation + cluster sub-group labelling). `GITHUB_TOKEN` **NOT SET** (blocks Phase 72 from auto-ingesting backend repo Phase commits — see Open Items).
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v3.8 — Phase 71 / 71b / 71c / 71d / 71e / 72 (11 May 2026 marathon)
+
+Single long session shipped six connected scopes plus four cleanups. The platform now has a fully drilled-down Innovation Map, a canonical sidebar across all 11 personas, an extra "Recommended for You" surface for Corporate, and an auto-populating persona-aware What's New page.
+
+#### Phase 71 — Innovation Map + sub-cluster drill-down (commits backend `9c4a275`, frontend `979ee1d`)
+
+User feedback on Cluster #63 ("Content Marketing", 9,181 startups) showed 99.4% of members under one MarTech wedge. The Phase 68 hub-and-spoke diagram fanned only ~20 leaves total via `representatives`, so dominant sectors collapsed to 3 leaves and the rest of the wedge was invisible. The page exposed *which sector dominates* but not *what kinds of innovations are happening inside that sector*. Plus the word "Cluster" read as engineering jargon.
+
+**Schema** — new table `cluster_subgroups (cluster_id, sector, subgroup_id, label, label_raw, member_count, computed_at)` with PK `(cluster_id, sector, subgroup_id)` + index on `cluster_id`. JSONB key `import_metadata.subcluster_id` added to `startup_profiles` rows. Partial index `idx_sp_subcluster ON ((import_metadata->>'cluster_id'), (import_metadata->>'subcluster_id'))` for fast lookup.
+
+**Pre-compute job** `src/scripts/subcluster-top50.js` — for the top-50 clusters by size, partitions members by sector, runs the existing in-house KMeans (cosineSimilarity + iterative centroids from `cluster-startups.js`) with K=2..8 scaling per sector, GPT-labels each sub-cluster via `gpt-4o-mini` (same pattern as `relabel-clusters-gpt.js`), and writes back via batch UNNEST UPDATE. Total cost ~$0.30-0.60. Idempotent — re-running on existing rows is a no-op via `ON CONFLICT (cluster_id, sector, subgroup_id) DO UPDATE`. Run result: 2,319 sub-group rows across 50 clusters.
+
+**API** — `clusterController.listClusterRepresentatives` extended with `?include_subgroups=1`. When set, the inner ranking query partitions by `(sector, subgroup_id)` and returns top-2 per subgroup plus a `subgroups[]` array. Clusters outside the top-50 silently degrade to the Phase 68 sector-only response.
+
+**Frontend** — new `SubgroupNode` renderer in `ClusterHubAndSpoke.jsx` (gold-tinted pill at a third concentric ring). `buildGraph()` rewritten to bucket leaves by `(sector, subgroup_id)` when subgroup data is present; defensive fallback to the Phase 68 two-tier layout when not. `ClusterDetail.jsx` requests `include_subgroups=1` and renders a 3-pill legend.
+
+**Global rename** — every user-facing "Cluster" string swapped to "Innovation Map" / "themes" / "sub-groups" across nav (8 personas), Clusters page, ClusterDetail page, SimilarStartupsPanel, tour copy, recommend components. **Internal identifiers stayed as `cluster*`** (file names, route paths, DB columns, API methods) so deep links + audit trails survive.
+
+#### Phase 71b — adaptive subgroup radius + coverage backfill (commits frontend `99c3675`, backend `2a5a822` + `a2da3bf`)
+
+**Overlap fix** — Phase 71's diagram clamped subgroup angular step at 14°, which forced overlap when 5+ subgroups shared one sector wedge (e.g. MarTech with 8 subgroups in Cluster #63). Fix: per-sector adaptive radius derived from `(N × pill_pitch) / wedge_radians`. Required radius = `Math.max(SUBGROUP_RADIUS, requiredR)`. Leaves derive from `sgRadius + LEAF_RING_GAP`. Canvas grew 1400×1100 → 1700×1500 to accommodate the larger outer rings. Sector ring bumped 240→280.
+
+**Coverage backfill** — found 27,434 top-50 cluster members missing `subcluster_id` (their original `sector` was NULL or too small for KMeans). Inserted 50 sentinel "Other" subgroup rows (`sector='Other', subgroup_id=99, label='Other'`) per top-50 cluster and tagged all 27,434 startups with `subcluster_id=99`. **Final coverage: 250,457 / 250,457 (100%) of top-50 cluster members tagged.**
+
+**`cluster-delta.js` script** for the broader gap of 8,608 startups with no `cluster_id` at all. Two iterations:
+- v1 (`2a5a822`) loaded all 574k clustered embeddings into JS memory to compute centroids → **OOM-killed at 4 GB heap** (1536 dims × 8 bytes × 574k = ~7 GB needed).
+- v2 (`a2da3bf`) — pgvector edition. `AVG(embedding)::vector` GROUP BY into a TEMP TABLE for centroids; nearest-centroid lookup via the cosine-distance `<=>` operator inside a CROSS JOIN with `ROW_NUMBER() PARTITION BY user_id`. Pages of 500 user_ids drive the loop, JS heap stays flat. Embeddings never leave the DB. Run result: only 5 untagged-with-embedding rows fixable today (8,603 lack embeddings entirely; need an OpenAI embed pass first).
+
+**Final cluster coverage: 574,548 / 583,150 = 98.53%.**
+
+#### Phase 71d — canonical 5-group sidebar across all 11 personas (commit `88df708`)
+
+User screenshots showed Investor / Corporate / Admin sidebars rendering the same items in different orders. Multi-persona switching (via "Add role") was disorienting because "Find Startups" might be position 3 on one persona and position 6 on another. Recommended for You absent on some personas, mid-list on others.
+
+Refactored `PERSONA_NAV` data shape and `DashboardLayout.jsx` rendering around a fixed 5-group taxonomy with subtle dividers between groups:
+
+  1. **Hub** — My Dashboard, My Profile
+  2. **Recommended** — Recommended for You (only personas that have it; pinned right under My Profile per user decision)
+  3. **Discover** — Find Startups, Find Students, Find Academia, Directory, Innovation Map (always identical order, every persona)
+  4. **Persona actions** — persona-specific items (Challenges, Sessions, Programs, Marketplace, Deal Sourcing, …)
+  5. **Workspace** — Watchlist, Projects, My Network, Messaging, Meetings, Events, Knowledge, Documents (same order for every persona that includes them)
+
+`SECONDARY_NAV` (Organization / Features / What's New) renders below in a separate sidebar block, unchanged from Phase 69.
+
+`personas.js` introduces `buildPersonaNav(role, {recommended, actions, workspace})` so each persona declaration is now ~5-10 lines of just its persona-specific actions instead of a 12-20 line flat array. `WORKSPACE_ITEMS` map + `DEFAULT_WORKSPACE_KEYS` guarantees Group 5 ordering. `FIND_STARTUPS_ROUTE` map handles the `corporate` override (`/dashboard/corporate/search`) without breaking Group 3 ordering. `DashboardLayout.jsx` flat-maps with a divider between each group (not before the first). Legacy admin/evaluator path untouched (still uses flat NAV array).
+
+#### Phase 71e — Recommended for You for Corporate (commit `23f665d`)
+
+User noticed Corporate had no Recommended for You in the new canonical sidebar. Investigation: backend endpoint `GET /corporate/recommendations` plus `corporateAPI.recommendations()` client wrapper had been in place since Phase 35 — both production-ready, both unused by any UI.
+
+New `CorporateRecommendedStartups.jsx` page (~200 lines, ports the Investor surface). Backend response shape is `{recommendations, based_on}` not flat array — page unwraps. Adds an "Applied" chip for startups that already applied to one of this corporate's challenges (uses `applied_signal` already returned by the controller). Match-score buckets ≥25 Strong / ≥12 Good / else Possible (corporate weighted overlap is `*10` vs investor's flat overlap). New route + nav entry via Phase 71d's `recommended:` slot.
+
+**Backend zero changes** — endpoint, route, scoring, cluster boost, and applied-signal logic were all from earlier phases.
+
+#### Phase 72 — auto-populating, persona-aware What's New (backend `34c28c2`, frontend `ff16bef`)
+
+User noticed `/dashboard/whats-new` was a hardcoded static array, last updated 12 April 2026 (30+ days stale, missing Phase 60.11 onward), showing identical content to every persona. Asked: make it dynamic, auto, no manual intervention, with relevant info for users (features and benefits, not commit subjects).
+
+**Schema** — new table `whats_new_entries (id SERIAL PK, posted_at DATE, title VARCHAR(200), summary TEXT, body_md TEXT, audience TEXT[] DEFAULT '{}', is_featured BOOLEAN, is_published BOOLEAN, commit_hash VARCHAR(40), commit_repo VARCHAR(50), source VARCHAR(20) CHECK ('manual','git','admin'), ...)`. Idempotency contract via UNIQUE partial index `idx_whats_new_commit_hash ON (commit_hash) WHERE commit_hash IS NOT NULL`. Lookup index `idx_whats_new_posted_at ON (posted_at DESC, id DESC) WHERE is_published = true`.
+
+**Boot-time auto-ingest** — `src/server.js` fires `setTimeout(() => syncFromGitHub({sinceDays:90}).catch(noop), 5000)` after `app.listen()`. Runs on every Railway deploy. Disabled with `WHATS_NEW_AUTOSYNC=false`. The 5s delay keeps the GitHub fetch from competing with the first wave of HTTP traffic. The `.catch()` wrapper guarantees a failed sync never blocks boot.
+
+**Sync pipeline** in `whatsNewController.js`:
+- Fetches commits from both repos via `https://api.github.com/repos/<owner>/<repo>/commits?since=<ISO>&per_page=100`. Backend repo (private) uses `GITHUB_TOKEN` env var; frontend repo (public) needs no token.
+- **B++ filter:** only commit subjects matching `/Phase \d+/i` enter the changelog. Routine `fix:` / `chore:` / `docs:` / `refactor:` noise stays out.
+- For each accepted commit, calls `gpt-4o-mini` to translate developer-speak (`feat(clusters): Phase 71 — Innovation Map sub-group drill-down`) into user-facing JSON `{title, summary, body_md}`. `body_md` is constrained to 2-3 markdown bullets covering "what changed / who benefits / how to use." Cost ~$0.0005/commit. Run once per commit hash, never re-translated.
+- **Audience derived from commit scope:** `feat(corporate)` → `['corporate']`, `feat(nav)` / `feat(clusters)` / `feat(billing)` → `[]` (visible to all). Map in `SCOPE_TO_AUDIENCE`.
+
+**Read endpoint** — `GET /whats-new` (authenticated). Filters by `is_published = true AND (audience = '{}' OR $role = ANY(audience))` for non-admins. Admins see everything (incl. unpublished + audience-restricted). Ordered `posted_at DESC, id DESC`.
+
+**Frontend** — `WhatsNew.jsx` rewritten to consume `GET /whats-new`, group entries by date, render `body_md` as bullet lists, show audience chips on each entry, Refresh button. New `whatsNewAPI.list()` in `services/api.js`.
+
+**First-run results:** 69 frontend Phase entries ingested (Phase 50 → Phase 71e). 67/69 got GPT body bullets (2 hit a transient OpenAI 502, fell back to commit subject). 235 commits processed, 158 skipped non-phase, 8 skipped chore. Sample headlines: *"Explore Subgroups in the Innovation Map"*, *"Improved Navigation for All Personas"*, *"Removed Unused SME Experts Feature"*. Backend repo skipped because `GITHUB_TOKEN` env var is not set on Railway.
+
+**Future (Phase 73 candidate):** per-user "seen" tracking + unread badge on the SECONDARY_NAV "What's New" item.
+
+#### Same-session cleanups (unrelated to Phase 71/72)
+
+- **Tata demo challenges + collaborations removed from prod Marketplace** (`9f4016d`). 6 challenge dupes + 12 collaboration dupes had accumulated because `runSeed` blocks used `ON CONFLICT DO NOTHING` without a UNIQUE constraint. Real startups were applying to demo data. Cleanup deleted rows + the seed source.
+- **Mentor table dedup** (`9f4016d`). Same anti-pattern — `mentors(email)` had no UNIQUE. Prod table held 404 rows = 4 names × 101 bootstrap copies. Admin → Mentors page was rendering all 404. Cleanup deduped to 4 canonical rows in a single transaction (FK-safe remap of `mentor_assignments` first), then removed the seed block.
+- **SME (Subject-Matter Experts) concept removed entirely** (`3482ae2` frontend + `b21e84a` backend). Not a real persona — no role, no signup flow, no FK references. Same duplicating-seed pattern hit `sme_experts` (404 rows). Removed: SMEManagement.jsx page, App.jsx route + import, DashboardLayout nav entry, smeAPI client, smeController.js, /sme routes, CREATE TABLE block, seeds in 3 files. `DROP TABLE sme_experts CASCADE` on prod. Net deletion: 476 lines, 2 files gone.
+- **Admin cleanup.** Deleted `admin@drdo.gov.in` (id=2). Only `rajeev@openi.ai` (id=1, enterprise plan) remains. Password reset to `Admin@123` (verified via bcrypt.compare).
+
+#### Lessons from this session (added to project memory)
+
+- **`ON CONFLICT DO NOTHING` without a UNIQUE constraint is silent dynamite.** The Phase 61 lesson restated by reality: `mentors`, `sme_experts`, `challenges`, and `collaborations` blocks all had this pattern. Each `migrate-bootstrap.js` run inserted fresh duplicates. Rule: every seed INSERT in `runSeed` must either target an existing UNIQUE column with `ON CONFLICT (col) DO NOTHING`, or be a one-shot that gets removed from the seed after first run.
+- **Don't load full embedding columns into Node memory.** Push the math into Postgres via pgvector. Embeddings should never cross the Node-Postgres boundary.
+- **Don't fix transient SSH drops by retrying the whole job — chunk per logical unit** with per-cluster `BEGIN/COMMIT`. Re-running is idempotent because the WHERE filter excludes already-done work.
+- **Don't fix sidebar inconsistency by editing each persona's array — model the sidebar as a fixed sequence of named groups.** `buildPersonaNav` makes ordering a property of the framework, not the data.
+- **Always grep `services/api.js` + the routes table before estimating a feature.** Phase 71e was 80% already shipped — only the React page was missing.
+- **Don't ship a static "What's New" array.** Any changelog/release-notes surface must be data-driven, auto-ingested at deploy time (not by an admin clicking a button), per-persona filterable, and translated into user-facing copy.
+- **GPT translation belongs at write-time, not read-time.** Cost is bounded by the number of phase commits; GET responses become free; transient OpenAI outages just leave the commit subject as the title (graceful degradation).
+- **Boot-time fire-and-forget is the right shape for "always-on" sync jobs.** Every Railway deploy restarts the backend, so every push auto-fires the sync. No cron, no GitHub Actions, no admin button needed.
 
 ### What's New in v3.7 — Phase 70 (Rank-Aware Plan Comparison + Boolean Feature Rendering)
 
