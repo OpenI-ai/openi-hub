@@ -58,9 +58,9 @@ export default function Clusters() {
             <Layers className="w-6 h-6 text-[#D4A843]" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-[#0D2137]">Startup Clusters</h1>
+            <h1 className="text-2xl font-semibold text-[#0D2137]">Innovation Map</h1>
             <p className="text-sm text-gray-600">
-              Browse {data.total ? `the ${data.total.toLocaleString()}` : 'the'} semantic clusters extracted from the OpenI startup directory
+              Browse {data.total ? `the ${data.total.toLocaleString()}` : 'the'} innovation themes extracted from the OpenI startup directory
             </p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function Clusters() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search clusters by label (e.g. AI Agents, Healthcare)…"
+            placeholder="Search the Innovation Map (e.g. AI Agents, Healthcare)…"
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A843] focus:border-transparent outline-none text-sm bg-white"
           />
         </form>
@@ -93,7 +93,7 @@ export default function Clusters() {
 
       {/* Results count */}
       <div className="text-xs text-gray-500 mb-3">
-        {loading ? 'Loading…' : `${data.total.toLocaleString()} cluster${data.total === 1 ? '' : 's'}`}
+        {loading ? 'Loading…' : `${data.total.toLocaleString()} theme${data.total === 1 ? '' : 's'}`}
         {q && !loading && <span> matching "{q}"</span>}
       </div>
 
@@ -107,7 +107,7 @@ export default function Clusters() {
       {!loading && data.clusters.length === 0 && !error && (
         <div className="text-center py-12 text-gray-500">
           <Layers className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p>No clusters match your search.</p>
+          <p>No themes match your search.</p>
         </div>
       )}
 
@@ -121,7 +121,7 @@ export default function Clusters() {
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-[#0D2137] text-sm truncate">
-                  {c.cluster_label || `Cluster ${c.cluster_id}`}
+                  {c.cluster_label || `Theme ${c.cluster_id}`}
                 </h3>
                 <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
                   <Users className="w-3 h-3" />

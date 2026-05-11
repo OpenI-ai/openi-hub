@@ -36,26 +36,29 @@ const CANVAS_H = 1100;
 const HUB_X = CANVAS_W / 2;
 const HUB_Y = CANVAS_H / 2;
 
-const SECTOR_RADIUS = 240;        // distance from hub centre to sector centre
-const LEAF_RING_INNER = 470;      // distance from hub centre to leaf centre
-                                  // Bumped 420→470 so the per-sector fan has
-                                  // ~7.3px / degree of arc (instead of 6.5)
-                                  // and adjacent leaves never collide even
-                                  // with a 3-leaf wedge.
+// Phase 71 — three concentric rings:
+//   SECTOR_RADIUS    → sector pills
+//   SUBGROUP_RADIUS  → optional sub-group pills (skipped when no subgroup data)
+//   LEAF_RING_INNER  → leaf cards (bumped 470→520 to give subgroups breathing room)
+const SECTOR_RADIUS = 240;
+const SUBGROUP_RADIUS = 360;
+const LEAF_RING_INNER = 520;
 
 const HUB_W = 180;
 const HUB_H = 180;
 const SECTOR_W = 200;
 const SECTOR_H = 60;
-// Phase 68 — leaf is now a circle + label-below pair. The bounding box is
-// the circle width × (circle + label) so react-flow centres correctly.
-const LEAF_DISC = 64;             // diameter of the circular logo well
-const LEAF_W = 130;               // wider than disc so the label can wrap
-const LEAF_H = 100;               // disc + gap + 2-line label
+const SUBGROUP_W = 160;
+const SUBGROUP_H = 44;
+// Phase 68 — leaf is a circle + label-below pair. The bounding box is the
+// circle width × (circle + label) so react-flow centres correctly.
+const LEAF_DISC = 64;
+const LEAF_W = 130;
+const LEAF_H = 100;
 
 // Top-N caps
 const MAX_SECTORS = 6;
-const MAX_LEAVES = 20;
+const MAX_LEAVES = 60;  // raised because subgroups multiply the natural leaf count
 
 // Edge styling — thin grey lines like the reference image
 const HUB_TO_SECTOR_EDGE = { stroke: '#94A3B8', strokeWidth: 1.25 };
@@ -117,7 +120,7 @@ function SectorNode({ data }) {
         {data.sector}
       </div>
       <div style={{ fontSize: 10, color: '#64748B', marginTop: 2 }}>
-        {data.n.toLocaleString()} in cluster
+        {data.n.toLocaleString()} in theme
       </div>
     </div>
   );
@@ -216,7 +219,41 @@ function LeafNode({ data }) {
   );
 }
 
-const nodeTypes = { hub: HubNode, sector: SectorNode, leaf: LeafNode };
+function SubgroupNode({ data }) {
+  return (
+    <div
+      style={{
+        width: SUBGROUP_W,
+        height: SUBGROUP_H,
+        background: '#FFFDF6',
+        border: '1.5px solid #E5C36A',
+        borderRadius: 999,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 1px 4px rgba(212, 168, 67, 0.10)',
+        padding: '4px 10px',
+      }}
+    >
+      <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
+      <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#0D2137', textAlign: 'center', lineHeight: 1.15 }}>
+        {data.label}
+      </div>
+      <div style={{ fontSize: 9, color: '#94A3B8' }}>
+        {data.member_count?.toLocaleString()} startups
+      </div>
+    </div>
+  );
+}
+
+const nodeTypes = {
+  hub: HubNode,
+  sector: SectorNode,
+  subgroup: SubgroupNode,
+  leaf: LeafNode,
+};
 
 // ── Geometry helpers ──────────────────────────────────────────────────
 const rad = (deg) => (deg * Math.PI) / 180;
@@ -225,7 +262,7 @@ const rad = (deg) => (deg * Math.PI) / 180;
  * Build nodes + edges array for react-flow.
  * Returns { nodes, edges } with absolute pixel positions.
  */
-function buildGraph(cluster, startups) {
+function buildGraph(cluster, startups, subgroups = []) {
   const nodes = [];
   const edges = [];
 
@@ -236,39 +273,43 @@ function buildGraph(cluster, startups) {
     position: { x: HUB_X - HUB_W / 2, y: HUB_Y - HUB_H / 2 },
     data: {
       cluster_id: cluster.cluster_id,
-      label: cluster.cluster_label || `Cluster ${cluster.cluster_id}`,
+      label: cluster.cluster_label || `Theme ${cluster.cluster_id}`,
       member_count: cluster.member_count,
     },
     draggable: false,
   });
 
-  // Take the top-N sectors as the ring anchors (always render all of them,
-  // even if some end up with zero attached leaves — that is what gives the
-  // diagram its balanced wheel shape, like the reference image).
   const sectors = (cluster.top_sectors || []).slice(0, MAX_SECTORS);
   if (sectors.length === 0) return { nodes, edges };
 
-  // Filter the top-20 leaves to those whose sector is in the ring.
   const sectorSet = new Set(sectors.map((s) => s.sector));
   const eligible = (startups || [])
     .filter((s) => s.sector && sectorSet.has(s.sector))
     .slice(0, MAX_LEAVES);
 
-  // Group leaves by sector.
+  // Phase 71 — group subgroups by sector (only those whose sector is in the ring).
+  const subBySector = {};
+  for (const sg of subgroups || []) {
+    if (!sectorSet.has(sg.sector)) continue;
+    (subBySector[sg.sector] = subBySector[sg.sector] || []).push(sg);
+  }
+  const useSubgroupTier = Object.keys(subBySector).length > 0;
+
+  // Group leaves by (sector) — and by (sector, subgroup_id) when subgroups exist.
   const leavesBySector = {};
+  const leavesBySectorAndSub = {};
   for (const s of eligible) {
     (leavesBySector[s.sector] = leavesBySector[s.sector] || []).push(s);
+    if (useSubgroupTier && s.subgroup_id != null) {
+      const key = `${s.sector}::${s.subgroup_id}`;
+      (leavesBySectorAndSub[key] = leavesBySectorAndSub[key] || []).push(s);
+    }
   }
 
   // Distribute sector anchors evenly around the hub, full 360°.
   const sectorAngleStep = 360 / sectors.length;
-  // Start at -90° (12 o'clock) so the ring reads symmetrically.
-  const sectorAngleStart = -90;
-
-  // Half-wedge each sector "owns" — leaves cannot stray past this without
-  // overlapping the neighbouring sector's leaves. Leave a 6° gap on each
-  // side as breathing room.
-  const halfWedge = sectorAngleStep / 2 - 6;
+  const sectorAngleStart = -90;  // -90° = 12 o'clock
+  const halfWedge = sectorAngleStep / 2 - 6;  // 6° gap on each side as breathing room
 
   sectors.forEach((sec, i) => {
     const sectorAngleDeg = sectorAngleStart + i * sectorAngleStep;
@@ -293,28 +334,82 @@ function buildGraph(cluster, startups) {
       style: HUB_TO_SECTOR_EDGE,
     });
 
+    // ── Phase 71 three-tier path ────────────────────────────────────────
+    if (useSubgroupTier && subBySector[sec.sector]) {
+      const sgList = subBySector[sec.sector].slice(0, 6);  // cap subgroup fan
+      const sgStep = sgList.length === 1
+        ? 0
+        : Math.min((halfWedge * 2) / (sgList.length - 1), 14);
+      const sgStart = -((sgList.length - 1) / 2) * sgStep;
+
+      sgList.forEach((sg, sgIdx) => {
+        const sgAngleDeg = sectorAngleDeg + (sgStart + sgIdx * sgStep);
+        const sgAngleRad = rad(sgAngleDeg);
+        const sgx = HUB_X + SUBGROUP_RADIUS * Math.cos(sgAngleRad);
+        const sgy = HUB_Y + SUBGROUP_RADIUS * Math.sin(sgAngleRad);
+
+        const sgNodeId = `sg-${i}-${sg.subgroup_id}`;
+        nodes.push({
+          id: sgNodeId,
+          type: 'subgroup',
+          position: { x: sgx - SUBGROUP_W / 2, y: sgy - SUBGROUP_H / 2 },
+          data: { label: sg.label, member_count: sg.member_count },
+          draggable: false,
+        });
+        edges.push({
+          id: `e-${sectorId}-${sgNodeId}`,
+          source: sectorId,
+          target: sgNodeId,
+          type: 'straight',
+          style: HUB_TO_SECTOR_EDGE,
+        });
+
+        const leaves = (leavesBySectorAndSub[`${sec.sector}::${sg.subgroup_id}`] || []).slice(0, 2);
+        if (leaves.length === 0) return;
+        const leafStep = leaves.length === 1 ? 0 : 6;
+        const leafStart = -((leaves.length - 1) / 2) * leafStep;
+
+        leaves.forEach((leaf, j) => {
+          const leafAngleDeg = sgAngleDeg + (leafStart + j * leafStep);
+          const leafAngleRad = rad(leafAngleDeg);
+          const lx = HUB_X + LEAF_RING_INNER * Math.cos(leafAngleRad);
+          const ly = HUB_Y + LEAF_RING_INNER * Math.sin(leafAngleRad);
+          const leafId = `leaf-${i}-${sg.subgroup_id}-${j}`;
+          nodes.push({
+            id: leafId,
+            type: 'leaf',
+            position: { x: lx - LEAF_W / 2, y: ly - LEAF_H / 2 },
+            data: {
+              user_id: leaf.user_id || leaf.id,
+              company_name: leaf.company_name,
+              logo_url: leaf.logo_url,
+            },
+            draggable: false,
+          });
+          edges.push({
+            id: `e-${sgNodeId}-${leafId}`,
+            source: sgNodeId,
+            target: leafId,
+            type: 'straight',
+            style: SECTOR_TO_LEAF_EDGE,
+          });
+        });
+      });
+      return;
+    }
+
+    // ── Phase 68 two-tier fallback (unchanged behaviour) ────────────────
     const leaves = leavesBySector[sec.sector] || [];
     if (leaves.length === 0) return;
 
-    // With Phase 68 representatives endpoint each sector has at most 2
-    // leaves by default. Fan rule:
-    //   1 leaf  -> straight out (centre of wedge)
-    //   2 leaves -> split ±18° (≈ 295px arc gap at radius 470, comfortably
-    //               clear of the 130px leaf width)
-    //   3+ leaves -> centre + symmetric span, capped so the outermost
-    //               leaves never bleed past the wedge boundary; minimum
-    //               spacing between adjacent leaves is enforced via
-    //               MIN_LEAF_GAP_DEG so labels never collide.
-    const MIN_LEAF_GAP_DEG = 16; // ≈ 130px arc gap at radius 470 = leaf width
+    const MIN_LEAF_GAP_DEG = 16;  // ≈ 130px arc gap at radius 520
     const fanOffsets = (() => {
       if (leaves.length === 1) return [0];
       if (leaves.length === 2) return [-18, 18];
       const wedgeMax = halfWedge - 4;
       const requiredHalfSpan = ((leaves.length - 1) / 2) * MIN_LEAF_GAP_DEG;
       const span = Math.min(wedgeMax, Math.max(20, requiredHalfSpan));
-      return leaves.map((_, j, arr) => {
-        return -span + (j * (span * 2)) / (arr.length - 1);
-      });
+      return leaves.map((_, j, arr) => -span + (j * (span * 2)) / (arr.length - 1));
     })();
 
     leaves.forEach((leaf, j) => {
@@ -322,7 +417,6 @@ function buildGraph(cluster, startups) {
       const leafAngleRad = rad(leafAngleDeg);
       const lx = HUB_X + LEAF_RING_INNER * Math.cos(leafAngleRad);
       const ly = HUB_Y + LEAF_RING_INNER * Math.sin(leafAngleRad);
-
       const leafId = `leaf-${i}-${j}`;
       nodes.push({
         id: leafId,
@@ -335,7 +429,6 @@ function buildGraph(cluster, startups) {
         },
         draggable: false,
       });
-
       edges.push({
         id: `e-${sectorId}-${leafId}`,
         source: sectorId,
@@ -350,12 +443,12 @@ function buildGraph(cluster, startups) {
 }
 
 // ── Component ─────────────────────────────────────────────────────────
-export default function ClusterHubAndSpoke({ cluster, startups, onLeafClick }) {
+export default function ClusterHubAndSpoke({ cluster, startups, subgroups = [], onLeafClick }) {
   const navigate = useNavigate();
 
   const { nodes, edges } = useMemo(
-    () => buildGraph(cluster, startups),
-    [cluster, startups]
+    () => buildGraph(cluster, startups, subgroups),
+    [cluster, startups, subgroups]
   );
 
   // Empty/unusable input → render nothing rather than an awkward empty canvas.

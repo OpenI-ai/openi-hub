@@ -137,7 +137,7 @@ const studentSteps = [
   { target: navTarget('mentorships'),              title: 'Mentorships',              content: 'Browse and request mentors who match your interests. Active mentorships appear here.', placement: 'right' },
   { target: navTarget('marketplace'),              title: 'Open Challenges',          content: 'Many corporates run challenges open to students. Filter by sector and apply individually or as a team.', placement: 'right' },
   { target: navTarget('startups'),                 title: 'Discover Startups',        content: 'Looking for an internship or thesis collaboration? Search startups by domain and reach out directly.', placement: 'right' },
-  { target: navTarget('recommended-for-you'),     title: 'Recommended for You',      content: 'Personalised startup recommendations based on your research areas and skills. The "+N cluster" badge means we lifted that startup up the list because it matches your topical cluster.', placement: 'right' },
+  { target: navTarget('recommended-for-you'),     title: 'Recommended for You',      content: 'Personalised startup recommendations based on your research areas and skills. The "+N theme" badge means we lifted that startup up the list because it matches your spot on the Innovation Map.', placement: 'right' },
   { target: navTarget('watchlist'),                title: 'Save for Later',           content: 'Bookmark startups, mentors or challenges you want to revisit. Watchlist syncs across devices.', placement: 'right' },
   { target: '#tour-topbar-take-tour',              title: 'Replay anytime',           content: 'Click this icon to revisit the tour whenever you want.', placement: 'bottom' },
 ];
@@ -154,7 +154,7 @@ const academiaSteps = [
   { target: navTarget('ipr-database'),             title: 'IPR Database',             content: 'Record patents, copyrights and trademarks owned by your institution.', placement: 'right' },
   { target: navTarget('marketplace'),              title: 'Industry Challenges',      content: 'Corporates often partner with academia on RFPs. Browse open challenges and apply.', placement: 'right' },
   { target: navTarget('startups'),                 title: 'Find Startups',            content: 'Discover startups for collaboration, mentoring or industry-academic projects.', placement: 'right' },
-  { target: navTarget('recommended-for-you'),     title: 'Recommended for You',      content: 'Personalised startup recommendations based on your research areas and offerings. We bridge your academic cluster to the closest startup clusters — the "+N cluster" badge shows how much that match lifted the row.', placement: 'right' },
+  { target: navTarget('recommended-for-you'),     title: 'Recommended for You',      content: 'Personalised startup recommendations based on your research areas and offerings. We bridge your research focus to the closest themes on the Innovation Map — the "+N theme" badge shows how much that match lifted the row.', placement: 'right' },
   { target: '#tour-topbar-take-tour',              title: 'Replay anytime',           content: 'You can replay this tour any time from the top bar.', placement: 'bottom' },
 ];
 

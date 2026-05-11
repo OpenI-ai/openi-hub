@@ -59,7 +59,7 @@ export default function SimilarStartupsPanel({ startupId, limit = 8 }) {
             <h3 className="font-display font-semibold text-gray-900 text-sm">Similar Startups</h3>
             {data.cluster_label && (
               <p className="text-xs text-gray-500">
-                Cluster:{' '}
+                Innovation theme:{' '}
                 <span className="font-mono text-xs text-gray-700">{data.cluster_label}</span>
               </p>
             )}
@@ -118,7 +118,7 @@ export default function SimilarStartupsPanel({ startupId, limit = 8 }) {
 
       <div className="text-xs text-gray-400 mt-3 flex items-center gap-1">
         <Sparkles size={11} />
-        Cluster-based recommendations from semantic embeddings (s21 K=100)
+        Innovation Map recommendations from semantic embeddings (s21 K=100)
       </div>
     </div>
   );

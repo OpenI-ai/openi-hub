@@ -30,10 +30,12 @@ export default function ClusterDetail() {
 
   const [cluster, setCluster] = useState(null);
   const [startups, setStartups] = useState({ startups: [], total: 0 });
-  // Phase 68: representatives = top 3 per sector, used by the hub-and-spoke
-  // diagram. Separate from `startups` (which is the full sortable+paginated
-  // table view) so list pagination/sort never disturbs the diagram.
+  // Phase 68/71: representatives = balanced top-N leaves for the hub-and-spoke
+  // diagram. Separate from `startups` (sortable+paginated table view) so list
+  // pagination/sort never disturbs the diagram. Phase 71 adds `subgroups`:
+  // when populated, the diagram renders a third sub-group ring.
   const [representatives, setRepresentatives] = useState([]);
+  const [subgroups, setSubgroups] = useState([]);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('score_desc');
   const [loading, setLoading] = useState(true);
@@ -46,15 +48,14 @@ export default function ClusterDetail() {
       const [c, s, r] = await Promise.all([
         clusterAPI.getOne(id),
         clusterAPI.listStartups(id, { page, pageSize: PAGE_SIZE, sort }),
-        // Diagram leaves: top 3 per sector, max 6 sectors.
-        // Failure here must not break the list view, so catch and degrade.
         clusterAPI
-          .representatives(id, { per_sector: 2, max_sectors: 6 })
-          .catch(() => ({ startups: [] })),
+          .representatives(id, { per_sector: 2, max_sectors: 6, include_subgroups: 1 })
+          .catch(() => ({ startups: [], subgroups: [] })),
       ]);
       setCluster(c);
       setStartups(s);
       setRepresentatives(r.startups || []);
+      setSubgroups(r.subgroups || []);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -83,7 +84,7 @@ export default function ClusterDetail() {
           onClick={() => navigate('/dashboard/clusters')}
           className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#D4A843] mb-4"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to clusters
+          <ArrowLeft className="w-4 h-4" /> Back to Innovation Map
         </button>
         <div className="p-4 bg-red-50 border border-red-200 rounded text-sm text-red-700">
           {error}
@@ -99,7 +100,7 @@ export default function ClusterDetail() {
         onClick={() => navigate('/dashboard/clusters')}
         className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#D4A843] mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> All clusters
+        <ArrowLeft className="w-4 h-4" /> Back to Innovation Map
       </button>
 
       {/* Header */}
@@ -112,11 +113,11 @@ export default function ClusterDetail() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[11px] font-mono text-gray-400">
-                  Cluster #{cluster.cluster_id}
+                  Theme #{cluster.cluster_id}
                 </span>
               </div>
               <h1 className="text-2xl font-semibold text-[#0D2137] mb-2">
-                {cluster.cluster_label || `Cluster ${cluster.cluster_id}`}
+                {cluster.cluster_label || `Theme ${cluster.cluster_id}`}
               </h1>
 
               <div className="flex flex-wrap gap-4 text-sm text-gray-600">
@@ -154,22 +155,32 @@ export default function ClusterDetail() {
         </div>
       )}
 
-      {/* Hub-and-spoke diagram — top 3 startups per sector, balanced across
-          the cluster's top 6 sectors. Falls back to startups.startups (the
-          table view's data) only if the dedicated endpoint failed. */}
+      {/* Innovation Map diagram — Phase 71 adds a third sub-group ring for
+          top-50 themes; other themes silently degrade to the Phase 68
+          two-tier (hub → sector → leaf) layout. */}
       {cluster && (representatives.length > 0 || startups.startups.length > 0) && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-[#0D2137]">Map of representative startups</h2>
+            <h2 className="text-sm font-semibold text-[#0D2137]">Innovation Map of representative startups</h2>
             <span className="text-[11px] text-gray-500">
-              {representatives.length > 0
-                ? `Top 2 per sector · click a node to open`
-                : `Top ${Math.min(20, startups.startups.length)} by profile score · click a node to open`}
+              {subgroups.length > 0
+                ? `Top 2 per sub-group · click any node to open`
+                : representatives.length > 0
+                  ? `Top 2 per sector · click any node to open`
+                  : `Top ${Math.min(20, startups.startups.length)} by profile score · click any node to open`}
             </span>
           </div>
+          {subgroups.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
+              <span className="px-2 py-0.5 bg-[#0D2137] text-white rounded-full">Innovation Map</span>
+              <span className="px-2 py-0.5 bg-white border border-[#D4A843] text-[#0D2137] rounded-full">Sectors</span>
+              <span className="px-2 py-0.5 bg-[#FFFDF6] border border-[#E5C36A] text-[#0D2137] rounded-full">Sub-groups</span>
+            </div>
+          )}
           <ClusterHubAndSpoke
             cluster={cluster}
             startups={representatives.length > 0 ? representatives : startups.startups}
+            subgroups={subgroups}
           />
         </div>
       )}
