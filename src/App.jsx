@@ -57,7 +57,6 @@ import DocumentRepository   from './pages/dashboard/DocumentRepository';
 import StartupWatchlist     from './pages/dashboard/StartupWatchlist';
 import DeepTechQualification from './pages/dashboard/DeepTechQualification';
 import EventsRepository     from './pages/dashboard/EventsRepository';
-import SMEManagement        from './pages/dashboard/SMEManagement';
 import StartupFeedback      from './pages/dashboard/StartupFeedback';
 import GovtAPIIntegrations  from './pages/dashboard/GovtAPIIntegrations';
 import Marketplace          from './pages/dashboard/Marketplace';
@@ -239,7 +238,6 @@ export default function App() {
             <Route path="watchlist"           element={<StartupWatchlist />} />
             <Route path="deeptech"            element={<DeepTechQualification />} />
             <Route path="events"              element={<EventsRepository />} />
-            <Route path="sme"                 element={<SMEManagement />} />
             <Route path="feedback"            element={<StartupFeedback />} />
             <Route path="govt-apis"           element={<GovtAPIIntegrations />} />
             <Route path="marketplace"         element={<Marketplace />} />

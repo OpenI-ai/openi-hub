@@ -182,7 +182,7 @@ export default function Mentors() {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-gray-900">Mentors & Subject Matter Experts</h1>
+          <h1 className="text-2xl font-display font-bold text-gray-900">Mentors</h1>
           <p className="text-gray-500 text-sm mt-0.5">Onboard and manage mentors from academia, industry, and defence</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">

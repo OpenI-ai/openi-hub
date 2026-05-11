@@ -239,14 +239,6 @@ export const feedbackAPI = {
   analytics: ()            => get('/feedback/analytics'),
 };
 
-// ── SME Experts ─────────────────────────────────────────────
-export const smeAPI = {
-  list:   (params = {}) => get(`/sme?${new URLSearchParams(params)}`),
-  get:    (id)          => get(`/sme/${id}`),
-  create: (data)        => post('/sme', data),
-  update: (id, data)    => put(`/sme/${id}`, data),
-};
-
 // ── IPR Records ───────────────────────────────────────────────
 export const iprAPI = {
   list:   (params = {}) => get(`/ipr?${new URLSearchParams(params)}`),
