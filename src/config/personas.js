@@ -188,6 +188,7 @@ export const PERSONA_NAV = {
     ],
   }),
   corporate: buildPersonaNav('corporate', {
+    recommended: { to: '/dashboard/corporate/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
       { to: '/dashboard/corporate/challenges', label: 'Challenges',     icon: 'Target' },
       { to: '/dashboard/corporate/collabs',    label: 'Collaborations', icon: 'Link2' },

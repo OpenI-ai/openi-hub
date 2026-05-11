@@ -57,6 +57,7 @@ import DocumentRepository   from './pages/dashboard/DocumentRepository';
 import StartupWatchlist     from './pages/dashboard/StartupWatchlist';
 import DeepTechQualification from './pages/dashboard/DeepTechQualification';
 import EventsRepository     from './pages/dashboard/EventsRepository';
+import CorporateRecommendedStartups from './pages/dashboard/CorporateRecommendedStartups';
 import StartupFeedback      from './pages/dashboard/StartupFeedback';
 import GovtAPIIntegrations  from './pages/dashboard/GovtAPIIntegrations';
 import Marketplace          from './pages/dashboard/Marketplace';
@@ -201,6 +202,7 @@ export default function App() {
             <Route path="profile"             element={<MyProfile />} />
             <Route path="corporate"          element={<CorporateDashboard />} />
             <Route path="corporate/search"   element={<CorporateStartupSearch />} />
+            <Route path="corporate/recommended-startups" element={<CorporateRecommendedStartups />} />
             <Route path="corporate/challenges" element={<CorporateChallenges />} />
             <Route path="corporate/collabs"  element={<CorporateCollaborations />} />
             <Route path="investor/deal-requests" element={<InvestorDealRequests />} />
