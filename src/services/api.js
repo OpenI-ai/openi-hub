@@ -239,6 +239,11 @@ export const feedbackAPI = {
   analytics: ()            => get('/feedback/analytics'),
 };
 
+// ── What's New (Phase 72 — auto-populated, persona-aware) ───────────
+export const whatsNewAPI = {
+  list: () => get('/whats-new'),
+};
+
 // ── IPR Records ───────────────────────────────────────────────
 export const iprAPI = {
   list:   (params = {}) => get(`/ipr?${new URLSearchParams(params)}`),
