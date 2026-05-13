@@ -764,7 +764,10 @@ function ProfileSection({ section, title, fields, displayCols }) {
                     <select value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
                       style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
                       <option value="">Select...</option>
-                      {(f.options || []).map(o => <option key={o} value={o}>{o}</option>)}
+                      {(f.options || []).map(o => {
+                        const opt = normalizeOption(o);
+                        return <option key={opt.value} value={opt.value}>{opt.label}</option>;
+                      })}
                     </select>
                   ) : f.type === 'checkbox' ? (
                     <label className="flex items-center gap-2 cursor-pointer">
