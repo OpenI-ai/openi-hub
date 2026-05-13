@@ -2,16 +2,89 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 4.0
-**Last Updated:** 13 May 2026 (evening — Phase 73 SHIPPED, mentor cosmetic fix shipped, DMARC tightened to `p=quarantine; pct=25`, `mentors.email` UNIQUE constraint added, s39 hygiene DELETE removed 8,207 zero-content ghost rows, embed-pass investigation closed)
+**Version:** 4.1
+**Last Updated:** 13 May 2026 (evening — Phase 74 SHIPPED on top of v4.0. Per-user "seen" tracking on What's New: `users.whats_new_seen_at TIMESTAMPTZ` column, `GET /whats-new/unread-count`, `POST /whats-new/seen`, sidebar unread badge in `DashboardLayout`. Phase 73 + mentor cosmetic + DMARC + `mentors.email` UNIQUE + s39 hygiene DELETE all carried forward from v4.0.)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 + 73 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `mentors_email_unique` partial expression index added 13 May; `sme_experts` DROPPED Phase 71d. Phase 73 Cloudinary `eager` preset wired into both upload code paths.)*
+**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 + 73 + 74 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `mentors_email_unique` partial expression index added 13 May; `sme_experts` DROPPED Phase 71d. Phase 73 Cloudinary `eager` preset wired into both upload code paths. Phase 74 added `users.whats_new_seen_at TIMESTAMPTZ` + `GET /whats-new/unread-count` + `POST /whats-new/seen`.)*
 **Backend env (13 May):** `CLIENT_URL = https://openi.ai`. `OPENAI_API_KEY` set. `GITHUB_TOKEN` set (PAT rotated 13 May after the original value leaked into 12 May chat history). `CLOUDINARY_URL` (or trio) set (used by Phase 73 logo normalisation). `AUTO_START_ENRICH_WORKER=true`.
 **Email auth (13 May):** DMARC tightened to `v=DMARC1; p=quarantine; pct=25; sp=quarantine; adkim=r; aspf=r; rua=mailto:rajeev@openi.ai,mailto:re+etys4dueylb@dmarc.postmarkapp.com`. First rung of the progression ladder (none → quarantine/25 → quarantine/100 → reject). Watch Postmark digest 1-2 weeks before escalating.
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v4.1 — Phase 74 per-user "seen" tracking on What's New (13 May 2026 evening)
+
+**Trigger:** Phase 73 candidate flagged in project memory — every user saw the full What's New list on every visit, with no signal that new entries had arrived since their last visit. After Phase 72 auto-populated the list to 157 entries (88 backend + 69 frontend), the lack of an unread indicator made the page feel stale even when fresh entries had landed.
+
+**Decisions locked via AskUserQuestion before any code was written:**
+- **Storage model:** Single timestamp `users.whats_new_seen_at TIMESTAMPTZ`. NOT a per-(user, entry) join table. Visiting the page marks everything older as seen — fine for a feed surface (the user came specifically to read it).
+- **Mark-seen trigger:** Auto-mark on page mount, not on an explicit "Mark all read" button click. Most users never click such buttons; auto-mark matches the actual user intent of "I came here to catch up."
+
+**Commits:**
+- Backend `e2f48e6` — `feat(whats-new): Phase 74 — per-user seen tracking` (3 files, 75 insertions, 3 deletions)
+- Frontend `a6133c3` — `feat(whats-new): Phase 74 — sidebar unread badge + mark-seen on mount` (3 files, 47 insertions, 3 deletions)
+
+**Schema:**
+```sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS whats_new_seen_at TIMESTAMPTZ;
+```
+Idempotent (inside `runMigrations`). NULL = never visited → every visible entry counts as unread. No new tables, no new indexes, no FKs.
+
+**Backend (`whatsNewController.js`):**
+- `list()` extended to also compute `unread_count` per-caller (scoped to the same audience filter the entries query uses) and return `{entries, unread_count}`
+- New helper `computeUnreadCount(userId, role, isAdmin)` shared between `list()` and `unreadCount()`. Uses `($1::timestamptz IS NULL OR posted_at > $1::date)` so NULL `seen_at` coerces correctly in SQL — no JS branch needed for the "first-time visitor" case
+- New `markSeen(req, res)` — `UPDATE users SET whats_new_seen_at = NOW() WHERE id = $1`. Idempotent; clicking the page repeatedly just re-stamps the timestamp
+- New `unreadCount(req, res)` — count-only endpoint for the sidebar badge. ~5ms per call; cheaper than the alternative of fetching the full list and counting client-side
+
+**Routes (`routes/index.js`):**
+```js
+router.get ('/whats-new/unread-count', authMiddleware, whatsNew.unreadCount);
+router.post('/whats-new/seen',         authMiddleware, whatsNew.markSeen);
+```
+
+**Frontend (`services/api.js`):**
+```js
+export const whatsNewAPI = {
+  list:         () => get('/whats-new'),
+  unreadCount:  () => get('/whats-new/unread-count'),
+  markSeen:     () => post('/whats-new/seen'),
+};
+```
+
+**Frontend (`WhatsNew.jsx`):** `useEffect` fires `markSeen()` fire-and-forget after `load()` succeeds, then dispatches a `'whatsnew:seen'` window event. Failure swallows silently — badge will resync on next mount.
+
+**Frontend (`DashboardLayout.jsx`):** new `whatsNewUnread` state, mount-time `unreadCount()` fetch, `window.addEventListener('whatsnew:seen', ...)` listener that zeros the chip instantly without requiring a hard reload. Gold pill (`background: C.gold`) rendered next to the "What's New" `NavLink` when count > 0; capped at "99+".
+
+**Data flow:**
+1. User logs in → `DashboardLayout` mounts → `GET /whats-new/unread-count` → gold pill renders with the count
+2. User clicks "What's New" → page mounts → `list()` renders entries → `markSeen()` fires → backend stamps `NOW()` → frontend dispatches `'whatsnew:seen'` window event → `DashboardLayout` listener zeros the chip instantly (no hard reload needed)
+3. Subsequent navigation → `unreadCount()` returns 0 → no chip until a new entry posts with `posted_at > whats_new_seen_at`
+
+**Verification on prod (13 May 2026 evening):**
+- ✅ `whats_new_seen_at` column confirmed live via `information_schema.columns` → `[{"column_name":"whats_new_seen_at","data_type":"timestamp with time zone"}]`
+- ✅ Sidebar badge appeared as "99+" on `rajeev@openi.ai`'s first visit (NULL `seen_at`, 157 entries visible)
+- ✅ Badge cleared to 0 after clicking the What's New page (window-event listener zeroed the chip instantly)
+- ✅ Hard-reload after click confirmed persistence (DB write succeeded)
+- ✅ Auto-sync at boot ingested the Phase 74 backend + Phase 74 frontend commits within seconds of Railway/Vercel redeploy — visible on the page itself as "Track Your New Features More Easily"
+
+**Apply workflow (the `/tmp/` `python` pattern, second use after Phase 73):**
+- `/tmp/phase74_backend.py` — exact-string swap on 3 files (`startup.js`, `whatsNewController.js`, `routes/index.js`) with anchor-not-found-or-abort guards
+- `/tmp/phase74_frontend.py` — same shape on 3 frontend files (`api.js`, `WhatsNew.jsx`, `DashboardLayout.jsx`)
+- Both scripts idempotent — re-running after success detects the new strings and aborts cleanly
+- This is now the standard workflow for any non-trivial edit in either openi-hub repo as long as the Claude Code malware-reminder false-positive remains active (Anthropic ticket from 12 May still open)
+
+**Open items raised during this session:**
+1. **Admin persona missing "What's New" sidebar entry.** `rajeev@openi.ai` (role=admin) cannot see the link. Backend `list()` already serves admin (no audience filter); issue is frontend nav construction. Investigate `DashboardLayout.jsx` `!isLegacyRole` gate around `SECONDARY_NAV.map(...)` — admin may be tagged as legacy or built from a different array. Quick fix candidate.
+2. **`BodyBullets` cosmetic bug** in `WhatsNew.jsx`. Splits `body_md` on `\n` only; GPT-4o-mini sometimes returns bullets as `text,\n- text,- text` (comma-separated). Renders as a single bullet with literal `,- ` inline. Pre-existing — not a Phase 74 regression. ~5-line fix: also split on `,\s*-\s*`.
+3. **Dentsu challenge applicant issues** (user-flagged, paying customer's first cohort). Startups applying have raised issues that need sorting. Specifics not yet captured. Need to (a) pull applicant list from prod, (b) check `challenge_applications` for error/blocked rows, (c) Sentry feed + Railway logs for 4xx/5xx around `/applications/*` routes, (d) read support inbox for context. **Priority bump.**
+
+**Lessons (saved to project memory under Don'ts/Do's):**
+- **Window events are the cheap cross-component refresh primitive.** `window.dispatchEvent(new Event('whatsnew:seen'))` → `window.addEventListener` is paint-cheap, framework-free, and bridges the route boundary that prop-drilling and Context would need a provider to span. Use this pattern whenever a deeply-nested page needs to broadcast "I just did X" to a sibling/ancestor that doesn't share a parent.
+- **`($1::timestamptz IS NULL OR posted_at > $1::date)` is the right shape for "first-time visitor sees everything."** NULL seen_at coerces correctly without a separate code branch. Postgres prefers this single-clause form over an outer JS `if (seenAt === null)`.
+- **Cheap count endpoints beat fetching-and-counting on the client.** `GET /whats-new/unread-count` returns `{unread_count: N}` in ~5ms; the alternative pulls 100 rows over the wire for a single integer. Wherever a UI chrome needs a count, give it a dedicated count-only endpoint.
+
+---
 
 ### What's New in v4.0 — Phase 73 logo normalisation pipeline SHIPPED + mentor cosmetic fix + 5 platform-hygiene shipped items (13 May 2026 evening)
 
