@@ -635,7 +635,7 @@ export default function MyProfile() {
 
           <ProfileSection section="patents" title="Patents / IP" fields={[
             { name: 'title', label: 'Patent Title', required: true },
-            { name: 'status', label: 'Status', type: 'select', options: ['Applied','Granted','Pending'] },
+            { name: 'status', label: 'Status', type: 'select', options: [{label:'Applied',value:'applied'},{label:'Granted',value:'granted'},{label:'Pending',value:'pending'}] },
             { name: 'patent_number', label: 'Patent Number' },
             { name: 'filing_date', label: 'Filing Date', type: 'date' },
             { name: 'abstract', label: 'Abstract', type: 'textarea' },
