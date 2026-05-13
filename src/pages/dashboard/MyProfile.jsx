@@ -12,6 +12,14 @@ import StateField from '../../components/StateField';
 import CityField from '../../components/CityField';
 import toast from 'react-hot-toast';
 
+// Phase 82 / 82c - normalise select options (string OR {label,value} object).
+// Both MyProfile.FormField and ProfileSection.inline-add reference this.
+function normalizeOption(o) {
+  if (typeof o === 'string') return { label: o, value: o };
+  if (o && typeof o === 'object') return { label: o.label ?? String(o.value ?? ''), value: o.value ?? '' };
+  return { label: String(o ?? ''), value: String(o ?? '') };
+}
+
 const inputStyle = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
   width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 13, outline: 'none',
