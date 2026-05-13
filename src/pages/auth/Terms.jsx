@@ -60,7 +60,7 @@ export default function Terms() {
             <p>
               These Terms of Use (the &ldquo;Terms&rdquo;) govern your access to and use of the
               OpenI Hub platform operated by <strong>OpenI Partners LLP</strong> (&ldquo;OpenI&rdquo;,
-              &ldquo;we&rdquo;, or &ldquo;us&rdquo;), including the website at openi.tech and
+              &ldquo;we&rdquo;, or &ldquo;us&rdquo;), including the website at openi.ai and
               all associated subdomains, APIs, and services (together, the &ldquo;Platform&rdquo;).
             </p>
             <p>

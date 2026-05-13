@@ -284,7 +284,7 @@ export default function PublicLayout({ children }) {
               &copy; 2026 OpenI Hub &middot; Built for India&apos;s deep-tech ecosystem
             </p>
             <p className="text-xs">
-              <span style={{ color: GOLD }}>openi.tech</span>
+              <span style={{ color: GOLD }}>openi.ai</span>
             </p>
           </div>
         </div>
