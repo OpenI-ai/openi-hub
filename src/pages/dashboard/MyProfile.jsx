@@ -91,6 +91,32 @@ function FormField({ field, value, onChange }) {
       </div>
     );
   }
+  // Phase 75 — explicit date branch. <input type="date"> requires
+  // YYYY-MM-DD; pg returns DATE columns as Date objects or ISO timestamps
+  // like '2020-01-15T00:00:00.000Z' which the browser silently rejects.
+  // Without this branch, dates appear blank on reload even though the DB
+  // has the value, leading users to think the field didn't save.
+  if (type === 'date') {
+    let formatted = '';
+    if (value) {
+      if (typeof value === 'string') {
+        formatted = value.slice(0, 10);
+      } else if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        formatted = value.toISOString().slice(0, 10);
+      }
+    }
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <input type="date" value={formatted} onChange={e => onChange(e.target.value)}
+          min={min} max={max} style={inputStyle}
+          onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+          onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
+      </div>
+    );
+  }
   if (type === 'checkbox') {
     return (
       <label className="flex items-center gap-2 cursor-pointer">
