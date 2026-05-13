@@ -171,10 +171,12 @@ export default function Mentors() {
     return matchSearch && matchFilter;
   });
 
-  const totalSessions = mentors.reduce((s, m) => s + (m.sessions || 0), 0);
-  const avgRating = mentors.length
-    ? (mentors.reduce((s, m) => s + (m.rating || 0), 0) / mentors.length).toFixed(1)
-    : '—';
+  const totalSessions = mentors.reduce((s, m) => s + (Number(m.sessions) || 0), 0);
+  const ratings = mentors.map(m => Number(m.rating)).filter(Number.isFinite);
+  const avgRatingNum = ratings.length
+    ? ratings.reduce((s, r) => s + r, 0) / ratings.length
+    : NaN;
+  const avgRating = Number.isFinite(avgRatingNum) ? avgRatingNum.toFixed(1) : '—';
 
   if (loading) return <LoadingSkeleton type="card" />;
 
@@ -193,7 +195,7 @@ export default function Mentors() {
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Total Mentors',  value: mentors.length,                              color: 'text-gray-800' },
-          { label: 'Available',      value: mentors.filter(m => m.available).length,     color: 'text-accent-600' },
+          { label: 'Available',      value: mentors.filter(m => m.is_active).length,     color: 'text-accent-600' },
           { label: 'Total Sessions', value: totalSessions,                               color: 'text-primary-600' },
           { label: 'Avg Rating',     value: avgRating + ' ⭐',                           color: 'text-yellow-600' },
         ].map(s => (
@@ -231,8 +233,8 @@ export default function Mentors() {
                     <p className="text-xs text-gray-400">{mentor.org}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <span className="flex items-center gap-1 text-sm font-bold text-yellow-600"><Star size={13} /> {mentor.rating}</span>
-                    <span className={`w-2 h-2 rounded-full ${mentor.available ? 'bg-accent-500' : 'bg-gray-300'}`} title={mentor.available ? 'Available' : 'Busy'} />
+                    <span className="flex items-center gap-1 text-sm font-bold text-yellow-600"><Star size={13} /> {Number(mentor.rating || 0).toFixed(1)}</span>
+                    <span className={`w-2 h-2 rounded-full ${mentor.is_active ? 'bg-accent-500' : 'bg-gray-300'}`} title={mentor.is_active ? 'Available' : 'Busy'} />
                   </div>
                 </div>
               </div>
@@ -245,8 +247,8 @@ export default function Mentors() {
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-              <span>{mentor.sessions || 0} sessions · {(mentor.assigned_startups || mentor.assignedStartups || []).length} startups</span>
-              <span className={`font-semibold ${mentor.available ? 'text-accent-600' : 'text-gray-400'}`}>{mentor.available ? '● Available' : '● Busy'}</span>
+              <span>{mentor.total_sessions || mentor.sessions || 0} sessions · {(mentor.assigned_startups || mentor.assignedStartups || []).length} startups</span>
+              <span className={`font-semibold ${mentor.is_active ? 'text-accent-600' : 'text-gray-400'}`}>{mentor.is_active ? '● Available' : '● Busy'}</span>
             </div>
           </div>
         ))}
