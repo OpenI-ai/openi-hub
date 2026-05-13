@@ -2,16 +2,106 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 4.1
-**Last Updated:** 13 May 2026 (evening — Phase 74 SHIPPED on top of v4.0. Per-user "seen" tracking on What's New: `users.whats_new_seen_at TIMESTAMPTZ` column, `GET /whats-new/unread-count`, `POST /whats-new/seen`, sidebar unread badge in `DashboardLayout`. Phase 73 + mentor cosmetic + DMARC + `mentors.email` UNIQUE + s39 hygiene DELETE all carried forward from v4.0.)
+**Version:** 4.2
+**Last Updated:** 13 May 2026 (late evening — Phases 75-84 profile UX hardening batch SHIPPED on top of v4.1. 10 phases covering: date display normalisation, TaxonomyTags chip race fix, ProfileSection inline edit + pretty cells, sub-section-aware profile completeness scoring, 6 more URL types surfaced to corporate-view, Team Size band priority, Patent Add 500 fix via {label,value} option form, country name vs ISO code normalisation, bracket-dropdown money fields with INR/USD toggle + 6 new VARCHAR(80) range columns on startup_profiles. Phase 74 + 73 + earlier all carried forward.)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 + 73 + 74 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `mentors_email_unique` partial expression index added 13 May; `sme_experts` DROPPED Phase 71d. Phase 73 Cloudinary `eager` preset wired into both upload code paths. Phase 74 added `users.whats_new_seen_at TIMESTAMPTZ` + `GET /whats-new/unread-count` + `POST /whats-new/seen`.)*
+**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 + 73 + 74 + 79 + 84 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `mentors_email_unique` partial expression index added 13 May; `sme_experts` DROPPED Phase 71d. Phase 73 Cloudinary `eager` preset wired into both upload code paths. Phase 74 added `users.whats_new_seen_at TIMESTAMPTZ` + `GET /whats-new/unread-count` + `POST /whats-new/seen`. Phase 79 added `subsections` weight map + 8-table presence probing in `profileScoreService.recomputeForUser`. Phase 84 added 6 `_range VARCHAR(80)` columns on `startup_profiles` for bracket-dropdown money fields.)*
 **Backend env (13 May):** `CLIENT_URL = https://openi.ai`. `OPENAI_API_KEY` set. `GITHUB_TOKEN` set (PAT rotated 13 May after the original value leaked into 12 May chat history). `CLOUDINARY_URL` (or trio) set (used by Phase 73 logo normalisation). `AUTO_START_ENRICH_WORKER=true`.
 **Email auth (13 May):** DMARC tightened to `v=DMARC1; p=quarantine; pct=25; sp=quarantine; adkim=r; aspf=r; rua=mailto:rajeev@openi.ai,mailto:re+etys4dueylb@dmarc.postmarkapp.com`. First rung of the progression ladder (none → quarantine/25 → quarantine/100 → reject). Watch Postmark digest 1-2 weeks before escalating.
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v4.2 — Phases 75-84 profile UX hardening batch (13 May 2026 late evening)
+
+Single long session covering 10 phases on `/dashboard/profile` (MyProfile edit form) and `/dashboard/startup/:id` (StartupProfile public view) plus supporting infrastructure. Triggered by Dentsu cohort applicant testing — Dentsu is the first paying corporate customer and the bugs surfaced as their applicant pool started exercising profile edit flows for the first time.
+
+**Phases shipped:**
+
+#### Phase 75 — Date field display on reload (commit `d9abbd8`)
+`incorporation_date` + `last_funding_date` showed blank after save+reload because `<input type="date">` silently rejects ISO timestamps (`'2020-01-15T00:00:00.000Z'`) and Date objects — it requires `YYYY-MM-DD` strings. Fix: explicit `type === 'date'` branch in `MyProfile.jsx#FormField` that slices the first 10 chars of a string value or formats a Date object via `toISOString().slice(0,10)`. Affects both startup-persona date fields plus future-proofs the rest.
+
+#### Phase 76 — TaxonomyTags onBlur-vs-onClick race (in batch commit `c9604f7`)
+User types `qu` to filter the technologies dropdown → clicks the `Quantum Tech` suggestion → input's `onBlur` fires synchronously, commits `qu` as a chip → suggestion's `onClick` runs after but the dropdown is already dismissed. End result: `qu` chip created, real selection lost. Three-layer fix:
+- Drop the `addTag(input)` call from `onBlur` so clicking away abandons partial input
+- Add `onMouseDown={e => e.preventDefault()}` to each suggestion item so the input keeps focus when a suggestion is clicked
+- Defensive `addTag` rejects sub-2-char strings
+
+Verified live with chips showing `AI Infrastructure`, `Quantum Tech` correctly.
+
+#### Phase 78 — ProfileSection inline edit (in batch commit `c9604f7`)
+The 8 sub-section repeaters on MyProfile (Team / Products / Funding / Clients / Patents / Competitors / News / Acquisitions) only supported Add + Delete. Changing a row required delete + re-add. Backend already had PUT support; frontend never exposed it.
+
+Fix: added `editingId` state, `handleEdit(item)` pre-fill, unified `handleSave` (branches on `editingId` for PUT vs POST), `handleCancelEdit`. Pencil icon next to Delete on every row. Add toggle becomes `Cancel Edit` when in edit mode. Date fields in the pre-fill are sliced to YYYY-MM-DD same as Phase 75.
+
+#### Phase 78b — Pretty-print table cells (commit `96228ef`)
+Same session caught: after a row saves, the ProfileSection table shows raw `item[col]` values. `Filing Date` rendered as `2026-05-05T00:00:00.000Z`; `Status` rendered as `granted` (lowercase from DB). Fix: per-cell formatter that walks `fields.find(f => f.name === col)` and (a) slices dates to YYYY-MM-DD, (b) resolves select values back to their human-readable label via the `{label,value}` option map, (c) falls back to raw stringification for plain fields.
+
+#### Phase 79 — Profile completeness counts sub-sections (commits `b7e7326` backend + `c9604f7` frontend)
+Trigger: a startup with a polished top-level profile and ZERO Team/Products/Funding/Patents entries could hit 100% completeness because both the backend `profileScoreService` and the frontend bar only summed top-level field weights.
+
+Backend rebalance: startup persona weights shaved from 100 → 80 (proportional, preserves relative importance of company_name / description / pitch_deck_url etc.). New `subsections` map allocates the freed 20pts across 8 tables (`startup_team_members:3, startup_products:3, startup_funding_rounds:3, startup_clients:2, startup_patents:3, startup_competitors:2, startup_news:2, startup_acquisitions:2`). `recomputeForUser` fires 8 parallel `SELECT 1 FROM <tbl> WHERE startup_profile_id=$1 LIMIT 1` probes and adds the per-sub-section weight when a row exists. `Math.min(100, ...)` clamp guards against future drift.
+
+Frontend mirrors: `MyProfile.jsx` for startup persona fetches all 8 sub-section lists in parallel on mount via `Promise.all(startupProfileAPI.list(s))`, blends presence into the completeness math using the same 80/20 split. Other personas unchanged.
+
+#### Phase 80 — More URLs in corporate-view Links panel (in batch commit `c9604f7`)
+`StartupProfile.jsx` Links sidebar rendered only `website`, `linkedin_url`, `twitter_url`. The `startup_profiles` table stores 6 more URLs that the founder might have filled (`github_url`, `crunchbase_url`, `product_hunt_url`, `youtube_url`, `pitch_deck_url`, `video_url`) but they were invisible to corporates reviewing applicants. Added 6 conditional anchors with appropriate lucide icons (Github, Youtube, FileText for pitch deck, Video for demo). `No links available` fallback now checks all 9 fields.
+
+#### Phase 81 — Team Size band priority (in batch commit `c9604f7`)
+`startup_profiles.team_size INTEGER DEFAULT 1` silently writes `1` to every new row because the user-facing form never asks for the numeric count — only the human-readable band (`'1-10'`, `'11-50'`, ...) stored in `employee_range`. StartupProfile's Quick Stats and Financials tile both prioritised `team_size || employee_range` and always preferred the phantom `1`. Fix: 2 sites flipped to `employee_range || team_size`, truthiness gate widened to `(employee_range || team_size) &&`. The schema DEFAULT is deferred — risky migration on 575k rows.
+
+#### Phase 82 + 82b + 82c + 82d — Patent Add 500 / white error screen
+Four-round fix for what looked like one bug. The DB CHECK constraint `startup_patents_status_check` requires lowercase `('applied','granted','pending')`. The frontend dropdown sent Title Case `'Granted'`. Same bug class as Phase 66 (events_type_check).
+
+- **82 (in batch `c9604f7`):** added `normalizeOption(o)` helper meant to be declared at module top-level of `MyProfile.jsx`, plus updates to both `FormField` and `ProfileSection` select renderers. Also intended to switch `personas.js` patents.status options to `{label,value}` form. **Two latent failures:** (a) personas.js doesn't declare the Patents sub-section's fields — they're inline in MyProfile.jsx — so the personas.js anchor failed silently; (b) the helper-injection anchor in MyProfile.jsx also failed silently because Phase 78's earlier refactor had shifted the surrounding context. Net: select renderers called undefined `normalizeOption()` → ReferenceError on Add Patent click → React error boundary → white error screen.
+- **82b (commit `7754af4`):** caught one of the two missed select renderers — the ProfileSection inline-Add form select. Updated it to use `normalizeOption`.
+- **82c (commit `c4548af`):** caught the missing helper declaration via browser Console screenshot showing `ReferenceError: normalizeOption is not defined`. Declared the helper at module top-level so both `FormField` and `ProfileSection` can resolve it.
+- **82d (commit `0b31ece`):** switched the inline `<ProfileSection section="patents" fields={[…]}>` `status` options from plain Title Case strings to `{label,value}` object form so the visible label `Granted` sends the DB-accepted value `granted`.
+
+End state: Add Patent with `Status=Granted` saves cleanly, row appears in table with `Status: Granted` Title Case (via Phase 78b option-label lookup), DB has `status='granted'`. Verified live.
+
+#### Phase 83 — Country name vs ISO code (in batch commit `c9604f7`)
+Legacy rows stored `country = "India"` (long-form string). The Country dropdown writes the ISO code `"IN"`. `StateField` initial state branched `country === 'IN' ? INDIAN_STATES : null` — got `null` for `"India"` and fell to free-text input fallback. `CityField` passed `"India"` to `/api/public/cities?country=India` which returned `[]`. State + City both rendered as plain text inputs with no dropdown affordance for legacy users.
+
+Fix: new `resolveCountryCode(input)` helper exported from `locations.js` that accepts either an ISO code or a long-form name (case-insensitive lookup against `COUNTRIES`). Wired into `StateField` (`country: rawCountry = 'IN'` → `country = resolveCountryCode(rawCountry) || 'IN'`), `CityField` (same pattern), and `MyProfile.jsx` in both the `dependentField` thread to state/city components AND the Country select's value binding (so the dropdown displays the right option for legacy long-form rows). Legacy data renders correctly; future saves continue writing ISO codes. Verified: State dropdown shows 36 Indian states/UTs, City autocomplete fires on focus.
+
+#### Phase 84 — Bracket-dropdown money fields with currency toggle (commits `b7e7326` backend + `c9604f7` frontend)
+Replaces the originally-planned Phase 77 (number-input + currency-dropdown). User wanted bracket dropdowns matching the existing `revenue_range` field.
+
+**Backend (`b7e7326`):**
+- 6 new `VARCHAR(80)` columns on `startup_profiles`: `mrr_range`, `arr_range`, `funding_raised_range`, `valuation_range`, `last_funding_amount_range`, `burn_rate_range`. Idempotent `ADD COLUMN IF NOT EXISTS` in `runMigrations`. Existing NUMERIC columns retained for backward compatibility with downstream consumers.
+- Whitelisted in `ALLOWED_COLUMNS.startup_profiles`. `coerceUpdates` requires no change — VARCHAR plays through the default branch.
+
+**Frontend (`c9604f7`):**
+- 6 startup money fields switch from `type:'number'` (or `type:'text'` for burn_rate) to `type:'money_range'` with `variant:'revenue'`.
+- `MyProfile.jsx#money_range` field type rewired. The legacy implementation stored a JS object `{range, currency}` in React state which pg auto-stringified to `'{"range":"...","currency":"INR"}'` when written to VARCHAR — and on read back, the string failed the `typeof === 'object'` check, so the dropdown showed blank. Phase 84 canonicalises storage to a single string `"INR <bracket label>"` (or `"USD"`, `"EUR"`, `"GBP"` prefix). Parse-on-render is backward-compatible with 4 shapes: new canonical text, legacy object, legacy JSON string, bare bracket text.
+- `StartupProfile.formatFunding(val, currency, rangeText)` now takes 3 args. Prefers `rangeText` when present, falls back to formatted NUMERIC + currency symbol. `MONEY_SYMBOLS = {INR:'₹', USD:'$', EUR:'€', GBP:'£'}`. Two existing call sites updated to pass the new range column.
+
+Verified: MRR + ARR render INR/USD tabs + bracket dropdown. Round-trip save/reload persistence test deferred.
+
+### Database schema changes (this version)
+- 6 ALTER TABLE ADD COLUMN IF NOT EXISTS on `startup_profiles` (Phase 84). All VARCHAR(80). Idempotent. Applied to prod via `migrate-bootstrap.js`. Verified via `information_schema.columns` query.
+- No data migrations applied. `directory_profiles.profile_score` for existing rows is stale under Phase 79's new weight model; deferred `recomputeAll()` backfill (5-10 minute job on Railway) is queued for next session.
+
+### Apply workflow note
+Every change in this batch shipped through the `/tmp/` Python apply-script pattern established in Phases 73-74. The Claude Code malware-reminder false-positive remains active on both repos as of 13 May. Claude writes anchor-guarded Python swap-scripts to `/tmp/`, user runs `python3 /tmp/phaseNN_x.py` per script. Idempotent across re-runs.
+
+**Bracketed-paste-mode bug** in macOS Terminal bit several times this session — the `~` in `~/.npm-global/bin/railway` got mangled to `HOME/.npm-global/bin/railway` on paste. Workarounds: `bind 'set enable-bracketed-paste off'` or full absolute path `/Users/rajeevbanduni/.npm-global/bin/railway`.
+
+### Commits in v4.2
+- Backend: `b7e7326`
+- Frontend (original batch): `d9abbd8` (Phase 75), `c9604f7` (Phases 76+78+79+80+81+82+83+84)
+- Frontend (follow-ups): `7754af4` (82b), `c4548af` (82c), `0b31ece` (82d), `96228ef` (78b)
+
+### Open items deferred to next session
+- `recomputeAll()` backfill on `directory_profiles.profile_score` (575k rows × small queries; ~5-10min job)
+- Sweep `$`-hardcoded `formatFunding` in ~10 secondary surfaces (recommendation cards, marketplace cards). Phase 84 fixed the canonical `StartupProfile.jsx`; the copy-pastes elsewhere still hardcode `$` prefix.
+- Phase 79 / 84 cross-persona expansion to investor / mentor / corporate. Startup-only today.
+- Admin missing What's New sidebar (Phase 74 follow-up).
+- `BodyBullets` comma-separated bullet rendering bug (Phase 74 follow-up).
+
+---
 
 ### What's New in v4.1 — Phase 74 per-user "seen" tracking on What's New (13 May 2026 evening)
 
