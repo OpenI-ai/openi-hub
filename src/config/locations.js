@@ -185,6 +185,24 @@ export const COUNTRIES = [
   { code: 'ZW', name: 'Zimbabwe' },
 ];
 
+// Phase 83 — accept either an ISO code ('IN') or a long-form country
+// name ('India') and return the ISO code. Used by StateField + CityField
+// + the FormField country branch so legacy rows that stored the long
+// form still render correctly. Case-insensitive on the long form.
+export function resolveCountryCode(input) {
+  if (!input) return '';
+  const s = String(input).trim();
+  if (!s) return '';
+  // Already an ISO code?
+  const byCode = COUNTRIES.find(c => c.code === s.toUpperCase());
+  if (byCode) return byCode.code;
+  // Match on long-form name case-insensitively.
+  const byName = COUNTRIES.find(c => c.name.toLowerCase() === s.toLowerCase());
+  if (byName) return byName.code;
+  // Unknown: return as-is so downstream code can still attempt a fetch.
+  return s;
+}
+
 export const INDIAN_STATES = [
   // 28 states (alphabetical)
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',

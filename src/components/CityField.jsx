@@ -12,6 +12,8 @@
  * round-trips when the user types and deletes the same string.
  */
 import { useEffect, useRef, useState } from 'react';
+// Phase 83 — accept either ISO code or long-form country name from callers.
+import { resolveCountryCode } from '../config/locations';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -42,7 +44,9 @@ async function fetchCities({ country, state, q, limit = 20 }) {
   }
 }
 
-export default function CityField({ value, onChange, country = 'IN', state = '', label, required, placeholder, inputStyle, labelClassName }) {
+export default function CityField({ value, onChange, country: rawCountry = 'IN', state = '', label, required, placeholder, inputStyle, labelClassName }) {
+  // Phase 83 — accept either ISO code or long-form country name.
+  const country = resolveCountryCode(rawCountry) || 'IN';
   const [query, setQuery] = useState(value || '');
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);

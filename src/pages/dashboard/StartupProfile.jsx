@@ -9,7 +9,7 @@ import {
   MapPin, Users, TrendingUp, Award, Shield, ChevronRight,
   ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target,
   DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
-  Flag, Loader2, X, Mail
+  Flag, Loader2, X, Mail, Github, Youtube, FileText, Video
 } from 'lucide-react';
 
 // Phase 69: TRL renamed to "Tech Readiness" everywhere visible. Tooltip
@@ -31,14 +31,20 @@ function TechReadinessBadge({ trl }) {
   );
 }
 
-function formatFunding(val) {
+// Phase 84 - formatFunding prefers the human-readable bracket label when
+// available. Falls back to formatting the legacy numeric column with the
+// companion _currency.
+const MONEY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
+function formatFunding(val, currency, rangeText) {
+  if (rangeText && typeof rangeText === 'string') return rangeText;
   if (!val) return null;
   const num = typeof val === 'string' ? parseFloat(val) : val;
   if (isNaN(num) || num === 0) return null;
-  if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
-  if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
-  if (num >= 1e3) return `$${(num / 1e3).toFixed(0)}K`;
-  return `$${num}`;
+  const sym = MONEY_SYMBOLS[currency || 'INR'] || (currency || '');
+  if (num >= 1e9) return `${sym}${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `${sym}${(num / 1e6).toFixed(1)}M`;
+  if (num >= 1e3) return `${sym}${(num / 1e3).toFixed(0)}K`;
+  return `${sym}${num}`;
 }
 
 function EmptySection({ message }) {
@@ -226,8 +232,8 @@ export default function StartupProfile() {
   const initials = name.split(' ').map(w => w?.[0]).join('').slice(0, 2).toUpperCase() || '??';
   const location = [startup.city, startup.state, startup.country].filter(Boolean).join(', ');
   const trl = startup.tech_readiness || 0;
-  const funding = formatFunding(startup.funding_raised);
-  const valuation = formatFunding(startup.valuation);
+  const funding = formatFunding(startup.funding_raised, startup.funding_raised_currency, startup.funding_raised_range);
+  const valuation = formatFunding(startup.valuation, startup.valuation_currency, startup.valuation_range);
   const technologies = Array.isArray(startup.technologies) ? startup.technologies : [];
   const focusAreas = Array.isArray(startup.focus_areas) ? startup.focus_areas : [];
   const investors = Array.isArray(startup.investor_names) ? startup.investor_names : [];
@@ -465,7 +471,7 @@ export default function StartupProfile() {
                   {[
                     funding && ['Total Funding', funding, 'text-primary-600'],
                     valuation && ['Valuation', valuation, 'text-accent-600'],
-                    startup.team_size && ['Team Size', startup.team_size || startup.employee_range, 'text-blue-600'],
+                    (startup.employee_range || startup.team_size) && ['Team Size', startup.employee_range || startup.team_size, 'text-blue-600'],
                     startup.total_funding_rounds && ['Funding Rounds', startup.total_funding_rounds, 'text-gray-700'],
                     startup.total_investors && ['Total Investors', startup.total_investors, 'text-gray-700'],
                     startup.revenue_range && ['Revenue', startup.revenue_range, 'text-accent-600'],
@@ -503,7 +509,7 @@ export default function StartupProfile() {
               <div className="space-y-3">
                 {[
                   trl > 0 && { label: 'Tech Readiness', value: `Level ${trl}`, icon: Target, color: 'text-blue-500', tooltip: TRL_TOOLTIP },
-                  startup.team_size && { label: 'Team Size', value: startup.team_size || startup.employee_range, icon: Users, color: 'text-green-500' },
+                  (startup.employee_range || startup.team_size) && { label: 'Team Size', value: startup.employee_range || startup.team_size, icon: Users, color: 'text-green-500' },
                   funding && { label: 'Funding Raised', value: funding, icon: DollarSign, color: 'text-yellow-500' },
                   valuation && { label: 'Valuation', value: valuation, icon: TrendingUp, color: 'text-accent-500' },
                   startup.founded_year && { label: 'Founded', value: startup.founded_year, icon: Calendar, color: 'text-gray-500' },
@@ -540,7 +546,40 @@ export default function StartupProfile() {
                     <ExternalLink size={14} /> X / Twitter
                   </a>
                 )}
-                {!startup.website && !startup.linkedin_url && !startup.twitter_url && (
+                {/* Phase 80 — surface the full set of stored URLs so corporates
+                    reviewing the profile can reach GitHub / Crunchbase /
+                    Product Hunt / YouTube / pitch deck / demo video. */}
+                {startup.github_url && (
+                  <a href={startup.github_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <Github size={14} /> GitHub
+                  </a>
+                )}
+                {startup.crunchbase_url && (
+                  <a href={startup.crunchbase_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <ExternalLink size={14} /> Crunchbase
+                  </a>
+                )}
+                {startup.product_hunt_url && (
+                  <a href={startup.product_hunt_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <ExternalLink size={14} /> Product Hunt
+                  </a>
+                )}
+                {startup.youtube_url && (
+                  <a href={startup.youtube_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <Youtube size={14} /> YouTube
+                  </a>
+                )}
+                {startup.pitch_deck_url && (
+                  <a href={startup.pitch_deck_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <FileText size={14} /> Pitch Deck
+                  </a>
+                )}
+                {startup.video_url && (
+                  <a href={startup.video_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                    <Video size={14} /> Demo Video
+                  </a>
+                )}
+                {!startup.website && !startup.linkedin_url && !startup.twitter_url && !startup.github_url && !startup.crunchbase_url && !startup.product_hunt_url && !startup.youtube_url && !startup.pitch_deck_url && !startup.video_url && (
                   <p className="text-gray-400">No links available</p>
                 )}
               </div>

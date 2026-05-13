@@ -48,7 +48,13 @@ export default function TaxonomyTags({
 
   const addTag = (tag) => {
     const trimmed = tag.trim();
-    if (trimmed && !value.includes(trimmed)) { onChange([...value, trimmed]); }
+    // Phase 76 — reject sub-2-char tags. Real taxonomy values are always
+    // ≥2 chars; this blocks the fat-finger Enter-on-first-letter commit
+    // that was producing ['D','H','F','P'] chip fragments alongside the
+    // real selections.
+    if (trimmed.length >= 2 && !value.includes(trimmed)) {
+      onChange([...value, trimmed]);
+    }
     setInput(''); setShowSuggestions(false);
   };
 
@@ -73,11 +79,22 @@ export default function TaxonomyTags({
         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(input); } }}
         onFocus={() => { if (input.length >= 1) setShowSuggestions(true); }}
         placeholder={placeholder} style={inputStyle}
-        onBlur={() => { setTimeout(() => setShowSuggestions(false), 200); if (input.trim()) addTag(input); }} />
+        onBlur={() => {
+          // Phase 76 — drop the addTag-on-blur. The original "if (input.trim())
+          // addTag(input)" fired synchronously when the user clicked a
+          // dropdown suggestion (because clicking the suggestion blurs the
+          // input), beating the suggestion's own onClick handler and
+          // injecting a partial-typed fragment ('D' or 'AI') as a chip
+          // before the real suggestion ('DeepTech') landed. Removing this
+          // means clicking away abandons partial input — the correct
+          // mental model for an autocomplete with suggestions.
+          setTimeout(() => setShowSuggestions(false), 200);
+        }} />
       {showSuggestions && suggestions.length > 0 && (
         <div style={{ position: 'absolute', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 200, overflowY: 'auto' }}>
           {suggestions.map(s => (
             <div key={s.id}
+              onMouseDown={e => e.preventDefault()}
               onClick={() => addTag(s.name)}
               style={{ padding: '8px 14px', paddingLeft: s.level > 0 ? 24 : 14, fontSize: 12, cursor: 'pointer', color: s.level === 0 ? '#1a1a1a' : '#555', fontWeight: s.level === 0 ? 600 : 400 }}
               onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}

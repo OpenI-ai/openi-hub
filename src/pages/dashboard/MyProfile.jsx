@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
-import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
+import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions, resolveCountryCode } from '../../config/locations';
 import { profileAPI, startupProfileAPI } from '../../services/api';
-import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
+import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle, Pencil } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import AutoFillMyProfile from '../../components/AutoFillMyProfile';
 import TaxonomySelect from '../../components/TaxonomySelect';
@@ -163,12 +163,15 @@ function FormField({ field, value, onChange }) {
   }
   // Phase 60.10 (s50): country select. Default India, full ISO list.
   if (type === 'country') {
+    // Phase 83 — handle both 'IN' (ISO code) and 'India' (long-form) shapes
+    // in stored data. Normalise to code for the <select> binding.
+    const resolved = resolveCountryCode(value) || 'IN';
     return (
       <div>
         <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
           {label || 'Country'} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
-        <select value={value || 'IN'} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+        <select value={resolved} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
           {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
         </select>
       </div>
@@ -220,15 +223,40 @@ function FormField({ field, value, onChange }) {
       </div>
     );
   }
-  // Phase 60.10 — money_range. Bracket dropdown + INR/USD toggle.
-  // Stored as { range, currency }. Variant 'revenue' or 'ticket'.
+  // Phase 60.10 / Phase 84 - money_range. Bracket dropdown + INR/USD toggle.
+  // Phase 84: storage shape canonicalised to a single string
+  // 'INR <bracket label>' or 'USD <bracket label>' so it round-trips
+  // cleanly through VARCHAR columns (the legacy {range, currency} object
+  // shape got JSON-stringified by pg and silently broke on read).
   if (type === 'money_range') {
     const ranges = field.variant === 'ticket' ? TICKET_SIZE_RANGES : MONEY_RANGES;
-    const v = (value && typeof value === 'object') ? value : { range: '', currency: 'INR' };
+    // Parse the stored value. Accepts:
+    //   - new canonical text 'INR ₹1 Cr - ₹10 Cr'
+    //   - legacy {range, currency} JS object
+    //   - legacy JSON string '{"range":"...","currency":"INR"}'
+    //   - bare bracket text without currency prefix
+    let v = { range: '', currency: 'INR' };
+    if (value && typeof value === 'object') {
+      v = { range: value.range || '', currency: value.currency || 'INR' };
+    } else if (typeof value === 'string' && value) {
+      const m = value.match(/^(INR|USD|EUR|GBP)\s+(.+)$/);
+      if (m) {
+        v = { range: m[2], currency: m[1] };
+      } else if (value.startsWith('{')) {
+        try { const o = JSON.parse(value); v = { range: o.range || '', currency: o.currency || 'INR' }; }
+        catch { v = { range: '', currency: 'INR' }; }
+      } else {
+        v = { range: value, currency: 'INR' };
+      }
+    }
     const cur = v.currency || 'INR';
     const opts = ranges[cur] || [];
-    const setRange = (range) => onChange({ ...v, range, currency: cur });
-    const setCur = (currency) => onChange({ ...v, range: '', currency });
+    const emit = (next) => {
+      if (!next.range) onChange('');
+      else onChange(`${next.currency || 'INR'} ${next.range}`);
+    };
+    const setRange = (range) => emit({ range, currency: cur });
+    const setCur = (currency) => emit({ range: '', currency });
     const tabBtn = (active) => ({
       flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: active ? 600 : 500,
       border: 'none', background: active ? '#fff' : 'transparent',
@@ -402,13 +430,66 @@ export default function MyProfile() {
     setProfileData(prev => ({ ...prev, [fieldName]: value }));
   };
 
-  // Calculate profile completeness
-  const filledCount = fields.filter(f => {
-    const v = profileData[f.name];
-    if (Array.isArray(v)) return v.length > 0;
-    return v !== undefined && v !== null && v !== '';
-  }).length;
-  const completeness = fields.length ? Math.round((filledCount / fields.length) * 100) : 0;
+  // Phase 79 — sub-section presence tracking. For the startup persona, the
+  // 8 child-table repeaters (Team / Products / Funding / Clients / Patents /
+  // Competitors / News / Acquisitions) contribute up to 20pts to the
+  // completeness bar; top-level fields contribute up to 80pts. Backend
+  // profileScoreService.js uses the same weights so the bar matches
+  // directory_profiles.profile_score.
+  const [sectionPresence, setSectionPresence] = useState({});
+  const SUBSECTION_WEIGHTS = {
+    team:          3,
+    products:      3,
+    funding:       3,
+    clients:       2,
+    patents:       3,
+    competitors:   2,
+    news:          2,
+    acquisitions:  2,
+  };
+  const SUBSECTION_TOTAL = Object.values(SUBSECTION_WEIGHTS).reduce((a, b) => a + b, 0); // 20
+
+  useEffect(() => {
+    if (user?.role !== 'startup') return;
+    let cancelled = false;
+    (async () => {
+      const sections = Object.keys(SUBSECTION_WEIGHTS);
+      const results = await Promise.all(
+        sections.map(s => startupProfileAPI.list(s).then(r => Array.isArray(r) && r.length > 0).catch(() => false))
+      );
+      if (cancelled) return;
+      const presence = {};
+      sections.forEach((s, i) => { presence[s] = results[i]; });
+      setSectionPresence(presence);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.role]);
+
+  // Phase 79 — completeness for startup uses 80/20 split; other personas
+  // unchanged (top-level fields only, 100% scale).
+  let completeness;
+  if (user?.role === 'startup') {
+    // top-level out of 80
+    const filledTopLevel = fields.filter(f => {
+      const v = profileData[f.name];
+      if (Array.isArray(v)) return v.length > 0;
+      return v !== undefined && v !== null && v !== '';
+    }).length;
+    const topLevelMax = fields.length || 1;
+    const topLevelPts = Math.round((filledTopLevel / topLevelMax) * 80);
+    let subPts = 0;
+    for (const [section, weight] of Object.entries(SUBSECTION_WEIGHTS)) {
+      if (sectionPresence[section]) subPts += weight;
+    }
+    completeness = Math.min(100, topLevelPts + subPts);
+  } else {
+    const filledCount = fields.filter(f => {
+      const v = profileData[f.name];
+      if (Array.isArray(v)) return v.length > 0;
+      return v !== undefined && v !== null && v !== '';
+    }).length;
+    completeness = fields.length ? Math.round((filledCount / fields.length) * 100) : 0;
+  }
 
   if (loading) {
     return (
@@ -479,9 +560,11 @@ export default function MyProfile() {
             // can scope their fetches correctly.
             let dependentField = field;
             if (field.type === 'state') {
-              dependentField = { ...field, country: profileData.country || 'IN' };
+              // Phase 83 — legacy rows may store the long-form country name
+              // ('India'). Normalise to ISO code so StateField shows the dropdown.
+              dependentField = { ...field, country: resolveCountryCode(profileData.country) || 'IN' };
             } else if (field.type === 'city') {
-              dependentField = { ...field, country: profileData.country || 'IN', state: profileData.state || '' };
+              dependentField = { ...field, country: resolveCountryCode(profileData.country) || 'IN', state: profileData.state || '' };
             }
             return (
               <div key={field.name} className={field.type === 'textarea' || field.type === 'tags' || field.type === 'multiselect' || field.type === 'taxonomy_tags' ? 'md:col-span-2' : ''}>
@@ -585,6 +668,8 @@ function ProfileSection({ section, title, fields, displayCols }) {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({});
   const [loading, setLoading] = useState(false);
+  // Phase 78 — when set, the form below acts as an edit form for that item id.
+  const [editingId, setEditingId] = useState(null);
 
   const load = async () => {
     try { const d = await startupProfileAPI.list(section); setItems(d); }
@@ -593,16 +678,49 @@ function ProfileSection({ section, title, fields, displayCols }) {
 
   useEffect(() => { if (expanded) load(); }, [expanded]);
 
-  const handleAdd = async () => {
+  // Phase 78 — unified save handler. Branches on editingId: if set, PUT
+  // the existing row; otherwise POST a new row. The Add button below
+  // reuses the same handler so create + update share validation + UX.
+  const handleSave = async () => {
     const requiredField = fields.find(f => f.required);
     if (requiredField && !form[requiredField.name]) { toast.error(`${requiredField.label} is required`); return; }
     setLoading(true);
     try {
-      await startupProfileAPI.create(section, form);
-      setForm({}); setShowAdd(false); load();
-      toast.success('Added');
-    } catch (err) { toast.error(err.message || 'Failed to add'); }
+      if (editingId) {
+        await startupProfileAPI.update(section, editingId, form);
+        toast.success('Updated');
+      } else {
+        await startupProfileAPI.create(section, form);
+        toast.success('Added');
+      }
+      setForm({}); setShowAdd(false); setEditingId(null); load();
+    } catch (err) { toast.error(err.message || 'Failed to save'); }
     finally { setLoading(false); }
+  };
+
+  // Phase 78 — pre-fill the form with an existing item's values and
+  // switch the form into edit mode.
+  const handleEdit = (item) => {
+    const initial = {};
+    for (const f of fields) {
+      const raw = item[f.name];
+      // Dates come as ISO timestamps from pg; coerce to YYYY-MM-DD so
+      // <input type="date"> can display them (same trick as Phase 75).
+      if (f.type === 'date' && raw) {
+        initial[f.name] = typeof raw === 'string' ? raw.slice(0, 10) : '';
+      } else if (raw !== null && raw !== undefined) {
+        initial[f.name] = raw;
+      }
+    }
+    setForm(initial);
+    setEditingId(item.id);
+    setShowAdd(true);
+  };
+
+  const handleCancelEdit = () => {
+    setShowAdd(false);
+    setForm({});
+    setEditingId(null);
   };
 
   const handleDelete = async (id) => {
@@ -623,10 +741,14 @@ function ProfileSection({ section, title, fields, displayCols }) {
       {expanded && (
         <div className="px-4 pb-4">
           {/* Add button */}
-          <button onClick={() => setShowAdd(!showAdd)}
+          <button onClick={() => {
+              // Phase 78 — if closing while in edit mode, clear edit state too.
+              if (showAdd) { setShowAdd(false); setForm({}); setEditingId(null); }
+              else { setShowAdd(true); setEditingId(null); setForm({}); }
+            }}
             className="flex items-center gap-1 text-xs font-semibold mb-3"
             style={{ color: G, background: 'none', border: 'none', cursor: 'pointer' }}>
-            <Plus size={12} /> Add {title.split(' ')[0]}
+            <Plus size={12} /> {editingId ? 'Cancel Edit' : `Add ${title.split(' ')[0]}`}
           </button>
 
           {/* Add form */}
@@ -656,11 +778,11 @@ function ProfileSection({ section, title, fields, displayCols }) {
                 </div>
               ))}
               <div className="md:col-span-2 flex gap-2">
-                <button onClick={handleAdd} disabled={loading}
+                <button onClick={handleSave} disabled={loading}
                   className="px-4 py-1.5 rounded-lg text-xs font-semibold" style={{ background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
-                  {loading ? 'Adding...' : 'Add'}
+                  {loading ? (editingId ? 'Saving...' : 'Adding...') : (editingId ? 'Save Changes' : 'Add')}
                 </button>
-                <button onClick={() => { setShowAdd(false); setForm({}); }}
+                <button onClick={handleCancelEdit}
                   className="px-4 py-1.5 rounded-lg text-xs" style={{ background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>
                   Cancel
                 </button>
@@ -693,9 +815,18 @@ function ProfileSection({ section, title, fields, displayCols }) {
                         </td>
                       ))}
                       <td>
-                        <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ddd' }}>
+                        <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                          <button onClick={() => handleEdit(item)}
+                            title="Edit"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#888' }}
+                            onMouseEnter={e => e.currentTarget.style.color = G}
+                            onMouseLeave={e => e.currentTarget.style.color = '#888'}>
+                            <Pencil size={12} />
+                          </button>
+                          <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ddd' }}>
                           <Trash2 size={12} />
                         </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
