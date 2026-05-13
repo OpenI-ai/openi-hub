@@ -820,11 +820,31 @@ function ProfileSection({ section, title, fields, displayCols }) {
                 <tbody>
                   {items.map(item => (
                     <tr key={item.id} style={{ borderBottom: '1px solid #f8f8f8' }}>
-                      {displayCols.map(col => (
-                        <td key={col} style={{ padding: '6px 10px', color: '#333' }}>
-                          {item[col] === true ? 'Yes' : item[col] === false ? 'No' : (item[col] != null ? String(item[col]).slice(0, 50) : '-')}
-                        </td>
-                      ))}
+                      {displayCols.map(col => {
+                        // Phase 78b — pretty-print date + select values in the table cells.
+                        const raw = item[col];
+                        let cell;
+                        if (raw === true) cell = 'Yes';
+                        else if (raw === false) cell = 'No';
+                        else if (raw == null) cell = '-';
+                        else {
+                          const fieldDef = fields.find(f => f.name === col);
+                          if (fieldDef?.type === 'date' && typeof raw === 'string') {
+                            cell = raw.slice(0, 10);
+                          } else if (fieldDef?.type === 'select' && Array.isArray(fieldDef.options)) {
+                            const opt = fieldDef.options.find(o => {
+                              if (typeof o === 'string') return o === raw;
+                              return o && o.value === raw;
+                            });
+                            cell = opt ? (typeof opt === 'string' ? opt : opt.label) : String(raw);
+                          } else {
+                            cell = String(raw).slice(0, 50);
+                          }
+                        }
+                        return (
+                          <td key={col} style={{ padding: '6px 10px', color: '#333' }}>{cell}</td>
+                        );
+                      })}
                       <td>
                         <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
                           <button onClick={() => handleEdit(item)}
