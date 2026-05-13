@@ -113,7 +113,7 @@ export default function PublicMarketplace() {
           {/* Header */}
           <div className="flex items-start gap-4 mb-8">
             {c.corporate_logo ? (
-              <img src={c.corporate_logo} alt="" className="w-16 h-16 rounded-xl object-cover" style={{ border: `1px solid ${BORDER}` }} />
+              <img src={c.corporate_logo} alt="" className="w-16 h-16 rounded-xl object-contain p-1 bg-white" style={{ border: `1px solid ${BORDER}` }} />
             ) : (
               <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: GOLD_LIGHT }}>
                 <Building2 size={28} style={{ color: GOLD }} />
@@ -417,7 +417,7 @@ function ChallengeCard({ challenge: c, onClick }) {
       {/* Company info */}
       <div className="flex items-center gap-3 mb-4">
         {c.corporate_logo ? (
-          <img src={c.corporate_logo} alt="" className="w-10 h-10 rounded-lg object-cover" style={{ border: `1px solid ${BORDER}` }} />
+          <img src={c.corporate_logo} alt="" className="w-10 h-10 rounded-lg object-contain p-1 bg-white" style={{ border: `1px solid ${BORDER}` }} />
         ) : (
           <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: GOLD_LIGHT }}>
             <Building2 size={18} style={{ color: GOLD }} />

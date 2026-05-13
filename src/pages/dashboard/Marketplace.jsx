@@ -150,7 +150,7 @@ export default function Marketplace() {
         <div style={{ ...card, padding: 24, marginBottom: 16 }}>
           <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
             {detail.corporate_logo ? (
-              <img src={detail.corporate_logo} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
+              <img src={detail.corporate_logo} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'contain', background: '#fff', padding: 4 }} />
             ) : (
               <div style={{ width: 48, height: 48, borderRadius: 10, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Building2 size={22} style={{ color: '#aaa' }} /></div>
             )}
@@ -515,7 +515,7 @@ export default function Marketplace() {
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     {ch.corporate_logo ? (
-                      <img src={ch.corporate_logo} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                      <img src={ch.corporate_logo} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 4, flexShrink: 0 }} />
                     ) : (
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Building2 size={18} style={{ color: '#bbb' }} /></div>
                     )}
