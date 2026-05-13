@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink, Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { connectionAPI } from "../../services/api";
+import { connectionAPI, whatsNewAPI } from "../../services/api";
 import {
   LayoutDashboard, Rocket, ClipboardCheck, BookOpen,
   Shield, Settings, LogOut, Menu, X,
@@ -88,6 +88,23 @@ export default function DashboardLayout() {
   const { user, logout, activeRole } = useAuth();  // Phase 60.3 (s50): read activeRole
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Phase 74 — sidebar unread badge for What's New.
+  const [whatsNewUnread, setWhatsNewUnread] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = () => {
+      whatsNewAPI.unreadCount()
+        .then((data) => {
+          if (cancelled) return;
+          setWhatsNewUnread(Number(data?.unread_count) || 0);
+        })
+        .catch(() => { /* keep stale value; we'll retry on next mount */ });
+    };
+    refresh();
+    const onSeen = () => setWhatsNewUnread(0);
+    window.addEventListener('whatsnew:seen', onSeen);
+    return () => { cancelled = true; window.removeEventListener('whatsnew:seen', onSeen); };
+  }, []);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -269,6 +286,7 @@ export default function DashboardLayout() {
               }} />
               {SECONDARY_NAV.map(({ to, label, icon, end }) => {
                 const Icon = ICON_MAP[icon] || LayoutDashboard;
+                const isWhatsNew = to === '/dashboard/whats-new';
                 return (
                   <NavLink
                     key={to}
@@ -299,6 +317,17 @@ export default function DashboardLayout() {
                   >
                     <Icon size={15} style={{ flexShrink:0 }} />
                     <span style={{ flex:1 }}>{label}</span>
+                    {/* Phase 74 — unread-count chip on What's New only */}
+                    {isWhatsNew && whatsNewUnread > 0 && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, lineHeight: 1,
+                        padding: '3px 7px', borderRadius: 10,
+                        background: C.gold, color: '#fff',
+                        minWidth: 16, textAlign: 'center',
+                      }}>
+                        {whatsNewUnread > 99 ? '99+' : whatsNewUnread}
+                      </span>
+                    )}
                   </NavLink>
                 );
               })}

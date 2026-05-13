@@ -83,7 +83,18 @@ export default function WhatsNew() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    // Phase 74 — mark all currently-visible entries as seen for this user.
+    // Fire-and-forget: a failure here must not interrupt the page render.
+    // Other tabs / sidebars listening for the 'whatsnew:seen' event refresh
+    // their unread-count chip without a hard reload.
+    whatsNewAPI.markSeen()
+      .then(() => {
+        try { window.dispatchEvent(new Event('whatsnew:seen')); } catch (e) { /* noop */ }
+      })
+      .catch(() => { /* swallow: badge will resync next mount */ });
+  }, []);
 
   const groups = groupByDate(entries);
 

@@ -240,8 +240,12 @@ export const feedbackAPI = {
 };
 
 // ── What's New (Phase 72 — auto-populated, persona-aware) ───────────
+// Phase 74 — per-user seen-tracking (markSeen on page mount, unread-count
+// poll for the sidebar badge).
 export const whatsNewAPI = {
-  list: () => get('/whats-new'),
+  list:         () => get('/whats-new'),
+  unreadCount:  () => get('/whats-new/unread-count'),
+  markSeen:     () => post('/whats-new/seen'),
 };
 
 // ── IPR Records ───────────────────────────────────────────────
