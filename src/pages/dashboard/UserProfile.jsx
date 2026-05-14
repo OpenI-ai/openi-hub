@@ -86,7 +86,34 @@ export default function UserProfile() {
   if (p.technologies?.length) fields.push({ label: 'Technologies', value: Array.isArray(p.technologies) ? p.technologies.join(', ') : p.technologies });
   if (p.expertise?.length) fields.push({ label: 'Expertise', value: Array.isArray(p.expertise) ? p.expertise.join(', ') : p.expertise });
   if (p.investment_thesis) fields.push({ label: 'Investment Thesis', value: p.investment_thesis });
-  if (p.ticket_size_min || p.ticket_size_max) fields.push({ label: 'Ticket Size', value: `${p.ticket_size_min || '?'} - ${p.ticket_size_max || '?'}` });
+  // Phase 85e (14 May 2026) - money fields for all non-startup personas.
+  // Each line prefers the new Phase 85a _range bracket label, then falls
+  // back to legacy NUMERIC + currency. Phase 84 startup money fields use
+  // the same pattern in StartupProfile.formatFunding.
+  const moneyOrLegacy = (rangeText, legacyVal, currency) => {
+    if (rangeText) return rangeText;
+    if (legacyVal != null && legacyVal !== '') return `${currency || ''} ${legacyVal}`.trim();
+    return null;
+  };
+  // Investor
+  const ticketSize = moneyOrLegacy(
+    p.ticket_size_range_label,
+    (p.ticket_size_min || p.ticket_size_max) ? `${p.ticket_size_min || '?'} - ${p.ticket_size_max || '?'}` : null,
+    p.ticket_size_currency
+  );
+  if (ticketSize) fields.push({ label: 'Ticket Size', value: ticketSize });
+  const fundSize = moneyOrLegacy(p.fund_size_range, p.fund_size, p.fund_size_currency);
+  if (fundSize) fields.push({ label: 'Fund Size', value: fundSize });
+  const totalAum = moneyOrLegacy(p.total_aum_range, p.total_aum, p.total_aum_currency);
+  if (totalAum) fields.push({ label: 'Total AUM', value: totalAum });
+  const availableToDeploy = moneyOrLegacy(p.available_to_deploy_range, p.available_to_deploy, p.available_to_deploy_currency);
+  if (availableToDeploy) fields.push({ label: 'Available to Deploy', value: availableToDeploy });
+  // Corporate
+  const annualRevenue = moneyOrLegacy(p.annual_revenue_range, p.annual_revenue, null);
+  if (annualRevenue) fields.push({ label: 'Annual Revenue', value: annualRevenue });
+  // Incubator / Accelerator
+  const fundingOffered = moneyOrLegacy(p.funding_offered_range, p.funding_offered, null);
+  if (fundingOffered) fields.push({ label: 'Funding Offered', value: fundingOffered });
 
   return (
     <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>

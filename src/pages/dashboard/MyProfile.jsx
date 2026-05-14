@@ -73,6 +73,73 @@ function MultiSelect({ options = [], value = [], onChange }) {
   );
 }
 
+// Phase 85d - money_range renderer extracted so currency can live in
+// local useState. Fixes the USD-tab-not-selectable bug.
+function MoneyRange({ field, value, onChange, label, required }) {
+  // Parse incoming value once on mount to seed the local currency state.
+  // Same multi-shape parser as Phase 84 for backward compatibility.
+  function parseInitial(val) {
+    if (val && typeof val === 'object') {
+      return { range: val.range || '', currency: val.currency || 'INR' };
+    }
+    if (typeof val === 'string' && val) {
+      const m = val.match(/^(INR|USD|EUR|GBP)\s+(.+)$/);
+      if (m) return { range: m[2], currency: m[1] };
+      if (val.startsWith('{')) {
+        try { const o = JSON.parse(val); return { range: o.range || '', currency: o.currency || 'INR' }; }
+        catch { return { range: '', currency: 'INR' }; }
+      }
+      return { range: val, currency: 'INR' };
+    }
+    return { range: '', currency: 'INR' };
+  }
+  const init = parseInitial(value);
+  const [currency, setCurrency] = useState(init.currency);
+  const ranges = field.variant === 'ticket' ? TICKET_SIZE_RANGES : MONEY_RANGES;
+  const opts = ranges[currency] || [];
+  // Derive the current range from the stored value re-parsed against the
+  // currently-selected currency. If the user just switched currencies, the
+  // stored value will not match the new currency's bracket list, so the
+  // dropdown shows "Select a range...".
+  const parsed = parseInitial(value);
+  const currentRange = parsed.currency === currency ? parsed.range : '';
+  const setRange = (range) => {
+    if (!range) onChange('');
+    else onChange(`${currency} ${range}`);
+  };
+  const switchCurrency = (next) => {
+    setCurrency(next);
+    // If a range was already chosen, clear it because the bracket lists
+    // differ between currencies. The user picks a new range from the new list.
+    if (currentRange) onChange('');
+  };
+  const tabBtn = (active) => ({
+    flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: active ? 600 : 500,
+    border: 'none', background: active ? '#fff' : 'transparent',
+    color: active ? '#1a1a1a' : '#6b7280',
+    borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
+    cursor: 'pointer', transition: 'all 0.15s',
+  });
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+      </label>
+      <div style={{
+        display: 'flex', background: '#f9fafb', border: '1px solid #e5e7eb',
+        borderRadius: 8, marginBottom: 6, overflow: 'hidden', maxWidth: 200,
+      }}>
+        <button type="button" onClick={() => switchCurrency('INR')} style={tabBtn(currency === 'INR')}>INR (₹)</button>
+        <button type="button" onClick={() => switchCurrency('USD')} style={tabBtn(currency === 'USD')}>USD ($)</button>
+      </div>
+      <select value={currentRange} onChange={e => setRange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+        <option value="">Select a range…</option>
+        {opts.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
 function FormField({ field, value, onChange }) {
   const { name, label, type, required, options, placeholder, min, max } = field;
   if (type === 'select') {
@@ -231,65 +298,19 @@ function FormField({ field, value, onChange }) {
       </div>
     );
   }
-  // Phase 60.10 / Phase 84 - money_range. Bracket dropdown + INR/USD toggle.
-  // Phase 84: storage shape canonicalised to a single string
+  // Phase 60.10 / Phase 84 / Phase 85d - money_range. Bracket dropdown +
+  // INR/USD toggle. Storage shape is a single canonical string
   // 'INR <bracket label>' or 'USD <bracket label>' so it round-trips
-  // cleanly through VARCHAR columns (the legacy {range, currency} object
-  // shape got JSON-stringified by pg and silently broke on read).
+  // cleanly through VARCHAR columns.
+  //
+  // Phase 85d fix: the previous renderer derived `cur` directly from the
+  // stored value on every render. Clicking USD called setCur('USD') which
+  // emitted '' (because no range was picked yet), and the next render parsed
+  // '' back to the INR default — making the USD tab visually revert. Now we
+  // delegate to a small sub-component that owns the currency tab state in
+  // useState, so the tab survives until a range is also chosen.
   if (type === 'money_range') {
-    const ranges = field.variant === 'ticket' ? TICKET_SIZE_RANGES : MONEY_RANGES;
-    // Parse the stored value. Accepts:
-    //   - new canonical text 'INR ₹1 Cr - ₹10 Cr'
-    //   - legacy {range, currency} JS object
-    //   - legacy JSON string '{"range":"...","currency":"INR"}'
-    //   - bare bracket text without currency prefix
-    let v = { range: '', currency: 'INR' };
-    if (value && typeof value === 'object') {
-      v = { range: value.range || '', currency: value.currency || 'INR' };
-    } else if (typeof value === 'string' && value) {
-      const m = value.match(/^(INR|USD|EUR|GBP)\s+(.+)$/);
-      if (m) {
-        v = { range: m[2], currency: m[1] };
-      } else if (value.startsWith('{')) {
-        try { const o = JSON.parse(value); v = { range: o.range || '', currency: o.currency || 'INR' }; }
-        catch { v = { range: '', currency: 'INR' }; }
-      } else {
-        v = { range: value, currency: 'INR' };
-      }
-    }
-    const cur = v.currency || 'INR';
-    const opts = ranges[cur] || [];
-    const emit = (next) => {
-      if (!next.range) onChange('');
-      else onChange(`${next.currency || 'INR'} ${next.range}`);
-    };
-    const setRange = (range) => emit({ range, currency: cur });
-    const setCur = (currency) => emit({ range: '', currency });
-    const tabBtn = (active) => ({
-      flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: active ? 600 : 500,
-      border: 'none', background: active ? '#fff' : 'transparent',
-      color: active ? '#1a1a1a' : '#6b7280',
-      borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
-      cursor: 'pointer', transition: 'all 0.15s',
-    });
-    return (
-      <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
-          {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
-        </label>
-        <div style={{
-          display: 'flex', background: '#f9fafb', border: '1px solid #e5e7eb',
-          borderRadius: 8, marginBottom: 6, overflow: 'hidden', maxWidth: 200,
-        }}>
-          <button type="button" onClick={() => setCur('INR')} style={tabBtn(cur === 'INR')}>INR (₹)</button>
-          <button type="button" onClick={() => setCur('USD')} style={tabBtn(cur === 'USD')}>USD ($)</button>
-        </div>
-        <select value={v.range || ''} onChange={e => setRange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-          <option value="">Select a range…</option>
-          {opts.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
-      </div>
-    );
+    return <MoneyRange field={field} value={value} onChange={onChange} label={label} required={required} />;
   }
   return (
     <div>
@@ -620,11 +641,11 @@ export default function MyProfile() {
 
           <ProfileSection section="funding" title="Funding Rounds" fields={[
             { name: 'round_type', label: 'Round Type', required: true, type: 'select', options: ['Pre-seed','Seed','Angel','Series A','Series B','Series C','Series D','Debt','Grant','Bridge'] },
-            { name: 'amount', label: 'Amount', type: 'number' },
+            { name: 'amount', label: 'Amount', type: 'number', min: 0 },
             { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR','GBP'] },
             { name: 'round_date', label: 'Date', type: 'date' },
             { name: 'lead_investor', label: 'Lead Investor' },
-            { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number' },
+            { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number', min: 0 },
           ]} displayCols={['round_type','amount','currency','lead_investor','round_date']} />
 
           <ProfileSection section="clients" title="Clients / Customers" fields={[
@@ -660,7 +681,7 @@ export default function MyProfile() {
           <ProfileSection section="acquisitions" title="Acquisitions" fields={[
             { name: 'acquired_company', label: 'Acquired Company', required: true },
             { name: 'acquisition_date', label: 'Date', type: 'date' },
-            { name: 'amount', label: 'Amount', type: 'number' },
+            { name: 'amount', label: 'Amount', type: 'number', min: 0 },
             { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR'] },
           ]} displayCols={['acquired_company','acquisition_date','amount']} />
         </div>
