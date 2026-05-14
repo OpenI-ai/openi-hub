@@ -626,27 +626,43 @@ export default function MyProfile() {
         </div>
       </div>
 
-      {/* Phase 86 - sticky Save bar appears only when top-level fields are dirty */}
-      {baseline !== null && JSON.stringify(profileData) !== baseline && (
-        <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0,
-          background: 'linear-gradient(to top, #fff 70%, rgba(255,255,255,0.9))',
-          borderTop: '1px solid #e5e7eb',
-          padding: '12px 16px',
-          paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
-          zIndex: 40,
-          display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12,
-          boxShadow: '0 -2px 12px rgba(0,0,0,0.04)',
-        }}>
-          <span style={{ fontSize: 12, color: '#6b7280' }}>You have unsaved changes</span>
-          <button onClick={handleSave} disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold"
-            style={{ background: '#D5AA5B', color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}>
-            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-            {saving ? 'Saving...' : 'Save Profile'}
-          </button>
-        </div>
-      )}
+      {/* Phase 86b - sticky Save bar is always visible once page has loaded.
+          Phase 86 originally gated on dirty state, which hid the bar when
+          users scrolled down to ProfileSection repeaters - they had no Save
+          button on screen at all. Now we always render and switch label +
+          disabled state based on dirty. */}
+      {baseline !== null && (() => {
+        const isDirty = JSON.stringify(profileData) !== baseline;
+        const disabled = saving || !isDirty;
+        return (
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            background: 'linear-gradient(to top, #fff 70%, rgba(255,255,255,0.9))',
+            borderTop: '1px solid #e5e7eb',
+            padding: '12px 16px',
+            paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+            zIndex: 40,
+            display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12,
+            boxShadow: '0 -2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <span style={{ fontSize: 12, color: isDirty ? '#b45309' : '#6b7280' }}>
+              {isDirty ? 'You have unsaved changes' : 'All changes saved'}
+            </span>
+            <button onClick={handleSave} disabled={disabled}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold"
+              style={{
+                background: disabled ? '#e5e7eb' : '#D5AA5B',
+                color: disabled ? '#9ca3af' : '#fff',
+                border: 'none',
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                transition: 'background 0.15s',
+              }}>
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {saving ? 'Saving...' : 'Save Profile'}
+            </button>
+          </div>
+        );
+      })()}
 
       {/* ── Startup Profile Sections (child tables) ─────────────── */}
       {user?.role === 'startup' && (
