@@ -333,6 +333,10 @@ export default function MyProfile() {
   const [profileData, setProfileData] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // Phase 86 - JSON-stringified snapshot of profileData taken at load
+  // and again after a successful save. Render compares current data to
+  // this baseline to know whether the sticky Save bar should appear.
+  const [baseline, setBaseline] = useState(null);
   // Auto-trigger auto-fill when arriving from registration: /dashboard/profile?autofill=1
   const autoStart = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('autofill') === '1';
   // Phase 65d (8 May): VerifyEmail.jsx redirects post-verify to
@@ -425,6 +429,8 @@ export default function MyProfile() {
 
       if (data.profile) {
         setProfileData(data.profile);
+        // Phase 86 - snapshot the just-loaded profile as our dirty baseline.
+        setBaseline(JSON.stringify(data.profile));
       }
     } catch (err) {
       toast.error('Failed to load profile');
@@ -446,6 +452,9 @@ export default function MyProfile() {
       }
       const data = await profileAPI.updateMyProfile(payload);
       setProfileData(data.profile);
+      // Phase 86 - profile is now persisted; refresh baseline so the
+      // sticky Save bar hides until the user touches another field.
+      setBaseline(JSON.stringify(data.profile));
       updateUser({ profile_completed: true });
       toast.success('Profile saved successfully!');
     } catch (err) {
@@ -616,6 +625,28 @@ export default function MyProfile() {
           </button>
         </div>
       </div>
+
+      {/* Phase 86 - sticky Save bar appears only when top-level fields are dirty */}
+      {baseline !== null && JSON.stringify(profileData) !== baseline && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          background: 'linear-gradient(to top, #fff 70%, rgba(255,255,255,0.9))',
+          borderTop: '1px solid #e5e7eb',
+          padding: '12px 16px',
+          paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+          zIndex: 40,
+          display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12,
+          boxShadow: '0 -2px 12px rgba(0,0,0,0.04)',
+        }}>
+          <span style={{ fontSize: 12, color: '#6b7280' }}>You have unsaved changes</span>
+          <button onClick={handleSave} disabled={saving}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold"
+            style={{ background: '#D5AA5B', color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}>
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            {saving ? 'Saving...' : 'Save Profile'}
+          </button>
+        </div>
+      )}
 
       {/* ── Startup Profile Sections (child tables) ─────────────── */}
       {user?.role === 'startup' && (
