@@ -804,7 +804,20 @@ function ProfileSection({ section, title, fields, displayCols }) {
                       <span className="text-xs" style={{ color: '#555' }}>Yes</span>
                     </label>
                   ) : (
-                    <input type={f.type || 'text'} value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value }))}
+                    <input type={f.type || 'text'} value={form[f.name] ?? ''} min={f.min} max={f.max}
+                      onChange={e => {
+                        const raw = e.target.value;
+                        if (f.type !== 'number') {
+                          setForm(p => ({ ...p, [f.name]: raw }));
+                          return;
+                        }
+                        if (raw === '') { setForm(p => ({ ...p, [f.name]: '' })); return; }
+                        let n = Number(raw);
+                        if (Number.isNaN(n)) return;
+                        if (typeof f.min === 'number' && n < f.min) n = f.min;
+                        if (typeof f.max === 'number' && n > f.max) n = f.max;
+                        setForm(p => ({ ...p, [f.name]: n }));
+                      }}
                       style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
                   )}
                 </div>
