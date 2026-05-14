@@ -107,7 +107,7 @@ export default function WhoViewedProfile() {
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 12, fontWeight: 600, margin: 0, color: '#78350f' }}>See who viewed your profile</p>
               <p style={{ fontSize: 11, color: '#92400e', margin: '3px 0 10px 0' }}>Upgrade to <strong>Growth</strong> (₹499/mo) to see names of corporates, investors, and others checking you out.</p>
-              <Link to="/dashboard/settings" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '6px 12px', borderRadius: 8, background: '#d97706', color: 'white', textDecoration: 'none' }}>
+              <Link to="/dashboard/settings?tab=billing&focus=plans" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '6px 12px', borderRadius: 8, background: '#d97706', color: 'white', textDecoration: 'none' }}>
                 Upgrade plan <ChevronRight size={12} />
               </Link>
             </div>

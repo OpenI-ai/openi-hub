@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { startupAPI, profileViewAPI, claimAPI } from '../../services/api';
+import { startupAPI, startupProfileAPI, profileViewAPI, claimAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
@@ -36,7 +36,12 @@ function TechReadinessBadge({ trl }) {
 // companion _currency.
 const MONEY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
 function formatFunding(val, currency, rangeText) {
-  if (rangeText && typeof rangeText === 'string') return rangeText;
+  if (rangeText && typeof rangeText === 'string') {
+    // Phase 87k — strip redundant currency code prefix; the bracket label
+    // already includes the symbol (₹/$/€/£). Phase 84 storage prepended
+    // "INR " / "USD " to every money_range value.
+    return rangeText.replace(/^(INR|USD|EUR|GBP)\s+/i, '');
+  }
   if (!val) return null;
   const num = typeof val === 'string' ? parseFloat(val) : val;
   if (isNaN(num) || num === 0) return null;
@@ -45,6 +50,134 @@ function formatFunding(val, currency, rangeText) {
   if (num >= 1e6) return `${sym}${(num / 1e6).toFixed(1)}M`;
   if (num >= 1e3) return `${sym}${(num / 1e3).toFixed(0)}K`;
   return `${sym}${num}`;
+}
+
+// Phase 87f — read-only child sub-section block for the corporate-view
+// StartupProfile.jsx. Renders any of the 8 sub-sections that have rows;
+// silently skips empty ones. Each section is a card with a simple list.
+function StartupSubSections({ data }) {
+  if (!data) return null;
+  const sections = [
+    { key: 'team',         title: 'Team & Management',  empty: true },
+    { key: 'products',     title: 'Products & Services', empty: true },
+    { key: 'funding',      title: 'Funding History',    empty: true },
+    { key: 'clients',      title: 'Customers & Clients', empty: true },
+    { key: 'patents',      title: 'IP & Patents',       empty: true },
+    { key: 'competitors',  title: 'Competitive Landscape', empty: true },
+    { key: 'news',         title: 'In the News',        empty: true },
+    { key: 'acquisitions', title: 'Acquisitions',       empty: true },
+  ].map(s => ({ ...s, rows: Array.isArray(data[s.key]) ? data[s.key] : [] }))
+   .filter(s => s.rows.length > 0);
+
+  if (sections.length === 0) return null;
+
+  const fmtDate = (d) => {
+    if (!d) return null;
+    try { return String(d).slice(0, 10); } catch { return null; }
+  };
+
+  return (
+    <div className="space-y-4">
+      {sections.map(s => (
+        <div key={s.key} className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-display font-bold text-gray-900 mb-4">{s.title}</h3>
+          <div className="space-y-3">
+            {s.rows.map((r, i) => {
+              // Per-section row renderer — picks 2-3 high-signal fields per type.
+              if (s.key === 'team') {
+                return (
+                  <div key={r.id || i} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      {(r.name || '?').split(' ').map(w => w?.[0]).join('').slice(0,2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900">{r.name}{r.is_founder ? ' · Founder' : ''}</div>
+                      <div className="text-xs text-gray-600">{[r.designation, r.role].filter(Boolean).join(' · ')}</div>
+                      {r.bio && <div className="text-xs text-gray-500 mt-1 line-clamp-2">{r.bio}</div>}
+                    </div>
+                  </div>
+                );
+              }
+              if (s.key === 'products') {
+                return (
+                  <div key={r.id || i} className="pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="text-sm font-semibold text-gray-900">{r.name || r.product_name}</div>
+                    {r.tagline && <div className="text-xs text-gray-500">{r.tagline}</div>}
+                    {r.description && <div className="text-xs text-gray-600 mt-1 line-clamp-2">{r.description}</div>}
+                  </div>
+                );
+              }
+              if (s.key === 'funding') {
+                return (
+                  <div key={r.id || i} className="flex items-center justify-between pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900">{r.round_name || r.round_type || 'Funding round'}</div>
+                      <div className="text-xs text-gray-500">{[fmtDate(r.round_date), r.lead_investor].filter(Boolean).join(' · ')}</div>
+                    </div>
+                    {r.amount_range && (
+                      <div className="text-sm font-bold text-primary-600 ml-3 flex-shrink-0">
+                        {String(r.amount_range).replace(/^(INR|USD|EUR|GBP)\s+/i, '')}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              if (s.key === 'clients') {
+                return (
+                  <div key={r.id || i} className="flex items-center gap-3 pb-2 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="text-sm font-semibold text-gray-900 flex-1">{r.name || r.client_name}</div>
+                    {r.industry && <div className="text-xs text-gray-500">{r.industry}</div>}
+                  </div>
+                );
+              }
+              if (s.key === 'patents') {
+                return (
+                  <div key={r.id || i} className="pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="text-sm font-semibold text-gray-900 flex-1">{r.title}</div>
+                      {r.status && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 flex-shrink-0 capitalize">{r.status}</span>}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">{[r.patent_number, fmtDate(r.filing_date)].filter(Boolean).join(' · ')}</div>
+                  </div>
+                );
+              }
+              if (s.key === 'competitors') {
+                return (
+                  <div key={r.id || i} className="pb-2 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="text-sm font-semibold text-gray-900">{r.name || r.competitor_name}</div>
+                    {r.differentiation && <div className="text-xs text-gray-600 mt-0.5 line-clamp-2">{r.differentiation}</div>}
+                  </div>
+                );
+              }
+              if (s.key === 'news') {
+                const href = r.url || r.link;
+                const inner = (
+                  <>
+                    <div className="text-sm font-semibold text-gray-900 line-clamp-1">{r.title || r.headline}</div>
+                    <div className="text-xs text-gray-500">{[r.source, fmtDate(r.published_date)].filter(Boolean).join(' · ')}</div>
+                  </>
+                );
+                return (
+                  <div key={r.id || i} className="pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                    {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">{inner}</a> : inner}
+                  </div>
+                );
+              }
+              if (s.key === 'acquisitions') {
+                return (
+                  <div key={r.id || i} className="pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div className="text-sm font-semibold text-gray-900">{r.acquirer || r.target}</div>
+                    <div className="text-xs text-gray-500">{[fmtDate(r.acquisition_date), r.amount_range && String(r.amount_range).replace(/^(INR|USD|EUR|GBP)\s+/i, '')].filter(Boolean).join(' · ')}</div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function EmptySection({ message }) {
@@ -201,6 +334,10 @@ export default function StartupProfile() {
   const { user } = useAuth();
   const [claimOpen, setClaimOpen] = useState(false);
   const [claimSubmitted, setClaimSubmitted] = useState(false);
+  // Phase 87f — child sub-sections (team / products / funding / clients /
+  // patents / competitors / news / acquisitions). Read-only render for
+  // corporates and other personas evaluating a startup.
+  const [childSections, setChildSections] = useState(null);
 
   useEffect(() => {
     if (!id) { setLoading(false); return; }
@@ -219,6 +356,26 @@ export default function StartupProfile() {
       })
       .finally(() => setLoading(false));
   }, [id, lookupBy]);
+
+  // Phase 87f — fetch 8 child sub-section tables once we have the user_id.
+  // Backend endpoint /api/startup-profile/public/:userId returns parent
+  // fields + all 8 child arrays in one shot.
+  useEffect(() => {
+    const uid = startup?.user_id;
+    if (!uid) return;
+    startupProfileAPI.getFullProfile(uid)
+      .then(full => setChildSections({
+        team:         Array.isArray(full?.team)            ? full.team            : [],
+        products:     Array.isArray(full?.products)        ? full.products        : [],
+        funding:      Array.isArray(full?.funding_rounds)  ? full.funding_rounds  : [],
+        clients:      Array.isArray(full?.clients)         ? full.clients         : [],
+        patents:      Array.isArray(full?.patents)         ? full.patents         : [],
+        competitors:  Array.isArray(full?.competitors)     ? full.competitors     : [],
+        news:         Array.isArray(full?.news)            ? full.news            : [],
+        acquisitions: Array.isArray(full?.acquisitions)    ? full.acquisitions    : [],
+      }))
+      .catch(() => setChildSections(null));
+  }, [startup?.user_id]);
 
   if (loading) return <LoadingSkeleton type="card" />;
   if (!startup) return (
@@ -452,7 +609,7 @@ export default function StartupProfile() {
                 )}
 
                 {startup.is_deeptech && (
-                  <div className="bg-primary-950 rounded-xl border border-primary-800 p-6">
+                  <div className="bg-dark-950 rounded-xl border border-dark-800 p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <Cpu size={20} className="text-primary-400" />
                       <h3 className="font-display font-bold text-white">DeepTech Classification</h3>
@@ -474,7 +631,7 @@ export default function StartupProfile() {
                     (startup.employee_range || startup.team_size) && ['Team Size', startup.employee_range || startup.team_size, 'text-blue-600'],
                     startup.total_funding_rounds && ['Funding Rounds', startup.total_funding_rounds, 'text-gray-700'],
                     startup.total_investors && ['Total Investors', startup.total_investors, 'text-gray-700'],
-                    startup.revenue_range && ['Revenue', startup.revenue_range, 'text-accent-600'],
+                    startup.revenue_range && ['Revenue', /^[<>]?\d/.test(startup.revenue_range) ? `₹ ${startup.revenue_range}` : startup.revenue_range, 'text-accent-600'],
                   ].filter(Boolean).map(([k,v,c]) => (
                     <div key={k} className="p-4 bg-gray-50 rounded-xl text-center border border-gray-100">
                       <div className={`text-xl font-display font-bold ${c}`}>{v}</div>
@@ -499,6 +656,11 @@ export default function StartupProfile() {
                 )}
               </div>
             )}
+
+            {/* Phase 87f — child sub-sections (team / products / funding /
+                clients / patents / competitors / news / acquisitions).
+                Read-only render. Silently skipped if backend returns nothing. */}
+            <StartupSubSections data={childSections} />
           </div>
 
           {/* Sidebar */}

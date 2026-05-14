@@ -91,7 +91,11 @@ export default function UserProfile() {
   // back to legacy NUMERIC + currency. Phase 84 startup money fields use
   // the same pattern in StartupProfile.formatFunding.
   const moneyOrLegacy = (rangeText, legacyVal, currency) => {
-    if (rangeText) return rangeText;
+    if (rangeText) {
+      // Phase 87k — strip redundant currency code prefix from _range text;
+      // the bracket label already carries the symbol (₹/$/€/£).
+      return rangeText.replace(/^(INR|USD|EUR|GBP)\s+/i, '');
+    }
     if (legacyVal != null && legacyVal !== '') return `${currency || ''} ${legacyVal}`.trim();
     return null;
   };

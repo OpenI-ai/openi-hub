@@ -313,14 +313,22 @@ function FormField({ field, value, onChange }) {
   if (type === 'money_range') {
     return <MoneyRange field={field} value={value} onChange={onChange} label={label} required={required} />;
   }
-  // Phase 87b — org_typeahead. Async typeahead against the curated +
-  // platform lookup endpoint. value is still string[] for now; Phase 87c
-  // will migrate to JSONB with persisted tier_score per chip.
+  // Phase 87b/87c — org_typeahead. Component takes string[] in/out; the
+  // backend resolves each chip to {name, tier_score, source} JSONB on
+  // write (Phase 87c-2 dual-write hook). On read, prefer the enriched
+  // _v2 column when populated, fall back to the legacy text[].
   if (type === 'org_typeahead') {
+    let v = value;
+    // If parent passed an array of {name,...} objects (JSONB shape from _v2),
+    // flatten to a plain string array for the component. Component output is
+    // always string[]; the backend re-enriches on save.
+    if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'object' && v[0] !== null) {
+      v = v.map(x => x?.name).filter(Boolean);
+    }
     return (
       <OrgTypeahead
         lookup={field.lookup}
-        value={value || []}
+        value={v || []}
         onChange={onChange}
         placeholder={field.placeholder}
         label={label}
@@ -444,9 +452,23 @@ export default function MyProfile() {
       }
 
       if (data.profile) {
-        setProfileData(data.profile);
+        // Phase 87c-5 — overlay JSONB _v2 chip columns onto their text[]
+        // counterparts so the org_typeahead branch sees objects. The
+        // FormField org_typeahead branch flattens objects -> string[] for
+        // the component.
+        const p = { ...data.profile };
+        const V2_MAP = {
+          investor_names: 'investor_names_v2',
+          accelerator_programs: 'accelerator_programs_v2',
+          corporate_partners: 'corporate_partners_v2',
+        };
+        for (const [textCol, v2Col] of Object.entries(V2_MAP)) {
+          const v2 = p[v2Col];
+          if (Array.isArray(v2) && v2.length > 0) p[textCol] = v2;
+        }
+        setProfileData(p);
         // Phase 86 - snapshot the just-loaded profile as our dirty baseline.
-        setBaseline(JSON.stringify(data.profile));
+        setBaseline(JSON.stringify(p));
       }
     } catch (err) {
       toast.error('Failed to load profile');
@@ -554,7 +576,7 @@ export default function MyProfile() {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ padding: '24px', paddingBottom: '96px', maxWidth: 800, margin: '0 auto' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -683,6 +705,15 @@ export default function MyProfile() {
       {/* ── Startup Profile Sections (child tables) ─────────────── */}
       {user?.role === 'startup' && (
         <div className="mt-6 space-y-4">
+          {/* Phase 87i — sub-sections are saved per-entry (their own Add/Save buttons),
+              independent of the top Save Profile button. Hint for first-time users. */}
+          <div className="rounded-lg p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+            <p className="text-xs" style={{ color: '#92400e' }}>
+              <strong>Tip:</strong> The sections below (Team, Products, Funding, etc.)
+              are saved <em>per entry</em>. Each row has its own Save button.
+              The top <em>Save Profile</em> button only covers the fields above.
+            </p>
+          </div>
           <ProfileSection section="team" title="Team & Management" fields={[
             { name: 'name', label: 'Name', required: true },
             { name: 'designation', label: 'Designation' },
