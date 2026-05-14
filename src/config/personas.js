@@ -297,13 +297,13 @@ export const PROFILE_FIELDS = {
     { name: 'last_funding_date', label: 'Last Funding Date', type: 'date' },
     { name: 'last_funding_amount_range', label: 'Last Funding Amount', type: 'money_range', variant: 'revenue' },
     { name: 'total_investors', label: 'Total Investors',     type: 'number', min: 0 },
-    { name: 'investor_names', label: 'Key Investors',        type: 'tags', placeholder: 'e.g., Sequoia, Accel, SoftBank' },
+    { name: 'investor_names', label: 'Key Investors',        type: 'org_typeahead', lookup: 'investors', placeholder: 'Start typing… e.g., Sequoia, Accel' },
     { name: 'burn_rate_range', label: 'Monthly Burn Rate',    type: 'money_range', variant: 'revenue' },
     { name: 'runway_months',  label: 'Runway (months)',      type: 'number', min: 0, max: 600 },
     // ── Awards & Recognition ──────────────────────────
     { name: 'awards',              label: 'Awards',                type: 'tags', placeholder: 'e.g., NASSCOM DeepTech, CII Award' },
     { name: 'certifications',      label: 'Certifications',        type: 'tags', placeholder: 'e.g., ISO 27001, SOC 2' },
-    { name: 'accelerator_programs', label: 'Accelerator Programs', type: 'tags', placeholder: 'e.g., Y Combinator, Techstars, T-Hub' },
+    { name: 'accelerator_programs', label: 'Accelerator Programs', type: 'org_typeahead', lookup: 'accelerators', placeholder: 'Start typing… e.g., Y Combinator, T-Hub' },
     // ── Registration & Legal ──────────────────────────
     { name: 'dpiit_number',   label: 'DPIIT Number',         type: 'text' },
     // ── Social & Links ────────────────────────────────
@@ -488,7 +488,7 @@ export const PROFILE_FIELDS = {
     { name: 'portfolio_count',  label: 'Portfolio Count',      type: 'number', min: 0 },
     { name: 'demo_day',         label: 'Has Demo Day?',        type: 'checkbox' },
     { name: 'services',         label: 'Services Offered',     type: 'multiselect', options: ['Office Space','Mentorship','Funding','Legal','Networking','Marketing','Technical Support','Corporate Partnerships'] },
-    { name: 'corporate_partners', label: 'Corporate Partners', type: 'tags', placeholder: 'e.g., Google, Microsoft' },
+    { name: 'corporate_partners', label: 'Corporate Partners', type: 'org_typeahead', lookup: 'corporates', placeholder: 'Start typing… e.g., Google, Tata, Reliance' },
     { name: 'linkedin_url',     label: 'LinkedIn URL',         type: 'url' },
   ],
   service_provider: [

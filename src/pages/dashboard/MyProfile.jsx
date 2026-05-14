@@ -8,6 +8,7 @@ import FileUpload from '../../components/FileUpload';
 import AutoFillMyProfile from '../../components/AutoFillMyProfile';
 import TaxonomySelect from '../../components/TaxonomySelect';
 import TaxonomyTags from '../../components/TaxonomyTags';
+import OrgTypeahead from '../../components/OrgTypeahead';
 import StateField from '../../components/StateField';
 import CityField from '../../components/CityField';
 import toast from 'react-hot-toast';
@@ -311,6 +312,21 @@ function FormField({ field, value, onChange }) {
   // useState, so the tab survives until a range is also chosen.
   if (type === 'money_range') {
     return <MoneyRange field={field} value={value} onChange={onChange} label={label} required={required} />;
+  }
+  // Phase 87b — org_typeahead. Async typeahead against the curated +
+  // platform lookup endpoint. value is still string[] for now; Phase 87c
+  // will migrate to JSONB with persisted tier_score per chip.
+  if (type === 'org_typeahead') {
+    return (
+      <OrgTypeahead
+        lookup={field.lookup}
+        value={value || []}
+        onChange={onChange}
+        placeholder={field.placeholder}
+        label={label}
+        required={required}
+      />
+    );
   }
   return (
     <div>

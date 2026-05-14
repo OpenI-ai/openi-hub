@@ -104,6 +104,13 @@ export const orgAPI = {
   removeMember:   (id)         => del(`/org/members/${id}`),
 };
 
+// Phase 87a/b — typeahead lookups for org-name fields (investors,
+// accelerators+incubators blended, corporates). Backend blends curated
+// seed JSON with live platform profiles.
+export const lookupAPI = {
+  search: (which, q) => get(`/lookup/${which}?q=${encodeURIComponent(q || '')}`),
+};
+
 // ── Subscriptions ─────────────────────────────────────────────
 export const subscriptionAPI = {
   getPlans:      ()       => get('/subscription/plans'),
