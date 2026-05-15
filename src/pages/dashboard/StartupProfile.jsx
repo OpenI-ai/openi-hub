@@ -11,6 +11,7 @@ import {
   DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
   Flag, Loader2, X, Mail, Github, Youtube, FileText, Video,
   BarChart3, List, // Phase 92.1 (T17b) - chart/list toggle icons
+  Wallet, // Phase 92.4 (T26) - currency-agnostic Funding Raised icon (was DollarSign)
 } from 'lucide-react';
 
 // Phase 69: TRL renamed to "Tech Readiness" everywhere visible. Tooltip
@@ -1507,7 +1508,7 @@ export default function StartupProfile() {
                 {[
                   trl > 0 && { label: 'Tech Readiness', value: `Level ${trl}`, icon: Target, color: 'text-blue-500', tooltip: TRL_TOOLTIP },
                   (startup.employee_range || startup.team_size) && { label: 'Team Size', value: startup.employee_range || startup.team_size, icon: Users, color: 'text-green-500' },
-                  funding && { label: 'Funding Raised', value: funding, icon: DollarSign, color: 'text-yellow-500' },
+                  funding && { label: 'Funding Raised', value: funding, icon: Wallet, color: 'text-yellow-500' },  // Phase 92.4 (T26) - Wallet (currency-agnostic) replaces DollarSign which implied USD
                   valuation && { label: 'Valuation', value: valuation, icon: TrendingUp, color: 'text-accent-500' },
                   startup.founded_year && { label: 'Founded', value: startup.founded_year, icon: Calendar, color: 'text-gray-500' },
                   startup.stage && { label: 'Stage', value: startup.stage, icon: Briefcase, color: 'text-indigo-500' },
