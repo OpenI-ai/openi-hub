@@ -745,16 +745,18 @@ export default function MyProfile() {
           <ProfileSection section="funding" title="Funding Rounds" fields={[
             { name: 'round_type', label: 'Round Type', required: true, type: 'select', options: ['Pre-seed','Seed','Angel','Series A','Series B','Series C','Series D','Debt','Grant','Bridge'] },
             { name: 'amount', label: 'Amount', type: 'number', min: 0 },
-            // Phase 92.1.1 — trimmed to 4 units (Lakh/Cr for INR, K/M for USD). Rupees + Base dropped as too granular for funding context.
-            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','K','M'] },
+            // Phase 92.1.4 (T18) — conditional Unit dropdown driven by Currency. INR shows Lakh/Cr, USD shows K/M. Prevents nonsense pairings like Cr+USD.
+            { name: 'amount_unit', label: 'Unit', type: 'select_dependent', dependsOn: 'currency', optionsBy: { INR: ['Lakh','Cr'], USD: ['K','M'] } },
             // Phase 92.1.1 — simplified to INR + USD only across the platform.
             { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD'] },
             { name: 'round_date', label: 'Date', type: 'date' },
-            { name: 'lead_investor', label: 'Lead Investor' },
+            // Phase 92.1.4 (T19) — OrgTypeahead with curated investors lookup (Phase 87b). Same UX as top-level Key Investors.
+            { name: 'lead_investor', label: 'Lead Investor', type: 'org_typeahead', lookup: 'investors', placeholder: 'Start typing… e.g., Sequoia, Accel' },
             { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number', min: 0 },
             // Phase 92.1.3 — valuation_at_round_unit + _currency dropdowns mirror the
             // amount triplet so corporates can see whether '500' means ₹500 Cr or $500 M.
-            { name: 'valuation_at_round_unit', label: 'Valuation Unit', type: 'select', options: ['Lakh','Cr','K','M'] },
+            // Phase 92.1.4 (T18) — Valuation Unit is also conditional on Valuation Currency.
+            { name: 'valuation_at_round_unit', label: 'Valuation Unit', type: 'select_dependent', dependsOn: 'valuation_at_round_currency', optionsBy: { INR: ['Lakh','Cr'], USD: ['K','M'] } },
             { name: 'valuation_at_round_currency', label: 'Valuation Currency', type: 'select', options: ['INR','USD'] },
           ]} displayCols={['round_type','amount','amount_unit','currency','lead_investor','round_date']} />
 
@@ -800,7 +802,8 @@ export default function MyProfile() {
             { name: 'acquisition_date', label: 'Date', type: 'date' },
             { name: 'amount', label: 'Amount', type: 'number', min: 0 },
             // Phase 92.1.1 — same currency + unit trim as funding.
-            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','K','M'] },
+            // Phase 92.1.4 (T18) — conditional Unit dropdown driven by Currency.
+            { name: 'amount_unit', label: 'Unit', type: 'select_dependent', dependsOn: 'currency', optionsBy: { INR: ['Lakh','Cr'], USD: ['K','M'] } },
             { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD'] },
           ]} displayCols={['acquired_company','acquisition_date','amount']} />
         </div>
@@ -922,6 +925,47 @@ function ProfileSection({ section, title, fields, displayCols }) {
                       <input type="checkbox" checked={!!form[f.name]} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.checked }))} style={{ accentColor: G }} />
                       <span className="text-xs" style={{ color: '#555' }}>Yes</span>
                     </label>
+                  ) : f.type === 'select_dependent' ? (
+                    /* Phase 92.1.4 (T18) - dependent select. Options resolved at render
+                       time from f.optionsBy[parent_value]. If current value is no longer
+                       valid for the new parent, auto-clear on render via the onChange path
+                       (we don't mutate state during render - just show empty until next
+                       interaction; saves an extra useEffect). */
+                    (() => {
+                      const parentVal = form[f.dependsOn];
+                      const opts = (f.optionsBy && f.optionsBy[parentVal]) || [];
+                      const currentVal = form[f.name] || '';
+                      const isValid = opts.includes(currentVal);
+                      // Show value if still valid, otherwise empty (forces user to re-pick)
+                      const displayVal = isValid ? currentVal : '';
+                      return (
+                        <select value={displayVal} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
+                          style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+                          <option value="">{parentVal ? 'Select...' : `Pick ${f.dependsOn} first`}</option>
+                          {opts.map(o => {
+                            const opt = normalizeOption(o);
+                            return <option key={opt.value} value={opt.value}>{opt.label}</option>;
+                          })}
+                        </select>
+                      );
+                    })()
+                  ) : f.type === 'org_typeahead' ? (
+                    /* Phase 92.1.4 (T19) - OrgTypeahead (Phase 87b component) inside
+                       ProfileSection inline renderer. Single-value adapter: lead_investor
+                       is a scalar VARCHAR not an array, so wrap to convert string <-> [string]
+                       at the component boundary. */
+                    <OrgTypeahead
+                      lookup={f.lookup}
+                      value={form[f.name] ? [form[f.name]] : []}
+                      onChange={(arr) => {
+                        // OrgTypeahead emits an array of selected names; for scalar fields
+                        // we take the most recent (last) value or empty string.
+                        const last = Array.isArray(arr) && arr.length > 0 ? arr[arr.length - 1] : '';
+                        setForm(p => ({ ...p, [f.name]: last }));
+                      }}
+                      placeholder={f.placeholder || 'Start typing...'}
+                      label=""
+                    />
                   ) : f.type === 'logo' ? (
                     /* Phase 88 (T5) — logo upload widget inside ProfileSection.
                        Uses the same FileUpload component the top-level FormField
