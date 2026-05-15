@@ -291,7 +291,9 @@ export const PROFILE_FIELDS = {
     { name: 'tech_readiness', label: 'Tech Readiness Level (1=concept · 9=proven in production)', type: 'number', min: 1, max: 9 },
     { name: 'is_deeptech',    label: 'Is DeepTech?',         type: 'checkbox' },
     // ── Business Traction ─────────────────────────────
-    { name: 'revenue_range',  label: 'Revenue Range',        type: 'select', options: ['Pre-revenue','<1 Cr','1-10 Cr','10-50 Cr','50-100 Cr','>100 Cr'] },
+    // Phase 91 — cohort flagged 1-10 Cr was 10x spread, >100 Cr was a single open-ended bucket.
+    // New 10-bracket ladder: splits 1-10, 10-50, and >100 into finer-grained ranges per cohort spec.
+    { name: 'revenue_range',  label: 'Revenue Range',        type: 'select', options: ['Pre-revenue','<1 Cr','1-5 Cr','5-10 Cr','10-25 Cr','25-50 Cr','50-100 Cr','100-250 Cr','250-500 Cr','>500 Cr'] },
     { name: 'customer_count', label: 'Number of Customers',  type: 'number', min: 0 },
     { name: 'mrr_range',      label: 'MRR (Monthly Recurring Revenue)', type: 'money_range', variant: 'revenue' },
     { name: 'arr_range',      label: 'ARR (Annual Recurring Revenue)', type: 'money_range', variant: 'revenue' },
