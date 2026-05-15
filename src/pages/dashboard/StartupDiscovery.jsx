@@ -27,12 +27,22 @@ function validTeamSize(val) {
   return num;
 }
 
-function StartupCard({ startup, onWatchlist, watchlisted, onClick }) {
+function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable = true }) {
+  // Phase 92.2 (T21) - isClaimable=false means the row has NULL user_id
+  // (imported-unclaimed). Card visually indicates non-clickable state.
   const initials = (startup.company_name || '').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const location = [startup.city, startup.state, startup.country].filter(Boolean).join(', ');
 
   return (
-    <div onClick={onClick} className="bg-white rounded-xl border border-gray-200 p-3 hover:shadow-md hover:border-primary-200 transition-all cursor-pointer">
+    <div
+      onClick={isClaimable ? onClick : undefined}
+      title={isClaimable ? '' : 'Profile not yet claimed by the founder'}
+      className={`bg-white rounded-xl border p-3 transition-all ${
+        isClaimable
+          ? 'border-gray-200 hover:shadow-md hover:border-primary-200 cursor-pointer'
+          : 'border-gray-100 opacity-60 cursor-not-allowed'
+      }`}
+    >
       {/* Header: logo + name + watchlist */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-start gap-2 min-w-0 flex-1">
@@ -205,15 +215,25 @@ export default function StartupDiscovery() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
-            {startups.map(startup => (
-              <StartupCard
-                key={startup.id}
-                startup={startup}
-                watchlisted={watchlist.includes(startup.id)}
-                onWatchlist={toggleWatchlist}
-                onClick={() => navigate(`/dashboard/startup-profile/${startup.user_id || startup.id}`)}
-              />
-            ))}
+            {startups.map(startup => {
+              // Phase 92.2 (T21) - imported-unclaimed rows from csv_import_s39
+              // have NULL user_id. Pre-92.2 fallback to startup_profiles.id
+              // collided with other startups' user_id (id=7 -> 01Games demo etc).
+              // Fix: navigate by user_id ONLY. Disable click on unclaimed rows.
+              const isClaimable = !!startup.user_id;
+              return (
+                <StartupCard
+                  key={startup.id}
+                  startup={startup}
+                  watchlisted={watchlist.includes(startup.id)}
+                  onWatchlist={toggleWatchlist}
+                  isClaimable={isClaimable}
+                  onClick={isClaimable
+                    ? () => navigate(`/dashboard/startup-profile/${startup.user_id}?by=user_id`)
+                    : null}
+                />
+              );
+            })}
           </div>
 
           {totalPages > 1 && (
