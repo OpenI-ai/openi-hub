@@ -300,7 +300,14 @@ export const PROFILE_FIELDS = {
     { name: 'growth_rate',    label: 'Growth Rate',          type: 'text', placeholder: 'e.g., 3x YoY, 25% MoM' },
     { name: 'unit_economics', label: 'Unit Economics — Customer Acquisition Cost (CAC) and Lifetime Value (LTV)', type: 'textarea' },
     // ── Financials ────────────────────────────────────
-    { name: 'funding_raised_range', label: 'Total Funding Raised', type: 'money_range', variant: 'revenue' },
+    // Phase 92.3 (T23) — Total Funding Raised swapped from money_range bracket picker
+    // to number+unit+currency triplet. Mirrors funding sub-section amount pattern.
+    // T24 auto-syncs these from SUM(funding_rounds) when sub-section has data;
+    // T23 fallback path: user manually fills when no rounds. select_dependent
+    // (Phase 92.1.4) drives unit options off the currency selection.
+    { name: 'funding_raised', label: 'Total Funding Raised', type: 'number', min: 0 },
+    { name: 'funding_raised_unit', label: 'Total Funding Unit', type: 'select_dependent', dependsOn: 'funding_raised_currency', optionsBy: { INR: ['Lakh','Cr'], USD: ['K','M'] } },
+    { name: 'funding_raised_currency', label: 'Total Funding Currency', type: 'select', options: ['INR','USD'] },
     { name: 'total_funding_rounds', label: 'Total Funding Rounds', type: 'number', min: 0 },
     { name: 'last_funding_date', label: 'Last Funding Date', type: 'date' },
     { name: 'last_funding_amount_range', label: 'Last Funding Amount', type: 'money_range', variant: 'revenue' },
