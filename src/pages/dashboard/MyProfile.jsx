@@ -143,6 +143,29 @@ function MoneyRange({ field, value, onChange, label, required }) {
 
 function FormField({ field, value, onChange }) {
   const { name, label, type, required, options, placeholder, min, max } = field;
+  // Phase 92.3 hotfix — select_dependent in top-level FormField. Mirrors the
+  // ProfileSection inline branch from Phase 92.1.4. Reads field.__parentValue
+  // (injected by the fields.map below) and resolves options from
+  // field.optionsBy[parentValue]. Auto-clears current value if no longer valid
+  // for the new parent.
+  if (type === 'select_dependent') {
+    const parentVal = field.__parentValue;
+    const opts = (field.optionsBy && field.optionsBy[parentVal]) || [];
+    const currentVal = value || '';
+    const isValid = opts.includes(currentVal);
+    const displayVal = isValid ? currentVal : '';
+    return (
+      <div>
+        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+          {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        </label>
+        <select value={displayVal} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+          <option value="">{parentVal ? 'Select...' : `Pick ${field.dependsOn} first`}</option>
+          {opts.map(o => <option key={o} value={o}>{o}</option>)}
+        </select>
+      </div>
+    );
+  }
   if (type === 'select') {
     return (
       <div>
@@ -646,6 +669,11 @@ export default function MyProfile() {
               dependentField = { ...field, country: resolveCountryCode(profileData.country) || 'IN' };
             } else if (field.type === 'city') {
               dependentField = { ...field, country: resolveCountryCode(profileData.country) || 'IN', state: profileData.state || '' };
+            } else if (field.type === 'select_dependent') {
+              // Phase 92.3 hotfix — inject parent field's current value so the
+              // dependent dropdown can look up valid options. Mirrors the
+              // ProfileSection inline pattern from Phase 92.1.4.
+              dependentField = { ...field, __parentValue: profileData[field.dependsOn] };
             }
             return (
               <div key={field.name} className={field.type === 'textarea' || field.type === 'tags' || field.type === 'multiselect' || field.type === 'taxonomy_tags' ? 'md:col-span-2' : ''}>
