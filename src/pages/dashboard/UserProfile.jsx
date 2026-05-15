@@ -9,7 +9,7 @@ import { profileAPI, connectionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import ConnectButton from '../../components/ConnectButton';
 import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
-import { PERSONAS } from '../../config/personas';
+import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
 import {
   ChevronLeft, Loader2, MapPin, Mail, Globe, Building2,
   ExternalLink, Calendar, Users,
@@ -72,52 +72,76 @@ export default function UserProfile() {
   const persona = PERSONAS[p.role || p.persona_type];
   const displayName = p.display_name || p.organization_name || p.company_name || p.name || 'User';
 
-  // Collect fields to show
-  const fields = [];
-  if (p.tagline) fields.push({ label: 'Tagline', value: p.tagline });
-  if (p.description || p.about || p.bio) fields.push({ label: 'About', value: p.description || p.about || p.bio });
-  if (p.sector || p.sectors?.length) fields.push({ label: 'Sectors', value: Array.isArray(p.sectors) ? p.sectors.join(', ') : p.sector });
-  if (p.stage) fields.push({ label: 'Stage', value: p.stage });
-  if (p.city || p.state) fields.push({ label: 'Location', value: [p.city, p.state].filter(Boolean).join(', ') });
-  if (p.website) fields.push({ label: 'Website', value: p.website, link: true });
-  if (p.founded_year) fields.push({ label: 'Founded', value: p.founded_year });
-  if (p.employee_range || p.team_size) fields.push({ label: 'Team Size', value: p.employee_range || p.team_size });
-  if (p.focus_areas?.length) fields.push({ label: 'Focus Areas', value: p.focus_areas.join(', ') });
-  if (p.technologies?.length) fields.push({ label: 'Technologies', value: Array.isArray(p.technologies) ? p.technologies.join(', ') : p.technologies });
-  if (p.expertise?.length) fields.push({ label: 'Expertise', value: Array.isArray(p.expertise) ? p.expertise.join(', ') : p.expertise });
-  if (p.investment_thesis) fields.push({ label: 'Investment Thesis', value: p.investment_thesis });
-  // Phase 85e (14 May 2026) - money fields for all non-startup personas.
-  // Each line prefers the new Phase 85a _range bracket label, then falls
-  // back to legacy NUMERIC + currency. Phase 84 startup money fields use
-  // the same pattern in StartupProfile.formatFunding.
+  // Phase 88 — generic field iteration. Replaces the hand-picked field
+  // list (which hid most persona-specific fields like investor_type,
+  // investment_thesis, expertise, focus_areas, looking_for, social URLs,
+  // contact details, etc.) with a loop over PROFILE_FIELDS[role]. Every
+  // field the persona declared in personas.js renders if it has a value.
+  // Sub-section repeaters (startup-only) have their own surface on
+  // StartupProfile.jsx; UserProfile is for the 10 non-startup personas.
+  const role = p.role || p.persona_type;
+  const personaFields = PROFILE_FIELDS[role] || [];
+
+  // Phase 85e (preserved) - money fields prefer the new _range bracket label,
+  // fall back to legacy NUMERIC + currency.
   const moneyOrLegacy = (rangeText, legacyVal, currency) => {
     if (rangeText) {
-      // Phase 87k — strip redundant currency code prefix from _range text;
-      // the bracket label already carries the symbol (₹/$/€/£).
+      // Phase 87k - strip redundant currency code prefix from _range text.
       return rangeText.replace(/^(INR|USD|EUR|GBP)\s+/i, '');
     }
     if (legacyVal != null && legacyVal !== '') return `${currency || ''} ${legacyVal}`.trim();
     return null;
   };
-  // Investor
-  const ticketSize = moneyOrLegacy(
-    p.ticket_size_range_label,
-    (p.ticket_size_min || p.ticket_size_max) ? `${p.ticket_size_min || '?'} - ${p.ticket_size_max || '?'}` : null,
-    p.ticket_size_currency
-  );
-  if (ticketSize) fields.push({ label: 'Ticket Size', value: ticketSize });
-  const fundSize = moneyOrLegacy(p.fund_size_range, p.fund_size, p.fund_size_currency);
-  if (fundSize) fields.push({ label: 'Fund Size', value: fundSize });
-  const totalAum = moneyOrLegacy(p.total_aum_range, p.total_aum, p.total_aum_currency);
-  if (totalAum) fields.push({ label: 'Total AUM', value: totalAum });
-  const availableToDeploy = moneyOrLegacy(p.available_to_deploy_range, p.available_to_deploy, p.available_to_deploy_currency);
-  if (availableToDeploy) fields.push({ label: 'Available to Deploy', value: availableToDeploy });
-  // Corporate
-  const annualRevenue = moneyOrLegacy(p.annual_revenue_range, p.annual_revenue, null);
-  if (annualRevenue) fields.push({ label: 'Annual Revenue', value: annualRevenue });
-  // Incubator / Accelerator
-  const fundingOffered = moneyOrLegacy(p.funding_offered_range, p.funding_offered, null);
-  if (fundingOffered) fields.push({ label: 'Funding Offered', value: fundingOffered });
+
+  // Per-field formatter. Returns null if the field should be skipped.
+  function formatField(f) {
+    const raw = p[f.name];
+    if (f.type === 'logo') return null; // shown in Avatar block
+    if (raw === null || raw === undefined) return null;
+    if (typeof raw === 'string' && raw.trim() === '') return null;
+    if (Array.isArray(raw) && raw.length === 0) return null;
+
+    // money_range: use moneyOrLegacy with the legacy column name pattern.
+    if (f.type === 'money_range') {
+      // Phase 87k strip on the bracket label.
+      const stripped = String(raw).replace(/^(INR|USD|EUR|GBP)\s+/i, '');
+      return { label: f.label, value: stripped };
+    }
+    // url: render as link.
+    if (f.type === 'url') {
+      return { label: f.label, value: raw, link: true };
+    }
+    // checkbox: Yes / No.
+    if (f.type === 'checkbox') {
+      return { label: f.label, value: raw ? 'Yes' : 'No' };
+    }
+    // multiselect / tags / taxonomy_tags: comma-join arrays.
+    if (Array.isArray(raw)) {
+      return { label: f.label, value: raw.join(', ') };
+    }
+    // org_typeahead: array of {name,...} objects.
+    if (f.type === 'org_typeahead' && Array.isArray(raw)) {
+      return { label: f.label, value: raw.map(x => typeof x === 'object' ? x.name : x).join(', ') };
+    }
+    // year / number / select / text / textarea / etc.
+    return { label: f.label, value: String(raw) };
+  }
+
+  const fields = personaFields
+    .map(formatField)
+    .filter(Boolean);
+
+  // Investor — handle the legacy ticket_size_min/max pair via moneyOrLegacy.
+  // If the persona config didn't already surface ticket_size_range_label, fall
+  // back to the min/max pair so legacy investor rows still show ticket size.
+  if (role === 'investor' && !fields.some(f => f.label === 'Ticket Size')) {
+    const ticketSize = moneyOrLegacy(
+      p.ticket_size_range_label,
+      (p.ticket_size_min || p.ticket_size_max) ? `${p.ticket_size_min || '?'} - ${p.ticket_size_max || '?'}` : null,
+      p.ticket_size_currency
+    );
+    if (ticketSize) fields.push({ label: 'Ticket Size', value: ticketSize });
+  }
 
   return (
     <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>

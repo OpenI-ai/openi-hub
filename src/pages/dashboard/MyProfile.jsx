@@ -513,6 +513,10 @@ export default function MyProfile() {
   // profileScoreService.js uses the same weights so the bar matches
   // directory_profiles.profile_score.
   const [sectionPresence, setSectionPresence] = useState({});
+  // Phase 88 — loading guard: true once the 8 sub-section probes have
+  // resolved. Until then the Completeness bar renders "—" instead of an
+  // inaccurate top-level-only %. Non-startup personas flip immediately.
+  const [subProbed, setSubProbed] = useState(false);
   const SUBSECTION_WEIGHTS = {
     team:          3,
     products:      3,
@@ -526,7 +530,7 @@ export default function MyProfile() {
   const SUBSECTION_TOTAL = Object.values(SUBSECTION_WEIGHTS).reduce((a, b) => a + b, 0); // 20
 
   useEffect(() => {
-    if (user?.role !== 'startup') return;
+    if (user?.role !== 'startup') { setSubProbed(true); return; }
     let cancelled = false;
     (async () => {
       const sections = Object.keys(SUBSECTION_WEIGHTS);
@@ -537,6 +541,7 @@ export default function MyProfile() {
       const presence = {};
       sections.forEach((s, i) => { presence[s] = results[i]; });
       setSectionPresence(presence);
+      setSubProbed(true);
     })();
     return () => { cancelled = true; };
   }, [user?.role]);
@@ -605,13 +610,13 @@ export default function MyProfile() {
       <div className="rounded-xl p-4 mb-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium" style={{ color: '#374151' }}>Profile Completeness</span>
-          <span className="text-xs font-bold" style={{ color: completeness === 100 ? '#16a34a' : '#D5AA5B' }}>
-            {completeness}%
+          <span className="text-xs font-bold" style={{ color: !subProbed ? '#9ca3af' : (completeness === 100 ? '#16a34a' : '#D5AA5B') }}>
+            {subProbed ? `${completeness}%` : '—'}
           </span>
         </div>
         <div className="w-full h-2 rounded-full" style={{ background: '#f3f4f6' }}>
           <div className="h-2 rounded-full transition-all" style={{
-            width: `${completeness}%`,
+            width: subProbed ? `${completeness}%` : '0%',
             background: completeness === 100 ? '#16a34a' : '#D5AA5B',
           }} />
         </div>
@@ -719,8 +724,8 @@ export default function MyProfile() {
             { name: 'designation', label: 'Designation' },
             { name: 'role', label: 'Role (CEO, CTO, etc.)' },
             { name: 'bio', label: 'Bio', type: 'textarea' },
-            { name: 'linkedin_url', label: 'LinkedIn URL' },
-            { name: 'twitter_url', label: 'X (Twitter) URL' },
+            { name: 'linkedin_url', label: 'LinkedIn URL', type: 'url' },
+            { name: 'twitter_url', label: 'X (Twitter) URL', type: 'url' },
             { name: 'is_founder', label: 'Founder?', type: 'checkbox' },
             { name: 'is_advisory', label: 'Advisory Board?', type: 'checkbox' },
           ]} displayCols={['name','designation','role','is_founder']} />
@@ -730,7 +735,7 @@ export default function MyProfile() {
             { name: 'description', label: 'Description', type: 'textarea' },
             { name: 'launch_date', label: 'Launch Date', type: 'date' },
             { name: 'pricing_model', label: 'Pricing Model' },
-            { name: 'url', label: 'Product URL' },
+            { name: 'url', label: 'Product URL', type: 'url' },
           ]} displayCols={['name','pricing_model','launch_date']} />
 
           <ProfileSection section="funding" title="Funding Rounds" fields={[
@@ -745,7 +750,7 @@ export default function MyProfile() {
           <ProfileSection section="clients" title="Clients / Customers" fields={[
             { name: 'client_name', label: 'Client Name', required: true },
             { name: 'industry', label: 'Industry' },
-            { name: 'logo_url', label: 'Logo URL' },
+            { name: 'logo_url', label: 'Logo', type: 'logo' },
           ]} displayCols={['client_name','industry']} />
 
           <ProfileSection section="patents" title="Patents / IP" fields={[
@@ -754,20 +759,26 @@ export default function MyProfile() {
             { name: 'patent_number', label: 'Patent Number' },
             { name: 'filing_date', label: 'Filing Date', type: 'date' },
             { name: 'abstract', label: 'Abstract', type: 'textarea' },
-            { name: 'url', label: 'URL' },
+            { name: 'url', label: 'URL', type: 'url' },
           ]} displayCols={['title','status','patent_number','filing_date']} />
 
           <ProfileSection section="competitors" title="Competitors" fields={[
             { name: 'competitor_name', label: 'Competitor Name', required: true },
             { name: 'description', label: 'Description', type: 'textarea' },
-            { name: 'country', label: 'Country' },
-            { name: 'sector', label: 'Sector' },
-            { name: 'website', label: 'Website' },
+            /* Phase 88 (T7) — country is the canonical ISO dropdown so legacy
+               free-text values like "India" still load via resolveCountryCode. */
+            { name: 'country', label: 'Country', type: 'country' },
+            /* Phase 88 (T7) — sector aligns with the top-level Sector enum.
+               Reusing a short curated list rather than wiring the full
+               taxonomy_select component into ProfileSection. */
+            { name: 'sector', label: 'Sector', type: 'select', options: ['DeepTech','SaaS','FinTech','HealthTech','EdTech','AI/ML','CleanTech','Hardware','Biotech','SpaceTech','Defence','AgriTech','RetailTech','Logistics','Other'] },
+            /* Phase 88 (T8) — explicit URL input. */
+            { name: 'website', label: 'Website', type: 'url' },
           ]} displayCols={['competitor_name','country','sector']} />
 
           <ProfileSection section="news" title="Latest News" fields={[
             { name: 'title', label: 'Title', required: true },
-            { name: 'url', label: 'URL' },
+            { name: 'url', label: 'URL', type: 'url' },
             { name: 'published_date', label: 'Date', type: 'date' },
             { name: 'source', label: 'Source' },
           ]} displayCols={['title','source','published_date']} />
@@ -897,6 +908,26 @@ function ProfileSection({ section, title, fields, displayCols }) {
                       <input type="checkbox" checked={!!form[f.name]} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.checked }))} style={{ accentColor: G }} />
                       <span className="text-xs" style={{ color: '#555' }}>Yes</span>
                     </label>
+                  ) : f.type === 'logo' ? (
+                    /* Phase 88 (T5) — logo upload widget inside ProfileSection.
+                       Uses the same FileUpload component the top-level FormField
+                       uses, wired to the 'logos' Cloudinary folder so Phase 73's
+                       trim-to-white-256x256-WebP preset applies automatically. */
+                    <FileUpload value={form[f.name] || ''} onChange={(val) => setForm(p => ({ ...p, [f.name]: val }))} folder="logos" accept="image/*" label="" />
+                  ) : f.type === 'country' ? (
+                    /* Phase 88 (T7) — country dropdown inside ProfileSection.
+                       Mirrors the top-level FormField country branch so users
+                       picking a competitor's country get the canonical ISO list. */
+                    <select value={form[f.name] || 'IN'} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+                      {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                    </select>
+                  ) : f.type === 'url' ? (
+                    /* Phase 88 (T8) — explicit URL input. Uses native URL input
+                       for better mobile keyboard + light validation. */
+                    <input type="url" value={form[f.name] ?? ''} placeholder={f.placeholder || 'https://...'}
+                      onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
                   ) : (
                     <input type={f.type || 'text'} value={form[f.name] ?? ''} min={f.min} max={f.max}
                       onChange={e => {

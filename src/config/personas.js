@@ -259,6 +259,7 @@ export const PROFILE_FIELDS = {
   startup: [
     // ── Brief Information ─────────────────────────────
     { name: 'company_name',   label: 'Company Name',        type: 'text',     required: true },
+    { name: 'logo_url',       label: 'Company Logo',        type: 'logo',     placeholder: 'https://yoursite.com/logo.png' },
     { name: 'tagline',        label: 'Tagline',              type: 'text' },
     { name: 'sector',         label: 'Sector',               type: 'taxonomy_select', taxonomy: 'sectors' },
     { name: 'stage',          label: 'Stage',                type: 'select', options: ['Ideation','Pre-seed','Seed','Series A','Series B','Growth','Listed'] },
@@ -317,6 +318,7 @@ export const PROFILE_FIELDS = {
   ],
   student: [
     { name: 'institution',      label: 'Institution',        type: 'text',   required: true },
+    { name: 'logo_url',         label: 'Profile Photo',      type: 'logo',   placeholder: 'Upload a photo' },
     { name: 'degree',           label: 'Degree',             type: 'text' },
     { name: 'department',       label: 'Department',         type: 'text' },
     { name: 'graduation_year',  label: 'Graduation Year',    type: 'year' },
@@ -335,6 +337,7 @@ export const PROFILE_FIELDS = {
   ],
   academia: [
     { name: 'institution_name', label: 'Institution Name',    type: 'text',   required: true },
+    { name: 'logo_url',         label: 'Institution Logo',    type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'institution_type', label: 'Institution Type',    type: 'select', options: ['University','Research Institute','College','Think Tank','Other'] },
     { name: 'department',       label: 'Department',          type: 'text' },
     { name: 'designation',      label: 'Designation',         type: 'text' },
@@ -370,6 +373,7 @@ export const PROFILE_FIELDS = {
   ],
   government: [
     { name: 'body_name',    label: 'Body / Organization Name', type: 'text',   required: true },
+    { name: 'logo_url',     label: 'Organization Logo',         type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'body_type',    label: 'Type',                     type: 'select', options: ['Ministry','PSU','Defence','State Govt','Regulatory','Other'] },
     { name: 'department',   label: 'Department',               type: 'text' },
     { name: 'designation',  label: 'Designation',              type: 'text' },
@@ -422,6 +426,7 @@ export const PROFILE_FIELDS = {
   ],
   mentor: [
     { name: 'designation',      label: 'Designation',           type: 'text' },
+    { name: 'logo_url',         label: 'Profile Photo',         type: 'logo',   placeholder: 'Upload a photo' },
     { name: 'organisation',     label: 'Organisation',          type: 'text' },
     { name: 'expertise',        label: 'Expertise Areas',       type: 'tags', placeholder: 'e.g., Strategy, Technology, Fundraising' },
     { name: 'years_experience', label: 'Years of Experience',   type: 'number', min: 0, max: 80 },
@@ -438,6 +443,7 @@ export const PROFILE_FIELDS = {
   ],
   lab: [
     { name: 'lab_name',       label: 'Lab Name',             type: 'text',   required: true },
+    { name: 'logo_url',       label: 'Lab Logo',             type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'parent_org',     label: 'Parent Organisation',  type: 'text' },
     { name: 'lab_type',       label: 'Lab Type',             type: 'select', options: ['Government','University','Private','Shared','CoWorking'] },
     { name: 'country',        label: 'Country',              type: 'country' },
@@ -457,6 +463,7 @@ export const PROFILE_FIELDS = {
   ],
   incubator: [
     { name: 'incubator_name',   label: 'Incubator Name',      type: 'text',   required: true },
+    { name: 'logo_url',         label: 'Incubator Logo',      type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'parent_org',       label: 'Parent Organisation', type: 'text' },
     { name: 'country',          label: 'Country',             type: 'country' },
     { name: 'state',            label: 'State',               type: 'state' },
@@ -474,6 +481,7 @@ export const PROFILE_FIELDS = {
   ],
   accelerator: [
     { name: 'accelerator_name', label: 'Accelerator Name',    type: 'text',   required: true },
+    { name: 'logo_url',         label: 'Accelerator Logo',    type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'parent_org',       label: 'Parent Organisation', type: 'text' },
     { name: 'country',          label: 'Country',             type: 'country' },
     { name: 'state',            label: 'State',               type: 'state' },
