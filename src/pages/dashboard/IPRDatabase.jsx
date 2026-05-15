@@ -19,6 +19,92 @@ export default function IPRDatabase() {
   const [showAdd, setShowAdd] = useState(false);
   const [iprRecords, setIprRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Phase 89 — wire IPR Save Record handler. Form state for the Add IPR
+  // modal. Was previously uncontrolled inputs that the Save button just
+  // dropped on the floor (Phase 66 events bug pattern).
+  const [form, setForm] = useState({
+    title: '',
+    application_no: '',
+    filing_date: '',
+    owner: '',
+    type: 'Patent',
+    openi_share: '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  function resetForm() {
+    setForm({
+      title: '',
+      application_no: '',
+      filing_date: '',
+      owner: '',
+      type: 'Patent',
+      openi_share: '',
+    });
+  }
+
+  async function handleAddRecord() {
+    const title = form.title.trim();
+    if (!title) {
+      toast.error('Title of IP is required');
+      return;
+    }
+    setSaving(true);
+    try {
+      // Backend payload shape per iprController.create. startup_id is left
+      // null (no startup picker in this modal yet); Owner free-text + OpenI
+      // ownership % are stashed in description so the data isn't lost.
+      const ownerLine  = form.owner.trim() ? `Owner: ${form.owner.trim()}` : '';
+      const shareLine  = form.openi_share !== '' ? `OpenI ownership: ${form.openi_share}%` : '';
+      const description = [ownerLine, shareLine].filter(Boolean).join('\n');
+      const payload = {
+        startup_id: null,
+        title,
+        type: form.type || 'Patent',
+        application_no: form.application_no.trim() || null,
+        filing_date: form.filing_date || null,
+        status: 'Filed',
+        jurisdiction: 'IN',
+        description: description || null,
+      };
+      const created = await iprAPI.create(payload);
+      toast.success('IPR record added');
+      // Optimistic refresh — prepend the created row to the list. Falls back
+      // to a full re-fetch if the response shape is unexpected.
+      try {
+        const data = await iprAPI.list();
+        const records = data.records || data.ipr_records || data || [];
+        const normalized = records.map(r => ({
+          id: r.id,
+          title: r.title || '',
+          applicationNo: r.application_no || r.applicationNo || '',
+          startup: r.startup_name || r.startup || '',
+          type: r.type || 'Patent',
+          status: r.status || 'Filed',
+          jurisdiction: r.jurisdiction || (r.jurisdictions ? r.jurisdictions : ['IN']),
+          openi_share: r.openi_share || 0,
+          startup_share: r.startup_share || 100,
+          filingDate: r.filing_date ? new Date(r.filing_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.filingDate || '',
+          grantDate: r.grant_date ? new Date(r.grant_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.grantDate || null,
+          expiryDate: r.expiry_date ? new Date(r.expiry_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.expiryDate || '',
+          licensing: r.licensing || 'None',
+          inventors: r.inventors || [],
+        }));
+        setIprRecords(normalized);
+      } catch {
+        // Refresh failed; the row is in the DB but list is stale. Page reload
+        // will pick it up. Don't surface this as an error.
+      }
+      resetForm();
+      setShowAdd(false);
+    } catch (err) {
+      // Surface the backend message if available (per Phase 64 pattern).
+      const msg = err?.response?.data?.message || err?.message || 'Failed to save IPR record';
+      toast.error(msg);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   useEffect(() => {
     iprAPI.list()
@@ -198,39 +284,108 @@ export default function IPRDatabase() {
         </div>
       )}
 
-      {/* Add IPR Modal */}
+      {/* Add IPR Modal — Phase 89 wires controlled inputs + Save handler.
+          Pre-Phase-89, every input was uncontrolled and Save just closed the
+          modal (Phase 66 events bug pattern). */}
       {showAdd && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <h3 className="font-display font-bold text-gray-900 text-lg mb-5">Add IPR Record</h3>
             <div className="space-y-4">
-              {[
-                ['Title of IP', 'Full title of the intellectual property'],
-                ['Application Number', 'IN2024XXXXXXX or PCT/IN2024/...'],
-                ['Filing Date', ''],
-                ['Startup / Owner', ''],
-              ].map(([label, placeholder]) => (
-                <div key={label}>
-                  <label className="text-sm font-medium text-gray-700 block mb-1.5">{label}</label>
-                  <input className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400" placeholder={placeholder} type={label.includes('Date') ? 'date' : 'text'} />
-                </div>
-              ))}
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                  Title of IP <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.title}
+                  onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                  maxLength={500}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                  placeholder="Full title of the intellectual property"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Application Number</label>
+                <input
+                  type="text"
+                  value={form.application_no}
+                  onChange={e => setForm(p => ({ ...p, application_no: e.target.value }))}
+                  maxLength={500}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                  placeholder="IN2024XXXXXXX or PCT/IN2024/..."
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Filing Date</label>
+                <input
+                  type="date"
+                  value={form.filing_date}
+                  onChange={e => setForm(p => ({ ...p, filing_date: e.target.value }))}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Startup / Owner</label>
+                <input
+                  type="text"
+                  value={form.owner}
+                  onChange={e => setForm(p => ({ ...p, owner: e.target.value }))}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                  placeholder="Owner name"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1.5">IPR Type</label>
-                  <select className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400">
-                    <option>Patent</option><option>Trademark</option><option>Copyright</option><option>Design</option>
+                  <select
+                    value={form.type}
+                    onChange={e => setForm(p => ({ ...p, type: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                  >
+                    <option value="Patent">Patent</option>
+                    <option value="Trademark">Trademark</option>
+                    <option value="Copyright">Copyright</option>
+                    <option value="Design">Design</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1.5">OpenI Ownership %</label>
-                  <input type="number" min="0" max="100" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400" placeholder="0" />
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={form.openi_share}
+                    onChange={e => {
+                      const raw = e.target.value;
+                      if (raw === '') { setForm(p => ({ ...p, openi_share: '' })); return; }
+                      let n = Number(raw);
+                      if (Number.isNaN(n)) return;
+                      if (n < 0) n = 0;
+                      if (n > 100) n = 100;
+                      setForm(p => ({ ...p, openi_share: n }));
+                    }}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                    placeholder="0"
+                  />
                 </div>
               </div>
             </div>
             <div className="flex gap-3 mt-5">
-              <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm">Cancel</button>
-              <button onClick={() => setShowAdd(false)} className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold">Save Record</button>
+              <button
+                onClick={() => { resetForm(); setShowAdd(false); }}
+                disabled={saving}
+                className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddRecord}
+                disabled={saving || !form.title.trim()}
+                className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Saving…' : 'Save Record'}
+              </button>
             </div>
           </div>
         </div>

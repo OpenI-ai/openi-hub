@@ -73,6 +73,10 @@ const discoverGroup = (role) => [
   { to: FIND_STARTUPS_ROUTE[role] || '/dashboard/startups', label: 'Find Startups',  icon: 'Rocket' },
   { to: '/dashboard/students',                              label: 'Find Students',  icon: 'GraduationCap' },
   { to: '/dashboard/academia',                              label: 'Find Academia',  icon: 'BookOpen' },
+  // Phase 89 — Find Mentors in Group 3 (Discover). Was a Dashboard-tile-only
+  // surface before Phase 89; sidebar entry added universally so users can
+  // navigate back without bouncing through Dashboard.
+  { to: '/dashboard/mentors',                               label: 'Find Mentors',   icon: 'Users' },
   { to: '/dashboard/directory',                             label: 'Directory',      icon: 'Search' },
   { to: '/dashboard/clusters',                              label: 'Innovation Map', icon: 'Layers' },
 ];
