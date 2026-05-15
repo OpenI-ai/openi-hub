@@ -1210,7 +1210,21 @@ export default function StartupProfile() {
   const initials = name.split(' ').map(w => w?.[0]).join('').slice(0, 2).toUpperCase() || '??';
   const location = [startup.city, startup.state, startup.country].filter(Boolean).join(', ');
   const trl = startup.tech_readiness || 0;
-  const funding = formatFunding(startup.funding_raised, startup.funding_raised_currency, startup.funding_raised_range);
+  // Phase 92.3 ship 3/3 (T23 display) - use amountToDisplay helper to render
+  // Funding Raised with the new funding_raised_unit + funding_raised_currency.
+  // Falls back to formatFunding (Phase 84 bracket label or raw NUMERIC) for
+  // legacy startups with no unit set (display heuristic kicks in: NULL unit
+  // means INR=Cr, USD=M per amountToDisplay).
+  const fundingRow = {
+    amount: startup.funding_raised,
+    amount_unit: startup.funding_raised_unit,
+    currency: startup.funding_raised_currency,
+    amount_range: startup.funding_raised_range,  // Phase 84 fallback
+  };
+  const fundingDisplay = amountToDisplay(fundingRow);
+  const funding = fundingDisplay
+    ? fundingDisplay.displayLabel
+    : formatFunding(startup.funding_raised, startup.funding_raised_currency, startup.funding_raised_range);
   const valuation = formatFunding(startup.valuation, startup.valuation_currency, startup.valuation_range);
   const technologies = Array.isArray(startup.technologies) ? startup.technologies : [];
   const focusAreas = Array.isArray(startup.focus_areas) ? startup.focus_areas : [];
