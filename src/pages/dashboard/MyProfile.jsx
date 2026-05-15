@@ -738,14 +738,19 @@ export default function MyProfile() {
             { name: 'url', label: 'Product URL', type: 'url' },
           ]} displayCols={['name','pricing_model','launch_date']} />
 
+          {/* Phase 92.1 (T17a) - amount_unit added between amount/currency and round_date.
+              Currency + unit cluster together. Static union options across all currencies for
+              now (Lakh/Cr/Rupees for INR; K/M/Base for USD/EUR/GBP). Per-currency conditional
+              dropdown deferred to Phase 92.2 if cohort flags need. */}
           <ProfileSection section="funding" title="Funding Rounds" fields={[
             { name: 'round_type', label: 'Round Type', required: true, type: 'select', options: ['Pre-seed','Seed','Angel','Series A','Series B','Series C','Series D','Debt','Grant','Bridge'] },
             { name: 'amount', label: 'Amount', type: 'number', min: 0 },
+            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','Rupees','K','M','Base'] },
             { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR','GBP'] },
             { name: 'round_date', label: 'Date', type: 'date' },
             { name: 'lead_investor', label: 'Lead Investor' },
             { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number', min: 0 },
-          ]} displayCols={['round_type','amount','currency','lead_investor','round_date']} />
+          ]} displayCols={['round_type','amount','amount_unit','currency','lead_investor','round_date']} />
 
           <ProfileSection section="clients" title="Clients / Customers" fields={[
             { name: 'client_name', label: 'Client Name', required: true },
@@ -783,10 +788,12 @@ export default function MyProfile() {
             { name: 'source', label: 'Source' },
           ]} displayCols={['title','source','published_date']} />
 
+          {/* Phase 92.1 (T17a) - amount_unit added; same convention as funding. */}
           <ProfileSection section="acquisitions" title="Acquisitions" fields={[
             { name: 'acquired_company', label: 'Acquired Company', required: true },
             { name: 'acquisition_date', label: 'Date', type: 'date' },
             { name: 'amount', label: 'Amount', type: 'number', min: 0 },
+            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','Rupees','K','M','Base'] },
             { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR'] },
           ]} displayCols={['acquired_company','acquisition_date','amount']} />
         </div>
