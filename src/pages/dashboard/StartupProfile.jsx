@@ -297,6 +297,294 @@ function RowHeader({ primary, meta, right }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Phase 92 — funding history bar chart (T17). Crunchbase-style visual
+// above the per-round list. Hand-rolled SVG, zero new dependencies.
+// Renders only when funding_rounds has >= 1 row.
+// ─────────────────────────────────────────────────────────────────────
+
+// Parse a money_range bracket label to a numeric midpoint in Cr units.
+// Handles MONEY_RANGES.INR (₹1 Lakh / ₹10 Lakh / ₹1 Cr / ₹10 Cr / etc),
+// "Below X", "Above X", "Pre-revenue", "Confidential", and stripped variants
+// from Phase 87k (where "INR " / "USD " prefix already removed).
+//
+// Returns null for non-numeric values (Pre-revenue, Confidential) so the
+// chart can skip them without breaking the totals.
+function bracketToMidpoint(label) {
+  if (!label || typeof label !== 'string') return null;
+  const s = label.trim();
+  // Skip non-numeric labels
+  if (/pre-revenue|not applicable|confidential/i.test(s)) return null;
+  // Strip any leading currency code prefix (defensive)
+  const cleaned = s.replace(/^(INR|USD|EUR|GBP)\s+/i, '');
+  // Helper: convert "X Lakh" / "X Cr" / "X" to Cr value
+  function toCr(numStr, unitStr) {
+    const n = parseFloat(numStr);
+    if (Number.isNaN(n)) return null;
+    if (/lakh/i.test(unitStr || '')) return n / 100;       // 1 Lakh = 0.01 Cr
+    if (/cr|crore/i.test(unitStr || '')) return n;         // 1 Cr = 1 Cr
+    return n; // bare number assumed Cr
+  }
+  // Pattern: "Below ₹X Unit" or "Above ₹X Unit"
+  const boundMatch = cleaned.match(/^(Below|Above)\s+₹?([\d.]+)\s*(Lakh|Cr|Crore)?/i);
+  if (boundMatch) {
+    const [, dir, num, unit] = boundMatch;
+    const val = toCr(num, unit);
+    if (val == null) return null;
+    return dir.toLowerCase() === 'below' ? val / 2 : val * 1.5;
+  }
+  // Pattern: "₹X Unit – ₹Y Unit" or "₹X Unit - ₹Y Unit" (en-dash or hyphen)
+  // Phase 90 MoneyPill strips the leading currency code but ₹ stays inside the bracket
+  const rangeMatch = cleaned.match(/^₹?([\d.]+)\s*(Lakh|Cr|Crore)?\s*[–\-]\s*₹?([\d.]+)\s*(Lakh|Cr|Crore)?/i);
+  if (rangeMatch) {
+    const [, lo, loUnit, hi, hiUnit] = rangeMatch;
+    const loCr = toCr(lo, loUnit || hiUnit);
+    const hiCr = toCr(hi, hiUnit || loUnit);
+    if (loCr == null || hiCr == null) return null;
+    return (loCr + hiCr) / 2;
+  }
+  // Pattern: bare bracket like "1-5 Cr" or "100-250 Cr" (Phase 91 revenue ladder)
+  const bareRange = cleaned.match(/^([\d.]+)\s*[–\-]\s*([\d.]+)\s*(Lakh|Cr|Crore)?/i);
+  if (bareRange) {
+    const [, lo, hi, unit] = bareRange;
+    const loCr = toCr(lo, unit);
+    const hiCr = toCr(hi, unit);
+    if (loCr == null || hiCr == null) return null;
+    return (loCr + hiCr) / 2;
+  }
+  // Pattern: "<X Cr" or ">X Cr" (Phase 91 ladder bookends)
+  const ineqMatch = cleaned.match(/^([<>])\s*([\d.]+)\s*(Lakh|Cr|Crore)?/i);
+  if (ineqMatch) {
+    const [, op, num, unit] = ineqMatch;
+    const val = toCr(num, unit);
+    if (val == null) return null;
+    return op === '<' ? val / 2 : val * 1.5;
+  }
+  return null;
+}
+
+// Coerce a funding round row to a numeric amount in Cr units. Prefers
+// amount_range (Phase 84 bracket), falls back to amount (legacy NUMERIC,
+// stored in actual rupees — divide by 1e7 to get Cr).
+function amountToCr(row) {
+  if (row.amount_range) {
+    const mid = bracketToMidpoint(row.amount_range);
+    if (mid != null) return { value: mid, isApprox: true };
+  }
+  if (row.amount && !Number.isNaN(Number(row.amount))) {
+    return { value: Number(row.amount) / 1e7, isApprox: false };
+  }
+  return null;
+}
+
+// Color map by round stage. Falls back to OpenI gold for unknown stages.
+const STAGE_COLORS = {
+  'Pre-seed':  '#94a3b8', // slate-400
+  'Seed':      '#fbbf24', // amber-400
+  'Angel':     '#f59e0b', // amber-500
+  'Series A':  '#3b82f6', // blue-500
+  'Series B':  '#8b5cf6', // violet-500
+  'Series C':  '#a855f7', // purple-500
+  'Series D':  '#d946ef', // fuchsia-500
+  'Series E':  '#ec4899', // pink-500
+  'Growth':    '#10b981', // emerald-500
+  'Bridge':    '#6b7280', // gray-500
+  'Debt':      '#374151', // gray-700
+  'Grant':     '#14b8a6', // teal-500
+  'Pre-IPO':   '#0ea5e9', // sky-500
+};
+const DEFAULT_BAR_COLOR = '#D5AA5B'; // OpenI gold
+
+// Format a Cr value for display: "12.5 Cr" / "1.2 K Cr" / "850 Cr"
+function fmtCr(cr) {
+  if (cr == null) return '—';
+  if (cr >= 1000) return `${(cr / 1000).toFixed(1)}K Cr`;
+  if (cr >= 100)  return `${Math.round(cr)} Cr`;
+  if (cr >= 10)   return `${cr.toFixed(1)} Cr`;
+  if (cr >= 1)    return `${cr.toFixed(2)} Cr`;
+  return `${(cr * 100).toFixed(1)} L`; // < 1 Cr → Lakh display
+}
+
+// Format ISO date → "Jan 2024" for X-axis labels
+function fmtMonthYear(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return '';
+    return dt.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+  } catch { return ''; }
+}
+
+function FundingChart({ rounds }) {
+  const [tooltip, setTooltip] = React.useState(null); // {x, y, round, amountCr, isApprox}
+
+  // Normalize: parse amount, sort by date ascending, drop rows with no
+  // numeric amount (they stay in the list view, just not the chart).
+  const items = (rounds || [])
+    .map(r => {
+      const amt = amountToCr(r);
+      return amt ? { ...r, _crValue: amt.value, _crApprox: amt.isApprox } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      const da = a.round_date ? new Date(a.round_date).getTime() : 0;
+      const db = b.round_date ? new Date(b.round_date).getTime() : 0;
+      return da - db;
+    });
+
+  if (items.length === 0) return null; // no chartable rounds
+
+  // Total funding (sum of midpoint estimates)
+  const total = items.reduce((acc, r) => acc + r._crValue, 0);
+  const anyApprox = items.some(r => r._crApprox);
+
+  // SVG geometry
+  const W = 800, H = 280;
+  const padL = 56, padR = 24, padT = 36, padB = 56;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const maxVal = Math.max(...items.map(r => r._crValue));
+  // Round Y-axis max up to a clean number (10/25/50/100/250/500/1000/...)
+  const niceMax = (m => {
+    const candidates = [1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
+    for (const c of candidates) if (m <= c) return c;
+    return Math.ceil(m / 1000) * 1000;
+  })(maxVal);
+
+  const n = items.length;
+  const barGap = 12;
+  const barWidth = Math.min(64, (plotW - barGap * (n - 1)) / n);
+  const barSlot = barWidth + barGap;
+  const totalBarsW = n * barWidth + (n - 1) * barGap;
+  const startX = padL + (plotW - totalBarsW) / 2; // center group horizontally
+
+  // Y-axis ticks: 0, 25%, 50%, 75%, 100%
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map(t => ({
+    val: niceMax * t,
+    y: padT + plotH * (1 - t),
+  }));
+
+  return (
+    <div className="mb-4">
+      {/* Total funding callout */}
+      <div className="flex items-baseline justify-between mb-3 px-1">
+        <div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">Total raised{anyApprox ? ' (approx)' : ''}</div>
+          <div className="text-2xl font-display font-bold text-gray-900 mt-0.5">₹{fmtCr(total)}</div>
+        </div>
+        <div className="text-xs text-gray-500">
+          {n} round{n === 1 ? '' : 's'}
+        </div>
+      </div>
+
+      {/* SVG chart */}
+      <div className="relative" style={{ width: '100%' }}>
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          preserveAspectRatio="xMidYMid meet"
+          style={{ width: '100%', height: 'auto' }}
+          className="bg-gray-50 rounded-lg border border-gray-200"
+        >
+          {/* Y-axis grid lines + labels */}
+          {yTicks.map((t, i) => (
+            <g key={i}>
+              <line
+                x1={padL} y1={t.y} x2={W - padR} y2={t.y}
+                stroke={i === 0 ? '#9ca3af' : '#e5e7eb'}
+                strokeWidth={i === 0 ? 1 : 0.5}
+                strokeDasharray={i === 0 ? 'none' : '2 3'}
+              />
+              <text
+                x={padL - 8} y={t.y + 4}
+                textAnchor="end" fontSize="10" fill="#6b7280"
+              >
+                ₹{fmtCr(t.val)}
+              </text>
+            </g>
+          ))}
+
+          {/* Bars */}
+          {items.map((r, i) => {
+            const barH = (r._crValue / niceMax) * plotH;
+            const x = startX + i * barSlot;
+            const y = padT + plotH - barH;
+            const color = STAGE_COLORS[r.round_type] || DEFAULT_BAR_COLOR;
+            return (
+              <g key={r.id || i}>
+                {/* Bar */}
+                <rect
+                  x={x} y={y} width={barWidth} height={barH}
+                  fill={color} rx={3}
+                  style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
+                  opacity={tooltip && tooltip.idx !== i ? 0.5 : 1}
+                  onMouseEnter={() => setTooltip({ idx: i, round: r, x: x + barWidth / 2, y })}
+                  onMouseLeave={() => setTooltip(null)}
+                  onClick={() => setTooltip(t => t && t.idx === i ? null : { idx: i, round: r, x: x + barWidth / 2, y })}
+                />
+                {/* Bar value label (only if bar is tall enough) */}
+                {barH > 24 && (
+                  <text
+                    x={x + barWidth / 2} y={y - 4}
+                    textAnchor="middle" fontSize="10" fontWeight="600" fill="#374151"
+                  >
+                    {fmtCr(r._crValue)}
+                  </text>
+                )}
+                {/* X-axis date label */}
+                <text
+                  x={x + barWidth / 2} y={H - padB + 16}
+                  textAnchor="middle" fontSize="10" fill="#6b7280"
+                >
+                  {fmtMonthYear(r.round_date)}
+                </text>
+                {/* X-axis stage label (under date, smaller) */}
+                <text
+                  x={x + barWidth / 2} y={H - padB + 30}
+                  textAnchor="middle" fontSize="9" fontWeight="500"
+                  fill={color}
+                >
+                  {r.round_type || r.round_name || ''}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Tooltip - HTML overlay outside SVG for richer text */}
+        {tooltip && (() => {
+          const r = tooltip.round;
+          // Position tooltip above the bar; SVG is responsive so use percent
+          const xPct = (tooltip.x / W) * 100;
+          const yPct = (tooltip.y / H) * 100;
+          return (
+            <div
+              className="absolute pointer-events-none bg-gray-900 text-white text-xs rounded-md px-3 py-2 shadow-lg"
+              style={{
+                left: `${xPct}%`,
+                top: `${yPct}%`,
+                transform: 'translate(-50%, -110%)',
+                whiteSpace: 'nowrap',
+                zIndex: 10,
+              }}
+            >
+              <div className="font-semibold">{r.round_type || r.round_name || 'Round'}</div>
+              {r.round_date && (
+                <div className="text-gray-300">{new Date(r.round_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+              )}
+              {r.lead_investor && (
+                <div className="text-gray-300">Led by {r.lead_investor}</div>
+              )}
+              <div className="font-semibold mt-1" style={{ color: STAGE_COLORS[r.round_type] || DEFAULT_BAR_COLOR }}>
+                ₹{fmtCr(r._crValue)}{r._crApprox ? ' (approx)' : ''}
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}
+
 // ── Per-section row components (Phase 90) ─────────────────────────────
 
 function TeamRow({ row }) {
@@ -526,6 +814,8 @@ function StartupSubSections({ data }) {
             <h3 className="font-display font-bold text-gray-900">{s.title}</h3>
             <Badge tone="gray">{s.rows.length}</Badge>
           </div>
+          {/* Phase 92 — funding history bar chart above the list view (Funding only) */}
+          {s.key === 'funding' && <FundingChart rounds={s.rows} />}
           <div className="space-y-1">
             {s.rows.map((r, i) => (
               <SubSectionRow key={r.id || i} sectionKey={s.key} row={r} />
