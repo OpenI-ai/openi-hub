@@ -752,6 +752,10 @@ export default function MyProfile() {
             { name: 'round_date', label: 'Date', type: 'date' },
             { name: 'lead_investor', label: 'Lead Investor' },
             { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number', min: 0 },
+            // Phase 92.1.3 — valuation_at_round_unit + _currency dropdowns mirror the
+            // amount triplet so corporates can see whether '500' means ₹500 Cr or $500 M.
+            { name: 'valuation_at_round_unit', label: 'Valuation Unit', type: 'select', options: ['Lakh','Cr','K','M'] },
+            { name: 'valuation_at_round_currency', label: 'Valuation Currency', type: 'select', options: ['INR','USD'] },
           ]} displayCols={['round_type','amount','amount_unit','currency','lead_investor','round_date']} />
 
           <ProfileSection section="clients" title="Clients / Customers" fields={[
