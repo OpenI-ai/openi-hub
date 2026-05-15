@@ -745,8 +745,10 @@ export default function MyProfile() {
           <ProfileSection section="funding" title="Funding Rounds" fields={[
             { name: 'round_type', label: 'Round Type', required: true, type: 'select', options: ['Pre-seed','Seed','Angel','Series A','Series B','Series C','Series D','Debt','Grant','Bridge'] },
             { name: 'amount', label: 'Amount', type: 'number', min: 0 },
-            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','Rupees','K','M','Base'] },
-            { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR','GBP'] },
+            // Phase 92.1.1 — trimmed to 4 units (Lakh/Cr for INR, K/M for USD). Rupees + Base dropped as too granular for funding context.
+            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','K','M'] },
+            // Phase 92.1.1 — simplified to INR + USD only across the platform.
+            { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD'] },
             { name: 'round_date', label: 'Date', type: 'date' },
             { name: 'lead_investor', label: 'Lead Investor' },
             { name: 'valuation_at_round', label: 'Valuation at Round', type: 'number', min: 0 },
@@ -793,8 +795,9 @@ export default function MyProfile() {
             { name: 'acquired_company', label: 'Acquired Company', required: true },
             { name: 'acquisition_date', label: 'Date', type: 'date' },
             { name: 'amount', label: 'Amount', type: 'number', min: 0 },
-            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','Rupees','K','M','Base'] },
-            { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD','EUR'] },
+            // Phase 92.1.1 — same currency + unit trim as funding.
+            { name: 'amount_unit', label: 'Unit', type: 'select', options: ['Lakh','Cr','K','M'] },
+            { name: 'currency', label: 'Currency', type: 'select', options: ['INR','USD'] },
           ]} displayCols={['acquired_company','acquisition_date','amount']} />
         </div>
       )}
