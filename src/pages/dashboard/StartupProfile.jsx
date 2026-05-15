@@ -455,6 +455,24 @@ function amountToDisplay(row) {
 // Currency symbol map - reused across MoneyPill, FundingRow, and chart.
 const CURRENCY_SYMBOL = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
 
+// Phase 92.1.3 (T17c) - valuationToDisplay mirrors amountToDisplay but reads
+// valuation_at_round + valuation_at_round_unit + valuation_at_round_currency.
+// Returns null when valuation is missing/zero so the meta line can be skipped.
+// Same legacy heuristic as amountToDisplay: NULL unit => INR uses Cr, others use M.
+function valuationToDisplay(row) {
+  const numericVal = Number(row.valuation_at_round);
+  if (!row.valuation_at_round || Number.isNaN(numericVal) || numericVal === 0) return null;
+
+  const cur = (row.valuation_at_round_currency || row.currency || 'INR').toUpperCase();
+  let unit = row.valuation_at_round_unit;
+  if (!unit) {
+    unit = (cur === 'INR') ? 'Cr' : 'M';
+  }
+
+  const sym = CURRENCY_SYMBOL[cur] || cur + ' ';
+  return `${sym}${numericVal} ${unit}`;
+}
+
 // Color map by round stage. Falls back to OpenI gold for unknown stages.
 const STAGE_COLORS = {
   'Pre-seed':  '#94a3b8', // slate-400
@@ -755,6 +773,11 @@ function FundingRow({ row }) {
   const meta = [];
   if (row.round_date)    meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />{fmtDate(row.round_date)}</span>);
   if (row.lead_investor) meta.push(`Led by ${row.lead_investor}`);
+  // Phase 92.1.3 (T17c) - valuation as secondary meta line under round info.
+  // Falls back to row.currency when valuation_at_round_currency is null (some
+  // legacy rows may have currency on the round but not the valuation).
+  const valDisplay = valuationToDisplay(row);
+  if (valDisplay) meta.push(<span className="text-gray-600">Valued at <span className="font-semibold">{valDisplay}</span></span>);
 
   // Phase 92.1 - render money via amountToDisplay so list view shows the
   // same currency + unit format as the chart (e.g. "Rs10 Cr" or "$5 M").
@@ -771,7 +794,7 @@ function FundingRow({ row }) {
         meta={meta}
         right={moneyEl}
       />
-      <FallbackFields row={row} slotted={['round_name','round_type','round_date','lead_investor','amount','amount_unit','amount_range','currency']} />
+      <FallbackFields row={row} slotted={['round_name','round_type','round_date','lead_investor','amount','amount_unit','amount_range','currency','valuation_at_round','valuation_at_round_unit','valuation_at_round_currency']} />
     </RowCard>
   );
 }
