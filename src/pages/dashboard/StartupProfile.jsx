@@ -9,7 +9,8 @@ import {
   MapPin, Users, TrendingUp, Award, Shield, ChevronRight,
   ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target,
   DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
-  Flag, Loader2, X, Mail, Github, Youtube, FileText, Video
+  Flag, Loader2, X, Mail, Github, Youtube, FileText, Video,
+  BarChart3, List, // Phase 92.1 (T17b) - chart/list toggle icons
 } from 'lucide-react';
 
 // Phase 69: TRL renamed to "Tech Readiness" everywhere visible. Tooltip
@@ -363,19 +364,96 @@ function bracketToMidpoint(label) {
   return null;
 }
 
-// Coerce a funding round row to a numeric amount in Cr units. Prefers
-// amount_range (Phase 84 bracket), falls back to amount (legacy NUMERIC,
-// stored in actual rupees — divide by 1e7 to get Cr).
-function amountToCr(row) {
+// Phase 92.1 (T17a) - amountToDisplay replaces the old amountToCr that
+// wrongly assumed row.amount was in actual rupees. New schema has
+// amount_unit column (Phase 92.1 ship 1/3) so we know what '10.00' means:
+// 10 Cr / 10 Lakh / 10 Million / etc. Per-currency convention:
+//   INR  -> Lakh (0.01 Cr) / Cr (1) / Rupees (1e-7 Cr)
+//   USD/EUR/GBP -> K (0.001 M) / M (1) / Base (1e-6 M)
+// Big-unit per currency family: INR uses Cr, others use M. Chart
+// converts everything to the big-unit for visual comparison.
+//
+// Returns null for rows with no usable amount (Confidential / Pre-revenue
+// brackets and rows missing both amount and amount_range).
+//
+// Returns { value, bigUnit, currency, displayLabel, isApprox } where
+// `value` is in `bigUnit` (Cr for INR, M for others) so the chart can
+// stack same-currency bars on a shared Y axis.
+function amountToDisplay(row) {
+  // Path 1: amount_range bracket (Phase 84) - already produces a Cr midpoint
   if (row.amount_range) {
     const mid = bracketToMidpoint(row.amount_range);
-    if (mid != null) return { value: mid, isApprox: true };
+    if (mid != null) {
+      const cur = (row.currency || 'INR').toUpperCase();
+      return {
+        value: mid,
+        bigUnit: 'Cr',
+        currency: cur,
+        displayLabel: `${cur === 'INR' ? '₹' : (CURRENCY_SYMBOL[cur] || '')}${mid.toFixed(mid >= 10 ? 0 : 1)} Cr`,
+        isApprox: true,
+      };
+    }
   }
-  if (row.amount && !Number.isNaN(Number(row.amount))) {
-    return { value: Number(row.amount) / 1e7, isApprox: false };
+
+  // Path 2: numeric amount + unit (Phase 92.1 happy path)
+  const numericAmt = Number(row.amount);
+  if (!row.amount || Number.isNaN(numericAmt)) return null;
+
+  const cur = (row.currency || 'INR').toUpperCase();
+  // Resolve unit: explicit amount_unit > heuristic by currency
+  let unit = row.amount_unit;
+  if (!unit) {
+    // Legacy row without amount_unit. Assume Indian convention for INR,
+    // international convention for others.
+    unit = (cur === 'INR') ? 'Cr' : 'M';
   }
-  return null;
+
+  // Convert to big-unit per currency family.
+  // INR family big-unit: Cr. Lakh -> 0.01x, Rupees -> 1e-7x.
+  // USD/EUR/GBP family big-unit: M. K -> 0.001x, Base -> 1e-6x.
+  const isINR = (cur === 'INR');
+  const bigUnit = isINR ? 'Cr' : 'M';
+
+  let valueInBigUnit;
+  if (isINR) {
+    if (unit === 'Cr')          valueInBigUnit = numericAmt;
+    else if (unit === 'Lakh')   valueInBigUnit = numericAmt / 100;
+    else if (unit === 'Rupees') valueInBigUnit = numericAmt / 1e7;
+    // Heuristic safety: if user picked K/M/Base for INR (off-convention),
+    // map them to nearest INR big-unit using rough FX-free conversion
+    // (1 K ~ 0.0001 Cr, 1 M ~ 0.1 Cr, 1 Base = Rupees).
+    else if (unit === 'K')      valueInBigUnit = numericAmt * 0.0001;
+    else if (unit === 'M')      valueInBigUnit = numericAmt * 0.1;
+    else if (unit === 'Base')   valueInBigUnit = numericAmt / 1e7;
+    else                        valueInBigUnit = numericAmt; // fallback assume Cr
+  } else {
+    // Non-INR: big-unit M
+    if (unit === 'M')           valueInBigUnit = numericAmt;
+    else if (unit === 'K')      valueInBigUnit = numericAmt / 1000;
+    else if (unit === 'Base')   valueInBigUnit = numericAmt / 1e6;
+    // Off-convention safety: INR units picked for non-INR currency
+    else if (unit === 'Cr')     valueInBigUnit = numericAmt * 10; // 1 Cr = 10 M (rough INR equivalent)
+    else if (unit === 'Lakh')   valueInBigUnit = numericAmt * 0.1;
+    else if (unit === 'Rupees') valueInBigUnit = numericAmt / 1e6;
+    else                        valueInBigUnit = numericAmt; // fallback assume M
+  }
+
+  // Build the human-readable display label using the user's chosen unit
+  // (not the big-unit) so it matches what they typed.
+  const sym = CURRENCY_SYMBOL[cur] || cur + ' ';
+  const displayLabel = `${sym}${numericAmt} ${unit}`;
+
+  return {
+    value: valueInBigUnit,
+    bigUnit,
+    currency: cur,
+    displayLabel,
+    isApprox: !row.amount_unit, // approximate when we used the heuristic
+  };
 }
+
+// Currency symbol map - reused across MoneyPill, FundingRow, and chart.
+const CURRENCY_SYMBOL = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
 
 // Color map by round stage. Falls back to OpenI gold for unknown stages.
 const STAGE_COLORS = {
@@ -418,12 +496,21 @@ function fmtMonthYear(d) {
 function FundingChart({ rounds }) {
   const [tooltip, setTooltip] = React.useState(null); // {x, y, round, amountCr, isApprox}
 
-  // Normalize: parse amount, sort by date ascending, drop rows with no
-  // numeric amount (they stay in the list view, just not the chart).
+  // Phase 92.1 - normalize via amountToDisplay so per-currency units work.
+  // Each item carries _value (in big-unit), _bigUnit (Cr or M), _currency,
+  // _displayLabel (what user typed), _isApprox (true when bracket-derived
+  // or heuristic-resolved unit).
   const items = (rounds || [])
     .map(r => {
-      const amt = amountToCr(r);
-      return amt ? { ...r, _crValue: amt.value, _crApprox: amt.isApprox } : null;
+      const amt = amountToDisplay(r);
+      return amt ? {
+        ...r,
+        _value: amt.value,
+        _bigUnit: amt.bigUnit,
+        _currency: amt.currency,
+        _displayLabel: amt.displayLabel,
+        _isApprox: amt.isApprox,
+      } : null;
     })
     .filter(Boolean)
     .sort((a, b) => {
@@ -434,16 +521,28 @@ function FundingChart({ rounds }) {
 
   if (items.length === 0) return null; // no chartable rounds
 
-  // Total funding (sum of midpoint estimates)
-  const total = items.reduce((acc, r) => acc + r._crValue, 0);
-  const anyApprox = items.some(r => r._crApprox);
+  // Total funding by currency (chart sums values within the same currency
+  // family because Cr and M are different scales). For mixed-currency
+  // portfolios, callout shows the dominant currency total + a note.
+  const totalsByCur = {};
+  items.forEach(r => {
+    if (!totalsByCur[r._currency]) totalsByCur[r._currency] = { value: 0, bigUnit: r._bigUnit };
+    totalsByCur[r._currency].value += r._value;
+  });
+  const currencies = Object.keys(totalsByCur);
+  const dominantCur = currencies.reduce((a, b) =>
+    (totalsByCur[a].value > totalsByCur[b].value) ? a : b, currencies[0]
+  );
+  const dominantTotal = totalsByCur[dominantCur];
+  const anyApprox = items.some(r => r._isApprox);
+  const isMixedCur = currencies.length > 1;
 
   // SVG geometry
   const W = 800, H = 280;
   const padL = 56, padR = 24, padT = 36, padB = 56;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
-  const maxVal = Math.max(...items.map(r => r._crValue));
+  const maxVal = Math.max(...items.map(r => r._value));
   // Round Y-axis max up to a clean number (10/25/50/100/250/500/1000/...)
   const niceMax = (m => {
     const candidates = [1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
@@ -458,19 +557,35 @@ function FundingChart({ rounds }) {
   const totalBarsW = n * barWidth + (n - 1) * barGap;
   const startX = padL + (plotW - totalBarsW) / 2; // center group horizontally
 
-  // Y-axis ticks: 0, 25%, 50%, 75%, 100%
+  // Y-axis ticks: 0, 25%, 50%, 75%, 100%. Labels use dominant currency's
+  // big-unit (Cr for INR portfolios, M for USD/EUR/GBP). Cross-currency
+  // mixed portfolios still use the dominant currency axis - other currency
+  // bars are visually scaled by their own big-unit value but tooltip shows
+  // their native currency + unit.
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map(t => ({
     val: niceMax * t,
     y: padT + plotH * (1 - t),
   }));
+  const yUnit = dominantTotal.bigUnit;
+  const ySym = CURRENCY_SYMBOL[dominantCur] || dominantCur;
 
   return (
     <div className="mb-4">
-      {/* Total funding callout */}
+      {/* Phase 92.1 - currency-aware total callout. Shows dominant currency's total.
+          For mixed-currency portfolios, adds a small note below. */}
       <div className="flex items-baseline justify-between mb-3 px-1">
         <div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Total raised{anyApprox ? ' (approx)' : ''}</div>
-          <div className="text-2xl font-display font-bold text-gray-900 mt-0.5">₹{fmtCr(total)}</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">
+            Total raised{anyApprox ? ' (approx)' : ''}{isMixedCur ? ` (${dominantCur} portion)` : ''}
+          </div>
+          <div className="text-2xl font-display font-bold text-gray-900 mt-0.5">
+            {CURRENCY_SYMBOL[dominantCur] || dominantCur}{dominantTotal.value >= 1000 ? `${(dominantTotal.value/1000).toFixed(1)}K` : dominantTotal.value >= 100 ? Math.round(dominantTotal.value) : dominantTotal.value.toFixed(1)} {dominantTotal.bigUnit}
+          </div>
+          {isMixedCur && (
+            <div className="text-[10px] text-gray-400 mt-0.5">
+              + {currencies.filter(c => c !== dominantCur).map(c => `${CURRENCY_SYMBOL[c] || c}${totalsByCur[c].value.toFixed(1)} ${totalsByCur[c].bigUnit}`).join(', ')}
+            </div>
+          )}
         </div>
         <div className="text-xs text-gray-500">
           {n} round{n === 1 ? '' : 's'}
@@ -498,14 +613,14 @@ function FundingChart({ rounds }) {
                 x={padL - 8} y={t.y + 4}
                 textAnchor="end" fontSize="10" fill="#6b7280"
               >
-                ₹{fmtCr(t.val)}
+                {ySym}{t.val >= 1000 ? `${(t.val/1000).toFixed(1)}K` : t.val >= 100 ? Math.round(t.val) : t.val >= 10 ? t.val.toFixed(0) : t.val.toFixed(1)} {yUnit}
               </text>
             </g>
           ))}
 
           {/* Bars */}
           {items.map((r, i) => {
-            const barH = (r._crValue / niceMax) * plotH;
+            const barH = (r._value / niceMax) * plotH;
             const x = startX + i * barSlot;
             const y = padT + plotH - barH;
             const color = STAGE_COLORS[r.round_type] || DEFAULT_BAR_COLOR;
@@ -521,13 +636,13 @@ function FundingChart({ rounds }) {
                   onMouseLeave={() => setTooltip(null)}
                   onClick={() => setTooltip(t => t && t.idx === i ? null : { idx: i, round: r, x: x + barWidth / 2, y })}
                 />
-                {/* Bar value label (only if bar is tall enough) */}
+                {/* Bar value label (only if bar is tall enough) - shows user's native amount + unit */}
                 {barH > 24 && (
                   <text
                     x={x + barWidth / 2} y={y - 4}
                     textAnchor="middle" fontSize="10" fontWeight="600" fill="#374151"
                   >
-                    {fmtCr(r._crValue)}
+                    {r._displayLabel}
                   </text>
                 )}
                 {/* X-axis date label */}
@@ -575,7 +690,7 @@ function FundingChart({ rounds }) {
                 <div className="text-gray-300">Led by {r.lead_investor}</div>
               )}
               <div className="font-semibold mt-1" style={{ color: STAGE_COLORS[r.round_type] || DEFAULT_BAR_COLOR }}>
-                ₹{fmtCr(r._crValue)}{r._crApprox ? ' (approx)' : ''}
+                {r._displayLabel}{r._isApprox ? ' (approx)' : ''}
               </div>
             </div>
           );
@@ -641,13 +756,12 @@ function FundingRow({ row }) {
   if (row.round_date)    meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />{fmtDate(row.round_date)}</span>);
   if (row.lead_investor) meta.push(`Led by ${row.lead_investor}`);
 
-  // Money: prefer amount_range, fall back to amount + currency
+  // Phase 92.1 - render money via amountToDisplay so list view shows the
+  // same currency + unit format as the chart (e.g. "Rs10 Cr" or "$5 M").
   let moneyEl = null;
-  if (row.amount_range) {
-    moneyEl = <MoneyPill value={row.amount_range} />;
-  } else if (row.amount) {
-    const cur = row.currency || 'INR';
-    moneyEl = <MoneyPill value={`${cur} ${row.amount}`} />;
+  const amt = amountToDisplay(row);
+  if (amt) {
+    moneyEl = <MoneyPill value={amt.displayLabel} />;
   }
 
   return (
@@ -657,7 +771,7 @@ function FundingRow({ row }) {
         meta={meta}
         right={moneyEl}
       />
-      <FallbackFields row={row} slotted={['round_name','round_type','round_date','lead_investor','amount','amount_range','currency']} />
+      <FallbackFields row={row} slotted={['round_name','round_type','round_date','lead_investor','amount','amount_unit','amount_range','currency']} />
     </RowCard>
   );
 }
@@ -757,12 +871,11 @@ function AcquisitionsRow({ row }) {
   const meta = [];
   if (row.acquisition_date) meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />{fmtDate(row.acquisition_date)}</span>);
 
+  // Phase 92.1 - same display fix as FundingRow
   let moneyEl = null;
-  if (row.amount_range) {
-    moneyEl = <MoneyPill value={row.amount_range} />;
-  } else if (row.amount) {
-    const cur = row.currency || 'INR';
-    moneyEl = <MoneyPill value={`${cur} ${row.amount}`} />;
+  const amt = amountToDisplay(row);
+  if (amt) {
+    moneyEl = <MoneyPill value={amt.displayLabel} />;
   }
 
   return (
@@ -772,7 +885,7 @@ function AcquisitionsRow({ row }) {
         meta={meta}
         right={moneyEl}
       />
-      <FallbackFields row={row} slotted={['acquired_company','acquirer','target','acquisition_date','amount','amount_range','currency']} />
+      <FallbackFields row={row} slotted={['acquired_company','acquirer','target','acquisition_date','amount','amount_unit','amount_range','currency']} />
     </RowCard>
   );
 }
@@ -800,6 +913,56 @@ function SubSectionRow({ sectionKey, row }) {
   }
 }
 
+// Phase 92.1 (T17b) - per-section card with chart/list toggle.
+// Toggle only meaningful for funding section (where the chart exists).
+// Other sections render as plain row lists.
+function FundingSectionCard({ section }) {
+  const s = section;
+  const isFunding = s.key === 'funding';
+  const [view, setView] = React.useState('chart'); // 'chart' | 'list'
+  const showChart = isFunding && view === 'chart';
+  const showList  = !isFunding || view === 'list';
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <h3 className="font-display font-bold text-gray-900">{s.title}</h3>
+          <Badge tone="gray">{s.rows.length}</Badge>
+        </div>
+        {isFunding && (
+          <div className="flex items-center gap-1 bg-gray-100 rounded-md p-0.5">
+            <button
+              onClick={() => setView('chart')}
+              className={`p-1.5 rounded transition-colors ${view === 'chart' ? 'bg-white shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
+              title="Chart view"
+              aria-label="Chart view"
+            >
+              <BarChart3 size={14} />
+            </button>
+            <button
+              onClick={() => setView('list')}
+              className={`p-1.5 rounded transition-colors ${view === 'list' ? 'bg-white shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
+              title="List view"
+              aria-label="List view"
+            >
+              <List size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+      {showChart && <FundingChart rounds={s.rows} />}
+      {showList && (
+        <div className="space-y-1">
+          {s.rows.map((r, i) => (
+            <SubSectionRow key={r.id || i} sectionKey={s.key} row={r} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StartupSubSections({ data }) {
   if (!data) return null;
   const sections = SUBSECTION_DEFS
@@ -809,19 +972,7 @@ function StartupSubSections({ data }) {
   return (
     <div className="space-y-4">
       {sections.map(s => (
-        <div key={s.key} className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-bold text-gray-900">{s.title}</h3>
-            <Badge tone="gray">{s.rows.length}</Badge>
-          </div>
-          {/* Phase 92 — funding history bar chart above the list view (Funding only) */}
-          {s.key === 'funding' && <FundingChart rounds={s.rows} />}
-          <div className="space-y-1">
-            {s.rows.map((r, i) => (
-              <SubSectionRow key={r.id || i} sectionKey={s.key} row={r} />
-            ))}
-          </div>
-        </div>
+        <FundingSectionCard key={s.key} section={s} />
       ))}
     </div>
   );
