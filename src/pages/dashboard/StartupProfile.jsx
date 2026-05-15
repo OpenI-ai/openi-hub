@@ -170,35 +170,346 @@ function FieldValue({ name, value }) {
   return <span>{String(value)}</span>;
 }
 
-function SubSectionRow({ row }) {
-  // Pick a primary "title" field for the row header.
-  const primary = row.name || row.product_name || row.client_name
-              || row.title || row.headline || row.competitor_name
-              || row.round_name || row.round_type
-              || row.acquirer || row.target || row.acquired_company
-              || 'Entry';
-  // Render every non-empty field except the primary as label/value pairs.
-  const entries = Object.entries(row)
-    .filter(([k, v]) => !FIELD_EXCLUDE.has(k) && !isEmpty(v))
-    .filter(([k]) => k !== 'name' && k !== 'product_name' && k !== 'client_name'
-      && k !== 'title' && k !== 'headline' && k !== 'competitor_name'
-      && k !== 'round_name' && k !== 'round_type'
-      && k !== 'acquirer' && k !== 'target' && k !== 'acquired_company');
+// ─────────────────────────────────────────────────────────────────────
+// Phase 90 — structured row cards. Replaces Phase 88's flat label/value
+// grid for the corporate-view StartupProfile sub-sections. Each section
+// gets a per-type renderer with header / body / footer zones for visual
+// hierarchy and scannability. Closes T13 (cohort flagged Phase 88
+// render-everything as cluttered).
+//
+// Render-everything contract from Phase 88 is preserved: every field
+// visible after Phase 88 stays visible after Phase 90 — just slotted into
+// semantic zones. Any field not explicitly slotted by a row component
+// falls through to a small "more details" grid via <FallbackFields>.
+// ─────────────────────────────────────────────────────────────────────
+
+// Shared atom components.
+function Badge({ children, tone = 'gray' }) {
+  const tones = {
+    gray:   'bg-gray-100 text-gray-700 border-gray-200',
+    green:  'bg-green-50 text-green-700 border-green-200',
+    amber:  'bg-amber-50 text-amber-700 border-amber-200',
+    blue:   'bg-blue-50 text-blue-700 border-blue-200',
+    primary:'bg-primary-50 text-primary-700 border-primary-200',
+  };
   return (
-    <div className="pb-3 border-b border-gray-100 last:border-0 last:pb-0">
-      <div className="text-sm font-semibold text-gray-900 mb-1">{primary}</div>
-      {entries.length > 0 && (
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
-          {entries.map(([k, v]) => (
-            <div key={k} className="flex gap-2">
-              <dt className="text-gray-500 flex-shrink-0">{fmtLabel(k)}:</dt>
-              <dd className="text-gray-800 min-w-0"><FieldValue name={k} value={v} /></dd>
-            </div>
-          ))}
-        </dl>
-      )}
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full border ${tones[tone] || tones.gray}`}>
+      {children}
+    </span>
+  );
+}
+
+function UrlChip({ href, icon: Icon, label }) {
+  if (!href) return null;
+  const full = href.startsWith('http') ? href : `https://${href}`;
+  return (
+    <a
+      href={full}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-gray-200 text-gray-700 hover:border-primary-400 hover:text-primary-600 transition-colors"
+    >
+      {Icon && <Icon size={12} />}
+      <span>{label}</span>
+      <ExternalLink size={10} className="opacity-60" />
+    </a>
+  );
+}
+
+function MoneyPill({ value }) {
+  if (!value) return null;
+  const stripped = typeof value === 'string'
+    ? value.replace(/^(INR|USD|EUR|GBP)\s+/i, '')
+    : String(value);
+  return (
+    <span className="inline-flex items-center px-2.5 py-1 text-xs font-bold rounded-md bg-primary-50 text-primary-700 border border-primary-200">
+      {stripped}
+    </span>
+  );
+}
+
+function LogoImg({ src, size = 48 }) {
+  if (!src || typeof src !== 'string' || !/^https?:\/\//.test(src)) return null;
+  return (
+    <img
+      src={src}
+      alt=""
+      style={{ width: size, height: size }}
+      className="rounded-md object-contain bg-white border border-gray-200 flex-shrink-0"
+    />
+  );
+}
+
+function StatusBadge({ status }) {
+  if (!status) return null;
+  const norm = String(status).toLowerCase();
+  const tone = norm.includes('grant')   ? 'green'
+            : norm.includes('appli')    ? 'amber'
+            : norm.includes('pend')     ? 'gray'
+            : norm.includes('reject')   ? 'gray'
+            : 'blue';
+  return <Badge tone={tone}>{String(status)}</Badge>;
+}
+
+// Fallback: any non-empty field not explicitly slotted by a row component
+// renders here as a compact label/value pair. Preserves Phase 88's
+// render-everything contract — no field gets dropped silently.
+function FallbackFields({ row, slotted }) {
+  const slottedSet = new Set([...slotted, ...FIELD_EXCLUDE]);
+  const remaining = Object.entries(row)
+    .filter(([k, v]) => !slottedSet.has(k) && !isEmpty(v));
+  if (remaining.length === 0) return null;
+  return (
+    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs mt-2 pt-2 border-t border-gray-100">
+      {remaining.map(([k, v]) => (
+        <div key={k} className="flex gap-2">
+          <dt className="text-gray-400 flex-shrink-0">{fmtLabel(k)}:</dt>
+          <dd className="text-gray-700 min-w-0"><FieldValue name={k} value={v} /></dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+// Shared row card wrapper — consistent padding + dividers.
+function RowCard({ children }) {
+  return (
+    <div className="py-3 border-b border-gray-100 last:border-0 last:pb-0">
+      {children}
     </div>
   );
+}
+
+// Header row: primary text + inline metadata + optional right-aligned content.
+function RowHeader({ primary, meta, right }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold text-gray-900">{primary}</div>
+        {meta && meta.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5 text-xs text-gray-500">
+            {meta.map((m, i) => <span key={i}>{m}</span>)}
+          </div>
+        )}
+      </div>
+      {right && <div className="flex-shrink-0">{right}</div>}
+    </div>
+  );
+}
+
+// ── Per-section row components (Phase 90) ─────────────────────────────
+
+function TeamRow({ row }) {
+  const meta = [];
+  if (row.designation) meta.push(row.designation);
+  if (row.role && row.role !== row.designation) meta.push(row.role);
+  if (row.is_founder)  meta.push(<Badge tone="green">Founder</Badge>);
+  if (row.is_advisory) meta.push(<Badge tone="amber">Advisory</Badge>);
+
+  return (
+    <RowCard>
+      <RowHeader primary={row.name || 'Team member'} meta={meta} />
+      {row.bio && (
+        <p className="text-xs text-gray-600 mt-1.5 line-clamp-3">{row.bio}</p>
+      )}
+      {(row.linkedin_url || row.twitter_url) && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          <UrlChip href={row.linkedin_url} icon={ExternalLink} label="LinkedIn" />
+          <UrlChip href={row.twitter_url}  icon={ExternalLink} label="X (Twitter)" />
+        </div>
+      )}
+      <FallbackFields row={row} slotted={['name','designation','role','is_founder','is_advisory','bio','linkedin_url','twitter_url']} />
+    </RowCard>
+  );
+}
+
+function ProductRow({ row }) {
+  const meta = [];
+  if (row.pricing_model) meta.push(<Badge tone="primary">{row.pricing_model}</Badge>);
+  if (row.launch_date)   meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />{fmtDate(row.launch_date)}</span>);
+  const productUrl = row.url || row.product_url;
+
+  return (
+    <RowCard>
+      <RowHeader primary={row.name || row.product_name || 'Product'} meta={meta} />
+      {row.tagline && (
+        <p className="text-xs text-primary-700 font-medium mt-1">{row.tagline}</p>
+      )}
+      {row.description && (
+        <p className="text-xs text-gray-600 mt-1.5 line-clamp-3">{row.description}</p>
+      )}
+      {productUrl && (
+        <div className="mt-2">
+          <UrlChip href={productUrl} icon={ExternalLink} label="Visit Product" />
+        </div>
+      )}
+      <FallbackFields row={row} slotted={['name','product_name','tagline','description','launch_date','pricing_model','url','product_url']} />
+    </RowCard>
+  );
+}
+
+function FundingRow({ row }) {
+  const meta = [];
+  if (row.round_date)    meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />{fmtDate(row.round_date)}</span>);
+  if (row.lead_investor) meta.push(`Led by ${row.lead_investor}`);
+
+  // Money: prefer amount_range, fall back to amount + currency
+  let moneyEl = null;
+  if (row.amount_range) {
+    moneyEl = <MoneyPill value={row.amount_range} />;
+  } else if (row.amount) {
+    const cur = row.currency || 'INR';
+    moneyEl = <MoneyPill value={`${cur} ${row.amount}`} />;
+  }
+
+  return (
+    <RowCard>
+      <RowHeader
+        primary={row.round_name || row.round_type || 'Funding round'}
+        meta={meta}
+        right={moneyEl}
+      />
+      <FallbackFields row={row} slotted={['round_name','round_type','round_date','lead_investor','amount','amount_range','currency']} />
+    </RowCard>
+  );
+}
+
+function ClientsRow({ row }) {
+  const meta = [];
+  if (row.industry) meta.push(<Badge tone="blue">{row.industry}</Badge>);
+
+  return (
+    <RowCard>
+      <div className="flex items-center gap-3">
+        <LogoImg src={row.logo_url} size={40} />
+        <div className="flex-1 min-w-0">
+          <RowHeader primary={row.client_name || row.name || 'Client'} meta={meta} />
+        </div>
+      </div>
+      <FallbackFields row={row} slotted={['client_name','name','industry','logo_url']} />
+    </RowCard>
+  );
+}
+
+function PatentsRow({ row }) {
+  const meta = [];
+  if (row.status)         meta.push(<StatusBadge status={row.status} />);
+  if (row.patent_number)  meta.push(<span className="font-mono">{row.patent_number}</span>);
+  if (row.filing_date)    meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />Filed {fmtDate(row.filing_date)}</span>);
+
+  return (
+    <RowCard>
+      <RowHeader primary={row.title || 'Patent'} meta={meta} />
+      {row.abstract && (
+        <p className="text-xs text-gray-600 mt-1.5 line-clamp-3">{row.abstract}</p>
+      )}
+      {row.url && (
+        <div className="mt-2">
+          <UrlChip href={row.url} icon={FileText} label="View Patent" />
+        </div>
+      )}
+      <FallbackFields row={row} slotted={['title','status','patent_number','filing_date','abstract','url']} />
+    </RowCard>
+  );
+}
+
+function CompetitorsRow({ row }) {
+  const meta = [];
+  if (row.sector)   meta.push(<Badge tone="primary">{row.sector}</Badge>);
+  if (row.country)  meta.push(<span className="inline-flex items-center gap-1"><Globe size={11} />{row.country}</span>);
+
+  return (
+    <RowCard>
+      <RowHeader primary={row.competitor_name || row.name || 'Competitor'} meta={meta} />
+      {(row.description || row.differentiation) && (
+        <p className="text-xs text-gray-600 mt-1.5 line-clamp-3">{row.description || row.differentiation}</p>
+      )}
+      {row.website && (
+        <div className="mt-2">
+          <UrlChip href={row.website} icon={Globe} label="Visit Site" />
+        </div>
+      )}
+      <FallbackFields row={row} slotted={['competitor_name','name','sector','country','description','differentiation','website']} />
+    </RowCard>
+  );
+}
+
+function NewsRow({ row }) {
+  const meta = [];
+  if (row.source)         meta.push(row.source);
+  if (row.published_date) meta.push(fmtDate(row.published_date));
+  const href = row.url || row.link;
+
+  // News title is the primary action — make whole header clickable when href exists.
+  const titleEl = href ? (
+    <a
+      href={href.startsWith('http') ? href : `https://${href}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-primary-600 transition-colors"
+    >
+      {row.title || row.headline || 'Article'}
+    </a>
+  ) : (row.title || row.headline || 'Article');
+
+  return (
+    <RowCard>
+      <RowHeader primary={titleEl} meta={meta} />
+      {href && (
+        <div className="mt-2">
+          <UrlChip href={href} icon={ExternalLink} label="Read Article" />
+        </div>
+      )}
+      <FallbackFields row={row} slotted={['title','headline','source','published_date','url','link']} />
+    </RowCard>
+  );
+}
+
+function AcquisitionsRow({ row }) {
+  const meta = [];
+  if (row.acquisition_date) meta.push(<span className="inline-flex items-center gap-1"><Calendar size={11} />{fmtDate(row.acquisition_date)}</span>);
+
+  let moneyEl = null;
+  if (row.amount_range) {
+    moneyEl = <MoneyPill value={row.amount_range} />;
+  } else if (row.amount) {
+    const cur = row.currency || 'INR';
+    moneyEl = <MoneyPill value={`${cur} ${row.amount}`} />;
+  }
+
+  return (
+    <RowCard>
+      <RowHeader
+        primary={row.acquired_company || row.acquirer || row.target || 'Acquisition'}
+        meta={meta}
+        right={moneyEl}
+      />
+      <FallbackFields row={row} slotted={['acquired_company','acquirer','target','acquisition_date','amount','amount_range','currency']} />
+    </RowCard>
+  );
+}
+
+// Dispatcher — picks the right row component for each section type.
+function SubSectionRow({ sectionKey, row }) {
+  switch (sectionKey) {
+    case 'team':         return <TeamRow row={row} />;
+    case 'products':     return <ProductRow row={row} />;
+    case 'funding':      return <FundingRow row={row} />;
+    case 'clients':      return <ClientsRow row={row} />;
+    case 'patents':      return <PatentsRow row={row} />;
+    case 'competitors':  return <CompetitorsRow row={row} />;
+    case 'news':         return <NewsRow row={row} />;
+    case 'acquisitions': return <AcquisitionsRow row={row} />;
+    default:
+      // Defensive fallback — shouldn't fire, but keeps render-everything intact
+      // for any hypothetical new sub-section type added later.
+      return (
+        <RowCard>
+          <RowHeader primary={row.name || row.title || 'Entry'} meta={[]} />
+          <FallbackFields row={row} slotted={[]} />
+        </RowCard>
+      );
+  }
 }
 
 function StartupSubSections({ data }) {
@@ -211,10 +522,13 @@ function StartupSubSections({ data }) {
     <div className="space-y-4">
       {sections.map(s => (
         <div key={s.key} className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-display font-bold text-gray-900 mb-4">{s.title}</h3>
-          <div className="space-y-3">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display font-bold text-gray-900">{s.title}</h3>
+            <Badge tone="gray">{s.rows.length}</Badge>
+          </div>
+          <div className="space-y-1">
             {s.rows.map((r, i) => (
-              <SubSectionRow key={r.id || i} row={r} />
+              <SubSectionRow key={r.id || i} sectionKey={s.key} row={r} />
             ))}
           </div>
         </div>
