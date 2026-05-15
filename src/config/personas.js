@@ -167,7 +167,8 @@ export const PERSONA_NAV = {
     actions: [
       { to: '/dashboard/marketplace',     label: 'Marketplace',    icon: 'Target' },
       { to: '/dashboard/claims',          label: 'My Claims',      icon: 'BadgeCheck' },
-      { to: '/dashboard/ipr',             label: 'IPR',            icon: 'Shield' },
+      // Phase 89.2 — IPR removed from startup nav. IPR is an admin/evaluator
+      // cross-startup registry view; startup IP data lives in MyProfile → Patents/IP.
       { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
       { to: '/dashboard/deeptech',        label: 'DeepTech Qual.', icon: 'Zap' },
       { to: '/dashboard/feedback',        label: 'Feedback',       icon: 'ThumbsUp' },
@@ -188,7 +189,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/academia/publications', label: 'Publications', icon: 'BookOpen' },
       { to: '/dashboard/academia/grants',       label: 'Grants',       icon: 'DollarSign' },
       { to: '/dashboard/marketplace',           label: 'Marketplace',  icon: 'Target' },
-      { to: '/dashboard/ipr',                   label: 'IPR Database', icon: 'Shield' },
+      // Phase 89.2 — IPR Database removed from academia nav (admin-only feature).
     ],
   }),
   corporate: buildPersonaNav('corporate', {
@@ -228,7 +229,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/lab/equipment',    label: 'Equipment',    icon: 'FlaskConical' },
       { to: '/dashboard/lab/bookings',     label: 'Bookings',     icon: 'CalendarCheck' },
       { to: '/dashboard/lab/publications', label: 'Publications', icon: 'FileText' },
-      { to: '/dashboard/ipr',              label: 'IPR Database', icon: 'Shield' },
+      // Phase 89.2 — IPR Database removed from lab nav (admin-only feature).
     ],
   }),
   incubator: buildPersonaNav('incubator', {
