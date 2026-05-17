@@ -2,8 +2,8 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 4.2
-**Last Updated:** 13 May 2026 (late evening — Phases 75-84 profile UX hardening batch SHIPPED on top of v4.1. 10 phases covering: date display normalisation, TaxonomyTags chip race fix, ProfileSection inline edit + pretty cells, sub-section-aware profile completeness scoring, 6 more URL types surfaced to corporate-view, Team Size band priority, Patent Add 500 fix via {label,value} option form, country name vs ISO code normalisation, bracket-dropdown money fields with INR/USD toggle + 6 new VARCHAR(80) range columns on startup_profiles. Phase 74 + 73 + earlier all carried forward.)
+**Version:** 4.5
+**Last Updated:** 17 May 2026 (Phase 95 — DR drill floor fix. Three consecutive Sunday `restore-drill` GitHub Actions runs (4 / 11 / 17 May) had been silently failing with `users: 575,055 < floor 580,000` because the 13 May `s39 hygiene DELETE` removed 8,207 rows but the workflow's hardcoded floors weren't updated to match. Fix: lower 3 floors in `.github/workflows/restore-drill.yml` from 580K → 570K (~5K headroom below current prod ~575K). Manual rerun `25995939439` queued for verification. `gh` CLI v2.92.0 installed at `/usr/local/bin/gh` as side-effect. See "What's New in v4.5" section below.)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
@@ -12,6 +12,183 @@
 **Email auth (13 May):** DMARC tightened to `v=DMARC1; p=quarantine; pct=25; sp=quarantine; adkim=r; aspf=r; rua=mailto:rajeev@openi.ai,mailto:re+etys4dueylb@dmarc.postmarkapp.com`. First rung of the progression ladder (none → quarantine/25 → quarantine/100 → reject). Watch Postmark digest 1-2 weeks before escalating.
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v4.5 — DR drill floor fix after stale s39-DELETE baseline (Phase 95, 17 May 2026)
+
+**One commit, 3 lines, ~30 min including diagnostic + tooling install + verification queue.**
+
+#### What broke
+
+The `restore-drill` GitHub Actions workflow (weekly Sunday safety net that pulls the latest Backblaze B2 backup → decrypts via GPG → restores into an ephemeral Postgres 18 + pgvector container → verifies row counts + schema + extension integrity) had been silently failing on every scheduled Sunday run since 4 May. Three consecutive red runs (4 / 11 / 17 May) sat unnoticed because the failure-delivery channel was GitHub Actions email only — filtered/unread.
+
+User flagged the red ❌ on the dashboard. Last green run was 4 May (`256220...`, 58m16s schedule). Subsequent runs all ~1h0m wall-clock — suspiciously close to a 60-min plateau but the YAML's `timeout-minutes` is 180, so not actually a timeout.
+
+#### Root cause
+
+The drill's `Verify row counts (floor thresholds)` step has hardcoded floors in `.github/workflows/restore-drill.yml`:
+
+```yaml
+declare -A FLOORS=(
+  [users]=580000
+  [startup_profiles]=580000
+  [directory_profiles]=580000
+  [challenges]=1
+)
+```
+
+The **13 May `s39 hygiene DELETE`** (Phase 73 batch) removed 8,207 rows of name-only foreign-corporate stubs from prod (`users`: 583,216 → 575,009; same delta on `startup_profiles` + `directory_profiles`). The DELETE was deliberate and audited — `csv_import_s39` rows with `embedding IS NULL` (Viacom, Bloomberg, Sky TV — global non-startups with no semantic content beyond a name string). But the workflow floors weren't moved in the same session. Every drill run after 13 May correctly tripped its safety gate:
+
+```
+❌ users: count=575,055 below floor=580,000
+❌ startup_profiles: count=575,028 below floor=580,000
+❌ directory_profiles: count=575,048 below floor=580,000
+✓ challenges: count=N ≥ floor=1
+💥 row-count check failed
+```
+
+The drill was working correctly. The threshold was stale.
+
+#### Fix
+
+3-line YAML diff:
+
+```diff
+ declare -A FLOORS=(
+-  [users]=580000
+-  [startup_profiles]=580000
+-  [directory_profiles]=580000
++  [users]=570000
++  [startup_profiles]=570000
++  [directory_profiles]=570000
+   [challenges]=1
+ )
+```
+
+New floors give ~5K headroom below current prod (~575K). Tight enough to flag real regressions (single-event delete >5K rows), loose enough for organic churn. Applied via `/tmp/fix_drill_floors.py` apply-script (anchor-not-found-or-abort guards, idempotent — standard `/tmp/` workflow pattern from Phases 73, 88, 89, 90 etc).
+
+#### Diagnostic path (worth banking — 3 false starts)
+
+1. **Wrong guess #1: "verify step pointing at wrong DB name."** Based on reading `database "drill" does not exist` repeating every ~10s for the full hour in `gh run view --log-failed`. Wrong — the workflow correctly uses `RESTORE_DB_URL=postgres://drill:drill@localhost:5432/drill_restore` everywhere. The `drill` mentions were the service container's healthcheck noise: `pg_isready -U drill` with no `-d` flag, libpq defaulting `dbname` to username → connecting to nonexistent `drill` DB. Cosmetic stderr, NOT the failure cause.
+
+2. **Wrong guess #2: "healthcheck blocked the pipeline."** Also wrong. The workflow has its own `Wait for ephemeral Postgres to be ready` step with `for i in $(seq 1 30); do pg_isready -h localhost -p 5432 -U drill > /dev/null 2>&1` retry loop + `psql ... SELECT version()` sanity check at line 165. Both succeed independently of the service healthcheck status.
+
+3. **Right answer: step-level result from `gh run view <id>`.** Shows `✗ Verify row counts (floor thresholds)` as the only ✗. All earlier steps ✓ including `Stream restore` (the dump itself restored cleanly, pgvector extension installed, sample embedding dim=1536). Filtering the full log with `gh run view <id> --log | grep -E "(✓|❌) (users|startup_profiles|directory_profiles|challenges):"` gave the exact 4 lines with count vs floor for each table.
+
+**Lesson: `gh run view <id>` hierarchical step-level result is the right first diagnostic, NOT `--log-failed | tail`.** The `--log-failed` output is dominated by service-container noise (healthcheck retries, autovacuum logs, checkpoint warnings) and obscures the actual workflow failure point. Step-level result tells you WHICH step ✗'d in one line; then drill in with targeted grep.
+
+#### Tooling side-effect: `gh` CLI installed
+
+User had no `gh` CLI before this session. Installed v2.92.0 via direct binary download from the official GitHub release (no Homebrew dependency):
+
+```bash
+curl -L https://github.com/cli/cli/releases/download/v2.92.0/gh_2.92.0_macOS_arm64.zip -o /tmp/gh.zip
+cd /tmp && unzip -o gh.zip
+sudo cp gh_2.92.0_macOS_arm64/bin/gh /usr/local/bin/gh
+gh auth login   # GitHub.com → SSH → web browser → device code → authorized as RajeevBanduni
+```
+
+Useful commands going forward:
+- `gh run list --workflow=<name> --limit=N` — recent runs (default abbreviated IDs)
+- `gh run list --workflow=<name> --limit=1 --json databaseId,conclusion,createdAt,event` — full numeric IDs (required for `gh run view`)
+- `gh run view <full-id>` — hierarchical step-level summary with ✓/✗ markers
+- `gh run view <full-id> --log-failed | tail -200` — failed-step log tail (often noisy — use sparingly)
+- `gh run view <full-id> --log | grep -E "..."` — filter live log for structured workflow output
+- `gh workflow run <name>` — fire manual `workflow_dispatch`
+- `gh run watch <id>` — live tail until completion
+
+#### Verification
+
+Manual workflow_dispatch fired post-commit: `gh workflow run restore-drill` → run `25995939439` queued. Expected ~50-60 min to complete (matches success-run plateau of 57-58m). Watch via `gh run watch 25995939439` or check back later with `gh run view 25995939439`.
+
+#### Lessons (added to CLAUDE.md Don'ts section)
+
+- **DR-drill floors must move in lockstep with intentional prod DELETEs.** `.github/workflows/restore-drill.yml` floors are static numbers in YAML, NOT relative-to-prod. Any intentional DELETE >1% of a floor-checked table's count must update workflow floors in the same session as the DELETE. Add to the prod-DELETE checklist alongside CASCADE-FK pre-audit, chunked-transaction-per-logical-unit (Phase 71c), and dry-run-then-apply discipline.
+- **Silent CI alerts are worse than no alerts.** Three red Sunday runs piled up over three weeks because failure routing was email-only. The DR alert was technically working (the workflow correctly flagged "data shrank below threshold"), but the delivery channel was invisible. Future hardening: route DR-drill (and similar CI safety nets — `db-backup.yml` likely has the same pattern) to Slack/Sentry/dashboard tile, not just `noreply@github.com` email.
+- **Step-level result is the right first diagnostic for GH Actions failures.** Skip `--log-failed | tail` until you know which step to investigate. The full log is dominated by service-container noise.
+- **Service container healthcheck `pg_isready -U <user>` without `-d <db>` defaults dbname to username** → produces `FATAL: database "<user>" does not exist` stderr noise if the actual DB has a different name. Cosmetic, not blocking — but very confusing when reading raw `--log-failed`. To silence: `--health-cmd "pg_isready -U <user> -d <db>"`.
+
+#### Open follow-ups (deferred)
+
+- The Sunday drill's 1h00m runtime is dangerously close to the success-run plateau of 57-58m. If dataset keeps growing, serial pg_restore will eventually hit a real timeout. Watch for runs trending toward 90-120 min — that's the signal to parallelize via spill-to-disk + `pg_restore --jobs N`, OR tighten the dump's filter.
+- Replace hardcoded `FLOORS` with a dynamic step that reads `current_count - 1%` from prod via `railway ssh "psql -c 'SELECT COUNT(*) FROM users'"` at restore time. Self-calibrating, never goes stale. ~30 lines of bash. Not urgent — discipline holds for the next several DELETEs.
+- Add a Slack/Sentry hook to the failure path. Audit `db-backup.yml` (nightly backup workflow) for the same silent-alert pattern.
+
+---
+
+### What's New in v4.4 — Full-day marathon: corporate-view StartupProfile UX overhaul + funding chart + admin Discover Startups bugs + top-level Funding Raised triplet (15 May 2026)
+
+**Largest single-day batch since Phase 87 ladder marathon (per CLAUDE.md). Closes Dentsu cohort issues T1-T26 end-to-end on prod.**
+
+**Phases shipped (13 sub-phases, ~17 commits + 1 backfill ops):**
+
+#### Phase 90 — Structured row cards on corporate-view sub-sections (T13)
+Cohort feedback after Phase 88 render-everything: *"now all the startup data is visible to corporate, startup profile view on a corporate persona is looking cluttered and ugly"*. Phase 88's render-everything was right for missing-data but traded for a wall of label/value pairs. Replaced with per-section card components (TeamRow / ProductRow / FundingRow / ClientsRow / PatentsRow / CompetitorsRow / NewsRow / AcquisitionsRow) + 5 shared atoms (Badge, UrlChip, MoneyPill, LogoImg, StatusBadge). FallbackFields catch-all preserves the render-everything contract for any non-slotted field. Commit `736bc0d`.
+
+#### Phase 91 — Finer-grained revenue_range brackets (T15)
+Revenue bracket ladder went 6 → 10 brackets: splits 1-10 → 1-5 + 5-10; 10-50 → 10-25 + 25-50; >100 → 100-250 + 250-500 + >500. Existing rows with old labels stay displayable but are orphaned in the dropdown. Commit `8a767a8`.
+
+#### Phase 92 → 92.1 (3 ships) — Crunchbase-style funding chart + amount_unit schema fix (T17 / T17a / T17b)
+- Phase 92: hand-rolled SVG bar chart, zero new deps. Color-coded by stage. Above the Phase 90 row list. **Shipped broken** — assumed amount stored in actual rupees (divided by 1e7), but funding sub-section's amount field had no enforced unit. Bars near-zero height. Commit `d11a8ea`.
+- Phase 92.1 ship 1/3 backend (`c9bc432`): ALTER startup_funding_rounds + startup_acquisitions ADD COLUMN amount_unit VARCHAR(20).
+- Phase 92.1 ship 2/3 frontend form (`7f7f834`): MyProfile.jsx adds amount_unit field config (Lakh/Cr/Rupees/K/M/Base options union, no per-currency conditional yet).
+- Phase 92.1 ship 3/3 frontend display (`89b8c11`): NEW `amountToDisplay` per-currency unit handling (INR=Cr big-unit; USD/EUR/GBP=M big-unit). FundingChart Y-axis + total callout + bar labels currency-aware. NEW `FundingSectionCard` wrapper with chart/list icon toggle (BarChart3 + List from lucide). Closes T17a (broken bars) + T17b (toggle UX).
+
+#### Phase 92.1.1 — Trim currency + unit options to INR/USD + Lakh/Cr/K/M (cohort UX feedback)
+Cohort: *"stick to Rupee and Dollar everywhere. Simple. for all personas."* Audit confirmed mentor.hourly_rate_currency, lab.rate_currency, MoneyRange MONEY_RANGES + TICKET_SIZE_RANGES were already INR/USD-only. Trim applied to funding currency (was INR/USD/EUR/GBP) + acquisitions currency (was INR/USD/EUR) + amount_unit options (was Lakh/Cr/Rupees/K/M/Base → trimmed to Lakh/Cr/K/M). Commit `f55cabb`.
+
+#### Phase 92.1.3 (3 ships) — Mirror Phase 92.1 on the valuation side (T17c)
+Cohort: *"in valuation, there is no currency and unit dropdown?"*
+- Ship 1/3 backend (`532af1a`): ALTER startup_funding_rounds ADD COLUMN valuation_at_round_unit. valuation_at_round_currency already existed from a prior migration with CHECK to INR/USD.
+- Ship 2/3 frontend form (`01373e3`): MyProfile.jsx adds Valuation Unit + Valuation Currency dropdowns after the existing valuation_at_round number field.
+- Ship 3/3 frontend display (`607d144`): NEW `valuationToDisplay` helper. FundingRow meta gets "Valued at <bold>₹500 Cr</bold>" line. FallbackFields slotted list extended.
+
+#### Phase 92.1.4 — Conditional Unit dropdown + Lead Investor typeahead (T18 + T19 batched)
+Cohort: *"when I selected crore as unit, then dollar should not be allowed. It'll create confusion"* + *"investor dropdown we created is now showing here?"* Both batched since both touch ProfileSection inline renderer. NEW `select_dependent` field type (Unit options keyed on Currency value via `f.dependsOn` parent name + `f.optionsBy` map). NEW `org_typeahead` ProfileSection inline branch. Single-value adapter wraps Phase 87b OrgTypeahead for scalar `lead_investor`. Commit `135a39a`.
+
+#### Phase 92.2 — Admin Discover Startups search + navigation fixes (T20 + T21 batched)
+- T20 (backend `5e3f2d9`): startupController.list relevance scoring rewritten. `(CASE company_name ILIKE '%search%' THEN 2.0) + (CASE tagline ILIKE THEN 1.5) + ts_rank + similarity`. Phrase-match-in-name dominates → "amber kinetics" went from 91 fuzzy hits to 4 relevant (verified). Trigram WHERE threshold raised 0.3 → 0.5.
+- T21 (frontend `530ec4e`): StartupDiscovery.jsx click handler swapped from `${startup.user_id || startup.id}` fallback to `${startup.user_id}?by=user_id` only (Phase 50/s50 disambiguator). The `||` fallback was the bug — for csv_import_s39 unclaimed rows (NULL user_id), it fell back to startup_profiles.id which collided with another startup's user_id (e.g. id=7 = 01Games demo). Imported-unclaimed cards now visually greyed out + cursor:not-allowed + tooltip.
+
+#### Phase 92.3 (3 ships + hotfix + backfill) — Top-level Total Funding Raised triplet + auto-sync from rounds (T23 + T24 + T25)
+Cohort: *"total funding currency is in dollar, while rest of the currency is in rupees and the total does not add up?"* Locked design (Interpretation A): T24 auto-sync wins when funding_rounds has data; T23 fallback when no rounds.
+- Ship 1/3 backend (`9039dd1`): ALTER startup_profiles ADD funding_raised_unit + (redundant) funding_raised_currency. NEW `recomputeFundingRaisedFromRounds(profileId)` helper: SUM startup_funding_rounds.amount per (currency, amount_unit), normalize to currency big-unit, pick dominant currency, UPDATE funding_raised + _unit + _currency. Wired into createChildItem + updateChildItem + deleteChildItem (all 3 funding-section CRUD paths). Non-fatal: errors logged, response never breaks.
+- Ship 2/3 frontend form: personas.js startup persona swapped funding_raised_range (Phase 84 money_range bracket picker) → number+unit+currency triplet.
+- Ship 2/3 hotfix: Total Funding Unit dropdown wasn't rendering on top-level form. Phase 92.1.4 had only added select_dependent to ProfileSection inline renderer, not FormField. Fix: add select_dependent branch to FormField + extend fields.map to inject `__parentValue` from `profileData[field.dependsOn]`. Same recurring trap as Phase 78b/82/85f/88 — dual-renderer drift.
+- Ship 3/3 frontend display: StartupProfile.jsx Quick Stats Funding Raised line uses amountToDisplay (Phase 92.1.3 helper) by feeding it a synthetic row shape. Falls back to formatFunding when amountToDisplay returns null.
+- **Backfill ops (T25)**: per-currency normalization of legacy `startup_profiles.funding_raised`. INR/NULL → /1e7 → 'Cr'; USD/EUR/GBP → /1e6 → 'M'. Threshold: funding_raised >= 100000. Idempotent (only acts on funding_raised_unit IS NULL). v1 wrong-assumption (assumed all rows were rupees) caught by dry-run sample (all 5 sample rows came back as USD). v2 fixed with per-currency logic. Apply: 11 USD rows updated in 2.7s.
+
+#### Phase 92.4 — Wallet icon for Funding Raised (T26)
+Cohort: *"permanent dollar sign next to Funding Raised label"*. Quick Stats Funding Raised had hardcoded `DollarSign` lucide icon which implied USD even when value was INR. Swap to `Wallet` (currency-agnostic). Same yellow color preserved. Single 2-line file change.
+
+**Schema deltas (live on prod via `migrate-bootstrap`):**
+- `startup_funding_rounds`: + `amount_unit VARCHAR(20)` + `valuation_at_round_unit VARCHAR(20)`
+- `startup_acquisitions`: + `amount_unit VARCHAR(20)`
+- `startup_profiles`: + `funding_raised_unit VARCHAR(20)` (+ idempotent re-ADD of `funding_raised_currency` which already existed)
+
+**Backend deltas:**
+- `profileController.js`: 3 ALLOWED_COLUMNS extensions (amount_unit on funding+acquisitions, valuation_at_round_unit on funding, funding_raised_unit on startup_profiles). NEW `recomputeFundingRaisedFromRounds(profileId)` helper wired into createChildItem + updateChildItem + deleteChildItem.
+- `startupController.js`: relevance scoring + trigram WHERE threshold rewrite for search.
+
+**Frontend deltas:**
+- `personas.js`: Phase 91 revenue brackets, Phase 92.1.1 currency simplification, Phase 92.3 ship 2/3 funding_raised triplet config, Phase 92.1.4 select_dependent on all 3 unit+currency pairs.
+- `MyProfile.jsx`: NEW `select_dependent` field type in BOTH ProfileSection inline renderer (Phase 92.1.4) AND top-level FormField (Phase 92.3 ship 2/3 hotfix). NEW `org_typeahead` ProfileSection branch (Phase 92.1.4). Phase 92.3 ship 2/3 + 2/3 hotfix Total Funding Raised form changes.
+- `StartupProfile.jsx`: Phase 90 structured row cards + 5 atoms + FallbackFields. Phase 92 funding chart. Phase 92.1 ship 3/3 amountToDisplay + FundingSectionCard. Phase 92.1.3 ship 3/3 valuationToDisplay. Phase 92.3 ship 3/3 currency-aware Quick Stats Funding Raised. Phase 92.4 Wallet icon.
+- `StartupDiscovery.jsx`: Phase 92.2 frontend navigation fix + visual greyed-out unclaimed cards.
+
+**Lessons baked into CLAUDE.md Don'ts (sweep into next refresh):**
+- Render-everything → cluttered → structured cards is a 3-stage UX evolution. Phase 87f → Phase 88 → Phase 90.
+- Free-text numeric fields without unit are technical debt waiting to surface. Same trap surfaced 3 times today: amount on funding_rounds (Phase 92.1), valuation_at_round (Phase 92.1.3), top-level funding_raised (Phase 92.3).
+- Cross-validation between dependent fields needs schema-aware UI. Phase 92.1.4 `select_dependent` field type pattern.
+- OrgTypeahead single-value adapter pattern — wrap multi-value component for scalar use cases without forking it.
+- Search relevance: phrase-match boost > pure trigram fuzzy. Trigram WHERE thresholds default too low (0.3); raise to 0.5.
+- `id-vs-user_id ||` fallback is dangerous when both are independent SERIALs. Use `?by=user_id` disambiguator explicitly.
+- Auto-sync hooks for parent denormalization must hit all 3 mutation paths (create + update + delete). Sequential await + error caught inside helper.
+- Backfill dry-run sample review is not optional. Phase 92.3 v1 would have produced wrong data without it.
+- Hardcoded category icons can imply currency. Use `Wallet` / `Banknote` / `PiggyBank` (neutral) when displayed value uses a different currency than the icon's connotation.
+- Dual-renderer drift trap — MyProfile.jsx has FormField (top-level) + ProfileSection inline; adding a field type to one without the other = silent failure.
+- Legacy data normalization timing matters. Run backfill BEFORE display assumes new format.
+
+---
 
 ### What's New in v4.2 — Phases 75-84 profile UX hardening batch (13 May 2026 late evening)
 
