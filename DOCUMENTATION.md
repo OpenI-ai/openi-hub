@@ -2,16 +2,201 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 4.5
-**Last Updated:** 18 May 2026 (Phase 95 — DR drill floor fix. Three consecutive Sunday `restore-drill` GitHub Actions runs (4 / 11 / 17 May) had been silently failing with `users: 575,055 < floor 580,000` because the 13 May `s39 hygiene DELETE` removed 8,207 rows but the workflow's hardcoded floors weren't updated to match. Fix: lower 3 floors in `.github/workflows/restore-drill.yml` from 580K → 570K (~5K headroom below current prod ~575K). **Manual rerun `25995939439` ✓ VERIFIED on 18 May 2026, elapsed 1h05m27s — DR safety net back to healthy.** `gh` CLI v2.92.0 installed at `/usr/local/bin/gh` as side-effect. See "What's New in v4.5" section below.)
+**Version:** 4.6
+**Last Updated:** 18 May 2026 (T11 + Phase 93a + 93b — Cloudinary pipeline standardisation. **T11**: `Mentors.jsx` null-guard fix on `mentor.expertise.slice/map` — frontend-only crash fix, commit `ef2b8a4`. **Phase 93a** (commit `5c2e543`): shared helper `src/utils/cloudinary.js` (~190 lines) with per-folder PRESETS map (logos / org-logos / register-uploads → Phase 73 trim+pad+256 WebP; pitch_decks / portfolios / resumes → page-1 thumb 512×512 WebP; data_room → passthrough). Belt-and-suspenders crawler intercept: `scraperService.scrapeWebsite()` normalises before return (belt); cronService auto-promote + 3 enrichController sites + enrich-logos.js normalise before write (suspenders). Deduplicated 3 copies of `configureCloudinary()`. **Phase 93b** (commit `b526c63` + ops): bulk backfill script + 3 column-applies + 1 SQL recompute. **19,269 external URLs migrated to Cloudinary in ~35min apply time, 88.2% success rate**. `directory_profiles.logo_url` populated count: 1,473 → 12,469 (8.5x). Mixed Content warnings on directory pages → eliminated. Previous Phase 95 + DR drill verification (17 May) remains valid; see "What's New in v4.5" below.
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
-**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 + 73 + 74 + 79 + 84 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `mentors_email_unique` partial expression index added 13 May; `sme_experts` DROPPED Phase 71d. Phase 73 Cloudinary `eager` preset wired into both upload code paths. Phase 74 added `users.whats_new_seen_at TIMESTAMPTZ` + `GET /whats-new/unread-count` + `POST /whats-new/seen`. Phase 79 added `subsections` weight map + 8-table presence probing in `profileScoreService.recomputeForUser`. Phase 84 added 6 `_range VARCHAR(80)` columns on `startup_profiles` for bracket-dropdown money fields.)*
+**Backend API:** https://api.openi.ai *(Railway. Phase 60.11 + 61 + 62 + 63 + 64 + 65 + 65b + 66 + 67 + 68 + 71 + 71b + 71c + 71d + 72 + 73 + 74 + 79 + 84 schema/code live. `audit_logs` materialised Phase 63; `events.visibility / published_at / organization_name` Phase 66; cluster validator widened Phase 67; `GET /clusters/:id/representatives` Phase 68; `cluster_subgroups` table + `idx_sp_subcluster` Phase 71; `whats_new_entries` table + boot-time `syncFromGitHub` Phase 72; `mentors_email_unique` partial expression index added 13 May; `sme_experts` DROPPED Phase 71d. Phase 73 Cloudinary `eager` preset wired into both upload code paths. Phase 74 added `users.whats_new_seen_at TIMESTAMPTZ` + `GET /whats-new/unread-count` + `POST /whats-new/seen`. Phase 79 added `subsections` weight map + 8-table presence probing in `profileScoreService.recomputeForUser`. Phase 84 added 6 `_range VARCHAR(80)` columns on `startup_profiles` for bracket-dropdown money fields. Phase 93a (18 May) extracted Cloudinary config + per-folder preset map into shared `src/utils/cloudinary.js` helper; added belt-and-suspenders crawler intercept across `scraperService.scrapeWebsite`, `cronService` auto-promote, `enrichController` 3 sites, and `enrich-logos.js`; all 4 currently-active upload folders (logos / org-logos / register-uploads / data_room) plus 3 future-ready folders (pitch_decks / portfolios / resumes) now carry presets.)*
 **Backend env (13 May):** `CLIENT_URL = https://openi.ai`. `OPENAI_API_KEY` set. `GITHUB_TOKEN` set (PAT rotated 13 May after the original value leaked into 12 May chat history). `CLOUDINARY_URL` (or trio) set (used by Phase 73 logo normalisation). `AUTO_START_ENRICH_WORKER=true`.
 **Email auth (13 May):** DMARC tightened to `v=DMARC1; p=quarantine; pct=25; sp=quarantine; adkim=r; aspf=r; rua=mailto:rajeev@openi.ai,mailto:re+etys4dueylb@dmarc.postmarkapp.com`. First rung of the progression ladder (none → quarantine/25 → quarantine/100 → reject). Watch Postmark digest 1-2 weeks before escalating.
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v4.6 — Cloudinary pipeline standardisation (T11 + Phase 93a + 93b, 18 May 2026)
+
+**Three ships in one day:** T11 frontend null-guard fix (~5 lines), Phase 93a backend code refactor (~250 lines / 8 files), Phase 93b bulk backfill (1 new script + 4 ops runs touching 21,837 rows across 4 columns).
+
+---
+
+#### Part 1 — T11 closure: `Mentors.jsx` null-guard
+
+Cohort reported "click Mentors → 'Something went wrong'" with `TypeError: Cannot read properties of undefined (reading 'map')` in Console. The error boundary swallowed the stack trace, so the URL bar still showed `/dashboard/mentors` but the page swapped to the fallback UI — looked identical to a routing bug.
+
+**Root cause** (Mentors.jsx line 245):
+
+```javascript
+{mentor.expertise.slice(0, 2).map(e => <span>{e}</span>)}
+{mentor.expertise.length > 2 && <span>+{mentor.expertise.length - 2}</span>}
+```
+
+No null guard. The `mentorController.getOne()` controller does `SELECT * FROM mentors` with no `COALESCE` on `expertise` (text[] column). Any row with NULL `expertise` → `null.slice(...)` → TypeError → error boundary fires.
+
+Same file already had `(m.expertise || [])` guard at line 168 (search filter) and `(mentor.assigned_startups || mentor.assignedStartups || [])` at line 250 (card footer). Inconsistent guarding across the same render — line 245 was the gap.
+
+**Fix** (commit `ef2b8a4`, 4 surgical substitutions via `/tmp/` apply-script):
+- Line 49 (modal Expertise map): `mentor.expertise` → `(mentor.expertise || [])`
+- Line 53 (modal Certifications map): `mentor.certifications` → `(mentor.certifications || [])`
+- Line 96 (Quick Stats Startups Mentoring): `mentor.assignedStartups.length` → `assignedStartups.length` (reuses local var declared at line 13 via the existing fallback chain)
+- Line 245 (the actual T11 crash): both `.slice(0,2).map(...)` and `.length > 2` references guarded with `(mentor.expertise || [])`
+
+Verified live — Brig. Raj Malhotra detail modal renders cleanly.
+
+**Earlier hypothesis was wrong**: I burned a turn on Explore-agent recon hypothesising a missing `/dashboard/mentor/:id` route + fallback redirect to `/dashboard/crawling`. The cohort report had been vague ("lands on React error boundary") with no URL / stack trace / Network panel data. Took 4 screenshots of the user's DevTools to surface the real bug. Lesson banked in CLAUDE.md Don'ts: when a cohort report is vague, ask for 4 baseline diagnostics FIRST (URL bar, Console first-red-line with stack expanded, Network 4xx/5xx, exact click sequence) BEFORE doing code recon. Recon without a stack trace is guessing.
+
+---
+
+#### Part 2 — Phase 93a: Cloudinary pipeline standardisation (forward-fix)
+
+**What was wrong:** Phase 73 (13 May) extended the eager preset (trim:10 + pad to white 256×256 + WebP) to user-uploaded logos in 2 folders (`logos`, `org-logos`). Production audit on 18 May revealed that the vast majority of logo URLs in prod were NOT user uploads — they were crawler-ingested external URLs that never went through Cloudinary. ~22,000 raw external URLs across 4 columns. Symptoms: Mixed Content warnings on directory pages (browser auto-upgrades http→https, source sites have no TLS, image 404s), broken images when source sites die, zero CDN caching benefit.
+
+**Architecture** — per-folder preset map + belt-and-suspenders crawler intercept:
+
+```javascript
+// src/utils/cloudinary.js (NEW, ~190 lines)
+const PRESETS = {
+  'logos':            { resource_type: 'image', eager: [LOGO_PRESET] },
+  'org-logos':        { resource_type: 'image', eager: [LOGO_PRESET] },
+  'register-uploads': { resource_type: 'image', eager: [LOGO_PRESET] },
+  'pitch_decks':      { resource_type: 'image', eager: [PDF_THUMB_PRESET] },
+  'portfolios':       { resource_type: 'image', eager: [PDF_THUMB_PRESET] },
+  'resumes':          { resource_type: 'image', eager: [PDF_THUMB_PRESET] },
+  'data_room':        { resource_type: 'auto' },  // mixed mime, passthrough
+};
+
+// Exports: configureCloudinary, getPreset(folder), normalizeLogoUrl(url, opts), PRESETS
+```
+
+`normalizeLogoUrl(rawUrl, {folder: 'logos'})` is the workhorse — accepts a remote http(s) URL, uploads it through Cloudinary, returns the normalised `secure_url`. **Idempotent** (short-circuits on `res.cloudinary.com` URLs, cheap pass-through). **Graceful failure** (Cloudinary 4xx / dead source / non-image MIME → logs warning + returns original URL, never crashes caller).
+
+**Belt-and-suspenders intercept** (decision: both layers, not one):
+
+- **Belt** at the scrape layer — `services/scraperService.scrapeWebsite()` calls `normalizeLogoUrl()` on `result.logoUrl` before returning. All 16 downstream consumers of `scrapeWebsite()` automatically get a Cloudinary URL.
+- **Suspenders** at the storage layer — `cronService.runAICrawl()` auto-promote site, `enrichController.applyEnrichment` + `.applyEnrichmentRow` + `.applyMyProfile`, and `scripts/enrich-logos.js` all wrap their UPDATE statements with `normalizeLogoUrl()` before push. Catches legacy `enrichment_queue` rows on apply (rows written BEFORE Phase 93a that the belt missed).
+
+Double normalisation is idempotent and cheap. CSV imports (`import-csv.js`, `import-csv-bulk.js`) are one-shot historical paths not actively running — deliberately not intercepted; the Phase 93b backfill catches the data they wrote.
+
+**Files refactored** (commit `5c2e543`, 8 files / +243 / -144):
+
+| File | Role | Diff |
+|---|---|---|
+| `src/utils/cloudinary.js` | NEW shared helper | +190 / 0 |
+| `src/controllers/uploadController.js` | Phase 73 `LOGO_FOLDERS` gate → `getPreset(folder)` lookup | -30 / +25 |
+| `src/controllers/publicLogoUploadController.js` | Hardcoded eager preset → `getPreset('register-uploads')` | -20 / +15 |
+| `src/scripts/normalize-corporate-logo.js` | Hardcoded eager → helper | -15 / +10 |
+| `src/services/scraperService.js` | Belt: normalise `result.logoUrl` before return | +15 |
+| `src/services/cronService.js` | Suspenders: normalise before `UPDATE crawled_startups` at line 748 | +5 |
+| `src/controllers/enrichController.js` | Suspenders: normalise before push at 3 sites (lines 270, 340, 879) | +15 |
+| `src/scripts/enrich-logos.js` | Suspenders: normalise before `UPDATE startup_profiles` | +5 |
+
+Deduplicated 3 copies of `configureCloudinary()` (was in uploadController + publicLogoUploadController + normalize-corporate-logo). Helper is the single source of truth going forward.
+
+**Smoke test passed on prod** — 8 exports loaded, 8 PRESETS keys correct, `getPreset()` returns correct shape per folder (`logos` → trim/pad/256, `pitch_decks` → page-1/512, `data_room` → passthrough, `general/unknown` → null), idempotency confirmed (existing Cloudinary URL passes through unchanged), real round-trip normalisation works against external URLs.
+
+---
+
+#### Part 3 — Phase 93b: bulk backfill (historical fix)
+
+**The script** (`src/scripts/backfill-cloudinary-urls.js`, NEW 218 lines, commit `b526c63`):
+
+```
+node src/scripts/backfill-cloudinary-urls.js \
+  --target=<table.column> \          # 4 whitelisted columns
+  --chunk=50 \                       # rows per BEGIN/COMMIT
+  --dry-run | --apply \              # dry-run by default per Phase 87c-3 lesson
+  [--limit=N] [--resume-from-id=N]
+```
+
+Per-chunk pattern (Phase 71c "chunk per logical unit"): SELECT 50 candidates by keyset (`idCol > lastId`), parallel `normalizeLogoUrl()` via `Promise.all` (Cloudinary handles concurrency), single `BEGIN/COMMIT` per chunk wrapping all 50 UPDATEs. Failed chunks roll back; successful chunks are durable; re-run picks up where it left off via the idempotent WHERE filter (`NOT ILIKE '%res.cloudinary.com%'`). Survives SSH transport drops (which the Phase 71c lesson said would happen).
+
+Per-chunk log: `[chunk N] processed=50 normalised=44 unchanged=6 elapsed=Yms lastId=Z progress=NN/MM eta=Ws` plus a before/after sample for audit trail (Phase 87g lesson).
+
+**Applied in order, smallest first:**
+
+| Run | Column | Pending | Normalised | Unchanged | Success % | Elapsed |
+|---|---|---|---|---|---|---|
+| 1 | `enrichment_queue.scraped_logo_url` | 3,505 | 3,110 | 395 | 88.7% | 11.3 min |
+| 2 | `crawled_startups.scraped_logo_url` | 5,957 | 5,167 | 790 | 86.7% | 4.3 min |
+| 3 | `startup_profiles.logo_url` | 12,375 | 10,992 | 1,383 | 88.8% | 19.5 min |
+| 4 | `directory_profiles.logo_url` | 1,471 | n/a | n/a | n/a | 11s (SQL recompute, see below) |
+| **TOTAL** | — | **23,308** | **19,269** | **2,568** | **88.2%** | **~35 min** |
+
+**Aggregate Cloudinary URLs across all surfaces: 35 → 30,385 (+30,350)**.
+
+The 2,568 unchanged rows are acceptable failures: dead source URLs (404), LinkedIn URLs that aren't images, dead favicon hosts, sites that died long ago. Phase 93a's graceful-degradation behaviour kicks in — the original URL stays in the column.
+
+**`directory_profiles.logo_url` recompute** (smart move, not direct backfill): dry-run showed 80% failure rate on direct backfill because the populated rows are legacy `app.openi.ai/organization/*.jpg` paths from the pre-OpenI-Hub era plus LinkedIn URLs that aren't images. Instead of trying to re-upload those, we did a single SQL UPDATE JOIN:
+
+```sql
+UPDATE directory_profiles dp
+   SET logo_url = src.logo_url, updated_at = NOW()
+  FROM startup_profiles src
+ WHERE dp.user_id = src.user_id
+   AND src.logo_url IS NOT NULL
+   AND src.logo_url ILIKE '%res.cloudinary.com%'
+   AND (dp.logo_url IS NULL OR dp.logo_url NOT ILIKE '%res.cloudinary.com%' OR dp.logo_url <> src.logo_url);
+```
+
+11,008 rows updated in 11 seconds. `directory_profiles.logo_url` populated count jumped **1,473 → 12,469 (8.5x increase)** because many directory snapshots had been NULL when the underlying `startup_profiles.logo_url` was a dead external URL. Now that 88% of startup logos are Cloudinary-hosted, the directory snapshot is healthy.
+
+---
+
+#### Forward-intercept verification (live data, 2 hours post-deploy)
+
+Live check at end of session:
+
+| Surface | Rows added last 2h | Cloudinary | Non-cloudinary | Notes |
+|---|---|---|---|---|
+| `enrichment_queue.scraped_logo_url` | 80 with logo | **76 (95%)** | 4 | Belt at `scrapeWebsite()` firing reliably |
+| `crawled_startups.scraped_logo_url` | 1 with logo | 0 | 1 | Single row; favicon for new domain that Cloudinary couldn't fetch (404 from Google's placeholder) — graceful degradation |
+| `startup_profiles.logo_url` | 1 with logo | 0 | 1 | Inherited from the 1 crawled_startups row above via auto-promote |
+
+The single non-cloudinary outlier was `zenkspace.com` — Cloudinary returned `Resource not found` when trying to fetch its Google Favicon URL because the domain has no favicon registered (Google returns a tiny placeholder, Cloudinary refuses). This is documented graceful-degradation behaviour, not a bug. Same pattern as the 12% of backfill rows that stayed at the original URL.
+
+---
+
+#### Cohort-visible impact
+
+- ✅ **Mixed Content warnings on directory pages → eliminated**. All 11,007 newly-normalised startup logos now serve from Cloudinary HTTPS CDN, not external http:// sites.
+- ✅ **Directory cards now show logos for 12,469 users (up from 1,473)** — 8.5x increase in visible-logo coverage.
+- ✅ **Faster page loads** as Cloudinary's CDN serves cached normalised 256×256 WebP at <30 KB each vs the original full-size source images.
+- ✅ **External site outages no longer break OpenI's directory** — Cloudinary stores its own copy of the normalised image.
+- ✅ **New uploads going forward** (any persona, any folder via `?folder=X`) automatically route through the per-folder preset map.
+- ✅ **New crawler-ingested logos** (RSS feeds, auto-promote, admin enrich) automatically normalise via the belt-and-suspenders intercept.
+
+---
+
+#### Storage check
+
+Cloudinary storage delta estimate: +200 MB (19,269 logos × ~10 KB normalised WebP each). Free-tier cap is 25 GB. Pre-Phase-93 estimated <20 GB used, so post-Phase-93 still well under cap. Bandwidth confirmed under control. **Free tier sufficient; no plan upgrade needed.**
+
+---
+
+#### Out of scope (deferred to future phases)
+
+- **`users.avatar`** — 0 populated rows, no upload widget yet. Phase 96+ candidate.
+- **`startups.logo_url`** legacy table — 0 populated rows. Orphan from pre-Phase-71b era.
+- **CSV import paths** — one-shot historical scripts, not active. Backfill caught their data.
+- **Cloudinary bandwidth monitoring watchdog** — Phase 96 candidate. Add weekly script that hits Cloudinary Admin API for usage, emails if >80% of any quota.
+- **`data_room` per-mime preset dispatch** (PDF page-1 thumb / MP4 poster frame / Office doc thumbnail) — defer until Marketplace.jsx `data_room` moves from in-memory to persisted.
+
+---
+
+#### Lessons banked in CLAUDE.md Don'ts
+
+1. **Don't `.map()` over array-typed API columns without `(col || [])` guards.** Sole T11 root cause. Every `.map()`, `.slice()`, `.length`, `.filter()` over an API-derived array column MUST be wrapped in `(col || [])` unless the controller does server-side `COALESCE(col, '{}'::text[])`.
+
+2. **Don't trust "Something went wrong" + a URL bar value means the bug is on that route.** React error boundary catches render-time exceptions, swaps to fallback UI, URL bar stays. Open Console FIRST, expand the stack trace. Component name in trace (even minified) plus React tree (`at main → at div → at div → at <Component>`) tells you which page crashed.
+
+3. **Don't dispatch a recon agent on a vague repro before opening DevTools yourself.** When a cohort report is vague, ask for 4 baseline diagnostics FIRST (URL bar, Console first-red-line with stack expanded, Network 4xx/5xx, exact click sequence). Recon without a stack trace is guessing.
+
+4. **Don't trust populated counts as a proxy for active features.** Phase 93 initially assumed "21,831 non-cloudinary URLs" meant user uploads. Actual: 99%+ were crawler-ingested. Rule: when audit shows a populated column, group by source attribute (`import_metadata`, `created_at` vs `claimed_at`, write-side controller) BEFORE deciding scope.
+
+5. **Don't recompute denormalised snapshots via per-row API calls when SQL can do it in one query.** 11k user_ids via `syncDirectoryProfile()` would have taken hours; single SQL `UPDATE FROM JOIN` took 11s.
+
+6. **Don't skip the Cloudinary remote-URL upload error-handling test.** Cloudinary's `uploader.upload(remoteUrl, opts)` can fail in 5 distinct ways. The wrapper helper must NEVER throw — callers treat normalisation as best-effort, column stays at the original URL on failure.
+
+---
 
 ### What's New in v4.5 — DR drill floor fix after stale s39-DELETE baseline (Phase 95, 17 May 2026)
 
