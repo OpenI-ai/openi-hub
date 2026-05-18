@@ -2,8 +2,8 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 4.6
-**Last Updated:** 18 May 2026 (T11 + Phase 93a + 93b — Cloudinary pipeline standardisation. **T11**: `Mentors.jsx` null-guard fix on `mentor.expertise.slice/map` — frontend-only crash fix, commit `ef2b8a4`. **Phase 93a** (commit `5c2e543`): shared helper `src/utils/cloudinary.js` (~190 lines) with per-folder PRESETS map (logos / org-logos / register-uploads → Phase 73 trim+pad+256 WebP; pitch_decks / portfolios / resumes → page-1 thumb 512×512 WebP; data_room → passthrough). Belt-and-suspenders crawler intercept: `scraperService.scrapeWebsite()` normalises before return (belt); cronService auto-promote + 3 enrichController sites + enrich-logos.js normalise before write (suspenders). Deduplicated 3 copies of `configureCloudinary()`. **Phase 93b** (commit `b526c63` + ops): bulk backfill script + 3 column-applies + 1 SQL recompute. **19,269 external URLs migrated to Cloudinary in ~35min apply time, 88.2% success rate**. `directory_profiles.logo_url` populated count: 1,473 → 12,469 (8.5x). Mixed Content warnings on directory pages → eliminated. Previous Phase 95 + DR drill verification (17 May) remains valid; see "What's New in v4.5" below.
+**Version:** 4.7
+**Last Updated:** 18 May 2026 (Phase 96 — Projects + Tasks UI wiring. Cohort (Nandini Bahukhandi, free plan) reported "+ New Project" button did nothing. Recon confirmed Phase 66/T9 bug pattern reincarnation: backend + projectAPI production-ready, frontend never wired the click handler. Sibling Add Task button also missing on ProjectDetail Tasks tab. Two commits: `8e68374` (10-sub apply script adding Create Project + Add Task modals with full forms, shared Field/inputStyle helpers, optimistic task list update) → Vercel build FAILED on wrong AuthContext import (`contexts/` plural assumed; actual `context/` singular AND only `useAuth` hook exported, not Context object) → hotfix `d7afbc0` switched to `useAuth()` → Vercel READY. Backend has no plan gate; free plan creates fine. startup_id auto-detected from `user.role==='startup' ? user.id : null`. Earlier today: T11 closure + Phase 93a/b Cloudinary pipeline standardisation (19,269 logos migrated, directory_profiles.logo_url populated count 1,473 → 12,469). See "What's New in v4.7" and "What's New in v4.6" sections below.
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
@@ -12,6 +12,95 @@
 **Email auth (13 May):** DMARC tightened to `v=DMARC1; p=quarantine; pct=25; sp=quarantine; adkim=r; aspf=r; rua=mailto:rajeev@openi.ai,mailto:re+etys4dueylb@dmarc.postmarkapp.com`. First rung of the progression ladder (none → quarantine/25 → quarantine/100 → reject). Watch Postmark digest 1-2 weeks before escalating.
 **Staging domain:** https://www.openi.tech *(perpetual staging on the legacy `.tech` registrar)*
 **Fallback URL:** https://openi-hub.vercel.app *(kept for preview deploys; do NOT use as `CLIENT_URL`)*
+
+### What's New in v4.7 — Projects + Tasks UI wiring (Phase 96, 18 May 2026 late evening)
+
+**Two commits, ~410 line diff, half-ship + hotfix cycle.**
+
+#### What broke
+
+Cohort tester (Nandini Bahukhandi, free plan) clicked "+ New Project" on the `/dashboard/projects` page. Nothing happened. No modal, no toast, no API call, no Network tab activity. Identical UX to Phase 66 (Events "Create Event" button did nothing) and Phase 89/T9 (IPR Database "Save Record" button did nothing).
+
+#### Root cause
+
+`src/pages/dashboard/ProjectManagement.jsx` line 164 — the "+ New Project" button had hover styles (`onMouseEnter`/`onMouseLeave` for color change) but **no `onClick` handler**. Same bug pattern: backend (`POST /projects`) and `projectAPI.create` were production-ready. Frontend just never wired the interaction layer. Half-shipped feature.
+
+Sibling bug: the same file's `ProjectDetail` component (Tasks tab inside an individual project) also had no Add Task button at all, even though `projectAPI.createTask` + backend `POST /projects/:id/tasks` existed and worked.
+
+#### Fix
+
+Phase 96 commit `8e68374` (10 surgical substitutions via `/tmp/` apply script):
+
+1. Imports: added `useContext` from React (later corrected to `useAuth` hook in hotfix)
+2. State: added `EMPTY_PROJECT` shape constant, `showCreate` / `creating` / `form` state in `ProjectManagement`
+3. Helpers: added `reloadProjects()` (mirrors initial useEffect normalisation) + `handleCreateProject()` (validates title required, POSTs via `projectAPI.create`, refreshes list on success, surfaces backend error via toast on failure)
+4. Wire `onClick={() => { setForm(EMPTY_PROJECT); setShowCreate(true); }}` on the "+ New Project" button
+5. Render full Create Project modal: title (required) + description + status (Active/On Hold/Completed/Cancelled) + priority (Low/Medium/High/Critical) + start_date + end_date + budget (number in Cr). Click-outside + Cancel button + Submit button (disabled while submitting or title empty). zIndex 1000 over content; `padding: 20` on overlay so modal doesn't touch edges on mobile.
+6. Pass `onTaskCreated={reloadProjects}` callback through to `ProjectDetail` so projects list count refreshes after a task is added.
+7. Shared `Field` component + `inputStyle` constant declared between the two functions (DRY across both modals).
+8. `EMPTY_TASK` shape constant.
+9. `ProjectDetail` accepts `onTaskCreated` prop + adds 4 new state hooks (`showAddTask`, `creatingTask`, `taskForm`, `localTasks`) + `handleCreateTask()` handler (validates title, POSTs via `projectAPI.createTask`, optimistically appends new task to `localTasks` so user sees it immediately, fires `onTaskCreated()` callback for parent refresh).
+10. Add Task button in Tasks tab header (Plus icon + "Add Task" gold pill, styled smaller than the parent New Project button).
+11. Render full Add Task modal: title (required) + description + status (todo/in_progress/review/done — lowercase to match backend CHECK constraint, label-mapped per Phase 82 lesson) + priority + due_date. Same click-outside + Cancel + Submit pattern.
+
+#### Hotfix (5 minutes later)
+
+Vercel build of `8e68374` FAILED with:
+
+```
+Module not found: Can't resolve '../../contexts/AuthContext'
+```
+
+Two mistakes I made in the import line:
+
+1. **Wrong path**: I wrote `contexts/` (plural) because that's the React community convention. This codebase actually uses `context/` (singular).
+2. **Wrong import**: I tried to import `{ AuthContext }` (named export). The file only exports `useAuth()` hook — `AuthContext` itself is module-internal.
+
+Even if the path had been correct, the named import would have been `undefined`, and `useContext(undefined)` would have returned `undefined` → `user` would always be `undefined` → startup_id auto-detect would never have fired → projects would always be created at org-level. So this was a two-layer bug saved by Vercel's strict build mode failing fast.
+
+Hotfix commit `d7afbc0` (2 substitutions):
+- Import line: `import { useContext } from 'react'; import { AuthContext } from '../../contexts/AuthContext';` → `import { useAuth } from '../../context/AuthContext';`
+- Hook usage: `const { user } = useContext(AuthContext) || {};` → `const { user } = useAuth() || {};`
+
+Vercel rebuilt on `d7afbc0` → **Ready**.
+
+#### Cohort-visible flow (post-deploy)
+
+**Create a project:**
+1. Hit "+ New Project" → modal opens centered with backdrop
+2. Fill title (required) + optional description / status / priority / dates / budget
+3. Submit → button shows "Creating…" → API POST → toast.success("Project created")
+4. Modal closes → list reloads → new project appears at top
+
+**Add a task to a project:**
+1. Click any project card → ProjectDetail page → Tasks tab
+2. Click "+ Add Task" button (gold pill in tab header)
+3. Fill title (required) + optional description / status / priority / due_date
+4. Submit → button shows "Adding…" → API POST → toast.success("Task added")
+5. Modal closes → task appears immediately in list (optimistic update) → projects list count refreshes when you go Back
+
+#### Architecture decisions locked
+
+- **Full forms** (all backend-accepted fields visible) rather than minimal — cohort can use the full data model from day one
+- **startup_id auto-detect** from logged-in user: `user.role === 'startup' ? user.id : null` — startup persona gets their own startup linked; other personas create org-level projects (NULL startup_id). Backend accepts both. Zero UX friction for the common cases.
+- **Optimistic task append** rather than refetch-after-create — user sees the new task immediately without waiting for a round-trip. Parent `onTaskCreated` callback handles the parent-level count refresh asynchronously.
+- **Graceful error handling** via Phase 64 visibility pattern: `err?.response?.data?.message || err?.message || 'Failed to ...'`. Surfaces backend errors (e.g. "Project title required") directly to the user instead of generic "Save failed".
+
+#### Files touched
+
+| File | Role | Diff |
+|---|---|---|
+| `src/pages/dashboard/ProjectManagement.jsx` | New Project + Add Task modals + handlers + helpers | +403 / -11 (first commit) + 4 lines hotfix |
+
+Zero backend changes. Zero new dependencies. Zero schema changes.
+
+#### Lessons banked in CLAUDE.md Don'ts
+
+1. **Don't trust folder-name conventions without grep'ing the repo first.** Five seconds of `grep -rln "export.*<SymbolName>"` saves a deploy-and-rollback cycle. Convention is a heuristic, not truth.
+2. **Don't ship a code edit that touches a context/hook you didn't read first.** When adding a NEW import to a file, read the source of truth (the module being imported) at least once in the same session.
+3. **Don't conflate "looks like Phase 66 pattern" with "is exactly Phase 66 pattern".** Pattern recognition saves recon time but the fix shape is custom every time. Always read the target file end-to-end before assuming the previous phase's fix will copy-paste.
+
+---
 
 ### What's New in v4.6 — Cloudinary pipeline standardisation (T11 + Phase 93a + 93b, 18 May 2026)
 
