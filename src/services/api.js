@@ -153,6 +153,9 @@ export const authAPI = {
   me:             ()                => get('/auth/me'),
   changePassword: (currentPassword, newPassword) => put('/auth/change-password', { currentPassword, newPassword }),
   updateProfile:  (data)            => put('/auth/profile', data),
+  // Phase 97 — silent session refresh. Re-mints a 24h JWT for the currently-authed user.
+  // Called by useSessionRefresh() in AuthContext when the token has <1h left.
+  refresh:        ()                => post('/auth/refresh'),
 };
 
 // ── MFA (Phase 54) ─────────────────────────────────────────

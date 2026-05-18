@@ -34,6 +34,10 @@ export default function Login() {
   const showDemoAccounts = typeof window !== 'undefined' &&
     new URLSearchParams(window.location.search).get('demo') === '1';
 
+  // Phase 97 — Login banner shown after idle-logout redirect.
+  const idleReason = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('reason') === 'idle';
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -124,7 +128,12 @@ export default function Login() {
             <>
               <h2 className="font-semibold text-lg mb-6" style={{ color: '#1a1a1a' }}>Sign in to your account</h2>
 
-              {error && (
+              {idleReason && !error && (
+            <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              Your session expired due to inactivity. Please sign in again to continue.
+            </div>
+          )}
+          {error && (
                 <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
                   <AlertCircle size={15} className="shrink-0" />
                   <span>{error}</span>

@@ -1,5 +1,26 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { seedFromUser } from '../services/tourService';
+import { authAPI } from '../services/api';
+
+// Phase 97 — session hardening config.
+// SILENT_REFRESH_INTERVAL_MS: how often we check the token's exp.
+// REFRESH_THRESHOLD_MS: if exp - now < this, call /auth/refresh.
+// IDLE_TIMEOUT_MS: how long of zero user activity before forced logout.
+const SILENT_REFRESH_INTERVAL_MS = 10 * 60 * 1000;  // 10 minutes
+const REFRESH_THRESHOLD_MS       = 60 * 60 * 1000;  // 1 hour
+const IDLE_TIMEOUT_MS            = 60 * 60 * 1000;  // 60 minutes
+
+// Decode a JWT's payload without verifying. Used only to read `exp`, never for trust.
+function decodeJwtPayload(token) {
+  try {
+    const part = token.split('.')[1];
+    if (!part) return null;
+    const json = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
 
 const AuthContext = createContext(null);
 
@@ -228,6 +249,75 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('openi_user');
     localStorage.removeItem(ACTIVE_ROLE_KEY);
   };
+
+  // Phase 97 — silent session refresh. Every 10 min (and on activeRole change),
+  // check the token's exp claim. If <1h remains, call /auth/refresh to mint a
+  // fresh 24h token. On refresh failure, do nothing — the token will expire
+  // naturally and the next API call will 401, triggering logout via the
+  // existing fetch wrapper. The refresh endpoint is authMiddleware-gated, so
+  // it cannot recover an already-expired session.
+  useEffect(() => {
+    if (!user) return undefined;
+    let cancelled = false;
+    const tick = async () => {
+      const token = localStorage.getItem('openi_token');
+      if (!token) return;
+      const payload = decodeJwtPayload(token);
+      if (!payload?.exp) return;
+      const msLeft = payload.exp * 1000 - Date.now();
+      if (msLeft > REFRESH_THRESHOLD_MS) return; // plenty of time left
+      try {
+        const data = await authAPI.refresh();
+        if (cancelled || !data?.token || !data?.user) return;
+        const refreshed = { ...data.user, token: data.token };
+        setUser(refreshed);
+        localStorage.setItem('openi_token', data.token);
+        localStorage.setItem('openi_user', JSON.stringify(refreshed));
+      } catch {
+        // silent — natural expiry path will handle it
+      }
+    };
+    // Fire once immediately so a freshly-mounted app catches a near-expiry token,
+    // then on interval.
+    tick();
+    const id = setInterval(tick, SILENT_REFRESH_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [user?.id]);
+
+  // Phase 97 — idle logout. 60 min of no mouse/keyboard/click → clear token +
+  // redirect to /login?reason=idle. Timer freezes while any role="dialog"
+  // element is open (Phase 96 modals + others), so users mid-form aren't
+  // kicked out. Re-armed on every recognized activity event.
+  const idleTimerRef = useRef(null);
+  useEffect(() => {
+    if (!user) return undefined;
+    const arm = () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(() => {
+        // If a modal is open, defer — re-arm and try again later.
+        if (typeof document !== 'undefined' &&
+            document.querySelectorAll('[role="dialog"]').length > 0) {
+          arm();
+          return;
+        }
+        try {
+          localStorage.removeItem('openi_token');
+          localStorage.removeItem('openi_user');
+          localStorage.removeItem(ACTIVE_ROLE_KEY);
+        } catch { /* ignore */ }
+        // Hard redirect — clears all in-memory React state including this
+        // provider's `user`, and lands on Login with the idle banner.
+        window.location.href = '/login?reason=idle';
+      }, IDLE_TIMEOUT_MS);
+    };
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    events.forEach(ev => window.addEventListener(ev, arm, { passive: true }));
+    arm();
+    return () => {
+      events.forEach(ev => window.removeEventListener(ev, arm));
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [user?.id]);
 
   if (loading) return null;
 
