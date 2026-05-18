@@ -175,6 +175,93 @@ export default function Messaging() {
 
   const totalUnread = conversations.reduce((sum, c) => sum + c.unread, 0);
 
+  // Phase 89.9 (T33) — debounced member search (Phase 87b OrgTypeahead pattern)
+  useEffect(() => {
+    if (!showNew) {
+      setMemberSearch('');
+      setMemberResults([]);
+      setMemberLoading(false);
+      return undefined;
+    }
+    const q = memberSearch.trim();
+    if (q.length < 2) {
+      setMemberResults([]);
+      setMemberLoading(false);
+      return undefined;
+    }
+    setMemberLoading(true);
+    const mySeq = ++memberSeqRef.current;
+    const tid = setTimeout(() => {
+      meetingAPI.searchUsers(q)
+        .then(data => {
+          if (mySeq !== memberSeqRef.current) return;
+          const rows = data.users || data || [];
+          setMemberResults(rows.filter(u => u.id !== user?.id)); // exclude self
+        })
+        .catch(() => {
+          if (mySeq !== memberSeqRef.current) return;
+          setMemberResults([]);
+        })
+        .finally(() => {
+          if (mySeq !== memberSeqRef.current) return;
+          setMemberLoading(false);
+        });
+    }, 250);
+    return () => clearTimeout(tid);
+  }, [showNew, memberSearch, user?.id]);
+
+  // Phase 89.9 (T33) — reset modal form when it closes
+  const closeNewModal = () => {
+    setShowNew(false);
+    setNewName('');
+    setNewType('direct');
+    setSelectedMembers([]);
+    setMemberSearch('');
+    setMemberResults([]);
+  };
+
+  // Phase 89.9 (T33) — create conversation handler
+  const handleCreateConversation = () => {
+    const trimmedName = newName.trim();
+    if (newType === 'direct' && selectedMembers.length !== 1) {
+      toast.error('Direct conversation requires exactly 1 other member.');
+      return;
+    }
+    if (newType === 'group') {
+      if (!trimmedName) {
+        toast.error('Group conversation requires a name.');
+        return;
+      }
+      if (selectedMembers.length < 1) {
+        toast.error('Group conversation requires at least 1 other member.');
+        return;
+      }
+    }
+    setCreating(true);
+    messageAPI.createConversation({
+      name: trimmedName || (selectedMembers[0]?.name || 'Conversation'),
+      type: newType,
+      member_ids: selectedMembers.map(m => m.id),
+    })
+      .then(conv => {
+        toast.success('Conversation created');
+        return messageAPI.listConversations().then(data => {
+          const list = (data.conversations || data || []).map(c => ({
+            ...c,
+            name: c.name || `Conversation #${c.id}`,
+          }));
+          setConversations(list);
+          const fresh = list.find(c => c.id === conv.id);
+          if (fresh) setActive(fresh);
+        });
+      })
+      .catch(err => toast.error(err.message || 'Failed to create conversation'))
+      .finally(() => {
+        setCreating(false);
+        closeNewModal();
+      });
+  };
+
   if (loading) return <LoadingSkeleton type="list" />;
 
   return (
