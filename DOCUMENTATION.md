@@ -3,7 +3,7 @@
 ## OpenI Assessment Platform
 
 **Version:** 4.5
-**Last Updated:** 17 May 2026 (Phase 95 — DR drill floor fix. Three consecutive Sunday `restore-drill` GitHub Actions runs (4 / 11 / 17 May) had been silently failing with `users: 575,055 < floor 580,000` because the 13 May `s39 hygiene DELETE` removed 8,207 rows but the workflow's hardcoded floors weren't updated to match. Fix: lower 3 floors in `.github/workflows/restore-drill.yml` from 580K → 570K (~5K headroom below current prod ~575K). Manual rerun `25995939439` queued for verification. `gh` CLI v2.92.0 installed at `/usr/local/bin/gh` as side-effect. See "What's New in v4.5" section below.)
+**Last Updated:** 18 May 2026 (Phase 95 — DR drill floor fix. Three consecutive Sunday `restore-drill` GitHub Actions runs (4 / 11 / 17 May) had been silently failing with `users: 575,055 < floor 580,000` because the 13 May `s39 hygiene DELETE` removed 8,207 rows but the workflow's hardcoded floors weren't updated to match. Fix: lower 3 floors in `.github/workflows/restore-drill.yml` from 580K → 570K (~5K headroom below current prod ~575K). **Manual rerun `25995939439` ✓ VERIFIED on 18 May 2026, elapsed 1h05m27s — DR safety net back to healthy.** `gh` CLI v2.92.0 installed at `/usr/local/bin/gh` as side-effect. See "What's New in v4.5" section below.)
 **Live URL:** https://openi.ai 🎉
 **Production domain:** https://www.openi.ai *(Vercel production)*
 **Apex redirect:** https://openi.ai → 308 → https://www.openi.ai
@@ -98,7 +98,9 @@ Useful commands going forward:
 
 #### Verification
 
-Manual workflow_dispatch fired post-commit: `gh workflow run restore-drill` → run `25995939439` queued. Expected ~50-60 min to complete (matches success-run plateau of 57-58m). Watch via `gh run watch 25995939439` or check back later with `gh run view 25995939439`.
+Manual workflow_dispatch fired post-commit: `gh workflow run restore-drill` → run `25995939439` **VERIFIED ✓ on 18 May 2026, elapsed 1h05m27s.** All 12 steps green, all 4 floor checks passed under the new 570K thresholds. DR safety net is back to healthy. Next scheduled Sunday drill (24 May 04:00 UTC) should run green without intervention.
+
+Runtime observation: 1h05m27s is ~7m slower than the 57-58m success-run plateau. Within normal variance for serial pg_restore against a slowly-growing dump, but worth watching. If runs drift toward 90-120 min in coming weeks, that's the trigger for the parallelization follow-up (spill-to-disk + `pg_restore --jobs N`).
 
 #### Lessons (added to CLAUDE.md Don'ts section)
 
