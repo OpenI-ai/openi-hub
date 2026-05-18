@@ -312,13 +312,16 @@ export default function DeepTechQualification() {
             <button
               disabled={answeredCount < totalQ * 0.8 || !startupName.trim()}
               onClick={() => {
+                // Phase 98 (T28) — setSubmitted moved INSIDE .then() so the
+                // success view only renders after the backend confirms. On
+                // error, stay on the form so the user can retry.
                 deeptechAPI.create({ startup_name: startupName.trim(), score, verdict: verdict.label, answers })
                   .then(() => {
                     toast.success('Assessment submitted successfully');
                     setRecentAssessments(prev => [{ name: startupName.trim(), score, verdict: verdict.label, date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }, ...prev]);
+                    setSubmitted(true);
                   })
                   .catch(err => toast.error(err.message || 'Failed to submit assessment'));
-                setSubmitted(true);
               }}
               style={{
                 width: '100%', padding: '13px 0', background: (answeredCount >= totalQ * 0.8 && startupName.trim()) ? G : '#e0e0e0',
@@ -332,9 +335,13 @@ export default function DeepTechQualification() {
             >
               Submit Qualification Assessment
             </button>
-            {answeredCount < totalQ * 0.8 && (
+            {(answeredCount < totalQ * 0.8 || !startupName.trim()) && (
               <p style={{ textAlign: 'center', color: '#aaa', fontSize: 12, marginTop: 8 }}>
-                Please answer at least {Math.ceil(totalQ * 0.8)} questions to submit ({answeredCount}/{totalQ} answered)
+                {!startupName.trim() && answeredCount < totalQ * 0.8
+                  ? `Enter a startup name above and answer at least ${Math.ceil(totalQ * 0.8)} questions to submit (${answeredCount}/${totalQ} answered)`
+                  : !startupName.trim()
+                  ? 'Enter a startup name above to submit'
+                  : `Please answer at least ${Math.ceil(totalQ * 0.8)} questions to submit (${answeredCount}/${totalQ} answered)`}
               </p>
             )}
           </div>
