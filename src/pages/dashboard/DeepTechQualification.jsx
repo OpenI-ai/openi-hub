@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { deeptechAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Zap, CheckCircle2, Circle, ChevronRight, ChevronDown,
@@ -120,6 +121,21 @@ export default function DeepTechQualification() {
   const [recentAssessments, setRecentAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Phase 89.5 (T28 follow-up) — auto-fill startup name for startup persona
+  // so the most common case (user assessing their own startup) skips the
+  // redundant manual entry. nameInputRef lets the disabled-click handler
+  // scroll + focus the field when gate fails.
+  const { user } = useAuth();
+  const nameInputRef = useRef(null);
+  useEffect(() => {
+    if (mode !== 'assess') return;
+    if (startupName.trim()) return; // user already typed something
+    if (user?.role === 'startup') {
+      const auto = (user.organization_name || user.name || '').trim();
+      if (auto) setStartupName(auto);
+    }
+  }, [mode, user?.role, user?.organization_name, user?.name]);
+
   useEffect(() => {
     deeptechAPI.list()
       .then(data => {
@@ -235,17 +251,46 @@ export default function DeepTechQualification() {
       {mode === 'assess' && !submitted && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20 }}>
           <div>
-            {/* Startup name */}
-            <div style={{ ...card, padding: 20, marginBottom: 16 }}>
-              <label style={{ display: 'block', color: '#444', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Startup Name</label>
+            {/* Phase 89.5 (T28 follow-up) — startup name as a prominent
+                required field at top of form. Gold border + red asterisk
+                signal "fill me in first" so users don't miss it. */}
+            <div style={{
+              ...card,
+              padding: 20,
+              marginBottom: 16,
+              border: startupName.trim() ? `1.5px solid ${G}` : '2px solid #d97706',
+              background: startupName.trim() ? '#fff' : '#fffbeb',
+              transition: 'border-color 0.2s, background 0.2s',
+            }}>
+              <label style={{ display: 'block', color: '#1a1a1a', fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
+                Startup to assess <span style={{ color: '#dc2626' }}>*</span>
+              </label>
               <input
+                ref={nameInputRef}
                 value={startupName}
                 onChange={e => setStartupName(e.target.value)}
-                placeholder="Enter startup name…"
-                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 10, fontSize: 14, outline: 'none', color: '#1a1a1a', transition: 'border-color 0.15s' }}
+                placeholder="Enter the startup name being assessed"
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  padding: '12px 14px',
+                  background: '#fff',
+                  border: `1.5px solid ${startupName.trim() ? '#e0e0e0' : '#d97706'}`,
+                  borderRadius: 10,
+                  fontSize: 14,
+                  outline: 'none',
+                  color: '#1a1a1a',
+                  transition: 'border-color 0.15s',
+                  fontWeight: 500,
+                }}
                 onFocus={e => e.target.style.borderColor = G}
-                onBlur={e => e.target.style.borderColor = '#e0e0e0'}
+                onBlur={e => e.target.style.borderColor = startupName.trim() ? '#e0e0e0' : '#d97706'}
               />
+              {!startupName.trim() && (
+                <p style={{ margin: '8px 0 0', color: '#92400e', fontSize: 12, fontWeight: 500 }}>
+                  Required — Submit will be disabled until you enter a name.
+                </p>
+              )}
             </div>
 
             {/* Sections */}
@@ -310,8 +355,21 @@ export default function DeepTechQualification() {
             })}
 
             <button
-              disabled={answeredCount < totalQ * 0.8 || !startupName.trim()}
               onClick={() => {
+                // Phase 89.5 (T28 follow-up) — if gates are unmet, point the
+                // user at the missing field instead of silently doing nothing.
+                if (!startupName.trim()) {
+                  toast.error('Please enter a startup name first.');
+                  if (nameInputRef.current) {
+                    nameInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => nameInputRef.current?.focus(), 350);
+                  }
+                  return;
+                }
+                if (answeredCount < totalQ * 0.8) {
+                  toast.error(`Please answer at least ${Math.ceil(totalQ * 0.8)} questions before submitting.`);
+                  return;
+                }
                 // Phase 98 (T28) — setSubmitted moved INSIDE .then() so the
                 // success view only renders after the backend confirms. On
                 // error, stay on the form so the user can retry.
