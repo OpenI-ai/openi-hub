@@ -89,15 +89,23 @@ const OPTIONS = [
 const SCORE_MAP = { yes: 1, partial: 0.5, no: 0, na: null };
 
 function calcScore(answers) {
+  // Phase 89.6 (T29) — full denominator. Unanswered = 0 contribution, weight
+  // still counts. 'na' is intentionally excluded from denominator (it means
+  // "this question doesn't apply to my startup"), so an N/A row reduces the
+  // total possible score rather than penalising as a zero. Empty / undefined
+  // answers (user hasn't picked yet) DO count their weight in the denominator
+  // — score reflects fraction of the full assessment completed at "Yes".
   let totalWeight = 0, earned = 0;
   SECTIONS.forEach(sec => {
     sec.questions.forEach(q => {
       const ans = answers[q.id];
+      if (ans === 'na') return; // skip — reduces denominator
+      totalWeight += q.weight;
       const val = SCORE_MAP[ans];
-      if (val !== null && val !== undefined && ans !== 'na') {
-        totalWeight += q.weight;
+      if (val !== null && val !== undefined) {
         earned += val * q.weight;
       }
+      // else: unanswered question — earned stays at 0, but weight counts
     });
   });
   if (totalWeight === 0) return 0;
@@ -412,6 +420,13 @@ export default function DeepTechQualification() {
               <div style={{ textAlign: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: 40, fontWeight: 800, color: score >= 70 ? '#16a34a' : score >= 50 ? G : '#dc2626', lineHeight: 1 }}>{score}%</div>
                 <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>DeepTech Score</div>
+                {/* Phase 89.6 (T29) — surface the "partial assessment" signal so users
+                    understand the score will rise as they answer more questions. */}
+                {answeredCount < totalQ && (
+                  <div style={{ fontSize: 10, color: '#d97706', marginTop: 6, fontWeight: 600 }}>
+                    Provisional — {answeredCount} of {totalQ} answered
+                  </div>
+                )}
               </div>
               <div style={{ height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden', marginBottom: 14 }}>
                 <div style={{ width: `${score}%`, height: '100%', background: score >= 70 ? '#16a34a' : score >= 50 ? G : '#dc2626', borderRadius: 4, transition: 'width 0.4s ease' }} />
@@ -435,11 +450,15 @@ export default function DeepTechQualification() {
               <h3 style={{ margin: '0 0 14px', color: '#1a1a1a', fontSize: 12, fontWeight: 700 }}>Section Breakdown</h3>
               {SECTIONS.map(sec => {
                 const SIcon = sec.icon;
+                // Phase 89.6 (T29) — same full-denominator math as calcScore.
                 let tw = 0, earned = 0;
                 sec.questions.forEach(q => {
-                  const val = SCORE_MAP[answers[q.id]];
-                  if (val !== null && val !== undefined && answers[q.id] !== 'na') {
-                    tw += q.weight; earned += val * q.weight;
+                  const ans = answers[q.id];
+                  if (ans === 'na') return; // skip — reduces denominator
+                  tw += q.weight;
+                  const val = SCORE_MAP[ans];
+                  if (val !== null && val !== undefined) {
+                    earned += val * q.weight;
                   }
                 });
                 const pct = tw > 0 ? Math.round((earned / tw) * 100) : 0;
