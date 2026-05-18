@@ -3,10 +3,10 @@ import toast from 'react-hot-toast';
 import {
   MessageSquare, Search, Send, Paperclip, MoreHorizontal,
   ChevronDown, Check, CheckCheck, Bell, BellOff, Archive,
-  Plus, Users, Lock, Hash, Star, Clock, Filter,
+  Plus, Users, Lock, Hash, Star, Clock, Filter, X, UserPlus,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { messageAPI } from '../../services/api';
+import { messageAPI, meetingAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
 const G = '#D5AA5B';
@@ -39,6 +39,17 @@ export default function Messaging() {
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
+
+  // Phase 89.9 (T33) — New Conversation modal state.
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newType, setNewType] = useState('direct'); // 'direct' | 'group'
+  const [selectedMembers, setSelectedMembers] = useState([]); // [{id, name, ...}]
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberResults, setMemberResults] = useState([]);
+  const [memberLoading, setMemberLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const memberSeqRef = useRef(0);
   const messagesEndRef = useRef(null);
 
   // Load conversations from API
@@ -277,12 +288,15 @@ export default function Messaging() {
           </h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Internal comms between OpenI, startups & evaluators</p>
         </div>
-        <button style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '8px 16px', background: G, color: '#fff',
-          border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700,
-          boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
-        }}>
+        <button
+          onClick={() => setShowNew(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 16px', background: G, color: '#fff',
+            border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700,
+            boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
+          }}
+        >
           <Plus size={14} /> New Conversation
         </button>
       </div>
