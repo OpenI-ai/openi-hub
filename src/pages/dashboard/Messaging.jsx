@@ -501,6 +501,181 @@ export default function Messaging() {
           </div>
         )}
       </div>
+
+      {/* Phase 89.9 (T33) — New Conversation dialog */}
+      {showNew && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(0,0,0,0.35)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', padding: 16,
+          }}
+          onClick={e => { if (e.target === e.currentTarget) closeNewModal(); }}
+        >
+          <div style={{
+            background: '#fff', borderRadius: 14, width: 'min(540px, 100%)',
+            maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>New Conversation</h3>
+              <button onClick={closeNewModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#888', padding: 4, display: 'flex' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ padding: '16px 20px', overflowY: 'auto', flex: 1 }}>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Type</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['direct', 'group'].map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setNewType(t)}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        background: newType === t ? G : '#f5f5f5',
+                        color: newType === t ? '#fff' : '#555',
+                        border: 'none', borderRadius: 8, cursor: 'pointer',
+                        fontSize: 13, fontWeight: 600, textTransform: 'capitalize',
+                      }}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {newType === 'group' && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Group name</label>
+                  <input
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    placeholder="e.g. Q3 Strategy"
+                    style={{
+                      width: '100%', boxSizing: 'border-box',
+                      padding: '9px 12px', background: '#fff',
+                      border: '1.5px solid #e0e0e0', borderRadius: 9,
+                      fontSize: 13, outline: 'none', color: '#1a1a1a',
+                    }}
+                  />
+                </div>
+              )}
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>
+                  {newType === 'direct' ? 'Pick a user' : 'Add members'}
+                </label>
+                {selectedMembers.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                    {selectedMembers.map(m => (
+                      <span key={m.id} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '4px 8px 4px 10px', background: 'rgba(213,170,91,0.12)',
+                        color: G, borderRadius: 999, fontSize: 12, fontWeight: 600,
+                      }}>
+                        {m.name}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedMembers(prev => prev.filter(x => x.id !== m.id))}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: G, padding: 0, display: 'flex' }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+                  <input
+                    value={memberSearch}
+                    onChange={e => setMemberSearch(e.target.value)}
+                    placeholder="Search users by name…"
+                    style={{
+                      width: '100%', boxSizing: 'border-box',
+                      padding: '9px 12px 9px 32px', background: '#fff',
+                      border: '1.5px solid #e0e0e0', borderRadius: 9,
+                      fontSize: 13, outline: 'none', color: '#1a1a1a',
+                    }}
+                  />
+                </div>
+              </div>
+              {memberSearch.trim().length >= 2 && (
+                <div style={{ marginTop: 6, maxHeight: 220, overflowY: 'auto', border: '1px solid #eee', borderRadius: 9 }}>
+                  {memberLoading ? (
+                    <p style={{ padding: '12px', color: '#888', fontSize: 12, textAlign: 'center', margin: 0 }}>Searching…</p>
+                  ) : memberResults.length === 0 ? (
+                    <p style={{ padding: '12px', color: '#888', fontSize: 12, textAlign: 'center', margin: 0 }}>No matches.</p>
+                  ) : (
+                    memberResults
+                      .filter(u => !selectedMembers.some(m => m.id === u.id))
+                      .map(u => (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => {
+                            if (newType === 'direct') {
+                              setSelectedMembers([{ id: u.id, name: u.name, role: u.role }]);
+                            } else {
+                              setSelectedMembers(prev => [...prev, { id: u.id, name: u.name, role: u.role }]);
+                            }
+                            setMemberSearch('');
+                            setMemberResults([]);
+                          }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 10,
+                            width: '100%', padding: '8px 12px',
+                            background: 'transparent', border: 'none',
+                            borderBottom: '1px solid #f5f5f5', cursor: 'pointer',
+                            textAlign: 'left',
+                          }}
+                        >
+                          <div style={{
+                            width: 28, height: 28, borderRadius: '50%',
+                            background: 'rgba(213,170,91,0.12)', color: G,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 12, fontWeight: 700, flexShrink: 0,
+                          }}>{(u.name || '?').charAt(0).toUpperCase()}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{u.name}</div>
+                            {u.role && <div style={{ fontSize: 11, color: '#888' }}>{u.role}</div>}
+                          </div>
+                        </button>
+                      ))
+                  )}
+                </div>
+              )}
+            </div>
+            <div style={{ padding: '12px 20px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button
+                onClick={closeNewModal}
+                disabled={creating}
+                style={{
+                  padding: '8px 14px', background: '#f5f5f5', color: '#555',
+                  border: 'none', borderRadius: 8, cursor: creating ? 'not-allowed' : 'pointer',
+                  fontSize: 13, fontWeight: 600,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateConversation}
+                disabled={creating}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '8px 16px', background: G, color: '#fff',
+                  border: 'none', borderRadius: 8, cursor: creating ? 'not-allowed' : 'pointer',
+                  fontSize: 13, fontWeight: 700, opacity: creating ? 0.7 : 1,
+                }}
+              >
+                <UserPlus size={14} /> {creating ? 'Creating…' : 'Create'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
