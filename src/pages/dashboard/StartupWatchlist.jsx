@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { watchlistAPI, startupAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -39,6 +39,14 @@ export default function StartupWatchlist() {
   const [selected, setSelected]     = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showAdd, setShowAdd]       = useState(false);
+  // Phase 89.8 (T31) — search-driven Add Startup modal. Backend's
+  // /startups defaults to limit=24, so loading once at mount only surfaces
+  // a tiny slice of the 575k+ startup_profiles. Debounced server-side
+  // search lets users find any startup by name.
+  const [addSearch, setAddSearch]   = useState('');
+  const [addResults, setAddResults] = useState([]);
+  const [addLoading, setAddLoading] = useState(false);
+  const addSeqRef                   = useRef(0);
   const [search, setSearch]         = useState('');
   const [loading, setLoading]       = useState(true);
   const [newList, setNewList]       = useState({ name: '', description: '', visibility: 'internal', tags: '' });
@@ -81,8 +89,56 @@ export default function StartupWatchlist() {
     ? allStartups.filter(s => selectedList.startupIds.includes(s.id))
     : [];
 
+  // Phase 89.8 (T31) — debounced server-side search. Fires after 250ms of
+  // typing-pause to avoid flooding the backend. Race-guard via addSeqRef so a
+  // slow earlier response doesn't overwrite a fast later one (Phase 87b
+  // pattern). Empty search yields empty results — user must type to discover.
+  useEffect(() => {
+    if (!showAdd) {
+      // Reset modal state when it closes so re-open starts clean.
+      setAddSearch('');
+      setAddResults([]);
+      setAddLoading(false);
+      return undefined;
+    }
+    const q = addSearch.trim();
+    if (q.length < 2) {
+      setAddResults([]);
+      setAddLoading(false);
+      return undefined;
+    }
+    setAddLoading(true);
+    const mySeq = ++addSeqRef.current;
+    const tid = setTimeout(() => {
+      startupAPI.list({ search: q, limit: 50 })
+        .then(data => {
+          if (mySeq !== addSeqRef.current) return; // stale response, drop it
+          const rows = data.startups || data || [];
+          setAddResults(rows.map(s => ({
+            id: s.id,
+            user_id: s.user_id,
+            name: s.company_name || s.name || '',
+            logo_url: s.logo_url || null,
+            sector: s.sector || '',
+            stage: s.stage || '',
+          })));
+        })
+        .catch(() => {
+          if (mySeq !== addSeqRef.current) return;
+          setAddResults([]);
+        })
+        .finally(() => {
+          if (mySeq !== addSeqRef.current) return;
+          setAddLoading(false);
+        });
+    }, 250);
+    return () => clearTimeout(tid);
+  }, [showAdd, addSearch]);
+
+  // Phase 89.8 (T31) — availableToAdd now derived from server-side search
+  // results, filtered client-side to exclude startups already in this list.
   const availableToAdd = selectedList
-    ? allStartups.filter(s => !selectedList.startupIds.includes(s.id))
+    ? addResults.filter(s => !selectedList.startupIds.includes(s.id))
     : [];
 
   const createList = () => {
@@ -379,10 +435,44 @@ export default function StartupWatchlist() {
       {/* Add startup modal */}
       {showAdd && selectedList && (
         <Modal title={`Add Startup to "${selectedList.name}"`} onClose={() => setShowAdd(false)}>
-          {availableToAdd.length === 0 ? (
-            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>All startups are already in this list.</p>
+          {/* Phase 89.8 (T31) — search-driven discovery. Users type to find any
+              startup across the 575k+ catalogue rather than picking from a
+              static slice of 24. */}
+          <div style={{ position: 'relative', marginBottom: 12 }}>
+            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+            <input
+              autoFocus
+              type="text"
+              value={addSearch}
+              onChange={e => setAddSearch(e.target.value)}
+              placeholder="Search startups by name…"
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: '10px 14px 10px 36px',
+                background: '#fff',
+                border: '1.5px solid #e0e0e0',
+                borderRadius: 10,
+                fontSize: 14,
+                outline: 'none',
+                color: '#1a1a1a',
+              }}
+            />
+          </div>
+          {addSearch.trim().length < 2 ? (
+            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+              Type at least 2 characters to search.
+            </p>
+          ) : addLoading ? (
+            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+              Searching…
+            </p>
+          ) : availableToAdd.length === 0 ? (
+            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+              No matching startups found (or all matches are already in this list).
+            </p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
               {availableToAdd.map(s => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#fafafa', borderRadius: 9, border: '1px solid #eee' }}>
                   {s.logo_url ? (
