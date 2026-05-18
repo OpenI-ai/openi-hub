@@ -34,7 +34,6 @@ const DASHBOARD_CONFIG = {
       { key: 'applications', label: 'My Applications', icon: Target, color: '#2563eb', to: '/dashboard/marketplace' },
       { key: 'projects', label: 'Projects', icon: FolderKanban, color: '#16a34a', to: '/dashboard/projects' },
       { key: 'mentors', label: 'Mentors', icon: Users, color: '#ec4899', to: '/dashboard/mentors' },
-      { key: 'ipr_records', label: 'IPR Records', icon: Shield, color: '#7c3aed', to: '/dashboard/ipr' },
       { key: 'deeptech_assessments', label: 'DeepTech', icon: Zap, color: '#f59e0b', to: '/dashboard/deeptech' },
     ],
     quickActions: [
@@ -43,7 +42,6 @@ const DASHBOARD_CONFIG = {
       { label: 'Find Corporates', desc: 'Explore corporate partnerships', icon: Building2, to: '/dashboard/directory', color: '#16a34a' },
       { label: 'Find Labs', desc: 'Book equipment and lab facilities', icon: FlaskConical, to: '/dashboard/infrastructure', color: '#14b8a6' },
       { label: 'Find Mentors', desc: 'Get guidance from industry experts', icon: Users, to: '/dashboard/mentors', color: '#ec4899' },
-      { label: 'My IPR', desc: 'Manage patents and IP records', icon: Shield, to: '/dashboard/ipr', color: '#7c3aed' },
     ],
   },
   student: {
@@ -137,12 +135,10 @@ const DASHBOARD_CONFIG = {
     stats: [
       { key: 'equipment_count', label: 'Equipment', icon: FlaskConical, color: '#14b8a6', to: '/dashboard/infrastructure' },
       { key: 'active_bookings', label: 'Active Bookings', icon: CalendarCheck, color: '#2563eb', to: '/dashboard/infrastructure' },
-      { key: 'ipr_records', label: 'IPR Records', icon: Shield, color: '#7c3aed', to: '/dashboard/ipr' },
       { key: 'capacity', label: 'Capacity', icon: Users, color: '#f59e0b', to: '/dashboard/infrastructure' },
     ],
     quickActions: [
       { label: 'Manage Infrastructure', desc: 'Equipment and facility management', icon: Building2, to: '/dashboard/infrastructure', color: '#14b8a6' },
-      { label: 'IPR Database', desc: 'Patents and IP records', icon: Shield, to: '/dashboard/ipr', color: '#7c3aed' },
       { label: 'Browse Startups', desc: 'Find startups needing lab access', icon: Rocket, to: '/dashboard/startups', color: G },
       { label: 'Explore Directory', desc: 'Connect with researchers', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
     ],
