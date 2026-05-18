@@ -1,8 +1,8 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { projectAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   FolderKanban, Plus, ChevronRight, CheckCircle2, Clock, AlertTriangle,
   Users, Calendar, DollarSign, TrendingUp, BarChart3, Target,
@@ -74,7 +74,7 @@ const EMPTY_PROJECT = {
 };
 
 export default function ProjectManagement() {
-  const { user } = useContext(AuthContext) || {};
+  const { user } = useAuth() || {};
   const [projects, setProjects]     = useState([]);
   const [allTasks, setAllTasks]     = useState([]);
   const [loading, setLoading]       = useState(true);
