@@ -46,11 +46,11 @@ function MentorDetail({ mentor, onClose }) {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h3 className="font-semibold text-gray-800 mb-4">Areas of Expertise</h3>
               <div className="flex gap-2 flex-wrap mb-5">
-                {mentor.expertise.map(e => <span key={e} className="px-3 py-1.5 bg-primary-50 text-primary-700 border border-primary-200 rounded-lg text-sm font-medium">{e}</span>)}
+                {(mentor.expertise || []).map(e => <span key={e} className="px-3 py-1.5 bg-primary-50 text-primary-700 border border-primary-200 rounded-lg text-sm font-medium">{e}</span>)}
               </div>
               <h3 className="font-semibold text-gray-800 mb-3">Certifications & Credentials</h3>
               <div className="space-y-2">
-                {mentor.certifications.map(c => (
+                {(mentor.certifications || []).map(c => (
                   <div key={c} className="flex items-center gap-2">
                     <CheckCircle2 size={15} className="text-accent-500 flex-shrink-0" />
                     <span className="text-sm text-gray-700">{c}</span>
@@ -93,7 +93,7 @@ function MentorDetail({ mentor, onClose }) {
                 {[
                   { label: 'Total Sessions', value: mentor.sessions },
                   { label: 'Rating', value: `${mentor.rating}/5.0 ⭐` },
-                  { label: 'Startups Mentoring', value: mentor.assignedStartups.length },
+                  { label: 'Startups Mentoring', value: assignedStartups.length },
                   { label: 'Availability', value: mentor.available ? 'Available' : 'Busy' },
                 ].map(s => (
                   <div key={s.label} className="flex justify-between items-center">
@@ -242,8 +242,8 @@ export default function Mentors() {
             <div className="mt-3">
               <div className="flex gap-1 flex-wrap">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${BACKGROUND_COLORS[mentor.background]}`}>{BACKGROUND_LABELS[mentor.background]}</span>
-                {mentor.expertise.slice(0, 2).map(e => <span key={e} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">{e}</span>)}
-                {mentor.expertise.length > 2 && <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">+{mentor.expertise.length - 2}</span>}
+                {(mentor.expertise || []).slice(0, 2).map(e => <span key={e} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">{e}</span>)}
+                {(mentor.expertise || []).length > 2 && <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">+{(mentor.expertise || []).length - 2}</span>}
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
