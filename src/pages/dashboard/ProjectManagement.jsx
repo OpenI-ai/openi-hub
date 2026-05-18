@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import toast from 'react-hot-toast';
 import { projectAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import { AuthContext } from '../../contexts/AuthContext';
 import {
   FolderKanban, Plus, ChevronRight, CheckCircle2, Clock, AlertTriangle,
   Users, Calendar, DollarSign, TrendingUp, BarChart3, Target,
@@ -60,7 +61,20 @@ const TASK_STATUS = {
   'Todo':        { icon: Circle,       color: '#64748b', bg: '#f8fafc', border: '#e2e8f0' },
 };
 
+const EMPTY_PROJECT = {
+  title: '',
+  description: '',
+  status: 'active',
+  priority: 'medium',
+  start_date: '',
+  end_date: '',
+  budget: '',
+  lead_id: '',
+  startup_id: '',
+};
+
 export default function ProjectManagement() {
+  const { user } = useContext(AuthContext) || {};
   const [projects, setProjects]     = useState([]);
   const [allTasks, setAllTasks]     = useState([]);
   const [loading, setLoading]       = useState(true);
@@ -68,6 +82,9 @@ export default function ProjectManagement() {
   const [selected, setSelected]     = useState(null);
   const [taskFilter, setTaskFilter] = useState('All');
   const [search, setSearch]         = useState('');
+  const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating]     = useState(false);
+  const [form, setForm]             = useState(EMPTY_PROJECT);
 
   useEffect(() => {
     projectAPI.list()
@@ -118,6 +135,77 @@ export default function ProjectManagement() {
       .finally(() => setLoading(false));
   }, []);
 
+  async function reloadProjects() {
+    setLoading(true);
+    try {
+      const data = await projectAPI.list();
+      const raw = data.projects || data || [];
+      const list = raw.map(p => ({
+        ...p,
+        name: p.title || p.name,
+        startup: p.startup_name || p.startup || '—',
+        status: normalizeStatus(p.status),
+        priority: normalizePriority(p.priority),
+        progress: p.progress ?? (p.total_tasks > 0 ? Math.round((p.done_tasks / p.total_tasks) * 100) : 0),
+        budget: p.budget != null ? fmtBudget(p.budget) : '—',
+        spent: p.spent != null ? fmtBudget(p.spent) : '—',
+        start_date: fmtDate(p.start_date),
+        end_date: fmtDate(p.end_date),
+        pm: p.lead_name || p.pm || '—',
+        team: p.team || 1,
+        tasks: {
+          total: Number(p.total_tasks) || 0,
+          done: Number(p.done_tasks) || 0,
+          pending: Math.max(0, (Number(p.total_tasks) || 0) - (Number(p.done_tasks) || 0)),
+          blocked: 0,
+        },
+        milestones: p.milestones || [],
+      }));
+      setProjects(list);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to reload projects');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCreateProject(e) {
+    if (e) e.preventDefault();
+    if (!form.title || !form.title.trim()) {
+      toast.error('Project title is required');
+      return;
+    }
+    setCreating(true);
+    try {
+      // Auto-detect startup_id from logged-in user (Phase 96 decision).
+      // If user is startup persona, default startup_id to their own user.id (which is also their startup_profiles.user_id).
+      // Override allowed if form.startup_id explicitly set.
+      const startup_id = form.startup_id
+        ? parseInt(form.startup_id, 10)
+        : (user?.role === 'startup' ? user.id : null);
+      const payload = {
+        title: form.title.trim(),
+        description: form.description || null,
+        status: form.status || 'active',
+        priority: form.priority || 'medium',
+        start_date: form.start_date || null,
+        end_date: form.end_date || null,
+        budget: form.budget ? parseFloat(form.budget) : null,
+        lead_id: form.lead_id ? parseInt(form.lead_id, 10) : (user?.id || null),
+        startup_id,
+      };
+      await projectAPI.create(payload);
+      toast.success('Project created');
+      setShowCreate(false);
+      setForm(EMPTY_PROJECT);
+      await reloadProjects();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to create project');
+    } finally {
+      setCreating(false);
+    }
+  }
+
   const filteredTasks = allTasks.filter(t => {
     const matchFilter = taskFilter === 'All' || t.status === taskFilter;
     const matchSearch = (t.title || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -128,7 +216,7 @@ export default function ProjectManagement() {
   if (loading) return <LoadingSkeleton type="card" />;
 
   if (view === 'detail' && selected) {
-    return <ProjectDetail project={selected} onBack={() => setView('projects')} tasks={allTasks} />;
+    return <ProjectDetail project={selected} onBack={() => setView('projects')} tasks={allTasks} onTaskCreated={reloadProjects} />;
   }
 
   // Summary aggregates from real data
@@ -161,12 +249,14 @@ export default function ProjectManagement() {
               >{v}</button>
             ))}
           </div>
-          <button style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 16px', background: G, color: '#fff',
-            border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700,
-            boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
-          }}
+          <button
+            onClick={() => { setForm(EMPTY_PROJECT); setShowCreate(true); }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 16px', background: G, color: '#fff',
+              border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700,
+              boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
+            }}
             onMouseEnter={e => e.currentTarget.style.background = GH}
             onMouseLeave={e => e.currentTarget.style.background = G}
           >
@@ -174,6 +264,126 @@ export default function ProjectManagement() {
           </button>
         </div>
       </div>
+
+      {/* Phase 96 - Create Project Modal */}
+      {showCreate && (
+        <div
+          onClick={() => !creating && setShowCreate(false)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+        >
+          <form
+            onClick={e => e.stopPropagation()}
+            onSubmit={handleCreateProject}
+            style={{
+              background: '#fff', borderRadius: 12, padding: 28,
+              width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>New Project</h2>
+              <button
+                type="button"
+                onClick={() => !creating && setShowCreate(false)}
+                disabled={creating}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: creating ? 'not-allowed' : 'pointer', color: '#888', padding: 0, lineHeight: 1 }}
+              >×</button>
+            </div>
+
+            <div style={{ display: 'grid', gap: 14 }}>
+              <Field label="Title *">
+                <input
+                  type="text"
+                  value={form.title}
+                  onChange={e => setForm({ ...form, title: e.target.value })}
+                  required
+                  autoFocus
+                  placeholder="e.g. Q3 Product Launch"
+                  style={inputStyle}
+                />
+              </Field>
+
+              <Field label="Description">
+                <textarea
+                  value={form.description}
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                  rows={3}
+                  placeholder="What is this project about?"
+                  style={{ ...inputStyle, fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </Field>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <Field label="Status">
+                  <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
+                    <option value="active">Active</option>
+                    <option value="on_hold">On Hold</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </Field>
+                <Field label="Priority">
+                  <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })} style={inputStyle}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </Field>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <Field label="Start Date">
+                  <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} style={inputStyle} />
+                </Field>
+                <Field label="End Date">
+                  <input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} style={inputStyle} />
+                </Field>
+              </div>
+
+              <Field label="Budget (in Cr, optional)">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.budget}
+                  onChange={e => setForm({ ...form, budget: e.target.value })}
+                  placeholder="e.g. 5.5"
+                  style={inputStyle}
+                />
+              </Field>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 22 }}>
+              <button
+                type="button"
+                onClick={() => !creating && setShowCreate(false)}
+                disabled={creating}
+                style={{
+                  padding: '9px 18px', borderRadius: 8, border: '1.5px solid #ddd',
+                  background: '#fff', color: '#666', fontSize: 13, fontWeight: 600,
+                  cursor: creating ? 'not-allowed' : 'pointer',
+                }}
+              >Cancel</button>
+              <button
+                type="submit"
+                disabled={creating || !form.title.trim()}
+                style={{
+                  padding: '9px 22px', borderRadius: 8, border: 'none',
+                  background: (creating || !form.title.trim()) ? '#ccc' : G,
+                  color: '#fff', fontSize: 13, fontWeight: 700,
+                  cursor: (creating || !form.title.trim()) ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
+                }}
+              >{creating ? 'Creating…' : 'Create Project'}</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Summary stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
@@ -353,13 +563,83 @@ export default function ProjectManagement() {
   );
 }
 
-function ProjectDetail({ project: p, onBack, tasks: allTasks = [] }) {
+// Phase 96 - shared form helpers for Create Project + Add Task modals
+const inputStyle = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '9px 12px',
+  fontSize: 13,
+  color: '#1a1a1a',
+  background: '#fff',
+  border: '1.5px solid #ddd',
+  borderRadius: 8,
+  outline: 'none',
+};
+
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#666', marginBottom: 5 }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const EMPTY_TASK = {
+  title: '',
+  description: '',
+  status: 'todo',
+  priority: 'medium',
+  due_date: '',
+  assignee_id: '',
+};
+
+function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated }) {
   const [tab, setTab] = useState('overview');
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [taskForm, setTaskForm] = useState(EMPTY_TASK);
+  const [localTasks, setLocalTasks] = useState(null);
+
+  async function handleCreateTask(e) {
+    if (e) e.preventDefault();
+    if (!taskForm.title || !taskForm.title.trim()) {
+      toast.error('Task title is required');
+      return;
+    }
+    setCreatingTask(true);
+    try {
+      const payload = {
+        title: taskForm.title.trim(),
+        description: taskForm.description || null,
+        status: taskForm.status || 'todo',
+        priority: taskForm.priority || 'medium',
+        due_date: taskForm.due_date || null,
+        assignee_id: taskForm.assignee_id ? parseInt(taskForm.assignee_id, 10) : null,
+      };
+      const newTask = await projectAPI.createTask(p.id, payload);
+      toast.success('Task added');
+      setShowAddTask(false);
+      setTaskForm(EMPTY_TASK);
+      // Optimistic update — append to local task list so user sees it immediately
+      setLocalTasks(prev => {
+        const base = prev || projectTasks;
+        return [...base, { ...newTask, status: normalizeTaskStatus(newTask.status), priority: normalizePriority(newTask.priority), due: fmtDate(newTask.due_date) }];
+      });
+      // Also trigger parent reload so the projects list count refreshes
+      if (onTaskCreated) onTaskCreated();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to add task');
+    } finally {
+      setCreatingTask(false);
+    }
+  }
+
   const ss = STATUS_STYLE[p.status] || STATUS_STYLE['Planning'];
   const budgetNum = parseFloat((p.budget || '0').toString().replace(/[₹\sCr,]/g, '')) || 0;
   const spentNum  = parseFloat((p.spent  || '0').toString().replace(/[₹\sCr,]/g, '')) || 0;
   const pctSpent  = budgetNum > 0 ? Math.round((spentNum / budgetNum) * 100) : 0;
-  const projectTasks = p.tasks_list || allTasks.filter(t => t.project === p.name) || [];
+  const projectTasks = localTasks || p.tasks_list || allTasks.filter(t => t.project === p.name) || [];
   const milestones   = p.milestones || [];
 
   const TABS = ['overview', 'tasks', 'milestones', 'financials', 'team'];
@@ -495,10 +775,20 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [] }) {
       {/* Team / Tasks tabs — simplified list */}
       {(tab === 'tasks' || tab === 'team') && (
         <div style={{ ...card, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 22px', borderBottom: '1px solid #eee' }}>
+          <div style={{ padding: '16px 22px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>
               {tab === 'tasks' ? 'Project Tasks' : 'Team Members'}
             </h3>
+            {tab === 'tasks' && (
+              <button
+                onClick={() => { setTaskForm(EMPTY_TASK); setShowAddTask(true); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '6px 12px', background: G, color: '#fff',
+                  border: 'none', borderRadius: 7, cursor: 'pointer', fontSize: 12, fontWeight: 700,
+                }}
+              ><Plus size={12} /> Add Task</button>
+            )}
           </div>
           {tab === 'tasks' && (
             projectTasks.length === 0
@@ -535,6 +825,108 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [] }) {
               {p.team > 1 && <div style={{ color: '#888', fontSize: 12, padding: '12px 0' }}>+ {p.team - 1} more team members</div>}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Phase 96 - Add Task Modal */}
+      {showAddTask && (
+        <div
+          onClick={() => !creatingTask && setShowAddTask(false)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+        >
+          <form
+            onClick={e => e.stopPropagation()}
+            onSubmit={handleCreateTask}
+            style={{
+              background: '#fff', borderRadius: 12, padding: 28,
+              width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>Add Task</h2>
+              <button
+                type="button"
+                onClick={() => !creatingTask && setShowAddTask(false)}
+                disabled={creatingTask}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: creatingTask ? 'not-allowed' : 'pointer', color: '#888', padding: 0, lineHeight: 1 }}
+              >×</button>
+            </div>
+
+            <div style={{ display: 'grid', gap: 14 }}>
+              <Field label="Title *">
+                <input
+                  type="text"
+                  value={taskForm.title}
+                  onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                  required
+                  autoFocus
+                  placeholder="e.g. Wireframes for landing page"
+                  style={inputStyle}
+                />
+              </Field>
+
+              <Field label="Description">
+                <textarea
+                  value={taskForm.description}
+                  onChange={e => setTaskForm({ ...taskForm, description: e.target.value })}
+                  rows={2}
+                  style={{ ...inputStyle, fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </Field>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <Field label="Status">
+                  <select value={taskForm.status} onChange={e => setTaskForm({ ...taskForm, status: e.target.value })} style={inputStyle}>
+                    <option value="todo">Todo</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="review">In Review</option>
+                    <option value="done">Done</option>
+                  </select>
+                </Field>
+                <Field label="Priority">
+                  <select value={taskForm.priority} onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })} style={inputStyle}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </Field>
+              </div>
+
+              <Field label="Due Date">
+                <input type="date" value={taskForm.due_date} onChange={e => setTaskForm({ ...taskForm, due_date: e.target.value })} style={inputStyle} />
+              </Field>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 22 }}>
+              <button
+                type="button"
+                onClick={() => !creatingTask && setShowAddTask(false)}
+                disabled={creatingTask}
+                style={{
+                  padding: '9px 18px', borderRadius: 8, border: '1.5px solid #ddd',
+                  background: '#fff', color: '#666', fontSize: 13, fontWeight: 600,
+                  cursor: creatingTask ? 'not-allowed' : 'pointer',
+                }}
+              >Cancel</button>
+              <button
+                type="submit"
+                disabled={creatingTask || !taskForm.title.trim()}
+                style={{
+                  padding: '9px 22px', borderRadius: 8, border: 'none',
+                  background: (creatingTask || !taskForm.title.trim()) ? '#ccc' : G,
+                  color: '#fff', fontSize: 13, fontWeight: 700,
+                  cursor: (creatingTask || !taskForm.title.trim()) ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
+                }}
+              >{creatingTask ? 'Adding…' : 'Add Task'}</button>
+            </div>
+          </form>
         </div>
       )}
     </div>
