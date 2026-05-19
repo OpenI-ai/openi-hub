@@ -410,6 +410,8 @@ export const corporateAPI = {
   sendInvites:       (cid, data)     => post(`/challenges/${cid}/invites`, data),
   listInvites:       (cid)           => get(`/challenges/${cid}/invites`),
   revokeInvite:      (cid, iid)      => del(`/challenges/${cid}/invites/${iid}`),
+  // Phase 101 Sub-C: remindInvitee — re-send the invite email as a reminder
+  remindInvitee:     (cid, iid, data) => post(`/challenges/${cid}/invites/${iid}/remind`, data || {}),
 };
 
 // ── T32-99c: invite + notification APIs ──────────────────────

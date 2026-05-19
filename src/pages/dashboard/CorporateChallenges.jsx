@@ -664,7 +664,11 @@ export default function CorporateChallenges() {
                   {/* Phase 100: empty-stub hint when invitee accepted but hasn't filled in application */}
                   {!app.pitch && !app.proposal_url && Object.keys(appRfiAnswers).length === 0 && appDataRoom.length === 0 && (
                     <div style={{ padding: 10, marginBottom: 8, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, fontSize: 11, color: '#92400e' }}>
+                      {/* Phase 101 Sub-C: action guidance under empty-stub hint */}
                       <strong>Application empty</strong> — the invitee has accepted but hasn't filled in their pitch, RFI answers, or uploaded documents yet.
+                      <div style={{ marginTop: 4, fontSize: 11, color: '#92400e' }}>
+                        You may still evaluate them based on their startup profile (click the name above), or send them a reminder using the button below.
+                      </div>
                     </div>
                   )}
                   {app.pitch && <p style={{ fontSize: 12, color: '#555', marginBottom: 8, lineHeight: 1.5 }}>{app.pitch}</p>}
@@ -717,6 +721,19 @@ export default function CorporateChallenges() {
                     {app.status === 'shortlisted' && (
                       <button onClick={() => updateAppStatus(app.id, 'selected')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
                         <CheckCircle size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'select')}
+                      </button>
+                    )}
+                    {/* Phase 101 Sub-C: Remind button when application is empty AND has invite_id */}
+                    {app.is_invited && app.invite_id && !app.pitch && !app.proposal_url && Object.keys(appRfiAnswers).length === 0 && appDataRoom.length === 0 && (
+                      <button onClick={async () => {
+                        try {
+                          await corporateAPI.remindInvitee(detail.id, app.invite_id);
+                          toast.success(`Reminder sent to ${app.applicant_name || 'invitee'}`);
+                        } catch (e) {
+                          toast.error(e?.message || 'Reminder failed');
+                        }
+                      }} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        ✉ Remind
                       </button>
                     )}
                     {/* Phase 35: AI Evaluate */}
