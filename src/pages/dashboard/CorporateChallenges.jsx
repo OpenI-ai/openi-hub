@@ -397,6 +397,15 @@ export default function CorporateChallenges() {
               {detail.visibility === 'invite_only' ? 'Invite-only' : detail.visibility === 'draft' ? 'Draft' : detail.visibility === 'private' ? 'Private' : 'Public'}
             </span>
           </div>
+          {/* T32-99e: invite stats row — only render when at least one invite exists */}
+          {(detail.invites_total > 0) && (
+            <div style={{ display: 'flex', gap: 16, padding: '8px 12px', marginBottom: 12, background: '#fafafa', border: '1px solid #eee', borderRadius: 8, fontSize: 12, color: '#555' }}>
+              <span><strong style={{ color: G }}>{detail.invites_total}</strong> Invites Sent</span>
+              <span><strong style={{ color: '#15803d' }}>{detail.invites_accepted || 0}</strong> Accepted</span>
+              <span><strong style={{ color: '#92400e' }}>{detail.invites_pending || 0}</strong> Pending</span>
+              {detail.invites_declined > 0 && <span><strong style={{ color: '#b91c1c' }}>{detail.invites_declined}</strong> Declined</span>}
+            </div>
+          )}
           {detail.description && <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6, marginBottom: 12 }}>{detail.description}</p>}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 12, color: '#666', marginBottom: 12 }}>
             {detail.budget_range && <span><DollarSign size={12} style={{ verticalAlign: -2 }} /> {detail.budget_range}</span>}
