@@ -601,7 +601,6 @@ export default function CorporateChallenges() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <div style={{ flex: 1 }}>
                       {app.applicant_id ? (
-                        {/* Phase 100 hotfix: plural startups route */}
                         <Link to={`/dashboard/startups/${app.applicant_id}`}
                           style={{ fontSize: 14, fontWeight: 600, color: G, textDecoration: 'none', borderBottom: `1px dashed ${G}` }}>
                           {app.startup_name || app.applicant_name}
