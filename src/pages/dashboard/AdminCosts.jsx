@@ -20,6 +20,8 @@ const SERVICE_LABEL = {
 export default function AdminCosts() {
   const [summary, setSummary] = useState({ daily: [], status: [], manual: [] });
   const [alerts, setAlerts] = useState([]);
+  // Phase 102-uptime: uptime state
+  const [uptime, setUptime] = useState({ monitors: [], stats: null });
   const [loading, setLoading] = useState(true);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState({ service: 'railway', month_label: '', cost_usd: '', note: '' });
@@ -27,12 +29,15 @@ export default function AdminCosts() {
   const load = async () => {
     setLoading(true);
     try {
-      const [s, a] = await Promise.all([
+      // Phase 102-uptime: parallel fetch
+      const [s, a, u] = await Promise.all([
         adminAPI.costsSummary(),
         adminAPI.costsAlerts(),
+        adminAPI.uptimeSummary().catch(() => ({ monitors: [], stats: null })),
       ]);
       setSummary(s);
       setAlerts(a.alerts || []);
+      setUptime(u || { monitors: [], stats: null });
     } catch (e) {
       console.error('[admin-costs]', e);
       toast.error('Failed to load costs: ' + (e?.message || 'unknown'));
@@ -128,6 +133,49 @@ export default function AdminCosts() {
               );
             })}
           </div>
+
+          {/* Phase 102-uptime: BetterStack uptime status panel */}
+          <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            Uptime Status
+            {uptime.stats && uptime.stats.total > 0 && (
+              <span style={{ fontSize: 11, fontWeight: 500, color: '#666', marginLeft: 8 }}>
+                {uptime.stats.up}/{uptime.stats.total} up
+                {uptime.stats.avg_uptime_pct != null && ` · avg ${uptime.stats.avg_uptime_pct}% (24h)`}
+              </span>
+            )}
+          </h2>
+          {(!uptime.monitors || uptime.monitors.length === 0) ? (
+            <div style={{ padding: 24, color: '#999', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>
+              No uptime data yet. Hourly poll runs at the top of each hour; BetterStack token must be set in Railway env (BETTERSTACK_API_TOKEN).
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 28 }}>
+              {uptime.monitors.map(m => {
+                const isUp = m.status === 'up';
+                const isDown = m.status === 'down';
+                const isPaused = m.status === 'paused';
+                const bg = isDown ? '#fef2f2' : isPaused ? '#f3f4f6' : '#fff';
+                const border = isDown ? '#fecaca' : isPaused ? '#d1d5db' : '#e5e7eb';
+                const dot = isUp ? '#16a34a' : isDown ? '#dc2626' : isPaused ? '#9ca3af' : '#f59e0b';
+                return (
+                  <div key={m.monitor_id} style={{ background: bg, border: `1.5px solid ${border}`, borderRadius: 12, padding: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: '50%', background: dot, flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#333', textTransform: 'uppercase' }}>{m.status}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#555', wordBreak: 'break-all', marginBottom: 6 }}>{m.monitor_url}</div>
+                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#666' }}>
+                      <span><strong>{m.uptime_pct_24h != null ? Number(m.uptime_pct_24h).toFixed(2) + '%' : '—'}</strong> 24h</span>
+                      {m.response_time_avg_ms != null && <span><strong>{m.response_time_avg_ms}ms</strong> p95</span>}
+                      {Number(m.incidents_count_24h) > 0 && (
+                        <span style={{ color: '#dc2626' }}><strong>{m.incidents_count_24h}</strong> incidents</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* ── 30-day trend charts (per service) ───────────────────────── */}
           <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333' }}>30-Day Trend</h2>
