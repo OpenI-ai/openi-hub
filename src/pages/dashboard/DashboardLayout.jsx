@@ -12,7 +12,7 @@ import {
   Star, Zap, Calendar, UserCheck, ThumbsUp, Link2,
   Search, User, CalendarCheck, TrendingUp, Landmark,
   FlaskConical, Home, Target, Link, Map, Sparkles, Briefcase, Clock,
-  BarChart3, Megaphone, CreditCard, BadgeCheck,
+  BarChart3, Megaphone, CreditCard, BadgeCheck, DollarSign,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS, SECONDARY_NAV } from "../../config/personas";
 import SearchBar from "../../components/SearchBar";
@@ -61,6 +61,8 @@ const NAV = [
   { to: "/dashboard/admin/startups",  label: "Startup Data",   Icon: Building2,       roles: ["admin"] },
   { to: "/dashboard/admin/licenses",  label: "Licenses",       Icon: CreditCard,      roles: ["admin"] },
   { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"] },
+  /* Phase 102-3: admin cost dashboard nav entry */
+  { to: "/dashboard/admin/costs",     label: "Service Costs",  Icon: DollarSign,      roles: ["admin"] },
   // ── Legacy admin + shared items ──
   { to: "/dashboard/evaluate",       label: "8-Vector Eval",    Icon: ClipboardCheck,  roles: ["admin","evaluator"] },
   { to: "/dashboard/startups",       label: "Startups",         Icon: Rocket },

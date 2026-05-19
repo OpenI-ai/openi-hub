@@ -852,4 +852,9 @@ export const adminAPI = {
   clusterBoostImpact:       (windowDays = 30) => get(`/admin/clusters/boost-impact?window_days=${windowDays}`),
   // s36: click-through analytics (per_persona CTR + top startups + top clusters + lift effect)
   clusterClickImpact:       (windowDays = 30) => get(`/admin/clusters/click-impact?window_days=${windowDays}`),
+  // Phase 102-3: admin cost dashboard
+  costsSummary:             ()              => get('/admin/costs/summary'),
+  costsAlerts:              ()              => get('/admin/costs/alerts'),
+  costsManual:              (data)          => post('/admin/costs/manual', data),
+  costsClearAlert:          (id)            => del(`/admin/costs/alerts/${id}`),
 };
