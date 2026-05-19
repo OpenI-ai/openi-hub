@@ -93,6 +93,8 @@ const WORKSPACE_ITEMS = {
   events:    { to: '/dashboard/events',     label: 'Events',       icon: 'Calendar' },
   knowledge: { to: '/dashboard/knowledge',  label: 'Knowledge',    icon: 'BookOpen' },
   documents: { to: '/dashboard/documents',  label: 'Documents',    icon: 'FolderOpen' },
+  // T32-99c: challenge invites workspace item — visible for every persona
+  invites:   { to: '/dashboard/challenge-invites', label: 'My Invites', icon: 'Inbox' },
 };
 const DEFAULT_WORKSPACE_KEYS = Object.keys(WORKSPACE_ITEMS);
 

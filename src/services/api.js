@@ -406,6 +406,24 @@ export const corporateAPI = {
   updateEvaluation:  (id, data)      => put(`/corporate/evaluations/${id}`, data),
   aiAdvisor:         (data)          => post('/corporate/challenges/ai-advisor', data),
   aiAnalyze:         (challengeId)   => post(`/corporate/challenges/${challengeId}/ai-analyze`),
+  // T32-99c: corporate-side invite ops
+  sendInvites:       (cid, data)     => post(`/challenges/${cid}/invites`, data),
+  listInvites:       (cid)           => get(`/challenges/${cid}/invites`),
+  revokeInvite:      (cid, iid)      => del(`/challenges/${cid}/invites/${iid}`),
+};
+
+// ── T32-99c: invite + notification APIs ──────────────────────
+export const inviteAPI = {
+  myInvites: (status)   => get(`/my/challenge-invites${status ? `?status=${status}` : ''}`),
+  accept:    (id)       => post(`/challenge-invites/${id}/accept`),
+  decline:   (id)       => post(`/challenge-invites/${id}/decline`),
+};
+
+export const notificationAPI = {
+  list:        ()        => get('/my/notifications'),
+  unreadCount: ()        => get('/my/notifications/unread-count'),
+  markRead:    (id)      => post(`/my/notifications/${id}/read`),
+  markAllRead: ()        => post('/my/notifications/mark-all-read'),
 };
 
 // ── Investor Features ─────────────────────────────────────────

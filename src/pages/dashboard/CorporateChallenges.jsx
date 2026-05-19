@@ -792,9 +792,10 @@ export default function CorporateChallenges() {
                 </div>
               </div>
               <div style={{ flex: 1 }}>
+                {/* T32-99c: 3-way visibility toggle (public / invite_only / draft) — values match backend CHECK constraint */}
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Visibility</label>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {[{ key: 'public', label: 'Public' }, { key: 'private', label: 'Private' }].map(v => (
+                  {[{ key: 'public', label: 'Public' }, { key: 'invite_only', label: 'Invite-only' }, { key: 'draft', label: 'Draft' }].map(v => (
                     <button key={v.key} type="button" onClick={() => setForm(f => ({ ...f, visibility: v.key }))}
                       style={{ flex: 1, padding: '6px 10px', fontSize: 11, fontWeight: 600, borderRadius: 8, border: `1.5px solid ${form.visibility === v.key ? G : '#eee'}`, background: form.visibility === v.key ? `${G}10` : '#fff', color: form.visibility === v.key ? G : '#888', cursor: 'pointer' }}>
                       {v.label}

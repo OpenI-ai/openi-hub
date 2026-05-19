@@ -75,6 +75,8 @@ import LabEquipment         from './pages/dashboard/LabEquipment';
 import LabPublications      from './pages/dashboard/LabPublications';
 import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
+// T32-99c: ChallengeInvites import
+import ChallengeInvites     from './pages/dashboard/ChallengeInvites';
 import FeatureMap           from './pages/dashboard/FeatureMap';
 // s48 — lazy-loaded so recharts (~121 KB gz) is only fetched
 // when user navigates to one of these admin/portfolio surfaces.
@@ -272,6 +274,8 @@ export default function App() {
             <Route path="accelerator/recommended-startups" element={<AcceleratorRecommendedStartups />} />
             <Route path="onboarding"         element={<Onboarding />} />
             <Route path="whats-new"          element={<WhatsNew />} />
+            {/* T32-99c: ChallengeInvites route */}
+            <Route path="challenge-invites"  element={<ChallengeInvites />} />
             <Route path="features"           element={<FeatureMap />} />
             <Route path="admin/analytics"    element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
             <Route path="admin/console"      element={<AdminRoute><AdminConsole /></AdminRoute>} />
