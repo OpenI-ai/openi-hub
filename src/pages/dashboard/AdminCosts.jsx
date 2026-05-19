@@ -22,6 +22,8 @@ export default function AdminCosts() {
   const [alerts, setAlerts] = useState([]);
   // Phase 102-uptime: uptime state
   const [uptime, setUptime] = useState({ monitors: [], stats: null });
+  // Phase 102-sentry: errors state
+  const [errors, setErrors] = useState({ issues: [], stats: null });
   const [loading, setLoading] = useState(true);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState({ service: 'railway', month_label: '', cost_usd: '', note: '' });
@@ -29,15 +31,17 @@ export default function AdminCosts() {
   const load = async () => {
     setLoading(true);
     try {
-      // Phase 102-uptime: parallel fetch
-      const [s, a, u] = await Promise.all([
+      // Phase 102-sentry: parallel fetch (added errorsSummary)
+      const [s, a, u, e] = await Promise.all([
         adminAPI.costsSummary(),
         adminAPI.costsAlerts(),
         adminAPI.uptimeSummary().catch(() => ({ monitors: [], stats: null })),
+        adminAPI.errorsSummary().catch(() => ({ issues: [], stats: null })),
       ]);
       setSummary(s);
       setAlerts(a.alerts || []);
       setUptime(u || { monitors: [], stats: null });
+      setErrors(e || { issues: [], stats: null });
     } catch (e) {
       console.error('[admin-costs]', e);
       toast.error('Failed to load costs: ' + (e?.message || 'unknown'));
@@ -174,6 +178,75 @@ export default function AdminCosts() {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Phase 102-sentry: Recent Errors panel */}
+          <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            Recent Errors (Sentry)
+            {errors.stats && errors.stats.total > 0 && (
+              <span style={{ fontSize: 11, fontWeight: 500, color: '#666', marginLeft: 8 }}>
+                {errors.stats.total} unresolved
+                {errors.stats.total_event_count > 0 && ` · ${errors.stats.total_event_count.toLocaleString()} events`}
+              </span>
+            )}
+          </h2>
+          {(!errors.issues || errors.issues.length === 0) ? (
+            <div style={{ padding: 24, color: '#16a34a', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
+              ✓ No unresolved errors in the last 24h.
+            </div>
+          ) : (
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr style={{ background: '#fafafa', borderBottom: '1px solid #eee' }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>ID</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Project</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Title</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Level</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: '#666' }}>Events</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: '#666' }}>Users</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Last seen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {errors.issues.slice(0, 15).map(i => {
+                    const levelColors = {
+                      fatal: { bg: '#fecaca', fg: '#991b1b' },
+                      error: { bg: '#fee2e2', fg: '#dc2626' },
+                      warning: { bg: '#fef3c7', fg: '#92400e' },
+                      info: { bg: '#eff6ff', fg: '#1e40af' },
+                      debug: { bg: '#f3f4f6', fg: '#6b7280' },
+                    };
+                    const lc = levelColors[i.level] || levelColors.error;
+                    const projectBadge = (i.project_slug || '').replace('openi-hub-', '');
+                    return (
+                      <tr key={`${i.project_slug}-${i.short_id}`} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                        <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 11, fontWeight: 600 }}>
+                          {i.permalink ? (
+                            <a href={i.permalink} target="_blank" rel="noreferrer" style={{ color: G, textDecoration: 'none', borderBottom: `1px dashed ${G}` }}>
+                              {i.short_id}
+                            </a>
+                          ) : i.short_id}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, background: '#f3f4f6', color: '#4b5563', fontWeight: 600 }}>{projectBadge}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', maxWidth: 320, color: '#333', wordBreak: 'break-word' }}>
+                          <div style={{ fontWeight: 600 }}>{i.title}</div>
+                          {i.culprit && <div style={{ fontSize: 10, color: '#888', fontFamily: 'monospace', marginTop: 2 }}>{i.culprit}</div>}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 10, background: lc.bg, color: lc.fg, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>{i.level}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{Number(i.event_count || 0).toLocaleString()}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}>{Number(i.user_count || 0)}</td>
+                        <td style={{ padding: '10px 12px', color: '#888', fontSize: 11 }}>{i.last_seen ? new Date(i.last_seen).toLocaleString() : '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 

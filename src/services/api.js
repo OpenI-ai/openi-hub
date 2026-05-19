@@ -859,4 +859,6 @@ export const adminAPI = {
   costsClearAlert:          (id)            => del(`/admin/costs/alerts/${id}`),
   // Phase 102-uptime: BetterStack uptime summary
   uptimeSummary:            ()              => get('/admin/uptime/summary'),
+  // Phase 102-sentry: Sentry errors summary
+  errorsSummary:            ()              => get('/admin/errors/summary'),
 };
