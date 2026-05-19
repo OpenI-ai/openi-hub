@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { corporateAPI } from '../../services/api';
+// T32-99d: meetingAPI for invitee typeahead
+import { corporateAPI, meetingAPI } from '../../services/api';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
@@ -7,6 +8,8 @@ import {
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
   MapPin, FileText, HelpCircle, Trash2, ChevronDown, ChevronUp,
   X, Search, Download, Sparkles, Brain, BarChart3, Zap,
+  // T32-99d: invite icons
+  Inbox, Send, UserPlus,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -122,6 +125,15 @@ export default function CorporateChallenges() {
   const [analysisData, setAnalysisData] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  // T32-99d: invite modal state
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteSearch, setInviteSearch] = useState('');
+  const [inviteResults, setInviteResults] = useState([]);
+  const [inviteSelected, setInviteSelected] = useState([]);
+  const [inviteMessage, setInviteMessage] = useState('');
+  const [inviteList, setInviteList] = useState([]);
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const inviteSeqRef = useRef(0);
 
   useEffect(() => { load(); loadTaxonomy(); }, []);
   useEffect(() => { load(); }, [filters]);
@@ -324,6 +336,19 @@ export default function CorporateChallenges() {
                 style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
                 Edit
               </button>
+              {/* T32-99d: Invite Startups button — visible on ALL challenges (public can curate too) */}
+              {(
+                <button onClick={async () => {
+                  setShowInvite(true);
+                  try {
+                    const r = await corporateAPI.listInvites(detail.id);
+                    setInviteList(r.invites || []);
+                  } catch (e) { console.error('[invites] list failed:', e); }
+                }}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <UserPlus size={12} /> Invite Startups
+                </button>
+              )}
               <button onClick={deleteChallenge}
                 title="Delete challenge"
                 style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: '#fff', color: '#c43c3c', border: '1px solid #c43c3c40', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -670,6 +695,167 @@ export default function CorporateChallenges() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* T32-99d: Invite Startups modal */}
+        {showInvite && (
+          <div role="dialog" aria-modal="true"
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 14, padding: 24, maxWidth: 640, width: '100%', maxHeight: '85vh', overflow: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#111' }}>Invite Startups</h3>
+                  <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>Pick startups to invite. They will see this challenge on their My Invites page.</p>
+                </div>
+                <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); }}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>
+                  <X size={20} color="#666" />
+                </button>
+              </div>
+
+              {/* Typeahead search */}
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Search startups</label>
+              <input type="text" autoFocus value={inviteSearch}
+                onChange={async (e) => {
+                  const q = e.target.value;
+                  setInviteSearch(q);
+                  if (q.trim().length < 2) { setInviteResults([]); return; }
+                  const mySeq = ++inviteSeqRef.current;
+                  try {
+                    const r = await meetingAPI.searchUsers(q);
+                    if (mySeq !== inviteSeqRef.current) return;
+                    const startups = (r.users || []).filter(u => u.role === 'startup');
+                    const selectedIds = new Set(inviteSelected.map(s => s.id));
+                    const alreadyInvited = new Set(inviteList.map(i => i.invited_user_id));
+                    setInviteResults(startups.filter(u => !selectedIds.has(u.id) && !alreadyInvited.has(u.id)));
+                  } catch (err) { console.error('[invite-search]', err); }
+                }}
+                placeholder="Type at least 2 characters (name, email, or org)"
+                style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', marginBottom: 8 }} />
+
+              {/* Results */}
+              {inviteResults.length > 0 && (
+                <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, maxHeight: 180, overflow: 'auto', marginBottom: 12 }}>
+                  {inviteResults.map(u => (
+                    <div key={u.id}
+                      onClick={() => {
+                        setInviteSelected(prev => [...prev, u]);
+                        setInviteResults(prev => prev.filter(x => x.id !== u.id));
+                      }}
+                      style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}
+                      onMouseDown={e => e.preventDefault()}
+                      onMouseEnter={e => e.currentTarget.style.background = '#fef9e8'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                      <span><strong>{u.name}</strong>{u.organization_name && <span style={{ color: '#888' }}> · {u.organization_name}</span>}</span>
+                      <Plus size={14} color={G} />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {inviteSearch.trim().length >= 2 && inviteResults.length === 0 && (
+                <p style={{ fontSize: 12, color: '#999', marginBottom: 12, fontStyle: 'italic' }}>No matching startups found.</p>
+              )}
+
+              {/* Selected chips */}
+              {inviteSelected.length > 0 && (
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 6 }}>Selected ({inviteSelected.length})</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {inviteSelected.map(u => (
+                      <span key={u.id}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', fontSize: 12, borderRadius: 20, background: `${G}15`, color: '#5a4715', border: `1px solid ${G}` }}>
+                        {u.name}
+                        <button type="button" onClick={() => setInviteSelected(prev => prev.filter(x => x.id !== u.id))}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 2 }}>
+                          <X size={12} color="#5a4715" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Message field */}
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
+              <textarea value={inviteMessage}
+                onChange={(e) => setInviteMessage(e.target.value)}
+                placeholder="Add context for the invitee — what excites you about this challenge for them?"
+                rows={3}
+                style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', marginBottom: 16 }} />
+
+              {/* Send + Cancel */}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginBottom: 20 }}>
+                <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); }}
+                  style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', color: '#666', border: '1.5px solid #ccc', borderRadius: 8, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button disabled={inviteBusy || inviteSelected.length === 0}
+                  onClick={async () => {
+                    setInviteBusy(true);
+                    try {
+                      const r = await corporateAPI.sendInvites(detail.id, {
+                        user_ids: inviteSelected.map(u => u.id),
+                        message: inviteMessage.trim() || undefined,
+                      });
+                      toast.success(`${r.created} invite(s) sent${r.skipped_existing ? ` (${r.skipped_existing} already invited)` : ''}`);
+                      setInviteSelected([]); setInviteMessage(''); setInviteSearch(''); setInviteResults([]);
+                      const list = await corporateAPI.listInvites(detail.id);
+                      setInviteList(list.invites || []);
+                    } catch (err) {
+                      console.error('[send-invites]', err);
+                      toast.error(err?.message || 'Failed to send invites');
+                    } finally {
+                      setInviteBusy(false);
+                    }
+                  }}
+                  style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: inviteSelected.length === 0 || inviteBusy ? '#ccc' : G, color: '#fff', border: 'none', borderRadius: 8, cursor: inviteSelected.length === 0 || inviteBusy ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Send size={14} /> Send Invites
+                </button>
+              </div>
+
+              {/* Existing invites */}
+              <div style={{ borderTop: '1px solid #eee', paddingTop: 14 }}>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: '#333', margin: '0 0 10px' }}>Invited ({inviteList.length})</h4>
+                {inviteList.length === 0 ? (
+                  <p style={{ fontSize: 12, color: '#999', fontStyle: 'italic', margin: 0 }}>No invites sent yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {inviteList.map(inv => {
+                      const colors = inv.status === 'pending' ? { bg: '#fef3c7', fg: '#92400e' }
+                        : inv.status === 'accepted' ? { bg: '#dcfce7', fg: '#15803d' }
+                        : inv.status === 'declined' ? { bg: '#fee2e2', fg: '#b91c1c' }
+                        : { bg: '#f3f4f6', fg: '#6b7280' };
+                      return (
+                        <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#fafafa', borderRadius: 8, fontSize: 12 }}>
+                          <div>
+                            <strong>{inv.invitee_name}</strong>
+                            {inv.invitee_org && <span style={{ color: '#888' }}> · {inv.invitee_org}</span>}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ padding: '2px 8px', borderRadius: 12, background: colors.bg, color: colors.fg, fontSize: 11, fontWeight: 600 }}>{inv.status}</span>
+                            {inv.status === 'pending' && (
+                              <button onClick={async () => {
+                                if (!window.confirm(`Revoke invite for ${inv.invitee_name}?`)) return;
+                                try {
+                                  await corporateAPI.revokeInvite(detail.id, inv.id);
+                                  const list = await corporateAPI.listInvites(detail.id);
+                                  setInviteList(list.invites || []);
+                                  toast.success('Invite revoked');
+                                } catch (err) { toast.error(err?.message || 'Failed'); }
+                              }}
+                                style={{ padding: '3px 8px', fontSize: 11, fontWeight: 600, background: 'transparent', color: '#c43c3c', border: '1px solid #c43c3c40', borderRadius: 6, cursor: 'pointer' }}>
+                                Revoke
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
