@@ -166,7 +166,8 @@ export default function CorporateChallenges() {
       await corporateAPI.createChallenge(form);
       toast.success('Challenge created');
       setShowCreate(false);
-      setForm({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open' });
+      // T32-99c-hotfix: post-create form reset keeps all fields including visibility + challenge_type
+      setForm({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' });
       load();
     } catch (err) { toast.error(err.message); }
     finally { setSaving(false); }
@@ -221,6 +222,7 @@ export default function CorporateChallenges() {
   const startEdit = () => {
     const rfi = (() => { try { return typeof detail.rfi_questions === 'string' ? JSON.parse(detail.rfi_questions) : (detail.rfi_questions || []); } catch { return []; } })();
     const fq = (() => { try { return typeof detail.faqs === 'string' ? JSON.parse(detail.faqs) : (detail.faqs || []); } catch { return []; } })();
+    // T32-99c-hotfix: include visibility + challenge_type so Edit doesn't lose them
     setForm({
       title: detail.title || '', description: detail.description || '', budget_range: detail.budget_range || '',
       timeline: detail.timeline || '', deadline: detail.deadline ? detail.deadline.split('T')[0] : '',
@@ -229,6 +231,7 @@ export default function CorporateChallenges() {
       problem_statement: detail.problem_statement || '', location: detail.location || '',
       min_profile_pct: detail.min_profile_pct || 25, data_room_required: detail.data_room_required || false,
       rfi_questions: rfi, faqs: fq, status: detail.status || 'open',
+      visibility: detail.visibility || 'public', challenge_type: detail.challenge_type || 'partner',
     });
     setEditMode(true);
     setShowCreate(true);
@@ -282,7 +285,10 @@ export default function CorporateChallenges() {
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
 
   // Detail view
-  if (selected && detail) {
+  // T32-99c-hotfix2: edit modal falls through detail-view early return
+  // When showCreate is true (Edit clicked), let function continue to main
+  // return where the modal lives. Otherwise modal would never render.
+  if (selected && detail && !showCreate) {
     const st = STATUS_STYLE[detail.status] || STATUS_STYLE.open;
     const rfiQuestions = (() => { try { return typeof detail.rfi_questions === 'string' ? JSON.parse(detail.rfi_questions) : (detail.rfi_questions || []); } catch { return []; } })();
     const faqs = (() => { try { return typeof detail.faqs === 'string' ? JSON.parse(detail.faqs) : (detail.faqs || []); } catch { return []; } })();
@@ -360,9 +366,10 @@ export default function CorporateChallenges() {
               </span>
             )}
             <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-              background: detail.visibility === 'private' ? '#fef2f2' : '#f0fdf4',
-              color: detail.visibility === 'private' ? '#dc2626' : '#16a34a' }}>
-              {detail.visibility === 'private' ? 'Private' : 'Public'}
+              // T32-99c-hotfix: visibility badge supports public / invite_only / draft (legacy: private)
+              background: (detail.visibility === 'invite_only' || detail.visibility === 'private') ? '#fef3c7' : detail.visibility === 'draft' ? '#f3f4f6' : '#f0fdf4',
+              color:      (detail.visibility === 'invite_only' || detail.visibility === 'private') ? '#92400e' : detail.visibility === 'draft' ? '#6b7280' : '#16a34a' }}>
+              {detail.visibility === 'invite_only' ? 'Invite-only' : detail.visibility === 'draft' ? 'Draft' : detail.visibility === 'private' ? 'Private' : 'Public'}
             </span>
           </div>
           {detail.description && <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6, marginBottom: 12 }}>{detail.description}</p>}
@@ -1046,7 +1053,9 @@ export default function CorporateChallenges() {
                         {ch.challenge_type === 'partner' ? 'Partner' : ch.challenge_type === 'source' ? 'Source' : 'Invest'}
                       </span>
                     )}
-                    {ch.visibility === 'private' && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#fef2f2', color: '#dc2626' }}>Private</span>}
+                    {/* T32-99c-hotfix: list badge */}
+                    {(ch.visibility === 'invite_only' || ch.visibility === 'private') && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>Invite-only</span>}
+                    {ch.visibility === 'draft' && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#f3f4f6', color: '#6b7280' }}>Draft</span>}
                     <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
                 </div>
