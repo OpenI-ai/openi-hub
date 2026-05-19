@@ -19,6 +19,15 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     replaysSessionSampleRate: 0.0,
     replaysOnErrorSampleRate: 1.0,
     sendDefaultPii: false,
+    // Phase 102: filter noise from api.js defensive .json().catch()
+    // The shared request() wrapper uses `await res.json().catch(() => ({}))`
+    // to gracefully handle empty/204 responses. Sentry's auto-instrumentation
+    // captures the underlying SyntaxError BEFORE our catch swallows it,
+    // producing noise issues that never affect users.
+    ignoreErrors: [
+      /Unexpected end of JSON input/,
+      /Failed to execute 'json' on 'Response'/,
+    ],
   });
 }
 
