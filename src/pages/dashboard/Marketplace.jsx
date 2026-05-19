@@ -520,7 +520,18 @@ export default function Marketplace() {
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Building2 size={18} style={{ color: '#bbb' }} /></div>
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: '0 0 4px', lineHeight: 1.3 }}>{ch.title}</h3>
+                      {/* Phase 101 Sub-E: Invited chip on marketplace card — gold pill next to title */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>{ch.title}</h3>
+                        {ch.visibility === 'invite_only' && (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12,
+                            background: `${G}20`, color: '#5a4715', border: `1px solid ${G}`,
+                          }} title="You were invited to this private challenge">
+                            ★ Invited
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
                         {ch.company_name || ch.corporate_name || ch.organization_name}
                         {ch.location && <span style={{ marginLeft: 8 }}><MapPin size={10} style={{ verticalAlign: -2 }} /> {ch.location}</span>}
