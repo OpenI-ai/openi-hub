@@ -600,14 +600,26 @@ export default function CorporateChallenges() {
                   {/* Phase 100: clickable name + investor financials + empty-stub hint */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <div style={{ flex: 1 }}>
-                      {app.applicant_id ? (
-                        <Link to={`/dashboard/startup-profile/${app.applicant_id}?by=user_id`}
-                          style={{ fontSize: 14, fontWeight: 600, color: G, textDecoration: 'none', borderBottom: `1px dashed ${G}` }}>
-                          {app.startup_name || app.applicant_name}
-                        </Link>
-                      ) : (
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{app.startup_name || app.applicant_name}</span>
-                      )}
+                      {/* Phase 101: Invited chip on application card — gold pill next to name */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        {app.applicant_id ? (
+                          <Link to={`/dashboard/startup-profile/${app.applicant_id}?by=user_id`}
+                            style={{ fontSize: 14, fontWeight: 600, color: G, textDecoration: 'none', borderBottom: `1px dashed ${G}` }}>
+                            {app.startup_name || app.applicant_name}
+                          </Link>
+                        ) : (
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{app.startup_name || app.applicant_name}</span>
+                        )}
+                        {app.is_invited && (
+                          <span style={{
+                            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 12,
+                            background: `${G}20`, color: '#5a4715', border: `1px solid ${G}`,
+                            display: 'inline-flex', alignItems: 'center', gap: 3,
+                          }} title={app.invite_status ? `Invite status: ${app.invite_status}` : 'Invited by your team'}>
+                            ★ Invited
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 11, color: '#888' }}>
                         {app.applicant_email} {app.sector ? `| ${app.sector}` : ''} {app.stage ? `| ${app.stage}` : ''}
                         {app.profile_pct != null && <span style={{ marginLeft: 8, color: '#16a34a' }}>Profile: {app.profile_pct}%</span>}
