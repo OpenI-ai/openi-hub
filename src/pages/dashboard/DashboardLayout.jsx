@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink, Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { connectionAPI, whatsNewAPI } from "../../services/api";
+// Phase 101 Sub-D: notificationAPI for live notification bell
+import { connectionAPI, whatsNewAPI, notificationAPI } from "../../services/api";
 import {
   LayoutDashboard, Rocket, ClipboardCheck, BookOpen,
   Shield, Settings, LogOut, Menu, X,
@@ -113,6 +114,30 @@ export default function DashboardLayout() {
   // Fetch pending connection requests count
   useEffect(() => {
     connectionAPI.stats().then(d => setPendingConns(d.pending_incoming || 0)).catch(() => {});
+  }, []);
+
+  // Phase 101 Sub-D: load notifications on mount + refresh every 60s
+  // Backend returns {id, kind, title, body, link, related_id, read_at, created_at}.
+  // Normalize `read` from `read_at` so the existing unreadCount filter still works.
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      notificationAPI.list()
+        .then((data) => {
+          if (cancelled) return;
+          const rows = (data?.notifications || []).map(n => ({
+            ...n,
+            read: !!n.read_at,
+            message: n.body || n.title,
+            time: n.created_at,
+          }));
+          setNotifications(rows);
+        })
+        .catch(() => { /* keep stale list on transient failure */ });
+    };
+    load();
+    const id = setInterval(load, 60000);
+    return () => { cancelled = true; clearInterval(id); };
   }, []);
 
   // Phase 60.3 (s50): nav filtering keyed on activeRole, NOT primary role.
@@ -511,22 +536,47 @@ export default function DashboardLayout() {
                       display:"flex", alignItems:"center", justifyContent:"space-between",
                     }}>
                       <span style={{ fontSize:14, fontWeight:700, color:"#1a1a1a" }}>Notifications</span>
-                      {unreadCount > 0 && (
-                        <span style={{
-                          fontSize:10, fontWeight:600, padding:"2px 8px",
-                          background:C.goldLight, color:C.gold, borderRadius:20,
-                        }}>
-                          {unreadCount} new
-                        </span>
-                      )}
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        {unreadCount > 0 && (
+                          <>
+                            <span style={{
+                              fontSize:10, fontWeight:600, padding:"2px 8px",
+                              background:C.goldLight, color:C.gold, borderRadius:20,
+                            }}>
+                              {unreadCount} new
+                            </span>
+                            {/* Phase 101 Sub-D: Mark all as read link */}
+                            <button onClick={async () => {
+                              try { await notificationAPI.markAllRead(); } catch (e) { /* non-fatal */ }
+                              setNotifications(prev => prev.map(x => ({...x, read: true, read_at: x.read_at || new Date().toISOString()})));
+                            }} style={{ fontSize:10, color:"#666", background:"transparent", border:"none", cursor:"pointer", textDecoration:"underline" }}>
+                              Mark all read
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
+                    {/* Phase 101 Sub-D: mark-read on row click + navigate to link */}
+                    {notifications.length === 0 && (
+                      <div style={{ padding:"24px 16px", textAlign:"center", fontSize:12, color:"#999" }}>
+                        No notifications yet.
+                      </div>
+                    )}
                     {notifications.map(n => (
                       <div
                         key={n.id}
+                        onClick={async () => {
+                          try {
+                            if (!n.read) await notificationAPI.markRead(n.id);
+                            setNotifications(prev => prev.map(x => x.id === n.id ? {...x, read: true, read_at: x.read_at || new Date().toISOString()} : x));
+                          } catch (e) { /* non-fatal */ }
+                          if (n.link) { setNotifOpen(false); navigate(n.link); }
+                        }}
                         style={{
                           padding:"12px 16px",
                           display:"flex", alignItems:"flex-start", gap:10,
                           borderBottom:"1px solid #f5f5f5",
+                          cursor: n.link ? "pointer" : "default",
                           background: n.read ? "transparent" : "#fffdf7",
                           cursor:"pointer", transition:"background 0.15s",
                         }}
