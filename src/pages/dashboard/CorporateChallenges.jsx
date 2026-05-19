@@ -1,4 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+// Phase 100: Link + per-persona labels + AuthContext
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { getStatusLabel, getActionLabel } from '../../config/applicationStatusLabels';
 // T32-99d: meetingAPI for invitee typeahead
 import { corporateAPI, meetingAPI } from '../../services/api';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
@@ -134,6 +138,9 @@ export default function CorporateChallenges() {
   const [inviteList, setInviteList] = useState([]);
   const [inviteBusy, setInviteBusy] = useState(false);
   const inviteSeqRef = useRef(0);
+  // Phase 100: persona for label mapping + investor financial fields gate
+  const { user } = useAuth();
+  const persona = user?.role || 'corporate';
 
   useEffect(() => { load(); loadTaxonomy(); }, []);
   useEffect(() => { load(); }, [filters]);
@@ -582,19 +589,54 @@ export default function CorporateChallenges() {
         ) : (!showAnalysis) && (
           <div style={{ display: 'grid', gap: 10 }}>
             {(detail.applications || []).map(app => {
-              const as = APP_STATUS[app.status] || APP_STATUS.applied;
+              /* Phase 100: badge uses persona label */
+              const personaLabel = getStatusLabel(persona, app.status);
+              const as = { label: personaLabel.label, color: personaLabel.color, bg: personaLabel.bg };
               const appRfiAnswers = (() => { try { return typeof app.rfi_answers === 'string' ? JSON.parse(app.rfi_answers) : (app.rfi_answers || {}); } catch { return {}; } })();
               const appDataRoom = (() => { try { return typeof app.data_room === 'string' ? JSON.parse(app.data_room) : (app.data_room || []); } catch { return []; } })();
 
               return (
                 <div key={app.id} style={{ ...card, padding: 16 }}>
+                  {/* Phase 100: clickable name + investor financials + empty-stub hint */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{app.startup_name || app.applicant_name}</div>
+                    <div style={{ flex: 1 }}>
+                      {app.applicant_id ? (
+                        <Link to={`/dashboard/startup/${app.applicant_id}`}
+                          style={{ fontSize: 14, fontWeight: 600, color: G, textDecoration: 'none', borderBottom: `1px dashed ${G}` }}>
+                          {app.startup_name || app.applicant_name}
+                        </Link>
+                      ) : (
+                        <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{app.startup_name || app.applicant_name}</span>
+                      )}
                       <div style={{ fontSize: 11, color: '#888' }}>
                         {app.applicant_email} {app.sector ? `| ${app.sector}` : ''} {app.stage ? `| ${app.stage}` : ''}
                         {app.profile_pct != null && <span style={{ marginLeft: 8, color: '#16a34a' }}>Profile: {app.profile_pct}%</span>}
                       </div>
+                      {/* Phase 100: investor-only financial chips */}
+                      {persona === 'investor' && (app.funding_raised || app.traction_score || app.revenue_range || app.employee_range) && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                          {app.funding_raised > 0 && (
+                            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#fefce8', color: '#854d0e' }}>
+                              Raised: {app.funding_raised_currency || ''} {app.funding_raised} {app.funding_raised_unit || ''}
+                            </span>
+                          )}
+                          {app.traction_score > 0 && (
+                            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#f0fdf4', color: '#15803d' }}>
+                              Traction: {app.traction_score}/100
+                            </span>
+                          )}
+                          {app.revenue_range && (
+                            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#eff6ff', color: '#1e40af' }}>
+                              Revenue: {app.revenue_range}
+                            </span>
+                          )}
+                          {app.employee_range && (
+                            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#f3f4f6', color: '#4b5563' }}>
+                              Team: {app.employee_range}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: as.bg, color: as.color }}>{as.label}</span>
@@ -607,6 +649,12 @@ export default function CorporateChallenges() {
                       </div>
                     </div>
                   </div>
+                  {/* Phase 100: empty-stub hint when invitee accepted but hasn't filled in application */}
+                  {!app.pitch && !app.proposal_url && Object.keys(appRfiAnswers).length === 0 && appDataRoom.length === 0 && (
+                    <div style={{ padding: 10, marginBottom: 8, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, fontSize: 11, color: '#92400e' }}>
+                      <strong>Application empty</strong> — the invitee has accepted but hasn't filled in their pitch, RFI answers, or uploaded documents yet.
+                    </div>
+                  )}
                   {app.pitch && <p style={{ fontSize: 12, color: '#555', marginBottom: 8, lineHeight: 1.5 }}>{app.pitch}</p>}
                   {app.proposal_url && (
                     <div style={{ fontSize: 11, marginBottom: 8 }}>
@@ -643,19 +691,20 @@ export default function CorporateChallenges() {
                   )}
 
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {/* Phase 100: per-persona action labels */}
                     {app.status === 'applied' && (
                       <>
                         <button onClick={() => updateAppStatus(app.id, 'shortlisted')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#fefce815', color: '#ca8a04', border: '1px solid #fde68a', cursor: 'pointer' }}>
-                          <Star size={11} style={{ verticalAlign: -2 }} /> Shortlist
+                          <Star size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'shortlist')}
                         </button>
                         <button onClick={() => updateAppStatus(app.id, 'rejected')} style={{ padding: '5px 12px', fontSize: 11, borderRadius: 7, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', cursor: 'pointer' }}>
-                          Reject
+                          {getActionLabel(persona, 'reject')}
                         </button>
                       </>
                     )}
                     {app.status === 'shortlisted' && (
                       <button onClick={() => updateAppStatus(app.id, 'selected')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
-                        <CheckCircle size={11} style={{ verticalAlign: -2 }} /> Select
+                        <CheckCircle size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'select')}
                       </button>
                     )}
                     {/* Phase 35: AI Evaluate */}
