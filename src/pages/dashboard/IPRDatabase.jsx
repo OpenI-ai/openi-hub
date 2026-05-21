@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { iprAPI } from '../../services/api';
+import { iprAPI, startupAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext'; // Phase 94
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { Shield, Plus, Search, Filter, CheckCircle2, Clock, AlertCircle, Globe, FileText, Calendar, ChevronRight, Award } from 'lucide-react';
 
@@ -13,6 +14,9 @@ const STATUS_COLORS = {
 };
 
 export default function IPRDatabase() {
+  // Phase 94 — gate Add/Edit + endpoint choice by role.
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'evaluator';
   const [search, setSearch] = useState('');
   const [type, setType] = useState('All');
   const [selected, setSelected] = useState(null);
@@ -22,6 +26,9 @@ export default function IPRDatabase() {
   // Phase 89 — wire IPR Save Record handler. Form state for the Add IPR
   // modal. Was previously uncontrolled inputs that the Save button just
   // dropped on the floor (Phase 66 events bug pattern).
+  // Phase 94 Ship 3 — startup_id + startup_name (display label) for the
+  // typeahead picker. startup_id is what goes on the wire; startup_name is
+  // the human-readable label we keep in the input box once picked.
   const [form, setForm] = useState({
     title: '',
     application_no: '',
@@ -29,7 +36,14 @@ export default function IPRDatabase() {
     owner: '',
     type: 'Patent',
     openi_share: '',
+    startup_id: null,
+    startup_name: '',
   });
+  // Phase 94 Ship 3 — typeahead state (search query + debounced results).
+  const [startupSearch, setStartupSearch] = useState('');
+  const [startupResults, setStartupResults] = useState([]);
+  const [startupLoading, setStartupLoading] = useState(false);
+  const startupSeqRef = useRef(0);
   const [saving, setSaving] = useState(false);
 
   function resetForm() {
@@ -40,7 +54,12 @@ export default function IPRDatabase() {
       owner: '',
       type: 'Patent',
       openi_share: '',
+      startup_id: null,
+      startup_name: '',
     });
+    // Phase 94 Ship 3 — also clear typeahead state.
+    setStartupSearch('');
+    setStartupResults([]);
   }
 
   async function handleAddRecord() {
@@ -58,7 +77,7 @@ export default function IPRDatabase() {
       const shareLine  = form.openi_share !== '' ? `OpenI ownership: ${form.openi_share}%` : '';
       const description = [ownerLine, shareLine].filter(Boolean).join('\n');
       const payload = {
-        startup_id: null,
+        startup_id: form.startup_id, // Phase 94 Ship 3 — was null, now from picker
         title,
         type: form.type || 'Patent',
         application_no: form.application_no.trim() || null,
@@ -107,7 +126,11 @@ export default function IPRDatabase() {
   }
 
   useEffect(() => {
-    iprAPI.list()
+    // Phase 94 — admin/evaluator hit the full registry. Other personas hit
+    // the org-filtered portfolio view (corporate/government via challenges,
+    // investor/accelerator via JSONB chip-name matching).
+    const fetcher = isAdmin ? iprAPI.list() : iprAPI.myPortfolio();
+    fetcher
       .then(data => {
         const records = data.records || data.ipr_records || data || [];
         const normalized = records.map(r => ({
@@ -132,6 +155,34 @@ export default function IPRDatabase() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Phase 94 Ship 3 — debounced startup search for the Add modal's
+  // typeahead. Only fires when modal is open + admin + 2+ chars typed.
+  // Race-guard via seqRef so a slow earlier response can't clobber a
+  // fast later one (Phase 87b OrgTypeahead pattern).
+  useEffect(() => {
+    if (!showAdd || !isAdmin) return;
+    const q = startupSearch.trim();
+    if (q.length < 2) { setStartupResults([]); return; }
+    setStartupLoading(true);
+    const mySeq = ++startupSeqRef.current;
+    const t = setTimeout(() => {
+      startupAPI.list({ search: q, limit: 20 })
+        .then(data => {
+          if (mySeq !== startupSeqRef.current) return; // stale
+          const rows = Array.isArray(data) ? data : (data?.startups || data?.rows || []);
+          setStartupResults(rows);
+        })
+        .catch(() => {
+          if (mySeq !== startupSeqRef.current) return;
+          setStartupResults([]);
+        })
+        .finally(() => {
+          if (mySeq === startupSeqRef.current) setStartupLoading(false);
+        });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [startupSearch, showAdd, isAdmin]);
+
   if (loading) return <LoadingSkeleton type="table" />;
 
   const filtered = iprRecords.filter(r => {
@@ -144,12 +195,20 @@ export default function IPRDatabase() {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-gray-900">IPR Database</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Track patents, trademarks, and intellectual property across the OpenI ecosystem</p>
+          {/* Phase 94 — persona-aware title + subtitle */}
+          <h1 className="text-2xl font-display font-bold text-gray-900">{isAdmin ? 'IPR Database' : 'IPR Portfolio'}</h1>
+          <p className="text-gray-500 text-sm mt-0.5">
+            {isAdmin
+              ? 'Track patents, trademarks, and intellectual property across the OpenI ecosystem'
+              : 'Patents, trademarks, and IP linked to your organization'}
+          </p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
-          <Plus size={16} /> Add IPR Record
-        </button>
+        {/* Phase 94 — only admin/evaluator can create new IPR records */}
+        {isAdmin && (
+          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
+            <Plus size={16} /> Add IPR Record
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -325,14 +384,72 @@ export default function IPRDatabase() {
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
                 />
               </div>
+              {/* Phase 94 Ship 3 — startup typeahead (search-driven). Resolves
+                  to startup_profiles.id so server-side per-org filtering can
+                  link this IPR to the chosen startup. */}
               <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1.5">Startup / Owner</label>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Startup (linked)</label>
+                {form.startup_id ? (
+                  <div className="flex items-center justify-between gap-2 px-3 py-2.5 border border-primary-300 bg-primary-50 rounded-lg">
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-900">{form.startup_name}</div>
+                      <div className="text-xs text-gray-500">ID #{form.startup_id}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setForm(p => ({ ...p, startup_id: null, startup_name: '' }))}
+                      className="text-xs text-gray-500 hover:text-red-600 px-2 py-1"
+                    >
+                      Change
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={startupSearch}
+                      onChange={e => setStartupSearch(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
+                      placeholder="Search startup by name (type 2+ chars)…"
+                    />
+                    {startupSearch.trim().length >= 2 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        {startupLoading && (
+                          <div className="px-3 py-2 text-xs text-gray-500">Searching…</div>
+                        )}
+                        {!startupLoading && startupResults.length === 0 && (
+                          <div className="px-3 py-2 text-xs text-gray-500">No startups found — record will be saved without a startup link</div>
+                        )}
+                        {!startupLoading && startupResults.map(s => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => {
+                              setForm(p => ({ ...p, startup_id: s.id, startup_name: s.company_name || s.name || `Startup #${s.id}` }));
+                              setStartupSearch('');
+                              setStartupResults([]);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="font-medium text-gray-900">{s.company_name || s.name || `Startup #${s.id}`}</div>
+                            {(s.sector || s.city) && (
+                              <div className="text-xs text-gray-500">{[s.sector, s.city].filter(Boolean).join(' • ')}</div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Co-owner / Notes (optional)</label>
                 <input
                   type="text"
                   value={form.owner}
                   onChange={e => setForm(p => ({ ...p, owner: e.target.value }))}
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400"
-                  placeholder="Owner name"
+                  placeholder="e.g. IIT Madras (institutional co-owner)"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">

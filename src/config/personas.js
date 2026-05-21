@@ -199,6 +199,7 @@ export const PERSONA_NAV = {
     actions: [
       { to: '/dashboard/corporate/challenges', label: 'Challenges',     icon: 'Target' },
       { to: '/dashboard/corporate/collabs',    label: 'Collaborations', icon: 'Link2' },
+      { to: '/dashboard/ipr',                  label: 'IPR Portfolio',  icon: 'Shield' }, // Phase 94
     ],
   }),
   government: buildPersonaNav('government', {
@@ -207,6 +208,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/evaluations',          label: 'Programs',        icon: 'FileText' },
       { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
       { to: '/dashboard/govt-apis',            label: 'Govt. APIs',      icon: 'Link2' },
+      { to: '/dashboard/ipr',                  label: 'IPR Portfolio',   icon: 'Shield' }, // Phase 94
     ],
   }),
   investor: buildPersonaNav('investor', {
@@ -217,6 +219,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/investor/deals',         label: 'Deal Pipeline', icon: 'GitBranch' },
       { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
       { to: '/dashboard/deeptech',               label: 'DeepTech',      icon: 'Zap' },
+      { to: '/dashboard/ipr',                    label: 'IPR Portfolio', icon: 'Shield' }, // Phase 94
     ],
   }),
   mentor: buildPersonaNav('mentor', {
@@ -240,6 +243,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/incubator/programs',       label: 'Programs',         icon: 'GraduationCap' },
       { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
+      { to: '/dashboard/ipr',                      label: 'IPR Portfolio',    icon: 'Shield' }, // Phase 94
     ],
   }),
   accelerator: buildPersonaNav('accelerator', {
@@ -248,6 +252,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/accelerator/batches',      label: 'Batches',            icon: 'Zap' },
       { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners',   icon: 'Link2' },
+      { to: '/dashboard/ipr',                      label: 'IPR Portfolio',      icon: 'Shield' }, // Phase 94
     ],
   }),
   service_provider: buildPersonaNav('service_provider', {

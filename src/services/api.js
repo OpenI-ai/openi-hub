@@ -260,10 +260,11 @@ export const whatsNewAPI = {
 
 // ── IPR Records ───────────────────────────────────────────────
 export const iprAPI = {
-  list:   (params = {}) => get(`/ipr?${new URLSearchParams(params)}`),
-  get:    (id)          => get(`/ipr/${id}`),
-  create: (data)        => post('/ipr', data),
-  update: (id, data)    => put(`/ipr/${id}`, data),
+  list:        (params = {}) => get(`/ipr?${new URLSearchParams(params)}`),
+  myPortfolio: (params = {}) => get(`/ipr/my-portfolio?${new URLSearchParams(params)}`), // Phase 94
+  get:         (id)          => get(`/ipr/${id}`),
+  create:      (data)        => post('/ipr', data),
+  update:      (id, data)    => put(`/ipr/${id}`, data),
 };
 
 // ── Infrastructure ────────────────────────────────────────────
