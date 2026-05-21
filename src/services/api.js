@@ -239,6 +239,8 @@ export const eventAPI = {
   create:   (data)        => post('/events', data),
   publish:  (id)          => post(`/events/${id}/publish`),
   register: (id)          => post(`/events/${id}/register`),
+  // Ship #11 (21 May 2026) — DELETE gated server-side to creator + same-org co-creators
+  delete:   (id)          => del(`/events/${id}`),
 };
 
 // ── Feedback ────────────────────────────────────────────────

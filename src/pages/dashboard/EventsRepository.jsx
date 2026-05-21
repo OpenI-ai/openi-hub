@@ -4,7 +4,7 @@ import {
   Calendar, MapPin, Users, Plus, Search, Filter,
   ChevronRight, Clock, Tag, ExternalLink, Download,
   Mic, Trophy, BookOpen, Zap, Globe, Video,
-  CheckCircle2, AlertCircle, ArrowRight, X,
+  CheckCircle2, AlertCircle, ArrowRight, X, Trash2,
 } from 'lucide-react';
 import { eventAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -171,6 +171,19 @@ export default function EventsRepository() {
     }
   };
 
+  // Ship #11 (21 May 2026) — delete event (creator + same-org + admin gated server-side)
+  const handleDelete = async (evId) => {
+    if (!window.confirm('Delete this event? This action cannot be undone.')) return;
+    try {
+      await eventAPI.delete(evId);
+      setEvents(prev => prev.filter(e => e.id !== evId));
+      if (selected && selected.id === evId) setSelected(null);
+      toast.success('Event deleted');
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete event');
+    }
+  };
+
   const filtered = events.filter(e => {
     const matchType   = typeFilter === 'All' || e.type === typeFilter;
     const matchStatus = statusFilter === 'All' || e.status === statusFilter;
@@ -187,6 +200,7 @@ export default function EventsRepository() {
       onBack={() => setSelected(null)}
       onRegister={handleRegister}
       onPublish={handlePublish}
+      onDelete={handleDelete}
       currentUserId={userId}
     />;
   }
@@ -472,7 +486,7 @@ function EventCard({ ev, currentUserId, onClick }) {
   );
 }
 
-function EventDetail({ event: ev, onBack, onRegister, onPublish, currentUserId }) {
+function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, currentUserId }) {
   const et = EVENT_TYPES[ev.type] || EVENT_TYPES.workshop;
   const ss = STATUS_STYLE[ev.status] || STATUS_STYLE['Upcoming'];
   const EIcon = et.icon;
@@ -484,6 +498,16 @@ function EventDetail({ event: ev, onBack, onRegister, onPublish, currentUserId }
       <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, color: G, fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, padding: 0 }}>
         ← Events
       </button>
+
+      {currentUserId && ev.created_by === currentUserId && onDelete && (
+        <button
+          onClick={() => onDelete(ev.id)}
+          style={{ marginLeft: 12, padding: '8px 14px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          title="Delete this event"
+        >
+          <Trash2 size={14} /> Delete
+        </button>
+      )}
 
       {isMyDraft && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 9, color: '#92400e', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
