@@ -241,6 +241,10 @@ export const eventAPI = {
   register: (id)          => post(`/events/${id}/register`),
   // Ship #11 (21 May 2026) — DELETE gated server-side to creator + same-org co-creators
   delete:   (id)          => del(`/events/${id}`),
+  // Ship #10 (22 May 2026) — direct PDF download URL. Auth handled via cookie/JWT
+  // header on fetch, so caller can either fetch+blob OR build authed anchor.
+  // We return the base URL; caller uses fetch with Authorization header.
+  brochureUrl: (id)       => `${BASE_URL}/events/${id}/brochure`,
 };
 
 // ── Feedback ────────────────────────────────────────────────

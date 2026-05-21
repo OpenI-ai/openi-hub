@@ -115,7 +115,13 @@ export default function EventsRepository() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Ship #10 (22 May 2026) — registered set tracks in-session registrations
+  // for the disable-after-click UX. Per-user persistent tracking deferred to
+  // a future ship when event_registrations table lands.
+  const [registeredSet, setRegisteredSet] = useState(new Set());
+
   const handleRegister = (evId) => {
+    if (registeredSet.has(evId)) return; // already clicked this session
     eventAPI.register(evId)
       .then(() => {
         toast.success('Registered for event successfully');
@@ -123,8 +129,33 @@ export default function EventsRepository() {
         if (selected && selected.id === evId) {
           setSelected(prev => ({ ...prev, registrations: prev.registrations + 1 }));
         }
+        setRegisteredSet(prev => { const s = new Set(prev); s.add(evId); return s; });
       })
       .catch(err => toast.error(err.message || 'Failed to register'));
+  };
+
+  // Ship #10 (22 May 2026) — brochure download via authed fetch + blob.
+  // BASE_URL exposed indirectly via eventAPI.brochureUrl. Authorization header
+  // populated from localStorage token (same shape as services/api.js request()).
+  const handleDownloadBrochure = async (ev) => {
+    try {
+      const url = eventAPI.brochureUrl(ev.id);
+      const token = localStorage.getItem('openi_token') || '';
+      const resp = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!resp.ok) throw new Error('Failed to download brochure');
+      const blob = await resp.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = `Event-${(ev.title || 'event').replace(/[^a-zA-Z0-9]/g, '-').slice(0, 50)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(dlUrl);
+      toast.success('Brochure downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download brochure');
+    }
   };
 
   const handleCreate = async (e) => {
@@ -201,6 +232,8 @@ export default function EventsRepository() {
       onRegister={handleRegister}
       onPublish={handlePublish}
       onDelete={handleDelete}
+      onDownloadBrochure={handleDownloadBrochure}
+      isRegistered={registeredSet.has(selected.id)}
       currentUserId={userId}
     />;
   }
@@ -486,7 +519,73 @@ function EventCard({ ev, currentUserId, onClick }) {
   );
 }
 
-function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, currentUserId }) {
+// Ship #10 (22 May 2026) — calendar helpers (defined outside component
+// for clarity; pure functions, no React state)
+function pad(n) { return String(n).padStart(2, '0'); }
+function toIcsDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return `${dt.getUTCFullYear()}${pad(dt.getUTCMonth()+1)}${pad(dt.getUTCDate())}T${pad(dt.getUTCHours())}${pad(dt.getUTCMinutes())}${pad(dt.getUTCSeconds())}Z`;
+}
+function buildIcsContent(ev) {
+  const start = toIcsDate(ev.start_date || new Date());
+  const end = toIcsDate(ev.end_date || ev.start_date || new Date());
+  const summary = (ev.title || 'Event').replace(/[,;]/g, '\\$&');
+  const desc = (ev.description || '').replace(/[\r\n]+/g, '\\n').replace(/[,;]/g, '\\$&');
+  const loc = (ev.location || (ev.is_virtual ? 'Online' : '')).replace(/[,;]/g, '\\$&');
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//OpenI Hub//Event//EN',
+    'BEGIN:VEVENT',
+    `UID:event-${ev.id}@openi.ai`,
+    `DTSTART:${start}`,
+    `DTEND:${end}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${desc}`,
+    `LOCATION:${loc}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+}
+function downloadIcs(ev) {
+  const content = buildIcsContent(ev);
+  const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(ev.title || 'event').replace(/[^a-zA-Z0-9]/g, '-').slice(0, 50)}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function buildGoogleCalUrl(ev) {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: ev.title || 'Event',
+    dates: `${toIcsDate(ev.start_date || new Date())}/${toIcsDate(ev.end_date || ev.start_date || new Date())}`,
+    details: ev.description || '',
+    location: ev.location || (ev.is_virtual ? 'Online' : ''),
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+function buildOutlookUrl(ev) {
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: ev.title || 'Event',
+    startdt: new Date(ev.start_date || new Date()).toISOString(),
+    enddt: new Date(ev.end_date || ev.start_date || new Date()).toISOString(),
+    body: ev.description || '',
+    location: ev.location || (ev.is_virtual ? 'Online' : ''),
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
+function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDownloadBrochure, isRegistered, currentUserId }) {
+  // Ship #10 (22 May 2026) — calendar dropdown state (local to EventDetail)
+  const [calDrop, setCalDrop] = useState(false);
   const et = EVENT_TYPES[ev.type] || EVENT_TYPES.workshop;
   const ss = STATUS_STYLE[ev.status] || STATUS_STYLE['Upcoming'];
   const EIcon = et.icon;
@@ -555,18 +654,54 @@ function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, curre
           <div style={{ width: `${regPct}%`, height: '100%', background: regPct > 85 ? '#dc2626' : G, borderRadius: 3 }} />
         </div>
 
+        {/* Ship #10 (22 May 2026) — wire Register disable + Brochure + Calendar dropdown */}
         <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {ev.status !== 'Completed' && (
-            <button onClick={() => onRegister && onRegister(ev.id)} style={{ padding: '9px 20px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}>
-              Register Now
+            <button
+              onClick={() => onRegister && onRegister(ev.id)}
+              disabled={isRegistered}
+              style={{
+                padding: '9px 20px',
+                background: isRegistered ? '#d1d5db' : G,
+                color: isRegistered ? '#6b7280' : '#fff',
+                border: 'none',
+                borderRadius: 9,
+                cursor: isRegistered ? 'not-allowed' : 'pointer',
+                fontSize: 13, fontWeight: 700,
+                boxShadow: isRegistered ? 'none' : '0 2px 10px rgba(213,170,91,0.3)',
+              }}
+            >
+              {isRegistered ? '✓ Registered' : 'Register Now'}
             </button>
           )}
-          <button style={{ padding: '9px 20px', background: '#f5f5f5', color: '#555', border: '1.5px solid #eee', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={() => onDownloadBrochure && onDownloadBrochure(ev)}
+            style={{ padding: '9px 20px', background: '#f5f5f5', color: '#555', border: '1.5px solid #eee', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
+          >
             <Download size={13} /> Download Brochure
           </button>
-          <button style={{ padding: '9px 20px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ExternalLink size={13} /> Add to Calendar
-          </button>
+          {/* Calendar dropdown — click reveals 3 export options */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setCalDrop(prev => !prev)}
+              style={{ padding: '9px 20px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              <ExternalLink size={13} /> Add to Calendar
+            </button>
+            {calDrop && (
+              <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 9, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', zIndex: 10, minWidth: 180 }}>
+                <button onClick={() => { downloadIcs(ev); setCalDrop(false); }} style={{ display: 'block', width: '100%', padding: '8px 14px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#333' }}>
+                  Download .ics file
+                </button>
+                <a href={buildGoogleCalUrl(ev)} target="_blank" rel="noopener noreferrer" onClick={() => setCalDrop(false)} style={{ display: 'block', padding: '8px 14px', textDecoration: 'none', fontSize: 12, color: '#333', borderTop: '1px solid #f3f4f6' }}>
+                  Google Calendar
+                </a>
+                <a href={buildOutlookUrl(ev)} target="_blank" rel="noopener noreferrer" onClick={() => setCalDrop(false)} style={{ display: 'block', padding: '8px 14px', textDecoration: 'none', fontSize: 12, color: '#333', borderTop: '1px solid #f3f4f6' }}>
+                  Outlook Calendar
+                </a>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
