@@ -1245,10 +1245,34 @@ export default function CorporateChallenges() {
                     setForm(p => ({ ...p, rfi_questions: upd }));
                   }} style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
                   {q.type === 'mcq' && (
-                    <input placeholder="Options (comma separated)" value={(q.options || []).join(', ')} onChange={e => {
-                      const upd = [...form.rfi_questions]; upd[i] = { ...upd[i], options: e.target.value.split(',').map(s => s.trim()).filter(Boolean) };
-                      setForm(p => ({ ...p, rfi_questions: upd }));
-                    }} style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                    // Ship #6 (21 May 2026) — per-option RFI input
+                    // Previously this was a comma-separated text input. If the
+                    // cohort typed "Yes" then "NO" without a comma it stored as
+                    // ["YesNO"] (single concatenated string). Replaced with
+                    // per-option Add/Remove rows so each option is unambiguous.
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {(q.options || []).map((opt, oi) => (
+                        <div key={oi} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                          <input placeholder={`Option ${oi + 1}`} value={opt} onChange={e => {
+                            const upd = [...form.rfi_questions];
+                            const newOpts = [...(upd[i].options || [])];
+                            newOpts[oi] = e.target.value;
+                            upd[i] = { ...upd[i], options: newOpts };
+                            setForm(p => ({ ...p, rfi_questions: upd }));
+                          }} style={{ flex: 1, padding: '5px 8px', fontSize: 11, borderRadius: 5, border: '1px solid #e5e7eb', outline: 'none' }} />
+                          <button type="button" onClick={() => {
+                            const upd = [...form.rfi_questions];
+                            upd[i] = { ...upd[i], options: (upd[i].options || []).filter((_, oj) => oj !== oi) };
+                            setForm(p => ({ ...p, rfi_questions: upd }));
+                          }} style={{ padding: '3px 6px', fontSize: 11, borderRadius: 5, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}>×</button>
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => {
+                        const upd = [...form.rfi_questions];
+                        upd[i] = { ...upd[i], options: [...(upd[i].options || []), ''] };
+                        setForm(p => ({ ...p, rfi_questions: upd }));
+                      }} style={{ alignSelf: 'flex-start', padding: '3px 8px', fontSize: 11, color: G, background: 'none', border: '1px dashed #e5e7eb', borderRadius: 5, cursor: 'pointer', fontWeight: 600 }}>+ Add Option</button>
+                    </div>
                   )}
                   <button onClick={() => setForm(p => ({ ...p, rfi_questions: p.rfi_questions.filter((_, j) => j !== i) }))}
                     style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><Trash2 size={12} /></button>
