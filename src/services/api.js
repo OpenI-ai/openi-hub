@@ -287,6 +287,8 @@ export const knowledgeAPI = {
   get:    (id)          => get(`/knowledge/${id}`),
   create: (data)        => post('/knowledge', data),
   update: (id, data)    => put(`/knowledge/${id}`, data),
+  // Ship #5 (22 May 2026) — non-admin can suggest articles; backend emails admin
+  suggest:  (data)        => post('/knowledge/suggest', data),
 };
 
 // ── Documents ─────────────────────────────────────────────────

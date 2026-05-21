@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { knowledgeAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';  // Ship #5 (22 May 2026)
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   BookOpen, Search, Lock, Eye, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Star, Download,
@@ -27,11 +28,34 @@ const SECTOR_COLORS = {
 const ACCESS_COLORS = { public: 'bg-accent-100 text-accent-700', registered: 'bg-blue-100 text-blue-700', restricted: 'bg-yellow-100 text-yellow-700', classified: 'bg-red-100 text-red-700' };
 
 export default function Knowledge() {
+  // Ship #5 (22 May 2026) — gate Add Article button by role
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'evaluator';
   const [search, setSearch] = useState('');
   const [type, setType] = useState('all');
   const [selected, setSelected] = useState(null);
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Ship #5 — Suggest Article modal state (non-admin only)
+  const [showSuggest, setShowSuggest] = useState(false);
+  const [suggestForm, setSuggestForm] = useState({ title: '', summary: '', suggested_url: '', suggested_type: 'article' });
+  const [suggesting, setSuggesting] = useState(false);
+
+  const submitSuggestion = async () => {
+    const t = (suggestForm.title || '').trim();
+    if (!t) { toast.error('Title is required'); return; }
+    setSuggesting(true);
+    try {
+      await knowledgeAPI.suggest(suggestForm);
+      toast.success('Suggestion sent to admin');
+      setShowSuggest(false);
+      setSuggestForm({ title: '', summary: '', suggested_url: '', suggested_type: 'article' });
+    } catch (err) {
+      toast.error(err.message || 'Failed to send suggestion');
+    } finally {
+      setSuggesting(false);
+    }
+  };
 
   // s49 fix: dismiss the report modal on Escape key for keyboard users
   useEffect(() => {
@@ -77,8 +101,18 @@ export default function Knowledge() {
           <h1 className="text-2xl font-display font-bold text-gray-900">Knowledge Hub</h1>
           <p className="text-gray-500 text-sm mt-0.5">Industry reports, SOPs, and curated research for OpenI's innovation ecosystem</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
-          <Plus size={16} /> Add Article
+        {/* Ship #5 (22 May 2026) — non-admin clicks open Suggest modal; admin button still stub (admin uses backend / admin console) */}
+        <button
+          onClick={() => {
+            if (isAdmin) {
+              toast('Admin: use the Knowledge admin console or POST /knowledge', { icon: 'i' });
+            } else {
+              setShowSuggest(true);
+            }
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400"
+        >
+          <Plus size={16} /> {isAdmin ? 'Add Article' : 'Suggest an Article'}
         </button>
       </div>
 
@@ -166,6 +200,50 @@ export default function Knowledge() {
                 <a href={selected.pdf_url || "/"} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download PDF</a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Ship #5 (22 May 2026) — Suggest an Article modal (non-admin only) */}
+      {showSuggest && (
+        <div onClick={() => setShowSuggest(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
+          <div role="dialog" onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: 24, maxWidth: 520, width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#111' }}>Suggest an Article</h3>
+                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#666' }}>Send a suggestion to the OpenI Knowledge Hub team. We will review and add it if it fits.</p>
+              </div>
+              <button onClick={() => setShowSuggest(false)} style={{ background: 'none', border: 'none', fontSize: 22, color: '#999', cursor: 'pointer', lineHeight: 1, padding: 0 }}>&times;</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Title <span style={{ color: '#ef4444' }}>*</span></label>
+                <input value={suggestForm.title} onChange={e => setSuggestForm(p => ({ ...p, title: e.target.value }))} maxLength={500} style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Summary</label>
+                <textarea value={suggestForm.summary} onChange={e => setSuggestForm(p => ({ ...p, summary: e.target.value }))} maxLength={5000} rows={4} style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Source URL (optional)</label>
+                <input value={suggestForm.suggested_url} onChange={e => setSuggestForm(p => ({ ...p, suggested_url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Type</label>
+                <select value={suggestForm.suggested_type} onChange={e => setSuggestForm(p => ({ ...p, suggested_type: e.target.value }))} style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box', background: '#fff' }}>
+                  <option value="article">Article</option>
+                  <option value="report">Report</option>
+                  <option value="sop">SOP / Guide</option>
+                  <option value="training_module">Training Module</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+              <button onClick={() => setShowSuggest(false)} style={{ padding: '8px 16px', fontSize: 12, background: '#f3f4f6', color: '#555', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+              <button onClick={submitSuggestion} disabled={suggesting} style={{ padding: '8px 16px', fontSize: 12, background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 8, cursor: suggesting ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: suggesting ? 0.6 : 1 }}>
+                {suggesting ? 'Sending...' : 'Send Suggestion'}
+              </button>
+            </div>
           </div>
         </div>
       )}
