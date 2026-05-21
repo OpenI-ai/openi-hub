@@ -133,23 +133,53 @@ export default function Infrastructure() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {[
-          { label: 'Total Facilities', value: infraList.length, color: 'text-gray-800' },
-          { label: 'Available Now', value: infraList.filter(r => r.available).length, color: 'text-accent-600' },
-          { label: 'Active Bookings', value: infraList.reduce((s, r) => s + (r.bookings || []).filter(b => b.status === 'Active' || b.status === 'Upcoming').length, 0), color: 'text-primary-600' },
-        ].map(s => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <div className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</div>
-            <div className="text-gray-500 text-sm mt-1">{s.label}</div>
-          </div>
-        ))}
-      </div>
+      {/* Infrastructure empty-state branches (carry-forward 21 May 2026)
+          — when no labs onboarded yet, hide KPI tiles + search bar and
+          render an intentional empty-state instead of the bug-looking
+          0/0/0 + empty cards. When labs exist but search returns nothing,
+          keep KPI tiles + search and show a search-empty message. */}
+      {infraList.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[
+            { label: 'Total Facilities', value: infraList.length, color: 'text-gray-800' },
+            { label: 'Available Now', value: infraList.filter(r => r.available).length, color: 'text-accent-600' },
+            { label: 'Active Bookings', value: infraList.reduce((s, r) => s + (r.bookings || []).filter(b => b.status === 'Active' || b.status === 'Upcoming').length, 0), color: 'text-primary-600' },
+          ].map(s => (
+            <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+              <div className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</div>
+              <div className="text-gray-500 text-sm mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <div className="relative mb-5">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-primary-400 text-sm" placeholder="Search facilities..." />
-      </div>
+      {infraList.length > 0 && (
+        <div className="relative mb-5">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-primary-400 text-sm" placeholder="Search facilities..." />
+        </div>
+      )}
+
+      {infraList.length === 0 && (
+        <div className="bg-gradient-to-br from-primary-50 to-white rounded-2xl border border-primary-200 p-10 text-center">
+          <Building2 size={48} className="text-primary-400 mx-auto mb-4" />
+          <h3 className="font-display font-bold text-gray-900 text-xl mb-2">No test facilities onboarded yet</h3>
+          <p className="text-gray-600 text-sm mb-6 max-w-xl mx-auto">
+            Labs, test facilities and incubation infrastructure will appear here as research institutions onboard onto OpenI. You'll be able to browse, compare and book bench time, HPC access, characterisation equipment and more.
+          </p>
+          <p className="text-gray-500 text-xs">
+            Want a specific facility listed? <a href="mailto:info@openi.ai?subject=Request%20test%20facility%20onboarding" className="text-primary-600 font-semibold underline">Email us</a> with the lab name and we'll reach out to them.
+          </p>
+        </div>
+      )}
+
+      {infraList.length > 0 && filtered.length === 0 && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+          <Search size={32} className="text-gray-400 mx-auto mb-3" />
+          <h3 className="font-display font-semibold text-gray-700 text-base mb-1">No matches for your search</h3>
+          <p className="text-gray-500 text-sm">Try a different facility name, type, or location.</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filtered.map(resource => (
