@@ -304,7 +304,8 @@ export default function DashboardLayout() {
               Separator above; same NavLink visual language but rendered from
               the persona-agnostic SECONDARY_NAV array so every persona sees
               these regardless of how they build their primary nav. */}
-          {!isLegacyRole && (
+          {/* SECONDARY_NAV: visible to all personas including admin/evaluator (carry-forward fix 21 May 2026) */}
+          {true && (
             <>
               <div style={{
                 margin: "10px 6px 6px",

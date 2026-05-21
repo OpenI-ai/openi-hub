@@ -33,7 +33,11 @@ function formatDate(dateStr) {
 // to "2-3 short bullet points formatted as markdown ('- item')".
 function BodyBullets({ body }) {
   if (!body) return null;
-  const lines = body
+  // Pre-normalize comma+bullet-marker patterns to newline+bullet-marker so
+  // GPT outputs like "first,\n- second,- third" or "a,* b,* c" split into
+  // separate bullets. Carry-forward fix 21 May 2026.
+  const normalized = body.replace(/,\s*([-*\u2022])\s*/g, '\n$1 ');
+  const lines = normalized
     .split('\n')
     .map((l) => l.trim())
     .filter((l) => l.length > 0);

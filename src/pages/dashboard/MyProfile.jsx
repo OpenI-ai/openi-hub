@@ -160,7 +160,8 @@ function FormField({ field, value, onChange }) {
           {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
         <select value={displayVal} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-          <option value="">{parentVal ? 'Select...' : `Pick ${field.dependsOn} first`}</option>
+          {/* Title-case dependsOn for friendlier placeholder text (carry-forward fix 21 May 2026) */}
+          <option value="">{parentVal ? 'Select...' : `Pick ${field.dependsOn.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} first`}</option>
           {opts.map(o => <option key={o} value={o}>{o}</option>)}
         </select>
       </div>
@@ -969,7 +970,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
                       return (
                         <select value={displayVal} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
                           style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
-                          <option value="">{parentVal ? 'Select...' : `Pick ${f.dependsOn} first`}</option>
+                          <option value="">{parentVal ? 'Select...' : `Pick ${f.dependsOn.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} first`}</option>
                           {opts.map(o => {
                             const opt = normalizeOption(o);
                             return <option key={opt.value} value={opt.value}>{opt.label}</option>;
