@@ -707,7 +707,7 @@ export default function MyProfile() {
         const isDirty = JSON.stringify(profileData) !== baseline;
         const disabled = saving || !isDirty;
         return (
-          <div style={{
+          <div id="tour-page-profile-save" style={{
             position: 'fixed', bottom: 0, left: 0, right: 0,
             background: 'linear-gradient(to top, #fff 70%, rgba(255,255,255,0.9))',
             borderTop: '1px solid #e5e7eb',
@@ -745,7 +745,7 @@ export default function MyProfile() {
             <p className="text-xs" style={{ color: '#92400e' }}>
               <strong>Tip:</strong> The sections below (Team, Products, Funding, etc.)
               are saved <em>per entry</em>. Each row has its own Save button.
-              The top <em<span id="tour-page-profile-save" style={{ position: "absolute", pointerEvents: "none" }} />>Save Profile</em> button only covers the fields above.
+              The top <em>Save Profile</em> button only covers the fields above.
             </p>
           </div>
           <ProfileSection section="team" title="Team & Management" fields={[
