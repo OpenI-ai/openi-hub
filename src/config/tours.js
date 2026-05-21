@@ -297,3 +297,51 @@ export const TOURS = {
 };
 
 export default TOURS;
+
+// ═══════════════════════════════════════════════════════════════
+// Ship #12 (22 May 2026) — PAGE_TOURS for per-page walkthroughs
+// ═══════════════════════════════════════════════════════════════
+//
+// Page-keyed tour dictionary. Separate from the role-keyed TOURS above
+// (which is the first-login persona walkthrough). PAGE_TOURS surfaces a
+// "Tour this page" button in the topbar when the user is on a covered
+// route. Tour fires via the `openi-page-tour` window event.
+//
+// To add a new page tour:
+//   1. Add tour-anchor IDs (id="tour-page-<page>-<element>") to the
+//      target page's JSX
+//   2. Add an entry below keyed by route path. Steps follow the same
+//      shape as TOURS[role].steps (target, title, content, placement,
+//      disableBeacon optional).
+//
+// MyProfile shipped first as the highest-traffic page. Other pages
+// (Marketplace, Directory, Challenges, Recommendations) deferred to a
+// follow-up where copy can be reviewed by user / cohort.
+
+export const PAGE_TOURS = {
+  '/dashboard/profile': {
+    title: 'My Profile',
+    steps: [
+      {
+        target: '#tour-page-profile-header',
+        title: 'Your profile, all in one place',
+        content: 'This is your master profile. Everything you fill in here surfaces on directory listings, recommendations and challenge applications.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-profile-completeness',
+        title: 'Profile Completeness',
+        content: 'Aim for 80+ to be eligible for most challenges and surface in directory searches. Each section you complete adds to the score.',
+        placement: 'left',
+      },
+      {
+        target: '#tour-page-profile-save',
+        title: 'Save Changes',
+        content: 'The sticky Save bar at the bottom shows when you have unsaved edits. Click Save Profile to commit; the button turns gold when you have pending changes.',
+        placement: 'top',
+      },
+    ],
+  },
+  // Add more pages here (route -> { title, steps }) in follow-up phases.
+};

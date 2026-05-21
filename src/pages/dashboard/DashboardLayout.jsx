@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, NavLink, Link as RouterLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 // Phase 101 Sub-D: notificationAPI for live notification bell
 import { connectionAPI, whatsNewAPI, notificationAPI } from "../../services/api";
@@ -15,6 +15,7 @@ import {
   BarChart3, Megaphone, CreditCard, BadgeCheck, DollarSign,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS, SECONDARY_NAV } from "../../config/personas";
+import { PAGE_TOURS } from "../../config/tours";  // Ship #12 (22 May 2026)
 import SearchBar from "../../components/SearchBar";
 import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
 import PlanBadge from "../../components/PlanBadge"; // Phase 68 — plan visibility
@@ -90,6 +91,7 @@ const NAV = [
 export default function DashboardLayout() {
   const { user, logout, activeRole } = useAuth();  // Phase 60.3 (s50): read activeRole
   const navigate = useNavigate();
+  const location = useLocation();  // Ship #12 — for PAGE_TOURS lookup
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Phase 74 — sidebar unread badge for What's New.
   const [whatsNewUnread, setWhatsNewUnread] = useState(0);
@@ -492,6 +494,28 @@ export default function DashboardLayout() {
             >
               <HelpCircle size={16} />
             </button>
+            {/* Ship #12 (22 May 2026) — Tour this page button (visible only when PAGE_TOURS covers current route) */}
+            {PAGE_TOURS && PAGE_TOURS[location.pathname] && (
+              <button
+                id="tour-topbar-page-tour"
+                onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
+                title={`Tour: ${PAGE_TOURS[location.pathname].title || 'this page'}`}
+                aria-label="Tour this page"
+                style={{
+                  marginLeft: 6,
+                  padding: '4px 10px',
+                  background: '#fff8ec',
+                  color: '#92700a',
+                  border: '1px solid rgba(213,170,91,0.3)',
+                  borderRadius: 7,
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}
+              >
+                Tour this page
+              </button>
+            )}
 
             {/* Notification bell */}
             <div style={{ position:"relative" }}>

@@ -614,7 +614,7 @@ export default function MyProfile() {
             <User size={20} style={{ color: persona?.color || '#D5AA5B' }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: '#1a1a1a' }}>My Profile</h1>
+            <h1 id="tour-page-profile-header" className="text-lg font-bold" style={{ color: '#1a1a1a' }}>My Profile</h1>
             <p className="text-xs" style={{ color: '#6b7280' }}>
               {persona?.label || user?.role} Profile
             </p>
@@ -633,7 +633,7 @@ export default function MyProfile() {
       {/* Completeness bar */}
       <div className="rounded-xl p-4 mb-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium" style={{ color: '#374151' }}>Profile Completeness</span>
+          <span className="text-xs font-medium" style={{ color: '#374151' }}><span id="tour-page-profile-completeness" style={{ position: "absolute", pointerEvents: "none" }} />Profile Completeness</span>
           <span className="text-xs font-bold" style={{ color: !subProbed ? '#9ca3af' : (completeness === 100 ? '#16a34a' : '#D5AA5B') }}>
             {subProbed ? `${completeness}%` : '—'}
           </span>
@@ -745,7 +745,7 @@ export default function MyProfile() {
             <p className="text-xs" style={{ color: '#92400e' }}>
               <strong>Tip:</strong> The sections below (Team, Products, Funding, etc.)
               are saved <em>per entry</em>. Each row has its own Save button.
-              The top <em>Save Profile</em> button only covers the fields above.
+              The top <em<span id="tour-page-profile-save" style={{ position: "absolute", pointerEvents: "none" }} />>Save Profile</em> button only covers the fields above.
             </p>
           </div>
           <ProfileSection section="team" title="Team & Management" fields={[

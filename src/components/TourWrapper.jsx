@@ -30,7 +30,7 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Joyride, STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import { useAuth } from '../context/AuthContext';
-import { TOURS } from '../config/tours';
+import { TOURS, PAGE_TOURS } from '../config/tours';  // Ship #12 (22 May 2026) — page-tour multiplex
 import { hasUserSeenTour, markTourSeen } from '../services/tourService';
 
 const G = '#D5AA5B';
@@ -78,8 +78,16 @@ export default function TourWrapper({ role, forceStart = false }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Ship #12 (22 May 2026) — page-tour multiplex
+  // When pageMode is true, render PAGE_TOURS[pathname].steps instead of
+  // the role-based first-login tour. Set/cleared by the page-tour event
+  // listener. Both modes share the same Joyride instance + onCallback.
+  const [pageMode, setPageMode] = useState(false);
   const tourDef = useMemo(() => (role && TOURS[role]) || null, [role]);
-  const steps   = tourDef?.steps || [];
+  const roleSteps = tourDef?.steps || [];
+  const pageDef = useMemo(() => PAGE_TOURS?.[location.pathname] || null, [location.pathname]);
+  const pageSteps = pageDef?.steps || [];
+  const steps = pageMode ? pageSteps : roleSteps;
 
   const [run, setRun]               = useState(false);
   // initialStep is only consulted by Joyride at MOUNT time. We bump `runKey`
@@ -110,12 +118,25 @@ export default function TourWrapper({ role, forceStart = false }) {
   useEffect(() => {
     const onReplay = (e) => {
       if (!e.detail?.role || e.detail.role === role) {
+        setPageMode(false);  // role-tour mode
         startFresh(0);
       }
     };
     window.addEventListener('openi-replay-tour', onReplay);
     return () => window.removeEventListener('openi-replay-tour', onReplay);
   }, [role, startFresh]);
+
+  // Ship #12 (22 May 2026) — page-tour event listener. Top-bar "Tour this
+  // page" button dispatches this. Switches to page-mode and resets to step 0.
+  useEffect(() => {
+    const onPageTour = () => {
+      if (pageSteps.length === 0) return;
+      setPageMode(true);
+      startFresh(0);
+    };
+    window.addEventListener('openi-page-tour', onPageTour);
+    return () => window.removeEventListener('openi-page-tour', onPageTour);
+  }, [pageSteps.length, startFresh]);
 
   const onCallback = useCallback((data) => {
     const { status, action, index, type } = data;
@@ -126,7 +147,8 @@ export default function TourWrapper({ role, forceStart = false }) {
     // Tour finished or skipped → mark seen + stop running.
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      markTourSeen(role);
+      // Ship #12 — only mark role-tour as seen. Page tours are replayable on demand.
+      if (!pageMode) markTourSeen(role);
       return;
     }
 
@@ -166,7 +188,10 @@ export default function TourWrapper({ role, forceStart = false }) {
     }
   }, [role, steps, location.pathname, navigate, startFresh]);
 
-  if (!role || !tourDef || !steps.length) return null;
+  // Ship #12 — relax early-return so page tours work even if the persona
+  // has no role-tour defined. Render when either tour mode has steps.
+  if (!role) return null;
+  if (!steps.length) return null;
 
   return (
     <Joyride
