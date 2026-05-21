@@ -177,11 +177,21 @@ export default function ProjectManagement() {
     }
     setCreating(true);
     try {
-      // Auto-detect startup_id from logged-in user (Phase 96 decision).
-      // If user is startup persona, default startup_id to their own user.id (which is also their startup_profiles.user_id).
-      // Override allowed if form.startup_id explicitly set.
-      const startup_id = form.startup_id
+      // Ship #3 frontend swap (21 May 2026) — send startup_user_id (FK to users.id)
+      // instead of legacy startup_id (FK to startups.id). Backend Ship #3 ALTER
+      // added startup_user_id column + controller accepts both keys. Closes the
+      // SERIAL collision that caused FK violation for self-registered startups.
+      //
+      // Auto-detect startup ownership from logged-in user:
+      //   - If form.startup_id explicitly set (admin overrides), send as startup_id
+      //     (legacy path — preserves admin's intent to FK to a specific startups row)
+      //   - If user is startup persona, default startup_user_id to their own user.id
+      //   - Otherwise both null (org-level project)
+      const explicitLegacyStartupId = form.startup_id
         ? parseInt(form.startup_id, 10)
+        : null;
+      const startup_user_id = explicitLegacyStartupId
+        ? null
         : (user?.role === 'startup' ? user.id : null);
       const payload = {
         title: form.title.trim(),
@@ -192,7 +202,8 @@ export default function ProjectManagement() {
         end_date: form.end_date || null,
         budget: form.budget ? parseFloat(form.budget) : null,
         lead_id: form.lead_id ? parseInt(form.lead_id, 10) : (user?.id || null),
-        startup_id,
+        startup_id: explicitLegacyStartupId,
+        startup_user_id,
       };
       await projectAPI.create(payload);
       toast.success('Project created');
