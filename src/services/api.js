@@ -306,6 +306,8 @@ export const watchlistAPI = {
   remove:         (id)         => del(`/watchlists/${id}`),
   addStartup:     (id, sid)    => post(`/watchlists/${id}/startups`, { startup_id: sid }),
   removeStartup:  (id, sid)    => del(`/watchlists/${id}/startups/${sid}`),
+  // Ship #4 (22 May 2026) — watchlist PDF download URL (caller does authed fetch+blob)
+  pdfUrl:        (id)                  => `${BASE_URL}/watchlists/${id}/pdf`,
 };
 
 // ── DeepTech Assessments ──────────────────────────────────────

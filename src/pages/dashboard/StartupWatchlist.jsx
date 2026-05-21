@@ -327,10 +327,48 @@ export default function StartupWatchlist() {
                   >
                     <Plus size={12} /> Add Startup
                   </button>
-                  <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                  {/* Ship #4 (22 May 2026) — wire Export PDF + Share */}
+                  <button
+                    onClick={async () => {
+                      try {
+                        const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/watchlists/${selectedList.id}/pdf`;
+                        const token = localStorage.getItem('openi_token') || '';
+                        const resp = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+                        if (!resp.ok) throw new Error('Failed to export PDF');
+                        const blob = await resp.blob();
+                        const dlUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = dlUrl;
+                        a.download = `Watchlist-${(selectedList.name || 'list').replace(/[^a-zA-Z0-9]/g, '-').slice(0, 50)}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(dlUrl);
+                        toast.success('PDF downloaded');
+                      } catch (err) {
+                        toast.error(err.message || 'Failed to export PDF');
+                      }
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                  >
                     <Download size={12} /> Export PDF
                   </button>
-                  <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#fff8ec', color: G, border: '1px solid rgba(213,170,91,0.3)', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const shareUrl = `${window.location.origin}/dashboard/startup-watchlist?list=${selectedList.id}`;
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                          await navigator.clipboard.writeText(shareUrl);
+                          toast.success('Link copied to clipboard (visible to other OpenI users)');
+                        } else {
+                          toast.error('Clipboard API not available');
+                        }
+                      } catch (err) {
+                        toast.error('Failed to copy link');
+                      }
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#fff8ec', color: G, border: '1px solid rgba(213,170,91,0.3)', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                  >
                     <Share2 size={12} /> Share
                   </button>
                 </div>
