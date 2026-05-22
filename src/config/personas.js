@@ -108,7 +108,16 @@ const DEFAULT_WORKSPACE_KEYS = Object.keys(WORKSPACE_ITEMS);
  * @param {?Array<string>} cfg.workspace - keys from WORKSPACE_ITEMS (default: all)
  * @returns {{groups: Array<{key:string, items:Array}>}}
  */
-function buildPersonaNav(role, { recommended = null, actions = [], workspace = DEFAULT_WORKSPACE_KEYS } = {}) {
+function buildPersonaNav(role, { recommended = null, actions = [], workspace = null } = {}) {
+  // Default workspace = all items EXCEPT `invites` for seekers.
+  // Invitations Inbox is an invitee-side surface (Phase 99c). Seekers (corporate /
+  // government / investor / mentor / lab / incubator / accelerator / service_provider)
+  // SEND invites via per-challenge UI; they don't need a cross-challenge inbox.
+  // Providers (startup / student / academia) keep the entry to RECEIVE private invites.
+  const defaultKeys = PROVIDER_ROLES.includes(role)
+    ? DEFAULT_WORKSPACE_KEYS
+    : DEFAULT_WORKSPACE_KEYS.filter((k) => k !== 'invites');
+  const finalWorkspace = workspace || defaultKeys;
   const groups = [];
 
   // GROUP 1 — Your hub
@@ -143,7 +152,7 @@ function buildPersonaNav(role, { recommended = null, actions = [], workspace = D
   }
 
   // GROUP 5 — Workspace
-  const wsItems = workspace
+  const wsItems = finalWorkspace
     .map((k) => WORKSPACE_ITEMS[k])
     .filter(Boolean);
   if (wsItems.length > 0) {
