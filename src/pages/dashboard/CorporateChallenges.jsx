@@ -175,7 +175,10 @@ export default function CorporateChallenges() {
       const d = await corporateAPI.getChallenge(id); setDetail(d); setSelected(id);
       if (d.challenge?.status === 'open') loadRecommendations(id);
       else setRecommendedStartups([]);
-    } catch { toast.error('Failed to load challenge'); }
+    } catch (err) {
+      console.error('[loadDetail] failed:', err);
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to load challenge');
+    }
   };
 
   const create = async () => {
