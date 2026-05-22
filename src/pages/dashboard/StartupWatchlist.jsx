@@ -49,6 +49,11 @@ export default function StartupWatchlist() {
   // Phase 104d (22 May 2026 late evening) — multi-select state for Add Startup modal
   const [addSelected, setAddSelected] = useState(new Set());
   const addSeqRef                   = useRef(0);
+  // Ship #4 follow-up (22 May 2026 late evening) — tokenized public sharing
+  const [showSharesModal, setShowSharesModal] = useState(false);
+  const [sharesList, setSharesList] = useState([]);
+  const [sharesLoading, setSharesLoading] = useState(false);
+  const [minting, setMinting] = useState(false);
   const [search, setSearch]         = useState('');
   const [loading, setLoading]       = useState(true);
   const [newList, setNewList]       = useState({ name: '', description: '', visibility: 'internal', tags: '' });
@@ -219,6 +224,65 @@ export default function StartupWatchlist() {
     ));
   };
 
+  // Ship #4 follow-up — tokenized share handlers
+  const openSharesModal = async () => {
+    if (!selectedList) return;
+    setShowSharesModal(true);
+    setSharesLoading(true);
+    try {
+      const r = await watchlistAPI.listShares(selectedList.id);
+      setSharesList(Array.isArray(r) ? r : []);
+    } catch (err) {
+      console.error('[watchlist.listShares] failed:', err);
+      toast.error(err?.response?.data?.message || err.message || 'Failed to load share links');
+      setSharesList([]);
+    } finally {
+      setSharesLoading(false);
+    }
+  };
+
+  const mintNewShare = async () => {
+    if (!selectedList) return;
+    setMinting(true);
+    try {
+      const r = await watchlistAPI.createShare(selectedList.id, { expires_in_days: 30 });
+      setSharesList(prev => [r, ...prev]);
+      const shareUrl = `${window.location.origin}/watchlists/share/${r.token}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('New share link copied to clipboard');
+      } else {
+        toast.success('Share link created');
+      }
+    } catch (err) {
+      console.error('[watchlist.createShare] failed:', err);
+      toast.error(err?.response?.data?.message || err.message || 'Failed to create share link');
+    } finally {
+      setMinting(false);
+    }
+  };
+
+  const revokeOneShare = async (shareId) => {
+    try {
+      await watchlistAPI.revokeShare(shareId);
+      setSharesList(prev => prev.map(s => s.id === shareId ? { ...s, revoked_at: new Date().toISOString() } : s));
+      toast.success('Share link revoked');
+    } catch (err) {
+      console.error('[watchlist.revokeShare] failed:', err);
+      toast.error(err?.response?.data?.message || err.message || 'Failed to revoke');
+    }
+  };
+
+  const copyShareUrl = async (token) => {
+    const shareUrl = `${window.location.origin}/watchlists/share/${token}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Copied to clipboard');
+    } catch {
+      toast.error('Could not copy');
+    }
+  };
+
   const deleteList = (id) => {
     watchlistAPI.remove(id).catch(err => toast.error(err.message || 'Failed to delete watchlist'));
     setLists(prev => prev.filter(l => l.id !== id));
@@ -375,20 +439,9 @@ export default function StartupWatchlist() {
                   >
                     <Download size={12} /> Export PDF
                   </button>
+                  {/* Ship #4 follow-up — Share button now opens a Manage Shares modal */}
                   <button
-                    onClick={async () => {
-                      try {
-                        const shareUrl = `${window.location.origin}/dashboard/startup-watchlist?list=${selectedList.id}`;
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                          await navigator.clipboard.writeText(shareUrl);
-                          toast.success('Link copied to clipboard (visible to other OpenI users)');
-                        } else {
-                          toast.error('Clipboard API not available');
-                        }
-                      } catch (err) {
-                        toast.error('Failed to copy link');
-                      }
-                    }}
+                    onClick={openSharesModal}
                     style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#fff8ec', color: G, border: '1px solid rgba(213,170,91,0.3)', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     <Share2 size={12} /> Share
@@ -628,6 +681,85 @@ export default function StartupWatchlist() {
                 </button>
               </div>
             </>
+          )}
+        </Modal>
+      )}
+
+      {/* Ship #4 follow-up — Manage Shares modal (tokenized public sharing) */}
+      {showSharesModal && selectedList && (
+        <Modal title={`Share "${selectedList.name}"`} onClose={() => setShowSharesModal(false)}>
+          <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.5 }}>
+            Create a link that anyone can use to view this watchlist (no OpenI account needed). Links default to a 30-day expiry and can be revoked at any time.
+          </p>
+          <button
+            onClick={mintNewShare}
+            disabled={minting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16,
+              padding: '8px 16px', background: G, color: '#fff', border: 'none',
+              borderRadius: 9, cursor: minting ? 'not-allowed' : 'pointer',
+              fontSize: 13, fontWeight: 700,
+              opacity: minting ? 0.5 : 1,
+            }}
+          >
+            <Plus size={13} /> {minting ? 'Creating…' : 'Create new share link'}
+          </button>
+
+          {sharesLoading ? (
+            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+              Loading existing share links…
+            </p>
+          ) : sharesList.length === 0 ? (
+            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0', fontStyle: 'italic' }}>
+              No share links yet. Click the button above to create one.
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 320, overflowY: 'auto' }}>
+              {sharesList.map(s => {
+                const expired = s.expires_at && new Date(s.expires_at) < new Date();
+                const revoked = !!s.revoked_at;
+                const inactive = expired || revoked;
+                const shareUrl = `${window.location.origin}/watchlists/share/${s.token}`;
+                return (
+                  <div key={s.id} style={{
+                    padding: 12, borderRadius: 9,
+                    background: inactive ? '#fafafa' : '#fff8ec',
+                    border: `1px solid ${inactive ? '#eee' : 'rgba(213,170,91,0.3)'}`,
+                    opacity: inactive ? 0.6 : 1,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: revoked ? '#fef2f2' : (expired ? '#fef9e7' : '#f0fdf4'), color: revoked ? '#dc2626' : (expired ? '#a16207' : '#16a34a') }}>
+                        {revoked ? 'REVOKED' : (expired ? 'EXPIRED' : 'ACTIVE')}
+                      </span>
+                      <span style={{ fontSize: 11, color: '#888', flex: 1 }}>
+                        Created {new Date(s.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {s.expires_at && !revoked && !expired && (
+                          <> · Expires {new Date(s.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>
+                        )}
+                      </span>
+                    </div>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: 8,
+                      background: '#fff', borderRadius: 7, border: '1px solid #eee',
+                      fontSize: 11, color: '#555', fontFamily: 'monospace',
+                      overflow: 'hidden',
+                    }}>
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shareUrl}</span>
+                      {!inactive && (
+                        <>
+                          <button onClick={() => copyShareUrl(s.token)} style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#555', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                            Copy
+                          </button>
+                          <button onClick={() => revokeOneShare(s.id)} style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#dc2626', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                            Revoke
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </Modal>
       )}

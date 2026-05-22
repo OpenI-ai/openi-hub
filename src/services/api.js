@@ -313,6 +313,22 @@ export const watchlistAPI = {
   removeStartup:  (id, sid)    => del(`/watchlists/${id}/startups/${sid}`),
   // Ship #4 (22 May 2026) — watchlist PDF download URL (caller does authed fetch+blob)
   pdfUrl:        (id)                  => `${BASE_URL}/watchlists/${id}/pdf`,
+  // Ship #4 follow-up (22 May 2026 late evening) — tokenized public sharing
+  createShare:   (id, opts = {})       => post(`/watchlists/${id}/shares`, opts),
+  listShares:    (id)                  => get(`/watchlists/${id}/shares`),
+  revokeShare:   (shareId)             => del(`/watchlists/shares/${shareId}`),
+};
+
+// PUBLIC unauthed read by share token. Hits /api/public/watchlists/share/:token.
+// Note: no Authorization header — this is the recipient-side fetch from a
+// possibly-unauthenticated browser. We call request() directly with skipAuth.
+export const publicWatchlistShare = {
+  read: (token) => fetch(`${BASE_URL}/public/watchlists/share/${encodeURIComponent(token)}`)
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.message || `HTTP ${r.status}`);
+      return body;
+    }),
 };
 
 // ── DeepTech Assessments ──────────────────────────────────────
