@@ -239,6 +239,9 @@ export const eventAPI = {
   create:   (data)        => post('/events', data),
   publish:  (id)          => post(`/events/${id}/publish`),
   register: (id)          => post(`/events/${id}/register`),
+  // Ship #10 follow-up (22 May 2026 late evening) — persistent per-user registration tracking
+  unregister:       (id)  => del(`/events/${id}/register`),
+  myRegistrations:  ()    => get(`/my/event-registrations`),
   // Ship #11 (21 May 2026) — DELETE gated server-side to creator + same-org co-creators
   delete:   (id)          => del(`/events/${id}`),
   // Ship #10 (22 May 2026) — direct PDF download URL. Auth handled via cookie/JWT

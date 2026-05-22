@@ -105,23 +105,29 @@ export default function EventsRepository() {
   const [form, setForm]         = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
 
+  // Ship #10 follow-up (22 May 2026 late evening) — registered set is now
+  // backend-backed via event_registrations table. Pre-follow-up was in-session
+  // only (refresh re-enabled the Register button).
+  const [registeredSet, setRegisteredSet] = useState(new Set());
+
   useEffect(() => {
-    eventAPI.list()
-      .then(data => {
-        const raw = data.events || data || [];
+    // Parallel fetch: events list + the current user's registration ids.
+    // myRegistrations is auth-only and never fails for a logged-in user;
+    // catch silently so a transient failure still lets the page load.
+    Promise.all([
+      eventAPI.list().catch(err => { toast.error(err?.response?.data?.message || err.message || 'Failed to load events'); return { events: [] }; }),
+      eventAPI.myRegistrations().catch(err => { console.error('[event.myRegistrations] failed:', err); return { event_ids: [] }; }),
+    ])
+      .then(([eventsData, regsData]) => {
+        const raw = eventsData.events || eventsData || [];
         setEvents(raw.map(normalizeEvent));
+        setRegisteredSet(new Set(regsData.event_ids || []));
       })
-      .catch(err => toast.error(err.message || 'Failed to load events'))
       .finally(() => setLoading(false));
   }, []);
 
-  // Ship #10 (22 May 2026) — registered set tracks in-session registrations
-  // for the disable-after-click UX. Per-user persistent tracking deferred to
-  // a future ship when event_registrations table lands.
-  const [registeredSet, setRegisteredSet] = useState(new Set());
-
   const handleRegister = (evId) => {
-    if (registeredSet.has(evId)) return; // already clicked this session
+    if (registeredSet.has(evId)) return; // already registered (backend will no-op anyway via ON CONFLICT)
     eventAPI.register(evId)
       .then(() => {
         toast.success('Registered for event successfully');
@@ -131,7 +137,10 @@ export default function EventsRepository() {
         }
         setRegisteredSet(prev => { const s = new Set(prev); s.add(evId); return s; });
       })
-      .catch(err => toast.error(err.message || 'Failed to register'));
+      .catch(err => {
+        console.error('[event.register] failed:', err);
+        toast.error(err?.response?.data?.message || err.message || 'Failed to register');
+      });
   };
 
   // Ship #10 (22 May 2026) — brochure download via authed fetch + blob.
