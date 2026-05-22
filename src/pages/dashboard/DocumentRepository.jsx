@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+// Phase 104b — added useMemo for dynamic folder derivation, uploadAPI for Cloudinary uploads, ExternalLink + Loader2 for preview/upload UI
+import { useState, useEffect, useMemo, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { documentAPI } from '../../services/api';
+import { documentAPI, uploadAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   FolderOpen, Folder, FileText, File, FileImage, FileCode,
   Upload, Download, Search, Filter, Plus, Trash2, Eye,
   ChevronRight, Lock, Globe, Users, Star, Clock,
   MoreHorizontal, Grid, List, ArrowLeft, Share2,
-  Shield, CheckCircle2, AlertTriangle,
+  Shield, CheckCircle2, AlertTriangle, ExternalLink, Loader2, X,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -37,31 +38,20 @@ const getFileType = (name) => {
   return FILE_TYPES[ext] || FILE_TYPES.default;
 };
 
-const FOLDERS = [
-  {
-    id: 'f1', name: 'Program Documents',    icon: Folder, count: 12, color: G,
-    children: [
-      { id: 'f1a', name: 'ArmorTech AI',       icon: Folder, count: 5, color: G, children: [] },
-      { id: 'f1b', name: 'DroneShield Systems', icon: Folder, count: 4, color: G, children: [] },
-      { id: 'f1c', name: 'QuantumDefense',      icon: Folder, count: 3, color: G, children: [] },
-    ],
-  },
-  {
-    id: 'f2', name: 'Evaluation Reports',   icon: Folder, count: 8,  color: '#2563eb', children: [],
-  },
-  {
-    id: 'f3', name: 'Contracts & Legal',    icon: Folder, count: 6,  color: '#dc2626', children: [],
-  },
-  {
-    id: 'f4', name: 'Technical Specs',      icon: Folder, count: 15, color: '#7c3aed', children: [],
-  },
-  {
-    id: 'f5', name: 'Financial Records',    icon: Folder, count: 10, color: '#16a34a', children: [],
-  },
-  {
-    id: 'f6', name: 'IPR Documents',        icon: Folder, count: 7,  color: '#ea580c', children: [],
-  },
+// Phase 104b — folder seed (suggested categories in the Upload modal dropdown).
+// Actual folder list in the sidebar is derived dynamically from real files state.
+// Pre-Phase-104b hardcoded fictional demo sub-folders were dropped.
+const CATEGORY_SUGGESTIONS = [
+  'Program Documents',
+  'Evaluation Reports',
+  'Contracts & Legal',
+  'Technical Specs',
+  'Financial Records',
+  'IPR Documents',
+  'Other',
 ];
+
+const FOLDER_COLOR_ROTATION = [G, '#2563eb', '#dc2626', '#7c3aed', '#16a34a', '#ea580c', '#0891b2', '#db2777'];
 
 // FILES are loaded from API
 
@@ -82,29 +72,129 @@ export default function DocumentRepository() {
   const [files, setFiles]         = useState([]);
   const [loading, setLoading]     = useState(true);
 
-  useEffect(() => {
+  // Phase 104b — Upload Document modal state
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadForm, setUploadForm] = useState({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+  const [uploadedUrl, setUploadedUrl] = useState('');
+  const [uploadedMeta, setUploadedMeta] = useState(null); // {filename, size, type}
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const uploadInputRef = useRef(null);
+
+  // Phase 104b — Eye preview modal state
+  const [previewDoc, setPreviewDoc] = useState(null);
+
+  const loadDocuments = () => {
     documentAPI.list()
       .then(data => {
         const docs = data.documents || data || [];
         const normalized = docs.map(d => ({
           id: d.id,
           name: d.name || d.title || '',
-          folder: d.folder || d.category || 'Program Documents',
-          size: d.size || d.file_size || '—',
+          folder: d.folder || d.category || 'Other',
+          size: d.size || (d.file_size ? `${(d.file_size / 1024 / 1024).toFixed(2)} MB` : '—'),
+          file_size: d.file_size || 0,
           type: d.type || d.file_type || (d.name ? d.name.split('.').pop() : 'pdf'),
+          file_path: d.file_path || '',
           uploaded: d.uploaded_at || d.created_at ? new Date(d.uploaded_at || d.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
-          by: d.uploaded_by || d.author || '',
+          by: d.uploaded_by_name || d.author || '',
           access: d.access || 'internal',
-          starred: d.starred || false,
+          starred: d.is_starred || d.starred || false,
           tags: d.tags || [],
         }));
         setFiles(normalized);
       })
-      .catch(err => { toast.error(err.message || 'Failed to load documents'); setFiles([]); })
+      .catch(err => {
+        console.error('[documents.list] failed:', err);
+        toast.error(err?.response?.data?.message || err.message || 'Failed to load documents');
+        setFiles([]);
+      })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadDocuments(); }, []);
 
   const toggleFolder = (id) => setExpandedFolders(prev => ({ ...prev, [id]: !prev[id] }));
+
+  // Phase 104b — Upload modal handlers
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File too large. Maximum 10MB.');
+      e.target.value = '';
+      return;
+    }
+    setUploading(true);
+    try {
+      const result = await uploadAPI.upload(file, 'documents');
+      setUploadedUrl(result.url);
+      setUploadedMeta({
+        filename: file.name,
+        size: file.size,
+        type: file.type || file.name.split('.').pop().toLowerCase(),
+      });
+      // Auto-fill the name field if empty
+      setUploadForm(prev => ({ ...prev, name: prev.name || file.name }));
+    } catch (err) {
+      console.error('[upload] failed:', err);
+      toast.error(err?.response?.data?.message || err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleSaveUpload = async () => {
+    if (!uploadForm.name.trim()) return toast.error('Document name is required');
+    if (!uploadedUrl) return toast.error('Please upload a file first');
+    setSaving(true);
+    try {
+      await documentAPI.create({
+        name: uploadForm.name.trim(),
+        file_path: uploadedUrl,
+        file_type: uploadedMeta?.type || '',
+        file_size: uploadedMeta?.size || 0,
+        category: uploadForm.category,
+        access: uploadForm.access,
+        tags: uploadForm.tags ? uploadForm.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      });
+      toast.success('Document uploaded');
+      setShowUpload(false);
+      setUploadForm({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+      setUploadedUrl('');
+      setUploadedMeta(null);
+      loadDocuments();
+    } catch (err) {
+      console.error('[documents.create] failed:', err);
+      toast.error(err?.response?.data?.message || err.message || 'Failed to save document');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const closeUploadModal = () => {
+    setShowUpload(false);
+    setUploadForm({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+    setUploadedUrl('');
+    setUploadedMeta(null);
+  };
+
+  // Phase 104b — Eye / Download / Share handlers
+  const handlePreview = (f) => setPreviewDoc(f);
+  const handleDownload = (f) => {
+    if (!f.file_path) return toast.error('No file attached to this document');
+    window.open(f.file_path, '_blank', 'noopener,noreferrer');
+  };
+  const handleShare = async (f) => {
+    if (!f.file_path) return toast.error('No file attached to this document');
+    try {
+      await navigator.clipboard.writeText(f.file_path);
+      toast.success('Link copied to clipboard');
+    } catch {
+      toast.error('Could not copy to clipboard');
+    }
+  };
 
   if (loading) return <LoadingSkeleton type="table" />;
 
@@ -117,7 +207,23 @@ export default function DocumentRepository() {
     return matchFolder && matchSearch && matchAccess && matchStar;
   });
 
-  const totalSize = files.reduce((s, f) => s + (parseFloat(f.size) || 0), 0).toFixed(1) + ' MB';
+  // Phase 104b — derive folders dynamically from actual files state.
+  // Each unique category becomes a folder with a real count + a deterministic color.
+  const dynamicFolders = useMemo(() => {
+    const counts = files.reduce((acc, f) => {
+      const key = f.folder || 'Other';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.keys(counts).sort().map((name, idx) => ({
+      id: `folder-${idx}`,
+      name,
+      count: counts[name],
+      color: FOLDER_COLOR_ROTATION[idx % FOLDER_COLOR_ROTATION.length],
+    }));
+  }, [files]);
+
+  const totalSize = (files.reduce((s, f) => s + (f.file_size || 0), 0) / 1024 / 1024).toFixed(1) + ' MB';
   const totalFiles = files.length;
 
   return (
@@ -128,12 +234,15 @@ export default function DocumentRepository() {
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Document Repository</h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Centralised storage for all OpenI program documents</p>
         </div>
-        <button style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '8px 16px', background: G, color: '#fff',
-          border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700,
-          boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
-        }}
+        {/* Phase 104b — wire Upload Document button (was Phase 66/T9 pattern stub) */}
+        <button
+          onClick={() => setShowUpload(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 16px', background: G, color: '#fff',
+            border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700,
+            boxShadow: '0 2px 10px rgba(213,170,91,0.3)',
+          }}
           onMouseEnter={e => e.currentTarget.style.background = GH}
           onMouseLeave={e => e.currentTarget.style.background = G}
         >
@@ -178,14 +287,16 @@ export default function DocumentRepository() {
             <span style={{ fontSize: 12, fontWeight: !selectedFolder ? 700 : 500, color: !selectedFolder ? G : '#555', flex: 1 }}>All Documents</span>
             <span style={{ fontSize: 10, color: '#aaa' }}>{files.length}</span>
           </div>
-          {/* Folder tree */}
-          {FOLDERS.map(folder => (
+          {/* Phase 104b — dynamic folder list (replaces hardcoded FOLDERS) */}
+          {dynamicFolders.length === 0 && (
+            <div style={{ fontSize: 11, color: '#aaa', padding: '8px 10px', fontStyle: 'italic' }}>
+              No documents yet
+            </div>
+          )}
+          {dynamicFolders.map(folder => (
             <div key={folder.id}>
               <div
-                onClick={() => {
-                  setSelectedFolder(folder.name);
-                  if (folder.children?.length > 0) toggleFolder(folder.id);
-                }}
+                onClick={() => setSelectedFolder(folder.name)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', marginBottom: 2,
                   background: selectedFolder === folder.name ? 'rgba(213,170,91,0.1)' : 'transparent',
@@ -194,29 +305,11 @@ export default function DocumentRepository() {
                 onMouseEnter={e => { if (selectedFolder !== folder.name) e.currentTarget.style.background = '#fafafa'; }}
                 onMouseLeave={e => { if (selectedFolder !== folder.name) e.currentTarget.style.background = 'transparent'; }}
               >
-                {folder.children?.length > 0 ? (
-                  <ChevronRight size={10} color="#aaa" style={{ transform: expandedFolders[folder.id] ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
-                ) : <div style={{ width: 10 }} />}
+                <div style={{ width: 10 }} />
                 <Folder size={13} color={folder.color} />
                 <span style={{ fontSize: 12, fontWeight: 500, color: '#555', flex: 1 }}>{folder.name}</span>
                 <span style={{ fontSize: 10, color: '#aaa' }}>{folder.count}</span>
               </div>
-              {/* Children */}
-              {expandedFolders[folder.id] && folder.children?.map(child => (
-                <div key={child.id}
-                  onClick={() => setSelectedFolder(child.name)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px 7px 28px', borderRadius: 8, cursor: 'pointer', marginBottom: 2,
-                    background: selectedFolder === child.name ? 'rgba(213,170,91,0.08)' : 'transparent',
-                  }}
-                  onMouseEnter={e => { if (selectedFolder !== child.name) e.currentTarget.style.background = '#fafafa'; }}
-                  onMouseLeave={e => { if (selectedFolder !== child.name) e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <Folder size={12} color={child.color} />
-                  <span style={{ fontSize: 11, color: '#666', flex: 1 }}>{child.name}</span>
-                  <span style={{ fontSize: 10, color: '#aaa' }}>{child.count}</span>
-                </div>
-              ))}
             </div>
           ))}
 
@@ -374,16 +467,35 @@ export default function DocumentRepository() {
                     <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: as.bg, color: as.color, border: `1px solid ${as.border}`, display: 'inline-flex', alignItems: 'center', gap: 3, width: 'fit-content' }}>
                       <AIcon size={8} />{as.label}
                     </span>
-                    {/* Actions */}
+                    {/* Phase 104b — wire Eye / Download / Share buttons (were Phase 66/T9 pattern stubs) */}
                     <div style={{ display: 'flex', gap: 4 }}>
-                      {[Eye, Download, Share2].map((Icon, idx) => (
-                        <button key={idx} style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
-                          onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
-                        >
-                          <Icon size={13} />
-                        </button>
-                      ))}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handlePreview(f); }}
+                        title="Preview"
+                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
+                      >
+                        <Eye size={13} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDownload(f); }}
+                        title="Download"
+                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
+                      >
+                        <Download size={13} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleShare(f); }}
+                        title="Copy link"
+                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
+                      >
+                        <Share2 size={13} />
+                      </button>
                     </div>
                   </div>
                 );
@@ -398,6 +510,184 @@ export default function DocumentRepository() {
           )}
         </div>
       </div>
+
+      {/* Phase 104b — Upload Document modal */}
+      {showUpload && (
+        <div role="dialog" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 14, padding: 24, maxWidth: 540, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>Upload Document</h3>
+              <button onClick={closeUploadModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <X size={18} color="#666" />
+              </button>
+            </div>
+
+            {/* File picker */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>File <span style={{ color: '#dc2626' }}>*</span></label>
+              <input type="file" ref={uploadInputRef} onChange={handleFileSelect} style={{ display: 'none' }} accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt,.csv" />
+              {!uploadedUrl ? (
+                <button
+                  onClick={() => uploadInputRef.current?.click()}
+                  disabled={uploading}
+                  style={{
+                    width: '100%', padding: 16, background: '#fafafa', border: '2px dashed #ddd', borderRadius: 9, cursor: uploading ? 'not-allowed' : 'pointer',
+                    fontSize: 13, color: '#666', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                  }}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 size={20} color={G} style={{ animation: 'spin 1s linear infinite' }} />
+                      <span>Uploading…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={20} color={G} />
+                      <span>Click to select a file (max 10MB)</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9, padding: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <CheckCircle2 size={18} color="#16a34a" />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{uploadedMeta?.filename || 'File uploaded'}</div>
+                    <div style={{ fontSize: 10, color: '#666' }}>{uploadedMeta?.size ? `${(uploadedMeta.size / 1024 / 1024).toFixed(2)} MB` : ''}</div>
+                  </div>
+                  <button onClick={() => { setUploadedUrl(''); setUploadedMeta(null); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#dc2626' }}>
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Name */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Document Name <span style={{ color: '#dc2626' }}>*</span></label>
+              <input
+                type="text"
+                value={uploadForm.name}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g. Q1 Financial Report"
+                maxLength={500}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a' }}
+              />
+            </div>
+
+            {/* Category */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Folder / Category</label>
+              <select
+                value={uploadForm.category}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, category: e.target.value }))}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a', background: '#fff' }}
+              >
+                {CATEGORY_SUGGESTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            {/* Access */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Access</label>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {[
+                  { value: 'public',     label: 'Public',     hint: 'Anyone on OpenI can see this' },
+                  { value: 'internal',   label: 'Internal',   hint: 'Only you can see this' },
+                  { value: 'restricted', label: 'Restricted', hint: 'Only you can see this (locked)' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setUploadForm(prev => ({ ...prev, access: opt.value }))}
+                    title={opt.hint}
+                    style={{
+                      flex: 1, padding: '8px 6px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                      background: uploadForm.access === opt.value ? G : '#fff',
+                      color: uploadForm.access === opt.value ? '#fff' : '#666',
+                      border: `1.5px solid ${uploadForm.access === opt.value ? G : '#eee'}`,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tags <span style={{ color: '#888', fontWeight: 400 }}>(comma-separated, optional)</span></label>
+              <input
+                type="text"
+                value={uploadForm.tags}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, tags: e.target.value }))}
+                placeholder="e.g. quarterly, finance"
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a' }}
+              />
+            </div>
+
+            {/* Footer */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button
+                onClick={closeUploadModal}
+                disabled={saving}
+                style={{ padding: '9px 18px', background: '#fff', color: '#666', border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveUpload}
+                disabled={saving || !uploadedUrl || !uploadForm.name.trim()}
+                style={{
+                  padding: '9px 18px', background: G, color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700,
+                  cursor: (saving || !uploadedUrl || !uploadForm.name.trim()) ? 'not-allowed' : 'pointer',
+                  opacity: (saving || !uploadedUrl || !uploadForm.name.trim()) ? 0.5 : 1,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Upload size={14} />}
+                {saving ? 'Saving…' : 'Save Document'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Phase 104b — Preview modal */}
+      {previewDoc && (
+        <div role="dialog" onClick={() => setPreviewDoc(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: 24, maxWidth: 540, width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#1a1a1a', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{previewDoc.name}</h3>
+              <button onClick={() => setPreviewDoc(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <X size={18} color="#666" />
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.8 }}>
+              <div><strong style={{ color: '#333' }}>Folder:</strong> {previewDoc.folder}</div>
+              <div><strong style={{ color: '#333' }}>Size:</strong> {previewDoc.size}</div>
+              <div><strong style={{ color: '#333' }}>Type:</strong> {previewDoc.type}</div>
+              <div><strong style={{ color: '#333' }}>Uploaded:</strong> {previewDoc.uploaded}</div>
+              {previewDoc.by && <div><strong style={{ color: '#333' }}>By:</strong> {previewDoc.by}</div>}
+              <div><strong style={{ color: '#333' }}>Access:</strong> {previewDoc.access}</div>
+              {previewDoc.tags?.length > 0 && (
+                <div><strong style={{ color: '#333' }}>Tags:</strong> {previewDoc.tags.join(', ')}</div>
+              )}
+            </div>
+            {previewDoc.file_path && (
+              <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+                <a
+                  href={previewDoc.file_path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ flex: 1, textAlign: 'center', padding: '10px 14px', background: G, color: '#fff', borderRadius: 9, fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                >
+                  <ExternalLink size={13} /> Open in new tab
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
