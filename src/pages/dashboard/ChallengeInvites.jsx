@@ -50,7 +50,7 @@ export default function ChallengeInvites() {
     <div style={{ padding: 24, maxWidth: 980, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
         <Inbox size={28} color={G} />
-        <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>My Challenge Invites</h1>
+        <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Invitations Inbox</h1>
       </div>
       <p style={{ color: '#666', fontSize: 13, marginTop: 4, marginBottom: 24 }}>
         Private challenges you have been invited to. Accept to apply; decline to remove from this list.
