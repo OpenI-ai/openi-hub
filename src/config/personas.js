@@ -174,6 +174,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
       { to: '/dashboard/deeptech',        label: 'DeepTech Qual.', icon: 'Zap' },
       { to: '/dashboard/feedback',        label: 'Feedback',       icon: 'ThumbsUp' },
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',     label: 'Programs',       icon: 'FileText' },
+      { to: '/dashboard/evaluate',        label: '8-Vector Eval',  icon: 'BarChart3' },
     ],
   }),
   student: buildPersonaNav('student', {
@@ -200,6 +203,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/corporate/challenges', label: 'Challenges',     icon: 'Target' },
       { to: '/dashboard/corporate/collabs',    label: 'Collaborations', icon: 'Link2' },
       { to: '/dashboard/ipr',                  label: 'IPR Portfolio',  icon: 'Shield' }, // Phase 94
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',          label: 'Programs',       icon: 'FileText' },
+      { to: '/dashboard/evaluate',             label: '8-Vector Eval',  icon: 'BarChart3' },
     ],
   }),
   government: buildPersonaNav('government', {
@@ -209,6 +215,8 @@ export const PERSONA_NAV = {
       { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
       { to: '/dashboard/govt-apis',            label: 'Govt. APIs',      icon: 'Link2' },
       { to: '/dashboard/ipr',                  label: 'IPR Portfolio',   icon: 'Shield' }, // Phase 94
+      // Phase 103 — Universal 8-Vector Evaluation (Programs already above)
+      { to: '/dashboard/evaluate',             label: '8-Vector Eval',   icon: 'BarChart3' },
     ],
   }),
   investor: buildPersonaNav('investor', {
@@ -220,6 +228,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
       { to: '/dashboard/deeptech',               label: 'DeepTech',      icon: 'Zap' },
       { to: '/dashboard/ipr',                    label: 'IPR Portfolio', icon: 'Shield' }, // Phase 94
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',            label: 'Programs',      icon: 'FileText' },
+      { to: '/dashboard/evaluate',               label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
   mentor: buildPersonaNav('mentor', {
@@ -227,6 +238,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
       { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
       { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',         label: 'Programs',      icon: 'FileText' },
+      { to: '/dashboard/evaluate',            label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
   lab: buildPersonaNav('lab', {
@@ -235,6 +249,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/lab/bookings',     label: 'Bookings',     icon: 'CalendarCheck' },
       { to: '/dashboard/lab/publications', label: 'Publications', icon: 'FileText' },
       // Phase 89.2 — IPR Database removed from lab nav (admin-only feature).
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',      label: 'Programs',      icon: 'FileText' },
+      { to: '/dashboard/evaluate',         label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
   incubator: buildPersonaNav('incubator', {
@@ -244,6 +261,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',    icon: 'Shield' }, // Phase 94
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',              label: 'Programs',         icon: 'FileText' },
+      { to: '/dashboard/evaluate',                 label: '8-Vector Eval',    icon: 'BarChart3' },
     ],
   }),
   accelerator: buildPersonaNav('accelerator', {
@@ -253,6 +273,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners',   icon: 'Link2' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',      icon: 'Shield' }, // Phase 94
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations',              label: 'Programs',           icon: 'FileText' },
+      { to: '/dashboard/evaluate',                 label: '8-Vector Eval',      icon: 'BarChart3' },
     ],
   }),
   service_provider: buildPersonaNav('service_provider', {
@@ -261,6 +284,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/sp/clients',  label: 'Clients',     icon: 'Building2' },
       { to: '/dashboard/sp/reviews',  label: 'Reviews',     icon: 'Star' },
       { to: '/dashboard/marketplace', label: 'Marketplace', icon: 'Target' },
+      // Phase 103 — Universal 8-Vector Evaluation
+      { to: '/dashboard/evaluations', label: 'Programs',      icon: 'FileText' },
+      { to: '/dashboard/evaluate',    label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
 };
