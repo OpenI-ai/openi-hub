@@ -64,7 +64,8 @@ export default function CorporateRecommendedStartups() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <div style={{ marginBottom: 20 }}>
+      {/* Ship #12 follow-up — tour anchors */}
+      <div id="tour-page-recs-header" style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>
@@ -72,7 +73,7 @@ export default function CorporateRecommendedStartups() {
           Startups matching your innovation areas, ranked by topical alignment and applied signal.
         </p>
         {basedOn.length > 0 && (
-          <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <div id="tour-page-recs-basedon" style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             <span style={{ fontSize: 11, color: '#888' }}>Based on:</span>
             {basedOn.slice(0, 6).map((tag, i) => (
               <span

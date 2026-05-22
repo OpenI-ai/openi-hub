@@ -351,11 +351,12 @@ export default function Marketplace() {
   // ── Browse / My Applications tabs ───────────────────────────
   return (
     <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      {/* Ship #12 follow-up — tour anchors */}
+      <div id="tour-page-marketplace-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Innovation Marketplace
         </h1>
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div id="tour-page-marketplace-tabs" style={{ display: 'flex', gap: 4 }}>
           <button onClick={() => { setTab('browse'); }} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: '8px 0 0 8px', border: `1px solid ${tab === 'browse' ? G : '#e5e7eb'}`, background: tab === 'browse' ? G : '#fff', color: tab === 'browse' ? '#fff' : '#666', cursor: 'pointer' }}>Browse</button>
           <button onClick={() => { setTab('applications'); loadMyApps(); }} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: '0 8px 8px 0', border: `1px solid ${tab === 'applications' ? G : '#e5e7eb'}`, background: tab === 'applications' ? G : '#fff', color: tab === 'applications' ? '#fff' : '#666', cursor: 'pointer' }}>My Applications</button>
         </div>
@@ -401,8 +402,8 @@ export default function Marketplace() {
       ) : (
         /* Browse challenges */
         <div>
-          {/* Search bar */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+          {/* Search bar — Ship #12 follow-up tour anchor */}
+          <div id="tour-page-marketplace-search" style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
               <input placeholder="Search challenges by title, problem, description..." value={search}

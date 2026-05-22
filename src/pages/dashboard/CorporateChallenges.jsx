@@ -955,11 +955,12 @@ export default function CorporateChallenges() {
   // List + Create
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      {/* Ship #12 follow-up — tour anchors */}
+      <div id="tour-page-challenges-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Innovation Challenges
         </h1>
-        <button onClick={() => { loadTemplates(); setShowTemplatePicker(true); }}
+        <button id="tour-page-challenges-new" onClick={() => { loadTemplates(); setShowTemplatePicker(true); }}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
           <Plus size={15} /> New Challenge
         </button>

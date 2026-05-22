@@ -343,5 +343,90 @@ export const PAGE_TOURS = {
       },
     ],
   },
+  // Ship #12 follow-up (22 May 2026 late evening) — 4 more page tours.
+  '/dashboard/marketplace': {
+    title: 'Innovation Marketplace',
+    steps: [
+      {
+        target: '#tour-page-marketplace-header',
+        title: 'Innovation Marketplace',
+        content: 'This is where you discover open challenges from corporates, government bodies, investors and incubators. Anyone can apply if they match the brief.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-marketplace-tabs',
+        title: 'Browse vs My Applications',
+        content: 'Switch between browsing the live marketplace and tracking the applications you have already submitted. The My Applications view shows status and review feedback.',
+        placement: 'left',
+      },
+      {
+        target: '#tour-page-marketplace-search',
+        title: 'Search and filter',
+        content: 'Use the search bar for keywords and the Filters button for sector, technology, location and use-case. Save time by narrowing to the briefs that actually match your capabilities.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  '/dashboard/directory': {
+    title: 'Directory',
+    steps: [
+      {
+        target: '#tour-page-directory-header',
+        title: 'The OpenI Directory',
+        content: 'Every innovator, mentor, investor, lab and partner on the platform lives here. Use this to discover, connect, and grow your network.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-directory-search',
+        title: 'Search across the ecosystem',
+        content: 'Type a name, organisation, or tagline. Press Search or Enter to query the catalogue. The dropdown next to it lets you sort by relevance, recency or alphabetical order.',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-page-directory-filters',
+        title: 'Refine by persona, location, sector',
+        content: 'Click Filters to narrow by persona type (Startup, Investor, Mentor, etc.), geography (city/state), or sector/skill. Combine filters to find the right people fast.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  '/dashboard/corporate/challenges': {
+    title: 'Innovation Challenges',
+    steps: [
+      {
+        target: '#tour-page-challenges-header',
+        title: 'Your challenges, all in one place',
+        content: 'Every challenge you launched lives here. Click any card to see the application queue, invite startups, manage RFI responses, and review submissions.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-challenges-new',
+        title: 'Launch a new challenge',
+        content: 'Click New Challenge to open the template picker. Start from a curated template (Defence, Healthcare, ClimateTech and more) or pick Blank to build from scratch. You can save as draft and publish later.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/corporate/recommended-startups': {
+    title: 'Recommended Startups',
+    steps: [
+      {
+        target: '#tour-page-recs-header',
+        title: 'Curated for you',
+        content: 'Startups matching your innovation areas, ranked by topical alignment and applied signal. We surface providers whose offerings overlap with what your organisation cares about.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-recs-basedon',
+        title: 'Why these recommendations?',
+        content: 'These tags show which of your interests we used to rank the list. Update your Innovation Areas in My Profile to change the recommendations you see.',
+        placement: 'bottom',
+      },
+    ],
+  },
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };

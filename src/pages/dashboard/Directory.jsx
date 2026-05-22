@@ -187,8 +187,8 @@ export default function Directory() {
   // ── List View ──────────────────────────────────────────────
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 20 }}>
+      {/* Header — Ship #12 follow-up tour anchor */}
+      <div id="tour-page-directory-header" style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px' }}>Directory</h1>
         <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Discover innovators, mentors, investors, labs, and more across the ecosystem</p>
         <ContextualTip tipKey="directory-intro">
@@ -196,8 +196,8 @@ export default function Directory() {
         </ContextualTip>
       </div>
 
-      {/* Search bar */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+      {/* Search bar — Ship #12 follow-up tour anchor */}
+      <div id="tour-page-directory-search" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <div style={{ flex: 1, position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
           <input
@@ -212,7 +212,7 @@ export default function Directory() {
           style={{ padding: '10px 20px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
           Search
         </button>
-        <button onClick={() => setShowFilters(!showFilters)}
+        <button id="tour-page-directory-filters" onClick={() => setShowFilters(!showFilters)}
           style={{ padding: '10px 14px', fontSize: 13, borderRadius: 10, background: showFilters ? '#f0f0f0' : '#fff', border: '1px solid #ddd', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Filter size={14} /> Filters
         </button>
