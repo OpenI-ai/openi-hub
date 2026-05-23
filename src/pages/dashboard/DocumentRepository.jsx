@@ -84,6 +84,23 @@ export default function DocumentRepository() {
   // Phase 104b — Eye preview modal state
   const [previewDoc, setPreviewDoc] = useState(null);
 
+  // Phase 104c — hook order fix: dynamicFolders useMemo moved above early return
+  // (was after `if (loading) return ...` which violated rules-of-hooks because
+  // the useMemo was skipped on first render but reached on second render).
+  const dynamicFolders = useMemo(() => {
+    const counts = files.reduce((acc, f) => {
+      const key = f.folder || 'Other';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.keys(counts).sort().map((name, idx) => ({
+      id: `folder-${idx}`,
+      name,
+      count: counts[name],
+      color: FOLDER_COLOR_ROTATION[idx % FOLDER_COLOR_ROTATION.length],
+    }));
+  }, [files]);
+
   const loadDocuments = () => {
     documentAPI.list()
       .then(data => {
@@ -206,22 +223,6 @@ export default function DocumentRepository() {
     const matchStar = !showStarred || f.starred;
     return matchFolder && matchSearch && matchAccess && matchStar;
   });
-
-  // Phase 104b — derive folders dynamically from actual files state.
-  // Each unique category becomes a folder with a real count + a deterministic color.
-  const dynamicFolders = useMemo(() => {
-    const counts = files.reduce((acc, f) => {
-      const key = f.folder || 'Other';
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {});
-    return Object.keys(counts).sort().map((name, idx) => ({
-      id: `folder-${idx}`,
-      name,
-      count: counts[name],
-      color: FOLDER_COLOR_ROTATION[idx % FOLDER_COLOR_ROTATION.length],
-    }));
-  }, [files]);
 
   const totalSize = (files.reduce((s, f) => s + (f.file_size || 0), 0) / 1024 / 1024).toFixed(1) + ' MB';
   const totalFiles = files.length;
