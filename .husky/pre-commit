@@ -1,0 +1,2 @@
+# Phase 104d v9 - run lint-staged on every commit
+npx lint-staged
