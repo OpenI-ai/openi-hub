@@ -61,19 +61,11 @@ export default function DashboardHome() {
   // user.role for back-compat with old caches that haven't been refreshed yet.
   const effectiveRole = activeRole || user?.role;
 
-  // Phase 20: redirect new users to onboarding wizard
-  const ALL_PERSONA_ROLES = ['startup','student','academia','corporate','government','investor','mentor','lab','incubator','accelerator','service_provider'];
-  if (ALL_PERSONA_ROLES.includes(effectiveRole) && user?.onboarding_completed === false) {
-    return <Navigate to="/dashboard/onboarding" replace />;
-  }
-
-  // Redirect persona users to their dedicated dashboards
-  if (effectiveRole === 'corporate') return <Navigate to="/dashboard/corporate" replace />;
-  const PERSONA_ROLES = ['startup','student','academia','government','investor','mentor','lab','incubator','accelerator'];
-  if (PERSONA_ROLES.includes(effectiveRole)) return <Navigate to="/dashboard/home" replace />;
-
-  const firstName = user?.name?.split(" ")[0] || null;
-
+  // Phase 104e - hooks moved above early returns to satisfy rules-of-hooks.
+  // Previously these 7 hooks lived after the redirect guards below, which
+  // meant they were skipped when a user was a corporate or other persona,
+  // causing potential hook-count mismatches between renders (same trap class
+  // as Phase 104b in DocumentRepository).
   const [stats, setStats] = useState(FALLBACK_STATS);
   const [recentEvals, setRecentEvals] = useState([]);
   const [evalMeta, setEvalMeta] = useState({ done: 0, avgScore: 0, pending: 0 });
@@ -83,7 +75,8 @@ export default function DashboardHome() {
     { label: "Needs Work",   pct: 0, color: "#ef4444" },
   ]);
   const [sectorDist, setSectorDist] = useState([]);
-  const [scoreDist, setScoreDist] = useState([
+  // setScoreDist intentionally unused (kept for future wiring of dynamic score histogram)
+  const [scoreDist, _setScoreDist] = useState([
     { range: "80-100", label: "Excellent", pct: 25, color: "#16a34a" },
     { range: "60-79",  label: "Good",      pct: 25, color: "#D5AA5B" },
     { range: "40-59",  label: "Average",   pct: 25, color: "#d97706" },
@@ -133,6 +126,19 @@ export default function DashboardHome() {
       })
       .catch(() => {});
   }, []);
+
+  // Phase 104e - redirect guards moved here (after all hooks) per rules-of-hooks.
+  // Hooks above run on every render; these returns can now safely short-circuit
+  // the JSX render path without changing hook order.
+  const ALL_PERSONA_ROLES = ['startup','student','academia','corporate','government','investor','mentor','lab','incubator','accelerator','service_provider'];
+  if (ALL_PERSONA_ROLES.includes(effectiveRole) && user?.onboarding_completed === false) {
+    return <Navigate to="/dashboard/onboarding" replace />;
+  }
+  if (effectiveRole === 'corporate') return <Navigate to="/dashboard/corporate" replace />;
+  const PERSONA_ROLES = ['startup','student','academia','government','investor','mentor','lab','incubator','accelerator'];
+  if (PERSONA_ROLES.includes(effectiveRole)) return <Navigate to="/dashboard/home" replace />;
+
+  const firstName = user?.name?.split(" ")[0] || null;
 
   return (
     <div style={{ padding: "28px", maxWidth: 1200, minHeight: "100%", background: "#f5f5f5" }}>

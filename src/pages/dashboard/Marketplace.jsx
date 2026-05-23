@@ -82,7 +82,7 @@ export default function Marketplace() {
   };
 
   const loadTaxonomy = async () => {
-    try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); } catch {}
+    try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); } catch (_e) { /* non-fatal */ }
   };
 
   const openDetail = async (id) => {

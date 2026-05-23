@@ -62,7 +62,7 @@ export default function Directory() {
   };
 
   const loadFilters = async () => {
-    try { const d = await directoryAPI.filters(); setFilterOptions(d); } catch {}
+    try { const d = await directoryAPI.filters(); setFilterOptions(d); } catch (_e) { /* non-fatal */ }
   };
 
   const handleSearch = () => { loadProfiles(1, search, filters, sort); };

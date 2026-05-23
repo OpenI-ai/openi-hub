@@ -287,7 +287,7 @@ export default function StartupCrawling() {
       const [s, es] = await Promise.all([crawlAPI.stats(), crawlAPI.enrichmentStats()]);
       setStats(s);
       setEnrichStats(es);
-    } catch {}
+    } catch (_e) { /* non-fatal */ }
   }, []);
 
   const fetchEnrichment = useCallback(async () => {
@@ -298,7 +298,7 @@ export default function StartupCrawling() {
       const data = await crawlAPI.listEnrichment(params);
       setEnrichItems(data.items || []);
       setEnrichTotal(data.total || 0);
-    } catch {}
+    } catch (_e) { /* non-fatal */ }
   }, [enrichPage, enrichSearch, enrichFilter]);
 
   const fetchImported = useCallback(async () => {
@@ -310,7 +310,7 @@ export default function StartupCrawling() {
       if (importSector) params.sector = importSector;
       const data = await crawlAPI.listImported(params);
       setImportedData(data);
-    } catch {} finally { setImportLoading(false); }
+    } catch (_e) { /* non-fatal */ } finally { setImportLoading(false); }
   }, [importPage, importSearch, importCountry, importSector]);
 
   const fetchJobs = useCallback(async () => {
@@ -318,11 +318,11 @@ export default function StartupCrawling() {
       const [j, cs] = await Promise.all([crawlAPI.listJobs(), crawlAPI.listStartups()]);
       setJobs(j || []);
       setCrawledStartups(cs || []);
-    } catch {}
+    } catch (_e) { /* non-fatal */ }
   }, []);
 
   const fetchSchedules = useCallback(async () => {
-    try { const s = await crawlAPI.listSchedules(); setSchedules(s || []); } catch {}
+    try { const s = await crawlAPI.listSchedules(); setSchedules(s || []); } catch (_e) { /* non-fatal */ }
   }, []);
 
   // s48 progressive render — flip `loading` off as soon as the FAST path

@@ -159,15 +159,15 @@ export default function CorporateChallenges() {
   };
 
   const loadTaxonomy = async () => {
-    try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); } catch {}
+    try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); } catch (_e) { /* non-fatal */ }
   };
 
   const loadTemplates = async () => {
-    try { const d = await corporateAPI.listTemplates(); setTemplates(d); } catch {}
+    try { const d = await corporateAPI.listTemplates(); setTemplates(d); } catch (_e) { /* non-fatal */ }
   };
 
   const loadRecommendations = async (id) => {
-    try { const d = await corporateAPI.challengeRecs(id); setRecommendedStartups(d); } catch {}
+    try { const d = await corporateAPI.challengeRecs(id); setRecommendedStartups(d); } catch (_e) { /* non-fatal */ }
   };
 
   const loadDetail = async (id) => {

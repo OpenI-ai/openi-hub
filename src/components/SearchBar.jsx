@@ -54,7 +54,7 @@ export default function SearchBar({
         const data = await publicAPI.searchSuggest(query.trim());
         setSuggestions(data.suggestions || []);
         setShowDropdown(true);
-      } catch {} finally { setLoading(false); }
+      } catch (_e) { /* non-fatal, debounced search */ } finally { setLoading(false); }
     }, 300);
     return () => clearTimeout(timer.current);
   }, [query, mode]);

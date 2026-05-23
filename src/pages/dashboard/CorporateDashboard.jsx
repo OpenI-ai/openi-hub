@@ -47,7 +47,7 @@ export default function CorporateDashboard() {
   };
 
   const loadRecs = async () => {
-    try { const d = await corporateAPI.recommendations(); setRecs(d.recommendations || []); setRecsAiEnhanced(d.ai_enhanced || false); } catch {}
+    try { const d = await corporateAPI.recommendations(); setRecs(d.recommendations || []); setRecsAiEnhanced(d.ai_enhanced || false); } catch (_e) { /* non-fatal */ }
   };
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
@@ -252,7 +252,7 @@ export default function CorporateDashboard() {
               {recsAiEnhanced && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#faf5ff', color: '#7c3aed', marginLeft: 8 }}><Sparkles size={9} style={{ verticalAlign: -1 }} /> AI Enhanced</span>}
             </h2>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button onClick={async () => { setRecsRefreshing(true); try { const d = await corporateAPI.recommendations({ refresh: true }); setRecs(d.recommendations || []); setRecsAiEnhanced(d.ai_enhanced || false); } catch {} setRecsRefreshing(false); }}
+              <button onClick={async () => { setRecsRefreshing(true); try { const d = await corporateAPI.recommendations({ refresh: true }); setRecs(d.recommendations || []); setRecsAiEnhanced(d.ai_enhanced || false); } catch (_e) { /* non-fatal */ } setRecsRefreshing(false); }}
                 disabled={recsRefreshing}
                 style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: '#7c3aed', background: 'none', border: 'none', cursor: recsRefreshing ? 'wait' : 'pointer', opacity: recsRefreshing ? 0.6 : 1 }}>
                 {recsRefreshing ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />} Refresh AI

@@ -108,7 +108,7 @@ export default function AcademiaPortfolio() {
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)}
             style={{ padding: '8px 20px', border: 'none', borderBottom: tab === i ? `3px solid ${G}` : '3px solid transparent', background: 'none', fontWeight: tab === i ? 700 : 400, color: tab === i ? G : '#666', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {[<FlaskConical size={14}/>, <BookOpen size={14}/>, <DollarSign size={14}/>][i]} {t} <span style={{ fontSize: 12, color: '#999' }}>({[projects.length, publications.length, grants.length][i]})</span>
+            {[<FlaskConical key="fc" size={14}/>, <BookOpen key="bo" size={14}/>, <DollarSign key="ds" size={14}/>][i]} {t} <span style={{ fontSize: 12, color: '#999' }}>({[projects.length, publications.length, grants.length][i]})</span>
           </button>
         ))}
       </div>

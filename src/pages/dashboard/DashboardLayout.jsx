@@ -605,13 +605,10 @@ export default function DashboardLayout() {
                           borderBottom:"1px solid #f5f5f5",
                           cursor: n.link ? "pointer" : "default",
                           background: n.read ? "transparent" : "#fffdf7",
-                          cursor:"pointer", transition:"background 0.15s",
+                          transition:"background 0.15s",
                         }}
                         onMouseEnter={e => e.currentTarget.style.background="#fafafa"}
                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "#fffdf7"}
-                        onClick={() => {
-                          setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x));
-                        }}
                       >
                         <span style={{
                           width:8, height:8, borderRadius:"50%", marginTop:5,

@@ -63,7 +63,7 @@ export default function SPServices() {
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)}
             style={{ padding: '8px 20px', border: 'none', borderBottom: tab === i ? `3px solid ${G}` : '3px solid transparent', background: 'none', fontWeight: tab === i ? 700 : 400, color: tab === i ? G : '#666', cursor: 'pointer', fontSize: 15 }}>
-            {[<Briefcase size={14}/>, <Users size={14}/>, <Star size={14}/>][i]} {t}
+            {[<Briefcase key="br" size={14}/>, <Users key="us" size={14}/>, <Star key="st" size={14}/>][i]} {t}
           </button>
         ))}
       </div>

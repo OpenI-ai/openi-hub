@@ -337,7 +337,7 @@ function bracketToMidpoint(label) {
   }
   // Pattern: "₹X Unit – ₹Y Unit" or "₹X Unit - ₹Y Unit" (en-dash or hyphen)
   // Phase 90 MoneyPill strips the leading currency code but ₹ stays inside the bracket
-  const rangeMatch = cleaned.match(/^₹?([\d.]+)\s*(Lakh|Cr|Crore)?\s*[–\-]\s*₹?([\d.]+)\s*(Lakh|Cr|Crore)?/i);
+  const rangeMatch = cleaned.match(/^₹?([\d.]+)\s*(Lakh|Cr|Crore)?\s*[–-]\s*₹?([\d.]+)\s*(Lakh|Cr|Crore)?/i);
   if (rangeMatch) {
     const [, lo, loUnit, hi, hiUnit] = rangeMatch;
     const loCr = toCr(lo, loUnit || hiUnit);
@@ -346,7 +346,7 @@ function bracketToMidpoint(label) {
     return (loCr + hiCr) / 2;
   }
   // Pattern: bare bracket like "1-5 Cr" or "100-250 Cr" (Phase 91 revenue ladder)
-  const bareRange = cleaned.match(/^([\d.]+)\s*[–\-]\s*([\d.]+)\s*(Lakh|Cr|Crore)?/i);
+  const bareRange = cleaned.match(/^([\d.]+)\s*[–-]\s*([\d.]+)\s*(Lakh|Cr|Crore)?/i);
   if (bareRange) {
     const [, lo, hi, unit] = bareRange;
     const loCr = toCr(lo, unit);

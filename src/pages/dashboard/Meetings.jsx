@@ -125,7 +125,7 @@ export default function Meetings() {
       try {
         const data = await meetingAPI.searchUsers(val);
         setUserResults((data.users || []).filter(u => !participants.find(p => p.id === u.id)));
-      } catch {}
+      } catch (_e) { /* non-fatal user search */ }
       finally { setSearchingUsers(false); }
     }, 300);
   };

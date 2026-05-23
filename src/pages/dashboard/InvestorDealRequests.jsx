@@ -57,7 +57,7 @@ export default function InvestorDealRequests() {
         sectors: (data.sectors || []).filter(s => !s.parent_id).map(s => s.name).sort(),
         technologies: (data.technologies || []).filter(t => !t.parent_id).map(t => t.name).sort(),
       });
-    } catch {}
+    } catch (_e) { /* non-fatal */ }
   }
 
   async function handleSubmit(e) {
