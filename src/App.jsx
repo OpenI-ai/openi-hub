@@ -92,6 +92,7 @@ import AdminLicenses        from './pages/dashboard/AdminLicenses';
 import AdminClaims          from './pages/dashboard/AdminClaims';
 import MyClaims             from './pages/dashboard/MyClaims';
 import ClaimVerify          from './pages/auth/ClaimVerify';
+import AcceptInvite        from './pages/auth/AcceptInvite';   // Phase 108
 import AddRole              from './pages/dashboard/AddRole';     // Phase 60.4b (s50)
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
@@ -187,6 +188,7 @@ export default function App() {
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/forgot-password"       element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/invite/accept/:token"  element={<AcceptInvite />} />  {/* Phase 108 */}
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/reports"            element={<PublicReports />} />
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />

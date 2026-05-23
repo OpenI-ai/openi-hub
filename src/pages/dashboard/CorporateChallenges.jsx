@@ -132,6 +132,9 @@ export default function CorporateChallenges() {
   const [inviteSearch, setInviteSearch] = useState('');
   const [inviteResults, setInviteResults] = useState([]);
   const [inviteSelected, setInviteSelected] = useState([]);
+  // Phase 108: invite by email (non-OpenI users get magic-link signup invite)
+  const [inviteEmails, setInviteEmails] = useState([]);
+  const [inviteEmailDraft, setInviteEmailDraft] = useState('');
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteList, setInviteList] = useState([]);
   const [inviteBusy, setInviteBusy] = useState(false);
@@ -864,6 +867,44 @@ export default function CorporateChallenges() {
                 </div>
               )}
 
+              {/* Phase 108: Or invite by email (non-OpenI users) */}
+              <div style={{ marginBottom: 12, paddingTop: 12, borderTop: '1px solid #eee' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>
+                  Or invite by email
+                </label>
+                <p style={{ fontSize: 11, color: '#888', margin: '0 0 6px' }}>
+                  Not yet on OpenI? Add an email — they'll get a signup invite. Press Enter or comma to add.
+                </p>
+                <input type="email" value={inviteEmailDraft}
+                  onChange={(e) => setInviteEmailDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault();
+                      const em = inviteEmailDraft.trim().toLowerCase().replace(/,$/, '');
+                      if (/\S+@\S+\.\S+/.test(em) && !inviteEmails.includes(em)) {
+                        setInviteEmails(prev => [...prev, em]);
+                        setInviteEmailDraft('');
+                      }
+                    }
+                  }}
+                  placeholder="vanessa@example.com"
+                  style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb' }} />
+                {inviteEmails.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                    {inviteEmails.map(em => (
+                      <span key={em}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', fontSize: 12, borderRadius: 20, background: `${G}15`, color: '#5a4715', border: `1px solid ${G}` }}>
+                        {em}
+                        <button type="button" onClick={() => setInviteEmails(prev => prev.filter(x => x !== em))}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 2 }}>
+                          <X size={12} color="#5a4715" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Message field */}
               <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
               <textarea value={inviteMessage}
@@ -878,15 +919,22 @@ export default function CorporateChallenges() {
                   style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', color: '#666', border: '1.5px solid #ccc', borderRadius: 8, cursor: 'pointer' }}>
                   Cancel
                 </button>
-                <button disabled={inviteBusy || inviteSelected.length === 0}
+                <button disabled={inviteBusy || (inviteSelected.length === 0 && inviteEmails.length === 0)}
                   onClick={async () => {
                     setInviteBusy(true);
                     try {
                       const r = await corporateAPI.sendInvites(detail.id, {
                         user_ids: inviteSelected.map(u => u.id),
+                        emails: inviteEmails,   // Phase 108
                         message: inviteMessage.trim() || undefined,
                       });
-                      toast.success(`${r.created} invite(s) sent${r.skipped_existing ? ` (${r.skipped_existing} already invited)` : ''}`);
+                      const pendingCount = (r.pending_email_invites || []).length;
+                      const msgParts = [];
+                      if (r.created > 0) msgParts.push(`${r.created} in-app invite${r.created === 1 ? '' : 's'} sent`);
+                      if (pendingCount > 0) msgParts.push(`${pendingCount} email invite${pendingCount === 1 ? '' : 's'} sent to non-OpenI user${pendingCount === 1 ? '' : 's'}`);
+                      if (r.skipped_existing) msgParts.push(`${r.skipped_existing} already invited`);
+                      toast.success(msgParts.join(' · ') || 'Done');
+                      setInviteEmails([]); setInviteEmailDraft('');
                       setInviteSelected([]); setInviteMessage(''); setInviteSearch(''); setInviteResults([]);
                       const list = await corporateAPI.listInvites(detail.id);
                       setInviteList(list.invites || []);
@@ -897,7 +945,7 @@ export default function CorporateChallenges() {
                       setInviteBusy(false);
                     }
                   }}
-                  style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: inviteSelected.length === 0 || inviteBusy ? '#ccc' : G, color: '#fff', border: 'none', borderRadius: 8, cursor: inviteSelected.length === 0 || inviteBusy ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: (inviteSelected.length === 0 && inviteEmails.length === 0) || inviteBusy ? '#ccc' : G, color: '#fff', border: 'none', borderRadius: 8, cursor: (inviteSelected.length === 0 && inviteEmails.length === 0) || inviteBusy ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <Send size={14} /> Send Invites
                 </button>
               </div>

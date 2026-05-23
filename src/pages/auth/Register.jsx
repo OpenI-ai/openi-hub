@@ -469,7 +469,10 @@ export default function Register() {
   // Step 1: Account · Step 2: Profile · Step 3: Done
   const [step, setStep] = useState(personaType ? 1 : 0);
   const [name, setName]       = useState('');
-  const [email, setEmail]     = useState('');
+  // Phase 108: invite_token + email pre-fill from /invite/accept/<token> magic-link redirect
+  const inviteToken = params.get('invite_token') || '';
+  const prefilledEmail = (params.get('email') || '').trim().toLowerCase();
+  const [email, setEmail]     = useState(prefilledEmail);
   const [password, setPassword] = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
   const [showPwd, setShowPwd] = useState(false);
