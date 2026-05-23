@@ -5,18 +5,36 @@ import { startupAPI, publicAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
 import {
-  Search, Cpu, MapPin, Users, DollarSign, Bookmark, BookmarkCheck,
+  Search, Cpu, MapPin, Users, Wallet, Bookmark, BookmarkCheck,
   ChevronLeft, ChevronRight, Globe, Calendar,
 } from 'lucide-react';
 
-function formatFunding(val) {
+function formatFunding(val, currency, unit) {
   if (!val) return null;
   const num = typeof val === 'string' ? parseFloat(val) : val;
   if (!Number.isFinite(num) || num <= 0) return null;
-  if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
-  if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
-  if (num >= 1e3) return `$${(num / 1e3).toFixed(0)}K`;
-  return `$${num}`;
+
+  // Phase 92.3 era: if backend already stored funding_raised in user-picked unit
+  // (Lakh / Cr / K / M), respect it. Just prepend the currency symbol.
+  const cur = (currency || 'INR').toUpperCase();
+  const symbol = cur === 'INR' ? '₹' : cur === 'USD' ? '$' : `${cur} `;
+  if (unit) {
+    // num is already in unit-scaled form, e.g. funding_raised=0.5 unit='Cr' currency='INR'
+    return `${symbol}${num}${unit}`;
+  }
+
+  // Legacy / pre-Phase-92.3 rows: num is raw rupees or raw dollars. Auto-format by magnitude.
+  if (cur === 'INR') {
+    if (num >= 1e7) return `${symbol}${(num / 1e7).toFixed(num >= 1e8 ? 0 : 1)}Cr`;
+    if (num >= 1e5) return `${symbol}${(num / 1e5).toFixed(num >= 1e6 ? 0 : 1)}L`;
+    if (num >= 1e3) return `${symbol}${(num / 1e3).toFixed(0)}K`;
+    return `${symbol}${num}`;
+  }
+  // USD / other
+  if (num >= 1e9) return `${symbol}${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `${symbol}${(num / 1e6).toFixed(1)}M`;
+  if (num >= 1e3) return `${symbol}${(num / 1e3).toFixed(0)}K`;
+  return `${symbol}${num}`;
 }
 
 // Validate that team_size is a positive integer before showing
@@ -84,7 +102,7 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable =
 
       {/* Inline compact stats footer */}
       {(() => {
-        const fundingStr = formatFunding(startup.funding_raised);
+        const fundingStr = formatFunding(startup.funding_raised, startup.funding_raised_currency, startup.funding_raised_unit);
         const teamSize = validTeamSize(startup.team_size);
         const foundedYear = Number.isInteger(Number(startup.founded_year)) && Number(startup.founded_year) >= 1900 ? startup.founded_year : null;
         const hasAny = fundingStr || teamSize || foundedYear || startup.domain_name;
@@ -98,7 +116,7 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable =
               <span className="inline-flex items-center gap-0.5"><Users size={9} /> {teamSize}</span>
             )}
             {fundingStr ? (
-              <span className="inline-flex items-center gap-0.5 font-semibold text-accent-700"><DollarSign size={9} /> {fundingStr}</span>
+              <span className="inline-flex items-center gap-0.5 font-semibold text-accent-700"><Wallet size={9} /> {fundingStr}</span>
             ) : startup.domain_name ? (
               <span className="inline-flex items-center gap-0.5 truncate"><Globe size={9} /> <span className="truncate max-w-[90px]">{startup.domain_name}</span></span>
             ) : null}
