@@ -5,9 +5,8 @@ import ConnectButton from '../../components/ConnectButton';
 import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
 import ContextualTip from '../../components/ContextualTip';
 import {
-  Search, Filter, ChevronLeft, Loader2, MapPin, Star, CheckCircle,
-  X, Users, Building2, Rocket, GraduationCap, BookOpen, Landmark,
-  TrendingUp, FlaskConical, Home, Zap, User, ArrowUpDown,
+  Search, Filter, ChevronLeft, Loader2, MapPin, Star, CheckCircle, Users, Building2, Rocket, GraduationCap, BookOpen, Landmark,
+  TrendingUp, FlaskConical, Home, Zap, ArrowUpDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

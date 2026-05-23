@@ -11,7 +11,7 @@
  *  - title (optional): custom heading
  *  - onChange (optional): called after mutations
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { Users, UserPlus, X, Loader2, Shield, Eye, Star, Crown } from 'lucide-react';
 import { collabAPI } from '../services/api';

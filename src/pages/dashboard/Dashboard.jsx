@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { DASHBOARD_STATS, STARTUPS, PROJECTS, NOTIFICATIONS } from '../../data/mockData';
-import {
-  TrendingUp, Users, FolderOpen, DollarSign, Shield, BarChart3, Star,
-  ArrowUpRight, AlertCircle, CheckCircle2, Clock, Cpu, Award, Target,
-  ChevronRight, Building2, MapPin, Zap, Globe, BookOpen
+import { Users, FolderOpen, DollarSign, Shield, BarChart3,
+  ArrowUpRight, AlertCircle, Cpu, Award, Target, Building2, Zap, Globe, BookOpen
 } from 'lucide-react';
 
 function StatCard({ label, value, sub, icon: Icon, color, to }) {

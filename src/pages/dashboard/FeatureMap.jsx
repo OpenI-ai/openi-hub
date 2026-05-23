@@ -8,9 +8,9 @@ import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import {
   Brain, Sparkles, Rocket, TrendingUp, Target, Award, GraduationCap, BarChart3,
-  Link2, DollarSign, MessageSquare, Zap, Users, Building2, Search, Shield,
-  CalendarCheck, FileText, Briefcase, FlaskConical, User, Lock, CheckCircle,
-  Star, Home, Map,
+  Link2, DollarSign, MessageSquare, Users, Building2, Search, Shield,
+  CalendarCheck, FileText, Briefcase, FlaskConical, User, Lock,
+  Star, Map,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

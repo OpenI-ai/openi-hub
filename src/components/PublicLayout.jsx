@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, ArrowRight, Menu, X } from 'lucide-react';
+import { Shield, Menu, X } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 // Brand colors (same as Landing.jsx)

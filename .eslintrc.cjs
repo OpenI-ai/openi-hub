@@ -17,7 +17,7 @@ module.exports = {
     ecmaFeatures: { jsx: true },
   },
   settings: { react: { version: '18.2' } },
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'unused-imports'],
   rules: {
     // The crash-prevention rules - these MUST stay on
     'react-hooks/rules-of-hooks': 'error',
@@ -26,6 +26,8 @@ module.exports = {
     // Quality-of-life relaxations for OpenI codebase conventions
     'react/prop-types': 'off',
     'react/no-unescaped-entities': 'off',
+    // unused-imports handles imports; no-unused-vars handles everything else
+    'unused-imports/no-unused-imports': 'warn',
     'no-unused-vars': ['warn', {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_',

@@ -11,8 +11,8 @@ import ConnectButton from '../../components/ConnectButton';
 import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
 import {
-  ChevronLeft, Loader2, MapPin, Mail, Globe, Building2,
-  ExternalLink, Calendar, Users,
+  ChevronLeft, Loader2, MapPin,
+  ExternalLink,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

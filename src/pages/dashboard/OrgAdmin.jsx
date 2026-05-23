@@ -7,8 +7,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { orgAPI, subscriptionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Building2, Users, UserPlus, Shield, Trash2, Loader2, Mail,
-  Crown, Check, X, Settings, Edit2,
+  Building2, UserPlus, Trash2, Loader2,
+  Crown, X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

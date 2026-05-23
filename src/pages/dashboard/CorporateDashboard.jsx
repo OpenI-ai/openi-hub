@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { corporateAPI, recommendationsAPI } from '../../services/api';
-import { PERSONAS } from '../../config/personas';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
 import TourWrapper from '../../components/TourWrapper';
 import {
   Building2, FolderKanban, Target, Link2, Star, Users,
   Search, Plus, ArrowRight, Loader2, TrendingUp, Clock,
-  CheckCircle, AlertCircle, Sparkles, RefreshCw,
+  CheckCircle, Sparkles, RefreshCw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

@@ -6,7 +6,7 @@
  *
  * Also shows aggregate view stats (total / 7d / 30d) — these are visible on all plans.
  */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Eye, Users, TrendingUp, Lock, ChevronRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { profileViewAPI } from '../services/api';

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { evaluationAPI, startupAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { Target, ChevronRight, Plus, Filter, Search, Star, Users, Calendar, CheckCircle2, Clock, AlertCircle, BarChart3, Lock, Eye, Award } from 'lucide-react';
+import { ChevronRight, Plus, Filter, Search, Star, Calendar, CheckCircle2, Clock, AlertCircle, BarChart3, Lock, Eye } from 'lucide-react';
 
 const STATUS_CONFIG = {
   Open: { color: 'bg-accent-100 text-accent-700 border-accent-200', dot: 'bg-accent-500' },

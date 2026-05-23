@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { knowledgeAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';  // Ship #5 (22 May 2026)
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
-  BookOpen, Search, Lock, Eye, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Star, Download,
+  BookOpen, Search, Lock, Eye, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Download,
   Brain, Zap, TrendingUp, ShoppingBag, Shirt, Heart, Building2, Shield, Cpu, FlaskConical, Layers,
 } from 'lucide-react';
 

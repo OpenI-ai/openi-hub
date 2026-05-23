@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { mentorAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { UserCheck, Star, Calendar, Users, MessageSquare, Plus, Search, Filter, CheckCircle2, BookOpen, Award } from 'lucide-react';
+import { Star, Calendar, MessageSquare, Plus, Search, CheckCircle2 } from 'lucide-react';
 
 const BG_COLORS = ['bg-dark-700', 'bg-primary-600', 'bg-accent-700', 'bg-blue-700'];
 const BACKGROUND_LABELS = { academia: 'Academia', retired_defense: 'Retired Defence', ex_drdo: 'Ex-OpenI', industry: 'Industry' };

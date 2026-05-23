@@ -4,7 +4,6 @@
  * Reusable across all personas (Corporate, Investor, Incubator, Accelerator, Govt).
  * Shows 8-vector scores, explanation, red flags, and recommended action.
  */
-import { useState } from 'react';
 import { Sparkles, Brain, Loader2, BarChart3, Zap, X } from 'lucide-react';
 
 const G = '#D5AA5B';

@@ -6,9 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
 import {
-  MapPin, Users, TrendingUp, Award, Shield, ChevronRight,
-  ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target,
-  DollarSign, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
+  MapPin, Users, TrendingUp, Award, Shield,
+  ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
   Flag, Loader2, X, Mail, Github, Youtube, FileText, Video,
   BarChart3, List, // Phase 92.1 (T17b) - chart/list toggle icons
   Wallet, // Phase 92.4 (T26) - currency-agnostic Funding Raised icon (was DollarSign)

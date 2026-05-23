@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { investorAPI } from '../../services/api';
 import {
-  Loader2, ChevronLeft, ChevronRight, Clock, Plus, Edit3, X, CheckCircle,
+  Loader2, ChevronLeft, ChevronRight, Clock, Plus, X, CheckCircle,
   Trash2, Star, DollarSign, Target, TrendingUp, Briefcase, FileText, BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';

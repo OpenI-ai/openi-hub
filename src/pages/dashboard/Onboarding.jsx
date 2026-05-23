@@ -9,9 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { onboardingAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
 import {
-  CheckCircle, Circle, ChevronRight, Rocket, User, Target,
-  Users, Briefcase, FileText, FlaskConical, Loader2, SkipForward,
-  ArrowRight, Sparkles,
+  CheckCircle, ChevronRight, Loader2, SkipForward, Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

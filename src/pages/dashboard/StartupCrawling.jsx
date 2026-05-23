@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Globe, RefreshCw, Play, Pause, CheckCircle2, XCircle, Clock,
-  AlertCircle, Search, ExternalLink, Plus, Eye, ThumbsUp, ThumbsDown,
-  Database, Activity, Upload, MapPin, Building2, ChevronLeft, ChevronRight,
-  Zap, Loader2, Settings, Calendar, Link2
+  Globe, RefreshCw, Play, Pause, CheckCircle2, XCircle, Clock, Search, ExternalLink, Eye, ThumbsUp, ThumbsDown,
+  Database, Activity, ChevronLeft, ChevronRight,
+  Zap, Loader2, Calendar
 } from 'lucide-react';
 import { crawlAPI, directoryCrawlAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';

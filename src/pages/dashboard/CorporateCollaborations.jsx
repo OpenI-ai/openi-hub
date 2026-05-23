@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { corporateAPI } from '../../services/api';
-import { Link2, Loader2, ChevronRight, ChevronLeft, Clock, Rocket, Plus, Edit3, X, CheckCircle, Trash2, Star, DollarSign, Target } from 'lucide-react';
+import { Link2, Loader2, ChevronRight, ChevronLeft, Clock, Plus, Edit3, X, CheckCircle, Trash2, DollarSign, Target } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const G = '#D5AA5B';

@@ -3,7 +3,7 @@ import { programPartnersAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { formatCurrency, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
-  Loader2, Plus, X, Trash2, Edit3, Link2, Globe, Mail, ExternalLink,
+  Loader2, Plus, X, Trash2, Edit3, Link2, Mail, ExternalLink,
   ToggleLeft, ToggleRight, Search, Gift, CheckCircle, User
 } from 'lucide-react';
 import toast from 'react-hot-toast';

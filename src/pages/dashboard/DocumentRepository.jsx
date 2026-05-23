@@ -4,11 +4,9 @@ import toast from 'react-hot-toast';
 import { documentAPI, uploadAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
-  FolderOpen, Folder, FileText, File, FileImage, FileCode,
-  Upload, Download, Search, Filter, Plus, Trash2, Eye,
-  ChevronRight, Lock, Globe, Users, Star, Clock,
-  MoreHorizontal, Grid, List, ArrowLeft, Share2,
-  Shield, CheckCircle2, AlertTriangle, ExternalLink, Loader2, X,
+  FolderOpen, Folder, FileText, File, FileImage,
+  Upload, Download, Search, Eye,
+  ChevronRight, Lock, Globe, Users, Star, Grid, List, Share2, CheckCircle2, ExternalLink, Loader2, X,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

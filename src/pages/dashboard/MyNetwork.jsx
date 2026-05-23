@@ -9,8 +9,7 @@ import ConnectButton from '../../components/ConnectButton';
 import MutualConnectionsBadge from '../../components/MutualConnectionsBadge';
 import ContextualTip from '../../components/ContextualTip';
 import {
-  Users, UserPlus, Clock, Search, Loader2, MapPin, Building2,
-  ArrowRight, Inbox, Send, Globe,
+  Users, Clock, Search, Loader2, MapPin, Inbox, Send, Globe,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';

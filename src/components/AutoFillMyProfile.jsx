@@ -8,9 +8,9 @@
  *  - currentProfile: the user's current startup_profiles row (used for diff rendering)
  *  - onApplied: () => void — called after successful apply so parent can refetch
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Sparkles, RefreshCw, Check, X, ExternalLink, Loader2, Info, Lock } from 'lucide-react';
+import { Sparkles, RefreshCw, Check, ExternalLink, Loader2, Info, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { crawlAPI } from '../services/api';
 

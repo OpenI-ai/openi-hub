@@ -5,7 +5,7 @@
  */
 import { useState, useRef } from 'react';
 import { uploadAPI } from '../services/api';
-import { Upload, X, FileText, Image, Loader2, ExternalLink } from 'lucide-react';
+import { Upload, X, FileText, Loader2, ExternalLink } from 'lucide-react';
 
 const G = '#D5AA5B';
 

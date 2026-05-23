@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
-import { formatCurrencyRange, CURRENCY_OPTIONS } from '../../utils/currency';
+import { CURRENCY_OPTIONS } from '../../utils/currency';
 import {
-  Loader2, Plus, X, Calendar, Users, Target, GraduationCap,
-  TrendingUp, Search, Filter, ArrowRight, Award, Clock, DollarSign
+  Loader2, Plus, X, Calendar, GraduationCap, Search, ArrowRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

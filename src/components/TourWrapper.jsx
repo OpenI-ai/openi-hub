@@ -26,7 +26,7 @@
  *   role        — string; one of the 11 persona roles. Required.
  *   forceStart  — bool;   override and start tour regardless of seen state.
  */
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Joyride, STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import { useAuth } from '../context/AuthContext';

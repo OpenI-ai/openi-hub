@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Megaphone, Search, ChevronLeft, ChevronRight, Star, Trash2, ArrowLeft, ExternalLink
+  Megaphone, Search, ChevronLeft, ChevronRight, Star, Trash2, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';

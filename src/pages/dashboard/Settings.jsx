@@ -3,11 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI, subscriptionAPI, creditAPI, mfaAPI, billingAddressAPI } from '../../services/api';
 import BillingAddressModal from '../../components/BillingAddressModal';
-import { getPersonaCategory, PLAN_LABELS } from '../../config/personas';
 import toast from 'react-hot-toast';
 import {
-  User, Mail, Shield, Lock, Save, Eye, EyeOff,
-  CheckCircle2, AlertCircle, Bell, Moon, Sun,
+  User, Shield, Lock, Save, Eye, EyeOff,
+  CheckCircle2, AlertCircle, Bell,
   CreditCard, Loader2, Check, Crown, Zap, X, Download,
 } from 'lucide-react';
 

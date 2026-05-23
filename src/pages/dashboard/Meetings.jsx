@@ -3,7 +3,7 @@ import { meetingAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS } from '../../config/personas';
 import {
-  CalendarCheck, Plus, Loader2, MapPin, Clock, Link as LinkIcon, Users,
+  CalendarCheck, Plus, Loader2, MapPin, Clock, Users,
   Check, X, ChevronLeft, Video, Calendar, AlertCircle, Search,
 } from 'lucide-react';
 import toast from 'react-hot-toast';

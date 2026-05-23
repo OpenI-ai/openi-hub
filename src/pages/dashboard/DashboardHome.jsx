@@ -4,8 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { dashboardAPI, evaluationAPI } from "../../services/api";
 import {
   Rocket, ClipboardCheck, DollarSign, Zap,
-  ArrowRight, Star, TrendingUp, Activity,
-  Users, BarChart2, CheckCircle, Clock,
+  ArrowRight, Star, TrendingUp, Activity, BarChart2,
   Search, BookOpen, Building2,
 } from "lucide-react";
 

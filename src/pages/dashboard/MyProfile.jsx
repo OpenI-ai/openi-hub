@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions, resolveCountryCode } from '../../config/locations';
 import { profileAPI, startupProfileAPI } from '../../services/api';
-import { User, Save, Loader2, AlertCircle, Check, X, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle, Pencil } from 'lucide-react';
+import { User, Save, Loader2, X, Plus, Trash2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import AutoFillMyProfile from '../../components/AutoFillMyProfile';
 import TaxonomySelect from '../../components/TaxonomySelect';

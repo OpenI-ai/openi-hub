@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Check } from 'lucide-react';
 import {
-  Briefcase, Users as UsersIcon, GraduationCap, Building2, Landmark,
+  Briefcase, GraduationCap, Building2, Landmark,
   TrendingUp, FlaskConical, Layers, Rocket, UserCheck, Wrench, Shield,
 } from 'lucide-react';
 

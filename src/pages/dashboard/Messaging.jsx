@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
-  MessageSquare, Search, Send, Paperclip, MoreHorizontal,
-  ChevronDown, Check, CheckCheck, Bell, BellOff, Archive,
-  Plus, Users, Lock, Hash, Star, Clock, Filter, X, UserPlus,
+  MessageSquare, Search, Send, Paperclip, MoreHorizontal, CheckCheck, Bell, Archive,
+  Plus, X, UserPlus,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { messageAPI, meetingAPI } from '../../services/api';

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { acceleratorAPI } from '../../services/api';
-import { formatCurrency, CURRENCY_OPTIONS } from '../../utils/currency';
+import { CURRENCY_OPTIONS } from '../../utils/currency';
 import {
-  Loader2, Plus, X, Calendar, Users, Target, Rocket,
-  Search, ArrowRight, Zap, MapPin, DollarSign, Globe
+  Loader2, Plus, X, Calendar,
+  Search, ArrowRight, Zap, MapPin
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

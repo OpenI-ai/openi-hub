@@ -2,10 +2,10 @@
  * Phase 53 — AdminClaims
  * Admin console for reviewing, approving, rejecting, and rolling back profile claims.
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { claimAPI } from '../../services/api';
-import { Building2, Loader2, CheckCircle2, XCircle, Clock, Mail, RotateCcw, Eye, ArrowLeft } from 'lucide-react';
+import { Building2, Loader2, CheckCircle2, XCircle, RotateCcw, Eye, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const G = '#D5AA5B';

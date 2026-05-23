@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { personaDashboardAPI, meetingAPI } from '../../services/api';
+import { personaDashboardAPI } from '../../services/api';
 import { PERSONAS } from '../../config/personas';
 import WhoViewedProfile from '../../components/WhoViewedProfile';
 import MfaBanner from '../../components/MfaBanner';

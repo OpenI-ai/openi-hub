@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
-  MessageSquare, Star, Send, ThumbsUp, ThumbsDown,
-  Plus, Search, Filter, CheckCircle2, Clock, AlertCircle,
-  BarChart3, TrendingUp, ChevronRight, X, Users,
+  MessageSquare, Star, Send, ThumbsUp, ThumbsDown, Search, CheckCircle2, Clock, AlertCircle,
 } from 'lucide-react';
 import { feedbackAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';

@@ -13,7 +13,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Sparkles, Cpu, MapPin, TrendingUp, ExternalLink, Loader2, ArrowRight } from 'lucide-react';
+import { Sparkles, Cpu, MapPin, TrendingUp, Loader2, ArrowRight } from 'lucide-react';
 import { studentEnhAPI, recommendationsAPI } from '../../services/api';
 
 const G = '#D5AA5B';

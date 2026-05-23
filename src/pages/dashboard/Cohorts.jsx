@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { cohortAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { GraduationCap, Users, Calendar, Building2, Plus, ChevronRight, CheckCircle2, Clock, Award, Target, BarChart3 } from 'lucide-react';
+import { GraduationCap, Users, Calendar, Building2, Plus, CheckCircle2, Clock, Award } from 'lucide-react';
 
 const STATUS_COLORS = {
   Active: 'bg-accent-100 text-accent-700 border-accent-200',

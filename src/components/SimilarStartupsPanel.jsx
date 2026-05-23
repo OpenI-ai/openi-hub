@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Building2, MapPin, Cpu, ArrowRight } from 'lucide-react';
 import { startupAPI } from '../services/api';

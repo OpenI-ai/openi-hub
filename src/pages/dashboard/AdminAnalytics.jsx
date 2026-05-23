@@ -7,11 +7,11 @@ import { useState, useEffect } from 'react';
 import { analyticsAPI, adminAPI } from '../../services/api';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import {
-  Users, Target, TrendingUp, Building2, Loader2, BarChart3,
-  ArrowUpRight, UserPlus, Link2, Briefcase, Sparkles, AlertCircle,
+  Users, Target, Building2, Loader2,
+  ArrowUpRight, Link2, Sparkles, AlertCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

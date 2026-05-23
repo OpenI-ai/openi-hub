@@ -8,12 +8,10 @@ import { corporateAPI, meetingAPI } from '../../services/api';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
-  Target, Plus, ChevronLeft, Clock, CheckCircle, XCircle,
+  Target, Plus, ChevronLeft, Clock, CheckCircle,
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
   MapPin, FileText, HelpCircle, Trash2, ChevronDown, ChevronUp,
-  X, Search, Download, Sparkles, Brain, BarChart3, Zap,
-  // T32-99d: invite icons
-  Inbox, Send, UserPlus,
+  X, Download, Sparkles, Brain, BarChart3, Zap, Send, UserPlus,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

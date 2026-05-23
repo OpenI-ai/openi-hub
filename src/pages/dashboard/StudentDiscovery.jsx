@@ -3,7 +3,7 @@
  * Enables seeker personas to discover and source student talent.
  */
 import { useState, useEffect } from 'react';
-import { GraduationCap, Search, MapPin, BookOpen, Briefcase, ChevronLeft, ChevronRight, Loader2, ExternalLink } from 'lucide-react';
+import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { discoveryAPI } from '../../services/api';
 

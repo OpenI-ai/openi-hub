@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { investorAPI } from '../../services/api';
 import {
   Loader2, Plus, X, DollarSign, TrendingUp, TrendingDown, Building2,
-  Calendar, Percent, CheckCircle, AlertTriangle, Edit3
+  Calendar, CheckCircle, AlertTriangle, Edit3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

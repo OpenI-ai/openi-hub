@@ -5,9 +5,7 @@ import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuth } from '../../context/AuthContext';
 import {
   FolderKanban, Plus, ChevronRight, CheckCircle2, Clock, AlertTriangle,
-  Users, Calendar, DollarSign, TrendingUp, BarChart3, Target,
-  MessageSquare, Paperclip, MoreHorizontal, Filter, Search,
-  ArrowUpRight, CheckSquare, Circle, PlayCircle, PauseCircle,
+  Users, Calendar, Search, Circle, PlayCircle,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

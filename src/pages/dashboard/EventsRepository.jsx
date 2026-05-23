@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Calendar, MapPin, Users, Plus, Search, Filter,
-  ChevronRight, Clock, Tag, ExternalLink, Download,
-  Mic, Trophy, BookOpen, Zap, Globe, Video,
-  CheckCircle2, AlertCircle, ArrowRight, X, Trash2,
+  Calendar, MapPin, Users, Plus, Search, Clock, ExternalLink, Download,
+  Mic, Trophy, BookOpen, Zap, Globe, Video, X, Trash2,
 } from 'lucide-react';
 import { eventAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';

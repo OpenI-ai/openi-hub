@@ -14,7 +14,7 @@
  *  - title:      optional heading override
  *  - onChange:   optional callback fired after a successful submit
  */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
   Star, Loader2, CheckCircle2, XCircle, PauseCircle, Award,

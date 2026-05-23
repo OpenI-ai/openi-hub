@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { startupAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import {
-  ArrowRight, CheckCircle2, Clock, Circle, XCircle,
-  ChevronRight, Rocket, Calendar, Star, Filter,
-  Search, BookOpen, TrendingUp, Award, AlertTriangle,
-  MapPin, Users, Zap, FileText,
+import { CheckCircle2, Circle,
+  ChevronRight, Star, Filter,
+  Search, Award, Users, Zap, FileText,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

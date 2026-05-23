@@ -3,9 +3,8 @@ import { investorAPI, publicAPI } from '../../services/api';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
-  Plus, X, ChevronDown, ChevronRight, Eye, Users, Clock,
-  CheckCircle, XCircle, ArrowRight, Briefcase, TrendingUp,
-  FileText, Target, Edit2, Trash2,
+  Plus, X, ChevronRight, Users, Clock,
+  CheckCircle, ArrowRight, TrendingUp, Target, Edit2,
 } from 'lucide-react';
 
 const STAGES = ['Pre-seed','Seed','Series A','Series B','Series C','Growth','Late Stage','Any'];

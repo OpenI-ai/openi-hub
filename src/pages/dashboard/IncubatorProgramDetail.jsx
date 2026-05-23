@@ -6,7 +6,7 @@ import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
-  Users, Target, GraduationCap, Edit3, Clock, BarChart3
+  Users, Target, GraduationCap, Clock, BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

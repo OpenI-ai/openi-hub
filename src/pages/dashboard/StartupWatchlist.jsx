@@ -3,9 +3,7 @@ import toast from 'react-hot-toast';
 import { watchlistAPI, startupAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
-  Star, Plus, Trash2, Download, Share2, Search, Filter,
-  ChevronRight, Rocket, Users, FolderPlus, X, Check,
-  Eye, FileText, Tag, Lock, Globe, Edit3, MoreHorizontal,
+  Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

@@ -9,7 +9,7 @@
  */
 import { useState, useEffect } from 'react';
 import { connectionAPI } from '../services/api';
-import { UserPlus, UserCheck, Clock, UserMinus, Check, X } from 'lucide-react';
+import { UserPlus, UserCheck, Clock, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const G = '#D5AA5B';

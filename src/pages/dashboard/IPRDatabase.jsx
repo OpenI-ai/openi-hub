@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { iprAPI, startupAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext'; // Phase 94
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { Shield, Plus, Search, Filter, CheckCircle2, Clock, AlertCircle, Globe, FileText, Calendar, ChevronRight, Award } from 'lucide-react';
+import { Shield, Plus, Search, FileText, Award } from 'lucide-react';
 
 const TYPE_ICONS = { Patent: Shield, Trademark: Award, Copyright: FileText, Design: FileText };
 const STATUS_COLORS = {

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { acceleratorAPI } from '../../services/api';
 import { formatCurrency, formatCurrencyRange, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
-  Loader2, Plus, X, Trash2, Edit3, Building2, DollarSign, Calendar,
-  Globe, Mail, MapPin, ToggleLeft, ToggleRight, ExternalLink, Video
+  Loader2, Plus, X, Trash2, Building2, DollarSign, Calendar,
+  Globe, MapPin, ToggleLeft, ToggleRight, ExternalLink, Video
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

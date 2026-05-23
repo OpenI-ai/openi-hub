@@ -5,8 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Zap, CheckCircle2, Circle, ChevronRight, ChevronDown,
-  Award, AlertTriangle, Info, BarChart3, ArrowRight,
-  Cpu, FlaskConical, Globe, Shield, Microscope, Rocket,
+  Award, AlertTriangle, BarChart3, ArrowRight,
+  Cpu, FlaskConical, Shield, Microscope, Rocket,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

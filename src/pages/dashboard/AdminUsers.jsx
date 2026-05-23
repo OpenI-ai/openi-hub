@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Users, Search, ChevronLeft, ChevronRight, Shield, Edit3, Power, Trash2,
-  CreditCard, XCircle, Check, AlertTriangle, ExternalLink, ArrowLeft
+  Users, Search, ChevronLeft, ChevronRight, Edit3, Power, Trash2, XCircle, Check, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';

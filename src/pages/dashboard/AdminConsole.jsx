@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Shield, Users, Megaphone, Building2, CreditCard, BarChart3, ScrollText,
-  Activity, Globe, Database, TrendingUp, AlertCircle, BadgeCheck
+  Shield, Users, Megaphone, Building2, CreditCard, BarChart3, Globe, Database, TrendingUp, BadgeCheck
 } from 'lucide-react';
 import { adminAPI, analyticsAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
