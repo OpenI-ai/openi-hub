@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { challengeAPI, corporateAPI } from '../../services/api';
 import FileUpload from '../../components/FileUpload';
 import {
@@ -52,6 +53,35 @@ export default function Marketplace() {
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showApply, setShowApply] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Deep-link: /dashboard/marketplace?challenge=<id>&action=apply
+  // Used by ChallengeInvites.jsx after Accept so invitee lands on Apply form.
+  // Reads once on mount; openDetail is async and idempotent.
+  useEffect(() => {
+    const qpChallenge = searchParams.get('challenge');
+    const qpAction = searchParams.get('action');
+    if (qpChallenge) {
+      const id = parseInt(qpChallenge, 10);
+      if (Number.isFinite(id)) {
+        openDetail(id).then(() => {
+          if (qpAction === 'apply') {
+            setShowApply(true);
+            // Wait for layout, then scroll the pitch textarea into view + focus
+            setTimeout(() => {
+              const el = document.querySelector('textarea[placeholder*="solution addresses"]');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.focus();
+              }
+            }, 300);
+          }
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally mount-only; later URL changes do not re-trigger
+
   const [profilePct, setProfilePct] = useState(null);
   const [applying, setApplying] = useState(false);
   const [applyForm, setApplyForm] = useState({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });

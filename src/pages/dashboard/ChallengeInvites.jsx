@@ -35,8 +35,20 @@ export default function ChallengeInvites() {
   const respond = async (inviteId, action) => {
     setActing(inviteId);
     try {
-      if (action === 'accept') await inviteAPI.accept(inviteId);
-      else await inviteAPI.decline(inviteId);
+      if (action === 'accept') {
+        const res = await inviteAPI.accept(inviteId);
+        // Option B: land invitee directly on the Apply form for that challenge.
+        // Backend auto-creates an empty application stub (Phase 99e). Sending
+        // the invitee straight to the apply surface closes the UX gap where
+        // Accept used to feel like "nothing happened."
+        const cid = res?.invite?.challenge_id;
+        if (cid) {
+          navigate(`/dashboard/marketplace?challenge=${cid}&action=apply`);
+          return;
+        }
+      } else {
+        await inviteAPI.decline(inviteId);
+      }
       // Reload current filter; pending count drops, accepted/declined grows
       await load();
     } catch (e) {
