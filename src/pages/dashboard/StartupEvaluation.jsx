@@ -4,7 +4,8 @@ import { eightVectorSelfAPI, getToken } from '../../services/api';
 import {
   Users, Target, TrendingUp, Cpu, DollarSign,
   BarChart2, Shield, Zap, ChevronDown, ChevronUp,
-  MessageSquare, Building2, Calendar, Download, Save, Share2, FileDown, Globe, X, Copy,  // Phase 111 Ship 2c icons added
+  MessageSquare, Building2, Calendar, Download, Save,
+  Share2, FileDown, Globe, X,  // Phase 111 Ship 2c icons added
 } from "lucide-react";
 
 // ─── 8 VECTOR DATA ─────────────────────────────────────────────────────────────

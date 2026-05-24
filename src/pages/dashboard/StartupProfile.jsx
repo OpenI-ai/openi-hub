@@ -7,13 +7,12 @@ import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
 import {
   MapPin, Users, TrendingUp, Award, Shield,
-  ExternalLink, Bookmark, BookmarkCheck, Share2, Globe, Cpu, Target, Building2, CheckCircle2, AlertCircle, Calendar, Briefcase, Sparkles,
-  Flag, Loader2, X, Mail, Github, Youtube, FileText, Video,
-  BarChart3, List, // Phase 92.1 (T17b) - chart/list toggle icons
-  Wallet, // Phase 92.4 (T26) - currency-agnostic Funding Raised icon (was DollarSign)
-  // Phase 110: Share modal icons
-  Copy, Trash2, FileDown, Lock,
-} from 'lucide-react';
+  ExternalLink, Bookmark, BookmarkCheck, Share2, Globe,
+  Cpu, Target, Building2, CheckCircle2, AlertCircle,
+  Calendar, Briefcase, Sparkles, Flag, Loader2,
+  X, Mail, Github, Youtube, FileText,
+  Video, BarChart3, List, Wallet, FileDown,  // Phase 92.1 (T17b) - chart/list toggle icons
+} from "lucide-react";
 
 // Phase 69: TRL renamed to "Tech Readiness" everywhere visible. Tooltip
 // explains the 1-9 NASA scale for users who do not know the term.
