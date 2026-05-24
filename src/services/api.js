@@ -54,6 +54,7 @@ async function request(method, path, body = null, isFormData = false) {
 const get    = (path)        => request('GET',    path);
 const post   = (path, body)  => request('POST',   path, body);
 const put    = (path, body)  => request('PUT',    path, body);
+const patch  = (path, body)  => request('PATCH',  path, body);
 const del    = (path)        => request('DELETE', path);
 
 // Blob fetch for binary downloads (PDF, etc.)
@@ -317,6 +318,11 @@ export const watchlistAPI = {
   createShare:   (id, opts = {})       => post(`/watchlists/${id}/shares`, opts),
   listShares:    (id)                  => get(`/watchlists/${id}/shares`),
   revokeShare:   (shareId)             => del(`/watchlists/shares/${shareId}`),
+  // Phase 109 (25 May 2026) — per-user collaborators (editor/viewer roles + magic-link email invite)
+  inviteCollaborators: (id, data)          => post(`/watchlists/${id}/collaborators`, data),
+  listCollaborators:   (id)                => get(`/watchlists/${id}/collaborators`),
+  removeCollaborator:  (id, collabId)      => del(`/watchlists/${id}/collaborators/${collabId}`),
+  updateCollaboratorRole: (id, collabId, data) => patch(`/watchlists/${id}/collaborators/${collabId}`, data),
 };
 
 // PUBLIC unauthed read by share token. Hits /api/public/watchlists/share/:token.
