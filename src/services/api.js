@@ -337,6 +337,24 @@ export const publicWatchlistShare = {
     }),
 };
 
+// Phase 110 (25 May 2026) — Startup Profile sharing (3 modes)
+export const startupProfileShareAPI = {
+  pdfUrl:        (userId)             => `${BASE_URL}/startup-profile/${userId}/pdf`,
+  createShare:   (userId, opts = {})  => post(`/startup-profile/${userId}/shares`, opts),
+  listShares:    (userId)             => get(`/startup-profile/${userId}/shares`),
+  revokeShare:   (shareId)            => del(`/startup-profile/shares/${shareId}`),
+};
+
+// PUBLIC unauthed read by share token. Hits /api/public/startup-profile/share/:token.
+export const publicStartupProfileShare = {
+  read: (token) => fetch(`${BASE_URL}/public/startup-profile/share/${encodeURIComponent(token)}`)
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.message || `HTTP ${r.status}`);
+      return body;
+    }),
+};
+
 // ── DeepTech Assessments ──────────────────────────────────────
 export const deeptechAPI = {
   list:   (params = {}) => get(`/deeptech?${new URLSearchParams(params)}`),

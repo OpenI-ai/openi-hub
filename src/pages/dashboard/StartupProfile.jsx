@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { startupAPI, startupProfileAPI, profileViewAPI, claimAPI } from '../../services/api';
+import { startupAPI, startupProfileAPI, profileViewAPI, claimAPI, startupProfileShareAPI, getToken } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
@@ -11,6 +11,8 @@ import {
   Flag, Loader2, X, Mail, Github, Youtube, FileText, Video,
   BarChart3, List, // Phase 92.1 (T17b) - chart/list toggle icons
   Wallet, // Phase 92.4 (T26) - currency-agnostic Funding Raised icon (was DollarSign)
+  // Phase 110: Share modal icons
+  Copy, Trash2, FileDown, Lock,
 } from 'lucide-react';
 
 // Phase 69: TRL renamed to "Tech Readiness" everywhere visible. Tooltip
@@ -1153,6 +1155,102 @@ export default function StartupProfile() {
   const [watchlisted, setWatchlisted] = useState(false);
   // J10 (s50): Claim flow
   const { user } = useAuth();
+
+  // Phase 110: Share modal state (Share button at top of page opens this)
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTab, setShareTab] = useState('pdf'); // 'pdf' | 'link' | 'email'
+  const [shareMode, setShareMode] = useState('full'); // for 'link' tab
+  const [shareList, setShareList] = useState([]);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareMinting, setShareMinting] = useState(false);
+  const [shareEmail, setShareEmail] = useState('');
+  const [shareEmailBusy, setShareEmailBusy] = useState(false);
+  const [shareEmailMessage, setShareEmailMessage] = useState('');
+
+  // Phase 110: Share handlers
+  const shareIsOwner = user && (user.id === parseInt(id, 10) || user.role === 'admin');
+  const LinkIconShare = ({ size }) => <Globe size={size} />;
+
+  const openShareModal = async () => {
+    setShareOpen(true);
+    setShareTab('pdf');
+    // If owner, also pre-load existing share links for the "Public link" tab
+    if (shareIsOwner) {
+      setShareLoading(true);
+      try {
+        const r = await startupProfileShareAPI.listShares(id);
+        setShareList(Array.isArray(r) ? r : []);
+      } catch (err) {
+        setShareList([]);
+      } finally {
+        setShareLoading(false);
+      }
+    }
+  };
+
+  const downloadStartupPdf = async () => {
+    try {
+      const url = startupProfileShareAPI.pdfUrl(id);
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error('PDF download failed');
+      const blob = await res.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = `startup-profile-${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(dlUrl);
+      toast.success('PDF downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download PDF');
+    }
+  };
+
+  const mintNewProfileShare = async () => {
+    setShareMinting(true);
+    try {
+      const r = await startupProfileShareAPI.createShare(id, { redaction_mode: shareMode });
+      setShareList(prev => [r, ...prev]);
+      toast.success(`Created ${shareMode} share link`);
+    } catch (err) {
+      toast.error(err?.message || 'Failed to create share');
+    } finally {
+      setShareMinting(false);
+    }
+  };
+
+  const copyShareLink = async (token) => {
+    const url = `${window.location.origin}/share/startup/${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed — please select and copy manually');
+    }
+  };
+
+  const revokeProfileShare = async (shareId) => {
+    if (!confirm('Revoke this share link? Anyone who already has it will lose access.')) return;
+    try {
+      await startupProfileShareAPI.revokeShare(shareId);
+      setShareList(prev => prev.map(s => s.id === shareId ? { ...s, revoked_at: new Date().toISOString() } : s));
+      toast.success('Share link revoked');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to revoke');
+    }
+  };
+
+  const sendProfileEmailInvite = async () => {
+    // Uses the pendingInviteService.createPendingInvite endpoint via a new
+    // hard-to-find /api/startup-profile/:userId/email-invite handler that
+    // doesn't exist YET (deferred to a Phase 110b ship if cohort asks).
+    // For now: surface a friendly placeholder.
+    toast.error('Email invite path is being wired in a follow-up ship. Use the Public link option for now.');
+  };
+
+
   const [claimOpen, setClaimOpen] = useState(false);
   const [claimSubmitted, setClaimSubmitted] = useState(false);
   // Phase 87f — child sub-sections (team / products / funding / clients /
@@ -1317,7 +1415,7 @@ export default function StartupProfile() {
               <button onClick={() => setWatchlisted(!watchlisted)} className={`p-2 rounded-lg border transition-all ${watchlisted ? 'border-primary-500 bg-primary-500/20 text-primary-400' : 'border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400'}`}>
                 {watchlisted ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
               </button>
-              <button className="p-2 rounded-lg border border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400 transition-all">
+              <button onClick={() => openShareModal()} className="p-2 rounded-lg border border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400 transition-all" title="Share this profile">
                 <Share2 size={18} />
               </button>
             </div>
@@ -1612,6 +1710,138 @@ export default function StartupProfile() {
         startup={startup}
         onSuccess={() => setClaimSubmitted(true)}
       />
+      {/* Phase 110: Share modal JSX */}
+      {shareOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShareOpen(false); }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share this startup profile</h2>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Tab strip */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
+              {[
+                { id: 'pdf',   icon: <FileDown size={13} />, label: 'Download PDF' },
+                { id: 'link',  icon: <LinkIconShare size={13} />, label: 'Public link', ownerOnly: true },
+                { id: 'email', icon: <Mail size={13} />, label: 'Invite by email', ownerOnly: true },
+              ].filter(t => !t.ownerOnly || shareIsOwner).map(t => (
+                <button key={t.id} onClick={() => setShareTab(t.id)}
+                  style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab body */}
+            {shareTab === 'pdf' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Generate a branded PDF of this startup profile. Anyone with this PDF can read it (no link to manage).
+                </p>
+                <button onClick={() => downloadStartupPdf()}
+                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <FileDown size={14} /> Download startup profile PDF
+                </button>
+              </div>
+            )}
+
+            {shareTab === 'link' && shareIsOwner && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Create a link anyone can use to view your profile (no OpenI account needed). Choose what to share — full, public-safe (hides financials), or pitch-only (overview only).
+                </p>
+                {/* Redaction mode picker */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 14 }}>
+                  {[
+                    { id: 'full', label: 'Full', desc: 'Everything' },
+                    { id: 'public_safe', label: 'Public-safe', desc: 'Hide financials' },
+                    { id: 'pitch_only', label: 'Pitch-only', desc: 'Overview only' },
+                  ].map(m => (
+                    <button key={m.id} onClick={() => setShareMode(m.id)}
+                      style={{ padding: '10px 8px', fontSize: 11, fontWeight: 700, textAlign: 'center',
+                               background: shareMode === m.id ? '#D5AA5B' : '#f5f5f5',
+                               color: shareMode === m.id ? '#fff' : '#666',
+                               border: `1.5px solid ${shareMode === m.id ? '#D5AA5B' : '#e5e7eb'}`,
+                               borderRadius: 8, cursor: 'pointer' }}>
+                      <div>{m.label}</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, opacity: 0.85, marginTop: 2 }}>{m.desc}</div>
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => mintNewProfileShare()} disabled={shareMinting}
+                  style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  {shareMinting ? 'Creating link…' : '+ Create new share link'}
+                </button>
+
+                {/* Existing shares list */}
+                {shareLoading ? (
+                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading existing shares…</p>
+                ) : shareList.length === 0 ? (
+                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet. Click above to create one.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 260, overflowY: 'auto' }}>
+                    {shareList.map(s => {
+                      const expired = s.expires_at && new Date(s.expires_at) < new Date();
+                      const revoked = !!s.revoked_at;
+                      const inactive = expired || revoked;
+                      const shareUrl = `${window.location.origin}/share/startup/${s.token}`;
+                      return (
+                        <div key={s.id} style={{ padding: 10, borderRadius: 8, background: inactive ? '#fafafa' : '#fff8ec', border: `1px solid ${inactive ? '#eee' : 'rgba(213,170,91,0.3)'}`, opacity: inactive ? 0.6 : 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: revoked ? '#fef2f2' : (expired ? '#fef9e7' : '#f0fdf4'), color: revoked ? '#dc2626' : (expired ? '#a16207' : '#16a34a') }}>
+                              {revoked ? 'REVOKED' : (expired ? 'EXPIRED' : 'ACTIVE')}
+                            </span>
+                            <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#e0e7ff', color: '#3730a3' }}>
+                              {s.redaction_mode === 'full' ? 'Full' : s.redaction_mode === 'public_safe' ? 'Public-safe' : 'Pitch-only'}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: 6, background: '#fff', borderRadius: 6, border: '1px solid #eee', fontSize: 10, fontFamily: 'monospace' }}>
+                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#555' }}>{shareUrl}</span>
+                            {!inactive && (
+                              <>
+                                <button onClick={() => copyShareLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
+                                <button onClick={() => revokeProfileShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {shareTab === 'email' && shareIsOwner && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Send a magic-link invite to a non-OpenI user. They&apos;ll be prompted to create an account, then sign in to view your full profile.
+                </p>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Email address</label>
+                <input type="email" value={shareEmail} onChange={e => setShareEmail(e.target.value)}
+                  placeholder="recipient@example.com"
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none', marginBottom: 10 }} />
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
+                <textarea value={shareEmailMessage} onChange={e => setShareEmailMessage(e.target.value)} rows={2}
+                  placeholder="Add a note — why you&apos;re sharing this profile."
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+                <button onClick={() => sendProfileEmailInvite()} disabled={shareEmailBusy || !shareEmail.trim()}
+                  style={{ width: '100%', padding: '10px 16px', background: (!shareEmail.trim() || shareEmailBusy) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!shareEmail.trim() || shareEmailBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <Mail size={14} /> {shareEmailBusy ? 'Sending…' : 'Send invite'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
