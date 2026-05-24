@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { iprAPI, startupAPI } from '../../services/api';
+import { iprAPI, startupAPI, iprShareAPI, getToken } from '../../services/api';
 import { useAuth } from '../../context/AuthContext'; // Phase 94
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { Shield, Plus, Search, FileText, Award } from 'lucide-react';
+import { Shield, Plus, Search, FileText, Award, Share2, FileDown, Mail, X } from 'lucide-react'; // Phase 111 Ship 2b icons added
 
 const TYPE_ICONS = { Patent: Shield, Trademark: Award, Copyright: FileText, Design: FileText };
 const STATUS_COLORS = {
@@ -45,6 +45,75 @@ export default function IPRDatabase() {
   const [startupLoading, setStartupLoading] = useState(false);
   const startupSeqRef = useRef(0);
   const [saving, setSaving] = useState(false);
+
+  // Phase 111 Ship 2b: Share modal state (magic-link only per D3)
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTab, setShareTab] = useState('pdf');
+  const [shareEmails, setShareEmails] = useState([]);
+  const [shareEmailDraft, setShareEmailDraft] = useState('');
+  const [shareMessage, setShareMessage] = useState('');
+  const [shareBusy, setShareBusy] = useState(false);
+
+  // Phase 111 Ship 2b: Share handlers (IPR magic-link only per D3)
+  const openIprShareModal = () => {
+    setShareOpen(true);
+    setShareTab('pdf');
+    setShareEmails([]);
+    setShareEmailDraft('');
+    setShareMessage('');
+  };
+
+  const downloadIprPdf = async () => {
+    if (!selected?.id) return;
+    try {
+      const res = await fetch(iprShareAPI.pdfUrl(selected.id), { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error('PDF download failed');
+      const blob = await res.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = `ipr-${selected.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(dlUrl);
+      toast.success('PDF downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download PDF');
+    }
+  };
+
+  const addShareEmail = () => {
+    const em = shareEmailDraft.trim().toLowerCase();
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+      toast.error('Enter a valid email');
+      return;
+    }
+    if (shareEmails.includes(em)) return;
+    setShareEmails(prev => [...prev, em]);
+    setShareEmailDraft('');
+  };
+
+  const sendIprEmailInvite = async () => {
+    if (!selected?.id || shareEmails.length === 0) return;
+    setShareBusy(true);
+    try {
+      const r = await iprShareAPI.inviteByEmail(selected.id, {
+        emails: shareEmails,
+        message: shareMessage.trim() || undefined,
+      });
+      const count = (r.pending_email_invites || []).length;
+      toast.success(`${count} magic-link invite${count === 1 ? '' : 's'} sent`);
+      setShareEmails([]); setShareEmailDraft(''); setShareMessage('');
+      setShareOpen(false);
+    } catch (err) {
+      toast.error(err?.message || 'Failed to send invites');
+    } finally {
+      setShareBusy(false);
+    }
+  };
+
+
 
   function resetForm() {
     setForm({
@@ -180,7 +249,7 @@ export default function IPRDatabase() {
           if (mySeq === startupSeqRef.current) setStartupLoading(false);
         });
     }, 250);
-    return () => clearTimeout(t);
+  return () => clearTimeout(t);
   }, [startupSearch, showAdd, isAdmin]);
 
   if (loading) return <LoadingSkeleton type="table" />;
@@ -336,7 +405,10 @@ export default function IPRDatabase() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold">View Full Record</button>
+              {/* Phase 111 Ship 2b: Share button (magic-link only) */}
+              <button onClick={openIprShareModal} className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-2">
+                <Share2 size={14} /> Share Record
+              </button>
               <button onClick={() => setSelected(null)} className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium">Close</button>
             </div>
           </div>
@@ -507,6 +579,94 @@ export default function IPRDatabase() {
           </div>
         </div>
       )}
+      {/* Phase 111 Ship 2b: IPR Share modal (magic-link only per D3) */}
+      {shareOpen && selected && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShareOpen(false); }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share IPR Record</h2>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Tab strip — only PDF + Email (no Public link per D3) */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
+              {[
+                { id: 'pdf',   icon: <FileDown size={13} />, label: 'Download PDF' },
+                { id: 'email', icon: <Mail size={13} />, label: 'Invite by email' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setShareTab(t.id)}
+                  style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+
+            {shareTab === 'pdf' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Branded PDF of this IPR record (admin/evaluator gate enforced by backend).
+                </p>
+                <button onClick={downloadIprPdf}
+                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <FileDown size={14} /> Download IPR PDF
+                </button>
+              </div>
+            )}
+
+            {shareTab === 'email' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Send a magic-link to one or more email recipients. They sign up for an OpenI account, sign in, and access the IPR record via /dashboard/ipr. <strong>No public token mode</strong> — IPR data is too sensitive for anyone-with-the-URL access.
+                </p>
+
+                {/* Email input */}
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Add recipient emails</label>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                  <input value={shareEmailDraft} onChange={e => setShareEmailDraft(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addShareEmail(); } }}
+                    placeholder="recipient@example.com — press Enter"
+                    style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none' }} />
+                  <button type="button" onClick={addShareEmail}
+                    style={{ padding: '9px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#555', cursor: 'pointer' }}>
+                    Add
+                  </button>
+                </div>
+                {shareEmails.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                    {shareEmails.map(em => (
+                      <span key={em} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 14, padding: '4px 10px', fontSize: 11, color: '#1e40af' }}>
+                        <Mail size={10} /> {em}
+                        <button onClick={() => setShareEmails(prev => prev.filter(x => x !== em))}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                          <X size={11} color="#1e40af" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
+                <textarea value={shareMessage} onChange={e => setShareMessage(e.target.value)} rows={2}
+                  placeholder="Add a note - what excites you about this IPR record."
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+
+                <button onClick={sendIprEmailInvite} disabled={shareBusy || shareEmails.length === 0}
+                  style={{ width: '100%', padding: '10px 16px', background: (shareEmails.length === 0 || shareBusy) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (shareEmails.length === 0 || shareBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <Mail size={14} /> {shareBusy ? 'Sending...' : 'Send magic-link invites'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
+
   );
 }

@@ -277,6 +277,13 @@ export const iprAPI = {
   update:      (id, data)    => put(`/ipr/${id}`, data),
 };
 
+// Phase 111 Ship 2b (25 May 2026) — IPR sharing: PDF + magic-link invite ONLY
+// (no public token mode per D3 - IPR has legal exposure)
+export const iprShareAPI = {
+  pdfUrl:        (id)             => `${BASE_URL}/ipr/${id}/pdf`,
+  inviteByEmail: (id, data)       => post(`/ipr/${id}/invite`, data),
+};
+
 // ── Infrastructure ────────────────────────────────────────────
 export const infrastructureAPI = {
   list:          (params = {}) => get(`/infrastructure?${new URLSearchParams(params)}`),
