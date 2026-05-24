@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
+import toast from 'react-hot-toast';
+import { eightVectorSelfAPI, getToken } from '../../services/api';
 import {
   Users, Target, TrendingUp, Cpu, DollarSign,
   BarChart2, Shield, Zap, ChevronDown, ChevronUp,
-  MessageSquare, Building2, Calendar, Download,
+  MessageSquare, Building2, Calendar, Download, Save, Share2, FileDown, Globe, X, Copy,  // Phase 111 Ship 2c icons added
 } from "lucide-react";
 
 // ─── 8 VECTOR DATA ─────────────────────────────────────────────────────────────
@@ -363,6 +365,117 @@ export default function StartupEvaluation() {
   const [statuses, setStatuses] = useState({});
   const [comments, setComments] = useState({});
 
+  // Phase 111 Ship 2c: Save + Share state
+  const [savedAssessmentId, setSavedAssessmentId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTab, setShareTab] = useState('pdf');
+  const [shareList, setShareList] = useState([]);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareMinting, setShareMinting] = useState(false);
+  const [notes, setNotes] = useState('');
+
+  // Phase 111 Ship 2c: Save + Share handlers
+  const saveAssessment = async () => {
+    if (!startupName.trim()) {
+      toast.error('Please enter a startup name first');
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        startup_name: startupName.trim(),
+        vector_scores: vectorScores,
+        criterion_scores: scores,
+        statuses,
+        comments,
+        overall_score: overallScore,
+        notes: notes.trim() || null,
+      };
+      const res = await eightVectorSelfAPI.create(payload);
+      if (res?.id) {
+        setSavedAssessmentId(res.id);
+        toast.success('Assessment saved');
+      }
+    } catch (err) {
+      toast.error(err?.message || 'Failed to save assessment');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openShareModal = async () => {
+    if (!savedAssessmentId) {
+      toast.error('Please save the assessment first');
+      return;
+    }
+    setShareOpen(true);
+    setShareTab('pdf');
+    setShareLoading(true);
+    try {
+      const r = await eightVectorSelfAPI.listShares(savedAssessmentId);
+      setShareList(Array.isArray(r) ? r : []);
+    } catch {
+      setShareList([]);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const downloadEightVectorPdf = async () => {
+    if (!savedAssessmentId) return;
+    try {
+      const res = await fetch(eightVectorSelfAPI.pdfUrl(savedAssessmentId), { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error('PDF download failed');
+      const blob = await res.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = `8vector-${savedAssessmentId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(dlUrl);
+      toast.success('PDF downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download PDF');
+    }
+  };
+
+  const mintNewEightVectorShare = async () => {
+    setShareMinting(true);
+    try {
+      const r = await eightVectorSelfAPI.createShare(savedAssessmentId, {});
+      setShareList(prev => [r, ...prev]);
+      toast.success('Share link created');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to create share');
+    } finally {
+      setShareMinting(false);
+    }
+  };
+
+  const copyEightVectorLink = async (token) => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/share/eight-vector-self/${token}`);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const revokeEightVectorShare = async (shareId) => {
+    if (!confirm('Revoke this share link?')) return;
+    try {
+      await eightVectorSelfAPI.revokeShare(shareId);
+      setShareList(prev => prev.map(s => s.id === shareId ? { ...s, revoked_at: new Date().toISOString() } : s));
+      toast.success('Revoked');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to revoke');
+    }
+  };
+
+
   const handleScore = (key, val) =>
     setScores(prev => ({ ...prev, [key]: val }));
   const handleStatus = (key, val) =>
@@ -522,24 +635,143 @@ export default function StartupEvaluation() {
 
           {/* Footer action */}
           <div style={{ paddingTop:8, display:"flex", justifyContent:"flex-end" }}>
-            <button
-              onClick={() => window.print()}
-              style={{
-                display:"inline-flex", alignItems:"center", gap:8,
-                padding:"10px 24px", background:"#D5AA5B", color:"#fff",
-                border:"none", borderRadius:10, fontSize:13, fontWeight:700,
-                cursor:"pointer", boxShadow:"0 2px 12px rgba(213,170,91,0.3)",
-                transition:"background 0.15s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.background="#C9983F"}
-              onMouseLeave={e => e.currentTarget.style.background="#D5AA5B"}
-            >
-              <Download className="w-4 h-4" />
-              Export Report
-            </button>
+            {/* Phase 111 Ship 2c: Save + Share buttons (replaces window.print Export Report) */}
+            <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+              <button
+                onClick={saveAssessment}
+                disabled={saving || !startupName.trim()}
+                style={{
+                  display:"inline-flex", alignItems:"center", gap:8,
+                  padding:"10px 22px",
+                  background: (!startupName.trim() || saving) ? "#ccc" : "#D5AA5B",
+                  color:"#fff", border:"none", borderRadius:10, fontSize:13, fontWeight:700,
+                  cursor: (!startupName.trim() || saving) ? "not-allowed" : "pointer",
+                  boxShadow: (!startupName.trim() || saving) ? "none" : "0 2px 12px rgba(213,170,91,0.3)",
+                  transition:"background 0.15s",
+                }}
+              >
+                <Save className="w-4 h-4" />
+                {saving ? "Saving..." : savedAssessmentId ? "Saved" : "Save Assessment"}
+              </button>
+              {savedAssessmentId && (
+                <button
+                  onClick={openShareModal}
+                  style={{
+                    display:"inline-flex", alignItems:"center", gap:8,
+                    padding:"10px 22px", background:"#fff8ec", color:"#D5AA5B",
+                    border:"1.5px solid #D5AA5B", borderRadius:10, fontSize:13, fontWeight:700,
+                    cursor:"pointer",
+                  }}
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share Report
+                </button>
+              )}
+              <button
+                onClick={() => window.print()}
+                style={{
+                  display:"inline-flex", alignItems:"center", gap:6,
+                  padding:"10px 16px", background:"#f5f5f5", color:"#666",
+                  border:"none", borderRadius:10, fontSize:12, fontWeight:600,
+                  cursor:"pointer",
+                }}
+                title="Print (browser native)"
+              >
+                <Download className="w-4 h-4" />
+                Print
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      {/* Phase 111 Ship 2c: Share modal JSX */}
+      {shareOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShareOpen(false); }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share 8-Vector Assessment</h2>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Tab strip */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
+              {[
+                { id: 'pdf', icon: <FileDown size={13} />, label: 'Download PDF' },
+                { id: 'link', icon: <Globe size={13} />, label: 'Public link' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setShareTab(t.id)}
+                  style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+
+            {shareTab === 'pdf' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Branded PDF with overall score badge + per-vector breakdown + your notes.
+                </p>
+                <button onClick={downloadEightVectorPdf}
+                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <FileDown size={14} /> Download 8-Vector PDF
+                </button>
+              </div>
+            )}
+
+            {shareTab === 'link' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Create a link anyone can use to view your assessment (no OpenI account needed). Default 30-day expiry; revocable anytime.
+                </p>
+                <button onClick={mintNewEightVectorShare} disabled={shareMinting}
+                  style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  {shareMinting ? 'Creating...' : '+ Create new share link'}
+                </button>
+
+                {shareLoading ? (
+                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading...</p>
+                ) : shareList.length === 0 ? (
+                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
+                    {shareList.map(s => {
+                      const expired = s.expires_at && new Date(s.expires_at) < new Date();
+                      const revoked = !!s.revoked_at;
+                      const inactive = expired || revoked;
+                      const shareUrl = `${window.location.origin}/share/eight-vector-self/${s.token}`;
+                      return (
+                        <div key={s.id} style={{ padding: 10, borderRadius: 8, background: inactive ? '#fafafa' : '#fff8ec', border: `1px solid ${inactive ? '#eee' : 'rgba(213,170,91,0.3)'}`, opacity: inactive ? 0.6 : 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: revoked ? '#fef2f2' : (expired ? '#fef9e7' : '#f0fdf4'), color: revoked ? '#dc2626' : (expired ? '#a16207' : '#16a34a') }}>
+                              {revoked ? 'REVOKED' : (expired ? 'EXPIRED' : 'ACTIVE')}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: 6, background: '#fff', borderRadius: 6, border: '1px solid #eee', fontSize: 10, fontFamily: 'monospace' }}>
+                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#555' }}>{shareUrl}</span>
+                            {!inactive && (
+                              <>
+                                <button onClick={() => copyEightVectorLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
+                                <button onClick={() => revokeEightVectorShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

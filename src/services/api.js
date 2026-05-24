@@ -377,6 +377,26 @@ export const deeptechShareAPI = {
   revokeShare:   (shareId)        => del(`/deeptech/shares/${shareId}`),
 };
 
+// Phase 111 Ship 2c (25 May 2026) — 8-Vector Self-Assessment + sharing
+export const eightVectorSelfAPI = {
+  listMine:      ()               => get('/eight-vector-self'),
+  create:        (data)           => post('/eight-vector-self', data),
+  get:           (id)             => get(`/eight-vector-self/${id}`),
+  pdfUrl:        (id)             => `${BASE_URL}/eight-vector-self/${id}/pdf`,
+  createShare:   (id, opts = {})  => post(`/eight-vector-self/${id}/shares`, opts),
+  listShares:    (id)             => get(`/eight-vector-self/${id}/shares`),
+  revokeShare:   (shareId)        => del(`/eight-vector-self/shares/${shareId}`),
+};
+
+export const publicEightVectorSelfShare = {
+  read: (token) => fetch(`${BASE_URL}/public/eight-vector-self/share/${encodeURIComponent(token)}`)
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.message || `HTTP ${r.status}`);
+      return body;
+    }),
+};
+
 export const publicDeepTechShare = {
   read: (token) => fetch(`${BASE_URL}/public/deeptech/share/${encodeURIComponent(token)}`)
     .then(async r => {
