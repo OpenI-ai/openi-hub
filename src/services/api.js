@@ -665,6 +665,21 @@ export const portfolioEvalsAPI = {
   update:           (id, data)        => put(`/program-evals/${id}`, data),
   remove:           (id)              => del(`/program-evals/${id}`),
   portfolioHealth:  (params = {})    => get(`/program-evals/portfolio-health?${new URLSearchParams(params)}`),
+  // Phase 111 Ship 2d (25 May 2026) — sharing
+  pdfUrl:           (id)              => `${BASE_URL}/program-evals/${id}/pdf`,
+  createShare:      (id, opts = {})   => post(`/program-evals/${id}/shares`, opts),
+  listShares:       (id)              => get(`/program-evals/${id}/shares`),
+  revokeShare:      (shareId)         => del(`/program-evals/shares/${shareId}`),
+};
+
+// Phase 111 Ship 2d — public unauthed read by share token
+export const publicProgramEvalShare = {
+  read: (token) => fetch(`${BASE_URL}/public/program-evals/share/${encodeURIComponent(token)}`)
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.message || `HTTP ${r.status}`);
+      return body;
+    }),
 };
 
 // ── Service Provider Enhancement (Phase 16C) ────────────────
