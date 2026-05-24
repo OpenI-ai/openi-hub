@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { watchlistAPI, startupAPI } from '../../services/api';
+import { watchlistAPI, startupAPI, meetingAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
+  UserPlus, Mail, ChevronDown,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -52,6 +53,19 @@ export default function StartupWatchlist() {
   const [sharesList, setSharesList] = useState([]);
   const [sharesLoading, setSharesLoading] = useState(false);
   const [minting, setMinting] = useState(false);
+  // Phase 109: collaborator-tab state
+  const [sharesTab, setSharesTab] = useState('link'); // 'link' or 'collab'
+  const [collabList, setCollabList] = useState([]);
+  const [collabLoading, setCollabLoading] = useState(false);
+  const [collabSearch, setCollabSearch] = useState('');
+  const [collabResults, setCollabResults] = useState([]);
+  const [collabSelected, setCollabSelected] = useState([]); // [{id, name, email}]
+  const [collabEmails, setCollabEmails] = useState([]);
+  const [collabEmailDraft, setCollabEmailDraft] = useState('');
+  const [collabRole, setCollabRole] = useState('viewer');
+  const [collabMessage, setCollabMessage] = useState('');
+  const [collabBusy, setCollabBusy] = useState(false);
+  const collabSeqRef = useRef(0);
   const [search, setSearch]         = useState('');
   const [loading, setLoading]       = useState(true);
   const [newList, setNewList]       = useState({ name: '', description: '', visibility: 'internal', tags: '' });
@@ -268,6 +282,106 @@ export default function StartupWatchlist() {
     } catch (err) {
       console.error('[watchlist.revokeShare] failed:', err);
       toast.error(err?.response?.data?.message || err.message || 'Failed to revoke');
+    }
+  };
+
+  // Phase 109: collaborator handlers
+  const loadCollaborators = async () => {
+    if (!selectedList) return;
+    setCollabLoading(true);
+    try {
+      const r = await watchlistAPI.listCollaborators(selectedList.id);
+      setCollabList(Array.isArray(r) ? r : []);
+    } catch (err) {
+      console.error('[loadCollaborators]', err);
+      setCollabList([]);
+    } finally {
+      setCollabLoading(false);
+    }
+  };
+
+  // Debounced user typeahead via meetingAPI.searchUsers (Phase 99c pattern with race-guard)
+  useEffect(() => {
+    if (!showSharesModal || sharesTab !== 'collab') return;
+    const q = collabSearch.trim();
+    if (q.length < 2) { setCollabResults([]); return; }
+    const mySeq = ++collabSeqRef.current;
+    const timer = setTimeout(async () => {
+      try {
+        const r = await meetingAPI.searchUsers(q);
+        if (mySeq !== collabSeqRef.current) return; // a newer fetch already in flight
+        const list = Array.isArray(r) ? r : (r?.users || []);
+        // Hide already-selected + already-collaborators
+        const excludeIds = new Set([
+          ...collabSelected.map(u => u.id),
+          ...collabList.map(c => c.user_id),
+        ]);
+        setCollabResults(list.filter(u => !excludeIds.has(u.id)).slice(0, 8));
+      } catch (err) {
+        if (mySeq !== collabSeqRef.current) return;
+        setCollabResults([]);
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [collabSearch, showSharesModal, sharesTab, collabSelected, collabList]);
+
+  const addCollabEmail = () => {
+    const em = collabEmailDraft.trim().toLowerCase();
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+      toast.error('Enter a valid email');
+      return;
+    }
+    if (collabEmails.includes(em)) return;
+    setCollabEmails(prev => [...prev, em]);
+    setCollabEmailDraft('');
+  };
+
+  const sendCollaboratorInvites = async () => {
+    if (collabSelected.length === 0 && collabEmails.length === 0) return;
+    setCollabBusy(true);
+    try {
+      const r = await watchlistAPI.inviteCollaborators(selectedList.id, {
+        user_ids: collabSelected.map(u => u.id),
+        emails: collabEmails,
+        role: collabRole,
+        message: collabMessage.trim() || undefined,
+      });
+      const addedCount = (r.added || []).length;
+      const pendingCount = (r.pending_email_invites || []).length;
+      const parts = [];
+      if (addedCount > 0) parts.push(`${addedCount} collaborator${addedCount === 1 ? '' : 's'} added`);
+      if (pendingCount > 0) parts.push(`${pendingCount} email invite${pendingCount === 1 ? '' : 's'} sent to non-OpenI users`);
+      toast.success(parts.join(' · ') || 'Done');
+      // Reset draft state
+      setCollabSelected([]); setCollabEmails([]); setCollabEmailDraft('');
+      setCollabSearch(''); setCollabResults([]); setCollabMessage('');
+      // Refresh list
+      await loadCollaborators();
+    } catch (err) {
+      console.error('[sendCollaboratorInvites]', err);
+      toast.error(err?.message || 'Failed to send invites');
+    } finally {
+      setCollabBusy(false);
+    }
+  };
+
+  const removeOneCollaborator = async (collabId) => {
+    if (!confirm('Remove this collaborator? They will lose access to this watchlist.')) return;
+    try {
+      await watchlistAPI.removeCollaborator(selectedList.id, collabId);
+      setCollabList(prev => prev.filter(c => c.id !== collabId));
+      toast.success('Collaborator removed');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to remove');
+    }
+  };
+
+  const changeCollaboratorRole = async (collabId, newRole) => {
+    try {
+      const r = await watchlistAPI.updateCollaboratorRole(selectedList.id, collabId, { role: newRole });
+      setCollabList(prev => prev.map(c => c.id === collabId ? { ...c, role: r.role } : c));
+    } catch (err) {
+      toast.error(err?.message || 'Failed to change role');
     }
   };
 
@@ -683,9 +797,28 @@ export default function StartupWatchlist() {
         </Modal>
       )}
 
-      {/* Ship #4 follow-up — Manage Shares modal (tokenized public sharing) */}
+      {/* Phase 109: tabbed Manage Shares modal — Public link OR Collaborators */}
       {showSharesModal && selectedList && (
-        <Modal title={`Share "${selectedList.name}"`} onClose={() => setShowSharesModal(false)}>
+        <Modal title={`Share "${selectedList.name}"`} onClose={() => setShowSharesModal(false)} wide>
+          {/* Tab strip */}
+          <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
+            <button onClick={() => setSharesTab('link')}
+              style={{ padding: '10px 16px', fontSize: 13, fontWeight: 700, background: 'none',
+                       border: 'none', borderBottom: sharesTab === 'link' ? `2.5px solid ${G}` : '2.5px solid transparent',
+                       marginBottom: -1.5, color: sharesTab === 'link' ? G : '#777', cursor: 'pointer',
+                       display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Globe size={13} /> Public link
+            </button>
+            <button onClick={() => setSharesTab('collab')}
+              style={{ padding: '10px 16px', fontSize: 13, fontWeight: 700, background: 'none',
+                       border: 'none', borderBottom: sharesTab === 'collab' ? `2.5px solid ${G}` : '2.5px solid transparent',
+                       marginBottom: -1.5, color: sharesTab === 'collab' ? G : '#777', cursor: 'pointer',
+                       display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Users size={13} /> Collaborators {collabList.length > 0 && <span style={{ background: '#fff8ec', color: G, padding: '1px 6px', borderRadius: 10, fontSize: 10 }}>{collabList.length}</span>}
+            </button>
+          </div>
+
+          {sharesTab === 'link' && (<>
           <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.5 }}>
             Create a link that anyone can use to view this watchlist (no OpenI account needed). Links default to a 30-day expiry and can be revoked at any time.
           </p>
@@ -759,18 +892,152 @@ export default function StartupWatchlist() {
               })}
             </div>
           )}
+          </>)}
+
+          {/* Phase 109: end of Public-link tab, start Collaborators tab */}
+          {sharesTab === 'collab' && (<>
+          <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.5 }}>
+            Invite OpenI users (or any email) as collaborators on this watchlist. Editors can add/remove startups; viewers have read-only access.
+          </p>
+
+          {/* Role picker */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            {['viewer', 'editor'].map(r => (
+              <button key={r} onClick={() => setCollabRole(r)}
+                style={{ flex: 1, padding: '9px 12px', fontSize: 12, fontWeight: 700,
+                         background: collabRole === r ? G : '#f5f5f5',
+                         color: collabRole === r ? '#fff' : '#666',
+                         border: `1.5px solid ${collabRole === r ? G : '#e5e7eb'}`,
+                         borderRadius: 8, cursor: 'pointer', textTransform: 'capitalize',
+                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                {r === 'editor' ? <UserPlus size={12} /> : <Users size={12} />}
+                {r === 'viewer' ? 'Viewer (read-only)' : 'Editor (can mutate startups)'}
+              </button>
+            ))}
+          </div>
+
+          {/* User typeahead */}
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Search OpenI users by name or email</label>
+          <div style={{ position: 'relative', marginBottom: 8 }}>
+            <input value={collabSearch} onChange={e => setCollabSearch(e.target.value)}
+              placeholder="Start typing a name or email…"
+              style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none' }} />
+            {collabResults.length > 0 && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#fff', border: '1.5px solid #e0e0e0', borderRadius: 9, boxShadow: '0 4px 16px rgba(0,0,0,0.08)', zIndex: 50, maxHeight: 240, overflowY: 'auto' }}>
+                {collabResults.map(u => (
+                  <button key={u.id} type="button" onClick={() => {
+                    setCollabSelected(prev => [...prev, { id: u.id, name: u.name, email: u.email }]);
+                    setCollabSearch(''); setCollabResults([]);
+                  }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', background: 'transparent', border: 'none', borderBottom: '1px solid #f3f4f6', cursor: 'pointer', fontSize: 12 }}>
+                    <div style={{ fontWeight: 600, color: '#1a1a1a' }}>{u.name}</div>
+                    <div style={{ color: '#888', fontSize: 11 }}>{u.email}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Selected user chips */}
+          {collabSelected.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {collabSelected.map(u => (
+                <span key={u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fff8ec', border: '1.5px solid rgba(213,170,91,0.4)', borderRadius: 14, padding: '4px 10px', fontSize: 11, color: '#5a4715' }}>
+                  {u.name}
+                  <button onClick={() => setCollabSelected(prev => prev.filter(x => x.id !== u.id))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                    <X size={11} color="#5a4715" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Email field (non-OpenI invites) */}
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4, marginTop: 6 }}>Or invite by email (non-OpenI users)</label>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            <input value={collabEmailDraft} onChange={e => setCollabEmailDraft(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCollabEmail(); } }}
+              placeholder="founder@startup.com — press Enter"
+              style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none' }} />
+            <button type="button" onClick={addCollabEmail}
+              style={{ padding: '9px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#555', cursor: 'pointer' }}>
+              Add
+            </button>
+          </div>
+          {collabEmails.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {collabEmails.map(em => (
+                <span key={em} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 14, padding: '4px 10px', fontSize: 11, color: '#1e40af' }}>
+                  <Mail size={10} /> {em}
+                  <button onClick={() => setCollabEmails(prev => prev.filter(x => x !== em))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                    <X size={11} color="#1e40af" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Personal message */}
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
+          <textarea value={collabMessage} onChange={e => setCollabMessage(e.target.value)} rows={2}
+            placeholder="Add context — what excites you about sharing this watchlist?"
+            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+
+          {/* Send button */}
+          <button onClick={sendCollaboratorInvites}
+            disabled={collabBusy || (collabSelected.length === 0 && collabEmails.length === 0)}
+            style={{ width: '100%', padding: '10px 16px', fontSize: 13, fontWeight: 700,
+                     background: (collabSelected.length === 0 && collabEmails.length === 0) || collabBusy ? '#ccc' : G,
+                     color: '#fff', border: 'none', borderRadius: 9,
+                     cursor: (collabSelected.length === 0 && collabEmails.length === 0) || collabBusy ? 'not-allowed' : 'pointer',
+                     marginBottom: 18,
+                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <UserPlus size={14} /> {collabBusy ? 'Sending…' : 'Send Invites'}
+          </button>
+
+          {/* Existing collaborators list */}
+          <div style={{ borderTop: '1px solid #eee', paddingTop: 14 }}>
+            <h4 style={{ fontSize: 12, fontWeight: 700, color: '#333', margin: '0 0 10px' }}>Collaborators ({collabList.length})</h4>
+            {collabLoading ? (
+              <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading…</p>
+            ) : collabList.length === 0 ? (
+              <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0 }}>No collaborators yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 240, overflowY: 'auto' }}>
+                {collabList.map(c => (
+                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fafafa', borderRadius: 7 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div>
+                      <div style={{ fontSize: 10, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}{c.organization_name ? ` · ${c.organization_name}` : ''}</div>
+                    </div>
+                    <select value={c.role} onChange={e => changeCollaboratorRole(c.id, e.target.value)}
+                      style={{ fontSize: 11, padding: '4px 8px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 6, color: '#555' }}>
+                      <option value="viewer">Viewer</option>
+                      <option value="editor">Editor</option>
+                    </select>
+                    <button onClick={() => removeOneCollaborator(c.id)}
+                      style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          </>)}
         </Modal>
       )}
     </div>
   );
 }
 
-function Modal({ title, onClose, children }) {
+function Modal({ title, onClose, children, wide }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.15)', maxHeight: '80vh', overflowY: 'auto' }}>
+      <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: wide ? 640 : 480, boxShadow: '0 20px 60px rgba(0,0,0,0.15)', maxHeight: '80vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{title}</h2>
           <button onClick={onClose} style={{ padding: 6, background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 7 }}><X size={16} /></button>
