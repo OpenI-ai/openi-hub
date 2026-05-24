@@ -12,10 +12,12 @@
  *                     (incubator_program_startups OR accelerator_batch_startups)
  */
 import { useState, useEffect } from 'react';
-import { portfolioEvalsAPI } from '../../services/api';
+// Phase 111 Ship 2d imports — toast already present, getToken added above
+import { portfolioEvalsAPI, getToken} from '../../services/api';
 import {
-  Loader2, Plus, X, Edit3, Trash2, AlertTriangle, TrendingUp,
-  Target, Users, BarChart3, ChevronRight,
+  Loader2, Plus, X, Edit3, Trash2,
+  AlertTriangle, TrendingUp, Target, Users, BarChart3,
+  ChevronRight, Share2, FileDown, Globe, Copy,  // Phase 111 Ship 2d icons added
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PortfolioRadarChart from './PortfolioRadarChart';
@@ -31,6 +33,85 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
 
   // Modal state
   const [showForm, setShowForm] = useState(false);
+
+  // Phase 111 Ship 2d: Share modal state
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareEvalId, setShareEvalId] = useState(null);
+  const [shareTab, setShareTab] = useState('pdf');
+  const [shareList, setShareList] = useState([]);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareMinting, setShareMinting] = useState(false);
+
+  // Phase 111 Ship 2d: Share handlers
+  const openProgramEvalShare = async (evalId) => {
+    setShareEvalId(evalId);
+    setShareOpen(true);
+    setShareTab('pdf');
+    setShareLoading(true);
+    try {
+      const r = await portfolioEvalsAPI.listShares(evalId);
+      setShareList(Array.isArray(r) ? r : []);
+    } catch {
+      setShareList([]);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const downloadProgramEvalPdf = async () => {
+    if (!shareEvalId) return;
+    try {
+      const res = await fetch(portfolioEvalsAPI.pdfUrl(shareEvalId), { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error('PDF download failed');
+      const blob = await res.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = `program-eval-${shareEvalId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(dlUrl);
+      toast.success('PDF downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download PDF');
+    }
+  };
+
+  const mintNewProgramEvalShare = async () => {
+    if (!shareEvalId) return;
+    setShareMinting(true);
+    try {
+      const r = await portfolioEvalsAPI.createShare(shareEvalId, {});
+      setShareList(prev => [r, ...prev]);
+      toast.success('Share link created');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to create share');
+    } finally {
+      setShareMinting(false);
+    }
+  };
+
+  const copyProgramEvalLink = async (token) => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/share/program-evals/${token}`);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const revokeProgramEvalShare = async (shareId) => {
+    if (!confirm('Revoke this share link?')) return;
+    try {
+      await portfolioEvalsAPI.revokeShare(shareId);
+      setShareList(prev => prev.map(s => s.id === shareId ? { ...s, revoked_at: new Date().toISOString() } : s));
+      toast.success('Revoked');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to revoke');
+    }
+  };
+
   const [editingEval, setEditingEval] = useState(null);
   const [targetStartupId, setTargetStartupId] = useState(null); // pipeline entry id
 
@@ -218,6 +299,8 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                     )}
                   </div>
                   <button onClick={() => openEditEval(ev)} style={btnIcon}><Edit3 size={11} /></button>
+                  {/* Phase 111 Ship 2d: Share button per evaluation row */}
+                  <button onClick={() => openProgramEvalShare(ev.id)} style={btnIcon} title="Share evaluation"><Share2 size={11} /></button>
                   <button onClick={() => removeEval(ev.id)} style={{ ...btnIcon, borderColor: '#fee', color: '#dc2626' }}><Trash2 size={11} /></button>
                 </div>
               ))}
@@ -414,7 +497,95 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
           </div>
         </div>
       )}
+      {/* Phase 111 Ship 2d: Share modal JSX */}
+      {shareOpen && shareEvalId && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShareOpen(false); }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share Portfolio Evaluation</h2>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Tab strip */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
+              {[
+                { id: 'pdf', icon: <FileDown size={13} />, label: 'Download PDF' },
+                { id: 'link', icon: <Globe size={13} />, label: 'Public link' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setShareTab(t.id)}
+                  style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+
+            {shareTab === 'pdf' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Branded PDF of this portfolio evaluation snapshot.
+                </p>
+                <button onClick={downloadProgramEvalPdf}
+                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <FileDown size={14} /> Download evaluation PDF
+                </button>
+              </div>
+            )}
+
+            {shareTab === 'link' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Create a link anyone with the URL can use to view this evaluation. Default 30-day expiry; revocable anytime.
+                </p>
+                <button onClick={mintNewProgramEvalShare} disabled={shareMinting}
+                  style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  {shareMinting ? 'Creating...' : '+ Create new share link'}
+                </button>
+
+                {shareLoading ? (
+                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading...</p>
+                ) : shareList.length === 0 ? (
+                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
+                    {shareList.map(s => {
+                      const expired = s.expires_at && new Date(s.expires_at) < new Date();
+                      const revoked = !!s.revoked_at;
+                      const inactive = expired || revoked;
+                      const shareUrl = `${window.location.origin}/share/program-evals/${s.token}`;
+                      return (
+                        <div key={s.id} style={{ padding: 10, borderRadius: 8, background: inactive ? '#fafafa' : '#fff8ec', border: `1px solid ${inactive ? '#eee' : 'rgba(213,170,91,0.3)'}`, opacity: inactive ? 0.6 : 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: revoked ? '#fef2f2' : (expired ? '#fef9e7' : '#f0fdf4'), color: revoked ? '#dc2626' : (expired ? '#a16207' : '#16a34a') }}>
+                              {revoked ? 'REVOKED' : (expired ? 'EXPIRED' : 'ACTIVE')}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: 6, background: '#fff', borderRadius: 6, border: '1px solid #eee', fontSize: 10, fontFamily: 'monospace' }}>
+                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#555' }}>{shareUrl}</span>
+                            {!inactive && (
+                              <>
+                                <button onClick={() => copyProgramEvalLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
+                                <button onClick={() => revokeProgramEvalShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
 
