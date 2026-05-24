@@ -362,6 +362,23 @@ export const deeptechAPI = {
   create: (data)        => post('/deeptech', data),
 };
 
+// Phase 111 Ship 2a (25 May 2026) — DeepTech sharing
+export const deeptechShareAPI = {
+  pdfUrl:        (id)             => `${BASE_URL}/deeptech/${id}/pdf`,
+  createShare:   (id, opts = {})  => post(`/deeptech/${id}/shares`, opts),
+  listShares:    (id)             => get(`/deeptech/${id}/shares`),
+  revokeShare:   (shareId)        => del(`/deeptech/shares/${shareId}`),
+};
+
+export const publicDeepTechShare = {
+  read: (token) => fetch(`${BASE_URL}/public/deeptech/share/${encodeURIComponent(token)}`)
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.message || `HTTP ${r.status}`);
+      return body;
+    }),
+};
+
 // ── Govt API Integrations ─────────────────────────────────────
 // ── Phase 36: Innovation Source Discovery ──────────────────────
 export const discoveryAPI = {

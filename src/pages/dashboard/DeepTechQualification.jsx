@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { deeptechAPI } from '../../services/api';
+import { deeptechAPI, deeptechShareAPI, getToken } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Zap, CheckCircle2, Circle, ChevronRight, ChevronDown,
   Award, AlertTriangle, BarChart3, ArrowRight,
   Cpu, FlaskConical, Shield, Microscope, Rocket,
+  // Phase 111 Ship 2a icons
+  Share2, FileDown, Globe, Mail, Copy,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -126,6 +128,14 @@ export default function DeepTechQualification() {
   const [startupName, setStartupName] = useState('');
   const [expanded, setExpanded] = useState({ technology: true });
   const [submitted, setSubmitted] = useState(false);
+
+  // Phase 111 Ship 2a: Share modal state
+  const [savedAssessmentId, setSavedAssessmentId] = useState(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTab, setShareTab] = useState('pdf');
+  const [shareList, setShareList] = useState([]);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareMinting, setShareMinting] = useState(false);
   const [recentAssessments, setRecentAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -168,6 +178,75 @@ export default function DeepTechQualification() {
   const totalQ = SECTIONS.reduce((s, sec) => s + sec.questions.length, 0);
 
   const reset = () => { setAnswers({}); setStartupName(''); setSubmitted(false); setMode('list'); };
+
+  // Phase 111 Ship 2a: Share handlers
+  const openShareModal = async () => {
+    if (!savedAssessmentId) return;
+    setShareOpen(true);
+    setShareTab('pdf');
+    setShareLoading(true);
+    try {
+      const r = await deeptechShareAPI.listShares(savedAssessmentId);
+      setShareList(Array.isArray(r) ? r : []);
+    } catch (err) {
+      setShareList([]);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const downloadDeepTechPdf = async () => {
+    try {
+      const url = deeptechShareAPI.pdfUrl(savedAssessmentId);
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error('PDF download failed');
+      const blob = await res.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = `deeptech-${savedAssessmentId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(dlUrl);
+      toast.success('PDF downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download PDF');
+    }
+  };
+
+  const mintNewDeepTechShare = async () => {
+    setShareMinting(true);
+    try {
+      const r = await deeptechShareAPI.createShare(savedAssessmentId, {});
+      setShareList(prev => [r, ...prev]);
+      toast.success('Share link created');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to create share');
+    } finally {
+      setShareMinting(false);
+    }
+  };
+
+  const copyDeepTechLink = async (token) => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/share/deeptech/${token}`);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const revokeDeepTechShare = async (shareId) => {
+    if (!confirm('Revoke this share link?')) return;
+    try {
+      await deeptechShareAPI.revokeShare(shareId);
+      setShareList(prev => prev.map(s => s.id === shareId ? { ...s, revoked_at: new Date().toISOString() } : s));
+      toast.success('Revoked');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to revoke');
+    }
+  };
 
   return (
     <div style={{ padding: 28, maxWidth: 1100, background: '#f5f5f5', minHeight: '100%' }}>
@@ -382,10 +461,11 @@ export default function DeepTechQualification() {
                 // success view only renders after the backend confirms. On
                 // error, stay on the form so the user can retry.
                 deeptechAPI.create({ startup_name: startupName.trim(), score, verdict: verdict.label, answers })
-                  .then(() => {
+                  .then((res) => {
                     toast.success('Assessment submitted successfully');
                     setRecentAssessments(prev => [{ name: startupName.trim(), score, verdict: verdict.label, date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }, ...prev]);
                     setSubmitted(true);
+                    if (res?.id) setSavedAssessmentId(res.id);  // Phase 111 Ship 2a — enable Share
                   })
                   .catch(err => toast.error(err.message || 'Failed to submit assessment'));
               }}
@@ -508,9 +588,101 @@ export default function DeepTechQualification() {
             <button onClick={() => { setSubmitted(false); }} style={{ padding: '10px 22px', background: '#f5f5f5', color: '#555', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
               Review Answers
             </button>
+            {/* Phase 111 Ship 2a: Share button — only if assessment was saved */}
+            {savedAssessmentId && (
+              <button onClick={() => openShareModal()} style={{ padding: '10px 22px', background: '#fff8ec', color: G, border: `1.5px solid ${G}`, borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Share2 size={14} /> Share Report
+              </button>
+            )}
           </div>
         </div>
       )}
+      {/* Phase 111 Ship 2a: Share modal */}
+      {shareOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShareOpen(false); }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share DeepTech Assessment</h2>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>×</button>
+            </div>
+
+            {/* Tab strip */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
+              {[
+                { id: 'pdf', icon: <FileDown size={13} />, label: 'Download PDF' },
+                { id: 'link', icon: <Globe size={13} />, label: 'Public link' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setShareTab(t.id)}
+                  style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
+                           borderBottom: shareTab === t.id ? `2.5px solid ${G}` : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? G : '#666', cursor: 'pointer',
+                           display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+
+            {shareTab === 'pdf' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Branded PDF of this DeepTech assessment with score, verdict, and per-question answers.
+                </p>
+                <button onClick={() => downloadDeepTechPdf()}
+                  style={{ width: '100%', padding: '11px 18px', background: G, color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <FileDown size={14} /> Download DeepTech PDF
+                </button>
+              </div>
+            )}
+
+            {shareTab === 'link' && (
+              <div>
+                <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
+                  Create a link anyone can use to view this assessment (no OpenI account needed). Default 30-day expiry; revocable anytime.
+                </p>
+                <button onClick={() => mintNewDeepTechShare()} disabled={shareMinting}
+                  style={{ width: '100%', padding: '10px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  {shareMinting ? 'Creating…' : '+ Create new share link'}
+                </button>
+
+                {shareLoading ? (
+                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading…</p>
+                ) : shareList.length === 0 ? (
+                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
+                    {shareList.map(s => {
+                      const expired = s.expires_at && new Date(s.expires_at) < new Date();
+                      const revoked = !!s.revoked_at;
+                      const inactive = expired || revoked;
+                      const shareUrl = `${window.location.origin}/share/deeptech/${s.token}`;
+                      return (
+                        <div key={s.id} style={{ padding: 10, borderRadius: 8, background: inactive ? '#fafafa' : '#fff8ec', border: `1px solid ${inactive ? '#eee' : 'rgba(213,170,91,0.3)'}`, opacity: inactive ? 0.6 : 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: revoked ? '#fef2f2' : (expired ? '#fef9e7' : '#f0fdf4'), color: revoked ? '#dc2626' : (expired ? '#a16207' : '#16a34a') }}>
+                              {revoked ? 'REVOKED' : (expired ? 'EXPIRED' : 'ACTIVE')}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: 6, background: '#fff', borderRadius: 6, border: '1px solid #eee', fontSize: 10, fontFamily: 'monospace' }}>
+                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#555' }}>{shareUrl}</span>
+                            {!inactive && (
+                              <>
+                                <button onClick={() => copyDeepTechLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
+                                <button onClick={() => revokeDeepTechShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

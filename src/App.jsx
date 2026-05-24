@@ -18,6 +18,7 @@ import PublicReports     from './pages/public/PublicReports';
 import SharedChallenge   from './pages/public/SharedChallenge';
 import SharedWatchlist   from './pages/public/SharedWatchlist';
 import SharedStartupProfile from './pages/public/SharedStartupProfile';  // Phase 110
+import SharedDeepTech from './pages/public/SharedDeepTech';  // Phase 111 Ship 2a
 import GlobalSearch      from './pages/public/GlobalSearch';
 
 // Pages — Dashboard
@@ -195,6 +196,7 @@ export default function App() {
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
           <Route path="/watchlists/share/:token" element={<SharedWatchlist />} />
           <Route path="/share/startup/:token" element={<SharedStartupProfile />} />  {/* Phase 110 */}
+          <Route path="/share/deeptech/:token" element={<SharedDeepTech />} />  {/* Phase 111 Ship 2a */}
           <Route path="/claims/verify/:token"    element={<ClaimVerify />} />
           <Route path="/search"                  element={<GlobalSearch />} />
           <Route path="/dashboard/login" element={<LoginRoute />} />
