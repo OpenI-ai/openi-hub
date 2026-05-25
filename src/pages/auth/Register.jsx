@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
-import { claimAPI, profileAPI, publicUploadAPI } from '../../services/api';
+import { claimAPI, profileAPI, publicUploadAPI, orgAPI } from '../../services/api';
 import TaxonomySelect from '../../components/TaxonomySelect';
 import TaxonomyTags from '../../components/TaxonomyTags';
 import StateField from '../../components/StateField';
@@ -486,6 +486,59 @@ export default function Register() {
   // Phase 60.7: mandatory Terms + Privacy acceptance
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  // Phase 113 — domain-match suggestion at signup
+  const [orgMatch, setOrgMatch] = useState(null);          // null | { id, name, slug, logo_url, admin_user_id }
+  const [orgMatchHidden, setOrgMatchHidden] = useState(false); // user dismissed the card
+  const [orgJoinSubmitting, setOrgJoinSubmitting] = useState(false);
+  const [orgJoinResult, setOrgJoinResult] = useState(null); // null | { status, org_name }
+
+  // Phase 113 — debounce email -> domain lookup. Fires 500ms after typing stops.
+  useEffect(() => {
+    if (orgMatchHidden) return;
+    if (orgJoinResult) return; // already requested; stop polling
+    const trimmed = (email || '').trim().toLowerCase();
+    const at = trimmed.indexOf('@');
+    if (at === -1 || at === trimmed.length - 1) {
+      setOrgMatch(null);
+      return;
+    }
+    const domain = trimmed.slice(at + 1);
+    if (!/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/i.test(domain)) {
+      setOrgMatch(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await orgAPI.lookupByDomain(domain);
+        setOrgMatch(res?.org || null);
+      } catch {
+        setOrgMatch(null);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [email, orgMatchHidden, orgJoinResult]);
+
+  // Phase 113 — handle "Request to join" click
+  const handleRequestJoinOrg = async () => {
+    if (!orgMatch || orgJoinSubmitting) return;
+    setOrgJoinSubmitting(true);
+    try {
+      // Note: backend requires authMiddleware. User must first complete signup,
+      // then we POST request-join with their fresh token. But at signup time
+      // we don't have a token yet — so we stash the org_id and replay after
+      // verify-email succeeds (similar to Phase 60.10 profileData stash).
+      try {
+        localStorage.setItem('openi_pending_org_join', JSON.stringify({
+          org_id: orgMatch.id,
+          org_name: orgMatch.name,
+        }));
+      } catch { /* localStorage may be disabled — not blocking */ }
+      setOrgJoinResult({ status: 'pending_signup', org_name: orgMatch.name });
+    } finally {
+      setOrgJoinSubmitting(false);
+    }
+  };
+
   const updateField = (fieldName, value) => {
     setProfileData(prev => ({ ...prev, [fieldName]: value }));
   };
@@ -731,6 +784,71 @@ export default function Register() {
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email *</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
                   style={inputStyle} onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
+                {/* Phase 113 — domain-match suggestion card */}
+                {orgMatch && !orgMatchHidden && !orgJoinResult && (
+                  <div style={{
+                    marginTop: 10,
+                    padding: 14,
+                    background: 'rgba(213, 170, 91, 0.08)',
+                    border: '1.5px solid rgba(213, 170, 91, 0.35)',
+                    borderRadius: 9,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 12,
+                  }}>
+                    {orgMatch.logo_url && (
+                      <img src={orgMatch.logo_url} alt={orgMatch.name}
+                        style={{ width: 38, height: 38, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 3, flexShrink: 0 }} />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', marginBottom: 3 }}>
+                        <strong>{orgMatch.name}</strong> is already on OpenI Hub
+                      </div>
+                      <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>
+                        Would you like to request to join the existing organization, or create your own?
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={handleRequestJoinOrg}
+                          disabled={orgJoinSubmitting}
+                          style={{
+                            padding: '6px 12px', background: '#D5AA5B', color: '#fff',
+                            border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                            cursor: orgJoinSubmitting ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          {orgJoinSubmitting ? 'Submitting…' : 'Request to join'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setOrgMatchHidden(true)}
+                          style={{
+                            padding: '6px 12px', background: 'transparent', color: '#666',
+                            border: '1.5px solid #e5e7eb', borderRadius: 7, fontSize: 11, fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Create my own
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Phase 113 — confirmation banner after user clicks Request to join */}
+                {orgJoinResult && (
+                  <div style={{
+                    marginTop: 10,
+                    padding: 12,
+                    background: 'rgba(22, 163, 74, 0.06)',
+                    border: '1.5px solid rgba(22, 163, 74, 0.25)',
+                    borderRadius: 9,
+                    fontSize: 12,
+                    color: '#16a34a',
+                  }}>
+                    Your request to join <strong>{orgJoinResult.org_name}</strong> will be sent after you verify your email. The org admin will approve it on their end.
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Password *</label>

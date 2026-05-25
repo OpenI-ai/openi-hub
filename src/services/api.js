@@ -103,6 +103,9 @@ export const orgAPI = {
   inviteMember:   (data)       => post('/org/members', data),
   updateMember:   (id, data)   => put(`/org/members/${id}`, data),
   removeMember:   (id)         => del(`/org/members/${id}`),
+  // Phase 113 — domain-match suggestion at signup + user-requests-to-join flow
+  lookupByDomain: (domain)     => get(`/public/org-by-domain?domain=${encodeURIComponent(domain || '')}`),
+  requestJoin:    (data)       => post('/org/members/request-join', data),
 };
 
 // Phase 87a/b — typeahead lookups for org-name fields (investors,
