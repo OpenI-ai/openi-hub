@@ -2,11 +2,13 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { documentAPI, uploadAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';  // Phase 112 — Edit modal permission gate
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
-  FolderOpen, Folder, FileText, File, FileImage,
-  Upload, Download, Search, Eye,
-  ChevronRight, Lock, Globe, Users, Star, Grid, List, Share2, CheckCircle2, ExternalLink, Loader2, X,
+  FolderOpen, Folder, FileText, File, FileImage, Upload,
+  Download, Search, Eye, ChevronRight, Lock, Globe,
+  Users, Star, Grid, List, Share2, CheckCircle2,
+  ExternalLink, Loader2, X, Edit2, Save
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -81,6 +83,12 @@ export default function DocumentRepository() {
 
   // Phase 104b — Eye preview modal state
   const [previewDoc, setPreviewDoc] = useState(null);
+
+  // Phase 112 — Edit modal state + auth context for permission gate
+  const { user } = useAuth();
+  const [editingDoc, setEditingDoc] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+  const [editSaving, setEditSaving] = useState(false);
 
   // Phase 104c — hook order fix: dynamicFolders useMemo moved above early return
   // (was after `if (loading) return ...` which violated rules-of-hooks because
@@ -208,6 +216,50 @@ export default function DocumentRepository() {
       toast.success('Link copied to clipboard');
     } catch {
       toast.error('Could not copy to clipboard');
+    }
+  };
+
+  // Phase 112 — Edit modal handlers + client-side permission check.
+  // Backend gate (Phase 112 Ship 1) is the source of truth for same-org membership;
+  // here we only do the cheap client-side check (admin/evaluator always; everyone else
+  // sees the button and backend rejects with 404 if they're not eligible).
+  const canEdit = (_f) => {
+    if (!user) return false;
+    return true;
+  };
+  const handleEdit = (f) => {
+    setEditingDoc(f);
+    setEditForm({
+      name: f.name || '',
+      category: f.folder || 'Other',
+      access: f.access || 'internal',
+      tags: Array.isArray(f.tags) ? f.tags.join(', ') : '',
+    });
+  };
+  const closeEditModal = () => {
+    setEditingDoc(null);
+    setEditForm({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+  };
+  const handleSaveEdit = async () => {
+    if (!editingDoc) return;
+    if (!editForm.name.trim()) return toast.error('Document name is required');
+    if (editForm.name.length > 500) return toast.error('Name too long (max 500 chars)');
+    setEditSaving(true);
+    try {
+      await documentAPI.update(editingDoc.id, {
+        name: editForm.name.trim(),
+        category: editForm.category,
+        access: editForm.access,
+        tags: editForm.tags ? editForm.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      });
+      toast.success('Document updated');
+      closeEditModal();
+      loadDocuments();
+    } catch (err) {
+      console.error('[documents.update] failed:', err);
+      toast.error(err?.response?.data?.message || err.message || 'Failed to save changes');
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -467,7 +519,19 @@ export default function DocumentRepository() {
                       <AIcon size={8} />{as.label}
                     </span>
                     {/* Phase 104b — wire Eye / Download / Share buttons (were Phase 66/T9 pattern stubs) */}
+                    {/* Phase 112 — Edit button added as first action (left-most after Access pill) */}
                     <div style={{ display: 'flex', gap: 4 }}>
+                      {canEdit(f) && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleEdit(f); }}
+                          title="Edit"
+                          style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                      )}
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePreview(f); }}
                         title="Preview"
@@ -684,6 +748,100 @@ export default function DocumentRepository() {
                 </a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Phase 112 — Edit modal (name + folder + access + tags) */}
+      {editingDoc && (
+        <div role="dialog" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 14, padding: 24, maxWidth: 540, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>Edit Document</h3>
+              <button onClick={closeEditModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <X size={18} color="#666" />
+              </button>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Document Name <span style={{ color: '#dc2626' }}>*</span></label>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g. Q1 Financial Report"
+                maxLength={500}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a' }}
+              />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Folder / Category</label>
+              <select
+                value={editForm.category}
+                onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a', background: '#fff' }}
+              >
+                {Array.from(new Set([...CATEGORY_SUGGESTIONS, ...dynamicFolders.map(f => f.name), editForm.category].filter(Boolean))).map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Access</label>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {[
+                  { value: 'public',     label: 'Public',     hint: 'Anyone on OpenI can see this' },
+                  { value: 'internal',   label: 'Internal',   hint: 'You + your org members can see this' },
+                  { value: 'restricted', label: 'Restricted', hint: 'Only you + admins can see this' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setEditForm(prev => ({ ...prev, access: opt.value }))}
+                    title={opt.hint}
+                    style={{
+                      flex: 1, padding: '8px 6px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                      background: editForm.access === opt.value ? G : '#fff',
+                      color: editForm.access === opt.value ? '#fff' : '#666',
+                      border: `1.5px solid ${editForm.access === opt.value ? G : '#eee'}`,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tags <span style={{ color: '#888', fontWeight: 400 }}>(comma-separated, optional)</span></label>
+              <input
+                type="text"
+                value={editForm.tags}
+                onChange={(e) => setEditForm(prev => ({ ...prev, tags: e.target.value }))}
+                placeholder="e.g. quarterly, finance"
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a' }}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button
+                onClick={closeEditModal}
+                disabled={editSaving}
+                style={{ padding: '9px 18px', background: '#fff', color: '#666', border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: editSaving ? 'not-allowed' : 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={editSaving || !editForm.name.trim()}
+                style={{
+                  padding: '9px 18px', background: G, color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700,
+                  cursor: (editSaving || !editForm.name.trim()) ? 'not-allowed' : 'pointer',
+                  opacity: (editSaving || !editForm.name.trim()) ? 0.5 : 1,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                {editSaving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
+                {editSaving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
           </div>
         </div>
       )}
