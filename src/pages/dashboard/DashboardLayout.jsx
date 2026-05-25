@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, NavLink, Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 // Phase 101 Sub-D: notificationAPI for live notification bell
-import { connectionAPI, whatsNewAPI, notificationAPI } from "../../services/api";
+import { connectionAPI, whatsNewAPI, notificationAPI, orgAPI } from "../../services/api";
 import {
   LayoutDashboard, Rocket, ClipboardCheck, BookOpen,
   Shield, Settings, LogOut, Menu, X,
@@ -109,6 +109,24 @@ export default function DashboardLayout() {
     const onSeen = () => setWhatsNewUnread(0);
     window.addEventListener('whatsnew:seen', onSeen);
     return () => { cancelled = true; window.removeEventListener('whatsnew:seen', onSeen); };
+  }, []);
+
+  // Phase 113-Tier-B5 — sidebar badge: count of pending org-join requests
+  // visible to admin of the org. Mirrors the Phase 74 pattern.
+  const [orgPendingInvites, setOrgPendingInvites] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = () => {
+      orgAPI.pendingInvitesCount()
+        .then((data) => {
+          if (cancelled) return;
+          setOrgPendingInvites(Number(data?.count) || 0);
+        })
+        .catch(() => { /* user may not be in any org; keep at 0 */ });
+    };
+    refresh();
+    const id = setInterval(refresh, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
   }, []);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -356,6 +374,17 @@ export default function DashboardLayout() {
                         minWidth: 16, textAlign: 'center',
                       }}>
                         {whatsNewUnread > 99 ? '99+' : whatsNewUnread}
+                      </span>
+                    )}
+                    {/* Phase 113-Tier-B5 — pending invites chip on Organization only */}
+                    {to === '/dashboard/organization' && orgPendingInvites > 0 && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, lineHeight: 1,
+                        padding: '3px 7px', borderRadius: 10,
+                        background: C.gold, color: '#fff',
+                        minWidth: 16, textAlign: 'center',
+                      }}>
+                        {orgPendingInvites > 99 ? '99+' : orgPendingInvites}
                       </span>
                     )}
                   </NavLink>

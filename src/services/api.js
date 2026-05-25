@@ -106,6 +106,8 @@ export const orgAPI = {
   // Phase 113 — domain-match suggestion at signup + user-requests-to-join flow
   lookupByDomain: (domain)     => get(`/public/org-by-domain?domain=${encodeURIComponent(domain || '')}`),
   requestJoin:    (data)       => post('/org/members/request-join', data),
+  // Phase 113-Tier-B5 — count of pending invites (sidebar badge)
+  pendingInvitesCount: ()      => get('/org/pending-invites-count'),
 };
 
 // Phase 87a/b — typeahead lookups for org-name fields (investors,

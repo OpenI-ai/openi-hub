@@ -493,7 +493,10 @@ export default function Register() {
   const [orgJoinResult, setOrgJoinResult] = useState(null); // null | { status, org_name }
 
   // Phase 113 — debounce email -> domain lookup. Fires 500ms after typing stops.
+  // Phase 113b — invite_token takes precedence (don't show competing prompts when
+  // user is already on a magic-link entity-invite flow).
   useEffect(() => {
+    if (inviteToken) { setOrgMatch(null); return; }
     if (orgMatchHidden) return;
     if (orgJoinResult) return; // already requested; stop polling
     const trimmed = (email || '').trim().toLowerCase();
@@ -516,7 +519,7 @@ export default function Register() {
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [email, orgMatchHidden, orgJoinResult]);
+  }, [email, orgMatchHidden, orgJoinResult, inviteToken]);
 
   // Phase 113 — handle "Request to join" click
   const handleRequestJoinOrg = async () => {
