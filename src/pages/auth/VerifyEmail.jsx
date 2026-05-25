@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { profileAPI } from '../../services/api';
+import { profileAPI, orgAPI } from '../../services/api';
 import { Mail, Loader2, CheckCircle, AlertCircle, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -41,6 +41,45 @@ async function flushPendingProfile() {
     }
   } catch (err) {
     console.warn('[verify-email] flushPendingProfile parse error:', err?.message || err);
+  }
+}
+
+// Phase 113 — flushPendingOrgJoin
+// After successful verification, replay the org join-request the user
+// selected at signup. Mirrors the flushPendingProfile pattern: read stash,
+// fire POST, remove stash only on success (network failures keep the
+// stash so the next mount can retry).
+async function flushPendingOrgJoin() {
+  let raw = null;
+  try {
+    raw = localStorage.getItem('openi_pending_org_join');
+    if (!raw) return;
+    const stash = JSON.parse(raw);
+    if (!stash || !stash.org_id) {
+      localStorage.removeItem('openi_pending_org_join');
+      return;
+    }
+    try {
+      const res = await orgAPI.requestJoin({ org_id: stash.org_id });
+      localStorage.removeItem('openi_pending_org_join');
+      const orgName = res?.org_name || stash.org_name || 'the organization';
+      if (res?.status === 'invited') {
+        toast.success(`Request to join ${orgName} sent`);
+      }
+    } catch (err) {
+      const status = err?.status || err?.response?.status;
+      const msg = (err?.message || '').toLowerCase();
+      // 409 already-member OR 404 org-gone: clear stash, don't retry
+      if (msg.includes('already a member') || msg.includes('not found')) {
+        localStorage.removeItem('openi_pending_org_join');
+        console.warn('[verify-email] flushPendingOrgJoin terminal:', err?.message);
+      } else {
+        // Network / 5xx — leave stash, log
+        console.warn('[verify-email] flushPendingOrgJoin transient:', err?.message);
+      }
+    }
+  } catch (err) {
+    console.warn('[verify-email] flushPendingOrgJoin parse error:', err?.message || err);
   }
 }
 
@@ -105,6 +144,8 @@ export default function VerifyEmail() {
       }
       completeVerification({ token: data.token, user: data.user });
       await flushPendingProfile();
+      // Phase 113 — replay org-join request stashed at signup
+      await flushPendingOrgJoin();
       setPhase('done');
       // Phase 65d: land users directly on /dashboard/profile with ?fresh=1
       // so MyProfile force-refetches the freshly-saved row. Previously we
@@ -140,6 +181,8 @@ export default function VerifyEmail() {
       }
       completeVerification({ token: data.token, user: data.user });
       await flushPendingProfile();
+      // Phase 113 — replay org-join request stashed at signup
+      await flushPendingOrgJoin();
       setPhase('done');
       // Phase 65d: land users directly on /dashboard/profile with ?fresh=1
       // so MyProfile force-refetches the freshly-saved row. Previously we
