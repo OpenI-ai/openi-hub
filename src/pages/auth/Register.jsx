@@ -782,8 +782,26 @@ export default function Register() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email *</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
-                  style={inputStyle} onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
+                {/* Phase 108 follow-up — lock email when arriving via magic-link to prevent breaking the consume flow */}
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => !inviteToken && setEmail(e.target.value)}
+                  readOnly={!!inviteToken}
+                  placeholder="you@example.com"
+                  style={{
+                    ...inputStyle,
+                    backgroundColor: inviteToken ? '#f3f4f6' : inputStyle.backgroundColor,
+                    cursor: inviteToken ? 'not-allowed' : 'text',
+                  }}
+                  onFocus={e => { if (!inviteToken) e.target.style.borderColor = '#D5AA5B'; }}
+                  onBlur={e => { if (!inviteToken) e.target.style.borderColor = '#e5e7eb'; }}
+                />
+                {inviteToken && (
+                  <p style={{ fontSize: 11, color: '#666', marginTop: 4 }}>
+                    Email is locked because you arrived via an invitation link.
+                  </p>
+                )}
                 {/* Phase 113 — domain-match suggestion card */}
                 {orgMatch && !orgMatchHidden && !orgJoinResult && (
                   <div style={{
