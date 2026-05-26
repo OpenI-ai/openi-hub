@@ -104,6 +104,13 @@ export default function Settings() {
       return sp.get('cycle') === 'annual' ? 'yearly' : 'monthly';
     } catch { return 'monthly'; }
   });
+  // A.5 USD: derive displayCurrency from billing-address country
+  // India -> INR (default until address loads). Anything else -> USD.
+  // Matches backend createOrder logic at subscriptionController.js line ~154.
+  const displayCurrency = (() => {
+    if (!billingAddress?.country) return 'INR'; // safe default while loading
+    return String(billingAddress.country).trim().toLowerCase() === 'india' ? 'INR' : 'USD';
+  })();
 
   // Phase 60.11 — Billing address (mandatory before checkout)
   const [billingAddress, setBillingAddress] = useState(null);
@@ -1003,18 +1010,28 @@ export default function Settings() {
                         <div key={p.id} style={{ border: isCurrent ? `2px solid ${G}` : '1px solid #eee', borderRadius: 14, padding: 20, background: isCurrent ? '#fffbeb' : '#fff', position: 'relative' }}>
                           {isCurrent && <div style={{ position: 'absolute', top: -10, right: 14, fontSize: 10, fontWeight: 700, padding: '2px 10px', borderRadius: 20, background: G, color: '#fff' }}>Current</div>}
                           <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{p.display_name}</div>
-                          {/* A.5: cycle-aware price display */}
+                          {/* A.5 USD: cycle + currency-aware price */}
                           {(() => {
                             const isAnnual = billingCycleSelected === 'yearly';
-                            const basePrice = isAnnual ? parseFloat(p.price_yearly || 0) : parseFloat(p.price_monthly || 0);
+                            const isUsd = displayCurrency === 'USD';
+                            const priceCol = isUsd
+                              ? (isAnnual ? p.price_yearly_usd : p.price_monthly_usd)
+                              : (isAnnual ? p.price_yearly : p.price_monthly);
+                            const monthlyCol = isUsd ? p.price_monthly_usd : p.price_monthly;
+                            const yearlyCol = isUsd ? p.price_yearly_usd : p.price_yearly;
+                            const basePrice = parseFloat(priceCol || 0);
                             const monthlyEquiv = isAnnual && basePrice > 0 ? basePrice / 12 : null;
-                            const monthlyFull = parseFloat(p.price_monthly || 0);
+                            const monthlyFull = parseFloat(monthlyCol || 0);
                             const yearlyFull = monthlyFull * 12;
-                            const annualSavings = yearlyFull > 0 ? yearlyFull - parseFloat(p.price_yearly || 0) : 0;
+                            const annualSavings = yearlyFull > 0 ? yearlyFull - parseFloat(yearlyCol || 0) : 0;
+                            const sym = isUsd ? '$' : '₹';
+                            const locale = isUsd ? 'en-US' : 'en-IN';
+                            const fmt = (n) => Math.round(n).toLocaleString(locale);
+                            const fmt2 = (n) => n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             return (
                               <>
                                 <div style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 4 }}>
-                                  {basePrice === 0 ? 'Free' : `₹${parseInt(basePrice).toLocaleString('en-IN')}`}
+                                  {basePrice === 0 ? 'Free' : `${sym}${isUsd ? fmt2(basePrice) : fmt(basePrice)}`}
                                   {basePrice > 0 && (
                                     <span style={{ fontSize: 12, fontWeight: 400, color: '#999' }}>
                                       {isAnnual ? '/yr' : '/mo'}
@@ -1023,17 +1040,20 @@ export default function Settings() {
                                 </div>
                                 {isAnnual && monthlyEquiv > 0 && (
                                   <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
-                                    ≈ ₹{Math.round(monthlyEquiv).toLocaleString('en-IN')}/mo equivalent
+                                    ≈ {sym}{isUsd ? fmt2(monthlyEquiv) : fmt(monthlyEquiv)}/mo equivalent
                                   </div>
                                 )}
                                 {isAnnual && annualSavings > 0 && (
                                   <div style={{ fontSize: 11, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>
-                                    Save ₹{Math.round(annualSavings).toLocaleString('en-IN')}/year
+                                    Save {sym}{isUsd ? fmt2(annualSavings) : fmt(annualSavings)}/year
                                   </div>
                                 )}
                                 {basePrice > 0 && (
                                   <div style={{ fontSize: 11, fontWeight: 500, color: '#999', marginBottom: 12 }}>
-                                    + 18% GST · ₹{(basePrice * 1.18).toLocaleString('en-IN', { maximumFractionDigits: 2 })} total
+                                    {isUsd
+                                      ? 'IGST 0% (Export under LUT)'
+                                      : `+ 18% GST · ₹${(basePrice * 1.18).toLocaleString('en-IN', { maximumFractionDigits: 2 })} total`
+                                    }
                                   </div>
                                 )}
                               </>
