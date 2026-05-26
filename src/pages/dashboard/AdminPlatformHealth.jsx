@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../services/api';
-import { Users, UserCheck, TrendingUp, DollarSign, Database, Activity, AlertCircle, Loader2 } from 'lucide-react';
+import { Users, UserCheck, TrendingUp, DollarSign, IndianRupee, Database, Activity, AlertCircle, Loader2 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import toast from 'react-hot-toast';
 
@@ -105,8 +105,8 @@ export default function AdminPlatformHealth() {
 
       <Section title="Revenue" sub="Gross (captured) and Net (captured - refunded). FY = 1 Apr to now.">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
-          <Tile icon={DollarSign} label="INR Month-to-date" value={fmtINR(rev.mtd?.inr?.gross || 0)} sub={(rev.mtd?.inr?.payment_count || 0) + ' payments'} />
-          <Tile icon={DollarSign} label="INR Year-to-date" value={fmtINR(rev.ytd?.inr?.gross || 0)} sub={(rev.ytd?.inr?.payment_count || 0) + ' payments'} />
+          <Tile icon={IndianRupee} label="INR Month-to-date" value={fmtINR(rev.mtd?.inr?.gross || 0)} sub={(rev.mtd?.inr?.payment_count || 0) + ' payments'} />
+          <Tile icon={IndianRupee} label="INR Year-to-date" value={fmtINR(rev.ytd?.inr?.gross || 0)} sub={(rev.ytd?.inr?.payment_count || 0) + ' payments'} />
           <Tile icon={DollarSign} label="USD Month-to-date" value={fmtUSD(rev.mtd?.usd?.gross || 0)} sub={(rev.mtd?.usd?.payment_count || 0) + ' payments'} />
           <Tile icon={DollarSign} label="USD Year-to-date" value={fmtUSD(rev.ytd?.usd?.gross || 0)} sub={(rev.ytd?.usd?.payment_count || 0) + ' payments'} />
         </div>
