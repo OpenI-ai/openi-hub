@@ -88,6 +88,8 @@ import FeatureMap           from './pages/dashboard/FeatureMap';
 const AdminAnalytics       = lazy(() => import('./pages/dashboard/AdminAnalytics'));
 // Phase 102-3: AdminCosts (lazy — uses recharts)
 const AdminCosts           = lazy(() => import('./pages/dashboard/AdminCosts'));
+// A: Admin Platform-Health dashboard (lazy - uses recharts)
+const AdminPlatformHealth = lazy(() => import('./pages/dashboard/AdminPlatformHealth'));
 const ChallengesToReview   = lazy(() => import('./pages/dashboard/ChallengesToReview'));
 import AdminConsole         from './pages/dashboard/AdminConsole';
 import AdminUsers           from './pages/dashboard/AdminUsers';
@@ -296,6 +298,8 @@ export default function App() {
             <Route path="admin/analytics"    element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
             {/* Phase 102-3: AdminCosts route */}
             <Route path="admin/costs"        element={<AdminRoute><AdminCosts /></AdminRoute>} />
+            {/* A: Admin Platform-Health route */}
+            <Route path="admin/platform-health" element={<AdminRoute><AdminPlatformHealth /></AdminRoute>} />
             <Route path="admin/console"      element={<AdminRoute><AdminConsole /></AdminRoute>} />
             <Route path="admin/users"        element={<AdminRoute><AdminUsers /></AdminRoute>} />
             <Route path="admin/challenges"   element={<AdminRoute><AdminChallenges /></AdminRoute>} />

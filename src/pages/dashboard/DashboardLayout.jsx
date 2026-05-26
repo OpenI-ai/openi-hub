@@ -64,6 +64,8 @@ const NAV = [
   { to: "/dashboard/admin/analytics", label: "Analytics",      Icon: BarChart3,       roles: ["admin"] },
   /* Phase 102-3: admin cost dashboard nav entry */
   { to: "/dashboard/admin/costs",     label: "Service Costs",  Icon: DollarSign,      roles: ["admin"] },
+  /* A: Admin Platform-Health dashboard nav entry */
+  { to: "/dashboard/admin/platform-health", label: "Platform Health", Icon: TrendingUp,      roles: ["admin"] },
   // ── Legacy admin + shared items ──
   { to: "/dashboard/evaluate",       label: "8-Vector Eval",    Icon: ClipboardCheck,  roles: ["admin","evaluator"] },
   { to: "/dashboard/startups",       label: "Startups",         Icon: Rocket },

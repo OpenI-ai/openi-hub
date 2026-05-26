@@ -976,6 +976,8 @@ export const adminAPI = {
   clusterClickImpact:       (windowDays = 30) => get(`/admin/clusters/click-impact?window_days=${windowDays}`),
   // Phase 102-3: admin cost dashboard
   costsSummary:             ()              => get('/admin/costs/summary'),
+  // A: Admin Platform-Health dashboard
+  platformHealth:           ()              => get('/admin/dashboard/platform-health'),
   costsAlerts:              ()              => get('/admin/costs/alerts'),
   costsManual:              (data)          => post('/admin/costs/manual', data),
   costsClearAlert:          (id)            => del(`/admin/costs/alerts/${id}`),
