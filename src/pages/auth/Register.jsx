@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD } from '../../config/personas';
+import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD, PERSONA_INDUSTRY_FIELD, PERSONA_DESCRIPTION_FIELD, PERSONA_HAS_INDUSTRY, PERSONA_HAS_DESCRIPTION } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
 import { claimAPI, profileAPI, publicUploadAPI, orgAPI } from '../../services/api';
 import TaxonomySelect from '../../components/TaxonomySelect';
@@ -924,7 +924,23 @@ export default function Register() {
                 </span>
               </label>
 
-              <button onClick={() => { setError(''); setStep(2); }} disabled={!step1Valid}
+              <button onClick={() => {
+                  setError('');
+                  // Bug #1: pre-populate Step 2 fields from matched org if user picked "Create my own"
+                  if (orgMatch && !orgJoinResult && orgField) {
+                    setProfileData(prev => ({
+                      ...prev,
+                      [orgField]: prev[orgField] || orgMatch.name,
+                      ...(orgMatch.industry && PERSONA_HAS_INDUSTRY[personaType]
+                        ? { [PERSONA_INDUSTRY_FIELD[personaType]]: prev[PERSONA_INDUSTRY_FIELD[personaType]] || orgMatch.industry }
+                        : {}),
+                      ...(orgMatch.description && PERSONA_HAS_DESCRIPTION[personaType]
+                        ? { [PERSONA_DESCRIPTION_FIELD[personaType]]: prev[PERSONA_DESCRIPTION_FIELD[personaType]] || orgMatch.description }
+                        : {}),
+                    }));
+                  }
+                  setStep(2);
+                }} disabled={!step1Valid}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm mt-2 transition-all"
                 style={{ background: step1Valid ? '#D5AA5B' : '#e5e7eb', color: step1Valid ? '#fff' : '#9ca3af', cursor: step1Valid ? 'pointer' : 'not-allowed' }}>
                 Continue <ArrowRight size={16} />

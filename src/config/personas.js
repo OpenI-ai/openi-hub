@@ -617,6 +617,32 @@ export const REGISTER_FIELDS = Object.fromEntries(
   })
 );
 
+// Bug #1: industry + description fields per persona — used by Register Step 2 prefill
+export const PERSONA_INDUSTRY_FIELD = {
+  corporate: 'industry',
+  // other personas have no direct "industry" field on Step 2 — skip them
+};
+
+export const PERSONA_DESCRIPTION_FIELD = {
+  corporate: 'description',
+  government: 'description',
+  investor: 'bio',
+  mentor: 'bio',
+  lab: 'description',
+  incubator: 'description',
+  accelerator: 'description',
+  service_provider: 'description',
+  // startup intentionally excluded — a corporate-admin's description is unlikely
+  // to be relevant to a startup signing up under the same domain
+};
+
+export const PERSONA_HAS_INDUSTRY = Object.fromEntries(
+  Object.keys(PERSONA_INDUSTRY_FIELD).map(k => [k, true])
+);
+export const PERSONA_HAS_DESCRIPTION = Object.fromEntries(
+  Object.keys(PERSONA_DESCRIPTION_FIELD).map(k => [k, true])
+);
+
 // Helper: get the primary "org name" field key for each persona
 export const ORG_NAME_FIELD = {
   startup:     'company_name',
