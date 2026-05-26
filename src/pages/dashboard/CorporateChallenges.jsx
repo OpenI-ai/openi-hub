@@ -887,6 +887,13 @@ export default function CorporateChallenges() {
                       }
                     }
                   }}
+                  onBlur={() => {
+                    const em = inviteEmailDraft.trim().toLowerCase().replace(/,$/, '');
+                    if (/\S+@\S+\.\S+/.test(em) && !inviteEmails.includes(em)) {
+                      setInviteEmails(prev => [...prev, em]);
+                      setInviteEmailDraft('');
+                    }
+                  }}
                   placeholder="vanessa@example.com"
                   style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb' }} />
                 {inviteEmails.length > 0 && (
