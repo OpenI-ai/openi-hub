@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../services/api';
-import { DollarSign, AlertTriangle, TrendingUp, Plus, RefreshCw, Trash2, Loader2 } from 'lucide-react';
+import { DollarSign, AlertTriangle, TrendingUp, Plus, RefreshCw, Trash2, Loader2, Database } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import toast from 'react-hot-toast';
 
@@ -24,6 +24,8 @@ export default function AdminCosts() {
   const [uptime, setUptime] = useState({ monitors: [], stats: null });
   // Phase 102-sentry: errors state
   const [errors, setErrors] = useState({ issues: [], stats: null });
+  // R: DR Drill + db-backup state
+  const [drill, setDrill] = useState({ workflows: {}, error: null });
   const [loading, setLoading] = useState(true);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState({ service: 'railway', month_label: '', cost_usd: '', note: '' });
@@ -32,16 +34,18 @@ export default function AdminCosts() {
     setLoading(true);
     try {
       // Phase 102-sentry: parallel fetch (added errorsSummary)
-      const [s, a, u, e] = await Promise.all([
+      const [s, a, u, e, d] = await Promise.all([
         adminAPI.costsSummary(),
         adminAPI.costsAlerts(),
         adminAPI.uptimeSummary().catch(() => ({ monitors: [], stats: null })),
         adminAPI.errorsSummary().catch(() => ({ issues: [], stats: null })),
+        adminAPI.drillHistory().catch(() => ({ workflows: {}, error: 'failed to load' })),
       ]);
       setSummary(s);
       setAlerts(a.alerts || []);
       setUptime(u || { monitors: [], stats: null });
       setErrors(e || { issues: [], stats: null });
+      setDrill(d || { workflows: {}, error: null });
     } catch (e) {
       console.error('[admin-costs]', e);
       toast.error('Failed to load costs: ' + (e?.message || 'unknown'));
@@ -251,6 +255,82 @@ export default function AdminCosts() {
           )}
 
           {/* ── 30-day trend charts (per service) ───────────────────────── */}
+          {/* R: DR Backup Health - GitHub Actions workflow runs */}
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Database size={14} /> DR Backup Health
+            </h2>
+            {drill.error && (
+              <div style={{ padding: 12, background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 8, fontSize: 12, color: '#92400e', marginBottom: 10 }}>
+                Could not load workflow history: {drill.error}
+              </div>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+              {Object.entries(drill.workflows || {}).map(([wfName, wf]) => {
+                const isDrill = wfName.includes('restore-drill');
+                const successPct = wf.success_rate_30d;
+                const successColor = successPct == null ? '#9ca3af' : (successPct >= 90 ? '#10b981' : (successPct >= 70 ? '#f59e0b' : '#ef4444'));
+                const lastSuc = wf.last_success;
+                const lastFail = wf.last_failure;
+                const fmtDt = (iso) => iso ? new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+                const fmtDuration = (s) => s == null ? '-' : (s < 60 ? `${s}s` : `${Math.floor(s/60)}m ${s%60}s`);
+                return (
+                  <div key={wfName} style={{ padding: 14, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1f2937' }}>
+                        {isDrill ? 'Restore Drill' : 'DB Backup'}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{wfName}</div>
+                    </div>
+                    {wf.error ? (
+                      <div style={{ fontSize: 12, color: '#dc2626', padding: 8, background: '#fee2e2', borderRadius: 6 }}>
+                        Error: {wf.error}
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', gap: 16, marginBottom: 10 }}>
+                          <div>
+                            <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase' }}>Success 30d</div>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: successColor }}>
+                              {successPct == null ? '-' : `${successPct}%`}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase' }}>Total runs</div>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: '#1f2937' }}>{wf.total || 0}</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 11, color: '#374151', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {lastSuc ? (
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                              <span style={{ color: '#10b981' }}>OK</span> Last success: {fmtDt(lastSuc.run_started_at)} ({fmtDuration(lastSuc.duration_seconds)})
+                              {lastSuc.html_url && <a href={lastSuc.html_url} target="_blank" rel="noreferrer" style={{ marginLeft: 'auto', color: '#3b82f6', fontSize: 10 }}>view</a>}
+                            </div>
+                          ) : (
+                            <div style={{ color: '#9ca3af' }}>No recent successes</div>
+                          )}
+                          {lastFail ? (
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                              <span style={{ color: '#ef4444' }}>FAIL</span> Last failure: {fmtDt(lastFail.run_started_at)} ({fmtDuration(lastFail.duration_seconds)})
+                              {lastFail.html_url && <a href={lastFail.html_url} target="_blank" rel="noreferrer" style={{ marginLeft: 'auto', color: '#3b82f6', fontSize: 10 }}>view</a>}
+                            </div>
+                          ) : (
+                            <div style={{ color: '#10b981' }}>No failures recorded</div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+              {Object.keys(drill.workflows || {}).length === 0 && !drill.error && (
+                <div style={{ padding: 16, color: '#9ca3af', fontSize: 12, gridColumn: 'span 2' }}>
+                  Loading workflow history...
+                </div>
+              )}
+            </div>
+          </div>
+
           <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333' }}>30-Day Trend</h2>
           {Object.keys(seriesByService).length === 0 ? (
             <div style={{ padding: 24, color: '#999', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>

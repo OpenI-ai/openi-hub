@@ -981,6 +981,8 @@ export const adminAPI = {
   costsAlerts:              ()              => get('/admin/costs/alerts'),
   costsManual:              (data)          => post('/admin/costs/manual', data),
   costsClearAlert:          (id)            => del(`/admin/costs/alerts/${id}`),
+  // R: DR Drill + db-backup workflow history via GitHub Actions API
+  drillHistory:             ()              => get('/admin/drill/history'),
   // Phase 102-uptime: BetterStack uptime summary
   uptimeSummary:            ()              => get('/admin/uptime/summary'),
   // Phase 102-sentry: Sentry errors summary
