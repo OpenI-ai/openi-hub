@@ -124,6 +124,8 @@ export const subscriptionAPI = {
   createOrder:   (data)   => post('/subscription/create-order', data),
   verifyPayment: (data)   => post('/subscription/verify-payment', data),
   cancel:        ()       => post('/subscription/cancel'),
+  // A.5: mid-period billing cycle change
+  changeBillingCycle: (data) => post('/subscription/change-cycle', data),
   downloadInvoice: (paymentId) => blobRequest('GET', `/subscription/invoice/${paymentId}`),
   featureAccess: ()       => get('/subscription/feature-access'),
 };

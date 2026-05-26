@@ -96,6 +96,14 @@ export default function Settings() {
   const [myPlan, setMyPlan] = useState(null);
   const [billingLoading, setBillingLoading] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
+  // A.5: monthly/annual toggle state. Read from URL ?cycle=annual on mount
+  // (deep-link from Phase 113 renewal reminder email for monthly subscribers).
+  const [billingCycleSelected, setBillingCycleSelected] = useState(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get('cycle') === 'annual' ? 'yearly' : 'monthly';
+    } catch { return 'monthly'; }
+  });
 
   // Phase 60.11 — Billing address (mandatory before checkout)
   const [billingAddress, setBillingAddress] = useState(null);
@@ -280,10 +288,34 @@ export default function Settings() {
     }
   };
 
+  // A.5: cycle-aware upgrade flow — branches between createOrder (new sub or plan change)
+  // and changeBillingCycle (existing sub, same plan, different cycle with proration).
   const runUpgrade = async (planId, planName) => {
     setUpgrading(true);
+    const cycle = billingCycleSelected; // 'monthly' or 'yearly'
+    const cycleLabel = cycle === 'yearly' ? 'Annual' : 'Monthly';
     try {
-      const orderData = await subscriptionAPI.createOrder({ plan_id: planId, billing_cycle: 'monthly' });
+      // Detect mid-period cycle change: same plan, active sub, different cycle
+      const isCycleChange =
+        myPlan?.subscription?.billing_cycle &&
+        myPlan?.plan_name !== 'free' &&
+        myPlan?.plan?.id === planId &&
+        myPlan?.subscription?.billing_cycle !== cycle;
+
+      let orderData;
+      if (isCycleChange) {
+        // Mid-period change — Razorpay order with prorated amount
+        orderData = await subscriptionAPI.changeBillingCycle({ new_cycle: cycle });
+        if (orderData.status === 'switched') {
+          // Backend flipped cycle directly (no payment needed)
+          toast.success(`Switched to ${cycleLabel.toLowerCase()} billing`);
+          loadBilling();
+          return;
+        }
+      } else {
+        // New subscription OR plan change — standard createOrder
+        orderData = await subscriptionAPI.createOrder({ plan_id: planId, billing_cycle: cycle });
+      }
 
       if (orderData.test_mode || !window.Razorpay) {
         // Test mode or no Razorpay SDK — simulate payment
@@ -292,10 +324,10 @@ export default function Settings() {
           razorpay_order_id: orderData.order_id,
           razorpay_signature: 'test_signature',
           plan_id: planId,
-          billing_cycle: 'monthly',
+          billing_cycle: cycle,
         });
         if (result.success) {
-          toast.success(`Upgraded to ${result.display_name}!`);
+          toast.success(`Upgraded to ${result.display_name} (${cycleLabel})!`);
           updateUser({ current_plan: result.plan });
           loadBilling();
         }
@@ -307,17 +339,17 @@ export default function Settings() {
           amount: orderData.amount,
           currency: orderData.currency || 'INR',
           name: 'OpenI Hub',
-          description: `${planName} - Monthly`,
+          description: `${planName} - ${cycleLabel}`,
           prefill: { email: user?.email, name: user?.name },
           handler: async (response) => {
             try {
               const result = await subscriptionAPI.verifyPayment({
                 ...response,
                 plan_id: planId,
-                billing_cycle: 'monthly',
+                billing_cycle: cycle,
               });
               if (result.success) {
-                toast.success(`Upgraded to ${result.display_name}!`);
+                toast.success(`Upgraded to ${result.display_name} (${cycleLabel})!`);
                 updateUser({ current_plan: result.plan });
                 loadBilling();
               }
@@ -907,6 +939,36 @@ export default function Settings() {
                      "enterprise"). Anything unknown sorts to 0 so the user
                      never gets a misleading Upgrade prompt. */}
                   {(() => null)()}
+
+                  {/* A.5: Monthly/Annual toggle pill */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                    <div style={{ display: 'inline-flex', background: '#f3f4f6', borderRadius: 999, padding: 4, position: 'relative' }}>
+                      <button onClick={() => setBillingCycleSelected('monthly')}
+                        style={{
+                          padding: '8px 22px', fontSize: 13, fontWeight: 600, borderRadius: 999, border: 'none',
+                          background: billingCycleSelected === 'monthly' ? '#fff' : 'transparent',
+                          color: billingCycleSelected === 'monthly' ? '#1a1a1a' : '#888',
+                          cursor: 'pointer',
+                          boxShadow: billingCycleSelected === 'monthly' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        }}>
+                        Monthly
+                      </button>
+                      <button onClick={() => setBillingCycleSelected('yearly')}
+                        style={{
+                          padding: '8px 22px', fontSize: 13, fontWeight: 600, borderRadius: 999, border: 'none',
+                          background: billingCycleSelected === 'yearly' ? '#fff' : 'transparent',
+                          color: billingCycleSelected === 'yearly' ? '#1a1a1a' : '#888',
+                          cursor: 'pointer', position: 'relative',
+                          boxShadow: billingCycleSelected === 'yearly' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        }}>
+                        Annual
+                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: '#16a34a', color: '#fff' }}>
+                          Save 20%
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
                     {plans.map(p => {
                       const isCurrent = p.name === currentPlan;
@@ -941,15 +1003,42 @@ export default function Settings() {
                         <div key={p.id} style={{ border: isCurrent ? `2px solid ${G}` : '1px solid #eee', borderRadius: 14, padding: 20, background: isCurrent ? '#fffbeb' : '#fff', position: 'relative' }}>
                           {isCurrent && <div style={{ position: 'absolute', top: -10, right: 14, fontSize: 10, fontWeight: 700, padding: '2px 10px', borderRadius: 20, background: G, color: '#fff' }}>Current</div>}
                           <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{p.display_name}</div>
-                          <div style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 4 }}>
-                            {parseFloat(p.price_monthly) === 0 ? 'Free' : `₹${parseInt(p.price_monthly)}`}
-                            {parseFloat(p.price_monthly) > 0 && <span style={{ fontSize: 12, fontWeight: 400, color: '#999' }}>/mo</span>}
-                          </div>
-                          {parseFloat(p.price_monthly) > 0 && (
-                            <div style={{ fontSize: 11, fontWeight: 500, color: '#999', marginBottom: 12 }}>
-                              + 18% GST · ₹{(parseFloat(p.price_monthly) * 1.18).toLocaleString('en-IN', { maximumFractionDigits: 2 })} total
-                            </div>
-                          )}
+                          {/* A.5: cycle-aware price display */}
+                          {(() => {
+                            const isAnnual = billingCycleSelected === 'yearly';
+                            const basePrice = isAnnual ? parseFloat(p.price_yearly || 0) : parseFloat(p.price_monthly || 0);
+                            const monthlyEquiv = isAnnual && basePrice > 0 ? basePrice / 12 : null;
+                            const monthlyFull = parseFloat(p.price_monthly || 0);
+                            const yearlyFull = monthlyFull * 12;
+                            const annualSavings = yearlyFull > 0 ? yearlyFull - parseFloat(p.price_yearly || 0) : 0;
+                            return (
+                              <>
+                                <div style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 4 }}>
+                                  {basePrice === 0 ? 'Free' : `₹${parseInt(basePrice).toLocaleString('en-IN')}`}
+                                  {basePrice > 0 && (
+                                    <span style={{ fontSize: 12, fontWeight: 400, color: '#999' }}>
+                                      {isAnnual ? '/yr' : '/mo'}
+                                    </span>
+                                  )}
+                                </div>
+                                {isAnnual && monthlyEquiv > 0 && (
+                                  <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+                                    ≈ ₹{Math.round(monthlyEquiv).toLocaleString('en-IN')}/mo equivalent
+                                  </div>
+                                )}
+                                {isAnnual && annualSavings > 0 && (
+                                  <div style={{ fontSize: 11, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>
+                                    Save ₹{Math.round(annualSavings).toLocaleString('en-IN')}/year
+                                  </div>
+                                )}
+                                {basePrice > 0 && (
+                                  <div style={{ fontSize: 11, fontWeight: 500, color: '#999', marginBottom: 12 }}>
+                                    + 18% GST · ₹{(basePrice * 1.18).toLocaleString('en-IN', { maximumFractionDigits: 2 })} total
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                           <div style={{ display: 'grid', gap: 6, marginBottom: 16 }}>
                             {Object.entries(features).map(([f, limit]) => {
                               const Icon = FeatureIcon(limit);
@@ -966,7 +1055,8 @@ export default function Settings() {
                             <button onClick={() => handleUpgrade(p.id, p.display_name)} disabled={upgrading}
                               style={{ width: '100%', padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 10,
                                 background: G, color: '#fff', border: 'none', cursor: upgrading ? 'wait' : 'pointer' }}>
-                              {upgrading ? 'Processing...' : `Upgrade to ${p.display_name}`}
+                              {/* A.5: cycle-aware upgrade button */}
+                              {upgrading ? 'Processing...' : `Upgrade to ${p.display_name} (${billingCycleSelected === 'yearly' ? 'Annual' : 'Monthly'})`}
                             </button>
                           )}
                           {!isCurrent && direction === 'downgrade' && p.name === 'free' && (
