@@ -2,8 +2,25 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.21
-**Last Updated:** 26 May 2026 LATE EVENING — **8-ship marathon SESSION. 14 commits across both repos. ~1,200 lines net. Zero rollbacks, zero broken deploys.** Backend HEAD `62162b6` (Ship B Finance notification). Frontend HEAD `6c5bbca` (A icon hotfix — IndianRupee for INR). DOCUMENTATION.md v5.21.
+**Version:** 5.22
+**Last Updated:** 26 May 2026 LATE EVENING (parked) — **10-ship marathon + 1 hotfix + M1 Messaging deep-link. 19 commits across both repos. ~1,350 lines net. Zero rollbacks, zero broken deploys. Session PARKED with Messaging M2+M3 client-priority carry-forward.** Backend HEAD `a3aa055` (Restore Drill backend). Frontend HEAD `9ca7719` (M1 Messaging deep-link receiver). DOCUMENTATION.md v5.22.
+
+**🚨 NEXT SESSION FIRST ACTION (P0 client priority):** Messaging M2+M3 — Challenge + Watchlist Message buttons. M1 (receiver) shipped commit `9ca7719`. M2+M3 paused pending Watchlist data-shape backend probe. Full spec in `/Users/rajeevbanduni/CoPilot/NEXT_SESSION_TODOS.md` section "#1 — Messaging M2+M3 (P0 client priority, mid-ship resume)". ~80 lines, 30-60 min, 1-2 commits.
+
+**Late-evening additions (after v5.21 bump):**
+- `a3aa055` backend — Restore Drill GitHub Actions API endpoint (getDrillHistory)
+- `87b1db3` frontend — Restore Drill DR Backup Health panel in AdminCosts.jsx (renders restore-drill.yml + db-backup.yml workflow stats)
+- `9ca7719` frontend — M1 Messaging.jsx accepts `?conversation=<id>` URL param for future deep-linking
+- GitHub fine-grained PAT widened with `Actions: Read` scope (Phase 72 `openi-hub-whats-new-sync` token, no rotation, value unchanged on Railway)
+
+**Live data observed (Restore Drill smoke-test):**
+- restore-drill.yml: 15 total runs, 27% success rate 30d, last success 24 May (~56 min), last failure 17 May (~60 min — Phase 95 floor-fix trigger)
+- db-backup.yml: 30 runs, 87% success rate 30d, last success 26 May (~17 min), last failure 1 May
+
+**Live data observed (Platform Health smoke-test):**
+- Real Signups: 62 total claimed, 21 active 30d (logged in), 38 signups 30d
+- Directory: 575,173 total / 4 claimed (0.0007% claim rate) / 575,111 imported
+- Revenue MTD/YTD: Rs 5,447.82 INR (Karuna's 2 captured payments) + $0 USD
 
 **Today's 8 ships in order:**
 
