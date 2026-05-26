@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   MessageSquare, Search, Send, Paperclip, MoreHorizontal, CheckCheck, Bell, Archive,
@@ -31,6 +32,7 @@ const fmtTime = (d) => {
 export default function Messaging() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
+  const [searchParams] = useSearchParams();
   const [active, setActive] = useState(null);
   const [activeMessages, setActiveMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,8 +69,12 @@ export default function Messaging() {
         }));
         setConversations(list);
         if (list.length > 0) {
-          setActive(list[0]);
-          loadMessages(list[0].id);
+          // M1: deep-link to ?conversation=<id> if provided, else default to first
+          const targetId = parseInt(searchParams.get('conversation') || '', 10);
+          const targetConv = targetId ? list.find(c => c.id === targetId) : null;
+          const selected = targetConv || list[0];
+          setActive(selected);
+          loadMessages(selected.id);
         }
       })
       .catch(err => toast.error(err.message || 'Failed to load conversations'))
