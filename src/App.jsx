@@ -88,6 +88,7 @@ import FeatureMap           from './pages/dashboard/FeatureMap';
 const AdminAnalytics       = lazy(() => import('./pages/dashboard/AdminAnalytics'));
 // Phase 102-3: AdminCosts (lazy — uses recharts)
 const AdminCosts           = lazy(() => import('./pages/dashboard/AdminCosts'));
+const ChallengesToReview   = lazy(() => import('./pages/dashboard/ChallengesToReview'));
 import AdminConsole         from './pages/dashboard/AdminConsole';
 import AdminUsers           from './pages/dashboard/AdminUsers';
 import AdminChallenges      from './pages/dashboard/AdminChallenges';
@@ -290,6 +291,7 @@ export default function App() {
             <Route path="whats-new"          element={<WhatsNew />} />
             {/* T32-99c: ChallengeInvites route */}
             <Route path="challenge-invites"  element={<ChallengeInvites />} />
+            <Route path="challenges-to-review" element={<ChallengesToReview />} />
             <Route path="features"           element={<FeatureMap />} />
             <Route path="admin/analytics"    element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
             {/* Phase 102-3: AdminCosts route */}

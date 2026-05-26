@@ -486,6 +486,8 @@ export const corporateAPI = {
   addMember:         (cid, data)     => post(`/corporate/challenges/${cid}/members`, data),
   updateMember:      (cid, uid, data) => put(`/corporate/challenges/${cid}/members/${uid}`, data),
   removeMember:      (cid, uid)      => del(`/corporate/challenges/${cid}/members/${uid}`),
+  // Bug #2: reviewer-side inbox
+  myReviewerQueue:   ()              => get('/challenges/my-reviewer-queue'),
   // Application notes & docs
   listAppNotes:      (cid, aid)      => get(`/corporate/challenges/${cid}/applications/${aid}/notes`),
   createAppNote:     (cid, aid, data) => post(`/corporate/challenges/${cid}/applications/${aid}/notes`, data),

@@ -95,6 +95,8 @@ const WORKSPACE_ITEMS = {
   documents: { to: '/dashboard/documents',  label: 'Documents',    icon: 'FolderOpen' },
   // T32-99c: challenge invites workspace item — visible for every persona
   invites:   { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+  // Bug #2: reviewer-side inbox — visible across all 11 personas
+  challengesToReview: { to: '/dashboard/challenges-to-review', label: 'Challenges to Review', icon: 'ClipboardCheck' },
 };
 const DEFAULT_WORKSPACE_KEYS = Object.keys(WORKSPACE_ITEMS);
 
