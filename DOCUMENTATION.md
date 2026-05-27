@@ -2,12 +2,12 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.23
-**Last Updated:** 27 May 2026 EOD — **13-ship marathon. All P0 (Messaging M2+M3) and 2 P1 (Landing rehash, Joy Ride tour batch 2) closed. Plus complete mobile responsive overhaul (Mobile Ships 0-5) closing all 9 audit HIGH-severity issues genuinely.** Backend HEAD `51d7e04` (M backfill script). Frontend HEAD `31135de` (Mobile Ship 5 hotfix). DOCUMENTATION.md v5.23.
+**Version:** 5.24
+**Last Updated:** 27 May 2026 EOD — **15-ship marathon. All P0 (Messaging M2+M3) and 2 P1 (Landing rehash, Joy Ride tour batch 2) closed. Plus complete mobile responsive overhaul (Mobile Ships 0-6) closing all 9 audit HIGH-severity issues + PROF8 (Register iOS zoom).** Backend HEAD `51d7e04` (M backfill script). Frontend HEAD `1af71e9` (Mobile Ship 6 — Register iOS zoom). DOCUMENTATION.md v5.24.
 
 **🚨 NEXT SESSION FIRST ACTION (locked by user 27 May EOD):** Finish mobile responsiveness + Joy Ride tours for entire platform. ~18 dashboard pages remaining to audit + tour. Full spec in `/Users/rajeevbanduni/CoPilot/NEXT_SESSION_TODOS.md` + `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-27.md`. Estimated 6-10 ships across 2-3 sessions.
 
-### Today's 13 ships (27 May 2026, chronological)
+### Today's 15 ships (27 May 2026, chronological)
 
 | # | Repo | Commit | Ship |
 |---|---|---|---|
@@ -24,12 +24,15 @@
 | 11 | frontend | `acd5e5b` | Mobile Ship 3 — Watchlist single-pane mobile UX |
 | 12 | frontend | `d82d5fc` | Mobile Ships 4+5 — Settings grids responsive (Ship 5 EventsRepo silently failed) |
 | 13 | frontend | `31135de` | Mobile Ship 5 hotfix — EventsRepository view-toggle + list-view + mobile fallback grid |
+| 14 | frontend | `d84a583` | DOCUMENTATION.md v5.22 → v5.23 — session-close docs bump |
+| 15 | frontend | `1af71e9` | Mobile Ship 6 — Register.jsx iOS zoom fix (PROF8 closed) |
 
 ### Cumulative session metrics
 
 - **2 backend commits** (1 schema migration: `startups.owner_user_id INTEGER REFERENCES users(id)` + partial index, 1 backfill)
-- **11 frontend commits** (~700 lines net)
+- **13 frontend commits** (~750 lines net)
 - **9 of 9 audit HIGH-severity mobile issues closed:** PROF1, PROF2, MP1, DR1, DL1, MSG1, W1, ST1, EV1
+- **1 audit MEDIUM closed:** PROF8 (Register iOS zoom)
 - **7 new PAGE_TOURS** (Watchlist + Messaging + Settings + Innovation Map + 8-Vector + Events + Corp Search) — total tour coverage now 12 of ~30 dashboard surfaces
 - **Zero rollbacks, zero broken deploys**, 1 mid-ship hotfix (Mobile Ship 5)
 - Audit document: `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-27.md`
