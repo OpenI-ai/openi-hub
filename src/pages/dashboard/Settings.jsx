@@ -768,7 +768,7 @@ export default function Settings() {
 
                   {/* Feature Access (boolean flags) */}
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, marginTop: 16 }}>Feature Access</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 6 }}>
                     {BOOLEAN_FEATURES.map(feature => {
                       const enabled = planFeatures[feature] === true;
                       return (
@@ -784,7 +784,7 @@ export default function Settings() {
                   {currentPlan !== 'free' && myPlan?.ai_consumption && (
                     <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 10, border: '1px solid #fde68a' }}>
                       <h3 style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 8 }}>AI Usage This Month</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8 }}>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{myPlan.ai_consumption.queries_this_month || 0}</div>
                           <div style={{ fontSize: 10, color: '#888' }}>Queries</div>
@@ -977,7 +977,8 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+                  {/* Mobile Ship 4 (27 May 2026): plan cards stack on mobile */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
                     {plans.map(p => {
                       const isCurrent = p.name === currentPlan;
                       const features = p.features || {};
@@ -1194,7 +1195,7 @@ export default function Settings() {
       {/* Account Info */}
       <div style={{ ...card, padding: 20, marginTop: 20 }}>
         <h3 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>Account Information</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           {[
             { label: 'User ID', value: user?.id || '—' },
             { label: 'Role', value: user?.role || '—' },
