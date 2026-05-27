@@ -12,9 +12,13 @@ import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
 
+// Mobile Ship 6 (27 May 2026, PROF8) — fontSize bumped 14 -> 16 to suppress
+// iOS Safari auto-zoom on focus. Inputs below 16px trigger Safari's input
+// zoom which doesn't auto-unzoom after blur. Every new user fills this
+// form on mobile; the bump fixes signup UX for all personas.
 const inputStyle = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14, outline: 'none',
+  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 16, outline: 'none',
 };
 
 function TagInput({ value = [], onChange, placeholder }) {
