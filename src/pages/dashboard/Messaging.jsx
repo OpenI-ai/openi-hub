@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   MessageSquare, Search, Send, Paperclip, MoreHorizontal, CheckCheck, Bell, Archive,
-  Plus, X, UserPlus,
+  Plus, X, UserPlus, ChevronLeft,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { messageAPI, meetingAPI } from '../../services/api';
@@ -307,10 +307,11 @@ export default function Messaging() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 16, height: 'calc(100vh - 220px)', minHeight: 500 }}>
+      {/* Mobile Ship 2 (27 May 2026): single-pane on mobile, side-by-side on md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr]" style={{ gap: 16, height: 'calc(100vh - 220px)', minHeight: 500 }}>
 
-        {/* Sidebar: conversation list */}
-        <div style={{ ...card, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Sidebar: conversation list — Mobile Ship 2: hidden on mobile when active conversation is open */}
+        <div className={active ? 'hidden md:flex' : 'flex'} style={{ ...card, flexDirection: 'column', overflow: 'hidden' }}>
           {/* Search */}
           <div style={{ padding: '14px 14px 10px', borderBottom: '1px solid #f5f5f5' }}>
             <div style={{ position: 'relative' }}>
@@ -393,11 +394,20 @@ export default function Messaging() {
           </div>
         </div>
 
-        {/* Chat panel */}
+        {/* Chat panel — Mobile Ship 2: always show when active set, even on mobile */}
         {active ? (
-          <div style={{ ...card, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div className="flex md:flex" style={{ ...card, flexDirection: 'column', overflow: 'hidden' }}>
             {/* Chat header */}
             <div style={{ padding: '14px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Mobile Ship 2 (27 May 2026): back-arrow to return to conversation list on mobile */}
+              <button
+                onClick={() => setActive(null)}
+                className="md:hidden"
+                aria-label="Back to conversations"
+                style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#888', borderRadius: 6, marginLeft: -4 }}
+              >
+                <ChevronLeft size={20} />
+              </button>
               <div style={{ position: 'relative' }}>
                 <div style={{
                   width: 38, height: 38, borderRadius: active.type === 'group' ? 10 : '50%',
@@ -502,7 +512,7 @@ export default function Messaging() {
             </div>
           </div>
         ) : (
-          <div style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
+          <div className="hidden md:flex" style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
             <MessageSquare size={40} color="#ddd" />
             <p style={{ color: '#aaa', fontSize: 13 }}>Select a conversation to start messaging</p>
           </div>
