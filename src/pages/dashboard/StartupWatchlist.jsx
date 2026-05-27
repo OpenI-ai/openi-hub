@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { watchlistAPI, startupAPI, meetingAPI } from '../../services/api';
+import { useNavigate } from 'react-router-dom'; // M3 (27 May 2026) — for Message button deep-link
+import { watchlistAPI, startupAPI, meetingAPI, messageAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
-  UserPlus, Mail, ChevronDown,
+  UserPlus, Mail, ChevronDown, MessageCircle,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -96,6 +97,10 @@ export default function StartupWatchlist() {
           stage: s.stage || s.pipeline_stage || 'Application',
           status: s.status || 'Pending',
           deeptech: s.is_deeptech || s.deeptech || false,
+          // M3 (27 May 2026) — bridge for Message button; populated when getOne
+          // returns owner_user_id (claimed startup, active OpenI user)
+          owner_user_id: s.owner_user_id || null,
+          owner_is_active: s.owner_is_active !== undefined ? s.owner_is_active : null,
         }));
         setAllStartups(normalizedStartups);
       })
@@ -195,6 +200,22 @@ export default function StartupWatchlist() {
       });
     setNewList({ name: '', description: '', visibility: 'internal', tags: '' });
     setShowCreate(false);
+  };
+
+  // M3 (27 May 2026) — navigate helper for Message button deep-link
+  const navigate = useNavigate();
+
+  const handleMessage = async (recipientUserId, startupName) => {
+    if (!recipientUserId) {
+      toast.error('This startup has not yet claimed their OpenI profile');
+      return;
+    }
+    try {
+      const conv = await messageAPI.createConversation({ type: 'direct', member_ids: [recipientUserId] });
+      navigate('/dashboard/messaging?conversation=' + conv.id);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || `Failed to open conversation with ${startupName || 'startup'}`);
+    }
   };
 
   const removeStartup = (startupId) => {
@@ -604,6 +625,21 @@ export default function StartupWatchlist() {
                       </div>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}` }}>{s.status}</span>
                       {s.score && <span style={{ fontSize: 13, color: G, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}><Star size={11} style={{ fill: G, color: G }} />{s.score}</span>}
+                      {/* M3 (27 May 2026) — Message button, only when startup is claimed + owner active */}
+                      {s.owner_user_id && s.owner_is_active && (
+                        <button
+                          onClick={() => handleMessage(s.owner_user_id, s.name)}
+                          title={`Message ${s.name || 'startup'}`}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            padding: '4px 10px', fontSize: 11, fontWeight: 600,
+                            background: '#fff', color: G, border: `1px solid ${G}`,
+                            borderRadius: 14, cursor: 'pointer',
+                          }}
+                        >
+                          <MessageCircle size={12} /> Message
+                        </button>
+                      )}
                       <button
                         onClick={() => removeStartup(s.id)}
                         style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#ddd', borderRadius: 7, marginLeft: 4 }}
