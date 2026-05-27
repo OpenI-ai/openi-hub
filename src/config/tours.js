@@ -607,5 +607,172 @@ export const PAGE_TOURS = {
       },
     ],
   },
+  // ============================================================
+  // Tour batch 3 (28 May 2026) — 7 universal-page tours
+  // Covers high-traffic dashboard surfaces visible to every persona:
+  // Home, Network, Meetings, Projects, Documents, Knowledge, What's New
+  // ============================================================
+  '/dashboard/home': {
+    title: 'Your Dashboard',
+    steps: [
+      {
+        target: '#tour-welcome',
+        title: 'Your home base',
+        content: 'This is your persona-tailored dashboard. The cards, stats, and quick-actions you see depend on your role on OpenI.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-stat-cards',
+        title: 'Key activity at a glance',
+        content: 'These KPI tiles surface the metrics that matter most for your role — applications, projects, mentor sessions, and more.',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-quick-actions',
+        title: 'Quick actions',
+        content: 'The most common workflows for your persona — one click away. Browse challenges, find startups, add a project, schedule a meeting.',
+        placement: 'top',
+      },
+    ],
+  },
+  '/dashboard/network': {
+    title: 'My Network',
+    steps: [
+      {
+        target: '#tour-page-network-header',
+        title: 'Your professional network on OpenI',
+        content: 'Build connections with founders, mentors, investors, corporates, academics — anyone active on the platform. Accepted connections unlock direct messaging.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-network-tabs',
+        title: 'Tabs for every stage',
+        content: 'Switch between your established connections, pending requests (incoming + outgoing), and Discover — where you find new people to connect with.',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-page-network-search',
+        title: 'Find people fast',
+        content: 'Search by name or organisation. Combine with tab filters to narrow to the right people in your network.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  '/dashboard/meetings': {
+    title: 'Meetings',
+    steps: [
+      {
+        target: '#tour-page-meetings-header',
+        title: 'Schedule with anyone on OpenI',
+        content: 'Send meeting invites to any active user — founders, mentors, investors. Accepted invites sync to your calendar via .ics or Google Meet links.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-meetings-create',
+        title: 'Schedule a new meeting',
+        content: 'Click Schedule Meeting to pick attendees via typeahead, set the time, add an agenda, and optionally attach a Google Meet URL. Attendees get email + bell notification.',
+        placement: 'left',
+      },
+      {
+        target: '#tour-page-meetings-tabs',
+        title: 'Filter by status',
+        content: 'Switch between Upcoming meetings, your Past meeting history, or All for the full list. Useful for reviewing context before a follow-up.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  '/dashboard/projects': {
+    title: 'Project Management',
+    steps: [
+      {
+        target: '#tour-page-projects-header',
+        title: 'Track every project end-to-end',
+        content: 'Manage projects, tasks, milestones, collaborators, and budgets all in one place. Useful for tracking incubation cohorts, corporate pilots, mentor engagements.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-projects-toggle',
+        title: 'Projects vs Tasks view',
+        content: 'Toggle between the top-level Projects view (with milestones + budget) and the Tasks view (drilling into individual to-dos across all your projects).',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-page-projects-create',
+        title: 'Start a new project',
+        content: 'Click New Project to open the create form. Set the title, owner, timeline, and link it to a startup or program. You can add tasks + milestones immediately or come back later.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/documents': {
+    title: 'Document Repository',
+    steps: [
+      {
+        target: '#tour-page-documents-header',
+        title: 'Centralised file storage',
+        content: 'Store program documents, pitch decks, RFP responses, contracts, MoUs — anything your team needs to share. Files are scoped to your organisation by default.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-documents-upload',
+        title: 'Upload your first file',
+        content: 'Click Upload Document to attach a file. Pick a folder (or create one), set access level (org-wide, restricted, or public link), and add tags for fast retrieval.',
+        placement: 'left',
+      },
+      {
+        target: '#tour-page-documents-stats',
+        title: 'At-a-glance overview',
+        content: 'See your storage usage, restricted file count, and starred items here. Hover any tile for context on what counts toward each metric.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  '/dashboard/knowledge': {
+    title: 'Knowledge Hub',
+    steps: [
+      {
+        target: '#tour-page-knowledge-header',
+        title: 'Industry reports + curated articles',
+        content: 'Browse research reports, sector primers, SOPs, training modules, and ecosystem playbooks curated by OpenI. New articles publish weekly.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-knowledge-search',
+        title: 'Search + filter',
+        content: 'Type keywords and combine with the type filters (Reports / Articles / SOPs / Training) for fast lookup. Filter chips highlight when active.',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-page-knowledge-add',
+        title: 'Suggest an article',
+        content: 'See something missing? Click Suggest an Article to send a recommendation to OpenI editors. Admins can publish articles directly from the admin console.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/whats-new': {
+    title: "What's New",
+    steps: [
+      {
+        target: '#tour-page-whats-new-header',
+        title: 'Latest platform updates',
+        content: 'See what we shipped recently — new features, bug fixes, performance improvements. Updates are filtered to your role so you only see what is relevant.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-whats-new-refresh',
+        title: 'Stay in sync',
+        content: 'Click Refresh to pull the latest entries on demand. The list also auto-loads on first visit each session, so you rarely need to refresh manually.',
+        placement: 'left',
+      },
+    ],
+  },
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };

@@ -174,7 +174,7 @@ export default function MyNetwork() {
 
       {/* Search bar (for connections + discover tabs) */}
       {(tab === 'connections' || tab === 'discover') && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div id="tour-page-network-search" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           <div style={{ flex: 1, position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or organization..."

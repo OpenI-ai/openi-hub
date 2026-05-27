@@ -258,7 +258,7 @@ export default function ProjectManagement() {
               >{v}</button>
             ))}
           </div>
-          <button
+          <button id="tour-page-projects-create"
             onClick={() => { setForm(EMPTY_PROJECT); setShowCreate(true); }}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,

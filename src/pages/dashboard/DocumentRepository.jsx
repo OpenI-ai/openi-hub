@@ -302,7 +302,7 @@ export default function DocumentRepository() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 22 }}>
+      <div id="tour-page-documents-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 22 }}>
         {[
           { label: 'Total Documents',  value: totalFiles, icon: FileText,    bg: '#fff8ec', fg: G },
           { label: 'Total Size',       value: totalSize,  icon: FolderOpen,  bg: '#f0fdf4', fg: '#16a34a' },

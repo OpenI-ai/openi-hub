@@ -303,7 +303,7 @@ export default function Meetings() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid #eee', paddingBottom: 0 }}>
+      <div id="tour-page-meetings-tabs" style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid #eee', paddingBottom: 0 }}>
         {['upcoming', 'past', 'all'].map(t => (
           <button key={t} onClick={() => setTab(t)}
             style={{ padding: '8px 20px', fontSize: 13, fontWeight: tab === t ? 700 : 500, color: tab === t ? G : '#888',

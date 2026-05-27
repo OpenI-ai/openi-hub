@@ -109,7 +109,7 @@ export default function WhatsNew() {
           <Sparkles size={22} color={G} />
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>What's New</h1>
         </div>
-        <button
+        <button id="tour-page-whats-new-refresh"
           onClick={load}
           disabled={loading}
           title="Reload latest updates"

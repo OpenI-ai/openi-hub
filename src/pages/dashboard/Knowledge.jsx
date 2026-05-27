@@ -116,7 +116,7 @@ export default function Knowledge() {
         </button>
       </div>
 
-      <div className="flex gap-3 mb-5">
+      <div id="tour-page-knowledge-search" className="flex gap-3 mb-5">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-primary-400 text-sm" placeholder="Search reports, guides, articles..." />
