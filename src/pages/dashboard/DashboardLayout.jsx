@@ -95,6 +95,8 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();  // Ship #12 — for PAGE_TOURS lookup
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Mobile Ship 1 (27 May 2026): mobile search bar visibility (slide-down panel)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   // Phase 74 — sidebar unread badge for What's New.
   const [whatsNewUnread, setWhatsNewUnread] = useState(0);
   useEffect(() => {
@@ -548,6 +550,19 @@ export default function DashboardLayout() {
               </button>
             )}
 
+            {/* Mobile Ship 1 (27 May 2026): mobile-only search icon button (hidden md+) */}
+            <button
+              onClick={() => setMobileSearchOpen(o => !o)}
+              className="md:hidden"
+              aria-label="Search"
+              style={{
+                padding:8, color: C.textMuted,
+                background: mobileSearchOpen ? C.goldLight : "transparent",
+                border:"none", cursor:"pointer", borderRadius:8,
+              }}
+            >
+              <Search size={16} />
+            </button>
             {/* Notification bell */}
             <div style={{ position:"relative" }}>
               <button
@@ -706,6 +721,26 @@ export default function DashboardLayout() {
             )}
           </div>
         </header>
+
+        {/* Mobile Ship 1 (27 May 2026): slide-down search panel for mobile */}
+        {mobileSearchOpen && (
+          <div className="md:hidden" style={{
+            padding:"12px 16px",
+            background: C.topbarBg,
+            borderBottom: `1px solid ${C.topbarBorder}`,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          }}>
+            <SearchBar
+              onSearch={(term, mode) => {
+                const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
+                setMobileSearchOpen(false);
+                navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+              }}
+              showAiToggle
+              placeholder="Ask or search..."
+            />
+          </div>
+        )}
 
         {/* Page content */}
         <main style={{ flex:1, overflowY:"auto", background: C.pageBg }}>

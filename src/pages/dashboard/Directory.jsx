@@ -249,7 +249,8 @@ export default function Directory() {
       {/* Filter panel */}
       {showFilters && (
         <div style={{ ...card, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {/* Mobile Ship 1 (27 May 2026): auto-fit so 3 dropdowns stack on mobile */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             {/* Persona Type */}
             <div>
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Persona Type</label>

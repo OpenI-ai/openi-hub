@@ -462,7 +462,8 @@ export default function Marketplace() {
           {/* Filters */}
           {showFilters && (
             <div style={{ ...card, padding: 16, marginBottom: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
+              {/* Mobile Ship 1 (27 May 2026): auto-fit so 3 dropdowns stack on mobile */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 10 }}>
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Sector</label>
                   <select value={filters.sector} onChange={e => setFilters(p => ({ ...p, sector: e.target.value }))}
