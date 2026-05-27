@@ -262,7 +262,7 @@ export default function IPRDatabase() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div id="tour-page-ipr-header" className="flex items-center justify-between mb-6">
         <div>
           {/* Phase 94 — persona-aware title + subtitle */}
           <h1 className="text-2xl font-display font-bold text-gray-900">{isAdmin ? 'IPR Database' : 'IPR Portfolio'}</h1>

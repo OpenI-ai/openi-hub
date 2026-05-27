@@ -167,7 +167,7 @@ export default function StartupFeedback() {
   return (
     <div style={{ padding: 28, maxWidth: 1100, background: '#f5f5f5', minHeight: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
+      <div id="tour-page-feedback-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Startup Feedback on OpenI</h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Collect, track and act on startup feedback to improve OpenI programs</p>

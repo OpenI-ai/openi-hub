@@ -200,7 +200,7 @@ export default function StartupDiscovery() {
   return (
     <div className="p-6" style={{ maxWidth: 1600, margin: '0 auto' }}>
       {/* Page header */}
-      <div className="flex items-center justify-between mb-4">
+      <div id="tour-page-startups-header" className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Discover Startups</h1>
           <p className="text-gray-500 text-sm mt-0.5">{total.toLocaleString()} startups · Search and filter the ecosystem</p>
@@ -214,6 +214,7 @@ export default function StartupDiscovery() {
       </div>
 
       {/* Top horizontal filter bar */}
+      <div id="tour-page-startups-filters" />
       <TaxonomyFilterPanel
         taxonomy={taxonomy}
         filters={filters}

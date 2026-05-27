@@ -126,7 +126,7 @@ export default function Infrastructure() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div id="tour-page-infra-header" className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Infrastructure & Test Facilities</h1>
           <p className="text-gray-500 text-sm mt-0.5">Explore and book OpenI labs, test facilities, and incubation infrastructure</p>

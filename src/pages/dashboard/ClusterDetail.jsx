@@ -116,7 +116,7 @@ export default function ClusterDetail() {
                   Theme #{cluster.cluster_id}
                 </span>
               </div>
-              <h1 className="text-2xl font-semibold text-[#0D2137] mb-2">
+              <h1 id="tour-page-cluster-detail-header" className="text-2xl font-semibold text-[#0D2137] mb-2">
                 {cluster.cluster_label || `Theme ${cluster.cluster_id}`}
               </h1>
 

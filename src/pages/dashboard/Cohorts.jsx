@@ -191,12 +191,12 @@ export default function Cohorts() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div id="tour-page-cohorts-header" className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Incubation Cohorts</h1>
           <p className="text-gray-500 text-sm mt-0.5">Manage startup incubation batches across DIA-CoEs and partner incubators</p>
         </div>
-        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
+        <button id="tour-page-cohorts-create" onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
           <Plus size={16} /> New Cohort
         </button>
       </div>

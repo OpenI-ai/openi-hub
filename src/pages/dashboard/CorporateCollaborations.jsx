@@ -275,7 +275,7 @@ export default function CorporateCollaborations() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-collabs-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <Link2 size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Collaborations
         </h1>

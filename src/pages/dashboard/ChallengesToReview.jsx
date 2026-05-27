@@ -42,7 +42,7 @@ export default function ChallengesToReview() {
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+      <div id="tour-page-review-queue-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
         <ClipboardCheck size={22} color={G} />
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>
           Challenges to Review

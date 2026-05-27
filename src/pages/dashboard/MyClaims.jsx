@@ -124,7 +124,7 @@ export default function MyClaims() {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <div className="mb-6">
+      <div id="tour-page-claims-header" className="mb-6">
         <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>My Profile Claims</h1>
         <p className="text-sm" style={{ color: '#6B7280' }}>
           Track the status of any imported startup profiles you've claimed.

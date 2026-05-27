@@ -60,7 +60,7 @@ export default function ChallengeInvites() {
 
   return (
     <div style={{ padding: 24, maxWidth: 980, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+      <div id="tour-page-invites-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
         <Inbox size={28} color={G} />
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Invitations Inbox</h1>
       </div>

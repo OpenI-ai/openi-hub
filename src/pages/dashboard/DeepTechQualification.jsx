@@ -251,13 +251,13 @@ export default function DeepTechQualification() {
   return (
     <div style={{ padding: 28, maxWidth: 1100, background: '#f5f5f5', minHeight: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
+      <div id="tour-page-deeptech-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>DeepTech Qualification</h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Qualify startups as DeepTech using structured criteria across 5 dimensions</p>
         </div>
         {mode === 'list' && (
-          <button
+          <button id="tour-page-deeptech-assess"
             onClick={() => setMode('assess')}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}
             onMouseEnter={e => e.currentTarget.style.background = GH}

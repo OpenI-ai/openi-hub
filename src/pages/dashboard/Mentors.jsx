@@ -182,12 +182,12 @@ export default function Mentors() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div id="tour-page-mentors-header" className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Mentors</h1>
           <p className="text-gray-500 text-sm mt-0.5">Onboard and manage mentors from academia, industry, and defence</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
+        <button id="tour-page-mentors-add" className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
           <Plus size={16} /> Add Mentor
         </button>
       </div>
