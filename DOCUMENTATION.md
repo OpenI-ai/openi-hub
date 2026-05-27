@@ -2,10 +2,54 @@
 
 ## OpenI Assessment Platform
 
+**Version:** 5.23
+**Last Updated:** 27 May 2026 EOD — **13-ship marathon. All P0 (Messaging M2+M3) and 2 P1 (Landing rehash, Joy Ride tour batch 2) closed. Plus complete mobile responsive overhaul (Mobile Ships 0-5) closing all 9 audit HIGH-severity issues genuinely.** Backend HEAD `51d7e04` (M backfill script). Frontend HEAD `31135de` (Mobile Ship 5 hotfix). DOCUMENTATION.md v5.23.
+
+**🚨 NEXT SESSION FIRST ACTION (locked by user 27 May EOD):** Finish mobile responsiveness + Joy Ride tours for entire platform. ~18 dashboard pages remaining to audit + tour. Full spec in `/Users/rajeevbanduni/CoPilot/NEXT_SESSION_TODOS.md` + `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-27.md`. Estimated 6-10 ships across 2-3 sessions.
+
+### Today's 13 ships (27 May 2026, chronological)
+
+| # | Repo | Commit | Ship |
+|---|---|---|---|
+| 1 | backend | `06580b3` | M backend — startups.owner_user_id bridge + watchlist.getOne LEFT JOIN users |
+| 2 | backend | `51d7e04` | M backfill — 132 of 660 startups.owner_user_id populated |
+| 3 | frontend | `8cf2a95` | M2 — Message button on Corporate Challenge applicant cards |
+| 4 | frontend | `545b015` | M3 — Message button on Watchlist startup rows |
+| 5 | frontend | `4b4a191` | Landing rehash — hero outcome-first + pricing slabs reality-aligned |
+| 6 | frontend | `88dac92` | Landing H1 micro-edit — "innovation" modifier |
+| 7 | frontend | `f50c234` | Joy Ride tour batch 2 — 7 PAGE_TOURS + 22 anchors across 8 files |
+| 8 | frontend | `83e077b` | Mobile Ship 0 — iOS auto-zoom fix on MyProfile (fontSize 12-13→16) |
+| 9 | frontend | `2cef61f` | Mobile Ship 1 — Marketplace+Directory filters + DashboardLayout mobile search |
+| 10 | frontend | `696845d` | Mobile Ship 2 — Messaging single-pane mobile chat UX |
+| 11 | frontend | `acd5e5b` | Mobile Ship 3 — Watchlist single-pane mobile UX |
+| 12 | frontend | `d82d5fc` | Mobile Ships 4+5 — Settings grids responsive (Ship 5 EventsRepo silently failed) |
+| 13 | frontend | `31135de` | Mobile Ship 5 hotfix — EventsRepository view-toggle + list-view + mobile fallback grid |
+
+### Cumulative session metrics
+
+- **2 backend commits** (1 schema migration: `startups.owner_user_id INTEGER REFERENCES users(id)` + partial index, 1 backfill)
+- **11 frontend commits** (~700 lines net)
+- **9 of 9 audit HIGH-severity mobile issues closed:** PROF1, PROF2, MP1, DR1, DL1, MSG1, W1, ST1, EV1
+- **7 new PAGE_TOURS** (Watchlist + Messaging + Settings + Innovation Map + 8-Vector + Events + Corp Search) — total tour coverage now 12 of ~30 dashboard surfaces
+- **Zero rollbacks, zero broken deploys**, 1 mid-ship hotfix (Mobile Ship 5)
+- Audit document: `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-27.md`
+
+### Key lessons banked 27 May (also in CLAUDE.md Don'ts)
+
+1. **iOS Safari auto-zoom rule:** any focused input/select/textarea with computed `font-size < 16px` triggers zoom on focus with NO auto-unzoom after blur. Single-constant change to `inputStyle.fontSize` (13→16) fixed ~30 inputs across MyProfile.
+2. **`gridTemplateColumns: '300px 1fr'`** is the most damaging desktop-only pattern for 2-pane layouts. Fix shape: Tailwind `grid-cols-1 md:grid-cols-[300px_1fr]` + conditional `hidden md:flex` on the non-active pane + ChevronLeft back-arrow.
+3. **`repeat(N, 1fr)` and `1fr 1fr 1fr`** are universal mobile anti-patterns. Always use `repeat(auto-fit, minmax(MINPX, 1fr))` instead.
+4. **Apply-script reset-mid-execution via `src = TARGET.read_text()`** is a silent-failure trap. Caught only by post-push `git show --stat`. Always verify file count + line count after every ship.
+5. **Memory drift between sessions is real.** Multiple "deferred" carry-forward items were already shipped during prior sessions. Memory hygiene scan (`git log --oneline | grep <pattern>`) MUST run for every carry-forward item before re-scoping.
+
+---
+
+## Previous session (preserved for history)
+
 **Version:** 5.22
 **Last Updated:** 26 May 2026 LATE EVENING (parked) — **10-ship marathon + 1 hotfix + M1 Messaging deep-link. 19 commits across both repos. ~1,350 lines net. Zero rollbacks, zero broken deploys. Session PARKED with Messaging M2+M3 client-priority carry-forward.** Backend HEAD `a3aa055` (Restore Drill backend). Frontend HEAD `9ca7719` (M1 Messaging deep-link receiver). DOCUMENTATION.md v5.22.
 
-**🚨 NEXT SESSION FIRST ACTION (P0 client priority):** Messaging M2+M3 — Challenge + Watchlist Message buttons. M1 (receiver) shipped commit `9ca7719`. M2+M3 paused pending Watchlist data-shape backend probe. Full spec in `/Users/rajeevbanduni/CoPilot/NEXT_SESSION_TODOS.md` section "#1 — Messaging M2+M3 (P0 client priority, mid-ship resume)". ~80 lines, 30-60 min, 1-2 commits.
+**🚨 NEXT SESSION FIRST ACTION (P0 client priority):** ✅ DONE 27 May 2026 — see top section above. M2 shipped `8cf2a95`, M3 shipped `545b015`, M backend `06580b3`, M backfill `51d7e04`.
 
 **Late-evening additions (after v5.21 bump):**
 - `a3aa055` backend — Restore Drill GitHub Actions API endpoint (getDrillHistory)
