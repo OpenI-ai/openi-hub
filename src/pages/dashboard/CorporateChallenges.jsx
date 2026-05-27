@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 // Phase 100: Link + per-persona labels + AuthContext
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getStatusLabel, getActionLabel } from '../../config/applicationStatusLabels';
 // T32-99d: meetingAPI for invitee typeahead
-import { corporateAPI, meetingAPI } from '../../services/api';
+import { corporateAPI, meetingAPI, messageAPI } from '../../services/api';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
@@ -12,6 +12,7 @@ import {
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
   MapPin, FileText, HelpCircle, Trash2, ChevronDown, ChevronUp,
   X, Download, Sparkles, Brain, BarChart3, Zap, Send, UserPlus,
+  MessageCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -148,6 +149,7 @@ export default function CorporateChallenges() {
   const inviteSeqRef = useRef(0);
   // Phase 100: persona for label mapping + investor financial fields gate
   const { user } = useAuth();
+  const navigate = useNavigate(); // M2 (27 May 2026) — for Message button conversation deep-link
   const persona = user?.role || 'corporate';
 
   useEffect(() => { load(); loadTaxonomy(); }, []);
@@ -677,6 +679,28 @@ const startEdit = () => {
                           </Link>
                         ) : (
                           <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{app.startup_name || app.applicant_name}</span>
+                        )}
+                        {/* M2 (27 May 2026) — Message button opens a direct conversation with the applicant */}
+                        {app.applicant_id && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const conv = await messageAPI.createConversation({ type: 'direct', member_ids: [app.applicant_id] });
+                                navigate('/dashboard/messaging?conversation=' + conv.id);
+                              } catch (err) {
+                                toast.error(err?.response?.data?.message || err?.message || 'Failed to open conversation');
+                              }
+                            }}
+                            title={`Message ${app.applicant_name || 'applicant'}`}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              padding: '4px 10px', fontSize: 11, fontWeight: 600,
+                              background: '#fff', color: G, border: `1px solid ${G}`,
+                              borderRadius: 14, cursor: 'pointer',
+                            }}
+                          >
+                            <MessageCircle size={12} /> Message
+                          </button>
                         )}
                         {app.is_invited && (
                           <span style={{
