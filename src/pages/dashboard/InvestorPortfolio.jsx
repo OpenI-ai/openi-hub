@@ -98,7 +98,7 @@ export default function InvestorPortfolio() {
       </div>
 
       {/* ── Summary Stats ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12, marginBottom: 24 }}>
         {[
           { label: 'Total Invested', value: `INR ${totalInvested.toLocaleString()}`, icon: DollarSign, iconColor: G },
           { label: 'Active Companies', value: activeCount, icon: TrendingUp, iconColor: '#16a34a' },
@@ -121,7 +121,7 @@ export default function InvestorPortfolio() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Add Portfolio Company</h3>
             <button onClick={() => setShowAdd(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={16} /></button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 12 }}>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Startup Name *</label>
               <input placeholder="e.g. ArmorTech" value={addForm.startup_name} onChange={e => setAddForm(f => ({ ...f, startup_name: e.target.value }))}
@@ -208,7 +208,7 @@ export default function InvestorPortfolio() {
                 </div>
 
                 {/* Metrics grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 8, marginBottom: 12 }}>
                   <div style={{ padding: 8, background: '#f9fafb', borderRadius: 8, textAlign: 'center' }}>
                     <div style={{ fontSize: 9, color: '#888', marginBottom: 2 }}>Invested</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>
@@ -252,7 +252,7 @@ export default function InvestorPortfolio() {
                   </button>
                 ) : (
                   <div style={{ padding: 12, background: '#f9fafb', borderRadius: 10, marginTop: 4 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8, marginBottom: 8 }}>
                       <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Status</label>
                         <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}

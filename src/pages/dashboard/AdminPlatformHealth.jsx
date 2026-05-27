@@ -85,7 +85,7 @@ export default function AdminPlatformHealth() {
       </div>
 
       <Section title="Real Signups" sub="Self-registered users (excludes bulk-imported directory substrate).">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12 }}>
           <Tile icon={Users} label="Total claimed" value={fmt(u.total_claimed)} />
           <Tile icon={UserCheck} label="Active account" value={fmt(u.active_account)} sub="is_active=true" />
           <Tile icon={Activity} label="Active 30d" value={fmt(u.active_30d)} sub="last login" />
@@ -96,7 +96,7 @@ export default function AdminPlatformHealth() {
       </Section>
 
       <Section title="Directory" sub="Full ecosystem including bulk-seeded India startup substrate.">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
           <Tile icon={Database} label="Directory total" value={fmt(u.directory_total)} />
           <Tile icon={UserCheck} label="Claimed profiles" value={fmt(u.directory_claimed)} sub={u.directory_total ? Math.round((u.directory_claimed / u.directory_total) * 100) + '% claim rate' : ''} />
           <Tile icon={Database} label="Imported (seed)" value={fmt(u.directory_imported)} />
@@ -104,7 +104,7 @@ export default function AdminPlatformHealth() {
       </Section>
 
       <Section title="Revenue" sub="Gross (captured) and Net (captured - refunded). FY = 1 Apr to now.">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 12 }}>
           <Tile icon={IndianRupee} label="INR Month-to-date" value={fmtINR(rev.mtd?.inr?.gross || 0)} sub={(rev.mtd?.inr?.payment_count || 0) + ' payments'} />
           <Tile icon={IndianRupee} label="INR Year-to-date" value={fmtINR(rev.ytd?.inr?.gross || 0)} sub={(rev.ytd?.inr?.payment_count || 0) + ' payments'} />
           <Tile icon={DollarSign} label="USD Month-to-date" value={fmtUSD(rev.mtd?.usd?.gross || 0)} sub={(rev.mtd?.usd?.payment_count || 0) + ' payments'} />
@@ -127,7 +127,7 @@ export default function AdminPlatformHealth() {
       </Section>
 
       <Section title="Churn early warning" sub="30-day forward + backward windows (matches Phase 113 reminder cadence).">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 12 }}>
           <Tile icon={AlertCircle} label="Active subs" value={fmt(data.paid_count || 0)} color={G} />
           <Tile icon={AlertCircle} label="Renewing in 30d" value={fmt(churn.renewing_30d || 0)} color={(churn.renewing_30d || 0) > 0 ? '#F59E0B' : '#10B981'} />
           <Tile icon={AlertCircle} label="Expired in last 30d" value={fmt(churn.expired_30d || 0)} color={(churn.expired_30d || 0) > 0 ? '#EF4444' : '#10B981'} />

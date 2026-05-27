@@ -842,7 +842,7 @@ const startEdit = () => {
                         <span><Brain size={12} style={{ verticalAlign: -2 }} /> AI Evaluation</span>
                         <span style={{ fontSize: 16, fontWeight: 800, color: evaluations[app.id].overall_score >= 3.5 ? '#16a34a' : evaluations[app.id].overall_score >= 2.5 ? '#f59e0b' : '#dc2626' }}>{evaluations[app.id].overall_score}/5</span>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 8 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 4, marginBottom: 8 }}>
                         {[
                           { k: 'solution_fit', l: 'Solution Fit' }, { k: 'tech_maturity', l: 'Tech Maturity' },
                           { k: 'scalability', l: 'Scalability' }, { k: 'integration_feasibility', l: 'Integration' },
@@ -1361,7 +1361,7 @@ const startEdit = () => {
                       style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
                   </div>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8 }}>
                   {aiSuggestions.sectors?.length > 0 && (
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Sectors</div>
@@ -1417,7 +1417,7 @@ const startEdit = () => {
             )}
 
             {/* Timeline & logistics */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
               <input placeholder="Budget range" value={form.budget_range} onChange={e => setForm(p => ({ ...p, budget_range: e.target.value }))}
                 style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
               <input placeholder="Timeline" value={form.timeline} onChange={e => setForm(p => ({ ...p, timeline: e.target.value }))}
@@ -1455,7 +1455,7 @@ const startEdit = () => {
             </div>
 
             {/* Taxonomy selectors — searchable dropdowns */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
               <TagDropdown label="Sectors" options={taxonomy.sectors} selected={form.sectors}
                 onChange={val => setForm(p => ({ ...p, sectors: val }))}
                 colorScheme={{ bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' }} />
@@ -1463,7 +1463,7 @@ const startEdit = () => {
                 onChange={val => setForm(p => ({ ...p, technologies: val }))}
                 colorScheme={{ bg: '#fefce8', color: '#ca8a04', border: '#fde68a' }} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
               <TagDropdown label="Use Cases" options={taxonomy.usecases} selected={form.usecases}
                 onChange={val => setForm(p => ({ ...p, usecases: val }))}
                 colorScheme={{ bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' }} />

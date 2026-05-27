@@ -281,7 +281,7 @@ export default function InvestorDeals() {
             </button>
           </div>
           {termsEdit ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8 }}>
               <div>
                 <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Amount</label>
                 <input type="number" placeholder="Amount" value={termsForm.investment_amount} onChange={e => setTermsForm(f => ({ ...f, investment_amount: e.target.value }))}
@@ -321,7 +321,7 @@ export default function InvestorDeals() {
               </div>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12 }}>
               {[
                 { label: 'Amount', val: deal.investment_amount ? `${deal.currency || 'INR'} ${parseFloat(deal.investment_amount).toLocaleString()}` : '--' },
                 { label: 'Equity', val: deal.equity_pct ? `${deal.equity_pct}%` : '--' },
@@ -351,7 +351,7 @@ export default function InvestorDeals() {
 
           {/* Existing evaluations summary */}
           {evaluations.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 12 }}>
               {EVAL_VECTORS.map(v => {
                 const avg = evaluations.length > 0
                   ? (evaluations.reduce((sum, ev) => sum + (parseFloat(ev[v.key]) || 0), 0) / evaluations.length).toFixed(1)
@@ -374,7 +374,7 @@ export default function InvestorDeals() {
           {/* Add evaluation form */}
           {showAddEval && (
             <div style={{ padding: 14, background: '#f9fafb', borderRadius: 10, marginBottom: 8 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 10 }}>
                 {EVAL_VECTORS.map(v => (
                   <div key={v.key} style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 10, color: '#555', marginBottom: 4 }}>{v.label}</div>
@@ -546,7 +546,7 @@ export default function InvestorDeals() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Deal</h3>
             <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={16} /></button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 10 }}>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Startup Name *</label>
               <input placeholder="e.g. ArmorTech" value={createForm.startup_name} onChange={e => setCreateForm(f => ({ ...f, startup_name: e.target.value }))}
