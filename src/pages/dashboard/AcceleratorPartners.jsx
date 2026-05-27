@@ -284,7 +284,7 @@ export default function AcceleratorPartners() {
         <Modal title="Add Corporate Partner" onClose={() => setShowAddPartner(false)}>
           <form onSubmit={handleAddPartner} style={{ display: 'grid', gap: 12 }}>
             <div><label style={lbl}>Partner Name *</label><input required value={partnerForm.partner_name} onChange={e => setPartnerForm({ ...partnerForm, partner_name: e.target.value })} style={inp} /></div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
               <div><label style={lbl}>Type</label>
                 <select value={partnerForm.partnership_type} onChange={e => setPartnerForm({ ...partnerForm, partnership_type: e.target.value })} style={inp}>
                   {PARTNERSHIP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -313,7 +313,7 @@ export default function AcceleratorPartners() {
               </div>
               <div><label style={lbl}>Firm Name</label><input value={investorForm.firm_name} onChange={e => setInvestorForm({ ...investorForm, firm_name: e.target.value })} style={inp} /></div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
               <div>
                 <label style={lbl}>Currency</label>
                 <select value={investorForm.ticket_currency} onChange={e => setInvestorForm({ ...investorForm, ticket_currency: e.target.value })} style={inp}>
@@ -325,7 +325,7 @@ export default function AcceleratorPartners() {
             </div>
             <div><label style={lbl}>Focus Sectors (comma-separated)</label><input value={investorForm.focus_sectors} onChange={e => setInvestorForm({ ...investorForm, focus_sectors: e.target.value })} placeholder="FinTech, SaaS" style={inp} /></div>
             <div><label style={lbl}>Stage Preference (comma-separated)</label><input value={investorForm.stage_preference} onChange={e => setInvestorForm({ ...investorForm, stage_preference: e.target.value })} placeholder="Seed, Series A" style={inp} /></div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
               <div><label style={lbl}>Contact Email</label><input type="email" value={investorForm.contact_email} onChange={e => setInvestorForm({ ...investorForm, contact_email: e.target.value })} style={inp} /></div>
               <div><label style={lbl}>LinkedIn URL</label><input type="url" value={investorForm.linkedin_url} onChange={e => setInvestorForm({ ...investorForm, linkedin_url: e.target.value })} style={inp} /></div>
             </div>
@@ -340,7 +340,7 @@ export default function AcceleratorPartners() {
           <form onSubmit={handleAddDemoDay} style={{ display: 'grid', gap: 12 }}>
             <div><label style={lbl}>Title *</label><input required value={demoDayForm.title} onChange={e => setDemoDayForm({ ...demoDayForm, title: e.target.value })} style={inp} /></div>
             <div><label style={lbl}>Description</label><textarea rows={2} value={demoDayForm.description} onChange={e => setDemoDayForm({ ...demoDayForm, description: e.target.value })} style={{ ...inp, resize: 'vertical' }} /></div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
               <div><label style={lbl}>Event Date/Time *</label><input required type="datetime-local" value={demoDayForm.event_date} onChange={e => setDemoDayForm({ ...demoDayForm, event_date: e.target.value })} style={inp} /></div>
               <div><label style={lbl}>Investors Invited</label><input type="number" value={demoDayForm.total_investors_invited} onChange={e => setDemoDayForm({ ...demoDayForm, total_investors_invited: e.target.value })} style={inp} /></div>
             </div>

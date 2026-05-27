@@ -134,7 +134,7 @@ export default function StudentMentorships() {
             <Inp label="Mentor Name" placeholder="Prof. Name or leave blank if platform mentor" value={form.mentor_name || ''} onChange={v => setForm(f => ({ ...f, mentor_name: v }))}/>
             <Inp label="Message" multiline placeholder="Describe what you need help with..." value={form.message || ''} onChange={v => setForm(f => ({ ...f, message: v }))}/>
             {editId && <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Sel label="Status" value={form.status || 'seeking'} options={['seeking','requested','active','completed','declined']} onChange={v => setForm(f => ({ ...f, status: v }))}/>
                 <Inp label="Sessions" type="number" value={form.meeting_count || 0} onChange={v => setForm(f => ({ ...f, meeting_count: parseInt(v) || 0 }))}/>
               </div>

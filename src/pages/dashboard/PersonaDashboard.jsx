@@ -321,7 +321,7 @@ export default function PersonaDashboard() {
       </div>
 
       {/* Two column: Quick Actions + Upcoming Meetings */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
         {/* Quick Actions */}
         <div id="tour-quick-actions">
           <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Quick Actions</h2>

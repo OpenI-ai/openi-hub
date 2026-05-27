@@ -265,7 +265,7 @@ export default function DashboardHome() {
           {/* Mini stats row */}
           <div style={{
             borderTop:"1px solid rgba(213,170,91,0.2)",
-            display:"grid", gridTemplateColumns:"repeat(4, 1fr)",
+            display:"grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
             background:"rgba(255,255,255,0.7)",
           }}>
             {[

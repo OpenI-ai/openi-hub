@@ -170,12 +170,12 @@ export default function StudentPortfolio() {
             {modal === 'project' && <>
               <Inp label="Title *" value={form.title || ''} onChange={v => setForm(f => ({ ...f, title: v }))}/>
               <Inp label="Description" value={form.description || ''} onChange={v => setForm(f => ({ ...f, description: v }))} multiline/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Sel label="Type" value={form.project_type || 'research'} options={PROJECT_TYPES} onChange={v => setForm(f => ({ ...f, project_type: v }))}/>
                 <Sel label="Status" value={form.status || 'in_progress'} options={PROJECT_STATUSES} onChange={v => setForm(f => ({ ...f, status: v }))}/>
               </div>
               <Inp label="Tech Stack" placeholder="Python, React, TensorFlow" value={form.tech_stack || ''} onChange={v => setForm(f => ({ ...f, tech_stack: v }))}/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Inp label="Start Date" type="date" value={form.start_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, start_date: v }))}/>
                 <Inp label="End Date" type="date" value={form.end_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, end_date: v }))}/>
               </div>
@@ -195,7 +195,7 @@ export default function StudentPortfolio() {
               <Sel label="Type" value={form.cert_type || 'certification'} options={CERT_TYPES} onChange={v => setForm(f => ({ ...f, cert_type: v }))}/>
               <Inp label="Credential URL" value={form.credential_url || ''} onChange={v => setForm(f => ({ ...f, credential_url: v }))}/>
               <Inp label="Skills Gained" placeholder="Python, AWS, TensorFlow" value={form.skills_gained || ''} onChange={v => setForm(f => ({ ...f, skills_gained: v }))}/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Inp label="Completion Date" type="date" value={form.completion_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, completion_date: v }))}/>
                 <Inp label="Expiry Date" type="date" value={form.expiry_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, expiry_date: v }))}/>
               </div>

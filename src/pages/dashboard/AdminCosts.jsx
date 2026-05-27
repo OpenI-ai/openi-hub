@@ -265,7 +265,7 @@ export default function AdminCosts() {
                 Could not load workflow history: {drill.error}
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
               {Object.entries(drill.workflows || {}).map(([wfName, wf]) => {
                 const isDrill = wfName.includes('restore-drill');
                 const successPct = wf.success_rate_30d;

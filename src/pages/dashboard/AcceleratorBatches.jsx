@@ -215,7 +215,7 @@ export default function AcceleratorBatches() {
                   <label style={lbl}>Focus Sectors (comma-separated)</label>
                   <input value={form.focus_sectors} onChange={e => setForm({ ...form, focus_sectors: e.target.value })} placeholder="FinTech, InsurTech" style={inp} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Duration (weeks)</label>
                     <input type="number" value={form.duration_weeks} onChange={e => setForm({ ...form, duration_weeks: e.target.value })} style={inp} />
@@ -235,7 +235,7 @@ export default function AcceleratorBatches() {
                     <input type="number" value={form.investment_amount} onChange={e => setForm({ ...form, investment_amount: e.target.value })} style={inp} />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Application Deadline</label>
                     <input type="date" value={form.application_deadline} onChange={e => setForm({ ...form, application_deadline: e.target.value })} style={inp} />

@@ -452,7 +452,7 @@ export default function ProgramServicePartners() {
                   placeholder="Which startups qualify..." style={{ ...inp, resize: 'vertical' }} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
                 <div>
                   <label style={lbl}>Contact Person</label>
                   <input value={form.contact_person} onChange={e => setForm({ ...form, contact_person: e.target.value })} style={inp} />

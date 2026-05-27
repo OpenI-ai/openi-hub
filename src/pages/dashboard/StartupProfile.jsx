@@ -1757,7 +1757,7 @@ export default function StartupProfile() {
                   Create a link anyone can use to view your profile (no OpenI account needed). Choose what to share — full, public-safe (hides financials), or pitch-only (overview only).
                 </p>
                 {/* Redaction mode picker */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 14 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 6, marginBottom: 14 }}>
                   {[
                     { id: 'full', label: 'Full', desc: 'Everything' },
                     { id: 'public_safe', label: 'Public-safe', desc: 'Hide financials' },

@@ -173,7 +173,7 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Row: Conversion Funnel + Feature Adoption */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
         {/* Funnel */}
         <div style={card}>
           <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Conversion Funnel</h3>
@@ -586,7 +586,7 @@ function ClickImpactPanel({ data }) {
       </div>
 
       {/* Boosted vs Unboosted CTR comparison */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8, marginBottom: 16 }}>
         <div style={{ background: '#fff7e6', border: '1px solid #ffe7b0', borderRadius: 8, padding: '10px 12px' }}>
           <div style={{ fontSize: 10, color: '#a06600', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Boosted impressions</div>
           <div style={{ fontSize: 14, fontWeight: 700, color: DARK, marginTop: 4 }}>

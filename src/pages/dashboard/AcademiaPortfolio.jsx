@@ -226,7 +226,7 @@ export default function AcademiaPortfolio() {
             {modal === 'project' && <>
               <Inp label="Title *" value={form.title || ''} onChange={v => setForm(f => ({ ...f, title: v }))}/>
               <Inp label="Description" value={form.description || ''} onChange={v => setForm(f => ({ ...f, description: v }))} multiline/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Sel label="Type" value={form.project_type || 'fundamental'} options={PROJECT_TYPES} onChange={v => setForm(f => ({ ...f, project_type: v }))}/>
                 <Sel label="Status" value={form.status || 'ongoing'} options={PROJECT_STATUSES} onChange={v => setForm(f => ({ ...f, status: v }))}/>
               </div>
@@ -236,7 +236,7 @@ export default function AcademiaPortfolio() {
                 <Sel label="Currency" value={form.funding_currency || 'INR'} options={['INR','USD']} onChange={v => setForm(f => ({ ...f, funding_currency: v }))}/>
               </div>
               <Inp label="Funding Source" placeholder="DST-SERB, ICMR, Industry" value={form.funding_source || ''} onChange={v => setForm(f => ({ ...f, funding_source: v }))}/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Inp label="Start Date" type="date" value={form.start_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, start_date: v }))}/>
                 <Inp label="End Date" type="date" value={form.end_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, end_date: v }))}/>
               </div>
@@ -259,7 +259,7 @@ export default function AcademiaPortfolio() {
               <Inp label="Paper URL" value={form.paper_url || ''} onChange={v => setForm(f => ({ ...f, paper_url: v }))}/>
               <Inp label="Abstract" value={form.abstract || ''} onChange={v => setForm(f => ({ ...f, abstract: v }))} multiline/>
               <Inp label="Keywords" placeholder="GNN, Drug Discovery, Molecular" value={form.keywords || ''} onChange={v => setForm(f => ({ ...f, keywords: v }))}/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Inp label="Publication Date" type="date" value={form.publication_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, publication_date: v }))}/>
                 <Inp label="Citations" type="number" value={form.citations_count || 0} onChange={v => setForm(f => ({ ...f, citations_count: parseInt(v) || 0 }))}/>
               </div>
@@ -272,7 +272,7 @@ export default function AcademiaPortfolio() {
             {modal === 'grant' && <>
               <Inp label="Grant Title *" value={form.title || ''} onChange={v => setForm(f => ({ ...f, title: v }))}/>
               <Inp label="Granting Body" placeholder="DST, SERB, ICMR, TCS" value={form.granting_body || ''} onChange={v => setForm(f => ({ ...f, granting_body: v }))}/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Sel label="Type" value={form.grant_type || 'government'} options={GRANT_TYPES} onChange={v => setForm(f => ({ ...f, grant_type: v }))}/>
                 <Sel label="Status" value={form.status || 'applied'} options={GRANT_STATUSES} onChange={v => setForm(f => ({ ...f, status: v }))}/>
               </div>
@@ -281,7 +281,7 @@ export default function AcademiaPortfolio() {
                 <Sel label="Currency" value={form.currency || 'INR'} options={['INR','USD']} onChange={v => setForm(f => ({ ...f, currency: v }))}/>
               </div>
               <Inp label="Project Title" value={form.project_title || ''} onChange={v => setForm(f => ({ ...f, project_title: v }))}/>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Inp label="Start Date" type="date" value={form.start_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, start_date: v }))}/>
                 <Inp label="End Date" type="date" value={form.end_date?.substring(0,10) || ''} onChange={v => setForm(f => ({ ...f, end_date: v }))}/>
               </div>

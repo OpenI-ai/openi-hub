@@ -322,7 +322,7 @@ export default function IncubatorProgramDetail() {
               <label style={lbl}>Startup Name *</label>
               <input required value={startupForm.startup_name} onChange={e => setStartupForm({ ...startupForm, startup_name: e.target.value })} style={inp} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
               <div>
                 <label style={lbl}>Initial Status</label>
                 <select value={startupForm.application_status} onChange={e => setStartupForm({ ...startupForm, application_status: e.target.value })} style={inp}>

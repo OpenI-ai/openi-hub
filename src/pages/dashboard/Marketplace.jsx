@@ -489,7 +489,7 @@ export default function Marketplace() {
                   </select>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginBottom: 10 }}>
                 <input placeholder="Filter by location..." value={filters.location} onChange={e => setFilters(p => ({ ...p, location: e.target.value }))}
                   style={{ padding: '8px 12px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb', outline: 'none' }} />
                 <input placeholder="Filter by company..." value={filters.company} onChange={e => setFilters(p => ({ ...p, company: e.target.value }))}

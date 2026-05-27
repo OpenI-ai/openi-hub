@@ -326,7 +326,7 @@ export default function ProjectManagement() {
                 />
               </Field>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
                 <Field label="Status">
                   <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
                     <option value="active">Active</option>
@@ -345,7 +345,7 @@ export default function ProjectManagement() {
                 </Field>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
                 <Field label="Start Date">
                   <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} style={inputStyle} />
                 </Field>
@@ -750,7 +750,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
 
       {/* Financials */}
       {tab === 'financials' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
           <div style={{ ...card, padding: 22 }}>
             <h3 style={{ margin: '0 0 16px', color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>Budget Overview</h3>
             {[
@@ -888,7 +888,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
                 />
               </Field>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
                 <Field label="Status">
                   <select value={taskForm.status} onChange={e => setTaskForm({ ...taskForm, status: e.target.value })} style={inputStyle}>
                     <option value="todo">Todo</option>

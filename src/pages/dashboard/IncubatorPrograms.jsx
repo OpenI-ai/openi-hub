@@ -216,7 +216,7 @@ export default function IncubatorPrograms() {
                   <label style={lbl}>Focus Sectors (comma-separated)</label>
                   <input value={form.focus_sectors} onChange={e => setForm({ ...form, focus_sectors: e.target.value })} placeholder="DeepTech, AI, Robotics" style={inp} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Program Type</label>
                     <select value={form.program_type} onChange={e => setForm({ ...form, program_type: e.target.value })} style={inp}>
@@ -228,7 +228,7 @@ export default function IncubatorPrograms() {
                     <input type="number" value={form.duration_months} onChange={e => setForm({ ...form, duration_months: e.target.value })} style={inp} />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Equity (%)</label>
                     <input type="number" step="0.1" value={form.equity_taken} onChange={e => setForm({ ...form, equity_taken: e.target.value })} style={inp} />
@@ -248,7 +248,7 @@ export default function IncubatorPrograms() {
                     <input type="number" value={form.funding_offered_max} onChange={e => setForm({ ...form, funding_offered_max: e.target.value })} style={inp} />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Application Deadline</label>
                     <input type="date" value={form.application_deadline} onChange={e => setForm({ ...form, application_deadline: e.target.value })} style={inp} />
@@ -262,7 +262,7 @@ export default function IncubatorPrograms() {
                     <input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} style={inp} />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Total Seats</label>
                     <input type="number" value={form.total_seats} onChange={e => setForm({ ...form, total_seats: e.target.value })} style={inp} />

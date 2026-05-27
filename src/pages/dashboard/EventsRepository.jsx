@@ -359,7 +359,7 @@ export default function EventsRepository() {
                 <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} maxLength={5000} rows={3} placeholder="What's the event about?" style={{ ...fieldInputStyle, resize: 'vertical' }} />
               </Field>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                 <Field label="Start Date">
                   <input type="datetime-local" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} style={fieldInputStyle} />
                 </Field>
