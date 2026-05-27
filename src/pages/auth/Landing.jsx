@@ -559,7 +559,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            {hero?.badge_text || 'AI-NATIVE INNOVATION PLATFORM'}
+            {hero?.badge_text || 'BUILT FOR EVERY INNOVATION PLAYER'}
           </div>
 
           <h1
@@ -571,18 +571,16 @@ export default function Landing() {
               fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
             }}
           >
-            Partner. Source. <span style={{ color: GOLD }}>Invest.</span>
+            Find your next partner, deal, or challenge — <span style={{ color: GOLD }}>in one open ecosystem.</span>
           </h1>
 
           <p
             className="max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            The AI-native open innovation platform connecting <strong style={{ color: DARK }}>11 ecosystem personas</strong> —
-            startups, corporates, investors, incubators, accelerators, students, academia, and more.
-            <br/>
-            <strong style={{ color: DARK }}>Investor and mentor? Corporate and incubator?</strong> Hold multiple roles on a single account
-            and switch between them in one click. AI evaluates startups, narrates recommendations, and advises on challenges with one click.
+            Post a challenge. Discover startups. Score them with the 8-Vector framework. Message anyone directly. Track a portfolio, share a watchlist, run a cohort.
+            <br/><br/>
+            <strong style={{ color: DARK }}>One platform for all 11 ecosystem personas</strong> — startups, corporates, investors, incubators, accelerators, mentors, labs, government, students, academia, and service providers. Hold multiple roles on one account, switch with a click.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
@@ -1021,12 +1019,12 @@ export default function Landing() {
               priceNote="/forever"
               features={[
                 'Full profile with all sections',
-                'Apply to 5 challenges / month',
-                'Apply to 3 investor deal requests / month',
-                '5 conversations, 3 meetings / month',
-                '3 file uploads, 10 connection requests / month',
-                'Standard search ranking',
-                'Basic dashboard & profile builder',
+                'Direct messaging with any active OpenI user',
+                '8-Vector self-assessment + share via PDF / link',
+                'Apply to 5 challenges + 3 deal requests / month',
+                'Innovation Map + Directory + Find Mentors',
+                'Notifications bell + Watchlist (saved searches)',
+                '5 meetings, 3 file uploads / month',
               ]}
               cta="Start Free"
               ctaLink="/register"
@@ -1038,14 +1036,13 @@ export default function Landing() {
               featured
               features={[
                 'Everything in Free, plus:',
-                'Unlimited applications & connections',
+                'Unlimited applications, connections, and messaging',
                 'Featured badge + priority search ranking',
                 'Who viewed my profile (last 30 days)',
+                'Share profile / IPR / DeepTech assessment via magic-link',
                 'Watchlist alerts — know when you are shortlisted',
-                'Application insights (seen / shortlisted / rejected)',
-                'AI profile score recommendations',
+                'AI profile coach + application insights',
                 '25 meetings + 50 file uploads / month',
-                'Unlimited messaging',
               ]}
               cta="Upgrade to Growth"
               ctaLink="/register"
@@ -1058,13 +1055,13 @@ export default function Landing() {
               price="₹0"
               priceNote="/forever"
               features={[
-                'Full directory + keyword search (FTS)',
-                'Find startups, students, and academia',
-                '1 active challenge / month',
+                'Direct messaging with startups + any active OpenI user',
+                '8-Vector self-evaluation framework',
+                'Innovation Map + Directory + keyword search',
+                '1 active challenge / month + review queue',
+                'Watchlist + Notifications bell',
                 'Deal pipeline (3 deals max)',
-                '5 application reviews / month',
-                '10 messages, 5 meetings / month',
-                '5 file uploads / month',
+                '5 meetings, 5 file uploads / month',
               ]}
               cta="Start Free"
               ctaLink="/register"
@@ -1076,14 +1073,15 @@ export default function Landing() {
               featured
               features={[
                 'Everything in Free, plus:',
-                '200 AI tokens/month for AI Intelligence',
-                'AI Startup Evaluator (8-vector scoring)',
-                'AI Smart Recommendations + Challenge Advisor',
+                'AI Startup Evaluator (auto-fill 8-Vector + red flags)',
                 'AI Ask — 50 natural-language searches/day',
+                'AI Smart Recommendations + Challenge Advisor',
                 'Semantic search (pgvector matching)',
-                '10 active challenges, full deal pipeline',
-                '50 app reviews, unlimited messaging & meetings',
-                '100 file uploads / month',
+                'Invite-only challenges + invite-by-email (signup magic-link)',
+                'Watchlist collaborators (editor / viewer roles)',
+                'Share watchlist / startup profile / IPR via magic-link',
+                'Add reviewers to your challenge review queue',
+                '10 challenges + 50 app reviews + 100 uploads / month',
               ]}
               cta="Upgrade to Pro"
               ctaLink="/register"
@@ -1094,11 +1092,11 @@ export default function Landing() {
               priceNote="/month"
               features={[
                 'Everything in Pro, plus:',
-                'Unlimited AI tokens + AI Ask searches',
-                'Unlimited challenges, reviews, uploads',
-                'Multi-seat organization admin',
+                'Unlimited AI tokens + AI Ask + challenges + reviews',
+                'Multi-seat organization admin (org_members)',
+                'USD billing for export customers (Razorpay USD)',
+                'Annual cycle with ~17% savings',
                 'Service Partner network access',
-                'Multi-currency (INR + USD)',
                 'SSO, audit logs, SLA guarantees',
                 'API access + data export',
                 'Dedicated account manager',
