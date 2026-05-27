@@ -5,7 +5,7 @@ import { watchlistAPI, startupAPI, meetingAPI, messageAPI } from '../../services
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
-  UserPlus, Mail, ChevronDown, MessageCircle,
+  UserPlus, Mail, ChevronDown, MessageCircle, ChevronLeft,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -467,9 +467,10 @@ export default function StartupWatchlist() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 16 }}>
-        {/* Lists sidebar */}
-        <div style={{ ...card, overflow: 'hidden', alignSelf: 'start' }}>
+      {/* Mobile Ship 3 (27 May 2026): single-pane on mobile, side-by-side on md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr]" style={{ gap: 16 }}>
+        {/* Lists sidebar — Mobile Ship 3: hidden on mobile when a list is selected */}
+        <div className={selected ? 'hidden md:block' : 'block'} style={{ ...card, overflow: 'hidden', alignSelf: 'start' }}>
           <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #f5f5f5' }}>
             <div style={{ position: 'relative' }}>
               <Search size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
@@ -526,9 +527,23 @@ export default function StartupWatchlist() {
           )}
         </div>
 
-        {/* Detail panel */}
+        {/* Detail panel — Mobile Ship 3: always visible when active on mobile */}
         {selectedList ? (
           <div>
+            {/* Mobile Ship 3: back-arrow to return to lists on mobile */}
+            <button
+              onClick={() => setSelected(null)}
+              className="md:hidden"
+              aria-label="Back to lists"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '6px 10px', marginBottom: 10,
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: '#666', fontSize: 13, fontWeight: 600, borderRadius: 6,
+              }}
+            >
+              <ChevronLeft size={16} /> Back to lists
+            </button>
             {/* List header */}
             <div style={{ ...card, padding: 22, marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
