@@ -703,7 +703,7 @@ export default function Settings() {
             ) : (
               <>
                 {/* Current Plan */}
-                <div style={{ ...card, padding: 24, marginBottom: 16 }}>
+                <div id="tour-page-settings-current-plan" style={{ ...card, padding: 24, marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <div>
                       <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Current Plan</div>
@@ -937,6 +937,7 @@ export default function Settings() {
                 </div>
 
                 {/* Plan Comparison (anchor for ?focus=plans deep links) */}
+                <span id="tour-page-settings-plans-grid" style={{ position: 'absolute' }} />
                 <div ref={plansAnchorRef} id="plans" style={{ ...card, padding: 24, scrollMarginTop: 80 }}>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Plans</h3>
                   {/* Phase 70: rank-aware plan comparison.
@@ -948,7 +949,7 @@ export default function Settings() {
                   {(() => null)()}
 
                   {/* A.5: Monthly/Annual toggle pill */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                  <div id="tour-page-settings-cycle" style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
                     <div style={{ display: 'inline-flex', background: '#f3f4f6', borderRadius: 999, padding: 4, position: 'relative' }}>
                       <button onClick={() => setBillingCycleSelected('monthly')}
                         style={{

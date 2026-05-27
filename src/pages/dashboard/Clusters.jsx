@@ -58,7 +58,7 @@ export default function Clusters() {
             <Layers className="w-6 h-6 text-[#D4A843]" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-[#0D2137]">Innovation Map</h1>
+            <h1 id="tour-page-clusters-header" className="text-2xl font-semibold text-[#0D2137]">Innovation Map</h1>
             <p className="text-sm text-gray-600">
               Browse {data.total ? `the ${data.total.toLocaleString()}` : 'the'} innovation themes extracted from the OpenI startup directory
             </p>
@@ -111,7 +111,7 @@ export default function Clusters() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div id="tour-page-clusters-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {data.clusters.map((c) => (
           <button
             key={c.cluster_id}

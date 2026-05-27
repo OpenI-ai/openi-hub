@@ -61,12 +61,13 @@ export default function CorporateStartupSearch() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Discover Startups</h2>
+          <h2 id="tour-page-corp-search-header" style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Discover Startups</h2>
           <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0 0' }}>{total.toLocaleString()} startups found</p>
         </div>
       </div>
 
       {/* Top horizontal filter bar */}
+      <span id="tour-page-corp-search-filters" style={{ position: 'absolute' }} />
       <TaxonomyFilterPanel
         taxonomy={taxonomy}
         filters={filters}
@@ -87,7 +88,7 @@ export default function CorporateStartupSearch() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
+            <div id="tour-page-corp-search-results" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
               {startups.map(s => (
                 <div key={s.id} style={{ ...card, padding: 12, cursor: 'pointer' }}
                   onClick={() => navigate(`/dashboard/startup-profile/${s.id}`)}

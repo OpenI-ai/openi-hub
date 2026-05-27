@@ -254,7 +254,7 @@ export default function EventsRepository() {
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Hackathons, workshops, demo days and conferences for the OpenI startup ecosystem</p>
         </div>
         {canCreate && (
-          <button onClick={() => setShowCreate(true)}
+          <button id="tour-page-events-create" onClick={() => setShowCreate(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}
             onMouseEnter={e => e.currentTarget.style.background = GH}
             onMouseLeave={e => e.currentTarget.style.background = G}
@@ -283,7 +283,7 @@ export default function EventsRepository() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div id="tour-page-events-filters" style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
           <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
           <input placeholder="Search events, tags…" value={search} onChange={e => setSearch(e.target.value)}

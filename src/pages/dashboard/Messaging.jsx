@@ -285,7 +285,7 @@ export default function Messaging() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>
+          <h1 id="tour-page-messaging-header" style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>
             Messaging
             {totalUnread > 0 && (
               <span style={{ marginLeft: 10, fontSize: 13, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#dc2626', color: '#fff' }}>{totalUnread}</span>
@@ -294,6 +294,7 @@ export default function Messaging() {
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Internal comms between OpenI, startups & evaluators</p>
         </div>
         <button
+          id="tour-page-messaging-new"
           onClick={() => setShowNew(true)}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
@@ -483,6 +484,7 @@ export default function Messaging() {
                 />
               </div>
               <button
+                id="tour-page-messaging-composer"
                 onClick={sendMessage}
                 disabled={!input.trim()}
                 style={{

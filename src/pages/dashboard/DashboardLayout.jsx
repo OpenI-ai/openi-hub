@@ -551,6 +551,7 @@ export default function DashboardLayout() {
             {/* Notification bell */}
             <div style={{ position:"relative" }}>
               <button
+                id="tour-topbar-bell"
                 onClick={() => setNotifOpen(o => !o)}
                 style={{
                   position:"relative", padding:8, color: C.textMuted,

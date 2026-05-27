@@ -434,10 +434,12 @@ export default function StartupWatchlist() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
+          <span id="tour-page-watchlist-header" style={{ position: 'absolute' }} />
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Startup Watchlists</h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Curate and share startup selection lists by program, technology or interest</p>
         </div>
         <button
+          id="tour-page-watchlist-create"
           onClick={() => setShowCreate(true)}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}
           onMouseEnter={e => e.currentTarget.style.background = GH}
@@ -541,12 +543,14 @@ export default function StartupWatchlist() {
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
+                    id="tour-page-watchlist-add"
                     onClick={() => setShowAdd(true)}
                     style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     <Plus size={12} /> Add Startup
                   </button>
                   {/* Ship #4 (22 May 2026) — wire Export PDF + Share */}
+                  <span id="tour-page-watchlist-share" style={{ position: 'absolute' }} />
                   <button
                     onClick={async () => {
                       try {

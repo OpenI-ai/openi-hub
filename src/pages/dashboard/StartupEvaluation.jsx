@@ -522,7 +522,7 @@ export default function StartupEvaluation() {
         </div>
 
         <div style={{ flex:1, display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", justifyContent:"flex-end" }}>
-          <div style={{ position:"relative" }}>
+          <div id="tour-page-8vector-name" style={{ position:"relative" }}>
             <Building2 style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#bbb", width:14, height:14 }} />
             <input type="text" value={startupName} onChange={e => setStartupName(e.target.value)}
               placeholder="Startup name"
@@ -639,6 +639,7 @@ export default function StartupEvaluation() {
             {/* Phase 111 Ship 2c: Save + Share buttons (replaces window.print Export Report) */}
             <div style={{ display:"flex", gap:8, alignItems:"center" }}>
               <button
+                id="tour-page-8vector-save"
                 onClick={saveAssessment}
                 disabled={saving || !startupName.trim()}
                 style={{
