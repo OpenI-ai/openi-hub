@@ -310,8 +310,8 @@ export default function EventsRepository() {
             }}>{s}</button>
           ))}
         </div>
-        {/* View toggle */}
-        <div style={{ display: 'flex', background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 3, gap: 2 }}>
+        {/* View toggle — Mobile Ship 5 (27 May 2026): hidden on mobile (always grid) */}
+        <div className="hidden md:flex" style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 3, gap: 2 }}>
           {[{ v: 'grid', label: '⊞' }, { v: 'list', label: '☰' }].map(({ v, label }) => (
             <button key={v} onClick={() => setView(v)} style={{ padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: view === v ? G : 'transparent', color: view === v ? '#fff' : '#888', fontSize: 13, fontWeight: 700 }}>{label}</button>
           ))}
@@ -396,9 +396,21 @@ export default function EventsRepository() {
         </div>
       )}
 
-      {/* List view */}
+      {/* Mobile Ship 5: when view === 'list' on mobile, fall back to grid (list view is desktop-only) */}
       {view === 'list' && (
-        <div style={{ ...card, overflow: 'hidden' }}>
+        <div className="md:hidden" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          {filtered.map(ev => <EventCard key={ev.id} ev={ev} currentUserId={userId} onClick={() => setSelected(ev)} />)}
+          {filtered.length === 0 && (
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#aaa', fontSize: 13 }}>
+              No events found
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* List view — Mobile Ship 5: hidden on mobile, only renders on md+ */}
+      {view === 'list' && (
+        <div className="hidden md:block" style={{ ...card, overflow: 'hidden' }}>
           <div style={{ padding: '12px 22px', borderBottom: '1px solid #eee', background: '#fafafa', display: 'grid', gridTemplateColumns: '1fr 120px 140px 90px 80px', gap: 12 }}>
             {['Event', 'Type', 'Date', 'Status', 'Regs'].map(h => <span key={h} style={{ fontSize: 11, color: '#888', fontWeight: 600 }}>{h}</span>)}
           </div>
