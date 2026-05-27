@@ -571,7 +571,7 @@ export default function Landing() {
               fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
             }}
           >
-            Find your next partner, deal, or challenge — <span style={{ color: GOLD }}>in one open ecosystem.</span>
+            Find your next innovation partner, deal, or challenge — <span style={{ color: GOLD }}>in one open ecosystem.</span>
           </h1>
 
           <p
