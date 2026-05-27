@@ -488,7 +488,7 @@ export default function Settings() {
               <input value={name} onChange={e => setName(e.target.value)} style={{
                 width: '100%', boxSizing: 'border-box', padding: '10px 14px',
                 background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                fontSize: 14, outline: 'none', color: '#1a1a1a', transition: 'border-color 0.15s',
+                fontSize: 16, outline: 'none', color: '#1a1a1a', transition: 'border-color 0.15s',
               }}
                 onFocus={e => e.target.style.borderColor = G}
                 onBlur={e => e.target.style.borderColor = '#e0e0e0'}
@@ -517,7 +517,7 @@ export default function Settings() {
               <select value={preferredCurrency} onChange={e => setPreferredCurrency(e.target.value)} style={{
                 width: '100%', boxSizing: 'border-box', padding: '10px 14px',
                 background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                fontSize: 14, outline: 'none', color: '#1a1a1a', cursor: 'pointer',
+                fontSize: 16, outline: 'none', color: '#1a1a1a', cursor: 'pointer',
               }}>
                 <option value="INR">₹ Indian Rupee (INR)</option>
                 <option value="USD">$ US Dollar (USD)</option>
@@ -553,7 +553,7 @@ export default function Settings() {
                   style={{
                     width: '100%', boxSizing: 'border-box', padding: '10px 40px 10px 14px',
                     background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                    fontSize: 14, outline: 'none', color: '#1a1a1a',
+                    fontSize: 16, outline: 'none', color: '#1a1a1a',
                   }}
                 />
                 <button onClick={() => setShowCurrent(!showCurrent)} style={{
@@ -572,7 +572,7 @@ export default function Settings() {
                   style={{
                     width: '100%', boxSizing: 'border-box', padding: '10px 40px 10px 14px',
                     background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                    fontSize: 14, outline: 'none', color: '#1a1a1a',
+                    fontSize: 16, outline: 'none', color: '#1a1a1a',
                   }}
                 />
                 <button onClick={() => setShowNew(!showNew)} style={{
@@ -590,7 +590,7 @@ export default function Settings() {
                 style={{
                   width: '100%', boxSizing: 'border-box', padding: '10px 14px',
                   background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                  fontSize: 14, outline: 'none', color: '#1a1a1a',
+                  fontSize: 16, outline: 'none', color: '#1a1a1a',
                 }}
               />
               {confirmPw && newPw !== confirmPw && (
@@ -645,8 +645,8 @@ export default function Settings() {
             {!mfaStatus?.bypass && mfaStatus?.enabled && showMfaDisable && (
               <form onSubmit={handleMfaDisable} style={{ padding: 16, border: '1px solid #fecaca', borderRadius: 10, background: '#fef2f2' }}>
                 <div style={{ fontSize: 13, color: '#b91c1c', marginBottom: 12, fontWeight: 600 }}>Confirm disable — requires password + current MFA code</div>
-                <input type="password" placeholder="Current password" value={mfaDisablePw} onChange={e => setMfaDisablePw(e.target.value)} style={{ width: '100%', padding: 10, border: '1px solid #ddd', borderRadius: 8, marginBottom: 8, fontSize: 13 }} />
-                <input type="text" placeholder="6-digit code" value={mfaCode} onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))} maxLength={6} style={{ width: '100%', padding: 10, border: '1px solid #ddd', borderRadius: 8, marginBottom: 12, fontSize: 13, letterSpacing: 4, textAlign: 'center' }} />
+                <input type="password" placeholder="Current password" value={mfaDisablePw} onChange={e => setMfaDisablePw(e.target.value)} style={{ width: '100%', padding: 10, border: '1px solid #ddd', borderRadius: 8, marginBottom: 8, fontSize: 16 }} />
+                <input type="text" placeholder="6-digit code" value={mfaCode} onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))} maxLength={6} style={{ width: '100%', padding: 10, border: '1px solid #ddd', borderRadius: 8, marginBottom: 12, fontSize: 16, letterSpacing: 4, textAlign: 'center' }} />
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button type="submit" disabled={mfaBusy} style={{ flex: 1, padding: 10, background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: mfaBusy ? 'wait' : 'pointer' }}>
                     {mfaBusy ? 'Disabling…' : 'Disable MFA'}

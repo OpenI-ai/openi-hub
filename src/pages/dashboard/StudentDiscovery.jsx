@@ -51,16 +51,16 @@ export default function StudentDiscovery() {
           <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
           <input value={filters.search} onChange={e => { setFilters(f => ({ ...f, search: e.target.value })); setPage(1); }}
             placeholder="Search students, institutions, projects..."
-            style={{ width: '100%', padding: '7px 10px 7px 30px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+            style={{ width: '100%', padding: '7px 10px 7px 30px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         </div>
         <input value={filters.city} onChange={e => { setFilters(f => ({ ...f, city: e.target.value })); setPage(1); }}
-          placeholder="City" style={{ width: 100, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="City" style={{ width: 100, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         <input value={filters.state} onChange={e => { setFilters(f => ({ ...f, state: e.target.value })); setPage(1); }}
-          placeholder="State" style={{ width: 100, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="State" style={{ width: 100, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         <input value={filters.graduation_year} onChange={e => { setFilters(f => ({ ...f, graduation_year: e.target.value })); setPage(1); }}
-          placeholder="Grad Year" type="number" style={{ width: 90, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="Grad Year" type="number" style={{ width: 90, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         <input value={filters.skill} onChange={e => { setFilters(f => ({ ...f, skill: e.target.value })); setPage(1); }}
-          placeholder="Skill" style={{ width: 100, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="Skill" style={{ width: 100, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         {Object.values(filters).some(Boolean) && (
           <button onClick={() => { setFilters({ search: '', city: '', state: '', graduation_year: '', research_area: '', skill: '' }); setPage(1); }}
             style={{ fontSize: 11, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear</button>

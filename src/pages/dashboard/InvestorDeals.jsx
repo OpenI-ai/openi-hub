@@ -285,22 +285,22 @@ export default function InvestorDeals() {
               <div>
                 <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Amount</label>
                 <input type="number" placeholder="Amount" value={termsForm.investment_amount} onChange={e => setTermsForm(f => ({ ...f, investment_amount: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Equity %</label>
                 <input type="number" step="0.1" placeholder="Equity %" value={termsForm.equity_pct} onChange={e => setTermsForm(f => ({ ...f, equity_pct: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Valuation</label>
                 <input type="number" placeholder="Valuation" value={termsForm.valuation} onChange={e => setTermsForm(f => ({ ...f, valuation: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Type</label>
                 <select value={termsForm.investment_type} onChange={e => setTermsForm(f => ({ ...f, investment_type: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                   <option value="">Select type</option>
                   <option value="equity">Equity</option>
                   <option value="convertible_note">Convertible Note</option>
@@ -312,7 +312,7 @@ export default function InvestorDeals() {
               <div>
                 <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Currency</label>
                 <select value={termsForm.currency} onChange={e => setTermsForm(f => ({ ...f, currency: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                   <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
                 </select>
               </div>
@@ -383,7 +383,7 @@ export default function InvestorDeals() {
                 ))}
               </div>
               <textarea placeholder="Evaluation notes (optional)" value={evalForm.notes} onChange={e => setEvalForm(f => ({ ...f, notes: e.target.value }))} rows={2}
-                style={{ width: '100%', padding: 8, fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', resize: 'vertical', marginBottom: 8, boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: 8, fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', resize: 'vertical', marginBottom: 8, boxSizing: 'border-box' }} />
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={addEvaluation} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Submit Evaluation</button>
                 <button onClick={() => setShowAddEval(false)} style={{ padding: '6px 10px', fontSize: 11, borderRadius: 8, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>Cancel</button>
@@ -414,9 +414,9 @@ export default function InvestorDeals() {
           {showAddMilestone && (
             <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
               <input placeholder="Milestone title" value={mForm.title} onChange={e => setMForm(f => ({ ...f, title: e.target.value }))}
-                style={{ flex: 2, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                style={{ flex: 2, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <input type="date" value={mForm.due_date} onChange={e => setMForm(f => ({ ...f, due_date: e.target.value }))}
-                style={{ flex: 1, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <button onClick={addMilestone} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
               <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={14} /></button>
             </div>
@@ -460,16 +460,16 @@ export default function InvestorDeals() {
           {showAddTask && (
             <div style={{ display: 'grid', gap: 8, marginBottom: 10, padding: 12, background: '#f9fafb', borderRadius: 10 }}>
               <input placeholder="Task title" value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))}
-                style={{ padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                style={{ padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <div style={{ display: 'flex', gap: 8 }}>
                 <input placeholder="Assignee" value={tForm.assignee_name} onChange={e => setTForm(f => ({ ...f, assignee_name: e.target.value }))}
-                  style={{ flex: 1, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
                 <select value={tForm.priority} onChange={e => setTForm(f => ({ ...f, priority: e.target.value }))}
-                  style={{ padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8 }}>
+                  style={{ padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
                   <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
                 </select>
                 <input type="date" value={tForm.due_date} onChange={e => setTForm(f => ({ ...f, due_date: e.target.value }))}
-                  style={{ padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  style={{ padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={addTask} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add Task</button>
@@ -514,7 +514,7 @@ export default function InvestorDeals() {
             </button>
           </div>
           <textarea value={dealNotes} onChange={e => setDealNotes(e.target.value)} rows={4}
-            style={{ width: '100%', padding: 10, fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', resize: 'vertical', color: '#555', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: 10, fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', resize: 'vertical', color: '#555', boxSizing: 'border-box' }} />
         </div>
       </div>
     );
@@ -550,17 +550,17 @@ export default function InvestorDeals() {
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Startup Name *</label>
               <input placeholder="e.g. ArmorTech" value={createForm.startup_name} onChange={e => setCreateForm(f => ({ ...f, startup_name: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Deal Title</label>
               <input placeholder="e.g. Series A Lead" value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Investment Type</label>
               <select value={createForm.investment_type} onChange={e => setCreateForm(f => ({ ...f, investment_type: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                 <option value="">Select type</option>
                 <option value="equity">Equity</option>
                 <option value="convertible_note">Convertible Note</option>
@@ -572,7 +572,7 @@ export default function InvestorDeals() {
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Notes</label>
               <input placeholder="Initial notes" value={createForm.notes} onChange={e => setCreateForm(f => ({ ...f, notes: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>

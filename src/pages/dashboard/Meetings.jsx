@@ -418,7 +418,7 @@ export default function Meetings() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Title *</label>
                 <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   placeholder="e.g., Demo Session with TechNova Labs"
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
               {/* Description */}
@@ -427,14 +427,14 @@ export default function Meetings() {
                 <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   placeholder="Meeting agenda or details..."
                   rows={3}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
 
               {/* Meeting Type */}
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Meeting Type</label>
                 <select value={form.meeting_type} onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }}>
                   <option value="one_on_one">One-on-One</option>
                   <option value="group">Group</option>
                   <option value="demo">Demo</option>
@@ -447,12 +447,12 @@ export default function Meetings() {
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Start Time *</label>
                   <input type="datetime-local" value={form.start_time} onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))}
-                    style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>End Time *</label>
                   <input type="datetime-local" value={form.end_time} onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))}
-                    style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
@@ -462,13 +462,13 @@ export default function Meetings() {
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Location</label>
                   <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
                     placeholder="e.g., OpenI HQ, Delhi"
-                    style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Meeting Link</label>
                   <input value={form.meeting_link} onChange={e => setForm(f => ({ ...f, meeting_link: e.target.value }))}
                     placeholder="e.g., https://meet.google.com/..."
-                    style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
@@ -478,7 +478,7 @@ export default function Meetings() {
                 <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                   placeholder="Any additional notes..."
                   rows={2}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
 
               {/* Participant Search */}
@@ -488,7 +488,7 @@ export default function Meetings() {
                   <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
                   <input value={userSearch} onChange={e => handleUserSearch(e.target.value)}
                     placeholder="Search by name or email..."
-                    style={{ width: '100%', padding: '10px 12px 10px 32px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 12px 10px 32px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
                   {searchingUsers && <Loader2 size={14} className="animate-spin" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: G }} />}
                 </div>
 

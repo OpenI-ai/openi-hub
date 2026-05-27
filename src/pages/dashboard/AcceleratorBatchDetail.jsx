@@ -193,7 +193,7 @@ export default function AcceleratorBatchDetail() {
                         {s.notes && <div style={{ fontSize: 10, color: '#888', marginBottom: 6, fontStyle: 'italic' }}>{s.notes.substring(0, 60)}{s.notes.length > 60 ? '...' : ''}</div>}
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                           <select value={s.application_status} onChange={e => moveStartup(s.id, e.target.value)}
-                            style={{ flex: 1, fontSize: 10, padding: '3px 5px', border: '1px solid #ddd', borderRadius: 4, background: '#fff' }}>
+                            style={{ flex: 1, fontSize: 16, padding: '3px 5px', border: '1px solid #ddd', borderRadius: 4, background: '#fff' }}>
                             {PIPELINE_STAGES.map(st => <option key={st.key} value={st.key}>{st.label}</option>)}
                             <option value="dropped">Dropped</option>
                           </select>

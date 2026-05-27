@@ -50,19 +50,19 @@ export default function AcademiaDiscovery() {
           <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
           <input value={filters.search} onChange={e => { setFilters(f => ({ ...f, search: e.target.value })); setPage(1); }}
             placeholder="Search institutions, researchers, departments..."
-            style={{ width: '100%', padding: '7px 10px 7px 30px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+            style={{ width: '100%', padding: '7px 10px 7px 30px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         </div>
         <select value={filters.institution_type} onChange={e => { setFilters(f => ({ ...f, institution_type: e.target.value })); setPage(1); }}
-          style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+          style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
           <option value="">All Types</option>
           {INST_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         <input value={filters.city} onChange={e => { setFilters(f => ({ ...f, city: e.target.value })); setPage(1); }}
-          placeholder="City" style={{ width: 100, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="City" style={{ width: 100, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         <input value={filters.state} onChange={e => { setFilters(f => ({ ...f, state: e.target.value })); setPage(1); }}
-          placeholder="State" style={{ width: 100, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="State" style={{ width: 100, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         <input value={filters.research_area} onChange={e => { setFilters(f => ({ ...f, research_area: e.target.value })); setPage(1); }}
-          placeholder="Research Area" style={{ width: 120, padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+          placeholder="Research Area" style={{ width: 120, padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
         {Object.values(filters).some(Boolean) && (
           <button onClick={() => { setFilters({ search: '', institution_type: '', city: '', state: '', research_area: '', offering: '' }); setPage(1); }}
             style={{ fontSize: 11, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear</button>

@@ -178,7 +178,7 @@ export default function MyNetwork() {
           <div style={{ flex: 1, position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or organization..."
-              style={{ width: '100%', padding: '8px 10px 8px 30px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+              style={{ width: '100%', padding: '8px 10px 8px 30px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
           </div>
         </div>
       )}

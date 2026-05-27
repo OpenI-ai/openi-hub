@@ -143,17 +143,17 @@ export default function OrgAdmin() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Organization Name *</label>
                 <input value={newOrgName} onChange={e => setNewOrgName(e.target.value)} placeholder="e.g. Tata Innovation Corp"
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13 }} />
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16 }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Domain (optional)</label>
                 <input value={newOrgDomain} onChange={e => setNewOrgDomain(e.target.value)} placeholder="e.g. tata.com"
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13 }} />
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16 }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Seat Limit</label>
                 <input type="number" value={newOrgSeats} onChange={e => setNewOrgSeats(parseInt(e.target.value) || 5)} min={2} max={100}
-                  style={{ width: 100, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13 }} />
+                  style={{ width: 100, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16 }} />
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button onClick={handleCreateOrg} disabled={creating || !newOrgName.trim()}
@@ -213,9 +213,9 @@ export default function OrgAdmin() {
           <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Add New Member</h3>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="Email address"
-              style={{ flex: 1, minWidth: 200, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13 }} />
+              style={{ flex: 1, minWidth: 200, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16 }} />
             <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
-              style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13 }}>
+              style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16 }}>
               <option value="member">Member</option>
               <option value="admin">Admin</option>
             </select>

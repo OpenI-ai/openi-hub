@@ -475,7 +475,7 @@ export default function StartupWatchlist() {
             <div style={{ position: 'relative' }}>
               <Search size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
               <input placeholder="Search lists…" value={search} onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 26, paddingRight: 10, paddingTop: 7, paddingBottom: 7, background: '#f8f8f8', border: '1.5px solid #eee', borderRadius: 8, fontSize: 12, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 26, paddingRight: 10, paddingTop: 7, paddingBottom: 7, background: '#f8f8f8', border: '1.5px solid #eee', borderRadius: 8, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
               />
             </div>
           </div>
@@ -733,7 +733,7 @@ export default function StartupWatchlist() {
                 background: '#fff',
                 border: '1.5px solid #e0e0e0',
                 borderRadius: 10,
-                fontSize: 14,
+                fontSize: 16,
                 outline: 'none',
                 color: '#1a1a1a',
               }}
@@ -976,7 +976,7 @@ export default function StartupWatchlist() {
           <div style={{ position: 'relative', marginBottom: 8 }}>
             <input value={collabSearch} onChange={e => setCollabSearch(e.target.value)}
               placeholder="Start typing a name or email…"
-              style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none' }} />
+              style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
             {collabResults.length > 0 && (
               <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#fff', border: '1.5px solid #e0e0e0', borderRadius: 9, boxShadow: '0 4px 16px rgba(0,0,0,0.08)', zIndex: 50, maxHeight: 240, overflowY: 'auto' }}>
                 {collabResults.map(u => (
@@ -1013,7 +1013,7 @@ export default function StartupWatchlist() {
             <input value={collabEmailDraft} onChange={e => setCollabEmailDraft(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCollabEmail(); } }}
               placeholder="founder@startup.com — press Enter"
-              style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none' }} />
+              style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
             <button type="button" onClick={addCollabEmail}
               style={{ padding: '9px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#555', cursor: 'pointer' }}>
               Add
@@ -1037,7 +1037,7 @@ export default function StartupWatchlist() {
           <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
           <textarea value={collabMessage} onChange={e => setCollabMessage(e.target.value)} rows={2}
             placeholder="Add context — what excites you about sharing this watchlist?"
-            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
 
           {/* Send button */}
           <button onClick={sendCollaboratorInvites}
@@ -1067,7 +1067,7 @@ export default function StartupWatchlist() {
                       <div style={{ fontSize: 10, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}{c.organization_name ? ` · ${c.organization_name}` : ''}</div>
                     </div>
                     <select value={c.role} onChange={e => changeCollaboratorRole(c.id, e.target.value)}
-                      style={{ fontSize: 11, padding: '4px 8px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 6, color: '#555' }}>
+                      style={{ fontSize: 16, padding: '4px 8px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 6, color: '#555' }}>
                       <option value="viewer">Viewer</option>
                       <option value="editor">Editor</option>
                     </select>

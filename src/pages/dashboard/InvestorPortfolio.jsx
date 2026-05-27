@@ -125,32 +125,32 @@ export default function InvestorPortfolio() {
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Startup Name *</label>
               <input placeholder="e.g. ArmorTech" value={addForm.startup_name} onChange={e => setAddForm(f => ({ ...f, startup_name: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Entry Date</label>
               <input type="date" value={addForm.entry_date} onChange={e => setAddForm(f => ({ ...f, entry_date: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Entry Valuation</label>
               <input type="number" placeholder="Valuation" value={addForm.entry_valuation} onChange={e => setAddForm(f => ({ ...f, entry_valuation: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Equity Stake (%)</label>
               <input type="number" step="0.1" placeholder="e.g. 12.5" value={addForm.equity_stake} onChange={e => setAddForm(f => ({ ...f, equity_stake: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Investment Amount</label>
               <input type="number" placeholder="Amount" value={addForm.investment_amount} onChange={e => setAddForm(f => ({ ...f, investment_amount: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Currency</label>
               <select value={addForm.currency} onChange={e => setAddForm(f => ({ ...f, currency: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                 <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
               </select>
             </div>
@@ -256,7 +256,7 @@ export default function InvestorPortfolio() {
                       <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Status</label>
                         <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}
-                          style={{ width: '100%', padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                           <option value="active">Active</option>
                           <option value="exited">Exited</option>
                           <option value="failed">Failed</option>
@@ -266,7 +266,7 @@ export default function InvestorPortfolio() {
                       <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Exit Type</label>
                         <select value={editForm.exit_type} onChange={e => setEditForm(f => ({ ...f, exit_type: e.target.value }))}
-                          style={{ width: '100%', padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                           <option value="">None</option>
                           <option value="acquisition">Acquisition</option>
                           <option value="ipo">IPO</option>
@@ -278,12 +278,12 @@ export default function InvestorPortfolio() {
                       <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Exit Date</label>
                         <input type="date" value={editForm.exit_date} onChange={e => setEditForm(f => ({ ...f, exit_date: e.target.value }))}
-                          style={{ width: '100%', padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
                       </div>
                       <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Exit Valuation</label>
                         <input type="number" placeholder="Exit value" value={editForm.exit_valuation} onChange={e => setEditForm(f => ({ ...f, exit_valuation: e.target.value }))}
-                          style={{ width: '100%', padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>

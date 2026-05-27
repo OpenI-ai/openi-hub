@@ -519,7 +519,7 @@ export default function ProjectManagement() {
                   width: '100%', boxSizing: 'border-box',
                   paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9,
                   background: '#fff', border: '1.5px solid #eee', borderRadius: 9,
-                  fontSize: 13, outline: 'none', color: '#1a1a1a',
+                  fontSize: 16, outline: 'none', color: '#1a1a1a',
                 }}
               />
             </div>
@@ -577,7 +577,7 @@ const inputStyle = {
   width: '100%',
   boxSizing: 'border-box',
   padding: '9px 12px',
-  fontSize: 13,
+  fontSize: 16,
   color: '#1a1a1a',
   background: '#fff',
   border: '1.5px solid #ddd',

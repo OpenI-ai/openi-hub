@@ -57,7 +57,7 @@ function TagDropdown({ label, options, selected, onChange, colorScheme = { bg: '
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           placeholder={selected.length === 0 ? `Search ${label.toLowerCase()}...` : ''}
-          style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontSize: 12, padding: '2px 0' }}
+          style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontSize: 16, padding: '2px 0' }}
         />
         <ChevronDown size={13} style={{ color: '#aaa', flexShrink: 0 }} />
       </div>
@@ -389,7 +389,7 @@ const startEdit = () => {
             <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0, flex: 1 }}>{detail.title}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               <select value={detail.status} onChange={e => changeStatus(e.target.value)}
-                style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer', outline: 'none' }}>
+                style={{ fontSize: 16, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer', outline: 'none' }}>
                 {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>
               <button onClick={async () => {
@@ -911,7 +911,7 @@ const startEdit = () => {
                   } catch (err) { console.error('[invite-search]', err); }
                 }}
                 placeholder="Type at least 2 characters (name, email, or org)"
-                style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', marginBottom: 8 }} />
+                style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', marginBottom: 8 }} />
 
               {/* Results */}
               {inviteResults.length > 0 && (
@@ -983,7 +983,7 @@ const startEdit = () => {
                     }
                   }}
                   placeholder="vanessa@example.com"
-                  style={{ width: '100%', padding: '8px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb' }} />
+                  style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb' }} />
                 {inviteEmails.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                     {inviteEmails.map(em => (
@@ -1006,7 +1006,7 @@ const startEdit = () => {
                 onChange={(e) => setInviteMessage(e.target.value)}
                 placeholder="Add context for the invitee — what excites you about this challenge for them?"
                 rows={3}
-                style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', marginBottom: 16 }} />
+                style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', marginBottom: 16 }} />
 
               {/* Send + Cancel */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginBottom: 20 }}>
@@ -1118,10 +1118,10 @@ const startEdit = () => {
                   <input type="email" value={addMemberEmail}
                     onChange={(e) => setAddMemberEmail(e.target.value)}
                     placeholder="member@example.com"
-                    style={{ flex: 1, padding: '8px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#fff' }} />
+                    style={{ flex: 1, padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#fff' }} />
                   <select value={addMemberRole}
                     onChange={(e) => setAddMemberRole(e.target.value)}
-                    style={{ padding: '8px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>
+                    style={{ padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>
                     <option value="reviewer">Reviewer</option>
                     <option value="viewer">Viewer</option>
                     <option value="editor">Editor</option>
@@ -1164,7 +1164,7 @@ const startEdit = () => {
                         <>
                           <select value={m.role}
                             onChange={(e) => updateTeamMemberRole(detail.id, m.user_id || m.id, e.target.value)}
-                            style={{ padding: '4px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>
+                            style={{ padding: '4px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>
                             <option value="reviewer">Reviewer</option>
                             <option value="viewer">Viewer</option>
                             <option value="editor">Editor</option>
@@ -1273,20 +1273,20 @@ const startEdit = () => {
         <div style={{ ...card, padding: 12, marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
           <div style={{ flex: '1 1 180px' }}>
             <input value={filters.search} onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-              placeholder="Search challenges..." style={{ width: '100%', padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+              placeholder="Search challenges..." style={{ width: '100%', padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
           </div>
           <select value={filters.status} onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
-            style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
             <option value="all">All Status</option>
             {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
           <select value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
-            style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
             <option value="">All Sectors</option>
             {(taxonomy.sectors || []).map(s => { const name = typeof s === 'string' ? s : s.name; return <option key={name} value={name}>{name}</option>; })}
           </select>
           <select value={filters.sort} onChange={e => setFilters(f => ({ ...f, sort: e.target.value }))}
-            style={{ padding: '7px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
             <option value="deadline">By Deadline</option>
@@ -1332,11 +1332,11 @@ const startEdit = () => {
             </div>
             {/* Basic info */}
             <input placeholder="Challenge title *" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
             <textarea placeholder="Short description" rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
             <textarea placeholder="Detailed problem statement — describe what you need solved, constraints, and expectations..." rows={4} value={form.problem_statement} onChange={e => setForm(p => ({ ...p, problem_statement: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
 
             {/* Phase 35: AI Advisor */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1419,23 +1419,23 @@ const startEdit = () => {
             {/* Timeline & logistics */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
               <input placeholder="Budget range" value={form.budget_range} onChange={e => setForm(p => ({ ...p, budget_range: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
               <input placeholder="Timeline" value={form.timeline} onChange={e => setForm(p => ({ ...p, timeline: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
               <input type="date" placeholder="Deadline" value={form.deadline} onChange={e => setForm(p => ({ ...p, deadline: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
               <input placeholder="Location / region" value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
             </div>
             <textarea placeholder="Detailed requirements" rows={2} value={form.requirements} onChange={e => setForm(p => ({ ...p, requirements: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
 
             {/* Settings row */}
             <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555' }}>
                 <span style={{ fontWeight: 600 }}>Min profile %:</span>
                 <input type="number" min={0} max={100} value={form.min_profile_pct} onChange={e => setForm(p => ({ ...p, min_profile_pct: parseInt(e.target.value) || 25 }))}
-                  style={{ width: 50, padding: '5px 8px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb', textAlign: 'center' }} />
+                  style={{ width: 50, padding: '5px 8px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', textAlign: 'center' }} />
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555', cursor: 'pointer' }}>
                 <input type="checkbox" checked={form.data_room_required} onChange={e => setForm(p => ({ ...p, data_room_required: e.target.checked }))} />
@@ -1444,7 +1444,7 @@ const startEdit = () => {
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555' }}>
                 <span style={{ fontWeight: 600 }}>Status:</span>
                 <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}
-                  style={{ padding: '5px 8px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb' }}>
+                  style={{ padding: '5px 8px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb' }}>
                   <option value="draft">Draft</option>
                   <option value="open">Open</option>
                   {editMode && <option value="reviewing">Reviewing</option>}
@@ -1482,14 +1482,14 @@ const startEdit = () => {
                   <select value={q.type} onChange={e => {
                     const upd = [...form.rfi_questions]; upd[i] = { ...upd[i], type: e.target.value };
                     setForm(p => ({ ...p, rfi_questions: upd }));
-                  }} style={{ padding: '6px 8px', fontSize: 11, borderRadius: 6, border: '1px solid #e5e7eb', minWidth: 80 }}>
+                  }} style={{ padding: '6px 8px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', minWidth: 80 }}>
                     <option value="text">Text</option>
                     <option value="mcq">MCQ</option>
                   </select>
                   <input placeholder="Question" value={q.question} onChange={e => {
                     const upd = [...form.rfi_questions]; upd[i] = { ...upd[i], question: e.target.value };
                     setForm(p => ({ ...p, rfi_questions: upd }));
-                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
                   {q.type === 'mcq' && (
                     // Ship #6 (21 May 2026) — per-option RFI input
                     // Previously this was a comma-separated text input. If the
@@ -1505,7 +1505,7 @@ const startEdit = () => {
                             newOpts[oi] = e.target.value;
                             upd[i] = { ...upd[i], options: newOpts };
                             setForm(p => ({ ...p, rfi_questions: upd }));
-                          }} style={{ flex: 1, padding: '5px 8px', fontSize: 11, borderRadius: 5, border: '1px solid #e5e7eb', outline: 'none' }} />
+                          }} style={{ flex: 1, padding: '5px 8px', fontSize: 16, borderRadius: 5, border: '1px solid #e5e7eb', outline: 'none' }} />
                           <button type="button" onClick={() => {
                             const upd = [...form.rfi_questions];
                             upd[i] = { ...upd[i], options: (upd[i].options || []).filter((_, oj) => oj !== oi) };
@@ -1538,11 +1538,11 @@ const startEdit = () => {
                   <input placeholder="Question" value={faq.question} onChange={e => {
                     const upd = [...form.faqs]; upd[i] = { ...upd[i], question: e.target.value };
                     setForm(p => ({ ...p, faqs: upd }));
-                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
                   <input placeholder="Answer" value={faq.answer} onChange={e => {
                     const upd = [...form.faqs]; upd[i] = { ...upd[i], answer: e.target.value };
                     setForm(p => ({ ...p, faqs: upd }));
-                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
                   <button onClick={() => setForm(p => ({ ...p, faqs: p.faqs.filter((_, j) => j !== i) }))}
                     style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><Trash2 size={12} /></button>
                 </div>

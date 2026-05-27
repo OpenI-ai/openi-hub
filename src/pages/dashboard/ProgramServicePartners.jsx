@@ -311,10 +311,10 @@ export default function ProgramServicePartners() {
               <div style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8 }}>
                 <Search size={14} style={{ color: '#888' }} />
                 <input value={directorySearch} onChange={e => setDirectorySearch(e.target.value)} placeholder="Search by name or tagline..."
-                  style={{ border: 'none', outline: 'none', fontSize: 13, flex: 1, background: 'transparent' }} />
+                  style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
               </div>
               <select value={directoryCategory} onChange={e => setDirectoryCategory(e.target.value)}
-                style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13, background: '#fff', cursor: 'pointer' }}>
+                style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, background: '#fff', cursor: 'pointer' }}>
                 <option value="">All categories</option>
                 {SERVICE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>

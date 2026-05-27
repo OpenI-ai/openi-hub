@@ -125,11 +125,11 @@ export default function CorporateCollaborations() {
             {budgetEdit ? (
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="number" placeholder="Estimated" value={budgetForm.budget_estimated} onChange={e => setBudgetForm(f => ({ ...f, budget_estimated: e.target.value }))}
-                  style={{ flex: 1, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
                 <input type="number" placeholder="Spent" value={budgetForm.budget_spent} onChange={e => setBudgetForm(f => ({ ...f, budget_spent: e.target.value }))}
-                  style={{ flex: 1, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
                 <select value={budgetForm.currency} onChange={e => setBudgetForm(f => ({ ...f, currency: e.target.value }))}
-                  style={{ padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8 }}>
+                  style={{ padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
                   <option>INR</option><option>USD</option><option>EUR</option>
                 </select>
                 <button onClick={saveBudget} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Save</button>
@@ -169,9 +169,9 @@ export default function CorporateCollaborations() {
           {showAddMilestone && (
             <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
               <input placeholder="Milestone title" value={mForm.title} onChange={e => setMForm(f => ({ ...f, title: e.target.value }))}
-                style={{ flex: 2, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                style={{ flex: 2, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <input type="date" value={mForm.due_date} onChange={e => setMForm(f => ({ ...f, due_date: e.target.value }))}
-                style={{ flex: 1, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <button onClick={addMilestone} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
               <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={14} /></button>
             </div>
@@ -217,16 +217,16 @@ export default function CorporateCollaborations() {
           {showAddTask && (
             <div style={{ display: 'grid', gap: 8, marginBottom: 10, padding: 12, background: '#f9fafb', borderRadius: 10 }}>
               <input placeholder="Task title" value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))}
-                style={{ padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                style={{ padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <div style={{ display: 'flex', gap: 8 }}>
                 <input placeholder="Assignee" value={tForm.assignee_name} onChange={e => setTForm(f => ({ ...f, assignee_name: e.target.value }))}
-                  style={{ flex: 1, padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
                 <select value={tForm.priority} onChange={e => setTForm(f => ({ ...f, priority: e.target.value }))}
-                  style={{ padding: '6px 8px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8 }}>
+                  style={{ padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
                   <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
                 </select>
                 <input type="date" value={tForm.due_date} onChange={e => setTForm(f => ({ ...f, due_date: e.target.value }))}
-                  style={{ padding: '6px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                  style={{ padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={addTask} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add Task</button>
@@ -263,7 +263,7 @@ export default function CorporateCollaborations() {
         {/* Notes */}
         <div style={{ ...card, padding: 20 }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Notes</h3>
-          <textarea value={co.notes || ''} readOnly rows={3} style={{ width: '100%', padding: 10, fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', resize: 'vertical', background: '#f9fafb', color: '#555' }} />
+          <textarea value={co.notes || ''} readOnly rows={3} style={{ width: '100%', padding: 10, fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', resize: 'vertical', background: '#f9fafb', color: '#555' }} />
         </div>
       </div>
     );
@@ -366,7 +366,7 @@ export default function CorporateCollaborations() {
                       {editing === co.id && (
                         <div style={{ marginTop: 8 }} onClick={e => e.stopPropagation()}>
                           <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2}
-                            style={{ width: '100%', padding: 8, fontSize: 11, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', resize: 'vertical' }} />
+                            style={{ width: '100%', padding: 8, fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', resize: 'vertical' }} />
                           <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
                             <button onClick={() => saveNotes(co.id)} style={{ flex: 1, padding: '4px', fontSize: 10, borderRadius: 6, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Save</button>
                             <button onClick={() => setEditing(null)} style={{ padding: '4px 8px', fontSize: 10, borderRadius: 6, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}><X size={10} /></button>

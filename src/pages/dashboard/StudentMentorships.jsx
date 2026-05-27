@@ -177,7 +177,7 @@ function Sel({ label, value, options, onChange }) {
     <div style={{ marginBottom: 12 }}>
       <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)}
-        style={{ width: '100%', padding: '8px 10px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14, background: '#fff', boxSizing: 'border-box' }}>
+        style={{ width: '100%', padding: '8px 10px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, background: '#fff', boxSizing: 'border-box' }}>
         {options.map(o => <option key={o} value={o}>{o ? o.replace(/_/g, ' ') : '—'}</option>)}
       </select>
     </div>

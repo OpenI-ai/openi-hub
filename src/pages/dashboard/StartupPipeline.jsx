@@ -127,7 +127,7 @@ export default function StartupPipeline() {
           <div style={{ position: 'relative' }}>
             <Search size={13} style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
             <input placeholder="Search startups…" value={search} onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: 28, paddingRight: 12, paddingTop: 8, paddingBottom: 8, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 12, outline: 'none', color: '#1a1a1a', width: 180 }}
+              style={{ paddingLeft: 28, paddingRight: 12, paddingTop: 8, paddingBottom: 8, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a', width: 180 }}
             />
           </div>
           {/* View toggle */}

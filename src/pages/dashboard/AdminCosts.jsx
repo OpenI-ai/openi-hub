@@ -461,7 +461,7 @@ export default function AdminCosts() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 16px' }}>Record Manual Cost</h3>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Service</label>
                 <select value={manualForm.service} onChange={e => setManualForm({ ...manualForm, service: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 12 }}>
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 12 }}>
                   <option value="railway">Railway</option>
                   <option value="vercel">Vercel</option>
                   <option value="cloudinary">Cloudinary</option>
@@ -471,14 +471,14 @@ export default function AdminCosts() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Month (YYYY-MM)</label>
                 <input type="text" placeholder="2026-05" value={manualForm.month_label}
                   onChange={e => setManualForm({ ...manualForm, month_label: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 12 }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 12 }} />
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Cost (USD)</label>
                 <input type="number" step="0.01" min="0" placeholder="104.00" value={manualForm.cost_usd}
                   onChange={e => setManualForm({ ...manualForm, cost_usd: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 12 }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 12 }} />
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Note (optional)</label>
                 <textarea value={manualForm.note} onChange={e => setManualForm({ ...manualForm, note: e.target.value })} rows={2}
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 16, resize: 'vertical' }} />
+                  style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, marginBottom: 16, resize: 'vertical' }} />
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                   <button onClick={() => setShowManual(false)}
                     style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', color: '#666', border: '1.5px solid #ccc', borderRadius: 8, cursor: 'pointer' }}>

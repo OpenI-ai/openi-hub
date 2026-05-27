@@ -204,7 +204,7 @@ export default function Directory() {
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
             placeholder="Search by name, organization, or tagline..."
-            style={{ width: '100%', padding: '10px 12px 10px 36px', fontSize: 13, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px 12px 10px 36px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }}
           />
         </div>
         <button onClick={handleSearch}
@@ -218,7 +218,7 @@ export default function Directory() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <ArrowUpDown size={14} style={{ color: '#888' }} />
           <select value={sort} onChange={e => handleSort(e.target.value)}
-            style={{ padding: '8px 10px', fontSize: 12, border: '1px solid #ddd', borderRadius: 8, outline: 'none', background: '#fff', cursor: 'pointer' }}>
+            style={{ padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', background: '#fff', cursor: 'pointer' }}>
             {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -255,7 +255,7 @@ export default function Directory() {
             <div>
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Persona Type</label>
               <select value={filters.persona_type} onChange={e => setFilters(f => ({ ...f, persona_type: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }}>
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }}>
                 <option value="">All Types</option>
                 {Object.entries(PERSONAS).map(([key, p]) => <option key={key} value={key}>{p.label}</option>)}
               </select>
@@ -265,7 +265,7 @@ export default function Directory() {
             <div>
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Category</label>
               <select value={filters.persona_category} onChange={e => setFilters(f => ({ ...f, persona_category: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }}>
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }}>
                 <option value="">All Categories</option>
                 {Object.entries(PERSONA_CATEGORIES).map(([key, c]) => <option key={key} value={key}>{c.label}</option>)}
               </select>
@@ -276,7 +276,7 @@ export default function Directory() {
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>City</label>
               <input value={filters.city} onChange={e => setFilters(f => ({ ...f, city: e.target.value }))}
                 placeholder="e.g., Delhi" list="dir-cities"
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               <datalist id="dir-cities">{filterOptions.cities.map(c => <option key={c} value={c} />)}</datalist>
             </div>
 
@@ -285,7 +285,7 @@ export default function Directory() {
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>State</label>
               <input value={filters.state} onChange={e => setFilters(f => ({ ...f, state: e.target.value }))}
                 placeholder="e.g., Karnataka" list="dir-states"
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               <datalist id="dir-states">{filterOptions.states.map(s => <option key={s} value={s} />)}</datalist>
             </div>
 
@@ -294,7 +294,7 @@ export default function Directory() {
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Sector / Focus Area</label>
               <input value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
                 placeholder="e.g., AI/ML" list="dir-sectors"
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               <datalist id="dir-sectors">{filterOptions.sectors.map(s => <option key={s} value={s} />)}</datalist>
             </div>
 
@@ -303,7 +303,7 @@ export default function Directory() {
               <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Skill / Technology</label>
               <input value={filters.skill} onChange={e => setFilters(f => ({ ...f, skill: e.target.value }))}
                 placeholder="e.g., Python" list="dir-skills"
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               <datalist id="dir-skills">{filterOptions.skills.map(s => <option key={s} value={s} />)}</datalist>
             </div>
           </div>

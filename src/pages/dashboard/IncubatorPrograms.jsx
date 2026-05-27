@@ -94,10 +94,10 @@ export default function IncubatorPrograms() {
         <div style={{ ...card, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 240px' }}>
           <Search size={15} style={{ color: '#888' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search programs..."
-            style={{ border: 'none', outline: 'none', fontSize: 13, flex: 1, background: 'transparent' }} />
+            style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-          style={{ padding: '10px 14px', border: '1px solid #eee', borderRadius: 10, fontSize: 13, background: '#fff', cursor: 'pointer' }}>
+          style={{ padding: '10px 14px', border: '1px solid #eee', borderRadius: 10, fontSize: 16, background: '#fff', cursor: 'pointer' }}>
           <option value="all">All Statuses</option>
           <option value="draft">Draft</option>
           <option value="accepting">Accepting</option>

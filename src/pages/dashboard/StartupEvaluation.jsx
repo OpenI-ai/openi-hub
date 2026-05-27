@@ -333,7 +333,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
                     <select
                       value={statusVal}
                       onChange={e => onStatus(scoreKey, e.target.value)}
-                      style={{ fontSize:12, background:"#fafafa", border:"1.5px solid #e0e0e0", color:"#555", borderRadius:8, padding:"6px 10px", outline:"none", width:200 }}
+                      style={{ fontSize:16, background:"#fafafa", border:"1.5px solid #e0e0e0", color:"#555", borderRadius:8, padding:"6px 10px", outline:"none", width:200 }}
                     >
                       {STATUS_OPTS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -344,7 +344,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
                       onChange={e => onComment(scoreKey, e.target.value)}
                       placeholder="Add notes or observations…"
                       rows={2}
-                      style={{ flex:1, minWidth:160, fontSize:12, background:"#fafafa", border:"1.5px solid #e0e0e0", color:"#333", borderRadius:8, padding:"6px 10px", outline:"none", resize:"none" }}
+                      style={{ flex:1, minWidth:160, fontSize:16, background:"#fafafa", border:"1.5px solid #e0e0e0", color:"#333", borderRadius:8, padding:"6px 10px", outline:"none", resize:"none" }}
                     />
                   </div>
                 )}
@@ -508,7 +508,7 @@ export default function StartupEvaluation() {
 
   const inputStyle = {
     background:"#fafafa", border:"1.5px solid #e0e0e0", color:"#333",
-    borderRadius:9, padding:"8px 12px", fontSize:13, outline:"none",
+    borderRadius:9, padding:"8px 12px", fontSize:16, outline:"none",
     transition:"border-color 0.15s",
   };
 

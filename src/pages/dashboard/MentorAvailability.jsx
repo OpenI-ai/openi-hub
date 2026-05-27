@@ -79,11 +79,11 @@ export default function MentorAvailability() {
               <Clock size={14} color="#888"/>
               <input type="time" value={slot.start_time} disabled={!slot.is_active}
                 onChange={e => update(idx, 'start_time', e.target.value)}
-                style={{ padding: '6px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14 }}/>
+                style={{ padding: '6px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 16 }}/>
               <span style={{ color: '#888' }}>to</span>
               <input type="time" value={slot.end_time} disabled={!slot.is_active}
                 onChange={e => update(idx, 'end_time', e.target.value)}
-                style={{ padding: '6px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14 }}/>
+                style={{ padding: '6px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 16 }}/>
             </div>
 
             {/* Clear */}

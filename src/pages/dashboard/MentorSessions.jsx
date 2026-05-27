@@ -116,7 +116,7 @@ function Inp({ label, value, onChange, type = 'text' }) {
     <div style={{ marginBottom: 12 }}>
       <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>{label}</label>
       <input type={type} value={value} onChange={e => onChange(e.target.value)}
-        style={{ width: '100%', padding: '8px 10px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}/>
+        style={{ width: '100%', padding: '8px 10px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, boxSizing: 'border-box' }}/>
     </div>
   );
 }

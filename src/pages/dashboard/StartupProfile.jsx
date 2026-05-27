@@ -1826,11 +1826,11 @@ export default function StartupProfile() {
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Email address</label>
                 <input type="email" value={shareEmail} onChange={e => setShareEmail(e.target.value)}
                   placeholder="recipient@example.com"
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none', marginBottom: 10 }} />
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', marginBottom: 10 }} />
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
                 <textarea value={shareEmailMessage} onChange={e => setShareEmailMessage(e.target.value)} rows={2}
                   placeholder="Add a note — why you&apos;re sharing this profile."
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
                 <button onClick={() => sendProfileEmailInvite()} disabled={shareEmailBusy || !shareEmail.trim()}
                   style={{ width: '100%', padding: '10px 16px', background: (!shareEmail.trim() || shareEmailBusy) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!shareEmail.trim() || shareEmailBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <Mail size={14} /> {shareEmailBusy ? 'Sending…' : 'Send invite'}

@@ -287,7 +287,7 @@ export default function EventsRepository() {
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
           <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
           <input placeholder="Search events, tags…" value={search} onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a' }}
+            style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
           />
         </div>
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
@@ -452,7 +452,7 @@ const fieldInputStyle = {
   background: '#fff',
   border: '1.5px solid #e5e5e5',
   borderRadius: 8,
-  fontSize: 13,
+  fontSize: 16,
   color: '#1a1a1a',
   outline: 'none',
 };
