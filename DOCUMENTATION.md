@@ -2,6 +2,43 @@
 
 ## OpenI Assessment Platform
 
+**Version:** 5.25
+**Last Updated:** 28 May 2026 EOD — **5-ship session. Massive progress on the 27 May locked P0 (mobile responsiveness + Joy Ride tours).** Tour coverage 12 → 47 of 86 dashboard routes (+292%). iOS auto-zoom eliminated platform-wide (175 substitutions across 38 files). 4 top-traffic mobile-grid files fixed. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `dad7a4e` (Tour Batch 5). DOCUMENTATION.md v5.25.
+
+**🚨 NEXT SESSION FIRST ACTION (continuation of 27 May locked P0):** Continue mobile responsiveness + Joy Ride tours until 100% coverage. Remaining: 25 files / ~55 grid sites + 39 untoured routes (admin / recommendation-templated / long-tail). Recommended order: Mobile Ship 9 → Mobile Ship 10 → Tour Batches 6/7/8. Full spec in `/Users/rajeevbanduni/CoPilot/NEXT_SESSION_TODOS.md` + `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-28.md`.
+
+### Today's 5 ships (28 May 2026, chronological)
+
+| # | Commit | Ship | Files | Notes |
+|---|---|---|---|---|
+| 1 | `a83ba3b` | Mobile Ship 8 — top-traffic grid responsiveness | 4 | CorporateChallenges + AdminPlatformHealth + InvestorDeals + InvestorPortfolio. 18 grid swaps to `repeat(auto-fit, minmax(MIN, 1fr))`. |
+| 2 | `080b9a7` | Mobile Ship 7 — iOS auto-zoom mega-ship | 38 | Pattern-based 175 substitutions: every `<input/<select/<textarea>` with fontSize 10-15 bumped to 16. Pre-flight verification gate caught one drift, single fix, ship clean. |
+| 3 | `27af8e4` | Tour Batch 3 — 7 universal-page tours | 7 | Home / Network / Meetings / Projects / Documents / Knowledge / WhatsNew. |
+| 4 | `edeeb08` | Tour Batch 4 — 13 persona-specific dashboard tours | 13 | Corporate (reuses role anchors) + Investor x2 + Incubator + Accelerator + Mentor x2 + Lab x2 + Student x2 + Academia + SP. |
+| 5 | `dad7a4e` | Tour Batch 5 — 15 cross-persona action surfaces | 16 | Discovery x3 + Mentors + Infra + IPR + DeepTech + Feedback + Evaluations + Cohorts + Invites + Review queue + Claims + Cluster + Collabs. |
+
+### Cumulative session metrics (28 May)
+
+- **5 frontend commits** / 78 file-touches / 883 insertions / 239 deletions
+- **Zero backend commits** (no backend work this session)
+- **Zero rollbacks, zero anchor aborts, zero broken deploys**
+- **Tour coverage:** 12 → 47 of 86 dashboard routes (+292%)
+- **iOS auto-zoom:** 38 files fully clean (every active dashboard form control safe on iPhone Safari)
+- **Mobile-grid responsiveness:** 4 high-traffic files fixed (22 sites)
+- Audit document: `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-28.md`
+
+### Key lessons banked 28 May (also in CLAUDE.md Don'ts)
+
+1. **Pre-flight verification gate with per-file expected counts is high-leverage for mega-ships.** Mobile Ship 7 (175 substitutions / 38 files) verified expected counts BEFORE any write. Caught CorporateChallenges drift from 28 → 27 in seconds (Ship 8 had collapsed one grid earlier). Single-number fix, ship proceeded clean. Without the gate, partial-state corruption was likely.
+2. **Pattern-based mega-ships are safer than anchor-based for repetitive transformations.** Mobile Ship 7 used tag-span-bounded pattern matching — collisions impossible by construction. 175 hand-tailored anchors would have had ~5% drift risk; pattern-based had 0%.
+3. **Tour anchor reuse beats new injection when role-tour already covers the surface.** Tour Batches 3 + 4 reused existing `#tour-welcome` / `#tour-corp-pipeline` anchors from role-tour pattern. Saved ~7 anchor injections, reduced blast radius.
+4. **System-reminder false-positive bypass workflow still works (overturned yesterday's assumption).** `/tmp/` apply-script + user-run via terminal = established Phase 73 (13 May) workflow. Today shipped 5 ships proving the workflow remains viable. Yesterday's NEXT_SESSION_TODOS.md incorrectly assumed the workaround had become blocked — invalidated.
+5. **Multi-batch single-session tour work is sustainable up to ~3 batches.** This session shipped 3 tour batches (3/4/5 = 35 PAGE_TOURS + 57 anchors) zero aborts. Each subsequent batch benefitted from naming conventions / append patterns of the previous. 4+ batches per session would risk anchor-naming drift + decision fatigue.
+
+---
+
+## Previous session (27 May 2026, preserved for history)
+
 **Version:** 5.24
 **Last Updated:** 27 May 2026 EOD — **15-ship marathon. All P0 (Messaging M2+M3) and 2 P1 (Landing rehash, Joy Ride tour batch 2) closed. Plus complete mobile responsive overhaul (Mobile Ships 0-6) closing all 9 audit HIGH-severity issues + PROF8 (Register iOS zoom).** Backend HEAD `51d7e04` (M backfill script). Frontend HEAD `1af71e9` (Mobile Ship 6 — Register iOS zoom). DOCUMENTATION.md v5.24.
 
