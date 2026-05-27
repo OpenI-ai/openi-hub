@@ -774,5 +774,263 @@ export const PAGE_TOURS = {
       },
     ],
   },
+  // ============================================================
+  // Tour batch 4 (28 May 2026) — 13 persona-specific dashboard tours
+  // CorporateDashboard reuses existing role-tour anchors
+  // (#tour-welcome, #tour-corp-pipeline, #tour-corp-applications,
+  // #tour-corp-recommended) — no new anchors needed.
+  // ============================================================
+  '/dashboard/corporate': {
+    title: 'Corporate Dashboard',
+    steps: [
+      {
+        target: '#tour-welcome',
+        title: 'Your corporate command center',
+        content: 'This dashboard surfaces everything you need to run open innovation: live challenges, applications, AI-recommended startups, and collaboration pipeline.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-corp-pipeline',
+        title: 'Collaboration Pipeline',
+        content: 'Track every active collaboration from outreach to Proof-of-Concept and paid pilots. Hover any stage for filterable details.',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-corp-applications',
+        title: 'Recent Applications',
+        content: 'Latest startup applications to your challenges. Click any row to open the full application + reviews panel.',
+        placement: 'top',
+      },
+      {
+        target: '#tour-corp-recommended',
+        title: 'AI-Recommended Startups',
+        content: 'Curated weekly — startups matching your sector, focus areas, and corporate strategy. Connect or shortlist directly from here.',
+        placement: 'top',
+      },
+    ],
+  },
+  '/dashboard/investor/portfolio': {
+    title: 'Portfolio',
+    steps: [
+      {
+        target: '#tour-page-portfolio-header',
+        title: 'Your invested companies',
+        content: 'Every startup you have invested in lives here — with current valuation, equity stake, exit status, and follow-on opportunities.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-portfolio-add',
+        title: 'Add a portfolio company',
+        content: 'Click Add to Portfolio to log a new investment. Capture startup name, entry date, valuation, equity %, and currency.',
+        placement: 'left',
+      },
+      {
+        target: '#tour-page-portfolio-stats',
+        title: 'Portfolio health at a glance',
+        content: 'Total invested, active count, exited companies, failed, and total exit value — auto-aggregated as you add or update positions.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  '/dashboard/investor/deals': {
+    title: 'Deal Pipeline',
+    steps: [
+      {
+        target: '#tour-page-deals-header',
+        title: 'Your deal pipeline',
+        content: 'Kanban-style pipeline of deals from sourced through diligence, term-sheet, and closed. Drag deals between stages or click for full detail.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-deals-create',
+        title: 'Create a new deal',
+        content: 'Click Create Deal to start tracking a new opportunity. Capture startup name, investment type, and notes. Add terms, milestones, and 8-vector evaluation later.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/incubator/programs': {
+    title: 'Incubation Programs',
+    steps: [
+      {
+        target: '#tour-page-incubator-programs-header',
+        title: 'Manage your programs',
+        content: 'Every incubation program you run lives here — with applications, cohorts, milestones, and equity terms.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-incubator-programs-create',
+        title: 'Launch a new program',
+        content: 'Click New Program to create. Set the title, focus areas, duration, equity terms, and milestones. Save as draft, then publish to start accepting applications.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/accelerator/batches': {
+    title: 'Accelerator Batches',
+    steps: [
+      {
+        target: '#tour-page-accelerator-batches-header',
+        title: 'Your batches and cohorts',
+        content: 'Manage every accelerator batch end-to-end — pitch pipeline, demo day planning, equity terms, and graduation tracking.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-accelerator-batches-create',
+        title: 'Create a new batch',
+        content: 'Click New Batch to start a fresh cohort. Set dates, batch lead, equity terms, demo day, and milestones. Add startups individually or via bulk import.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/mentor/sessions': {
+    title: 'Mentor Sessions',
+    steps: [
+      {
+        target: '#tour-page-mentor-sessions-header',
+        title: 'Your mentoring history',
+        content: 'Every mentoring session you have given — with the mentee, topic, date, status, and outcome notes. Filter by status to focus on what needs follow-up.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-mentor-sessions-create',
+        title: 'Log a new session',
+        content: 'Click New Session to record a meeting you just had — or schedule a future one. Include topic, mentee, date, and key takeaways for future reference.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/mentor/availability': {
+    title: 'Mentor Availability',
+    steps: [
+      {
+        target: '#tour-page-mentor-availability-header',
+        title: 'Set your weekly availability',
+        content: 'Tell mentees when you are free. They can book directly into your open slots — no scheduling back-and-forth.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-mentor-availability-save',
+        title: 'Save your slots',
+        content: 'Click Save All after editing your weekly schedule. Changes take effect immediately — bookable slots refresh for mentees instantly.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/lab/equipment': {
+    title: 'Lab Equipment',
+    steps: [
+      {
+        target: '#tour-page-lab-equipment-header',
+        title: 'Equipment + booking management',
+        content: 'List the equipment your lab offers for use by startups. Manage incoming booking requests and approve or decline based on availability.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-lab-equipment-add',
+        title: 'Add equipment',
+        content: 'Click Add Equipment to list a new piece. Capture name, category, specs, location, hourly rate, and availability window. Startups can request bookings immediately.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/lab/publications': {
+    title: 'Lab Publications',
+    steps: [
+      {
+        target: '#tour-page-lab-publications-header',
+        title: 'Showcase your research output',
+        content: 'List your lab publications, patents, and conference papers. Higher publication count boosts your lab visibility for collaboration and licensing.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-lab-publications-add',
+        title: 'Add a publication',
+        content: 'Click Add Publication to log a new paper. Capture title, authors, journal, year, and DOI. Optionally link to the full text via URL.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/student/portfolio': {
+    title: 'Student Portfolio',
+    steps: [
+      {
+        target: '#tour-page-student-portfolio-header',
+        title: 'Your projects and credentials',
+        content: 'Showcase the work that makes you stand out — research projects, hackathons, certifications, and side projects. Corporates and startups search by skills and tags here.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-student-portfolio-add',
+        title: 'Add a project or certification',
+        content: 'Click the Add button to capture a new project or certification. Include description, skills used, GitHub or demo link, and tag with your research areas.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/student/mentorships': {
+    title: 'Student Mentorships',
+    steps: [
+      {
+        target: '#tour-page-student-mentorships-header',
+        title: 'Track your mentoring journey',
+        content: 'Log every mentor connection — from initial request through active mentorship to completion. Useful for reflection, references, and showing your network growth.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-student-mentorships-create',
+        title: 'Add a mentorship',
+        content: 'Click New Mentorship to start tracking. Capture the mentor name, organisation, status, and notes about what you are learning together.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/academia/research': {
+    title: 'Academic Portfolio',
+    steps: [
+      {
+        target: '#tour-page-academia-portfolio-header',
+        title: 'Research, publications, and grants',
+        content: 'Track every research project, published paper, and active grant in one place. Each section has its own tab — switch between Research, Publications, and Grants.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-academia-portfolio-add',
+        title: 'Add to your portfolio',
+        content: 'The Add button is context-aware — it opens a research, publication, or grant form based on which tab you are on. Each capture the metadata that matters for academic visibility.',
+        placement: 'left',
+      },
+    ],
+  },
+  '/dashboard/sp/services': {
+    title: 'Service Provider Hub',
+    steps: [
+      {
+        target: '#tour-page-sp-services-header',
+        title: 'Your services + clients',
+        content: 'List the services you offer — legal, design, cloud, accounting, marketing — and manage your client relationships. The Reviews tab shows ratings from past clients.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#tour-page-sp-services-add',
+        title: 'Add a service or client',
+        content: 'The Add button switches based on the active tab — add a new service offering on the Services tab, or log a new client on the Clients tab. Reviews come from clients directly.',
+        placement: 'left',
+      },
+    ],
+  },
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };

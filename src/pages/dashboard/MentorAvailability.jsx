@@ -55,10 +55,11 @@ export default function MentorAvailability() {
     <div style={{ padding: 24, maxWidth: 700, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
+          <span id="tour-page-mentor-availability-header" />
           <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Availability</h1>
           <p style={{ margin: '4px 0 0', fontSize: 14, color: '#888' }}>Set your weekly availability for mentoring sessions</p>
         </div>
-        <button onClick={handleSave} disabled={saving}
+        <button id="tour-page-mentor-availability-save" onClick={handleSave} disabled={saving}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 22px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
           <Save size={16}/> {saving ? 'Saving…' : 'Save All'}
         </button>

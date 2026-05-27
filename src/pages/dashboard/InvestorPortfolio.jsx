@@ -87,18 +87,18 @@ export default function InvestorPortfolio() {
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       {/* ── Header ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-portfolio-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <Building2 size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Portfolio
         </h1>
-        <button onClick={() => setShowAdd(true)}
+        <button id="tour-page-portfolio-add" onClick={() => setShowAdd(true)}
           style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 16px', fontSize: 12, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
           <Plus size={14} /> Add to Portfolio
         </button>
       </div>
 
       {/* ── Summary Stats ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12, marginBottom: 24 }}>
+      <div id="tour-page-portfolio-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12, marginBottom: 24 }}>
         {[
           { label: 'Total Invested', value: `INR ${totalInvested.toLocaleString()}`, icon: DollarSign, iconColor: G },
           { label: 'Active Companies', value: activeCount, icon: TrendingUp, iconColor: '#16a34a' },

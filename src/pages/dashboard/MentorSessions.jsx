@@ -48,9 +48,9 @@ export default function MentorSessions() {
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-mentor-sessions-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Mentor Sessions</h1>
-        <button onClick={() => setModal(true)}
+        <button id="tour-page-mentor-sessions-create" onClick={() => setModal(true)}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
           <Plus size={16}/> New Session
         </button>

@@ -95,9 +95,9 @@ export default function AcademiaPortfolio() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-academia-portfolio-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Academic Portfolio</h1>
-        <button onClick={() => openCreate(tab === 0 ? 'project' : tab === 1 ? 'publication' : 'grant')}
+        <button id="tour-page-academia-portfolio-add" onClick={() => openCreate(tab === 0 ? 'project' : tab === 1 ? 'publication' : 'grant')}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
           <Plus size={16} /> {['Add Research', 'Add Publication', 'Add Grant'][tab]}
         </button>

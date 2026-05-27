@@ -48,10 +48,10 @@ export default function SPServices() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-sp-services-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Service Provider Hub</h1>
         {tab < 2 && (
-          <button onClick={() => { setModal(tab === 0 ? 'service' : 'client'); setForm({}); }}
+          <button id="tour-page-sp-services-add" onClick={() => { setModal(tab === 0 ? 'service' : 'client'); setForm({}); }}
             style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
             <Plus size={16} /> {tab === 0 ? 'Add Service' : 'Add Client'}
           </button>

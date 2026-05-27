@@ -79,10 +79,11 @@ export default function AcceleratorBatches() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
+          <span id="tour-page-accelerator-batches-header" />
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Accelerator Batches</h1>
           <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>Manage cohorts, pitch pipelines, and demo day events</p>
         </div>
-        <button onClick={() => setShowCreate(true)}
+        <button id="tour-page-accelerator-batches-create" onClick={() => setShowCreate(true)}
           style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Plus size={16} /> New Batch
         </button>

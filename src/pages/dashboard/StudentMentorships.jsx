@@ -63,9 +63,9 @@ export default function StudentMentorships() {
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-student-mentorships-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>My Mentorships</h1>
-        <button onClick={openCreate}
+        <button id="tour-page-student-mentorships-create" onClick={openCreate}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
           <Plus size={16} /> New Mentorship
         </button>

@@ -48,10 +48,11 @@ export default function LabPublications() {
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
+          <span id="tour-page-lab-publications-header" />
           <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Publications</h1>
           <p style={{ margin: '4px 0 0', fontSize: 14, color: '#888' }}>{pubs.length} publication{pubs.length !== 1 && 's'} on record</p>
         </div>
-        <button onClick={() => setModal(true)}
+        <button id="tour-page-lab-publications-add" onClick={() => setModal(true)}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
           <Plus size={16}/> Add Publication
         </button>

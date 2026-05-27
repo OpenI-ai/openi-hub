@@ -526,13 +526,13 @@ export default function InvestorDeals() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-deals-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <TrendingUp size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Deal Pipeline
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 12, color: '#888' }}>{deals.length} deals</span>
-          <button onClick={() => setShowCreate(true)}
+          <button id="tour-page-deals-create" onClick={() => setShowCreate(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 16px', fontSize: 12, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
             <Plus size={14} /> Create Deal
           </button>

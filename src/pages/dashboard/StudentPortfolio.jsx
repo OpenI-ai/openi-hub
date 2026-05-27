@@ -70,9 +70,9 @@ export default function StudentPortfolio() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-student-portfolio-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>My Portfolio</h1>
-        <button onClick={() => openCreate(tab === 0 ? 'project' : 'certification')}
+        <button id="tour-page-student-portfolio-add" onClick={() => openCreate(tab === 0 ? 'project' : 'certification')}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
           <Plus size={16} /> {tab === 0 ? 'Add Project' : 'Add Certification'}
         </button>
