@@ -240,7 +240,7 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
         <div style={{ ...card, padding: 22 }}>
           <h3 style={{ margin: '0 0 16px', color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>Available Data Points</h3>
           {integ.dataPoints.map((dp, i) => (

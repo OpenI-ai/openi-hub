@@ -336,7 +336,7 @@ export default function DeepTechQualification() {
 
       {/* Assessment form */}
       {mode === 'assess' && !submitted && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           <div>
             {/* Phase 89.5 (T28 follow-up) — startup name as a prominent
                 required field at top of form. Gold border + red asterisk

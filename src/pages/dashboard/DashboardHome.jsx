@@ -187,8 +187,8 @@ export default function DashboardHome() {
         ))}
       </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:20, marginBottom:24 }}
-        className="grid-cols-1 lg:grid-cols-[1fr_300px]">
+      <div style={{ display:"grid", gap:20, marginBottom:24 }}
+        className="grid grid-cols-1 lg:grid-cols-[1fr_300px]">
 
         {/* ── 8-Vector Feature Card ──────────────────────────── */}
         <div style={{
@@ -350,8 +350,8 @@ export default function DashboardHome() {
       </div>
 
       {/* ── Recent Evaluations + Sector Chart Grid ─────────────── */}
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:20, marginBottom:24 }}
-        className="grid-cols-1 lg:grid-cols-[1fr_300px]">
+      <div style={{ display:"grid", gap:20, marginBottom:24 }}
+        className="grid grid-cols-1 lg:grid-cols-[1fr_300px]">
 
         {/* Recent Evaluations */}
         <div style={{ ...card, overflow:"hidden" }}>

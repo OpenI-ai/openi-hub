@@ -724,7 +724,7 @@ function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDow
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
         {/* Agenda */}
         <div style={{ ...card, overflow: 'hidden' }}>
           <div style={{ padding: '14px 22px', borderBottom: '1px solid #eee' }}>

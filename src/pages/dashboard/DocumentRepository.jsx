@@ -319,7 +319,7 @@ export default function DocumentRepository() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
 
         {/* Sidebar: Folder tree */}
         <div style={{ ...card, padding: 16, alignSelf: 'start' }}>
