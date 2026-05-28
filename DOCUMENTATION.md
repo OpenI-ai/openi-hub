@@ -2,8 +2,39 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.28
-**Last Updated:** 28 May 2026 LATE EVENING — **🎉 ~20-ship marathon. BOTH LOCKED P0s CLOSED + Phase 117 ARCHITECTURAL FIX (entity-relationship) + Phase 118 EMAIL RELIABILITY layer.** First block: mobile + Joy Ride tours fully closed. Second block: organizations canonicalization (UNIQUE name + domain, free-email block, auto-join by domain, multi-persona junction, OpenI as Platform Owner, claim flow) + Email Outbox + Auto-Retry + Triple-Fallback (smoke-tested live: pending→sent in 54s). Tour coverage 12 → 85 of 86 dashboard routes (~99%). Combined Mobile Ships 7-11 = 253 fixes across 77 file-touches. Combined Tour Batches 3-9 = 73 PAGE_TOURS / 73 anchor injections across 66 file-touches. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `2b8aa0a` (Tour Batch 9 FINAL). DOCUMENTATION.md v5.27.
+**Version:** 5.29
+**Last Updated:** 28 May 2026 NIGHT — **4-ship process + bug-fix session triggered by cohort feedback.** OpenI team member reported mobile Back button on Challenge pages going to Home instead of challenge list — root cause was state-based detail navigation. Investigation expanded into a critical CSS-specificity series of bugs on the authed dashboard mobile rendering. Ships: Phase 119 (Email outbox admin tile closing Breaking-Point Watch #7), Phase 120 (Route-based detail for Marketplace + CorporateChallenges + PublicMarketplace), Phase 122 (CRITICAL sidebar specificity fix — inline `position: "relative"` overriding Tailwind `fixed lg:static`), Phase 123 (Topbar specificity fix — inline `display: "flex"` overriding Tailwind `hidden md:flex` on breadcrumb + global search bar). Plus 2 process improvements: NEXT_SESSION_TODOS.md memory-hygiene refresh + Standard apply-script template baked into CLAUDE.md with `verify_js_syntax(path)` helper. Backend HEAD `0439bbc` (unchanged — frontend-only session). Frontend HEAD `9264b9a` (Phase 123). DOCUMENTATION.md v5.28 → v5.29.
+
+**Pending verification:** Phase 122 + 123 cohort verification on real mobile device (user wrapped session before sending fresh post-deploy screenshot). Phase 120 functional verification on phone (mobile Back button).
+
+### Tonight's 4 ships (28 May NIGHT, chronological)
+
+| # | Commit | Phase | Files | Notes |
+|---|---|---|---|---|
+| 1 | `85bafdc` | Phase 119 — Email outbox admin tile | 2 | Closed Breaking-Point Watch #7. AdminCosts.jsx tile shows queue depth (pending/sent7d/failed/exhausted) + 10 recent rows + red banner when unack'd exhausted exist. Backend `GET /admin/email-outbox` already existed (Phase 118 v2). 77+/2-. |
+| 2 | `7d9769e` | Phase 120 — Route-based challenge detail (3 surfaces) | 4 | Closed cohort bug (mobile Back went to Home). Marketplace + CorporateChallenges + PublicMarketplace converted from internal `setSelectedId` state to route-based detail. App.jsx sibling `:id` routes added. URLs `/marketplace/:id`, `/dashboard/marketplace/:id`, `/dashboard/corporate/challenges/:id`. Backward-compat for `?challenge=<id>&action=apply` deep-links via mount-redirect. 86+/38-. |
+| 3 | `41d2ce7` | Phase 122 — Mobile sidebar specificity fix | 1 | CRITICAL. Removed inline `position: "relative"` on `<aside>` in DashboardLayout.jsx that was overriding Tailwind `fixed lg:static`. Inline (1,0,0,0) > className (0,0,1,0) specificity. On mobile, sidebar reserved 240px in flex container even when transformed off-screen, pushing main content 240px right. 5+/1-. |
+| 4 | `9264b9a` | Phase 123 — Mobile topbar specificity fix | 1 | Same bug class as Phase 122. Removed inline `display: "flex"` on 2 topbar wrappers (breadcrumb + global AI Ask search bar) that were overriding Tailwind `hidden md:flex`. Both rendered on mobile despite className intent, jamming topbar past viewport. 2+/2-. |
+
+### Cumulative session metrics (28 May NIGHT)
+- 4 commits / 8 file-touches / 170 insertions / 43 deletions
+- Zero rollbacks. Husky pre-commit ESLint passed on every commit.
+- Vercel auto-deployed all 4. State READY confirmed via MCP `list_deployments`.
+
+### 5 lessons banked tonight (full text in CLAUDE.md Don'ts)
+1. Inline `position:` / `display:` ALWAYS wins against Tailwind responsive classes (CSS specificity hierarchy 1,0,0,0 > 0,0,1,0)
+2. Same bug class can recur in adjacent sites in same file — sweep before claiming closure
+3. Mobile bug screenshots often have layered causes — fix one layer, the next surfaces (Phase 122 sidebar fix unmasked Phase 123 topbar bug)
+4. Route-based detail beats state-based detail for any list→detail UX on mobile (Back button correctness + URLs become shareable)
+5. Memory drift between session-close and next-session can leave top P0 stale — write NEXT_SESSION_TODOS.md AT THE END, after all commits
+
+### Standard apply-script template baked into CLAUDE.md
+New section before Don'ts: `verify_js_syntax(path)` helper + full Python apply-script header template. Every backend apply-script that writes JS now MUST run `node --check` post-write. Single-second cost, prevents 25+min prod-down incidents like Phase C4 backtick crash.
+
+---
+
+**Previous Version:** 5.28
+**Previous Updated:** 28 May 2026 LATE EVENING — **🎉 ~20-ship marathon. BOTH LOCKED P0s CLOSED + Phase 117 ARCHITECTURAL FIX (entity-relationship) + Phase 118 EMAIL RELIABILITY layer.** First block: mobile + Joy Ride tours fully closed. Second block: organizations canonicalization (UNIQUE name + domain, free-email block, auto-join by domain, multi-persona junction, OpenI as Platform Owner, claim flow) + Email Outbox + Auto-Retry + Triple-Fallback (smoke-tested live: pending→sent in 54s). Tour coverage 12 → 85 of 86 dashboard routes (~99%). Combined Mobile Ships 7-11 = 253 fixes across 77 file-touches. Combined Tour Batches 3-9 = 73 PAGE_TOURS / 73 anchor injections across 66 file-touches. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `2b8aa0a` (Tour Batch 9 FINAL). DOCUMENTATION.md v5.27.
 
 **✅ LOCKED P0 FULLY CLOSED.** Next session priorities open — see CLAUDE.md pending queue. Top candidates: (P1) cohort verification cycle for 13 ships shipped today, (P2) lucide warnings cleanup (~150 ESLint), (P2) 29 react-hooks/exhaustive-deps warnings, (P2) mobile audit MEDIUM/LOW items if any cohort flagged.
 
