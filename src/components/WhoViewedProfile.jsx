@@ -93,7 +93,7 @@ export default function WhoViewedProfile() {
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 14 }}>
         <MiniStat icon={Users} label="Unique viewers" value={unique} color="#7c3aed" />
         <MiniStat icon={TrendingUp} label="Past 7 days" value={v7d} color="#0284c7" />
         <MiniStat icon={Eye} label="Past 30 days" value={v30d} color="#16a34a" />

@@ -146,13 +146,13 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
               placeholder="colleague@company.com"
-              style={{ flex: 1, padding: '6px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
+              style={{ flex: 1, padding: '6px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
               onKeyDown={e => e.key === 'Enter' && submitInvite()}
             />
             <select
               value={inviteRole}
               onChange={e => setInviteRole(e.target.value)}
-              style={{ padding: '6px 8px', fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 6, background: 'white' }}
+              style={{ padding: '6px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, background: 'white' }}
             >
               <option value="editor">Editor</option>
               <option value="reviewer">Reviewer</option>
@@ -219,7 +219,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
                   <select
                     value={c.role}
                     onChange={e => changeRole(c.id, e.target.value)}
-                    style={{ padding: '3px 6px', fontSize: 10, border: '1px solid #e5e7eb', borderRadius: 5, background: 'white' }}
+                    style={{ padding: '3px 6px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 5, background: 'white' }}
                     title="Change role"
                   >
                     <option value="editor">Editor</option>

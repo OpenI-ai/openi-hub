@@ -336,14 +336,14 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', o
                     value={c.key}
                     onChange={e => updateCriterion(i, 'key', e.target.value)}
                     placeholder="criterion (e.g. market)"
-                    style={{ flex: 2, padding: '5px 8px', fontSize: 11, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
+                    style={{ flex: 2, padding: '5px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
                   />
                   <input
                     type="number" step="0.1" min="0" max="10"
                     value={c.value}
                     onChange={e => updateCriterion(i, 'value', e.target.value)}
                     placeholder="0–10"
-                    style={{ flex: 1, padding: '5px 8px', fontSize: 11, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
+                    style={{ flex: 1, padding: '5px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
                   />
                   <button
                     type="button"
@@ -380,7 +380,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', o
               placeholder="Why did you give this score / verdict?"
               rows={3}
               style={{
-                width: '100%', padding: '8px 10px', fontSize: 12,
+                width: '100%', padding: '8px 10px', fontSize: 16,
                 border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none',
                 resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box',
               }}

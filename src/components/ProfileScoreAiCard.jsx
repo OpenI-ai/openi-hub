@@ -186,7 +186,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
       {hasAnalysis && (
         <>
           {/* Two scores side by side */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 16 }}>
             {/* AI Quality Score */}
             <div style={{ padding: 14, borderRadius: 10, background: '#fafafa', border: '1px solid #f0f0f0' }}>
               <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>

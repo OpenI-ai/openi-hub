@@ -361,7 +361,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied, autoStart
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 6 }}>{f.label}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                         <div>
                           <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, color: '#9ca3af', marginBottom: 3 }}>Current</div>
                           <FieldPreview type={f.type} value={current} />

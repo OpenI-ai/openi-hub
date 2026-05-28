@@ -49,7 +49,7 @@ export default function TaxonomyFilterPanel({ taxonomy, filters, onChange, onCle
             onChange={e => onChange('search', e.target.value)}
             placeholder="Search startups by name, description..."
             style={{
-              width: '100%', padding: '8px 10px 8px 32px', fontSize: 12,
+              width: '100%', padding: '8px 10px 8px 32px', fontSize: 16,
               border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none',
               background: '#f9fafb', boxSizing: 'border-box',
             }}

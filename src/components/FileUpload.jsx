@@ -199,7 +199,7 @@ export default function FileUpload({
             placeholder="https://..."
             onBlur={e => { if (e.target.value.trim()) { onChange(e.target.value.trim()); } }}
             onKeyDown={e => { if (e.key === 'Enter' && e.target.value.trim()) { onChange(e.target.value.trim()); } }}
-            style={{ flex: 1, padding: '4px 8px', fontSize: 11, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none', color: '#666' }}
+            style={{ flex: 1, padding: '4px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none', color: '#666' }}
           />
         </div>
       )}

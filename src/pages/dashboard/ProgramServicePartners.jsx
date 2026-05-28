@@ -423,7 +423,7 @@ export default function ProgramServicePartners() {
                   style={{ ...inp, resize: 'vertical' }} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                 <div>
                   <label style={lbl}>Currency</label>
                   <select value={form.perk_value_currency} onChange={e => setForm({ ...form, perk_value_currency: e.target.value })} style={inp}>

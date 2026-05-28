@@ -253,7 +253,7 @@ export default function AcceleratorBatches() {
                     <input type="date" value={form.demo_day_date} onChange={e => setForm({ ...form, demo_day_date: e.target.value })} style={inp} />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                   <div>
                     <label style={lbl}>Total Seats</label>
                     <input type="number" value={form.total_seats} onChange={e => setForm({ ...form, total_seats: e.target.value })} style={inp} />

@@ -202,7 +202,7 @@ export default function BillingAddressModal({ open, onClose, onSaved, initial = 
         </div>
 
         {/* Country + State */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 14 }}>
           <div>
             <label className={labelCls} style={{ color: '#374151' }}>
               Country <span style={{ color: '#ef4444' }}>*</span>
@@ -227,7 +227,7 @@ export default function BillingAddressModal({ open, onClose, onSaved, initial = 
         {/* City + postal code — city is a searchable dropdown via CityField
             (opens on focus, shows top cities for selected state, debounced
             search as the user types, allows free-text for villages). */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 14 }}>
           <CityField
             value={city}
             onChange={setCity}
