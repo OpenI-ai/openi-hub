@@ -496,14 +496,14 @@ export default function DashboardLayout() {
           </button>
 
           {/* Breadcrumb */}
-          <div style={{ fontSize:12, color: C.textMuted, display:"flex", alignItems:"center", gap:6, flexShrink:0 }} className="hidden md:flex">
+          <div style={{ fontSize:12, color: C.textMuted, alignItems:"center", gap:6, flexShrink:0 }} className="hidden md:flex">  {/* Phase 123: removed inline display:"flex" — was overriding Tailwind `hidden` on mobile */}
             <span style={{ color: C.gold, fontWeight:700 }}>OpenI Hub</span>
             <ChevronRight size={12} />
             <span style={{ color: C.textSecond }}>Dashboard</span>
           </div>
 
           {/* Global AI Ask search in top bar */}
-          <div style={{ flex:1, display:"flex", justifyContent:"center", maxWidth:480, marginLeft:"auto", marginRight:"auto" }} className="hidden md:flex">
+          <div style={{ flex:1, justifyContent:"center", maxWidth:480, marginLeft:"auto", marginRight:"auto" }} className="hidden md:flex">  {/* Phase 123: removed inline display:"flex" — was overriding Tailwind `hidden` on mobile */}
             <SearchBar
               onSearch={(term, mode) => {
                 const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
