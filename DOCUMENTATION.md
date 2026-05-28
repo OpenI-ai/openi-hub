@@ -2,12 +2,12 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.26
-**Last Updated:** 28 May 2026 EOD — **8-ship session. MOBILE RESPONSIVENESS LOCKED P0 FULLY CLOSED + major tour-coverage progress.** Tour coverage 12 → 47 of 86 dashboard routes (+292%). Combined Ships 7 + 8 + 9 + 10 = 236 mobile-responsiveness fixes across 66 file-touches. Every dashboard surface that needed mobile work has been touched. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `1fce0e5` (Mobile Ship 10). DOCUMENTATION.md v5.26.
+**Version:** 5.27
+**Last Updated:** 28 May 2026 EOD — **🎉 13-ship session. LOCKED P0 FULLY CLOSED — MOBILE RESPONSIVENESS + JOY RIDE TOURS for the ENTIRE PLATFORM.** Tour coverage 12 → 85 of 86 dashboard routes (~99%). Combined Mobile Ships 7-11 = 253 fixes across 77 file-touches. Combined Tour Batches 3-9 = 73 PAGE_TOURS / 73 anchor injections across 66 file-touches. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `2b8aa0a` (Tour Batch 9 FINAL). DOCUMENTATION.md v5.27.
 
-**🚨 NEXT SESSION FIRST ACTION (locked P0 mobile is DONE; tour work continues):** Mobile responsiveness fully done. Joy Ride tours 55% done (47 of 86 routes). Continue with Tour Batches 6 (recommendation surfaces, 5 templated) → 7 (admin, 9 routes) → 8 (long-tail, 9-15 routes). Full spec in `/Users/rajeevbanduni/CoPilot/NEXT_SESSION_TODOS.md` + `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-28.md`.
+**✅ LOCKED P0 FULLY CLOSED.** Next session priorities open — see CLAUDE.md pending queue. Top candidates: (P1) cohort verification cycle for 13 ships shipped today, (P2) lucide warnings cleanup (~150 ESLint), (P2) 29 react-hooks/exhaustive-deps warnings, (P2) mobile audit MEDIUM/LOW items if any cohort flagged.
 
-### Today's 8 ships (28 May 2026, chronological)
+### Today's 13 ships (28 May 2026, chronological)
 
 | # | Commit | Ship | Files | Notes |
 |---|---|---|---|---|
@@ -19,27 +19,47 @@
 | 6 | `c89ed1b` | docs: v5.24 → v5.25 bump | 1 | Mid-session DOCUMENTATION.md update. |
 | 7 | `afa3b63` | Mobile Ship 9 — pattern-based grid responsiveness mega-ship | 19 | 37 inline `1fr 1fr ...` and `repeat(N, 1fr)` for N≥2 → auto-fit minmax. AcademiaPortfolio x5 + AcceleratorPartners x4 + IncubatorPrograms x4 + ProjectManagement x4 + StudentPortfolio x3 + 14 others. MIN auto-sized 110-220px by column count. |
 | 8 | `1fce0e5` | Mobile Ship 10 — 2-pane sidebar responsiveness | 5 | DashboardHome x 2 (remove inline grid, Tailwind class covers responsiveness), DeepTechQualification + DocumentRepository + EventsRepository + GovtAPIIntegrations to auto-fit minmax. |
+| 9 | `4d7093a` | docs: v5.25 → v5.26 bump | 1 | Mid-session DOCUMENTATION.md update before continuing. |
+| 10 | `cef353c` | Mobile Ship 11 — shared-component pass (locked P0 mobile fully closed) | 11 | 17 substitutions: 8 form-control fontSize bumps + 8 inline-grid auto-fit swaps + 1 repeat(3,1fr). Shared components (CollaboratorsPanel / ReviewPanel / FileUpload / TaxonomyFilterPanel / AIEvaluationPanel / ProfileScoreAiCard / BillingAddressModal / WhoViewedProfile + 2 dashboard pages). |
+| 11 | `685e825` | Tour Batch 6 — Recommendation surfaces (5 personas) | 6 | 5 PAGE_TOURS for Investor/Incubator/Accelerator/Student/Academia recommended-startups pages. All 5 share identical H1 wrapper anchor literal — single-anchor template. |
+| 12 | `bfd027e` | Tour Batch 7 — Innovation Seeker remaining (13 routes) | 8 | 7 NEW anchors + 13 PAGE_TOURS. Per user EOD priority: persona-facing > admin. InvestorDealRequests / IncubatorMentorPool / IncubatorProgramDetail / AcceleratorBatchDetail / AcceleratorPartners / ProgramServicePartners / GovtAPIIntegrations. 6 routes reuse existing anchors in shared files (SPServices / LabEquipment / StudentPortfolio / AcademiaPortfolio). Includes dup-route pre-check (lesson from sp/services ESLint roundtrip). |
+| 13 | `7a91d04` | Tour Batch 8 — Universal long-tail (11 routes / 9 files) | 10 | 9 NEW anchors + 11 PAGE_TOURS. 3 startup-profile route variants share single anchor (StartupProfile.jsx — most-viewed surface). UserProfile / OrgAdmin / Onboarding / FeatureMap / StartupPipeline / StartupCrawling / AddRole / RegisterStartup. |
+| 14 | `2b8aa0a` | Tour Batch 9 — Admin surfaces (9 routes) — FINAL BATCH | 10 | 9 NEW anchors + 9 PAGE_TOURS. AdminConsole / Users / Challenges / Startups / Licenses / Claims / Analytics / Costs / PlatformHealth. **🎉 LOCKED P0 (Joy Ride tours for ENTIRE PLATFORM) FULLY CLOSED.** Tour coverage 76 → 85 of 86 routes (~99%). |
 
 ### Cumulative session metrics (28 May)
 
-- **8 frontend commits** / 92 file-touches / 956 insertions / 263 deletions
+- **13 frontend commits** / 154 file-touches / ~1,540 insertions / ~275 deletions
 - **Zero backend commits** (no backend work this session)
-- **Zero rollbacks, zero anchor aborts, zero broken deploys**
-- **Tour coverage:** 12 → 47 of 86 dashboard routes (+292%)
-- **iOS auto-zoom:** 38 files fully clean (every active dashboard form control safe on iPhone Safari)
-- **Mobile-grid responsiveness:** 65 sites fixed across 28 files (Ships 8 + 9 + 10 combined). Tabular row layouts (4 sites: DocumentRepository L468/L483, EventsRepository L414/L422) intentionally kept as-is for data-table alignment.
+- **Zero rollbacks, zero anchor aborts, zero broken deploys** (1 ESLint no-dupe-keys block at Batch 7 hotfixed cleanly via dedupe script)
+- **Tour coverage:** 12 → 85 of 86 dashboard routes (+608% from session-start, ~99% complete)
+- **iOS auto-zoom:** 38 files + 4 shared components fully clean (every form control on every surface safe on iPhone Safari)
+- **Mobile-grid responsiveness:** 78 sites fixed across 30 files (Ships 8/9/10/11 combined). Tabular row layouts (4 sites: DocumentRepository L468/L483, EventsRepository L414/L422) intentionally kept as-is for data-table alignment.
+- **Joy Ride tour coverage:** 73 NEW PAGE_TOURS entries + 73 anchor injections across 7 batches (3/4/5/6/7/8/9) covering every persona (universal + corporate + investor + incubator + accelerator + mentor + lab + service-provider + government + student + academia + admin)
 - Audit document: `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-28.md`
 
-### 🎉 MOBILE RESPONSIVENESS LOCKED P0 — FULLY CLOSED
+### 🎉 LOCKED P0 FULLY CLOSED — MOBILE RESPONSIVENESS + JOY RIDE TOURS
 
-Every dashboard surface that needed mobile work has been touched. Final tally:
+**Both pillars of the 27 May EOD locked P0 are now FULLY closed in a single 28 May session.**
+
+Mobile responsiveness final tally:
 - Ship 7 (`080b9a7`): 175 iOS-zoom fixes across 38 files
 - Ship 8 (`a83ba3b`): 18 top-traffic grid swaps across 4 files
 - Ship 9 (`afa3b63`): 37 pattern-based grid swaps across 19 files
 - Ship 10 (`1fce0e5`): 6 sidebar-layout swaps across 5 files
-- **Total: 236 mobile-responsiveness fixes across 66 file-touches**
+- Ship 11 (`cef353c`): 17 shared-component swaps across 11 files
+- **Total: 253 mobile-responsiveness fixes across 77 file-touches**
 
-Locked P0 mobile work is DONE. Only tour batches 6/7/8 remain for next session to close the locked P0 fully.
+Joy Ride tour final tally:
+- Batch 3 (`27af8e4`): 7 universal-page tours
+- Batch 4 (`edeeb08`): 13 persona-specific tours
+- Batch 5 (`dad7a4e`): 15 cross-persona action-surface tours
+- Batch 6 (`685e825`): 5 recommendation-surface tours
+- Batch 7 (`bfd027e`): 13 Innovation-Seeker-remaining tours
+- Batch 8 (`7a91d04`): 11 universal-long-tail tours
+- Batch 9 (`2b8aa0a`): 9 admin-surface tours (FINAL)
+- **Total: 73 NEW PAGE_TOURS / 73 anchor injections covering 85 of 86 dashboard routes (~99%)**
+
+Locked P0 is DONE — every persona-facing AND admin surface now has both mobile responsiveness AND a guided Joy Ride tour.
 
 ### Key lessons banked 28 May (also in CLAUDE.md Don'ts)
 
