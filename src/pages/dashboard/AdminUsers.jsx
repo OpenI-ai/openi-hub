@@ -87,7 +87,7 @@ export default function AdminUsers() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
+      <div id="tour-page-admin-users" className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center gap-3 mb-1">
           <Link to="/dashboard/admin/console" className="text-gray-400 hover:text-gray-600"><ArrowLeft size={18} /></Link>
           <Users size={20} className="text-blue-500" />

@@ -77,7 +77,7 @@ export default function AdminStartups() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
+      <div id="tour-page-admin-startups" className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-1">

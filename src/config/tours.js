@@ -1611,5 +1611,119 @@ export const PAGE_TOURS = {
     ],
   },
 
+
+  // ============================================================
+  // Tour Batch 9 (28 May 2026) — Admin surfaces (9 routes)
+  // FINAL batch — locked P0 (Joy Ride tours for entire platform) closed.
+  // ============================================================
+  '/dashboard/admin/console': {
+    title: 'Admin Console',
+    steps: [
+      {
+        target: '#tour-page-admin-console',
+        title: 'Admin Console',
+        content: 'Central admin hub. KPI tiles drill into User Management, Startup Data, and Challenge Moderation. Use the role breakdown to spot persona-mix anomalies.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/users': {
+    title: 'User Management',
+    steps: [
+      {
+        target: '#tour-page-admin-users',
+        title: 'User Management',
+        content: 'View every user, edit roles, override plans, disable, or delete. Use the search and role filter to triage support requests. Plan overrides take effect immediately.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/challenges': {
+    title: 'Challenge Moderation',
+    steps: [
+      {
+        target: '#tour-page-admin-challenges',
+        title: 'Challenge Moderation',
+        content: 'Review every challenge across personas. Set status, feature on Marketplace, or moderate problematic content. Filter by status to focus on open or pending review.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/startups': {
+    title: 'Startup Data',
+    steps: [
+      {
+        target: '#tour-page-admin-startups',
+        title: 'Startup Data',
+        content: 'Edit imported startup profiles before founders claim them. The Find Duplicates scanner surfaces same-entity collisions across the 575k-row directory substrate for merge or delete.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/licenses': {
+    title: 'License Management',
+    steps: [
+      {
+        target: '#tour-page-admin-licenses',
+        title: 'License Management',
+        content: 'Plan summary across Free / Pro / Enterprise tiers. Override subscription plans for individual users, manage organizations, or reset usage quotas mid-cycle.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/claims': {
+    title: 'Profile Claims',
+    steps: [
+      {
+        target: '#tour-page-admin-claims',
+        title: 'Profile Claims',
+        content: 'Founder claims to imported startup profiles. Review each claim and approve, reject, or roll back. Admin notes are required for rollbacks since they restore the imported placeholder.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/analytics': {
+    title: 'Platform Analytics',
+    steps: [
+      {
+        target: '#tour-page-admin-analytics',
+        title: 'Platform Analytics',
+        content: 'Platform-wide KPIs — total users, challenges, connections, organizations. Time-series shows signups by role. Plan distribution donut summarises subscription mix.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/costs': {
+    title: 'Service Costs Watchdog',
+    steps: [
+      {
+        target: '#tour-page-admin-costs',
+        title: 'Service Costs Watchdog',
+        content: 'Daily cost watchdog runs at 02:00 IST across Cloudinary, OpenAI, Vercel, Resend, BetterStack, Sentry. Manual entry for Railway. Threshold alerts email rajeev@openi.ai.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/admin/platform-health': {
+    title: 'Platform Health',
+    steps: [
+      {
+        target: '#tour-page-admin-platform-health',
+        title: 'Platform Health',
+        content: 'Real-signup metrics (excludes 575k imported substrate). MTD and YTD revenue in INR plus USD. Churn signals (active subs, renewing 30d, expired). Refresh-on-load, no cron lag.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };

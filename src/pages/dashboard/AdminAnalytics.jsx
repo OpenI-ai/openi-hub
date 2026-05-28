@@ -109,7 +109,9 @@ export default function AdminAnalytics() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700, color: DARK, marginBottom: 4 }}>Platform Analytics</h1>
+      <div id="tour-page-admin-analytics">
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: DARK, marginBottom: 4 }}>Platform Analytics</h1>
+      </div>
       <p style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>Admin dashboard — platform-wide metrics and trends</p>
 
       {/* KPI Cards */}

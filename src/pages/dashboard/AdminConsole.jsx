@@ -51,7 +51,7 @@ export default function AdminConsole() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
+      <div id="tour-page-admin-console" className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center gap-2 mb-1">
           <Shield size={20} className="text-primary-500" />
           <h1 className="text-xl font-display font-bold text-gray-900">Admin Console</h1>

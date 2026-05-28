@@ -111,7 +111,7 @@ export default function AdminClaims() {
         <ArrowLeft size={14} /> Back to Admin Console
       </Link>
 
-      <div className="mb-6">
+      <div id="tour-page-admin-claims" className="mb-6">
         <h1 className="text-2xl font-bold mb-1" style={{ color: '#1a1a1a' }}>Profile Claims</h1>
         <p className="text-sm" style={{ color: '#6B7280' }}>
           Review and decide on founder claims to imported startup profiles.

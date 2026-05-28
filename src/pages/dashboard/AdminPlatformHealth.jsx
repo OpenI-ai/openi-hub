@@ -79,7 +79,7 @@ export default function AdminPlatformHealth() {
 
   return (
     <div style={{ padding: '20px 24px', maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 18 }}>
+      <div id="tour-page-admin-platform-health" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 18 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>Platform Health</h1>
         <span style={{ fontSize: 11, color: '#9ca3af' }}>As of {generated}</span>
       </div>
