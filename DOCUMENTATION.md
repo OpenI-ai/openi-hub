@@ -2,8 +2,8 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.27
-**Last Updated:** 28 May 2026 EOD — **🎉 13-ship session. LOCKED P0 FULLY CLOSED — MOBILE RESPONSIVENESS + JOY RIDE TOURS for the ENTIRE PLATFORM.** Tour coverage 12 → 85 of 86 dashboard routes (~99%). Combined Mobile Ships 7-11 = 253 fixes across 77 file-touches. Combined Tour Batches 3-9 = 73 PAGE_TOURS / 73 anchor injections across 66 file-touches. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `2b8aa0a` (Tour Batch 9 FINAL). DOCUMENTATION.md v5.27.
+**Version:** 5.28
+**Last Updated:** 28 May 2026 LATE EVENING — **🎉 ~20-ship marathon. BOTH LOCKED P0s CLOSED + Phase 117 ARCHITECTURAL FIX (entity-relationship) + Phase 118 EMAIL RELIABILITY layer.** First block: mobile + Joy Ride tours fully closed. Second block: organizations canonicalization (UNIQUE name + domain, free-email block, auto-join by domain, multi-persona junction, OpenI as Platform Owner, claim flow) + Email Outbox + Auto-Retry + Triple-Fallback (smoke-tested live: pending→sent in 54s). Tour coverage 12 → 85 of 86 dashboard routes (~99%). Combined Mobile Ships 7-11 = 253 fixes across 77 file-touches. Combined Tour Batches 3-9 = 73 PAGE_TOURS / 73 anchor injections across 66 file-touches. Backend HEAD `51d7e04` (unchanged). Frontend HEAD `2b8aa0a` (Tour Batch 9 FINAL). DOCUMENTATION.md v5.27.
 
 **✅ LOCKED P0 FULLY CLOSED.** Next session priorities open — see CLAUDE.md pending queue. Top candidates: (P1) cohort verification cycle for 13 ships shipped today, (P2) lucide warnings cleanup (~150 ESLint), (P2) 29 react-hooks/exhaustive-deps warnings, (P2) mobile audit MEDIUM/LOW items if any cohort flagged.
 
@@ -38,6 +38,92 @@
 - Audit document: `/Users/rajeevbanduni/CoPilot/MOBILE_AUDIT_2026-05-28.md`
 
 ### 🎉 LOCKED P0 FULLY CLOSED — MOBILE RESPONSIVENESS + JOY RIDE TOURS
+
+### 🏗️ PHASE 117 SERIES — Organization Canonicalization (Architectural Fix)
+
+User-raised P0 (28 May LATE EVENING): "Users registering with different domains using same Company name. Different employees of same org becoming separate organizations. Long-term credibility problem."
+
+**Phase 117 (commit `8a7d7de` + hotfix1 `88c2062`):**
+- UNIQUE partial indexes: `organizations.name_normalized` + `LOWER(organizations.domain)`
+- Free-email block for org personas (corporate / govt / lab / investor / academia / incubator / accelerator). Personal personas (startup founder / student / mentor / service_provider) keep free-email-OK.
+- Auto-join existing org by email domain (D5B: same-domain auto-approval, different-domain → claim flow via existing `requestJoin` handler)
+- `canonicalize-organizations.js` migration script — backfilled 11 new orgs created + 8 reused + 19 org_members added across 23 self-registered org-persona profile rows. Zero conflicts.
+
+**Phase 117b (commit `8784b7d`) — Multi-persona junction:**
+User insight: TCS / Infosys / Reliance / Sequoia type entities play MULTIPLE persona roles simultaneously (corporate + service_provider + investor + incubator + accelerator). Original D4 "one type per org" forced 3+ separate org rows for the same domain. Phase 117b adds `organization_personas` junction table — one real-world entity = one org row + many persona rows. Existing orgs backfilled with their primary type. Register handler extended to add new persona to existing org when colleague joins with different persona.
+
+**Phase 117c (commit `b930654`) — OpenI as Platform Owner:**
+- `organizations.is_platform_owner BOOLEAN` + UNIQUE partial index (at most one platform owner ever)
+- OpenI org#7 (domain openi.ai) auto-marked `is_platform_owner=true`, `is_verified=true`
+- OpenI seeded with 5 personas: corporate + service_provider + investor + incubator + accelerator (per user: "OpenI will play multiple roles to service our clients")
+
+**Phase 117d (commit `5bae71a`) — orgByDomain canonical reads:**
+- `GET /api/public/org-by-domain` SELECT now reads `organizations.industry/about/website/headquarters` as canonical
+- COALESCE fallback to legacy persona profile fields for backward compat
+- Response includes new `personas` array + `is_platform_owner` flag
+
+**Phase B (commit `cc76bab` frontend) — Register.jsx wiring:**
+- Auto-prefill Step 2 from orgMatch the moment domain match arrives (was firing only on Continue click — Bug #1 regression from 26 May restored)
+- `FREE_EMAIL_BLOCKED` error surface (clear UI message instead of generic toast)
+- `PLATFORM OPERATOR` gold-on-navy badge on orgMatch card when `is_platform_owner=true`
+- Multi-persona array display: "Plays 5 roles on OpenI: corporate, investor, service_provider, incubator, accelerator" with primary bolded
+
+**OpenI team consolidation (live ops):**
+- rajeev@openi.ai (super admin) → org#7 admin
+- sharad@openi.ai, shalini@openi.ai → org#7 members
+- nandini@openi.ai → demoted from admin to member (Rajeev is canonical admin)
+- vanessabanduni@gmail.com → LEFT UNTOUCHED per user instruction (separate org#3, OpenI Hub on gmail.com)
+
+**Phase C cleanup (commits `2996aaa` frontend + `1c1f14f` backend):**
+- C1 (feedback #2): Removed redundant "Challenge Team" CollaboratorsPanel from CorporateChallenges.jsx detail view
+- C2 (feedback #3): Invite Startups Send button promotes draft email to chip on click before sending
+- C3 (feedback #4): ChallengesToReview cards now deep-link to `/dashboard/corporate/challenges?challenge=<id>`; CorporateChallenges consumes useSearchParams to auto-open detail
+- C4 (feedback #5): Send Suggestion fires bell notification to admin (via notifyManyAsync to role='admin' users) in addition to existing Resend email path — admin sees the suggestion even if Resend silently fails
+
+### 📨 PHASE 118 — Email Outbox + Auto-Retry + Triple-Fallback
+
+User concern (raised multiple times today): "If Resend fails it'll create problem for platform users. What if startups are not getting invite, or corporate not able to get email to build profile?"
+
+**v1 attempt + production incident:**
+Phase 118 v1 (`8e0bd1b`) crashed the Node container at boot. Initial diagnosis blamed Phase 118 → reverted (`0f10a4b`). Root cause turned out to be a PRE-EXISTING bug from earlier-same-session Phase C4 commit: the apply-script had injected `\`SELECT id...\`` (escaped backticks) inside a template-literal context — invalid JS syntax that crashed `require('./controllers/knowledgeController.js')` on boot. The bug was dormant until Phase 118 triggered a fresh container start that eagerly loaded all controllers. Emergency hotfix (`32a5c79`) replaced escaped backticks with double-quoted string. Prod recovered HTTP 502 → 200 in 653ms. Total prod-down time: ~25 minutes.
+
+**v2 (commit `8c00b81`) — with `node --check` syntax gate:**
+Same architecture as v1 (locked decisions A+C+B stand: exponential backoff 1m→5m→30m→2h→12h, triple-fallback on exhaustion, transparent enqueue in sendEmail). Apply-script now runs `node --check <file>` after every JS write — catches syntax errors BEFORE commit.
+
+- `email_outbox` table — persistent queue of every transactional email
+- `admin_email_alerts` table — admin-visible exhaustion alerts
+- `sendEmailDirect()` — raw provider call (Resend → SMTP → fail), returns `{success, provider, message_id, error}`
+- `sendEmail()` rewritten as enqueue + sync-attempt wrapper. ALL 30+ existing callers unchanged.
+- `emailOutboxWorker` cron — every 1 min, drains up to 20 rows. Race-safe via `SELECT FOR UPDATE SKIP LOCKED`.
+- Triple-fallback on 5 exhausted attempts: bell notification (notifyAsync to related_user_id) + INSERT admin_email_alerts row + Sentry.captureMessage
+- NEW admin endpoints: `GET /api/admin/email-outbox` (queue health) + `POST /api/admin/email-outbox/alerts/:id/ack`
+
+**Smoke test on prod (pre-commit verification):**
+- INSERT test row into email_outbox with status='pending'
+- Wait 90s for worker tick
+- Row transitioned to status='sent' in 54s (well under the 60s cron interval)
+- Provider: resend, message_id: 8d88ee50-1f0d-4946-9003-bd8019c49e04
+- No more silently-lost emails. Resend outages now self-heal.
+
+### NEW LESSONS BANKED 28 May LATE EVENING
+
+1. **Apply-scripts writing JS containing template literals MUST run `node --check` on every modified file before commit.** The C4-incident proved that ESLint pre-commit doesn't catch escaped-backtick syntax errors inside template-literal context; only Node's own parser catches them. From now on, every Python apply-script generating JS must include `verify_js_syntax(path)` as a mandatory final gate. Time cost: <1 second per file. Disaster prevented: ~25 min prod-down + revert cycle.
+
+2. **One real-world organization can play multiple persona roles.** TCS / Infosys / Sequoia type entities are exactly the high-value enterprises OpenI wants on the platform — they will register as corporate (sourcing innovation), service_provider (offering services), and investor (CVC arm). Schema must support N personas per org, not one. Pattern 1 (junction table) is the right architecture. UNIQUE constraint on domain stays, but org type fans out via `organization_personas`. Single source of truth for company identity; persona membership is metadata.
+
+3. **OpenI is the platform operator, not a customer.** `is_platform_owner` flag distinguishes OpenI's own org from customer orgs in directory + discovery + share-challenge surfaces. UNIQUE partial index enforces at most one platform owner ever — anyone trying to flip another org's flag is blocked by the index. Platform-owner org gets distinct PLATFORM OPERATOR gold-on-navy badge in UI.
+
+4. **Bell-notification as belt-and-suspenders alongside email — every important user signal must have two delivery channels.** If Resend is down, the in-app bell still shows the signal. If the user hasn't logged in for weeks, the email still fires. Two channels, two independent failure modes, exponentially better delivery confidence.
+
+5. **Free-email block for org personas is a credibility gate, not friction.** Personal-email-registering "Acme Inc" on the platform is an impostor pattern (real Acme employees have @acme.com). Block at registration with clear remediation message. Individual personas (startup founder solo, student, mentor, service_provider) stay free-email-OK because those are personal identities. The free-email-domains blocklist is conservative (~40 entries: webmail + disposable + ISP-bundled).
+
+### Final state EOD 28 May 2026 LATE EVENING
+
+- **Backend HEAD:** `8c00b81` (Phase 118 v2 — Email Outbox + Auto-Retry + Triple-Fallback)
+- **Frontend HEAD:** `2996aaa` (Phase C cleanup)
+- **DOCUMENTATION.md:** v5.28 (this commit)
+- Both repos clean. Prod healthy. Email outbox infrastructure live and smoke-tested.
+
 
 **Both pillars of the 27 May EOD locked P0 are now FULLY closed in a single 28 May session.**
 
