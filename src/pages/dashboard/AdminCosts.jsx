@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../services/api';
-import { DollarSign, AlertTriangle, TrendingUp, Plus, RefreshCw, Trash2, Loader2, Database } from 'lucide-react';
+import { DollarSign, AlertTriangle, TrendingUp, Plus, RefreshCw, Trash2, Loader2, Database, Mail } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import toast from 'react-hot-toast';
 
@@ -26,6 +26,8 @@ export default function AdminCosts() {
   const [errors, setErrors] = useState({ issues: [], stats: null });
   // R: DR Drill + db-backup state
   const [drill, setDrill] = useState({ workflows: {}, error: null });
+  // Phase 119: Email outbox state
+  const [outbox, setOutbox] = useState({ status_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
   const [loading, setLoading] = useState(true);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState({ service: 'railway', month_label: '', cost_usd: '', note: '' });
@@ -34,18 +36,21 @@ export default function AdminCosts() {
     setLoading(true);
     try {
       // Phase 102-sentry: parallel fetch (added errorsSummary)
-      const [s, a, u, e, d] = await Promise.all([
+      // Phase 119: also fetch email outbox health
+      const [s, a, u, e, d, o] = await Promise.all([
         adminAPI.costsSummary(),
         adminAPI.costsAlerts(),
         adminAPI.uptimeSummary().catch(() => ({ monitors: [], stats: null })),
         adminAPI.errorsSummary().catch(() => ({ issues: [], stats: null })),
         adminAPI.drillHistory().catch(() => ({ workflows: {}, error: 'failed to load' })),
+        adminAPI.emailOutboxHealth().catch(() => ({ status_counts: [], recent_emails: [], unacknowledged_exhausted: [] })),
       ]);
       setSummary(s);
       setAlerts(a.alerts || []);
       setUptime(u || { monitors: [], stats: null });
       setErrors(e || { issues: [], stats: null });
       setDrill(d || { workflows: {}, error: null });
+      setOutbox(o || { status_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
     } catch (e) {
       console.error('[admin-costs]', e);
       toast.error('Failed to load costs: ' + (e?.message || 'unknown'));
@@ -253,6 +258,73 @@ export default function AdminCosts() {
               </table>
             </div>
           )}
+
+          {/* Phase 119: Email Outbox Health */}
+          <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Mail size={16} color={G} /> Email Outbox (Phase 118)
+            {(() => {
+              const pending = (outbox.status_counts.find(s => s.status === 'pending') || {}).cnt || 0;
+              const sent = (outbox.status_counts.find(s => s.status === 'sent') || {}).cnt || 0;
+              const failed = (outbox.status_counts.find(s => s.status === 'failed') || {}).cnt || 0;
+              const exhausted = outbox.unacknowledged_exhausted.length;
+              return (
+                <span style={{ fontSize: 11, fontWeight: 500, color: '#666', marginLeft: 8 }}>
+                  {pending} pending · {sent} sent (7d) · {failed} failed
+                  {exhausted > 0 && <span style={{ color: '#dc2626', fontWeight: 700 }}> · {exhausted} EXHAUSTED</span>}
+                </span>
+              );
+            })()}
+          </h2>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
+            {outbox.unacknowledged_exhausted.length > 0 && (
+              <div style={{ padding: 12, background: '#fef2f2', borderBottom: '1px solid #fecaca', color: '#991b1b', fontSize: 12, fontWeight: 600 }}>
+                ⚠ {outbox.unacknowledged_exhausted.length} email(s) exhausted all retries (triple-fallback fired). Investigate and acknowledge below.
+              </div>
+            )}
+            {(!outbox.recent_emails || outbox.recent_emails.length === 0) ? (
+              <div style={{ padding: 24, color: '#666', fontSize: 13, textAlign: 'center' }}>
+                No emails in outbox yet.
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr style={{ background: '#fafafa', borderBottom: '1px solid #eee' }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>To</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Subject</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Status</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: '#666' }}>Attempts</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Created</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#666' }}>Sent / Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {outbox.recent_emails.slice(0, 10).map(r => {
+                    const statusColors = {
+                      sent:      { bg: '#d1fae5', fg: '#065f46' },
+                      pending:   { bg: '#fef3c7', fg: '#92400e' },
+                      failed:    { bg: '#fee2e2', fg: '#dc2626' },
+                      exhausted: { bg: '#fecaca', fg: '#991b1b' },
+                    };
+                    const sc = statusColors[r.status] || { bg: '#f3f4f6', fg: '#6b7280' };
+                    return (
+                      <tr key={r.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                        <td style={{ padding: '10px 12px', color: '#333', fontFamily: 'monospace', fontSize: 11 }}>{r.to_email}</td>
+                        <td style={{ padding: '10px 12px', maxWidth: 280, color: '#333', wordBreak: 'break-word' }}>{r.subject}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 10, background: sc.bg, color: sc.fg, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>{r.status}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{r.attempts || 0}</td>
+                        <td style={{ padding: '10px 12px', color: '#888', fontSize: 11 }}>{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                        <td style={{ padding: '10px 12px', color: r.last_error ? '#dc2626' : '#888', fontSize: 11, maxWidth: 240, wordBreak: 'break-word' }}>
+                          {r.sent_at ? new Date(r.sent_at).toLocaleString() : (r.last_error || '—')}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
 
           {/* ── 30-day trend charts (per service) ───────────────────────── */}
           {/* R: DR Backup Health - GitHub Actions workflow runs */}

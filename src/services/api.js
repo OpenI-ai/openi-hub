@@ -987,4 +987,7 @@ export const adminAPI = {
   uptimeSummary:            ()              => get('/admin/uptime/summary'),
   // Phase 102-sentry: Sentry errors summary
   errorsSummary:            ()              => get('/admin/errors/summary'),
+  // Phase 119: Email outbox health (queue depth, recent sends, exhausted alerts)
+  emailOutboxHealth:        ()              => get('/admin/email-outbox'),
+  emailOutboxAckAlert:      (id)            => post(`/admin/email-outbox/alerts/${id}/ack`, {}),
 };
