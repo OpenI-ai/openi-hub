@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { challengeAPI, corporateAPI } from '../../services/api';
 import FileUpload from '../../components/FileUpload';
 import {
@@ -48,39 +48,50 @@ export default function Marketplace() {
   const [challengeType, setChallengeType] = useState('');
   const [facets, setFacets] = useState({ sector: {}, challenge_type: {} });
 
-  // Detail/apply state
-  const [selectedId, setSelectedId] = useState(null);
+  // Detail/apply state — Phase 120: selectedId now derived from URL :id param
+  const navigate = useNavigate();
+  const { id: paramId } = useParams();
+  const selectedId = paramId ? parseInt(paramId, 10) : null;
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showApply, setShowApply] = useState(false);
   const [searchParams] = useSearchParams();
 
-  // Deep-link: /dashboard/marketplace?challenge=<id>&action=apply
-  // Used by ChallengeInvites.jsx after Accept so invitee lands on Apply form.
-  // Reads once on mount; openDetail is async and idempotent.
+  // Phase 120: Legacy deep-link redirect (?challenge=<id>&action=apply)
+  // Converts old query-param form to new path form so email links + bookmarks still work.
+  // ChallengeInvites.jsx after Accept continues to send users to this URL shape.
   useEffect(() => {
     const qpChallenge = searchParams.get('challenge');
     const qpAction = searchParams.get('action');
-    if (qpChallenge) {
+    if (qpChallenge && !paramId) {
       const id = parseInt(qpChallenge, 10);
       if (Number.isFinite(id)) {
-        openDetail(id).then(() => {
-          if (qpAction === 'apply') {
-            setShowApply(true);
-            // Wait for layout, then scroll the pitch textarea into view + focus
-            setTimeout(() => {
-              const el = document.querySelector('textarea[placeholder*="solution addresses"]');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.focus();
-              }
-            }, 300);
-          }
-        });
+        const newPath = `/dashboard/marketplace/${id}${qpAction === 'apply' ? '?action=apply' : ''}`;
+        navigate(newPath, { replace: true });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally mount-only; later URL changes do not re-trigger
+  }, []); // mount-only — redirect, then the URL-driven fetch effect below takes over
+
+  // Phase 120: Fetch detail whenever URL :id changes (back/forward, click, deep-link)
+  useEffect(() => {
+    if (selectedId && (!detail || detail.id !== selectedId)) {
+      openDetail(selectedId).then(() => {
+        if (searchParams.get('action') === 'apply') {
+          setShowApply(true);
+          setTimeout(() => {
+            const el = document.querySelector('textarea[placeholder*="solution addresses"]');
+            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
+          }, 300);
+        }
+      });
+    } else if (!selectedId && (detail || showApply)) {
+      // URL reverted to list — clear detail state
+      setDetail(null);
+      setShowApply(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
 
   const [profilePct, setProfilePct] = useState(null);
   const [applying, setApplying] = useState(false);
@@ -116,8 +127,10 @@ export default function Marketplace() {
   };
 
   const openDetail = async (id) => {
+    // Phase 120: caller is either the URL-driven useEffect or an explicit
+    // navigate('/dashboard/marketplace/<id>') from a card click handler.
+    // On failure we navigate back to list rather than calling setSelectedId(null).
     setDetailLoading(true);
-    setSelectedId(id);
     try {
       const [d, pc] = await Promise.all([
         challengeAPI.getDetail(id),
@@ -125,7 +138,7 @@ export default function Marketplace() {
       ]);
       setDetail(d);
       setProfilePct(pc.profile_pct);
-    } catch (err) { toast.error(err.message); setSelectedId(null); }
+    } catch (err) { toast.error(err.message); navigate('/dashboard/marketplace'); }
     finally { setDetailLoading(false); }
   };
 
@@ -171,7 +184,7 @@ export default function Marketplace() {
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-        <button onClick={() => { setSelectedId(null); setDetail(null); setShowApply(false); }}
+        <button onClick={() => navigate('/dashboard/marketplace')}
           style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Marketplace
         </button>
@@ -409,7 +422,7 @@ export default function Marketplace() {
                 const st = STATUS_BADGE[app.status] || STATUS_BADGE.applied;
                 return (
                   <div key={app.id} style={{ ...card, padding: 16, cursor: 'pointer' }}
-                    onClick={() => openDetail(app.challenge_id)}>
+                    onClick={() => navigate(`/dashboard/marketplace/${app.challenge_id}`)}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>{app.challenge_title}</h3>
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color }}>{st.label}</span>
@@ -542,7 +555,7 @@ export default function Marketplace() {
             <div style={{ display: 'grid', gap: 12 }}>
               {challenges.map(ch => (
                 <div key={ch.id} style={{ ...card, padding: 18, cursor: 'pointer' }}
-                  onClick={() => openDetail(ch.id)}
+                  onClick={() => navigate(`/dashboard/marketplace/${ch.id}`)}
                   onMouseEnter={e => e.currentTarget.style.borderColor = G}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>

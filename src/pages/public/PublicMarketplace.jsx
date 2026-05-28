@@ -3,7 +3,7 @@
  * No authentication required. "Apply Now" redirects to /register.
  */
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Search, Briefcase, MapPin, Clock, Calendar, Users, ChevronDown, ChevronUp,
   ArrowRight, Building2, Tag, DollarSign, Filter, X, ChevronLeft, ChevronRight, ArrowUpDown,
@@ -44,6 +44,9 @@ export default function PublicMarketplace() {
   const [sector, setSector] = useState('');
   const [technology, setTechnology] = useState('');
   const [filters, setFilters] = useState({ sectors: [], technologies: [], usecases: [] });
+  // Phase 120: selectedChallenge data still in state, but URL :id drives the fetch trigger
+  const navigate = useNavigate();
+  const { id: pmpParamId } = useParams();
   const [selectedChallenge, setSelectedChallenge] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -82,6 +85,20 @@ export default function PublicMarketplace() {
     fetchChallenges();
   }
 
+  // Phase 120: Fetch detail whenever URL :id changes (back/forward, click, deep-link)
+  useEffect(() => {
+    if (pmpParamId) {
+      const id = parseInt(pmpParamId, 10);
+      if (Number.isFinite(id) && (!selectedChallenge || selectedChallenge.id !== id)) {
+        openDetail(id);
+      }
+    } else if (selectedChallenge) {
+      // URL reverted to list — clear detail state
+      setSelectedChallenge(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pmpParamId]);
+
   async function openDetail(id) {
     setDetailLoading(true);
     try {
@@ -101,7 +118,7 @@ export default function PublicMarketplace() {
         <div className="max-w-4xl mx-auto px-6 py-12">
           {/* Back button */}
           <button
-            onClick={() => setSelectedChallenge(null)}
+            onClick={() => navigate('/marketplace')}
             className="flex items-center gap-2 text-sm font-semibold mb-8 transition-colors"
             style={{ color: GRAY }}
             onMouseEnter={e => e.currentTarget.style.color = GOLD}
@@ -352,7 +369,7 @@ export default function PublicMarketplace() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {challenges.map(c => (
-                <ChallengeCard key={c.id} challenge={c} onClick={() => openDetail(c.id)} />
+                <ChallengeCard key={c.id} challenge={c} onClick={() => navigate(`/marketplace/${c.id}`)} />
               ))}
             </div>
           )}

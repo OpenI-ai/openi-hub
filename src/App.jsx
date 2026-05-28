@@ -197,6 +197,7 @@ export default function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/invite/accept/:token"  element={<AcceptInvite />} />  {/* Phase 108 */}
           <Route path="/marketplace"       element={<PublicMarketplace />} />
+          <Route path="/marketplace/:id"   element={<PublicMarketplace />} />  {/* Phase 120 — route-based detail */}
           <Route path="/reports"            element={<PublicReports />} />
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
           <Route path="/watchlists/share/:token" element={<SharedWatchlist />} />
@@ -223,6 +224,7 @@ export default function App() {
             <Route path="corporate/search"   element={<CorporateStartupSearch />} />
             <Route path="corporate/recommended-startups" element={<CorporateRecommendedStartups />} />
             <Route path="corporate/challenges" element={<CorporateChallenges />} />
+            <Route path="corporate/challenges/:id" element={<CorporateChallenges />} />  {/* Phase 120 — route-based detail */}
             <Route path="corporate/collabs"  element={<CorporateCollaborations />} />
             <Route path="investor/deal-requests" element={<InvestorDealRequests />} />
             <Route path="investor/deals"     element={<InvestorDeals />} />
@@ -262,6 +264,7 @@ export default function App() {
             <Route path="feedback"            element={<StartupFeedback />} />
             <Route path="govt-apis"           element={<GovtAPIIntegrations />} />
             <Route path="marketplace"         element={<Marketplace />} />
+            <Route path="marketplace/:id"     element={<Marketplace />} />  {/* Phase 120 — route-based detail */}
             <Route path="directory"           element={<Directory />} />
             <Route path="meetings"            element={<Meetings />} />
             <Route path="home"                element={<PersonaDashboard />} />

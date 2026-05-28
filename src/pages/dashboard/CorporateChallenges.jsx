@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 // Phase 100: Link + per-persona labels + AuthContext
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getStatusLabel, getActionLabel } from '../../config/applicationStatusLabels';
 // T32-99d: meetingAPI for invitee typeahead
@@ -107,7 +107,9 @@ const APP_STATUS = {
 
 export default function CorporateChallenges() {
   const [challenges, setChallenges] = useState([]);
-  const [selected, setSelected] = useState(null);
+  // Phase 120: selected now derived from URL :id param (mobile back-button fix)
+  const { id: ccParamId } = useParams();
+  const selected = ccParamId ? parseInt(ccParamId, 10) : null;
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -160,15 +162,27 @@ export default function CorporateChallenges() {
   // can deep-link to a specific challenge detail view. Defer one tick so the
   // initial load() finishes and the challenges list is in state before loadDetail.
   const [searchParamsCC] = useSearchParams();
+  // Phase 120: Legacy ?challenge=<id> deep-link redirect — convert to /:id path form
   useEffect(() => {
     const challengeParam = searchParamsCC.get('challenge');
-    if (challengeParam) {
+    if (challengeParam && !ccParamId) {
       const id = parseInt(challengeParam, 10);
       if (!isNaN(id) && id > 0) {
-        loadDetail(id);
+        navigate(`/dashboard/corporate/challenges/${id}`, { replace: true });
       }
     }
-  }, [searchParamsCC]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount-only — URL-driven fetch effect below takes over after redirect
+
+  // Phase 120: Fetch detail whenever URL :id changes
+  useEffect(() => {
+    if (selected && (!detail || detail.id !== selected)) {
+      loadDetail(selected);
+    } else if (!selected && detail) {
+      setDetail(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
   useEffect(() => { load(); }, [filters]);
 
   const load = async () => {
@@ -197,8 +211,9 @@ export default function CorporateChallenges() {
   };
 
   const loadDetail = async (id) => {
+    // Phase 120: setSelected removed — selected is now derived from URL :id
     try {
-      const d = await corporateAPI.getChallenge(id); setDetail(d); setSelected(id);
+      const d = await corporateAPI.getChallenge(id); setDetail(d);
       if (d.challenge?.status === 'open') loadRecommendations(id);
       else setRecommendedStartups([]);
     } catch (err) {
@@ -360,8 +375,8 @@ const startEdit = () => {
     try {
       await corporateAPI.deleteChallenge(detail.id);
       toast.success('Challenge deleted');
-      setSelected(null);
       setDetail(null);
+      navigate('/dashboard/corporate/challenges');
       load();
     } catch (err) { toast.error(err.message || 'Failed to delete challenge'); }
   };
@@ -395,7 +410,7 @@ const startEdit = () => {
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-        <button onClick={() => { setSelected(null); setDetail(null); }} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+        <button onClick={() => navigate('/dashboard/corporate/challenges')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Challenges
         </button>
 
@@ -1612,7 +1627,7 @@ const startEdit = () => {
             const st = STATUS_STYLE[ch.status] || STATUS_STYLE.open;
             return (
               <div key={ch.id} style={{ ...card, padding: 16, cursor: 'pointer' }}
-                onClick={() => loadDetail(ch.id)}
+                onClick={() => navigate(`/dashboard/corporate/challenges/${ch.id}`)}
                 onMouseEnter={e => e.currentTarget.style.borderColor = G}
                 onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
