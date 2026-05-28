@@ -78,7 +78,7 @@ export default function ChallengesToReview() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {challenges.map(ch => (
             <div key={ch.id}
-              onClick={() => navigate(`/dashboard/challenges/${ch.id}`)}
+              onClick={() => navigate(`/dashboard/corporate/challenges?challenge=${ch.id}`)}
               style={{
                 padding: 16, background: '#fff', border: '1.5px solid #e5e7eb',
                 borderRadius: 12, cursor: 'pointer', display: 'flex',

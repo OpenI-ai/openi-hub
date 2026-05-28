@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 // Phase 100: Link + per-persona labels + AuthContext
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -153,6 +154,21 @@ export default function CorporateChallenges() {
   const persona = user?.role || 'corporate';
 
   useEffect(() => { load(); loadTaxonomy(); }, []);
+
+  // Phase C3 (28 May, feedback #4 fix) — ?challenge=<id> deep-link consumer.
+  // Routes from ChallengesToReview, email invite acceptance, and other surfaces
+  // can deep-link to a specific challenge detail view. Defer one tick so the
+  // initial load() finishes and the challenges list is in state before loadDetail.
+  const [searchParamsCC] = useSearchParams();
+  useEffect(() => {
+    const challengeParam = searchParamsCC.get('challenge');
+    if (challengeParam) {
+      const id = parseInt(challengeParam, 10);
+      if (!isNaN(id) && id > 0) {
+        loadDetail(id);
+      }
+    }
+  }, [searchParamsCC]);
   useEffect(() => { load(); }, [filters]);
 
   const load = async () => {
@@ -574,10 +590,9 @@ const startEdit = () => {
           </div>
         )}
 
-        {/* Phase 40: Collaboration team */}
-        <div style={{ marginBottom: 16 }}>
-          <CollaboratorsPanel entityType="challenge" entityId={detail.id} title="Challenge Team" />
-        </div>
+        {/* Phase 40: Collaboration team — REMOVED 28 May 2026 per cohort feedback #2.
+            "Manage Team" modal (org_members) already covers this function.
+            Removing the duplicate Challenge Team CollaboratorsPanel here. */}
 
         {/* Phase 40 (P8): Reviews */}
         <div style={{ marginBottom: 16 }}>
@@ -1014,13 +1029,27 @@ const startEdit = () => {
                   style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', color: '#666', border: '1.5px solid #ccc', borderRadius: 8, cursor: 'pointer' }}>
                   Cancel
                 </button>
-                <button disabled={inviteBusy || (inviteSelected.length === 0 && inviteEmails.length === 0)}
+                <button
+                  disabled={inviteBusy || (
+                    inviteSelected.length === 0 &&
+                    inviteEmails.length === 0 &&
+                    !(/\S+@\S+\.\S+/.test(inviteEmailDraft.trim()))
+                  )}
                   onClick={async () => {
                     setInviteBusy(true);
+                    // Phase C2 (28 May, feedback #3 fix) — Promote any pending
+                    // draft email to chip before sending. Cohort screenshot
+                    // showed Send disabled with valid email typed but not
+                    // Enter-promoted. This makes the Send click promote-then-send.
+                    let emailsToSend = inviteEmails.slice();
+                    const draft = inviteEmailDraft.trim().toLowerCase().replace(/,$/, '');
+                    if (/\S+@\S+\.\S+/.test(draft) && !emailsToSend.includes(draft)) {
+                      emailsToSend.push(draft);
+                    }
                     try {
                       const r = await corporateAPI.sendInvites(detail.id, {
                         user_ids: inviteSelected.map(u => u.id),
-                        emails: inviteEmails,   // Phase 108
+                        emails: emailsToSend,   // Phase 108 + Phase C2 chip-promote
                         message: inviteMessage.trim() || undefined,
                       });
                       const pendingCount = (r.pending_email_invites || []).length;
