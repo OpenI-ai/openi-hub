@@ -62,7 +62,7 @@ export default function StudentRecommendedStartups() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <div style={{ marginBottom: 20 }}>
+      <div id="tour-page-recs-header" style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>

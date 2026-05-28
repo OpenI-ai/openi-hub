@@ -1246,5 +1246,70 @@ export const PAGE_TOURS = {
       },
     ],
   },
+
+  // ============================================================
+  // Tour Batch 6 (28 May 2026) — Recommendation surfaces (5 personas)
+  // ============================================================
+  '/dashboard/investor/recommended-startups': {
+    title: 'Recommended Startups',
+    steps: [
+      {
+        target: '#tour-page-recs-header',
+        title: 'Curated for you',
+        content: 'Startups matching your focus sectors and investment thesis, ranked by topical alignment. Update Focus Sectors and Looking For in My Profile to change the recommendations you see.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/incubator/recommended-startups': {
+    title: 'Recommended Startups',
+    steps: [
+      {
+        target: '#tour-page-recs-header',
+        title: 'Curated for cohort fit',
+        content: 'Startups matching your incubator\'s focus sectors, ranked for cohort fit. Update Focus Sectors in My Profile to refine the recommendations.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/accelerator/recommended-startups': {
+    title: 'Recommended Startups',
+    steps: [
+      {
+        target: '#tour-page-recs-header',
+        title: 'Curated for batch fit',
+        content: 'Startups matching your accelerator\'s focus sectors, ranked for batch fit. Update Focus Sectors in My Profile to refine the recommendations.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/student/recommended-startups': {
+    title: 'Recommended Startups',
+    steps: [
+      {
+        target: '#tour-page-recs-header',
+        title: 'Curated for your skills',
+        content: 'Startups matching your research areas and skills, ranked by topical alignment. Update Research Areas and Skills in My Profile to refine the recommendations.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/academia/recommended-startups': {
+    title: 'Recommended Startups',
+    steps: [
+      {
+        target: '#tour-page-recs-header',
+        title: 'Curated for partnership',
+        content: 'Startups matching your research areas and what you offer to industry, ranked by topical alignment. Update Research Areas and Industry Offerings in My Profile to refine the recommendations.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };
