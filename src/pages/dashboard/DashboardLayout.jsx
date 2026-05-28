@@ -216,7 +216,11 @@ export default function DashboardLayout() {
           background: C.sidebarBg,
           borderRight: `1px solid ${C.sidebarBorder}`,
           display:"flex", flexDirection:"column", flexShrink:0,
-          position:"relative", zIndex:30, overflow:"hidden",
+          /* Phase 122: position removed — let Tailwind className `fixed lg:static` win.
+             Inline position:"relative" was overriding the Tailwind `fixed` on mobile,
+             causing sidebar to reserve 240px in the flex container even when
+             transformed off-screen, shifting main content right + clipping off right edge. */
+          zIndex:30, overflow:"hidden",
           boxShadow: "2px 0 8px rgba(0,0,0,0.06)",
         }}
         className={`
