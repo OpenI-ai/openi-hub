@@ -306,7 +306,7 @@ export default function InvestorDealRequests() {
   // ── List View ──
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div id="tour-page-investor-deal-requests" className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Deal Sourcing</h1>
           <p className="text-sm text-gray-500">Post your investment thesis to attract startup applications</p>

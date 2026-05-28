@@ -1311,5 +1311,167 @@ export const PAGE_TOURS = {
     ],
   },
 
+
+  // ============================================================
+  // Tour Batch 7 (28 May 2026) — Innovation Seeker remaining (14 routes)
+  // Persona priority per user EOD: persona-facing > admin
+  // ============================================================
+  '/dashboard/investor/deal-requests': {
+    title: 'Deal Sourcing Requests',
+    steps: [
+      {
+        target: '#tour-page-investor-deal-requests',
+        title: 'Deal Sourcing Requests',
+        content: 'Post your investment thesis as a public request. Startups apply with their pitch + materials; you review applications and shortlist matches. Use New Request to publish a fresh thesis.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/incubator/mentors': {
+    title: 'Mentor Pool',
+    steps: [
+      {
+        target: '#tour-page-incubator-mentors',
+        title: 'Mentor Pool',
+        content: 'Your incubator\'s curated mentor roster. Add mentors with specific expertise, set availability windows, then assign them to startups in your programs. Active mentors get matched first.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/incubator/programs/:id': {
+    title: 'Program Detail',
+    steps: [
+      {
+        target: '#tour-page-incubator-program-detail',
+        title: 'Program Detail',
+        content: 'Detailed view of a single program — cohort startups, milestones, assigned mentors, and progress KPIs. Use the action panels to add members, schedule reviews, and track demo-day prep.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/accelerator/batches/:id': {
+    title: 'Batch Detail',
+    steps: [
+      {
+        target: '#tour-page-accelerator-batch-detail',
+        title: 'Batch Detail',
+        content: 'Detailed view of a single accelerator batch — enrolled startups, milestones, perk allocations, and demo-day status. Use Add Startup to onboard new members mid-batch.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/accelerator/partners': {
+    title: 'Partnerships & Network',
+    steps: [
+      {
+        target: '#tour-page-accelerator-partners',
+        title: 'Partnerships & Network',
+        content: 'Manage your corporate partners, investor network, and demo-day events from one surface. Switch tabs to add partners, invite investors, or schedule the next demo-day.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/program/service-partners': {
+    title: 'Service Partners',
+    steps: [
+      {
+        target: '#tour-page-program-service-partners',
+        title: 'Service Partners',
+        content: 'Curated network of legal, accounting, design, and infrastructure service partners for your portfolio startups. Add partners by category, attach perk values, and track which startups use which services.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/govt-apis': {
+    title: 'Government API Integrations',
+    steps: [
+      {
+        target: '#tour-page-govt-apis',
+        title: 'Government API Integrations',
+        content: 'Connect to central + state government databases (DPIIT, MCA, GST, Startup India) for one-click startup verification. Sync All refreshes every integration. Add Integration onboards new APIs.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/lab/bookings': {
+    title: 'Equipment Bookings',
+    steps: [
+      {
+        target: '#tour-page-lab-equipment-header',
+        title: 'Equipment Bookings',
+        content: 'View bookings of your lab equipment by startups and other researchers. Each booking has a time window, contact, and status. Switch to the Equipment tab to manage the underlying inventory.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/sp/clients': {
+    title: 'Active Clients',
+    steps: [
+      {
+        target: '#tour-page-sp-services-header',
+        title: 'Active Clients',
+        content: 'Clients currently engaged on your services. Track engagement status, billing, and renewal dates. Switch to Services tab to manage your offerings or Reviews tab to see feedback.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/sp/reviews': {
+    title: 'Reviews',
+    steps: [
+      {
+        target: '#tour-page-sp-services-header',
+        title: 'Reviews',
+        content: 'Client reviews and ratings on your services. Use these as social proof on your public listing. Respond to reviews publicly to demonstrate engagement.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/student/certifications': {
+    title: 'Certifications',
+    steps: [
+      {
+        target: '#tour-page-student-portfolio-header',
+        title: 'Certifications',
+        content: 'Industry certifications, MOOCs, and courses you have completed. Adds credibility to your profile and helps mentors match you to startups needing your specific skills. Use Add to log a new certification.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/academia/grants': {
+    title: 'Research Grants',
+    steps: [
+      {
+        target: '#tour-page-academia-portfolio-header',
+        title: 'Research Grants',
+        content: 'Grants funding your research — agency, amount, period, and status. Helps surface IP-licensing opportunities for startups exploring your domain. Use Add to log a new grant.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/academia/publications': {
+    title: 'Publications',
+    steps: [
+      {
+        target: '#tour-page-academia-portfolio-header',
+        title: 'Publications',
+        content: 'Your published research — papers, patents, conference talks. Surfaces in startup discovery when corporates search for academic partners. Use Add to log a new publication.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };

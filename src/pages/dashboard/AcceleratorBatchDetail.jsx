@@ -114,7 +114,7 @@ export default function AcceleratorBatchDetail() {
         <ChevronLeft size={14} /> Back to Batches
       </button>
 
-      <div style={{ ...card, padding: 22, marginBottom: 16 }}>
+      <div id="tour-page-accelerator-batch-detail" style={{ ...card, padding: 22, marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>

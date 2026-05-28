@@ -91,7 +91,7 @@ export default function IncubatorMentorPool() {
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div id="tour-page-incubator-mentors" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Mentor Pool</h1>
           <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>{active.length} active · {mentors.length} total mentors</p>
