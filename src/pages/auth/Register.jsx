@@ -525,6 +525,28 @@ export default function Register() {
     return () => clearTimeout(timer);
   }, [email, orgMatchHidden, orgJoinResult, inviteToken]);
 
+  // ─── Phase 117 — Auto-prefill Step 2 from orgMatch (Feedback #6 fix) ───
+  // Whenever orgMatch arrives AND user is on Step 2 OR about to advance to it,
+  // pre-populate org name + industry + description so colleagues entering the
+  // same domain get a consistent profile without re-typing.
+  // Bug #1 (26 May) had this firing only on Continue click — that path still
+  // works (kept below in the onClick) but is too late: by the time the user
+  // sees Step 2 the fields should already be filled. This effect fixes the
+  // regression flagged by cohort 28 May.
+  useEffect(() => {
+    if (!orgMatch || orgJoinResult || !orgField || !personaType) return;
+    setProfileData(prev => ({
+      ...prev,
+      [orgField]: prev[orgField] || orgMatch.name || '',
+      ...(orgMatch.industry && PERSONA_HAS_INDUSTRY[personaType]
+        ? { [PERSONA_INDUSTRY_FIELD[personaType]]: prev[PERSONA_INDUSTRY_FIELD[personaType]] || orgMatch.industry }
+        : {}),
+      ...(orgMatch.description && PERSONA_HAS_DESCRIPTION[personaType]
+        ? { [PERSONA_DESCRIPTION_FIELD[personaType]]: prev[PERSONA_DESCRIPTION_FIELD[personaType]] || orgMatch.description }
+        : {}),
+    }));
+  }, [orgMatch, orgJoinResult, orgField, personaType]);
+
   // Phase 113 — handle "Request to join" click
   const handleRequestJoinOrg = async () => {
     if (!orgMatch || orgJoinSubmitting) return;
@@ -604,7 +626,14 @@ export default function Register() {
       }
       setStep(3);
     } catch (err) {
-      setError(err.message);
+      // Phase 117 — Surface backend FREE_EMAIL_BLOCKED with clear UI hint
+      const code = err?.response?.data?.code || err?.code;
+      const msg  = err?.response?.data?.message || err?.message;
+      if (code === 'FREE_EMAIL_BLOCKED') {
+        setError(msg || 'Please use your work email to register as an organization.');
+      } else {
+        setError(msg || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -826,9 +855,31 @@ export default function Register() {
                         style={{ width: 38, height: 38, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 3, flexShrink: 0 }} />
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', marginBottom: 3 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <strong>{orgMatch.name}</strong> is already on OpenI Hub
+                        {/* Phase 117c — Platform Operator badge */}
+                        {orgMatch.is_platform_owner && (
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#0D2137', color: '#D5AA5B', borderRadius: 4, letterSpacing: 0.3 }}>
+                            PLATFORM OPERATOR
+                          </span>
+                        )}
+                        {orgMatch.is_verified && !orgMatch.is_platform_owner && (
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#16a34a', color: '#fff', borderRadius: 4, letterSpacing: 0.3 }}>
+                            VERIFIED
+                          </span>
+                        )}
                       </div>
+                      {/* Phase 117b — Multi-persona display: show all roles this org plays */}
+                      {Array.isArray(orgMatch.personas) && orgMatch.personas.length > 1 && (
+                        <div style={{ fontSize: 10, color: '#888', marginBottom: 6 }}>
+                          Plays {orgMatch.personas.length} roles on OpenI:&nbsp;
+                          {orgMatch.personas.map((p, i) => (
+                            <span key={p.type} style={{ fontWeight: p.is_primary ? 600 : 400, color: p.is_primary ? '#1a1a1a' : '#888' }}>
+                              {p.type.replace(/_/g, ' ')}{i < orgMatch.personas.length - 1 ? ', ' : ''}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>
                         Would you like to request to join the existing organization, or create your own?
                       </div>
