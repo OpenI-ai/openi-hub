@@ -502,7 +502,7 @@ export default function StartupCrawling() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
+      <div id="tour-page-crawling" className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">

@@ -118,7 +118,7 @@ export default function StartupPipeline() {
   return (
     <div style={{ padding: 28, background: '#f5f5f5', minHeight: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
+      <div id="tour-page-pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Startup Pipeline</h1>
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Track each startup's journey from Application to Graduation</p>

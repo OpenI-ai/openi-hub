@@ -1473,5 +1473,143 @@ export const PAGE_TOURS = {
     ],
   },
 
+
+  // ============================================================
+  // Tour Batch 8 (28 May 2026) — Universal long-tail (11 routes)
+  // Startup profile views + onboarding + org-admin + utilities
+  // ============================================================
+  '/dashboard/startup-profile': {
+    title: 'Startup Profile',
+    steps: [
+      {
+        target: '#tour-page-startup-profile',
+        title: 'Startup Profile',
+        content: 'Public-facing profile of a startup — header banner, financials, team, products, funding rounds, patents, clients, and recent news. Used by corporates and investors to evaluate. Share via the top-right Share button.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/startup-profile/:id': {
+    title: 'Startup Profile',
+    steps: [
+      {
+        target: '#tour-page-startup-profile',
+        title: 'Startup Profile',
+        content: 'Public-facing profile of a startup — header banner, financials, team, products, funding rounds, patents, clients, and recent news. Used by corporates and investors to evaluate. Share via the top-right Share button.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/startups/:id': {
+    title: 'Startup Profile',
+    steps: [
+      {
+        target: '#tour-page-startup-profile',
+        title: 'Startup Profile',
+        content: 'Public-facing profile of a startup — header banner, financials, team, products, funding rounds, patents, clients, and recent news. Used by corporates and investors to evaluate. Share via the top-right Share button.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/profile/:id': {
+    title: 'User Profile',
+    steps: [
+      {
+        target: '#tour-page-user-profile',
+        title: 'User Profile',
+        content: 'Public profile of another OpenI user. Shows their persona, organization, headline meta, and visible profile fields. Use Connect to request a connection — they will be notified.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/organization': {
+    title: 'Organization',
+    steps: [
+      {
+        target: '#tour-page-organization',
+        title: 'Organization',
+        content: 'Manage your organization\'s seats, members, and plan. Admins can invite new members, change roles, and view billing. Non-admins see read-only org details and current plan tier.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/onboarding': {
+    title: 'Welcome to OpenI Hub',
+    steps: [
+      {
+        target: '#tour-page-onboarding',
+        title: 'Welcome to OpenI Hub',
+        content: 'Guided onboarding for your persona — typically 5-7 steps from filling your profile to inviting your team. Progress bar tracks completion. Skippable, but completing all steps boosts your discoverability.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/features': {
+    title: 'Feature Map',
+    steps: [
+      {
+        target: '#tour-page-features',
+        title: 'Feature Map',
+        content: 'Explore every platform capability grouped by tier (Free / Pro / Enterprise). Locked features show what unlocks at higher tiers. Use Upgrade buttons to switch plans without leaving the page.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/pipeline': {
+    title: 'Startup Pipeline',
+    steps: [
+      {
+        target: '#tour-page-pipeline',
+        title: 'Startup Pipeline',
+        content: 'Kanban-style tracker for every startup in your pipeline — Application, Screening, Selected, Onboarded, Graduated, Rejected. Drag cards between stages or click for details. Search across all stages with the top-right search box.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/crawling': {
+    title: 'Startup Crawling & Enrichment',
+    steps: [
+      {
+        target: '#tour-page-crawling',
+        title: 'Startup Crawling & Enrichment',
+        content: 'Discover and enrich startup data from public sources — Crunchbase, AngelList, LinkedIn, official websites. Admin-only utility. Click Enrich Missing Data to batch-fill empty fields across the imported directory.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/roles/add': {
+    title: 'Add another role',
+    steps: [
+      {
+        target: '#tour-page-add-role',
+        title: 'Add another role',
+        content: 'OpenI Hub supports multiple personas per user — e.g. startup founder + mentor + investor. Add a new role to get a separate dashboard for that persona. Switch between roles using the tabs at the top of any dashboard page.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/register': {
+    title: 'Startup Registration',
+    steps: [
+      {
+        target: '#tour-page-register-startup',
+        title: 'Startup Registration',
+        content: 'Multi-step startup registration. Each step gates the next — fields marked * are mandatory. Step indicator at top shows progress. You can revisit completed steps to edit answers before final submission.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };

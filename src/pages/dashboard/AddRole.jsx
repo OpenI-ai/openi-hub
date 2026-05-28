@@ -123,7 +123,7 @@ export default function AddRole() {
         <ArrowLeft size={14} /> Back
       </button>
 
-      <h1 style={{ fontSize:28, fontWeight:700, color:C.textPrimary, marginBottom:6 }}>
+      <h1 id="tour-page-add-role" style={{ fontSize:28, fontWeight:700, color:C.textPrimary, marginBottom:6 }}>
         Add another role
       </h1>
       <p style={{ color:C.textSecond, marginBottom:8 }}>

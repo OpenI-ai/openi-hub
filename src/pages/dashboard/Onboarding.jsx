@@ -114,7 +114,7 @@ export default function Onboarding() {
   const nextIncomplete = steps.find(s => !s.completed);
 
   return (
-    <div style={{ maxWidth: 700, margin: '0 auto', padding: 24 }}>
+    <div id="tour-page-onboarding" style={{ maxWidth: 700, margin: '0 auto', padding: 24 }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{

@@ -102,7 +102,7 @@ export default function FeatureMap() {
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
+    <div id="tour-page-features" style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
         <Map size={22} color={G} />
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Feature Map</h1>

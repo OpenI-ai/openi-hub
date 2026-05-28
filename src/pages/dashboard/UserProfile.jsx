@@ -144,7 +144,7 @@ export default function UserProfile() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
+    <div id="tour-page-user-profile" style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
       <button onClick={() => navigate(-1)}
         style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
         <ChevronLeft size={16} /> Back

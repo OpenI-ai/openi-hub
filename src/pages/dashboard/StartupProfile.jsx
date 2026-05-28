@@ -1332,7 +1332,7 @@ export default function StartupProfile() {
   const TABS = ['Overview', 'Technology', 'Financials'];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div id="tour-page-startup-profile" className="bg-gray-50 min-h-screen">
       {/* Back nav */}
       <div className="bg-dark-950 border-b border-dark-800 px-6 py-2">
         <button onClick={() => navigate('/dashboard/startups')} className="text-dark-400 hover:text-white text-sm flex items-center gap-1 transition-colors">

@@ -146,7 +146,7 @@ export default function RegisterStartup() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto py-8 px-4">
         {/* Header */}
-        <div className="mb-8">
+        <div id="tour-page-register-startup" className="mb-8">
           <h1 className="text-2xl font-display font-bold text-gray-900">Startup Registration</h1>
           <p className="text-gray-500 text-sm mt-1">Create your OpenI Hub profile · All fields marked * are mandatory</p>
         </div>
