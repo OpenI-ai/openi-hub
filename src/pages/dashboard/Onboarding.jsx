@@ -3,7 +3,7 @@
  * First-run experience: persona-specific steps with progress bar.
  * Shown to new users who haven't completed onboarding.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { onboardingAPI } from '../../services/api';
@@ -51,10 +51,12 @@ export default function Onboarding() {
   const [completed, setCompleted] = useState(0);
   const [progressPct, setProgressPct] = useState(0);
   const [skipping, setSkipping] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const persona = PERSONAS[user?.role] || PERSONAS.startup;
 
-  useEffect(() => {
+  const loadStatus = useCallback(() => {
+    setLoading(true);
     onboardingAPI.getStatus().then(data => {
       if (data.onboarding_completed) {
         navigate('/dashboard', { replace: true });
@@ -64,8 +66,18 @@ export default function Onboarding() {
       setTotal(data.total || 0);
       setCompleted(data.completed || 0);
       setProgressPct(data.progress_pct || 0);
-    }).catch(() => {}).finally(() => setLoading(false));
+      setLoadError(false);
+    }).catch(err => {
+      // Don't swallow: a failed status call previously rendered a silent
+      // "0 of 0 steps" empty state (looked like a broken feature). Surface
+      // it so the user can retry and so it's diagnosable in logs/Sentry.
+      console.error('onboarding getStatus failed:', err);
+      setLoadError(true);
+      toast.error('Could not load your onboarding steps. Please retry.');
+    }).finally(() => setLoading(false));
   }, [navigate]);
+
+  useEffect(() => { loadStatus(); }, [loadStatus]);
 
   const handleStepClick = async (step) => {
     if (!step.completed) {
@@ -107,6 +119,40 @@ export default function Onboarding() {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
         <Loader2 size={28} className="spin" style={{ color: '#aaa' }} />
+      </div>
+    );
+  }
+
+  // Status call failed — show an explicit error + retry instead of a silent
+  // "0 of 0 steps" empty state that looks like a broken/empty feature.
+  if (loadError) {
+    return (
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: 24, textAlign: 'center' }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: DARK, marginBottom: 8 }}>
+          Couldn't load your onboarding
+        </h1>
+        <p style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>
+          We hit a problem fetching your steps. This is usually temporary.
+        </p>
+        <button
+          onClick={loadStatus}
+          style={{
+            padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer',
+            background: G, color: '#fff', fontSize: 14, fontWeight: 600, marginRight: 12,
+          }}
+        >
+          Retry
+        </button>
+        <button
+          onClick={handleSkip}
+          disabled={skipping}
+          style={{
+            padding: '10px 20px', borderRadius: 10, border: '1px solid #ddd', cursor: 'pointer',
+            background: '#fff', color: '#666', fontSize: 14, fontWeight: 600,
+          }}
+        >
+          Skip for now
+        </button>
       </div>
     );
   }
