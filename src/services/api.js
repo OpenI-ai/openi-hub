@@ -86,7 +86,27 @@ async function blobRequest(method, path) {
   if (token)      headers['Authorization'] = `Bearer ${token}`;
   if (activeRole) headers['X-Active-Role'] = activeRole;
   const res = await fetch(`${BASE_URL}${path}`, { method, headers });
-  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    // Mirror request()'s global 401 interceptor — an expired token during a
+    // PDF download must also auto-logout + redirect, not throw a raw error.
+    const isAuthEndpoint = path.startsWith('/auth/login') || path.startsWith('/auth/refresh');
+    if (res.status === 401 && !isAuthEndpoint) {
+      removeToken();
+      try {
+        window.dispatchEvent(new CustomEvent('openi:unauthorized', {
+          detail: { message: err.message }
+        }));
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login?reason=expired';
+        }
+      } catch { /* SSR / non-browser context */ }
+      const e = new Error(err.message || 'Your session has expired. Please sign in again.');
+      e.status = 401;
+      throw e;
+    }
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
   return res.blob();
 }
 
