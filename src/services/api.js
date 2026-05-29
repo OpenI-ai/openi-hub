@@ -32,6 +32,27 @@ async function request(method, path, body = null, isFormData = false) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    // Global 401 interceptor — an expired/invalid JWT returns 401 from
+    // authMiddleware on EVERY authed call. Without this, screens whose own
+    // recovery actions (Retry/Skip) are themselves authed just keep 401'ing,
+    // leaving the user stuck with no path out (the onboarding dead-end Tyler hit).
+    // Clear the dead token and bounce to login with a session-expired reason.
+    // Exempt the auth endpoints so a bad login/refresh can't trigger a redirect loop.
+    const isAuthEndpoint = path.startsWith('/auth/login') || path.startsWith('/auth/refresh');
+    if (res.status === 401 && !isAuthEndpoint) {
+      removeToken();
+      try {
+        window.dispatchEvent(new CustomEvent('openi:unauthorized', {
+          detail: { message: data.message }
+        }));
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login?reason=expired';
+        }
+      } catch { /* SSR / non-browser context */ }
+      const err = new Error(data.message || 'Your session has expired. Please sign in again.');
+      err.status = 401;
+      throw err;
+    }
     // s49e: gated-action 403 — caller is logged in but email_verified_at IS NULL.
     // Surface a structured error with code AND emit a global event so any
     // un-caught path still surfaces an actionable UX (toast + redirect).

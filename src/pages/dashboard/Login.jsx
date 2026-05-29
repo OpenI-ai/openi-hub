@@ -35,8 +35,12 @@ export default function Login() {
     new URLSearchParams(window.location.search).get('demo') === '1';
 
   // Phase 97 — Login banner shown after idle-logout redirect.
-  const idleReason = typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('reason') === 'idle';
+  // Also covers reason=expired, emitted by the global 401 interceptor in api.js
+  // when an expired/invalid JWT is detected mid-session.
+  const loginReason = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('reason');
+  const idleReason = loginReason === 'idle';
+  const expiredReason = loginReason === 'expired';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -131,6 +135,11 @@ export default function Login() {
               {idleReason && !error && (
             <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               Your session expired due to inactivity. Please sign in again to continue.
+            </div>
+          )}
+          {expiredReason && !error && (
+            <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              Your session has expired. Please sign in again to continue.
             </div>
           )}
           {error && (
