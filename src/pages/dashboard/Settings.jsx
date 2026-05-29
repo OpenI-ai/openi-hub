@@ -104,19 +104,21 @@ export default function Settings() {
       return sp.get('cycle') === 'annual' ? 'yearly' : 'monthly';
     } catch { return 'monthly'; }
   });
-  // A.5 USD: derive displayCurrency from billing-address country
-  // India -> INR (default until address loads). Anything else -> USD.
-  // Matches backend createOrder logic at subscriptionController.js line ~154.
-  const displayCurrency = (() => {
-    if (!billingAddress?.country) return 'INR'; // safe default while loading
-    return String(billingAddress.country).trim().toLowerCase() === 'india' ? 'INR' : 'USD';
-  })();
-
   // Phase 60.11 — Billing address (mandatory before checkout)
   const [billingAddress, setBillingAddress] = useState(null);
   const [billingModalOpen, setBillingModalOpen] = useState(false);
   // Pending checkout deferred until the billing-address modal is satisfied.
   const [pendingUpgrade, setPendingUpgrade] = useState(null); // { planId, planName }
+
+  // A.5 USD: derive displayCurrency from billing-address country
+  // India -> INR (default until address loads). Anything else -> USD.
+  // Matches backend createOrder logic at subscriptionController.js line ~154.
+  // NOTE: must stay below the billingAddress useState declaration — referencing
+  // the const before init throws a TDZ ReferenceError that crashes the page.
+  const displayCurrency = (() => {
+    if (!billingAddress?.country) return 'INR'; // safe default while loading
+    return String(billingAddress.country).trim().toLowerCase() === 'india' ? 'INR' : 'USD';
+  })();
 
   // AI credit packs state (Phase 26)
   const [creditPacks, setCreditPacks] = useState([]);
