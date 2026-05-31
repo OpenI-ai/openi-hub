@@ -2,12 +2,32 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.29
-**Last Updated:** 28 May 2026 NIGHT — **4-ship process + bug-fix session triggered by cohort feedback.** OpenI team member reported mobile Back button on Challenge pages going to Home instead of challenge list — root cause was state-based detail navigation. Investigation expanded into a critical CSS-specificity series of bugs on the authed dashboard mobile rendering. Ships: Phase 119 (Email outbox admin tile closing Breaking-Point Watch #7), Phase 120 (Route-based detail for Marketplace + CorporateChallenges + PublicMarketplace), Phase 122 (CRITICAL sidebar specificity fix — inline `position: "relative"` overriding Tailwind `fixed lg:static`), Phase 123 (Topbar specificity fix — inline `display: "flex"` overriding Tailwind `hidden md:flex` on breadcrumb + global search bar). Plus 2 process improvements: NEXT_SESSION_TODOS.md memory-hygiene refresh + Standard apply-script template baked into CLAUDE.md with `verify_js_syntax(path)` helper. Backend HEAD `0439bbc` (unchanged — frontend-only session). Frontend HEAD `9264b9a` (Phase 123). DOCUMENTATION.md v5.28 → v5.29.
+**Version:** 5.30
+**Last Updated:** 30 May 2026 — **Auth/onboarding bug-trio session (Tyler Woolsey report) + 401 interceptor completion.** Cohort member Tyler Woolsey couldn't complete a Dentsu challenge apply — expired JWT produced a silent "0 of 0 steps" onboarding dead-end plus a Settings page crash. Root-caused and shipped a 4-commit fix: (1) `0ff280b` fix(settings) — TDZ crash on `/dashboard/settings`; (2) `150287a` fix(onboarding) — de-silenced the `getStatus` catch + added error/retry UI (was failing silently to "0 of 0 steps"); (3) `6e62a6f` feat(api) — global 401 interceptor in `request()`: expired/invalid JWT now `removeToken()` + redirect `/login?reason=expired` with amber banner in Login.jsx (permanent fix for the dead-end); (4) `d321b26` fix(api) — ported the same 401 interceptor branch into `blobRequest()` (PDF-download wrapper), closing the gap where an expired token mid-download left a dead-end + dispatches `openi:unauthorized`. Tyler recovery email drafted + handed to marketing to send (NOT sent by Claude). Backend HEAD `0439bbc` (unchanged — frontend-only session). Frontend HEAD `d321b26`. DOCUMENTATION.md v5.29 → v5.30.
+
+**Vercel deploy verified:** deployment `dpl_H5YWziuFQgSmwbe9b7BLATBNkken` @ `d321b26`, target production, state READY (~34 min before close). Domains openi.ai + app.openi.ai + 4 more. Confirmed via user dashboard screenshot.
+
+**⚠️ Known issue (next session):** Backend `git fetch`/`push` FAILS — GitHub token/PAT expired ("Password authentication is not supported for Git operations. Authentication failed for openi-hub-backend.git"). Local backend HEAD `0439bbc` matches recorded state (no data risk), but remote ops broken until credential refreshed.
+
+**Pending verification:** 401 interceptor in prod (clear `openi_token` → trigger authed call → expect redirect to `/login?reason=expired` + amber banner). Phase 122 + 123 mobile dashboard layout on real device. Phase 120 mobile Back button (challenge detail → list, not Home).
+
+### 29 May ships (auth/onboarding bug trio + 401 follow-up)
+
+| # | Commit | Fix | Notes |
+|---|---|---|---|
+| 1 | `0ff280b` | fix(settings) — TDZ crash | `/dashboard/settings` threw on a temporal-dead-zone reference. |
+| 2 | `150287a` | fix(onboarding) — de-silence getStatus | Catch block was swallowing the error and rendering "0 of 0 steps". Added error/retry UI. |
+| 3 | `6e62a6f` | feat(api) — global 401 interceptor in `request()` | Expired/invalid JWT → `removeToken()` + redirect `/login?reason=expired` (amber banner). Permanent fix for the dead-end. |
+| 4 | `d321b26` | fix(api) — 401 interceptor port into `blobRequest()` | PDF-download wrapper now matches `request()`: `removeToken()` + redirect + dispatches `openi:unauthorized`. `node --check` + eslint hook passed. |
+
+---
+
+**Previous Version:** 5.29
+**Previous Updated:** 28 May 2026 NIGHT — **4-ship process + bug-fix session triggered by cohort feedback.** OpenI team member reported mobile Back button on Challenge pages going to Home instead of challenge list — root cause was state-based detail navigation. Investigation expanded into a critical CSS-specificity series of bugs on the authed dashboard mobile rendering. Ships: Phase 119 (Email outbox admin tile closing Breaking-Point Watch #7), Phase 120 (Route-based detail for Marketplace + CorporateChallenges + PublicMarketplace), Phase 122 (CRITICAL sidebar specificity fix — inline `position: "relative"` overriding Tailwind `fixed lg:static`), Phase 123 (Topbar specificity fix — inline `display: "flex"` overriding Tailwind `hidden md:flex` on breadcrumb + global search bar). Plus 2 process improvements: NEXT_SESSION_TODOS.md memory-hygiene refresh + Standard apply-script template baked into CLAUDE.md with `verify_js_syntax(path)` helper. Backend HEAD `0439bbc` (unchanged — frontend-only session). Frontend HEAD `9264b9a` (Phase 123). DOCUMENTATION.md v5.28 → v5.29.
 
 **Pending verification:** Phase 122 + 123 cohort verification on real mobile device (user wrapped session before sending fresh post-deploy screenshot). Phase 120 functional verification on phone (mobile Back button).
 
-### Tonight's 4 ships (28 May NIGHT, chronological)
+### 28 May NIGHT — 4 ships (chronological)
 
 | # | Commit | Phase | Files | Notes |
 |---|---|---|---|---|
