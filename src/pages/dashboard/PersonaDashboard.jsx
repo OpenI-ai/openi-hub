@@ -6,7 +6,6 @@ import { PERSONAS } from '../../config/personas';
 import WhoViewedProfile from '../../components/WhoViewedProfile';
 import MfaBanner from '../../components/MfaBanner';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
-import TourWrapper from '../../components/TourWrapper';
 import PlanHeroTile from '../../components/PlanHeroTile'; // Phase 68 — plan visibility
 import {
   Rocket, GraduationCap, BookOpen, Building2, Landmark, TrendingUp, Users,
@@ -241,9 +240,6 @@ export default function PersonaDashboard() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       {/* Phase 54: MFA enrollment nudge (hidden for demo/admin + already-enrolled users) */}
       <MfaBanner />
-
-      {/* P4 — UI walkthrough overlay */}
-      {role && <TourWrapper role={role} />}
 
       {/* Welcome Card */}
       <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>

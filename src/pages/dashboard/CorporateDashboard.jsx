@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { corporateAPI, recommendationsAPI } from '../../services/api';
 import ProfileScoreAiCard from '../../components/ProfileScoreAiCard';
-import TourWrapper from '../../components/TourWrapper';
 import {
   Building2, FolderKanban, Target, Link2, Star, Users,
   Search, Plus, ArrowRight, Loader2, TrendingUp, Clock,
@@ -79,9 +78,6 @@ export default function CorporateDashboard() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
-      {/* P4 — UI walkthrough overlay */}
-      <TourWrapper role="corporate" />
-
       {/* Welcome */}
       <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: '#16a34a15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

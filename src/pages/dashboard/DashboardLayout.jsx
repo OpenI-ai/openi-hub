@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS, SECONDARY_NAV } from "../../config/personas";
 import { PAGE_TOURS } from "../../config/tours";  // Ship #12 (22 May 2026)
+import TourWrapper from "../../components/TourWrapper";  // single page/role tour mount for all dashboard routes
 import SearchBar from "../../components/SearchBar";
 import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
 import PlanBadge from "../../components/PlanBadge"; // Phase 68 — plan visibility
@@ -752,6 +753,10 @@ export default function DashboardLayout() {
               Hidden for admin/evaluator (single-role legacy personas) inside RoleTabs itself. */}
           <RoleTabs />
           <Outlet />
+          {/* Single TourWrapper for the whole dashboard tree — co-located with the
+              "Tour this page" topbar button so page tours fire on every route that has
+              a PAGE_TOURS entry (incl. admin sub-routes). Also serves the role tour. */}
+          {navRole && <TourWrapper role={navRole} />}
         </main>
       </div>
     </div>
