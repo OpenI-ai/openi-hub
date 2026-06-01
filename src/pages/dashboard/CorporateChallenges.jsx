@@ -917,7 +917,7 @@ const startEdit = () => {
                   <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#111' }}>Invite Startups</h3>
                   <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>Pick startups to invite. They will see this challenge in their Invitations Inbox.</p>
                 </div>
-                <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); }}
+                <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); setInviteEmails([]); setInviteEmailDraft(''); }}
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>
                   <X size={20} color="#666" />
                 </button>
@@ -1040,7 +1040,7 @@ const startEdit = () => {
 
               {/* Send + Cancel */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginBottom: 20 }}>
-                <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); }}
+                <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); setInviteEmails([]); setInviteEmailDraft(''); }}
                   style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', color: '#666', border: '1.5px solid #ccc', borderRadius: 8, cursor: 'pointer' }}>
                   Cancel
                 </button>
@@ -1084,7 +1084,7 @@ const startEdit = () => {
                       setInviteBusy(false);
                     }
                   }}
-                  style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: (inviteSelected.length === 0 && inviteEmails.length === 0) || inviteBusy ? '#ccc' : G, color: '#fff', border: 'none', borderRadius: 8, cursor: (inviteSelected.length === 0 && inviteEmails.length === 0) || inviteBusy ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: (inviteSelected.length === 0 && inviteEmails.length === 0 && !(/\S+@\S+\.\S+/.test(inviteEmailDraft.trim()))) || inviteBusy ? '#ccc' : G, color: '#fff', border: 'none', borderRadius: 8, cursor: (inviteSelected.length === 0 && inviteEmails.length === 0 && !(/\S+@\S+\.\S+/.test(inviteEmailDraft.trim()))) || inviteBusy ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <Send size={14} /> Send Invites
                 </button>
               </div>
