@@ -236,25 +236,40 @@ export default function StartupWatchlist() {
   const addStartup = (startupIdOrIds) => {
     const ids = Array.isArray(startupIdOrIds) ? startupIdOrIds : [startupIdOrIds];
     if (!ids.length) return;
-    if (selectedList) {
-      // Fire all in parallel. ON CONFLICT DO NOTHING on backend makes each idempotent.
-      // Failures are toasted per id but the optimistic UI update still happens for the
-      // others — local state stays consistent with what the user clicked.
-      const tasks = ids.map(id =>
-        watchlistAPI.addStartup(selectedList.id, id).catch(err => {
+    if (!selectedList) return;
+    // Fire all in parallel and track per-id outcome. We only report success for
+    // the ids that actually persisted, and only optimistically add those — so a
+    // backend rejection (e.g. FK violation) never shows a false "added" toast.
+    const tasks = ids.map(id =>
+      watchlistAPI.addStartup(selectedList.id, id)
+        .then(() => ({ id, ok: true }))
+        .catch(err => {
           console.error('[watchlist.addStartup] failed for id=' + id, err);
-          toast.error(err?.response?.data?.message || err.message || `Failed to add startup #${id}`);
+          return { id, ok: false, error: err?.response?.data?.message || err.message };
         })
-      );
-      Promise.all(tasks).then(() => {
-        if (ids.length > 1) toast.success(`${ids.length} startups added to "${selectedList.name}"`);
+    );
+    Promise.all(tasks).then(results => {
+      const okIds = results.filter(r => r.ok).map(r => r.id);
+      const failed = results.filter(r => !r.ok);
+
+      if (okIds.length) {
+        const newIds = okIds.filter(id => !(selectedList.startupIds || []).includes(id));
+        setLists(prev => prev.map(l => l.id === selected
+          ? { ...l, startupIds: [...(l.startupIds || []), ...newIds] }
+          : l
+        ));
+        if (okIds.length > 1) toast.success(`${okIds.length} startups added to "${selectedList.name}"`);
         else toast.success('Startup added');
-      });
-    }
-    setLists(prev => prev.map(l => l.id === selected
-      ? { ...l, startupIds: [...(l.startupIds || []), ...ids.filter(id => !(l.startupIds || []).includes(id))] }
-      : l
-    ));
+      }
+
+      if (failed.length) {
+        if (failed.length === 1) {
+          toast.error(failed[0].error || 'Failed to add startup');
+        } else {
+          toast.error(`${failed.length} of ${ids.length} could not be added${okIds.length ? '' : ' — none were saved'}`);
+        }
+      }
+    });
   };
 
   // Ship #4 follow-up — tokenized share handlers
