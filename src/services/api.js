@@ -45,8 +45,8 @@ async function request(method, path, body = null, isFormData = false) {
         window.dispatchEvent(new CustomEvent('openi:unauthorized', {
           detail: { message: data.message }
         }));
-        if (!window.location.pathname.startsWith('/login')) {
-          window.location.href = '/login?reason=expired';
+        if (!window.location.pathname.startsWith('/dashboard/login')) {
+          window.location.href = '/dashboard/login?reason=expired';
         }
       } catch { /* SSR / non-browser context */ }
       const err = new Error(data.message || 'Your session has expired. Please sign in again.');
@@ -97,8 +97,8 @@ async function blobRequest(method, path) {
         window.dispatchEvent(new CustomEvent('openi:unauthorized', {
           detail: { message: err.message }
         }));
-        if (!window.location.pathname.startsWith('/login')) {
-          window.location.href = '/login?reason=expired';
+        if (!window.location.pathname.startsWith('/dashboard/login')) {
+          window.location.href = '/dashboard/login?reason=expired';
         }
       } catch { /* SSR / non-browser context */ }
       const e = new Error(err.message || 'Your session has expired. Please sign in again.');

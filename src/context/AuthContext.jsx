@@ -307,7 +307,7 @@ export function AuthProvider({ children }) {
         } catch { /* ignore */ }
         // Hard redirect — clears all in-memory React state including this
         // provider's `user`, and lands on Login with the idle banner.
-        window.location.href = '/login?reason=idle';
+        window.location.href = '/dashboard/login?reason=idle';
       }, IDLE_TIMEOUT_MS);
     };
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
