@@ -49,8 +49,8 @@ export default {
         navy: '#252147',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        sans: ['Lexend', 'sans-serif'],
+        display: ['Lexend', 'sans-serif'],
       },
     },
   },

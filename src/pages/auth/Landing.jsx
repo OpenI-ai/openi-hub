@@ -19,15 +19,21 @@ const ICON_MAP = {
   Home, BookOpen, ArrowRight, CheckCircle2,
 };
 
-// Brand colors
-const GOLD = '#D5AA5B';
-const GOLD_DARK = '#C9983F';
-const GOLD_LIGHT = 'rgba(213, 170, 91, 0.1)';
+// Brand colors — Option B Light tokens (build brief)
+const GOLD = '#D3AD5B';                       // brand gold (buttons, accents)
+const GOLD_DARK = '#C19A45';                  // darker gold for hover states
+const GOLD_DEEP = '#B5872B';                  // deep gold for small text on white
+const GOLD_LIGHT = 'rgba(211, 173, 91, 0.12)'; // soft gold tint (icon chips)
+const GOLD_TINT = '#FBF4E4';                  // Pro plan / highlight tint
 const BLUE = '#3b82f6';
-const DARK = '#1a1a1a';
-const GRAY = '#6b7280';
-const LIGHT_GRAY = '#f5f5f5';
-const BORDER = '#e5e7eb';
+const DARK = '#2E2E34';                       // heading text
+const GRAY = '#6A6A70';                       // body text
+const MUTED = '#8A8A90';                      // muted/secondary text
+const SLATE = '#56565C';                      // wordmark / slate grey
+const LIGHT_GRAY = '#F3F0EA';                 // alt section background
+const BG = '#FBFAF8';                         // page background (warm white)
+const BORDER = '#E8E3D8';                     // default border
+const BORDER_SOFT = '#ECE8DE';                // softer border
 
 // ── Social SVG icons (lucide-react v0.294 doesn't have these) ──
 function LinkedInIcon({ size = 18, color = 'currentColor' }) {
@@ -50,10 +56,10 @@ function XIcon({ size = 18, color = 'currentColor' }) {
 // Backend normally returns live DB-counted stats which override these defaults.
 // Match backend labels so visual layout doesn't shift on hydration.
 const DEFAULT_STATS = [
-  { value: '\u2014', label: 'Global Startups' },
-  { value: '\u2014', label: 'Registered Users' },
-  { value: '\u2014', label: 'Challenges Posted' },
-  { value: '\u2014', label: 'Applications Submitted' },
+  { value: '575K+', label: 'Global Startups' },
+  { value: '200', label: 'AI Clusters' },
+  { value: '11', label: 'Personas, One Account' },
+  { value: 'ISO 27001', label: 'Certified & Secure' },
 ];
 
 // Phase 60.7 (s50) — real partners + logo-ready data shape.
@@ -356,10 +362,18 @@ export default function Landing() {
 
   // Phase 17c: CMS re-seeded with Phase 10-21 content. CMS is now canonical source.
   // Backend /landing-content already injects live DB counts into cms.stats[].
-  const stats = cms?.stats || DEFAULT_STATS;
   // s47: Hero subtitle pulls the live "Global Startups" count from cms.stats by label match.
   // Fallback string used until cms loads (avoids hardcoding stale numbers in the bundle).
   const liveStartupsValue = statValue(cms?.stats, 'Global Startups', '');
+  // s51 homepage redesign — the stats strip shows a curated 4-stat set
+  // (Global Startups / AI Clusters / Personas / ISO 27001) from DEFAULT_STATS,
+  // so it stays on-brief regardless of what the CMS stats array contains.
+  // We still overlay the live DB "Global Startups" count when available.
+  const stats = DEFAULT_STATS.map((s) =>
+    s.label === 'Global Startups' && liveStartupsValue
+      ? { ...s, value: liveStartupsValue }
+      : s
+  );
   const liveSectorsText = liveStartupsValue
     ? `AI-Powered \u00b7 ${liveStartupsValue} Startups \u00b7 11 Personas \u00b7 200 AI Clusters \u00b7 Deep-Tech`
     : 'AI-Powered \u00b7 11 Personas \u00b7 200 AI Clusters \u00b7 Deep-Tech \u00b7 Real-Time Search';
@@ -559,7 +573,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            {hero?.badge_text || 'BUILT FOR EVERY INNOVATION PLAYER'}
+            {hero?.badge_text || 'THE OPEN INNOVATION MARKETPLACE'}
           </div>
 
           <h1
@@ -568,26 +582,24 @@ export default function Landing() {
               color: DARK,
               fontSize: 'clamp(2.5rem, 6vw, 5rem)',
               lineHeight: 1.05,
-              fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
+              fontFamily: 'Lexend, sans-serif',
             }}
           >
-            Find your next innovation partner, deal, or challenge — <span style={{ color: GOLD }}>in one open ecosystem.</span>
+            Find your next innovation partner <span style={{ color: GOLD }}>—</span> in one open ecosystem.
           </h1>
 
           <p
             className="max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            Post a challenge. Discover startups. Score them with the 8-Vector framework. Message anyone directly. Track a portfolio, share a watchlist, run a cohort.
-            <br/><br/>
-            <strong style={{ color: DARK }}>One platform for all 11 ecosystem personas</strong> — startups, corporates, investors, incubators, accelerators, mentors, labs, government, students, academia, and service providers. Hold multiple roles on one account, switch with a click.
+            Search 575,000+ startups, post a challenge, and connect directly. Free to start, no credit card.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg text-base font-bold transition-all shadow-lg"
-              style={{ background: GOLD, color: '#fff', boxShadow: '0 8px 24px rgba(213,170,91,0.3)' }}
+              style={{ background: GOLD, color: '#2A2A2E', boxShadow: '0 8px 24px rgba(211,173,91,0.3)' }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = GOLD_DARK;
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -597,7 +609,7 @@ export default function Landing() {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              Get Started — It&apos;s Free
+              Get Started for Free
               <ArrowRight size={18} />
             </Link>
             <Link
@@ -607,12 +619,12 @@ export default function Landing() {
               onMouseEnter={e => e.currentTarget.style.borderColor = GOLD}
               onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
             >
-              Browse Challenges
+              Browse Marketplace
             </Link>
           </div>
 
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            {hero?.sectors_text || liveSectorsText}
+            {hero?.sectors_text || 'AI-powered search · 575K+ startups · ISO/IEC 27001 certified'}
           </p>
 
           {/* Phase 60.7 (s50) — ISO 27001 trust badge */}
@@ -648,7 +660,7 @@ export default function Landing() {
             Trusted by the Global Innovation Ecosystem
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            A growing network of startups, corporates, and institutions building the global Innovation ecosystem together.
+            A growing network of startups, corporates, and institutions building the open innovation ecosystem together.
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -706,9 +718,9 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {(howItWorks || [
-            { number: '1', title: 'Register Your Persona', description: 'Pick from 11 persona types — startup, corporate, investor, government, mentor, lab, and more. Each persona has a tailored profile and dashboard.' },
-            { number: '2', title: 'Discover & Connect', description: 'Browse the directory, explore challenges, and use the 8-vector evaluation framework to find the right partners, investments, or innovations.' },
-            { number: '3', title: 'Collaborate & Grow', description: 'Schedule meetings, submit proposals, track projects, and manage the full innovation lifecycle from first contact to successful pilot.' },
+            { number: '1', title: 'Register your role', description: 'Choose from 11 roles — startup, corporate, investor, government, mentor, lab, and more. Each gets a tailored profile and dashboard.' },
+            { number: '2', title: 'Discover & connect', description: 'Search 575,000+ startups, browse challenges, and use the 8-vector evaluation framework to find the right partners, investments, and innovations.' },
+            { number: '3', title: 'Collaborate & grow', description: 'Schedule meetings, submit proposals, and track projects — manage the full journey from first contact to successful pilot.' },
           ]).map((step, i) => (
             <Step key={i} number={step.number || String(i + 1)} title={step.title} description={step.description} />
           ))}
@@ -866,21 +878,24 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(features || [
-            { icon: 'Sparkles', title: 'AI Intelligence Engine', description: 'Native AI powers every persona. 8-vector startup evaluation with explanations and red flags. AI-narrated recommendations with fit scores. Challenge advisor auto-suggests sectors, tech, and budget. Batch application analyzer ranks applicants with strengths and weaknesses.' },
-            { icon: 'Search', title: 'AI Ask + Semantic Search', description: `Natural language search powered by GPT-4o-mini translates queries like "Series A deeptech healthcare in Bangalore" into structured filters. pgvector embeddings enable cosine-similarity matching across ${liveStartupsValue || '500K+'} startups grouped into 200 AI clusters.` },
-            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, FAQs, templates, and public share links. AI evaluates and ranks applicants automatically. Used by corporates, government, and investors.' },
-            { icon: 'Award', title: '8-Vector AI Evaluation', description: 'AI scores startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment. Human-overridable scores with explanation, red flags, and recommended actions.' },
-            { icon: 'Rocket', title: 'Global Startup Database', description: `${liveStartupsValue || '500K+'} enriched startup profiles with AI-powered nightly crawling from 25 RSS feeds. Unified AI pipeline extracts company names, classifies sectors, detects funding, and enriches with country, city, and DeepTech flags.` },
-            { icon: 'TrendingUp', title: 'Investor Deal Pipeline', description: '7-stage deal workflow with AI-powered evaluation. Deal sourcing marketplace, portfolio management, exit tracking. AI advisor helps design deal requests and analyze applicant startups.' },
-            { icon: 'Home', title: 'Incubator & Accelerator Programs', description: 'Manage cohorts and batches with AI-assisted startup evaluation. Mentor pools, demo days, corporate partners, auto-seeded milestones. AI advisor helps design programs and rank applicants.' },
-            { icon: 'BarChart3', title: 'Source Innovation Talent', description: 'Discover startups, students, and academia in one platform. Source student talent for internships and projects. Connect with universities and researchers for R&D collaborations. Filter by skills, research areas, and location.' },
-            { icon: 'Network', title: 'Service Partner Network', description: 'Incubators and accelerators link registered Service Providers for cloud credits, legal, financial, HR, and compliance perks. Startups redeem directly. Over 12 service categories supported.' },
-            { icon: 'Globe', title: 'Token-Based AI Credits', description: 'Pay-as-you-go AI intelligence. Pro plan includes 100 AI tokens/month. Enterprise gets unlimited. Every AI evaluation, recommendation, and analysis costs tokens, tracked transparently in your dashboard.' },
-            { icon: 'Calendar', title: 'Meetings + Messaging', description: 'Schedule 1:1, group, and demo meetings with RSVP tracking. Cross-persona direct and group chat keeps collaborations moving between external stakeholders.' },
-            { icon: 'Zap', title: 'DeepTech Assessment', description: '16-question qualification framework across 5 dimensions (Tech Readiness, IP Depth, Research Base, Team, Market). Standardized scoring to verify true deep-tech status.' },
+            { icon: 'Award', title: '8-Vector AI Evaluation', description: 'Score startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment — with clear explanations, red flags, and recommended next steps.' },
+            { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${liveStartupsValue || '575K+'} startups grouped into 200 AI clusters.` },
+            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, and public share links. AI evaluates and ranks applicants automatically.' },
+            { icon: 'Rocket', title: 'Global Startup Database', description: `${liveStartupsValue || '575K+'} enriched startup profiles, kept current by AI — sectors classified, funding detected, and location and DeepTech flags added automatically.` },
           ]).map((f, i) => (
             <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+            style={{ color: GOLD_DEEP }}
+          >
+            Explore all platform capabilities
+            <ArrowRight size={16} />
+          </Link>
         </div>
       </Section>
 
@@ -1076,7 +1091,7 @@ export default function Landing() {
                 'AI Startup Evaluator (auto-fill 8-Vector + red flags)',
                 'AI Ask — 50 natural-language searches/day',
                 'AI Smart Recommendations + Challenge Advisor',
-                'Semantic search (pgvector matching)',
+                'AI semantic search — find startups by meaning, not keywords',
                 'Invite-only challenges + invite-by-email (signup magic-link)',
                 'Watchlist collaborators (editor / viewer roles)',
                 'Share watchlist / startup profile / IPR via magic-link',
@@ -1092,9 +1107,9 @@ export default function Landing() {
               priceNote="/month"
               features={[
                 'Everything in Pro, plus:',
-                'Unlimited AI tokens + AI Ask + challenges + reviews',
-                'Multi-seat organization admin (org_members)',
-                'USD billing for export customers (Razorpay USD)',
+                'Unlimited AI usage + AI Ask + challenges + reviews',
+                'Multi-seat organization admin with role controls',
+                'USD billing for international / export customers',
                 'Annual cycle with ~17% savings',
                 'Service Partner network access',
                 'SSO, audit logs, SLA guarantees',
@@ -1124,10 +1139,10 @@ export default function Landing() {
         <div className="max-w-3xl mx-auto text-center">
           <Network size={40} color="#fff" className="mx-auto mb-5 opacity-90" />
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            {ctaContent?.title || 'Ready to Join the Ecosystem?'}
+            {ctaContent?.title || 'Ready to find your next partner?'}
           </h2>
           <p className="text-base mb-8 max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.9)' }}>
-            {ctaContent?.description || 'Join thousands of innovators, investors, and enterprises building the future of deep-tech in India.'}
+            {ctaContent?.description || 'Join innovators, investors, and enterprises building what\u2019s next. Free to start \u2014 no credit card required.'}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
@@ -1169,7 +1184,7 @@ export default function Landing() {
                 />
               </Link>
               <p className="text-sm mt-4 max-w-xs leading-relaxed">
-                {footerTagline || 'The open innovation platform connecting India\u2019s deep-tech ecosystem. Partner. Source. Invest.'}
+                {footerTagline || 'The AI-powered open innovation platform. 11 roles, one ecosystem.'}
               </p>
               {/* Social Links */}
               <div className="flex items-center gap-4 mt-4">
@@ -1236,7 +1251,7 @@ export default function Landing() {
           {/* Divider */}
           <div className="border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderColor: '#333' }}>
             <p className="text-xs">
-              &copy; 2026 OpenI Hub &middot; Built for Startup and Innovation Ecosystem
+              &copy; 2026 OpenI Hub &middot; ISO/IEC 27001:2022 certified by Bureau Veritas
             </p>
             <p className="text-xs">
               <span style={{ color: GOLD }}>openi.ai</span>
