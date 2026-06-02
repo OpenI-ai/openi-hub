@@ -414,6 +414,11 @@ const startEdit = () => {
     const st = STATUS_STYLE[detail.status] || STATUS_STYLE.open;
     const rfiQuestions = (() => { try { return typeof detail.rfi_questions === 'string' ? JSON.parse(detail.rfi_questions) : (detail.rfi_questions || []); } catch { return []; } })();
     const faqs = (() => { try { return typeof detail.faqs === 'string' ? JSON.parse(detail.faqs) : (detail.faqs || []); } catch { return []; } })();
+    // Phase 99g: role-aware editing. Backend getChallenge returns my_role
+    // ('owner' | 'editor' | 'reviewer' | 'viewer'). Owners + editors may change
+    // status, edit, manage team and delete; reviewers/viewers see a read-only
+    // header (Export PDF, Invite Startups and share links stay visible to all).
+    const canEdit = ['owner', 'editor'].includes(detail.my_role || 'owner');
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -426,10 +431,16 @@ const startEdit = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0, flex: '1 1 280px', minWidth: 0, wordBreak: 'break-word' }}>{detail.title}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-              <select value={detail.status} onChange={e => changeStatus(e.target.value)}
-                style={{ fontSize: 16, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer', outline: 'none' }}>
-                {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-              </select>
+              {canEdit ? (
+                <select value={detail.status} onChange={e => changeStatus(e.target.value)}
+                  style={{ fontSize: 16, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer', outline: 'none' }}>
+                  {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                </select>
+              ) : (
+                <span style={{ fontSize: 16, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30` }}>
+                  {st.label}
+                </span>
+              )}
               <button onClick={async () => {
                 try {
                   const blob = await corporateAPI.exportChallengePdf(detail.id);
@@ -442,10 +453,12 @@ const startEdit = () => {
                 style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: '#555', border: '1px solid #ddd', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Download size={12} /> Export PDF
               </button>
-              <button onClick={startEdit}
-                style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
-                Edit
-              </button>
+              {canEdit && (
+                <button onClick={startEdit}
+                  style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
+                  Edit
+                </button>
+              )}
               {/* T32-99d: Invite Startups button — visible on ALL challenges (public can curate too) */}
               {(
                 <button onClick={async () => {
@@ -460,15 +473,20 @@ const startEdit = () => {
                 </button>
               )}
               {/* Bug #2 Side B: Manage Team button — opens reviewer/viewer/editor team modal */}
-              <button onClick={async () => { setShowTeam(true); await loadTeamMembers(detail.id); }}
-                style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Users size={12} /> Manage Team
-              </button>
-              <button onClick={deleteChallenge}
-                title="Delete challenge"
-                style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: '#fff', color: '#c43c3c', border: '1px solid #c43c3c40', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Trash2 size={12} /> Delete
-              </button>
+              {/* Phase 99g: team management is an owner/editor-only privilege */}
+              {canEdit && (
+                <button onClick={async () => { setShowTeam(true); await loadTeamMembers(detail.id); }}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Users size={12} /> Manage Team
+                </button>
+              )}
+              {canEdit && (
+                <button onClick={deleteChallenge}
+                  title="Delete challenge"
+                  style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: '#fff', color: '#c43c3c', border: '1px solid #c43c3c40', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Trash2 size={12} /> Delete
+                </button>
+              )}
               {/* Share buttons */}
               <button onClick={() => {
                 const url = detail.visibility === 'private' && detail.share_token
