@@ -5,7 +5,7 @@ import { watchlistAPI, startupAPI, meetingAPI, messageAPI } from '../../services
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
-  UserPlus, Mail, ChevronDown, MessageCircle, ChevronLeft,
+  UserPlus, Mail, ChevronDown, MessageCircle, ChevronLeft, Loader2,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
@@ -37,6 +37,7 @@ export default function StartupWatchlist() {
   const [lists, setLists]           = useState([]);
   const [allStartups, setAllStartups] = useState([]);
   const [selected, setSelected]     = useState(null);
+  const [hydratingId, setHydratingId] = useState(null); // list whose members are being lazy-loaded via getOne
   const [showCreate, setShowCreate] = useState(false);
   const [showAdd, setShowAdd]       = useState(false);
   // Phase 89.8 (T31) — search-driven Add Startup modal. Backend's
@@ -83,7 +84,12 @@ export default function StartupWatchlist() {
           createdBy: w.created_by_name || w.created_by || 'Admin',
           createdOn: w.created_at ? new Date(w.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
           tags: w.tags || [],
+          // Backend list() returns authoritative startup_count but NOT a startups
+          // array. Carry it so the count is correct on cold load (bug: count → 0
+          // after refresh). startupIds is hydrated lazily on selection via getOne.
+          startupCount: w.startup_count ?? (w.startups ? w.startups.length : 0),
           startupIds: (w.startups || []).map(s => s.id || s.startup_id || s),
+          hydrated: Array.isArray(w.startups),
         }));
         setLists(normalizedLists);
 
@@ -187,6 +193,8 @@ export default function StartupWatchlist() {
           createdOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           tags: w.tags || payload.tags,
           startupIds: [],
+          startupCount: 0,
+          hydrated: true,
         };
         setLists(prev => [...prev, created]);
         setSelected(created.id);
@@ -194,7 +202,7 @@ export default function StartupWatchlist() {
       .catch(err => {
         toast.error(err.message || 'Failed to create watchlist');
         // Fallback local add
-        const created = { id: Date.now(), ...payload, createdBy: 'You', createdOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }), startupIds: [] };
+        const created = { id: Date.now(), ...payload, createdBy: 'You', createdOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }), startupIds: [], startupCount: 0, hydrated: true };
         setLists(prev => [...prev, created]);
         setSelected(created.id);
       });
@@ -223,9 +231,49 @@ export default function StartupWatchlist() {
       watchlistAPI.removeStartup(selectedList.id, startupId).catch(err => toast.error(err.message || 'Failed to remove startup'));
     }
     setLists(prev => prev.map(l => l.id === selected
-      ? { ...l, startupIds: l.startupIds.filter(id => id !== startupId) }
+      ? { ...l, startupIds: l.startupIds.filter(id => id !== startupId), startupCount: Math.max(0, (l.startupCount ?? l.startupIds.length) - 1) }
       : l
     ));
+  };
+
+  // Select a list and lazily hydrate its members. list() returns only a count,
+  // so on cold load startupIds is empty and the detail cards/count would be
+  // wrong after refresh. getOne() returns the full startup rows; we merge them
+  // into allStartups (independent of the small startupAPI.list slice) and set
+  // the real startupIds. Idempotent: skips the fetch once a list is hydrated.
+  const selectList = (id) => {
+    setSelected(id);
+    const target = lists.find(l => l.id === id);
+    if (!target || target.hydrated) return;
+    setHydratingId(id);
+    watchlistAPI.get(id)
+      .then(data => {
+        const rows = data.startups || [];
+        const ids = rows.map(s => s.id);
+        const normalized = rows.map(s => ({
+          id: s.id,
+          name: s.company_name || s.name || '',
+          logo_url: s.logo_url || null,
+          sector: s.sector || '',
+          score: s.score ? (s.score / 20) : null,
+          stage: s.stage || s.pipeline_stage || 'Application',
+          status: s.status || 'Pending',
+          deeptech: s.is_deeptech || s.deeptech || false,
+          owner_user_id: s.owner_user_id || null,
+          owner_is_active: s.owner_is_active !== undefined ? s.owner_is_active : null,
+        }));
+        setAllStartups(prev => {
+          const byId = new Map(prev.map(s => [s.id, s]));
+          normalized.forEach(s => byId.set(s.id, s));
+          return Array.from(byId.values());
+        });
+        setLists(prev => prev.map(l => l.id === id
+          ? { ...l, startupIds: ids, startupCount: ids.length, hydrated: true }
+          : l
+        ));
+      })
+      .catch(err => toast.error(err.message || 'Failed to load watchlist startups'))
+      .finally(() => setHydratingId(prev => (prev === id ? null : prev)));
   };
 
   // Phase 104d (22 May 2026 late evening) — supports BOTH single-id and array-of-ids.
@@ -255,7 +303,7 @@ export default function StartupWatchlist() {
       if (okIds.length) {
         const newIds = okIds.filter(id => !(selectedList.startupIds || []).includes(id));
         setLists(prev => prev.map(l => l.id === selected
-          ? { ...l, startupIds: [...(l.startupIds || []), ...newIds] }
+          ? { ...l, startupIds: [...(l.startupIds || []), ...newIds], startupCount: (l.startupCount ?? l.startupIds.length) + newIds.length }
           : l
         ));
         if (okIds.length > 1) toast.success(`${okIds.length} startups added to "${selectedList.name}"`);
@@ -468,7 +516,7 @@ export default function StartupWatchlist() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 22 }}>
         {[
           { label: 'Total Lists',       value: lists.length, icon: Star,    bg: '#fff8ec', fg: G },
-          { label: 'Startups Tracked',  value: new Set(lists.flatMap(l => l.startupIds)).size, icon: Rocket, bg: '#f0fdf4', fg: '#16a34a' },
+          { label: 'Startups Tracked',  value: lists.reduce((sum, l) => sum + (l.startupCount ?? l.startupIds.length), 0), icon: Rocket, bg: '#f0fdf4', fg: '#16a34a' },
           { label: 'Shared Lists',      value: lists.filter(l => l.visibility !== 'restricted').length, icon: Share2, bg: '#f0f9ff', fg: '#0284c7' },
           { label: 'Restricted',        value: lists.filter(l => l.visibility === 'restricted').length, icon: Lock,   bg: '#fef2f2', fg: '#dc2626' },
         ].map(({ label, value, icon: Icon, bg, fg }) => (
@@ -500,7 +548,7 @@ export default function StartupWatchlist() {
             const isActive = selected === l.id;
             return (
               <div key={l.id}
-                onClick={() => setSelected(l.id)}
+                onClick={() => selectList(l.id)}
                 style={{
                   padding: '12px 16px', borderBottom: '1px solid #f5f5f5', cursor: 'pointer',
                   background: isActive ? 'rgba(213,170,91,0.07)' : 'transparent',
@@ -517,7 +565,7 @@ export default function StartupWatchlist() {
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 20, background: vs.bg, color: vs.color, border: `1px solid ${vs.border}`, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                         <VIcon size={8} />{vs.label}
                       </span>
-                      <span style={{ fontSize: 10, color: '#888' }}>{l.startupIds.length} startups</span>
+                      <span style={{ fontSize: 10, color: '#888' }}>{l.startupCount ?? l.startupIds.length} startups</span>
                     </div>
                   </div>
                   <button
@@ -621,7 +669,12 @@ export default function StartupWatchlist() {
             </div>
 
             {/* Startup cards */}
-            {listStartups.length === 0 ? (
+            {hydratingId === selectedList.id && listStartups.length === 0 ? (
+              <div style={{ ...card, padding: 48, textAlign: 'center' }}>
+                <Loader2 size={28} color={G} className="animate-spin" style={{ marginBottom: 12 }} />
+                <p style={{ color: '#aaa', fontSize: 13, margin: 0 }}>Loading startups…</p>
+              </div>
+            ) : listStartups.length === 0 ? (
               <div style={{ ...card, padding: 48, textAlign: 'center' }}>
                 <Star size={32} color="#eee" style={{ marginBottom: 12 }} />
                 <p style={{ color: '#aaa', fontSize: 13, margin: 0 }}>No startups in this list yet.</p>
