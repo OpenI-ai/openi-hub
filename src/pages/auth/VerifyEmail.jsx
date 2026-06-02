@@ -352,7 +352,8 @@ export default function VerifyEmail() {
 
               {/* Spam-folder reminder + resend */}
               <div className="text-center text-xs leading-relaxed pt-1" style={{ color: '#6b7280' }}>
-                Don&rsquo;t see the email? Check your <strong>Spam</strong> or <strong>Promotions</strong> folder.
+                Don&rsquo;t see the email? Check your <strong>Spam</strong> or <strong>Promotions</strong> folder &mdash;
+                and tap <strong>&ldquo;Not spam&rdquo;</strong> so you never miss a challenge invite or match.
               </div>
               <div className="text-center">
                 <button type="button" onClick={resend} disabled={resending || !email.trim()}
