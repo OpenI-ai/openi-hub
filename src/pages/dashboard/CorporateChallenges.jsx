@@ -300,8 +300,15 @@ export default function CorporateChallenges() {
     if (!/\S+@\S+\.\S+/.test(email)) { toast.error('Enter a valid email'); return; }
     setAddMemberBusy(true);
     try {
-      await corporateAPI.addMember(challengeId, { email, role: addMemberRole });
-      toast.success(`${email} added as ${addMemberRole}`);
+      const res = await corporateAPI.addMember(challengeId, { email, role: addMemberRole });
+      // Phase 99f: backend returns 202 { pending: true } when the email is NOT yet
+      // an OpenI Hub account — a magic-link signup invite was sent instead of an
+      // immediate team add. They materialize into challenge_members on signup.
+      if (res?.pending) {
+        toast.success(`Invite sent to ${email}. They'll join your team as ${res.role || addMemberRole} once they sign up on OpenI Hub.`);
+      } else {
+        toast.success(`${email} added as ${addMemberRole}`);
+      }
       setAddMemberEmail('');
       setAddMemberRole('reviewer');
       await loadTeamMembers(challengeId);
@@ -1177,7 +1184,7 @@ const startEdit = () => {
                   </button>
                 </div>
                 <p style={{ fontSize: 11, color: '#888', margin: 0 }}>
-                  Member must already have an OpenI Hub account.
+                  If they're not on OpenI Hub yet, we'll email them a sign-up invite and add them to your team automatically once they join.
                 </p>
               </div>
 
