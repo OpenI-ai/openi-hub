@@ -557,7 +557,7 @@ export const corporateAPI = {
   // T32-99c: corporate-side invite ops
   sendInvites:       (cid, data)     => post(`/challenges/${cid}/invites`, data),
   listInvites:       (cid)           => get(`/challenges/${cid}/invites`),
-  revokeInvite:      (cid, iid)      => del(`/challenges/${cid}/invites/${iid}`),
+  revokeInvite:      (cid, iid, source) => del(`/challenges/${cid}/invites/${iid}${source ? `?source=${encodeURIComponent(source)}` : ''}`),
   // Phase 101 Sub-C: remindInvitee — re-send the invite email as a reminder
   remindInvitee:     (cid, iid, data) => post(`/challenges/${cid}/invites/${iid}/remind`, data || {}),
 };

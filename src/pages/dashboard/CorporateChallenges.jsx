@@ -1024,16 +1024,19 @@ const startEdit = () => {
                     if (e.key === 'Enter' || e.key === ',') {
                       e.preventDefault();
                       const em = inviteEmailDraft.trim().toLowerCase().replace(/,$/, '');
-                      if (/\S+@\S+\.\S+/.test(em) && !inviteEmails.includes(em)) {
-                        setInviteEmails(prev => [...prev, em]);
+                      // Dedupe INSIDE the functional updater so it reads fresh
+                      // `prev`, never the stale closed-over `inviteEmails` (which
+                      // lagged after ~2 adds and silently dropped later chips).
+                      if (/\S+@\S+\.\S+/.test(em)) {
+                        setInviteEmails(prev => prev.includes(em) ? prev : [...prev, em]);
                         setInviteEmailDraft('');
                       }
                     }
                   }}
                   onBlur={() => {
                     const em = inviteEmailDraft.trim().toLowerCase().replace(/,$/, '');
-                    if (/\S+@\S+\.\S+/.test(em) && !inviteEmails.includes(em)) {
-                      setInviteEmails(prev => [...prev, em]);
+                    if (/\S+@\S+\.\S+/.test(em)) {
+                      setInviteEmails(prev => prev.includes(em) ? prev : [...prev, em]);
                       setInviteEmailDraft('');
                     }
                   }}
@@ -1138,7 +1141,7 @@ const startEdit = () => {
                               <button onClick={async () => {
                                 if (!window.confirm(`Revoke invite for ${inv.invitee_name}?`)) return;
                                 try {
-                                  await corporateAPI.revokeInvite(detail.id, inv.id);
+                                  await corporateAPI.revokeInvite(detail.id, inv.id, inv.source);
                                   const list = await corporateAPI.listInvites(detail.id);
                                   setInviteList(list.invites || []);
                                   toast.success('Invite revoked');
