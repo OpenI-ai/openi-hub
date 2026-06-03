@@ -15,6 +15,7 @@ import Privacy           from './pages/auth/Privacy';    // Phase 60.7 (s50)
 // Pages — Public
 import PublicMarketplace from './pages/public/PublicMarketplace';
 import PublicReports     from './pages/public/PublicReports';
+import PublicFAQ         from './pages/public/PublicFAQ';
 import SharedChallenge   from './pages/public/SharedChallenge';
 import SharedWatchlist   from './pages/public/SharedWatchlist';
 import SharedStartupProfile from './pages/public/SharedStartupProfile';  // Phase 110
@@ -199,6 +200,7 @@ export default function App() {
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/marketplace/:id"   element={<PublicMarketplace />} />  {/* Phase 120 — route-based detail */}
           <Route path="/reports"            element={<PublicReports />} />
+          <Route path="/faq"                element={<PublicFAQ />} />
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
           <Route path="/watchlists/share/:token" element={<SharedWatchlist />} />
           <Route path="/share/startup/:token" element={<SharedStartupProfile />} />  {/* Phase 110 */}

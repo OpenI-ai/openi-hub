@@ -79,6 +79,7 @@ export default function PublicLayout({ children }) {
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/marketplace')}>Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/reports')}>Reports</Link>
+            <Link to="/faq" className="hover:text-gray-900 transition-colors" style={navLinkStyle('/faq')}>FAQ</Link>
             <Link to="/#how-it-works" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>How It Works</Link>
             <Link to="/#pricing" className="hover:text-gray-900 transition-colors" style={{ color: GRAY }}>Pricing</Link>
           </nav>
@@ -163,6 +164,14 @@ export default function PublicLayout({ children }) {
                 style={navLinkStyle('/reports')}
               >
                 Reports
+              </Link>
+              <Link
+                to="/faq"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={navLinkStyle('/faq')}
+              >
+                FAQ
               </Link>
               <Link
                 to="/#how-it-works"
@@ -259,6 +268,7 @@ export default function PublicLayout({ children }) {
               <ul className="space-y-2 text-sm">
                 <li><Link to="/marketplace" className="hover:text-white transition-colors">Marketplace</Link></li>
                 <li><Link to="/reports" className="hover:text-white transition-colors">Startup Reports</Link></li>
+                <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
                 <li><Link to="/#how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
                 <li><Link to="/#features" className="hover:text-white transition-colors">Features</Link></li>
                 <li><Link to="/#pricing" className="hover:text-white transition-colors">Pricing</Link></li>

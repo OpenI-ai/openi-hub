@@ -18,12 +18,14 @@ import { StaticRouter } from 'react-router-dom/server';
 import Landing from './pages/auth/Landing';
 import PublicMarketplace from './pages/public/PublicMarketplace';
 import PublicReports from './pages/public/PublicReports';
+import PublicFAQ from './pages/public/PublicFAQ';
 
 // Map a URL path to its public leaf component.
 const ROUTES = {
   '/': Landing,
   '/marketplace': PublicMarketplace,
   '/reports': PublicReports,
+  '/faq': PublicFAQ,
 };
 
 export const PRERENDER_ROUTES = Object.keys(ROUTES);

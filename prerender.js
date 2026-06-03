@@ -55,6 +55,15 @@ const ROUTE_META = {
     ogDescription:
       'Curated startup ecosystem reports and insights for innovators, investors and corporates. Sector trends across 575,000+ startups.',
   },
+  '/faq': {
+    title: 'Frequently Asked Questions | OpenI Hub',
+    description:
+      'Answers to common questions about OpenI Hub — how to search 575,000+ startups in plain English, run innovation challenges, pricing, and our ISO/IEC 27001:2022 security posture.',
+    path: '/faq',
+    ogTitle: 'OpenI Hub FAQ — Searching Startups, Challenges & Pricing',
+    ogDescription:
+      'How OpenI Hub helps corporates, investors, government and academia search startups, run innovation challenges, and connect with the deep-tech ecosystem.',
+  },
 };
 
 // Escape the five HTML-significant chars so a meta value can never break out of
