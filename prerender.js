@@ -30,6 +30,94 @@ function routeToOutputFile(route) {
   return path.join(DIST, route.replace(/^\//, ''), 'index.html');
 }
 
+// GEO P2 — per-route head meta. The built dist/index.html carries the homepage
+// title/description/canonical/OG/Twitter tags. Without this, /marketplace and
+// /reports would advertise the homepage's title + canonical, which is both an
+// SEO duplicate-canonical bug and a weaker signal for AI answer engines.
+// '/' is intentionally absent: it keeps the index.html meta as-is.
+const SITE = 'https://www.openi.ai';
+const ROUTE_META = {
+  '/marketplace': {
+    title: 'Innovation Challenges Marketplace | OpenI Hub',
+    description:
+      'Browse open innovation challenges from corporates, government and academia on OpenI Hub. Apply your startup, find partners, and respond to live problem statements. Free to start.',
+    path: '/marketplace',
+    ogTitle: 'Innovation Challenges Marketplace — OpenI Hub',
+    ogDescription:
+      'Browse and apply to open innovation challenges from corporates, government and academia. Find partners and respond to live problem statements.',
+  },
+  '/reports': {
+    title: 'Startup Ecosystem Reports & Insights | OpenI Hub',
+    description:
+      'Curated startup ecosystem reports and data-driven insights for innovators, investors and corporates. Explore sector trends across 575,000+ startups on OpenI Hub.',
+    path: '/reports',
+    ogTitle: 'Startup Ecosystem Reports & Insights — OpenI Hub',
+    ogDescription:
+      'Curated startup ecosystem reports and insights for innovators, investors and corporates. Sector trends across 575,000+ startups.',
+  },
+};
+
+// Escape the five HTML-significant chars so a meta value can never break out of
+// its attribute or element. All current values are static and safe; this keeps
+// the rewrite robust if copy is edited later.
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Rewrite the homepage head tags in `html` to the per-route values. Returns the
+// html unchanged when the route has no override (e.g. '/'). Throws if a tag the
+// override targets is missing, so a template change can't silently no-op P2.
+function applyRouteMeta(html, route) {
+  const meta = ROUTE_META[route];
+  if (!meta) return html;
+
+  const subs = [
+    [/<title>[^<]*<\/title>/, `<title>${esc(meta.title)}</title>`],
+    [
+      /<meta name="description" content="[^"]*" \/>/,
+      `<meta name="description" content="${esc(meta.description)}" />`,
+    ],
+    [
+      /<link rel="canonical" href="[^"]*" \/>/,
+      `<link rel="canonical" href="${SITE}${meta.path}" />`,
+    ],
+    [
+      /<meta property="og:title" content="[^"]*" \/>/,
+      `<meta property="og:title" content="${esc(meta.ogTitle)}" />`,
+    ],
+    [
+      /<meta property="og:description" content="[^"]*" \/>/,
+      `<meta property="og:description" content="${esc(meta.ogDescription)}" />`,
+    ],
+    [
+      /<meta property="og:url" content="[^"]*" \/>/,
+      `<meta property="og:url" content="${SITE}${meta.path}" />`,
+    ],
+    [
+      /<meta name="twitter:title" content="[^"]*" \/>/,
+      `<meta name="twitter:title" content="${esc(meta.ogTitle)}" />`,
+    ],
+    [
+      /<meta name="twitter:description" content="[^"]*" \/>/,
+      `<meta name="twitter:description" content="${esc(meta.ogDescription)}" />`,
+    ],
+  ];
+
+  let out = html;
+  for (const [re, replacement] of subs) {
+    if (!re.test(out)) {
+      throw new Error(`[prerender] head meta tag not found for ${route}: ${re}`);
+    }
+    out = out.replace(re, replacement);
+  }
+  return out;
+}
+
 async function buildSsrBundle() {
   await build({
     // Keep this self-contained: do not inherit the app's client build config.
@@ -81,7 +169,8 @@ async function main() {
       throw new Error(`[prerender] render failed for ${route}: ${err.stack || err}`);
     }
 
-    const html = template.replace(ROOT_RE, `<div id="root">${bodyHtml}</div>`);
+    const withBody = template.replace(ROOT_RE, `<div id="root">${bodyHtml}</div>`);
+    const html = applyRouteMeta(withBody, route);
     const outFile = routeToOutputFile(route);
     await fs.mkdir(path.dirname(outFile), { recursive: true });
     await fs.writeFile(outFile, html, 'utf8');
