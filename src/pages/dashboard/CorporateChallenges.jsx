@@ -1137,7 +1137,8 @@ const startEdit = () => {
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ padding: '2px 8px', borderRadius: 12, background: colors.bg, color: colors.fg, fontSize: 11, fontWeight: 600 }}>{inv.status}</span>
-                            {inv.status === 'pending' && (
+                            {inv.status === 'pending'
+                              && (Number(inv.invited_by_user_id) === Number(user?.id) || user?.role === 'admin') && (
                               <button onClick={async () => {
                                 if (!window.confirm(`Revoke invite for ${inv.invitee_name}?`)) return;
                                 try {
