@@ -3,7 +3,15 @@ import ReactDOM from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
+import useVersionCheck from './hooks/useVersionCheck';
 import './index.css';
+
+// Cache-busting P2 — headless component so the version-poll hook can run inside
+// the React tree (alongside <Toaster>) without wrapping <App>. Renders nothing.
+function VersionWatcher() {
+  useVersionCheck();
+  return null;
+}
 
 // Sentry — must init before React renders so route + error capture work.
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -51,6 +59,7 @@ const tree = (
         success: { iconTheme: { primary: '#D5AA5B', secondary: '#fff' } },
       }}
     />
+    <VersionWatcher />
   </React.StrictMode>
 );
 

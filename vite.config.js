@@ -2,8 +2,18 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 // Phase 106 - Sentry source maps for production debugging
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+// Cache-busting P2 - bake the deploy's build ID into the client bundle as the
+// __APP_VERSION__ global so a running tab knows the version it booted with.
+// Compared at runtime against dist/version.json (see src/hooks/useVersionCheck).
+import { BUILD_ID } from './version-id.js';
 
 export default defineConfig({
+  // __APP_VERSION__ is the version this bundle was built at. version-id.js reads
+  // VERCEL_GIT_COMMIT_SHA (set per-deploy) and gen-version.js writes the same
+  // value into dist/version.json, so client-baked and CDN-served IDs always match.
+  define: {
+    __APP_VERSION__: JSON.stringify(BUILD_ID),
+  },
   plugins: [
     react(),
     // Phase 106 - upload sourcemaps to Sentry on every prod build.
