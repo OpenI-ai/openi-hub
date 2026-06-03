@@ -1,0 +1,33 @@
+# OpenI Hub
+
+> AI-powered open innovation marketplace. Search 575,000+ startups in plain
+> English, post innovation challenges, and connect directly with corporates,
+> investors, government, academia and service providers. Built and operated by
+> OpenI Partners LLP (India). ISO/IEC 27001:2022 certified. Free to start.
+
+## Key facts
+- 575,000+ enriched startup profiles, grouped into 200 AI clusters
+- 8-vector AI evaluation framework scores every startup match with explanations,
+  red flags, and recommended next steps
+- Semantic, plain-English search (e.g. "Series A deeptech healthcare in Bangalore")
+- 11 user roles: Startup, Student, Academia, Corporate, Government, Investor,
+  Mentor, Lab, Incubator, Accelerator, Service Provider
+- Pricing (exclusive of 18% GST): Free; Pro ₹2,499/month; Enterprise ₹9,999/month
+- Security: ISO/IEC 27001:2022 certified, full audit trails
+
+## What you can do on OpenI Hub
+- Corporates: post open-innovation challenges and discover startups to solve them
+- Investors: source and evaluate deal flow using the 8-vector framework
+- Startups: get discovered, apply to challenges, and connect with partners
+- Incubators & accelerators: run programs and track portfolio health over time
+
+## Pages
+- Home: https://www.openi.ai/
+- Startup marketplace: https://www.openi.ai/marketplace
+- Public reports: https://www.openi.ai/reports
+- Sign up: https://www.openi.ai/register
+
+## Contact
+- Website: https://www.openi.ai
+- LinkedIn: https://www.linkedin.com/company/openi-partners/
+- X (Twitter): https://x.com/OpenIPartners

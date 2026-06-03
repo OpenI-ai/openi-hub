@@ -31,7 +31,9 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   });
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+
+const tree = (
   <React.StrictMode>
     <Sentry.ErrorBoundary fallback={({ error }) => (
       <div style={{ padding: 24, fontFamily: 'system-ui' }}>
@@ -51,3 +53,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     />
   </React.StrictMode>
 );
+
+// react-snap prerenders public routes at build time, leaving real markup in #root.
+// When that markup is present we must hydrate (not re-create) so React reuses it.
+if (rootElement.hasChildNodes()) {
+  ReactDOM.hydrateRoot(rootElement, tree);
+} else {
+  ReactDOM.createRoot(rootElement).render(tree);
+}

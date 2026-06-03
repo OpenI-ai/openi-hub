@@ -1,0 +1,38 @@
+# OpenI Hub — https://www.openi.ai
+# Marketing site is open to all crawlers. The logged-in app (app.openi.ai)
+# is a separate host and is not indexed.
+
+User-agent: *
+Allow: /
+
+# AI search / citation crawlers — explicitly welcome (they power answers in
+# ChatGPT, Claude, Perplexity, Gemini). Kept on Allow so OpenI can be cited.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Keep crawlers out of authenticated / transactional paths. These render
+# nothing useful pre-JS and should never appear in an index or an AI answer.
+User-agent: *
+Disallow: /dashboard
+Disallow: /verify-email
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/accept
+Disallow: /claims/verify
+
+Sitemap: https://www.openi.ai/sitemap.xml
