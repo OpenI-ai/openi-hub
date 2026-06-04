@@ -14,12 +14,12 @@
     { "source": "/ai/ai-startup-ecosystem{/}?", "destination": "/reports", "statusCode": 301 },
     { "source": "/for-startups{/}?", "destination": "/register", "statusCode": 301 },
     { "source": "/terms-of-use-policy{/}?", "destination": "/terms", "statusCode": 301 },
-    { "source": "/wp-content/uploads/:path*", "destination": "/reports", "statusCode": 301 },
+    { "source": "/wp-content/uploads{/}?:path*", "destination": "/reports", "statusCode": 301 },
     { "source": "/wp-login.php", "destination": "/", "statusCode": 301 },
-    { "source": "/wp-admin/:path*", "destination": "/", "statusCode": 301 },
-    { "source": "/wp-json/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/wp-admin{/}?:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/wp-json{/}?:path*", "destination": "/", "statusCode": 301 },
     { "source": "/xmlrpc.php", "destination": "/", "statusCode": 301 },
-    { "source": "/feed/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/feed{/}?:path*", "destination": "/", "statusCode": 301 },
     { "source": "/sitemap_index.xml", "destination": "/sitemap.xml", "statusCode": 301 }
   ],
   "rewrites": [
