@@ -1,4 +1,27 @@
 {
+  "redirects": [
+    { "source": "/home{/}?", "destination": "/", "statusCode": 301 },
+    { "source": "/who-we-are{/}?", "destination": "/", "statusCode": 301 },
+    { "source": "/about-us{/}?", "destination": "/", "statusCode": 301 },
+    { "source": "/contact-us{/}?", "destination": "/", "statusCode": 301 },
+    { "source": "/products{/}?", "destination": "/marketplace", "statusCode": 301 },
+    { "source": "/platform{/}?", "destination": "/marketplace", "statusCode": 301 },
+    { "source": "/solution{/}?", "destination": "/marketplace", "statusCode": 301 },
+    { "source": "/openi-one{/}?", "destination": "/marketplace", "statusCode": 301 },
+    { "source": "/our-services{/}?", "destination": "/marketplace", "statusCode": 301 },
+    { "source": "/insights{/}?", "destination": "/reports", "statusCode": 301 },
+    { "source": "/innox-labs{/}?", "destination": "/reports", "statusCode": 301 },
+    { "source": "/ai/ai-startup-ecosystem{/}?", "destination": "/reports", "statusCode": 301 },
+    { "source": "/for-startups{/}?", "destination": "/register", "statusCode": 301 },
+    { "source": "/terms-of-use-policy{/}?", "destination": "/terms", "statusCode": 301 },
+    { "source": "/wp-content/uploads/:path*", "destination": "/reports", "statusCode": 301 },
+    { "source": "/wp-login.php", "destination": "/", "statusCode": 301 },
+    { "source": "/wp-admin/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/wp-json/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/xmlrpc.php", "destination": "/", "statusCode": 301 },
+    { "source": "/feed/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/sitemap_index.xml", "destination": "/sitemap.xml", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/((?!assets/|robots.txt|sitemap.xml|llms.txt|.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
   ],
