@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { startupAPI, startupProfileAPI, profileViewAPI, claimAPI, startupProfileShareAPI, getToken } from '../../services/api';
+import { startupAPI, startupProfileAPI, profileViewAPI, claimAPI, startupProfileShareAPI, watchlistAPI, getToken } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
@@ -1152,6 +1152,13 @@ export default function StartupProfile() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Overview');
   const [watchlisted, setWatchlisted] = useState(false);
+  // Phase 99q: Watchlist picker modal (bookmark button)
+  const [wlOpen, setWlOpen] = useState(false);
+  const [wlLists, setWlLists] = useState([]);          // editable lists [{id,name,my_role,contains}]
+  const [wlLoading, setWlLoading] = useState(false);
+  const [wlBusyId, setWlBusyId] = useState(null);      // list id currently mutating
+  const [wlNewName, setWlNewName] = useState('');
+  const [wlCreating, setWlCreating] = useState(false);
   // J10 (s50): Claim flow
   const { user } = useAuth();
 
@@ -1184,6 +1191,81 @@ export default function StartupProfile() {
       } finally {
         setShareLoading(false);
       }
+    }
+  };
+
+  // Phase 99q: Watchlist picker — load my editable lists and flag which already contain this startup.
+  // Uses startup.id (= startup_profiles.id), NOT the route :id (which may be a user_id).
+  const loadWatchlists = async () => {
+    const sid = startup?.id;
+    if (!sid) return;
+    setWlLoading(true);
+    try {
+      const lists = await watchlistAPI.list();
+      const editable = (Array.isArray(lists) ? lists : []).filter(l => l.my_role !== 'viewer');
+      // For each editable list, check membership via full fetch (returns joined startups).
+      const withMembership = await Promise.all(editable.map(async (l) => {
+        try {
+          const full = await watchlistAPI.get(l.id);
+          const ids = (full.startups || []).map(s => s.id || s.startup_id || s);
+          return { ...l, contains: ids.includes(sid) };
+        } catch (_) {
+          return { ...l, contains: false };
+        }
+      }));
+      setWlLists(withMembership);
+      setWatchlisted(withMembership.some(l => l.contains));
+    } catch (err) {
+      setWlLists([]);
+    } finally {
+      setWlLoading(false);
+    }
+  };
+
+  const openWatchlistModal = async () => {
+    setWlOpen(true);
+    await loadWatchlists();
+  };
+
+  const toggleInList = async (list) => {
+    const sid = startup?.id;
+    if (!sid) return;
+    setWlBusyId(list.id);
+    try {
+      if (list.contains) {
+        await watchlistAPI.removeStartup(list.id, sid);
+        toast.success(`Removed from "${list.name}"`);
+      } else {
+        await watchlistAPI.addStartup(list.id, sid);
+        toast.success(`Saved to "${list.name}"`);
+      }
+      setWlLists(prev => {
+        const next = prev.map(l => l.id === list.id ? { ...l, contains: !l.contains } : l);
+        setWatchlisted(next.some(l => l.contains));
+        return next;
+      });
+    } catch (err) {
+      toast.error(err?.message || 'Could not update watchlist');
+    } finally {
+      setWlBusyId(null);
+    }
+  };
+
+  const createAndAdd = async () => {
+    const sid = startup?.id;
+    const name = wlNewName.trim();
+    if (!name || !sid) return;
+    setWlCreating(true);
+    try {
+      const created = await watchlistAPI.create({ name });
+      await watchlistAPI.addStartup(created.id, sid);
+      toast.success(`Created "${name}" and saved`);
+      setWlNewName('');
+      await loadWatchlists();
+    } catch (err) {
+      toast.error(err?.message || 'Could not create list');
+    } finally {
+      setWlCreating(false);
     }
   };
 
@@ -1411,7 +1493,7 @@ export default function StartupProfile() {
                   </button>
                 )
               )}
-              <button onClick={() => setWatchlisted(!watchlisted)} className={`p-2 rounded-lg border transition-all ${watchlisted ? 'border-primary-500 bg-primary-500/20 text-primary-400' : 'border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400'}`}>
+              <button onClick={() => openWatchlistModal()} title="Save to watchlist" className={`p-2 rounded-lg border transition-all ${watchlisted ? 'border-primary-500 bg-primary-500/20 text-primary-400' : 'border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400'}`}>
                 {watchlisted ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
               </button>
               <button onClick={() => openShareModal()} className="p-2 rounded-lg border border-dark-700 text-dark-400 hover:border-primary-500 hover:text-primary-400 transition-all" title="Share this profile">
@@ -1837,6 +1919,66 @@ export default function StartupProfile() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Phase 99q: Watchlist picker modal */}
+      {wlOpen && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setWlOpen(false); }}
+          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+        >
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>Save to watchlist</h3>
+              <button onClick={() => setWlOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4, lineHeight: 0 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <p style={{ fontSize: 12, color: '#666', margin: '0 0 18px', lineHeight: 1.6 }}>
+              {(startup?.name || 'This startup')} — choose a list to save to, or create a new one.
+            </p>
+
+            {wlLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '28px 0', color: '#999', fontSize: 13 }}>
+                <Loader2 size={18} className="animate-spin" /> Loading your lists…
+              </div>
+            ) : wlLists.length === 0 ? (
+              <p style={{ fontSize: 13, color: '#888', textAlign: 'center', padding: '18px 0' }}>
+                You don&apos;t have any watchlists yet. Create one below.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
+                {wlLists.map((l) => (
+                  <div key={l.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 12px', background: '#fafafa', border: '1.5px solid #eee', borderRadius: 10 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.name}</span>
+                    <button onClick={() => toggleInList(l)} disabled={wlBusyId === l.id}
+                      style={{ flexShrink: 0, padding: '6px 14px', background: l.contains ? '#fff' : '#D5AA5B', color: l.contains ? '#D5AA5B' : '#fff', border: l.contains ? '1.5px solid #D5AA5B' : 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: wlBusyId === l.id ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 86, justifyContent: 'center' }}>
+                      {wlBusyId === l.id
+                        ? <Loader2 size={13} className="animate-spin" />
+                        : l.contains
+                          ? <><BookmarkCheck size={13} /> Saved</>
+                          : <><Bookmark size={13} /> Save</>}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ borderTop: '1px solid #eee', paddingTop: 16 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Create a new list</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input type="text" value={wlNewName} onChange={(e) => setWlNewName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') createAndAdd(); }}
+                  placeholder="e.g. Q3 Pipeline"
+                  style={{ flex: 1, boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
+                <button onClick={() => createAndAdd()} disabled={wlCreating || !wlNewName.trim()}
+                  style={{ flexShrink: 0, padding: '9px 16px', background: (!wlNewName.trim() || wlCreating) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!wlNewName.trim() || wlCreating) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {wlCreating ? <Loader2 size={14} className="animate-spin" /> : 'Create & save'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
