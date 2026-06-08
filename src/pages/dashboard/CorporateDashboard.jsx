@@ -271,7 +271,7 @@ export default function CorporateDashboard() {
                     match_score: parseInt(r.match_score, 10) || 0,
                     source_surface: 'corporate_dashboard_recs',
                   }).catch(() => {});
-                  navigate(`/dashboard/startup/${r.user_id}`);
+                  navigate(`/dashboard/startups/${r.user_id}?by=user_id`);
                 }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = G}
                 onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>

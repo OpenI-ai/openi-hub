@@ -57,7 +57,7 @@ export default function StudentRecommendedStartups() {
       match_score: parseInt(s.match_score, 10) || 0,
       source_surface: SOURCE,
     }).catch(() => {});
-    navigate(`/dashboard/startup/${s.user_id}`);
+    navigate(`/dashboard/startups/${s.user_id}?by=user_id`);
   };
 
   return (

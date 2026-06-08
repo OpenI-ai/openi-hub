@@ -687,7 +687,11 @@ export default function StartupWatchlist() {
                 {listStartups.map(s => {
                   const ss = STATUS_STYLE[s.status] || STATUS_STYLE['Pending'];
                   return (
-                    <div key={s.id} style={{ ...card, padding: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                    <div
+                      key={s.id}
+                      onClick={() => navigate(`/dashboard/startups/${s.user_id}?by=user_id`)}
+                      style={{ ...card, padding: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', cursor: 'pointer' }}
+                    >
                       {s.logo_url ? (
                         <img
                           src={s.logo_url}
@@ -715,7 +719,7 @@ export default function StartupWatchlist() {
                       {/* M3 (27 May 2026) — Message button, only when startup is claimed + owner active */}
                       {s.owner_user_id && s.owner_is_active && (
                         <button
-                          onClick={() => handleMessage(s.owner_user_id, s.name)}
+                          onClick={(e) => { e.stopPropagation(); handleMessage(s.owner_user_id, s.name); }}
                           title={`Message ${s.name || 'startup'}`}
                           style={{
                             display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -728,7 +732,7 @@ export default function StartupWatchlist() {
                         </button>
                       )}
                       <button
-                        onClick={() => removeStartup(s.id)}
+                        onClick={(e) => { e.stopPropagation(); removeStartup(s.id); }}
                         style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#ddd', borderRadius: 7, marginLeft: 4 }}
                         onMouseEnter={e => e.currentTarget.style.color = '#dc2626'}
                         onMouseLeave={e => e.currentTarget.style.color = '#ddd'}
