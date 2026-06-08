@@ -689,7 +689,7 @@ export default function StartupWatchlist() {
                   return (
                     <div
                       key={s.id}
-                      onClick={() => navigate(`/dashboard/startups/${s.user_id}?by=user_id`)}
+                      onClick={() => navigate(`/dashboard/startups/${s.owner_user_id}?by=user_id`)}
                       style={{ ...card, padding: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', cursor: 'pointer' }}
                     >
                       {s.logo_url ? (
