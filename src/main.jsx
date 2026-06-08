@@ -63,10 +63,17 @@ const tree = (
   </React.StrictMode>
 );
 
-// react-snap prerenders public routes at build time, leaving real markup in #root.
-// When that markup is present we must hydrate (not re-create) so React reuses it.
+// prerender.js (build-time SSR) renders the bare public LEAF page into #root so
+// crawlers and AI answer engines see real body HTML (GEO). That static markup is
+// intentionally leaf-only — it is NOT wrapped in <App> (BrowserRouter/AuthProvider/
+// chrome). The client tree below IS the full <App>, so hydrateRoot() always saw a
+// structural server/client mismatch on prerendered routes (Sentry OPENI-HUB-FRONTEND-E,
+// 86 recoverable hydration errors). We therefore do NOT hydrate: the prerendered HTML
+// has already served its crawler purpose by the time JS runs, so we clear it and let
+// React createRoot() rebuild #root cleanly. No hydration pass → no mismatch. The
+// rebuilt content is visually identical, so there is no perceptible flash.
+// Fixes OPENI-HUB-FRONTEND-E
 if (rootElement.hasChildNodes()) {
-  ReactDOM.hydrateRoot(rootElement, tree);
-} else {
-  ReactDOM.createRoot(rootElement).render(tree);
+  rootElement.replaceChildren();
 }
+ReactDOM.createRoot(rootElement).render(tree);
