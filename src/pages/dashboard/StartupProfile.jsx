@@ -1174,17 +1174,22 @@ export default function StartupProfile() {
   const [shareEmailMessage, setShareEmailMessage] = useState('');
 
   // Phase 110: Share handlers
-  const shareIsOwner = user && (user.id === parseInt(id, 10) || user.role === 'admin');
+  // Phase 99q follow-up: the share endpoints are userId-keyed, and the route
+  // :id may be a startup_profiles.id (NOT a user_id) when loaded via ?by=.
+  // Always derive ownership + the share-API key from the loaded startup's
+  // user_id so the Link/Email tabs appear for the legitimate owner/admin.
+  const shareOwnerId = startup?.user_id;
+  const shareIsOwner = user && shareOwnerId != null && (user.id === shareOwnerId || user.role === 'admin');
   const LinkIconShare = ({ size }) => <Globe size={size} />;
 
   const openShareModal = async () => {
     setShareOpen(true);
     setShareTab('pdf');
     // If owner, also pre-load existing share links for the "Public link" tab
-    if (shareIsOwner) {
+    if (shareIsOwner && shareOwnerId != null) {
       setShareLoading(true);
       try {
-        const r = await startupProfileShareAPI.listShares(id);
+        const r = await startupProfileShareAPI.listShares(shareOwnerId);
         setShareList(Array.isArray(r) ? r : []);
       } catch (err) {
         setShareList([]);
@@ -1271,14 +1276,14 @@ export default function StartupProfile() {
 
   const downloadStartupPdf = async () => {
     try {
-      const url = startupProfileShareAPI.pdfUrl(id);
+      const url = startupProfileShareAPI.pdfUrl(shareOwnerId ?? id);
       const res = await fetch(url, { headers: { Authorization: `Bearer ${getToken()}` } });
       if (!res.ok) throw new Error('PDF download failed');
       const blob = await res.blob();
       const dlUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = dlUrl;
-      a.download = `startup-profile-${id}.pdf`;
+      a.download = `startup-profile-${shareOwnerId ?? id}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -1290,9 +1295,13 @@ export default function StartupProfile() {
   };
 
   const mintNewProfileShare = async () => {
+    if (shareOwnerId == null) {
+      toast.error('Cannot create a share link before the profile finishes loading');
+      return;
+    }
     setShareMinting(true);
     try {
-      const r = await startupProfileShareAPI.createShare(id, { redaction_mode: shareMode });
+      const r = await startupProfileShareAPI.createShare(shareOwnerId, { redaction_mode: shareMode });
       setShareList(prev => [r, ...prev]);
       toast.success(`Created ${shareMode} share link`);
     } catch (err) {
