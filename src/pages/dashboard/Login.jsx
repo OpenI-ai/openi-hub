@@ -42,6 +42,18 @@ export default function Login() {
   const idleReason = loginReason === 'idle';
   const expiredReason = loginReason === 'expired';
 
+  // Login-gated share links (5 Jun 2026): a ?redirect=<path> param lets an invited
+  // visitor land straight on the shared profile after signing in, instead of /dashboard.
+  // Only honour internal relative paths (must start with a single '/', not '//' or a
+  // scheme) so the param can't be abused as an open redirect.
+  const redirectTarget = (() => {
+    if (typeof window === 'undefined') return null;
+    const raw = new URLSearchParams(window.location.search).get('redirect');
+    if (!raw) return null;
+    if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+    return raw;
+  })();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -56,6 +68,7 @@ export default function Login() {
       const u = stored ? JSON.parse(stored) : null;
       if (u) {
         if (u.profile_completed === false) navigate('/dashboard/profile');
+        else if (redirectTarget) navigate(redirectTarget);
         else navigate('/dashboard');
       }
       // else: MFA path — stay on this page, mfaStep is now true and the form switches.
@@ -84,6 +97,8 @@ export default function Login() {
       const u = stored ? JSON.parse(stored) : null;
       if (u && u.profile_completed === false) {
         navigate('/dashboard/profile');
+      } else if (redirectTarget) {
+        navigate(redirectTarget);
       } else {
         navigate('/dashboard');
       }

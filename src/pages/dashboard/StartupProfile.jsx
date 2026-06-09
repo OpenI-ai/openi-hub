@@ -1185,8 +1185,9 @@ export default function StartupProfile() {
   const openShareModal = async () => {
     setShareOpen(true);
     setShareTab('pdf');
-    // If owner, also pre-load existing share links for the "Public link" tab
-    if (shareIsOwner && shareOwnerId != null) {
+    // Login-gated invite: any signed-in member can mint a link. Pre-load any
+    // existing share links for this profile (keyed by the profile's user_id).
+    if (shareOwnerId != null) {
       setShareLoading(true);
       try {
         const r = await startupProfileShareAPI.listShares(shareOwnerId);
@@ -1816,7 +1817,7 @@ export default function StartupProfile() {
             <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1.5px solid #eee' }}>
               {[
                 { id: 'pdf',   icon: <FileDown size={13} />, label: 'Download PDF' },
-                { id: 'link',  icon: <LinkIconShare size={13} />, label: 'Public link', ownerOnly: true },
+                { id: 'link',  icon: <LinkIconShare size={13} />, label: 'Invite link' },
                 { id: 'email', icon: <Mail size={13} />, label: 'Invite by email', ownerOnly: true },
               ].filter(t => !t.ownerOnly || shareIsOwner).map(t => (
                 <button key={t.id} onClick={() => setShareTab(t.id)}
@@ -1842,29 +1843,11 @@ export default function StartupProfile() {
               </div>
             )}
 
-            {shareTab === 'link' && shareIsOwner && (
+            {shareTab === 'link' && (
               <div>
                 <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px', lineHeight: 1.6 }}>
-                  Create a link anyone can use to view your profile (no OpenI account needed). Choose what to share — full, public-safe (hides financials), or pitch-only (overview only).
+                  Create a link to invite someone to this profile. People who aren&apos;t on OpenI yet will be asked to create a free account (or sign in), then taken straight to the profile.
                 </p>
-                {/* Redaction mode picker */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 6, marginBottom: 14 }}>
-                  {[
-                    { id: 'full', label: 'Full', desc: 'Everything' },
-                    { id: 'public_safe', label: 'Public-safe', desc: 'Hide financials' },
-                    { id: 'pitch_only', label: 'Pitch-only', desc: 'Overview only' },
-                  ].map(m => (
-                    <button key={m.id} onClick={() => setShareMode(m.id)}
-                      style={{ padding: '10px 8px', fontSize: 11, fontWeight: 700, textAlign: 'center',
-                               background: shareMode === m.id ? '#D5AA5B' : '#f5f5f5',
-                               color: shareMode === m.id ? '#fff' : '#666',
-                               border: `1.5px solid ${shareMode === m.id ? '#D5AA5B' : '#e5e7eb'}`,
-                               borderRadius: 8, cursor: 'pointer' }}>
-                      <div>{m.label}</div>
-                      <div style={{ fontSize: 9, fontWeight: 500, opacity: 0.85, marginTop: 2 }}>{m.desc}</div>
-                    </button>
-                  ))}
-                </div>
                 <button onClick={() => mintNewProfileShare()} disabled={shareMinting}
                   style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating link…' : '+ Create new share link'}

@@ -1,11 +1,12 @@
 /**
  * Phase 110 (25 May 2026) — SharedStartupProfile.
- * Public page for viewing a startup profile via tokenized URL.
- * No authentication required. Read-only.
+ * Landing page for viewing a startup profile via tokenized invite URL.
+ * Login-gated (5 Jun 2026): a visitor must have an OpenI account and be
+ * signed in before the profile is fetched/shown. Non-members are routed to
+ * register/login carrying ?redirect=<this URL>, then land straight here.
  * Backend route: GET /api/public/startup-profile/share/:token
  *
- * Renders the data per redaction mode (full / public_safe / pitch_only)
- * with a banner indicating the mode. Falls back to friendly 404/410
+ * Renders the full profile (redaction dropped). Falls back to friendly 404/410
  * messages for missing / revoked / expired tokens.
  */
 import { useState, useEffect } from 'react';
@@ -26,7 +27,15 @@ export default function SharedStartupProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => { if (token) loadProfile(); /* eslint-disable-next-line */ }, [token]);
+  // Login gate: viewing a shared profile requires an OpenI account.
+  const isAuthed = (() => {
+    try { return !!localStorage.getItem('openi_user'); } catch { return false; }
+  })();
+  // The URL we want the visitor to return to after they sign up / log in.
+  const redirectTarget = `/share/startup/${token}`;
+  const redirectParam = `?redirect=${encodeURIComponent(redirectTarget)}`;
+
+  useEffect(() => { if (token && isAuthed) loadProfile(); /* eslint-disable-next-line */ }, [token, isAuthed]);
 
   const loadProfile = async () => {
     try {
@@ -38,6 +47,31 @@ export default function SharedStartupProfile() {
       setLoading(false);
     }
   };
+
+  // Not signed in → show a create-account / sign-in CTA carrying ?redirect=.
+  if (!isAuthed) {
+    return (
+      <PublicLayout>
+        <div style={{ maxWidth: 540, margin: '64px auto', padding: '0 20px', textAlign: 'center' }}>
+          <Sparkles size={44} color={G} style={{ margin: '0 auto 16px', display: 'block' }} />
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>
+            You&apos;ve been invited to view a startup profile
+          </h1>
+          <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>
+            OpenI Hub profiles are shared with members. Create a free OpenI account or sign in, and you&apos;ll be taken straight to this profile.
+          </p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to={`/register${redirectParam}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '11px 24px', background: G, color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              Create free account <ArrowRight size={14} />
+            </Link>
+            <Link to={`/dashboard/login${redirectParam}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '11px 24px', background: '#fff', color: '#555', border: '1px solid #e5e7eb', borderRadius: 9, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </PublicLayout>
+    );
+  }
 
   if (loading) {
     return (
