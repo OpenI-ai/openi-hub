@@ -51,7 +51,7 @@ export default function CorporateStartupSearch() {
 
   const startCollab = async (startup) => {
     try {
-      await corporateAPI.createCollab({ startup_id: startup.id, title: `${startup.name} - Exploration` });
+      await corporateAPI.createCollab({ startup_user_id: startup.user_id, title: `${startup.name} - Exploration` });
       toast.success(`Started collaboration with ${startup.name}`);
     } catch (err) { toast.error(err.message); }
   };
