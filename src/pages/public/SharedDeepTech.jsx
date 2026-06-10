@@ -8,6 +8,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, AlertCircle, Sparkles, CheckCircle2, XCircle, Award } from 'lucide-react';
 import { publicDeepTechShare } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
+import { DEEPTECH_SECTIONS, DEEPTECH_OPTIONS } from '../../config/deeptechSections';
 
 const G = '#D5AA5B';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -73,18 +74,49 @@ export default function SharedDeepTech() {
           </div>
         </div>
 
-        {/* Answers */}
+        {/* Answers — grouped by section with full question text + weight + status */}
         {a.answers && Object.keys(a.answers).length > 0 && (
           <div style={{ ...card, padding: 22, marginBottom: 16 }}>
             <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Detailed Answers</h2>
-            <div style={{ display: 'grid', gap: 8 }}>
-              {Object.entries(a.answers).map(([q, ans]) => (
-                <div key={q} style={{ padding: 12, background: '#fafafa', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 12, color: '#555', fontFamily: 'monospace' }}>{q}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: ans === 'yes' ? '#16a34a' : ans === 'no' ? '#dc2626' : '#888' }}>{String(ans).toUpperCase()}</span>
+            {DEEPTECH_SECTIONS.map((sec) => {
+              const rows = sec.questions.filter((q) => a.answers[q.id] != null);
+              if (!rows.length) return null;
+              return (
+                <div key={sec.id} style={{ marginBottom: 18 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: G, textTransform: 'uppercase', letterSpacing: 0.5, margin: '0 0 8px' }}>{sec.label}</p>
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {rows.map((q) => {
+                      const opt = DEEPTECH_OPTIONS.find((o) => o.value === a.answers[q.id])
+                        || { label: String(a.answers[q.id]).toUpperCase(), color: '#888', bg: '#f8fafc', border: '#e2e8f0' };
+                      return (
+                        <div key={q.id} style={{ padding: 12, background: '#fafafa', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: 13, color: '#333', lineHeight: 1.5 }}>{q.text}</span>
+                            <span style={{ fontSize: 10, color: '#aaa', marginLeft: 8, whiteSpace: 'nowrap' }}>Weight: {q.weight}x</span>
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: opt.color, background: opt.bg, border: `1px solid ${opt.border}`, borderRadius: 6, padding: '3px 10px', whiteSpace: 'nowrap' }}>{opt.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+            {(() => {
+              const known = new Set(DEEPTECH_SECTIONS.flatMap((s) => s.questions.map((q) => q.id)));
+              const extra = Object.entries(a.answers).filter(([k]) => !known.has(k));
+              if (!extra.length) return null;
+              return (
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {extra.map(([q, ans]) => (
+                    <div key={q} style={{ padding: 12, background: '#fafafa', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                      <span style={{ fontSize: 12, color: '#555', fontFamily: 'monospace' }}>{q}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#888' }}>{String(ans).toUpperCase()}</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
 

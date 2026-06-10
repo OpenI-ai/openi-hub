@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { deeptechAPI, deeptechShareAPI, getToken } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import { DEEPTECH_SECTIONS, DEEPTECH_OPTIONS, DEEPTECH_SCORE_MAP } from '../../config/deeptechSections';
 import {
   Zap, CheckCircle2, Circle, ChevronRight, ChevronDown,
   Award, AlertTriangle, BarChart3, ArrowRight,
@@ -21,74 +22,26 @@ const card = {
   boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
 };
 
-// DeepTech qualification criteria per RFP sec 1.2
-const SECTIONS = [
-  {
-    id: 'technology',
-    label: 'Technology Depth',
-    icon: Cpu,
-    color: '#7c3aed',
-    questions: [
-      { id: 'q1', text: 'Is the core technology based on original R&D or novel IP developed by the startup?', weight: 3 },
-      { id: 'q2', text: 'Does the technology involve cutting-edge fields such as AI/ML, Quantum, Biotech, Nanotechnology, Advanced Materials, or Space Tech?', weight: 3 },
-      { id: 'q3', text: 'Is the technology currently at Tech Readiness Level 4 or above (demonstrated in lab / relevant environment)?', weight: 2 },
-      { id: 'q4', text: 'Has the technology been validated through peer-reviewed research, patents, or independent testing?', weight: 2 },
-    ],
-  },
-  {
-    id: 'innovation',
-    label: 'Innovation & Differentiation',
-    icon: FlaskConical,
-    color: '#0284c7',
-    questions: [
-      { id: 'q5', text: 'Does the startup address a problem that has no commercially available solution?', weight: 2 },
-      { id: 'q6', text: 'Is the technology differentiated from existing solutions by a factor of 10x or more in performance, cost, or capability?', weight: 3 },
-      { id: 'q7', text: 'Has the startup filed or received patents, trade secrets, or other formal IP protections?', weight: 2 },
-    ],
-  },
-  {
-    id: 'team',
-    label: 'Technical Team Capability',
-    icon: Microscope,
-    color: '#16a34a',
-    questions: [
-      { id: 'q8',  text: 'Does the founding/core team have PhDs, post-doctoral researchers, or domain experts with 10+ years of relevant experience?', weight: 2 },
-      { id: 'q9',  text: 'Has the team published research in internationally recognised journals or conferences in the last 3 years?', weight: 2 },
-      { id: 'q10', text: 'Is the startup associated with or spun out from an academic institution, national lab, or research organisation?', weight: 1 },
-    ],
-  },
-  {
-    id: 'defence',
-    label: 'Defence & Dual-Use Relevance',
-    icon: Shield,
-    color: '#dc2626',
-    questions: [
-      { id: 'q11', text: 'Is the technology directly applicable to one or more of OpenI\'s thrust areas (e.g., AI, cyber, quantum, materials, biodefence, space)?', weight: 3 },
-      { id: 'q12', text: 'Does the technology have dual-use potential (both civilian and defence applications)?', weight: 2 },
-      { id: 'q13', text: 'Has the startup previously worked with government agencies, defence establishments, or strategic sector clients?', weight: 1 },
-    ],
-  },
-  {
-    id: 'scalability',
-    label: 'Scalability & Commercialisation',
-    icon: Rocket,
-    color: '#ea580c',
-    questions: [
-      { id: 'q14', text: 'Does the startup have a clear path to scaling production or deployment within 18–24 months?', weight: 2 },
-      { id: 'q15', text: 'Is there demonstrable market demand or a signed LOI/MOU from a potential customer?', weight: 1 },
-      { id: 'q16', text: 'Has the startup raised institutional funding (seed, Series A, government grant, or strategic investment)?', weight: 1 },
-    ],
-  },
-];
+// DeepTech qualification criteria per RFP sec 1.2.
+// Question text + weights live in the dependency-free shared config
+// (src/config/deeptechSections.js) so the public share page can reuse them.
+// Section icon + color are presentation-only and re-attached here locally.
+const SECTION_PRESENTATION = {
+  technology:  { icon: Cpu,          color: '#7c3aed' },
+  innovation:  { icon: FlaskConical, color: '#0284c7' },
+  team:        { icon: Microscope,   color: '#16a34a' },
+  defence:     { icon: Shield,       color: '#dc2626' },
+  scalability: { icon: Rocket,       color: '#ea580c' },
+};
 
-const OPTIONS = [
-  { value: 'yes',     label: 'Yes',     color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
-  { value: 'partial', label: 'Partial', color: G,          bg: '#fff8ec', border: 'rgba(213,170,91,0.4)' },
-  { value: 'no',      label: 'No',      color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
-  { value: 'na',      label: 'N/A',     color: '#64748b', bg: '#f8fafc', border: '#e2e8f0' },
-];
+const SECTIONS = DEEPTECH_SECTIONS.map((s) => ({
+  ...s,
+  ...(SECTION_PRESENTATION[s.id] || {}),
+}));
 
-const SCORE_MAP = { yes: 1, partial: 0.5, no: 0, na: null };
+const OPTIONS = DEEPTECH_OPTIONS;
+
+const SCORE_MAP = DEEPTECH_SCORE_MAP;
 
 function calcScore(answers) {
   // Phase 89.6 (T29) — full denominator. Unanswered = 0 contribution, weight
