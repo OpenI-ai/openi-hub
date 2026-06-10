@@ -1,11 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import toast from 'react-hot-toast';
 import { eightVectorSelfAPI, getToken } from '../../services/api';
 import {
   Users, Target, TrendingUp, Cpu, DollarSign,
   BarChart2, Shield, Zap, ChevronDown, ChevronUp,
   MessageSquare, Building2, Calendar, Download, Save,
-  Share2, FileDown, Globe, X,  // Phase 111 Ship 2c icons added
+  Share2, FileDown, Globe, X, ChevronRight,  // Phase 111 Ship 2c icons added
 } from "lucide-react";
 
 // ─── 8 VECTOR DATA ─────────────────────────────────────────────────────────────
@@ -376,6 +376,46 @@ export default function StartupEvaluation() {
   const [shareMinting, setShareMinting] = useState(false);
   const [notes, setNotes] = useState('');
 
+  // Phase 111 Ship 2d: past saved assessments (date-wise list for review)
+  const [pastAssessments, setPastAssessments] = useState([]);
+  const [pastLoading, setPastLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
+
+  const refreshPastAssessments = async () => {
+    setPastLoading(true);
+    try {
+      const r = await eightVectorSelfAPI.listMine();
+      setPastAssessments(Array.isArray(r) ? r : []);
+    } catch {
+      setPastAssessments([]);
+    } finally {
+      setPastLoading(false);
+    }
+  };
+
+  useEffect(() => { refreshPastAssessments(); }, []);
+
+  // Open a saved assessment back into the form for review / re-assess.
+  // There is no in-place update endpoint yet, so re-saving records a fresh row.
+  const loadAssessment = async (id) => {
+    if (!id) return;
+    setLoadingId(id);
+    try {
+      const a = await eightVectorSelfAPI.get(id);
+      setStartupName(a.startup_name || '');
+      setScores(a.criterion_scores || {});
+      setStatuses(a.statuses || {});
+      setComments(a.comments || {});
+      setNotes(a.notes || '');
+      setSavedAssessmentId(a.id);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      toast.error(err?.message || 'Failed to load assessment');
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   // Phase 111 Ship 2c: Save + Share handlers
   const saveAssessment = async () => {
     if (!startupName.trim()) {
@@ -397,6 +437,7 @@ export default function StartupEvaluation() {
       if (res?.id) {
         setSavedAssessmentId(res.id);
         toast.success('Assessment saved');
+        refreshPastAssessments();
       }
     } catch (err) {
       toast.error(err?.message || 'Failed to save assessment');
@@ -683,6 +724,64 @@ export default function StartupEvaluation() {
                 Print
               </button>
             </div>
+          </div>
+
+          {/* Phase 111 Ship 2d: Recent Assessments — date-wise saved list for review */}
+          <div style={{ marginTop:18, background:"#fff", border:"1px solid #eee", borderRadius:14, padding:"18px 20px" }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+              <h3 style={{ margin:0, fontSize:15, fontWeight:700, color:"#1a1a1a" }}>Recent Assessments</h3>
+              <span style={{ fontSize:12, color:"#999" }}>Saved 8-Vector assessments — click a row to review or re-assess</span>
+            </div>
+            {pastLoading ? (
+              <p style={{ margin:0, fontSize:13, color:"#999" }}>Loading…</p>
+            ) : pastAssessments.length === 0 ? (
+              <p style={{ margin:0, fontSize:13, color:"#999" }}>No saved assessments yet. Score the vectors above and click <strong style={{ color:"#777" }}>Save Assessment</strong> to keep one for past review.</p>
+            ) : (
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                {pastAssessments.map(a => {
+                  const score = Number(a.overall_score) || 0;
+                  const band = scoreBand(score);
+                  const created = a.created_at ? new Date(a.created_at) : null;
+                  const isLoading = loadingId === a.id;
+                  return (
+                    <div
+                      key={a.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => loadAssessment(a.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadAssessment(a.id); } }}
+                      style={{
+                        display:"flex", alignItems:"center", justifyContent:"space-between",
+                        gap:12, padding:"10px 14px", borderRadius:10,
+                        border:"1px solid #f0f0f0", background: a.id === savedAssessmentId ? "#fff8ec" : "#fafafa",
+                        cursor: isLoading ? "wait" : "pointer", opacity: isLoading ? 0.6 : 1,
+                        transition:"background 0.12s, border-color 0.12s",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#D5AA5B"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f0f0f0"; }}
+                    >
+                      <div style={{ minWidth:0, flex:1 }}>
+                        <div style={{ fontSize:14, fontWeight:600, color:"#1a1a1a", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                          {a.startup_name || "Untitled assessment"}
+                        </div>
+                        <div style={{ fontSize:12, color:"#999", display:"flex", alignItems:"center", gap:5, marginTop:2 }}>
+                          <Calendar style={{ width:12, height:12 }} />
+                          {created ? created.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }) : "—"}
+                          {created && ` · ${created.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' })}`}
+                        </div>
+                      </div>
+                      <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+                        <div style={{ textAlign:"right" }}>
+                          <div style={{ fontSize:15, fontWeight:700, color:"#1a1a1a" }}>{score ? score.toFixed(2) : "—"}<span style={{ fontSize:11, fontWeight:500, color:"#bbb" }}>/5.00</span></div>
+                          <div className={band.cls} style={{ fontSize:11, fontWeight:600 }}>{band.label}</div>
+                        </div>
+                        <ChevronRight style={{ width:18, height:18, color:"#ccc", flexShrink:0 }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
