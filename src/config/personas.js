@@ -110,7 +110,7 @@ const DEFAULT_WORKSPACE_KEYS = Object.keys(WORKSPACE_ITEMS);
  * @param {?Array<string>} cfg.workspace - keys from WORKSPACE_ITEMS (default: all)
  * @returns {{groups: Array<{key:string, items:Array}>}}
  */
-function buildPersonaNav(role, { recommended = null, actions = [], workspace = null } = {}) {
+function buildPersonaNav(role, { recommended = null, actions = [], workspace = null, hubExtra = [] } = {}) {
   // Default workspace = all items EXCEPT `invites` for seekers.
   // Invitations Inbox is an invitee-side surface (Phase 99c). Seekers (corporate /
   // government / investor / mentor / lab / incubator / accelerator / service_provider)
@@ -128,6 +128,9 @@ function buildPersonaNav(role, { recommended = null, actions = [], workspace = n
     items: [
       { to: DASHBOARD_HOME[role] || '/dashboard', label: 'My Dashboard', icon: 'LayoutDashboard', end: true },
       { to: '/dashboard/profile',                 label: 'My Profile',   icon: 'User' },
+      // Optional persona-specific items pinned directly under My Profile.
+      // Defaults to [] so every other persona's hub group is unchanged.
+      ...hubExtra,
     ],
   });
 
@@ -177,8 +180,17 @@ export const SECONDARY_NAV = [
 
 export const PERSONA_NAV = {
   startup: buildPersonaNav('startup', {
+    // Enhancement (testing-team) — a startup's two highest-value surfaces are
+    // marketplace leads + private invites. Pin both directly under My Profile.
+    hubExtra: [
+      { to: '/dashboard/marketplace',       label: 'Marketplace',       icon: 'Target' },
+      { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+    ],
+    // `invites` dropped from the default workspace keys so Invitations Inbox
+    // doesn't duplicate in Group 5 (it now lives in the hub group above).
+    workspace: ['watchlist', 'projects', 'network', 'messaging', 'meetings', 'events', 'knowledge', 'documents', 'challengesToReview'],
     actions: [
-      { to: '/dashboard/marketplace',     label: 'Marketplace',    icon: 'Target' },
+      // Marketplace moved to the hub group (above).
       { to: '/dashboard/claims',          label: 'My Claims',      icon: 'BadgeCheck' },
       // Phase 89.2 — IPR removed from startup nav. IPR is an admin/evaluator
       // cross-startup registry view; startup IP data lives in MyProfile → Patents/IP.
@@ -192,19 +204,37 @@ export const PERSONA_NAV = {
   }),
   student: buildPersonaNav('student', {
     recommended: { to: '/dashboard/student/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    // Enhancement (testing-team) — provider personas pin marketplace leads +
+    // private invites directly under My Profile (their two highest-value surfaces).
+    hubExtra: [
+      { to: '/dashboard/marketplace',       label: 'Marketplace',       icon: 'Target' },
+      { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+    ],
+    // `invites` dropped from default workspace so Invitations Inbox doesn't
+    // duplicate in Group 5 (it now lives in the hub group above).
+    workspace: ['watchlist', 'projects', 'network', 'messaging', 'meetings', 'events', 'knowledge', 'documents', 'challengesToReview'],
     actions: [
       { to: '/dashboard/student/portfolio',   label: 'My Portfolio',  icon: 'FolderKanban' },
       { to: '/dashboard/student/mentorships', label: 'Mentorships',   icon: 'Users' },
-      { to: '/dashboard/marketplace',         label: 'Marketplace',   icon: 'Target' },
+      // Marketplace moved to the hub group (above).
     ],
   }),
   academia: buildPersonaNav('academia', {
     recommended: { to: '/dashboard/academia/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
+    // Enhancement (testing-team) — provider personas pin marketplace leads +
+    // private invites directly under My Profile (their two highest-value surfaces).
+    hubExtra: [
+      { to: '/dashboard/marketplace',       label: 'Marketplace',       icon: 'Target' },
+      { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+    ],
+    // `invites` dropped from default workspace so Invitations Inbox doesn't
+    // duplicate in Group 5 (it now lives in the hub group above).
+    workspace: ['watchlist', 'projects', 'network', 'messaging', 'meetings', 'events', 'knowledge', 'documents', 'challengesToReview'],
     actions: [
       { to: '/dashboard/academia/research',     label: 'Research',     icon: 'FlaskConical' },
       { to: '/dashboard/academia/publications', label: 'Publications', icon: 'BookOpen' },
       { to: '/dashboard/academia/grants',       label: 'Grants',       icon: 'DollarSign' },
-      { to: '/dashboard/marketplace',           label: 'Marketplace',  icon: 'Target' },
+      // Marketplace moved to the hub group (above).
       // Phase 89.2 — IPR Database removed from academia nav (admin-only feature).
     ],
   }),
