@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
   Calendar, MapPin, Users, Plus, Search, Clock, ExternalLink, Download,
-  Mic, Trophy, BookOpen, Zap, Globe, Video, X, Trash2,
+  Mic, Trophy, BookOpen, Zap, Globe, Video, X, Trash2, Pencil,
 } from 'lucide-react';
 import { eventAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -91,6 +91,8 @@ export default function EventsRepository() {
   const { user, roles } = useAuth();
   const canCreate = (roles || []).some(r => CREATE_ROLES.includes(r));
   const userId = user?.id;
+  // Testing-team fix (Jun 2026) — admin can edit/delete any event (server-gated too)
+  const isAdmin = (roles || []).includes('admin') || user?.role === 'admin';
 
   const [events, setEvents]     = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -102,6 +104,9 @@ export default function EventsRepository() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm]         = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  // Testing-team fix (Jun 2026) — when set, the Create modal acts as an Edit modal
+  // for this event (full edit; server-gated to creator + same-org + admin).
+  const [editing, setEditing]   = useState(null);
 
   // Ship #10 follow-up (22 May 2026 late evening) — registered set is now
   // backend-backed via event_registrations table. Pre-follow-up was in-session
@@ -165,6 +170,39 @@ export default function EventsRepository() {
     }
   };
 
+  // Testing-team fix (Jun 2026) — prefill the modal from an existing event and
+  // switch it into edit mode. tags array → comma string; ISO date → datetime-local
+  // (YYYY-MM-DDTHH:mm, local time) so the picker shows the saved value.
+  const toLocalInput = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const handleEdit = (ev) => {
+    setEditing(ev);
+    setForm({
+      title: ev.title || '',
+      description: ev.description || '',
+      type: ev.type || 'workshop',
+      start_date: toLocalInput(ev.start_date),
+      end_date: toLocalInput(ev.end_date),
+      location: (ev.location && ev.location !== '—') ? ev.location : '',
+      is_virtual: !!ev.is_virtual,
+      capacity: ev.capacity != null ? String(ev.capacity) : '',
+      tags: Array.isArray(ev.tags) ? ev.tags.join(', ') : (ev.tags || ''),
+    });
+    setShowCreate(true);
+  };
+
+  const closeModal = () => {
+    setShowCreate(false);
+    setEditing(null);
+    setForm(EMPTY_FORM);
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) {
@@ -184,14 +222,23 @@ export default function EventsRepository() {
       tags: form.tags.trim() ? form.tags.split(',').map(s => s.trim()).filter(Boolean) : [],
     };
     try {
-      const created = await eventAPI.create(payload);
-      const norm = normalizeEvent(created);
-      setEvents(prev => [norm, ...prev]);
-      toast.success('Event saved as draft — only you can see it until you publish');
-      setShowCreate(false);
-      setForm(EMPTY_FORM);
+      if (editing) {
+        // Testing-team fix (Jun 2026) — full edit path. Preserve the existing
+        // visibility/registrations by merging the API response over the prior row.
+        const updated = await eventAPI.update(editing.id, payload);
+        const norm = normalizeEvent(updated);
+        setEvents(prev => prev.map(ev => ev.id === editing.id ? norm : ev));
+        if (selected && selected.id === editing.id) setSelected(norm);
+        toast.success('Event updated');
+      } else {
+        const created = await eventAPI.create(payload);
+        const norm = normalizeEvent(created);
+        setEvents(prev => [norm, ...prev]);
+        toast.success('Event saved as draft — only you can see it until you publish');
+      }
+      closeModal();
     } catch (err) {
-      toast.error(err.message || 'Failed to create event');
+      toast.error(err.message || (editing ? 'Failed to update event' : 'Failed to create event'));
     } finally {
       setSubmitting(false);
     }
@@ -240,8 +287,10 @@ export default function EventsRepository() {
       onPublish={handlePublish}
       onDelete={handleDelete}
       onDownloadBrochure={handleDownloadBrochure}
+      onEdit={handleEdit}
       isRegistered={registeredSet.has(selected.id)}
       currentUserId={userId}
+      isAdmin={isAdmin}
     />;
   }
 
@@ -254,7 +303,7 @@ export default function EventsRepository() {
           <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Hackathons, workshops, demo days and conferences for the OpenI startup ecosystem</p>
         </div>
         {canCreate && (
-          <button id="tour-page-events-create" onClick={() => setShowCreate(true)}
+          <button id="tour-page-events-create" onClick={() => { setEditing(null); setForm(EMPTY_FORM); setShowCreate(true); }}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 2px 10px rgba(213,170,91,0.3)' }}
             onMouseEnter={e => e.currentTarget.style.background = GH}
             onMouseLeave={e => e.currentTarget.style.background = G}
@@ -333,15 +382,15 @@ export default function EventsRepository() {
       {/* Phase 66 — Create Event modal */}
       {showCreate && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-          onClick={(e) => { if (e.target === e.currentTarget) setShowCreate(false); }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
         >
           <form onSubmit={handleCreate} style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 560, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 12px 40px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>Create Event</h3>
-                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Saved as a draft. Only you can see it until you publish.</p>
+                <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>{editing ? 'Edit Event' : 'Create Event'}</h3>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>{editing ? 'Changes are saved immediately to this event.' : 'Saved as a draft. Only you can see it until you publish.'}</p>
               </div>
-              <button type="button" onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 4 }}><X size={18} /></button>
+              <button type="button" onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 4 }}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
@@ -387,9 +436,9 @@ export default function EventsRepository() {
             </div>
 
             <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-              <button type="button" onClick={() => setShowCreate(false)} disabled={submitting} style={{ flex: 1, padding: '10px 16px', background: '#fff', color: '#555', border: '1.5px solid #ddd', borderRadius: 9, cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600 }}>Cancel</button>
+              <button type="button" onClick={closeModal} disabled={submitting} style={{ flex: 1, padding: '10px 16px', background: '#fff', color: '#555', border: '1.5px solid #ddd', borderRadius: 9, cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600 }}>Cancel</button>
               <button type="submit" disabled={submitting} style={{ flex: 1, padding: '10px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700, opacity: submitting ? 0.7 : 1 }}>
-                {submitting ? 'Saving…' : 'Save as Draft'}
+                {submitting ? 'Saving…' : (editing ? 'Save Changes' : 'Save as Draft')}
               </button>
             </div>
           </form>
@@ -602,7 +651,7 @@ function buildOutlookUrl(ev) {
   return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
 }
 
-function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDownloadBrochure, isRegistered, currentUserId }) {
+function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDownloadBrochure, onEdit, isRegistered, currentUserId, isAdmin }) {
   // Ship #10 (22 May 2026) — calendar dropdown state (local to EventDetail)
   const [calDrop, setCalDrop] = useState(false);
   const et = EVENT_TYPES[ev.type] || EVENT_TYPES.workshop;
@@ -617,14 +666,29 @@ function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDow
         ← Events
       </button>
 
-      {currentUserId && ev.created_by === currentUserId && onDelete && (
-        <button
-          onClick={() => onDelete(ev.id)}
-          style={{ marginLeft: 12, padding: '8px 14px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
-          title="Delete this event"
-        >
-          <Trash2 size={14} /> Delete
-        </button>
+      {/* Testing-team fix (Jun 2026) — Edit + Delete now visible to admins too
+          (server still gates to creator + same-org + admin), not creator-only. */}
+      {(isAdmin || (currentUserId && ev.created_by === currentUserId)) && (
+        <span style={{ display: 'inline-flex', gap: 8 }}>
+          {onEdit && (
+            <button
+              onClick={() => onEdit(ev)}
+              style={{ marginLeft: 12, padding: '8px 14px', background: '#fff', color: GH, border: `1px solid ${G}`, borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              title="Edit this event"
+            >
+              <Pencil size={14} /> Edit
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={() => onDelete(ev.id)}
+              style={{ padding: '8px 14px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              title="Delete this event"
+            >
+              <Trash2 size={14} /> Delete
+            </button>
+          )}
+        </span>
       )}
 
       {isMyDraft && (

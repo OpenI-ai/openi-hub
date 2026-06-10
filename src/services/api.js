@@ -286,6 +286,8 @@ export const eventAPI = {
   list:     (params = {}) => get(`/events?${new URLSearchParams(params)}`),
   get:      (id)          => get(`/events/${id}`),
   create:   (data)        => post('/events', data),
+  // Testing-team fix (Jun 2026) — full edit; gated server-side (creator + same-org + admin)
+  update:   (id, data)    => put(`/events/${id}`, data),
   publish:  (id)          => post(`/events/${id}/publish`),
   register: (id)          => post(`/events/${id}/register`),
   // Ship #10 follow-up (22 May 2026 late evening) — persistent per-user registration tracking
