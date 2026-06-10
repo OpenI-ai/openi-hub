@@ -158,12 +158,19 @@ export default function DeepTechQualification() {
     deeptechAPI.list()
       .then(data => {
         const items = data.assessments || data.deeptech_assessments || data || [];
-        const normalized = items.map(a => ({
-          name: a.startup_name || a.name || '',
-          score: a.score || 0,
-          verdict: a.verdict || a.result || (a.score >= 70 ? 'Qualified as DeepTech' : a.score >= 50 ? 'Conditionally Qualified' : 'Does Not Qualify'),
-          date: a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : a.date || '',
-        }));
+        const normalized = items.map(a => {
+          // score column is PG NUMERIC(5,2) → pg driver returns it as a STRING
+          // (e.g. "95.00"). Coerce to a real number so the Avg Score stat and
+          // the >=70/>=50 verdict comparisons don't NaN / string-compare.
+          const numScore = Number(a.score) || 0;
+          return {
+            id: a.id,
+            name: a.startup_name || a.name || '',
+            score: numScore,
+            verdict: a.verdict || a.result || (numScore >= 70 ? 'Qualified as DeepTech' : numScore >= 50 ? 'Conditionally Qualified' : 'Does Not Qualify'),
+            date: a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : a.date || '',
+          };
+        });
         setRecentAssessments(normalized);
       })
       .catch(err => { toast.error(err.message || 'Failed to load assessments'); setRecentAssessments([]); })
@@ -178,6 +185,28 @@ export default function DeepTechQualification() {
   const totalQ = SECTIONS.reduce((s, sec) => s + sec.questions.length, 0);
 
   const reset = () => { setAnswers({}); setStartupName(''); setSubmitted(false); setMode('list'); };
+
+  // Open an existing assessment from the Recent Assessments list. Fetches the
+  // full row (incl. stored answers JSONB) and pre-fills the assess form so the
+  // user can review and re-run the qualification. NOTE: re-submitting records a
+  // fresh assessment (there is no in-place update endpoint yet), so this is a
+  // "review & re-assess" flow rather than a destructive edit.
+  const [loadingId, setLoadingId] = useState(null);
+  const loadAssessment = async (id) => {
+    if (!id || loadingId) return;
+    setLoadingId(id);
+    try {
+      const a = await deeptechAPI.get(id);
+      setAnswers(a?.answers && typeof a.answers === 'object' ? a.answers : {});
+      setStartupName(a?.startup_name || a?.name || '');
+      setSubmitted(false);
+      setMode('assess');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to open assessment');
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   // Phase 111 Ship 2a: Share handlers
   const openShareModal = async () => {
@@ -307,8 +336,18 @@ export default function DeepTechQualification() {
             {recentAssessments.map((r, i) => {
               const v = getVerdict(r.score);
               const VI = v.icon;
+              const clickable = !!r.id;
               return (
-                <div key={r.name + i} style={{ padding: '13px 22px', borderBottom: i < recentAssessments.length - 1 ? '1px solid #f5f5f5' : 'none', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                <div
+                  key={(r.id || r.name) + '-' + i}
+                  onClick={clickable ? () => loadAssessment(r.id) : undefined}
+                  role={clickable ? 'button' : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                  onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadAssessment(r.id); } } : undefined}
+                  title={clickable ? 'Click to review this assessment' : undefined}
+                  onMouseEnter={clickable ? (e) => { e.currentTarget.style.background = '#fafafa'; } : undefined}
+                  onMouseLeave={clickable ? (e) => { e.currentTarget.style.background = 'transparent'; } : undefined}
+                  style={{ padding: '13px 22px', borderBottom: i < recentAssessments.length - 1 ? '1px solid #f5f5f5' : 'none', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', cursor: clickable ? 'pointer' : 'default', background: 'transparent', transition: 'background 0.12s', opacity: loadingId && loadingId === r.id ? 0.55 : 1 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{r.name[0]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 600 }}>{r.name}</div>
@@ -327,6 +366,7 @@ export default function DeepTechQualification() {
                   <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: v.bg, color: v.color, border: `1px solid ${v.border}`, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                     <VI size={10} />{v.label}
                   </span>
+                  {clickable && <ChevronRight size={16} color="#ccc" style={{ flexShrink: 0 }} />}
                 </div>
               );
             })}
