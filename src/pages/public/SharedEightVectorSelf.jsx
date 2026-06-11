@@ -12,15 +12,75 @@ import PublicLayout from '../../components/PublicLayout';
 const G = '#D5AA5B';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
+// Canonical 8-vector keys — must match StartupEvaluation.jsx VECTORS[].key
+// and the backend pdfService VECTORS array (people/strategic/revenue/technology/
+// financials/information/grc/stepchange). Earlier maps here were stale and only
+// matched people/strategic, so 6 of 8 vectors rendered their raw key.
 const VECTOR_NAMES = {
-  people: 'People', strategic: 'Strategic Direction', customer: 'Customer Focus',
-  operations: 'Operations Excellence', innovation: 'Innovation', financial: 'Financial Health',
-  risk: 'Risk Management', impact: 'Impact & Sustainability',
+  people: 'People', strategic: 'Strategic Direction', revenue: 'Revenue Management',
+  technology: 'Technology', financials: 'Financials', information: 'Information Visibility',
+  grc: 'Governance, Risk & Compliance', stepchange: 'Step Change',
+};
+const VECTOR_SHORT = {
+  people: 'People', strategic: 'Strategic', revenue: 'Revenue', technology: 'Technology',
+  financials: 'Financials', information: 'Info Vis.', grc: 'GRC', stepchange: 'Step Change',
 };
 const VECTOR_COLORS = {
-  people: '#a78bfa', strategic: '#60a5fa', customer: '#34d399', operations: '#fbbf24',
-  innovation: '#f472b6', financial: '#fb923c', risk: '#f87171', impact: '#22d3ee',
+  people: '#a78bfa', strategic: '#60a5fa', revenue: '#34d399', technology: '#22d3ee',
+  financials: '#fbbf24', information: '#38bdf8', grc: '#f87171', stepchange: '#d4a843',
 };
+// Render order for the radar (clockwise from top).
+const VECTOR_ORDER = ['people', 'strategic', 'revenue', 'technology', 'financials', 'information', 'grc', 'stepchange'];
+
+// Light-background SVG radar (spider) chart. The dashboard radar is built for a
+// dark background (white-on-transparent strokes); on a white share card those
+// strokes are invisible, so this version uses dark grid/labels + gold fill.
+function RadarChart({ vectorScores }) {
+  const size = 320, cx = size / 2, cy = size / 2, maxR = 112, n = 8, rings = 4;
+  const pt = (i, r) => {
+    const ang = (Math.PI * 2 * i) / n - Math.PI / 2;
+    return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+  };
+  const ringPath = (r) =>
+    Array.from({ length: n }, (_, i) => pt(i, r).join(',')).join(' ');
+  const dataPts = VECTOR_ORDER.map((key, i) => {
+    const score = Number(vectorScores[key]) || 0;
+    return pt(i, (Math.min(5, Math.max(0, score)) / 5) * maxR);
+  });
+  const dataPath = dataPts.map((p) => p.join(',')).join(' ');
+
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} width="100%" style={{ maxWidth: 340, display: 'block', margin: '0 auto' }}>
+      {/* concentric grid rings */}
+      {Array.from({ length: rings }, (_, ri) => (
+        <polygon key={ri} points={ringPath((maxR * (ri + 1)) / rings)}
+          fill="none" stroke="#e2e2e2" strokeWidth={1} />
+      ))}
+      {/* spokes */}
+      {Array.from({ length: n }, (_, i) => {
+        const [x, y] = pt(i, maxR);
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#ececec" strokeWidth={1} />;
+      })}
+      {/* scored polygon */}
+      <polygon points={dataPath} fill="rgba(213,170,91,0.20)" stroke={G} strokeWidth={2}
+        strokeLinejoin="round" />
+      {dataPts.map((p, i) => (
+        <circle key={i} cx={p[0]} cy={p[1]} r={2.6} fill={G} />
+      ))}
+      {/* axis labels */}
+      {VECTOR_ORDER.map((key, i) => {
+        const [lx, ly] = pt(i, maxR + 18);
+        const anchor = Math.abs(lx - cx) < 6 ? 'middle' : lx > cx ? 'start' : 'end';
+        return (
+          <text key={key} x={lx} y={ly} textAnchor={anchor} dominantBaseline="middle"
+            fontSize={9.5} fontWeight={600} fill="#555">
+            {VECTOR_SHORT[key] || key}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
 
 export default function SharedEightVectorSelf() {
   const { token } = useParams();
@@ -78,6 +138,14 @@ export default function SharedEightVectorSelf() {
             <span style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>/ 5.0</span>
           </div>
         </div>
+
+        {/* Radar (spider) chart */}
+        {Object.keys(vectorScores).length > 0 && (
+          <div style={{ ...card, padding: 22, marginBottom: 16 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: 0.5 }}>8-Vector Profile</h2>
+            <RadarChart vectorScores={vectorScores} />
+          </div>
+        )}
 
         {/* Vector breakdown */}
         {Object.keys(vectorScores).length > 0 && (
