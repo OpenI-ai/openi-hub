@@ -16,7 +16,7 @@ export default function StudentDiscovery() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', city: '', state: '', graduation_year: '', research_area: '', skill: '' });
-  const [facets, setFacets] = useState({ institutions: [] });
+  const [, setFacets] = useState({ institutions: [] });
   const limit = 24;
 
   useEffect(() => { load(); }, [page, filters]);

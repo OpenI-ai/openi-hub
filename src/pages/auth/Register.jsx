@@ -293,7 +293,7 @@ function LogoField({ label, required, value, onChange, placeholder }) {
 }
 
 function FormField({ field, value, onChange }) {
-  const { name, label, type, required, options, placeholder, min, max } = field;
+  const { label, type, required, options, placeholder, min, max } = field;
 
   if (type === 'select') {
     return (

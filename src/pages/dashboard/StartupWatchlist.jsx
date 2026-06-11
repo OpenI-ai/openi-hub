@@ -5,7 +5,7 @@ import { watchlistAPI, startupAPI, meetingAPI, messageAPI } from '../../services
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
-  UserPlus, Mail, ChevronDown, MessageCircle, ChevronLeft, Loader2,
+  UserPlus, Mail, MessageCircle, ChevronLeft, Loader2,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

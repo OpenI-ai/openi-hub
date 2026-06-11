@@ -8,7 +8,6 @@ import { CheckCircle2, Circle,
 } from 'lucide-react';
 
 const G = '#D5AA5B';
-const GH = '#C9983F';
 
 const card = {
   background: '#ffffff',

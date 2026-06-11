@@ -34,7 +34,6 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [connCount, setConnCount] = useState(0);
 
   const userId = parseInt(id);
   const isSelf = user?.id === userId;
@@ -53,9 +52,6 @@ export default function UserProfile() {
       })
       .catch(err => { toast.error(err.message); navigate(-1); })
       .finally(() => setLoading(false));
-
-    // Get connection count for target user — approximate via mutual
-    connectionAPI.check(userId).then(d => setConnCount(0)).catch(() => {});
   }, [userId, isSelf, navigate]);
 
   if (loading) {

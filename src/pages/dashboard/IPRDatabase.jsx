@@ -155,7 +155,7 @@ export default function IPRDatabase() {
         jurisdiction: 'IN',
         description: description || null,
       };
-      const created = await iprAPI.create(payload);
+      await iprAPI.create(payload);
       toast.success('IPR record added');
       // Optimistic refresh — prepend the created row to the list. Falls back
       // to a full re-fetch if the response shape is unexpected.

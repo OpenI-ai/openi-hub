@@ -6,8 +6,6 @@
  */
 import { Sparkles, Brain, Loader2, BarChart3, Zap, X } from 'lucide-react';
 
-const G = '#D5AA5B';
-
 const VECTORS = [
   { k: 'solution_fit', l: 'Solution Fit' },
   { k: 'tech_maturity', l: 'Tech Maturity' },

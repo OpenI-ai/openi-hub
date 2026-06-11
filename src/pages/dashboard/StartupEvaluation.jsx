@@ -545,7 +545,7 @@ export default function StartupEvaluation() {
   const scoredCriteria = Object.values(scores).filter(s => s != null).length;
   const completionPct = Math.round((scoredCriteria / totalCriteria) * 100);
 
-  const { label: overallLabel, cls: overallCls } = scoreBand(overallScore);
+  const { label: overallLabel } = scoreBand(overallScore);
 
   const inputStyle = {
     background:"#fafafa", border:"1.5px solid #e0e0e0", color:"#333",

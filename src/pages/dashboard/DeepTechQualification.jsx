@@ -9,7 +9,7 @@ import {
   Award, AlertTriangle, BarChart3, ArrowRight,
   Cpu, FlaskConical, Shield, Microscope, Rocket,
   // Phase 111 Ship 2a icons
-  Share2, FileDown, Globe, Mail, Copy,
+  Share2, FileDown, Globe,
 } from 'lucide-react';
 
 const G = '#D5AA5B';

@@ -492,16 +492,6 @@ const STAGE_COLORS = {
 };
 const DEFAULT_BAR_COLOR = '#D5AA5B'; // OpenI gold
 
-// Format a Cr value for display: "12.5 Cr" / "1.2 K Cr" / "850 Cr"
-function fmtCr(cr) {
-  if (cr == null) return '—';
-  if (cr >= 1000) return `${(cr / 1000).toFixed(1)}K Cr`;
-  if (cr >= 100)  return `${Math.round(cr)} Cr`;
-  if (cr >= 10)   return `${cr.toFixed(1)} Cr`;
-  if (cr >= 1)    return `${cr.toFixed(2)} Cr`;
-  return `${(cr * 100).toFixed(1)} L`; // < 1 Cr → Lakh display
-}
-
 // Format ISO date → "Jan 2024" for X-axis labels
 function fmtMonthYear(d) {
   if (!d) return '';
@@ -1165,12 +1155,12 @@ export default function StartupProfile() {
   // Phase 110: Share modal state (Share button at top of page opens this)
   const [shareOpen, setShareOpen] = useState(false);
   const [shareTab, setShareTab] = useState('pdf'); // 'pdf' | 'link' | 'email'
-  const [shareMode, setShareMode] = useState('full'); // for 'link' tab
+  const [shareMode] = useState('full'); // for 'link' tab
   const [shareList, setShareList] = useState([]);
   const [shareLoading, setShareLoading] = useState(false);
   const [shareMinting, setShareMinting] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
-  const [shareEmailBusy, setShareEmailBusy] = useState(false);
+  const [shareEmailBusy] = useState(false);
   const [shareEmailMessage, setShareEmailMessage] = useState('');
 
   // Phase 110: Share handlers
@@ -1419,7 +1409,6 @@ export default function StartupProfile() {
   const focusAreas = Array.isArray(startup.focus_areas) ? startup.focus_areas : [];
   const investors = Array.isArray(startup.investor_names) ? startup.investor_names : [];
   const awards = Array.isArray(startup.awards) ? startup.awards : (typeof startup.awards === 'string' ? startup.awards.split(',').map(a => a.trim()).filter(Boolean) : []);
-  const certifications = Array.isArray(startup.certifications) ? startup.certifications : [];
 
   const TABS = ['Overview', 'Technology', 'Financials'];
 

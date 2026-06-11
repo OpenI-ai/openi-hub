@@ -17,7 +17,7 @@ import { portfolioEvalsAPI, getToken} from '../../services/api';
 import {
   Loader2, Plus, X, Edit3, Trash2,
   AlertTriangle, TrendingUp, Target, Users, BarChart3,
-  ChevronRight, Share2, FileDown, Globe, Copy,  // Phase 111 Ship 2d icons added
+  ChevronRight, Share2, FileDown, Globe,  // Phase 111 Ship 2d icons added
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PortfolioRadarChart from './PortfolioRadarChart';

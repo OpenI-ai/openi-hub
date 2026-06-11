@@ -13,8 +13,8 @@ export default function AdminStartups() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [sectorFilter, setSectorFilter] = useState('');
-  const [countryFilter, setCountryFilter] = useState('');
+  const [sectorFilter] = useState('');
+  const [countryFilter] = useState('');
   const [importedFilter, setImportedFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [editStartup, setEditStartup] = useState(null);

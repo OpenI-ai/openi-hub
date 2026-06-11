@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 
 const G = '#D5AA5B';
-const GH = '#C9983F';
 
 const card = {
   background: '#ffffff',
@@ -54,15 +53,13 @@ const FEATURE_LABELS = {
 // Features that are boolean flags (not counted usage)
 const PROVIDER_BOOLEAN = ['featured_badge', 'search_ranking_boost', 'who_viewed_profile', 'watchlist_alerts', 'application_insights', 'profile_score_ai'];
 const SEEKER_BOOLEAN = ['semantic_search', 'can_access_deal_pipeline', 'can_access_portfolio_health', 'can_access_service_partners', 'eight_vector_evaluation', 'can_create_programs_batches', 'rich_profile_sections_unlocked', 'multi_seat_org_admin', 'api_access', 'sso_audit_logs'];
-const PROVIDER_USAGE = ['application_submit', 'deal_request_apply', 'conversation_create', 'connection_request', 'meeting_create', 'file_upload'];
-const SEEKER_USAGE = ['challenge_create', 'application_review', 'conversation_create', 'meeting_create', 'file_upload'];
 
 // Legacy compat
 const BOOLEAN_FEATURES = [...new Set([...PROVIDER_BOOLEAN, ...SEEKER_BOOLEAN])];
 const USAGE_FEATURES = ['challenge_create', 'application_submit', 'meeting_create', 'file_upload'];
 
 export default function Settings() {
-  const { user, logout, updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const [searchParams] = useSearchParams();
   // Phase 68: deep-link support for plan visibility surfaces.
   // Other pages link to /dashboard/settings?tab=billing or

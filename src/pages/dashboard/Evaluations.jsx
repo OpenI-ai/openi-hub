@@ -12,7 +12,6 @@ const STATUS_CONFIG = {
 
 function ProgramCard({ program, onClick }) {
   const cfg = STATUS_CONFIG[program.status] || STATUS_CONFIG.Completed;
-  const totalWeight = program.criteria.reduce((s, c) => s + c.weight, 0);
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group" onClick={onClick}>
       <div className="flex items-start justify-between gap-3 mb-3">

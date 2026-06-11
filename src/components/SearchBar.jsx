@@ -27,7 +27,7 @@ export default function SearchBar({
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mode, setMode] = useState(initialMode); // 'keyword' | 'semantic' | 'ai'
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const navigate = useNavigate();
   const ref = useRef(null);
   const timer = useRef(null);

@@ -7,7 +7,6 @@ import { feedbackAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
 const G = '#D5AA5B';
-const GH = '#C9983F';
 
 const card = {
   background: '#ffffff',
@@ -68,9 +67,8 @@ function StarRating({ value, onChange, readOnly = false }) {
 export default function StartupFeedback() {
   const [view, setView]       = useState('list');
   const [feedbacks, setFeedbacks] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
+  const [, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
   const [search, setSearch]   = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [sentimentFilter, setSentimentFilter] = useState('All');

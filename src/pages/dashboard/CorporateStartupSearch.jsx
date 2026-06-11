@@ -18,7 +18,7 @@ export default function CorporateStartupSearch() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [taxLoading, setTaxLoading] = useState(true);
+  const [, setTaxLoading] = useState(true);
 
   useEffect(() => { loadTaxonomy(); }, []);
   useEffect(() => { loadStartups(); }, [page, filters]);

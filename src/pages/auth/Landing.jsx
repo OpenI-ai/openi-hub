@@ -24,16 +24,11 @@ const GOLD = '#D3AD5B';                       // brand gold (buttons, accents)
 const GOLD_DARK = '#C19A45';                  // darker gold for hover states
 const GOLD_DEEP = '#B5872B';                  // deep gold for small text on white
 const GOLD_LIGHT = 'rgba(211, 173, 91, 0.12)'; // soft gold tint (icon chips)
-const GOLD_TINT = '#FBF4E4';                  // Pro plan / highlight tint
 const BLUE = '#3b82f6';
 const DARK = '#2E2E34';                       // heading text
 const GRAY = '#6A6A70';                       // body text
-const MUTED = '#8A8A90';                      // muted/secondary text
-const SLATE = '#56565C';                      // wordmark / slate grey
 const LIGHT_GRAY = '#F3F0EA';                 // alt section background
-const BG = '#FBFAF8';                         // page background (warm white)
 const BORDER = '#E8E3D8';                     // default border
-const BORDER_SOFT = '#ECE8DE';                // softer border
 
 // ── Social SVG icons (lucide-react v0.294 doesn't have these) ──
 function LinkedInIcon({ size = 18, color = 'currentColor' }) {
@@ -74,12 +69,6 @@ const DEFAULT_PARTNERS = [
   { name: 'Aditya Birla Group',           slug: 'aditya-birla' },
   { name: 'Karnataka Digital Economy Mission', slug: 'karnataka-digital-economy' },
   { name: 'Dentsu',                       slug: 'dentsu' },
-];
-
-const DEFAULT_TESTIMONIALS = [
-  { quote: 'The AI Ask search cut our startup discovery time by 80%. We just type what we need in plain English and get ranked matches across sector, stage, and deep-tech fit instantly.', name: 'Priya Sharma', role: 'VP Innovation', org: 'Tata Advanced Systems' },
-  { quote: 'The 8-vector evaluation framework and deal pipeline transformed how we assess investment opportunities. Data-driven decisions at scale, with full audit trails.', name: 'Rahul Mehta', role: 'Partner', org: 'Kalaari Capital' },
-  { quote: 'Portfolio Health tracking changed our incubator\u2019s entire review cadence. We can spot at-risk startups 6 weeks before we used to, and our graduation rates jumped 30%.', name: 'Dr. Anand Kumar', role: 'Program Director', org: 'T-Hub Hyderabad' },
 ];
 
 const DEFAULT_FAQS = [
@@ -283,37 +272,6 @@ function PersonaListItem({ icon: Icon, label, color }) {
   );
 }
 
-// ── Testimonial card ────────────────────────────────────────
-function TestimonialCard({ quote, name, role, org }) {
-  return (
-    <div
-      className="p-6 rounded-xl transition-all"
-      style={{ background: '#fff', border: `1px solid ${BORDER}` }}
-      onMouseEnter={e => {
-        e.currentTarget.style.borderColor = GOLD;
-        e.currentTarget.style.boxShadow = '0 8px 24px rgba(213,170,91,0.08)';
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.borderColor = BORDER;
-        e.currentTarget.style.boxShadow = 'none';
-      }}
-    >
-      <div className="flex gap-1 mb-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star key={i} size={14} fill={GOLD} style={{ color: GOLD }} />
-        ))}
-      </div>
-      <p className="text-sm leading-relaxed mb-4" style={{ color: GRAY, fontStyle: 'italic' }}>
-        &ldquo;{quote}&rdquo;
-      </p>
-      <div>
-        <div className="text-sm font-bold" style={{ color: DARK }}>{name}</div>
-        <div className="text-xs" style={{ color: GRAY }}>{role}, {org}</div>
-      </div>
-    </div>
-  );
-}
-
 // ── FAQ item ────────────────────────────────────────────────
 function FAQItem({ question, answer, isOpen, onToggle }) {
   return (
@@ -374,10 +332,6 @@ export default function Landing() {
       ? { ...s, value: liveStartupsValue }
       : s
   );
-  const liveSectorsText = liveStartupsValue
-    ? `AI-Powered \u00b7 ${liveStartupsValue} Startups \u00b7 11 Personas \u00b7 200 AI Clusters \u00b7 Deep-Tech`
-    : 'AI-Powered \u00b7 11 Personas \u00b7 200 AI Clusters \u00b7 Deep-Tech \u00b7 Real-Time Search';
-  const testimonials = cms?.testimonials || DEFAULT_TESTIMONIALS;
   const faqs = cms?.faqs || DEFAULT_FAQS;
   const features = null;                     // Inline 12-card grid (not CMS-managed)
   const pricing = cms?.pricing || null;      // CMS pricing or inline fallback

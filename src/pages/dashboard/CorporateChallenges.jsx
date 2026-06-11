@@ -6,7 +6,6 @@ import { useAuth } from '../../context/AuthContext';
 import { getStatusLabel, getActionLabel } from '../../config/applicationStatusLabels';
 // T32-99d: meetingAPI for invitee typeahead
 import { corporateAPI, meetingAPI, messageAPI } from '../../services/api';
-import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
   Target, Plus, ChevronLeft, Clock, CheckCircle,
@@ -97,14 +96,6 @@ const STATUS_STYLE = {
   awarded:   { bg: '#f0fdf4', color: '#16a34a', label: 'Awarded' },
 };
 
-const APP_STATUS = {
-  applied:     { bg: '#eff6ff', color: '#2563eb', label: 'Applied' },
-  shortlisted: { bg: '#fefce8', color: '#ca8a04', label: 'Shortlisted' },
-  evaluating:  { bg: '#faf5ff', color: '#7c3aed', label: 'Evaluating' },
-  selected:    { bg: '#f0fdf4', color: '#16a34a', label: 'Selected' },
-  rejected:    { bg: '#fef2f2', color: '#dc2626', label: 'Rejected' },
-};
-
 export default function CorporateChallenges() {
   const [challenges, setChallenges] = useState([]);
   // Phase 120: selected now derived from URL :id param (mobile back-button fix)
@@ -122,7 +113,7 @@ export default function CorporateChallenges() {
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [templates, setTemplates] = useState({ builtin: [], saved: [] });
   const [filters, setFilters] = useState({ status: 'all', sector: '', search: '', sort: 'newest' });
-  const [recommendedStartups, setRecommendedStartups] = useState([]);
+  const [, setRecommendedStartups] = useState([]);
   // Phase 35: Corporate AI Intelligence
   const [aiAdvisorLoading, setAiAdvisorLoading] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState(null);
@@ -395,13 +386,6 @@ const startEdit = () => {
       loadDetail(selected);
       load();
     } catch (err) { toast.error(err.message); }
-  };
-
-  const toggleTag = (field, val) => {
-    setForm(p => ({
-      ...p,
-      [field]: p[field].includes(val) ? p[field].filter(v => v !== val) : [...p[field], val],
-    }));
   };
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;

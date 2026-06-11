@@ -43,7 +43,7 @@ const rootElement = document.getElementById('root');
 
 const tree = (
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={({ error }) => (
+    <Sentry.ErrorBoundary fallback={() => (
       <div style={{ padding: 24, fontFamily: 'system-ui' }}>
         <h2>Something went wrong.</h2>
         <p>The error has been reported. Please refresh to continue.</p>

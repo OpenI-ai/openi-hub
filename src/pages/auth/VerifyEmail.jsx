@@ -67,7 +67,6 @@ async function flushPendingOrgJoin() {
         toast.success(`Request to join ${orgName} sent`);
       }
     } catch (err) {
-      const status = err?.status || err?.response?.status;
       const msg = (err?.message || '').toLowerCase();
       // 409 already-member OR 404 org-gone: clear stash, don't retry
       if (msg.includes('already a member') || msg.includes('not found')) {

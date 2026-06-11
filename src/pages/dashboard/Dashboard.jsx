@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { DASHBOARD_STATS, STARTUPS, PROJECTS, NOTIFICATIONS } from '../../data/mockData';
@@ -30,7 +29,6 @@ function HealthDot({ color }) {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [sector, setSector] = useState(null);
   const s = DASHBOARD_STATS;
 
   const greeting = () => {

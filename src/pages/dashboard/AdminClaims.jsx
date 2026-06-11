@@ -103,8 +103,6 @@ export default function AdminClaims() {
     } finally { setSubmitting(false); }
   };
 
-  const pendingCount = claims.filter(c => ['pending','email_sent'].includes(c.status)).length;
-
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <Link to="/dashboard/admin" className="inline-flex items-center gap-1 text-sm mb-4" style={{ color: '#6B7280' }}>

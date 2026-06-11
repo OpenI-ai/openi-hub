@@ -554,7 +554,6 @@ export default function MyProfile() {
     news:          2,
     acquisitions:  2,
   };
-  const SUBSECTION_TOTAL = Object.values(SUBSECTION_WEIGHTS).reduce((a, b) => a + b, 0); // 20
 
   useEffect(() => {
     if (user?.role !== 'startup') { setSubProbed(true); return; }

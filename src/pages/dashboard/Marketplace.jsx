@@ -180,7 +180,6 @@ export default function Marketplace() {
     const rfiQuestions = (() => { try { return typeof detail.rfi_questions === 'string' ? JSON.parse(detail.rfi_questions) : (detail.rfi_questions || []); } catch { return []; } })();
     const faqs = (() => { try { return typeof detail.faqs === 'string' ? JSON.parse(detail.faqs) : (detail.faqs || []); } catch { return []; } })();
     const minPct = detail.min_profile_pct || 25;
-    const canApply = !detail.has_applied && detail.status === 'open' && (profilePct || 0) >= minPct;
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>

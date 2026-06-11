@@ -19,7 +19,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Loader2, AlertCircle, CheckCircle, Mail } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 
 const G = '#D5AA5B';
 const DARK = '#0C2126';

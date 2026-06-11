@@ -39,7 +39,6 @@ const fmtTime = (d) => {
   if (!d) return '';
   return new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 };
-const fmtDateTime = (d) => `${fmtDate(d)} at ${fmtTime(d)}`;
 
 const Avatar = ({ src, name, size = 32 }) => {
   if (src) return <img src={src} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee' }} />;

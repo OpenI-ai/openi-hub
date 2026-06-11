@@ -24,7 +24,7 @@ function StatCard({ label, value, sub, icon: Icon, color, to }) {
 
 export default function AdminConsole() {
   const [health, setHealth] = useState(null);
-  const [overview, setOverview] = useState(null);
+  const [, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +37,6 @@ export default function AdminConsole() {
   if (loading) return <LoadingSkeleton type="card" />;
 
   const tc = health?.table_counts || {};
-  const ov = overview || {};
 
   const modules = [
     { to: '/dashboard/admin/users', label: 'User Management', desc: 'View, edit, disable users. Override plans and roles.', icon: Users, color: 'bg-blue-500' },

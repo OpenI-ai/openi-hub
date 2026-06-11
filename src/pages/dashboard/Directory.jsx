@@ -123,8 +123,6 @@ export default function Directory() {
     if (!detail) return null;
 
     const { user: u, profile: prof } = detail;
-    const persona = PERSONAS[u.role] || {};
-    const Icon = ICON_MAP[persona.icon];
 
     // Build detail fields based on role
     const detailSections = buildDetailSections(u.role, prof);

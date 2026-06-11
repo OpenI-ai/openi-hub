@@ -20,7 +20,6 @@ const DARK = '#0D2137';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 20 };
 
 const PIE_COLORS = ['#16a34a', '#D5AA5B', '#7c3aed'];
-const BAR_COLORS = ['#3b82f6', '#16a34a', '#f59e0b', '#ec4899', '#7c3aed', '#14b8a6', '#ef4444', '#0ea5e9', '#8b5cf6', '#0d9488', '#D5AA5B'];
 
 function StatCard({ icon: Icon, label, value, sub, color = G }) {
   return (

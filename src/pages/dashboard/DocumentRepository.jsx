@@ -67,8 +67,6 @@ export default function DocumentRepository() {
   const [search, setSearch]       = useState('');
   const [accessFilter, setAccessFilter] = useState('All');
   const [showStarred, setShowStarred] = useState(false);
-  const [expandedFolders, setExpandedFolders] = useState({});
-  const [previewFile, setPreviewFile] = useState(null);
   const [files, setFiles]         = useState([]);
   const [loading, setLoading]     = useState(true);
 
@@ -136,8 +134,6 @@ export default function DocumentRepository() {
   };
 
   useEffect(() => { loadDocuments(); }, []);
-
-  const toggleFolder = (id) => setExpandedFolders(prev => ({ ...prev, [id]: !prev[id] }));
 
   // Phase 104b — Upload modal handlers
   const handleFileSelect = async (e) => {
