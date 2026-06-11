@@ -572,10 +572,19 @@ export default function MyProfile() {
     return () => { cancelled = true; };
   }, [user?.role]);
 
-  // Phase 79 — completeness for startup uses 80/20 split; other personas
-  // unchanged (top-level fields only, 100% scale).
+  // Phase 12-bug — single source of truth for the completeness bar.
+  // The Dashboard reads directory_profiles.profile_score (computed by the
+  // backend profileScoreService: 20 weighted top-level fields + 8 sub-section
+  // presence weights, with isMeaningful() length/numeric thresholds). The old
+  // client-side calc below counted ~45 fields EQUALLY with a loose presence
+  // check, so the two surfaces never agreed (Dashboard 98% vs here 100%).
+  // getMyProfile now LEFT JOINs profile_score; prefer it. Fall back to the
+  // client calc only when it's null (brand-new, never-scored profile).
   let completeness;
-  if (user?.role === 'startup') {
+  const backendScore = profileData?.profile_score;
+  if (backendScore !== undefined && backendScore !== null) {
+    completeness = Math.min(100, Math.max(0, Math.round(Number(backendScore))));
+  } else if (user?.role === 'startup') {
     // top-level out of 80
     const filledTopLevel = fields.filter(f => {
       const v = profileData[f.name];
