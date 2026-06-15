@@ -652,6 +652,10 @@ export const REGISTER_FIELDS = Object.fromEntries(
 // Bug #1: industry + description fields per persona — used by Register Step 2 prefill
 export const PERSONA_INDUSTRY_FIELD = {
   corporate: 'industry',
+  // student/academia map the org's industry onto their Research Areas tags field
+  // (Register.jsx wraps the string in an array for `tags`-type targets)
+  student: 'research_areas',
+  academia: 'research_areas',
   // other personas have no direct "industry" field on Step 2 — skip them
 };
 
@@ -664,6 +668,9 @@ export const PERSONA_DESCRIPTION_FIELD = {
   incubator: 'description',
   accelerator: 'description',
   service_provider: 'description',
+  // student/academia carry the org's description into their "About Me" bio
+  student: 'bio',
+  academia: 'bio',
   // startup intentionally excluded — a corporate-admin's description is unlikely
   // to be relevant to a startup signing up under the same domain
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD, PERSONA_INDUSTRY_FIELD, PERSONA_DESCRIPTION_FIELD, PERSONA_HAS_INDUSTRY, PERSONA_HAS_DESCRIPTION } from '../../config/personas';
@@ -457,6 +457,21 @@ function FormField({ field, value, onChange }) {
   );
 }
 
+// Phase 117c — coerce a prefilled value to match the target field's input type.
+// orgMatch.industry / .description are strings, but some personas map "industry"
+// onto a `tags`-type field (e.g. student/academia → research_areas, rendered by
+// TagInput which expects an array). Wrap the string in an array for tags targets;
+// leave text/textarea targets as the raw string. Module-scope (pure) so it never
+// needs to be a useEffect dependency.
+function coerceForField(fields, fieldName, value) {
+  if (value == null || value === '') return value;
+  const def = (fields || []).find(f => f.name === fieldName);
+  if (def?.type === 'tags') {
+    return Array.isArray(value) ? value : [value];
+  }
+  return value;
+}
+
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -467,7 +482,12 @@ export default function Register() {
   // Phase 65: Step 2 now shows a short list (~6 fields). Full PROFILE_FIELDS
   // remains the source of truth for My Profile. This unblocks Shameel-style
   // complaints that the signup form is too long.
-  const profileFields = personaType ? (REGISTER_FIELDS[personaType] || PROFILE_FIELDS[personaType] || []) : [];
+  // Phase 117c — memoised so the array identity is stable across renders; this lets
+  // the Step-2 prefill useEffect depend on it without re-firing every keystroke.
+  const profileFields = useMemo(
+    () => (personaType ? (REGISTER_FIELDS[personaType] || PROFILE_FIELDS[personaType] || []) : []),
+    [personaType],
+  );
   const orgField = personaType ? ORG_NAME_FIELD[personaType] : null;
 
   // Step 0: Choose persona (only when ?type= is missing)
@@ -540,13 +560,13 @@ export default function Register() {
       ...prev,
       [orgField]: prev[orgField] || orgMatch.name || '',
       ...(orgMatch.industry && PERSONA_HAS_INDUSTRY[personaType]
-        ? { [PERSONA_INDUSTRY_FIELD[personaType]]: prev[PERSONA_INDUSTRY_FIELD[personaType]] || orgMatch.industry }
+        ? { [PERSONA_INDUSTRY_FIELD[personaType]]: prev[PERSONA_INDUSTRY_FIELD[personaType]] || coerceForField(profileFields, PERSONA_INDUSTRY_FIELD[personaType], orgMatch.industry) }
         : {}),
       ...(orgMatch.description && PERSONA_HAS_DESCRIPTION[personaType]
-        ? { [PERSONA_DESCRIPTION_FIELD[personaType]]: prev[PERSONA_DESCRIPTION_FIELD[personaType]] || orgMatch.description }
+        ? { [PERSONA_DESCRIPTION_FIELD[personaType]]: prev[PERSONA_DESCRIPTION_FIELD[personaType]] || coerceForField(profileFields, PERSONA_DESCRIPTION_FIELD[personaType], orgMatch.description) }
         : {}),
     }));
-  }, [orgMatch, orgJoinResult, orgField, personaType]);
+  }, [orgMatch, orgJoinResult, orgField, personaType, profileFields]);
 
   // Phase 113 — handle "Request to join" click
   const handleRequestJoinOrg = async () => {
@@ -988,10 +1008,10 @@ export default function Register() {
                       ...prev,
                       [orgField]: prev[orgField] || orgMatch.name,
                       ...(orgMatch.industry && PERSONA_HAS_INDUSTRY[personaType]
-                        ? { [PERSONA_INDUSTRY_FIELD[personaType]]: prev[PERSONA_INDUSTRY_FIELD[personaType]] || orgMatch.industry }
+                        ? { [PERSONA_INDUSTRY_FIELD[personaType]]: prev[PERSONA_INDUSTRY_FIELD[personaType]] || coerceForField(profileFields, PERSONA_INDUSTRY_FIELD[personaType], orgMatch.industry) }
                         : {}),
                       ...(orgMatch.description && PERSONA_HAS_DESCRIPTION[personaType]
-                        ? { [PERSONA_DESCRIPTION_FIELD[personaType]]: prev[PERSONA_DESCRIPTION_FIELD[personaType]] || orgMatch.description }
+                        ? { [PERSONA_DESCRIPTION_FIELD[personaType]]: prev[PERSONA_DESCRIPTION_FIELD[personaType]] || coerceForField(profileFields, PERSONA_DESCRIPTION_FIELD[personaType], orgMatch.description) }
                         : {}),
                     }));
                   }
