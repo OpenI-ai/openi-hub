@@ -3,7 +3,7 @@
  * Enables seeker personas to discover and source student talent.
  */
 import { useState, useEffect } from 'react';
-import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink } from 'lucide-react';
+import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { discoveryAPI } from '../../services/api';
 
@@ -17,6 +17,7 @@ export default function StudentDiscovery() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', city: '', state: '', graduation_year: '', research_area: '', skill: '' });
   const [, setFacets] = useState({ institutions: [] });
+  const [selected, setSelected] = useState(null);
   const limit = 24;
 
   useEffect(() => { load(); }, [page, filters]);
@@ -77,7 +78,7 @@ export default function StudentDiscovery() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
           {students.map(s => (
-            <div key={s.user_id || s.id} style={card}
+            <div key={s.user_id || s.id} style={card} onClick={() => setSelected(s)}
               onMouseEnter={e => e.currentTarget.style.borderColor = G}
               onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>
@@ -151,6 +152,101 @@ export default function StudentDiscovery() {
             style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8, border: '1px solid #ddd', background: '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer', opacity: page === totalPages ? 0.5 : 1 }}>
             <ChevronRight size={14} />
           </button>
+        </div>
+      )}
+
+      {/* Detail modal */}
+      {selected && (
+        <div onClick={() => setSelected(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: '#fff', borderRadius: 16, padding: 24, maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <button onClick={() => setSelected(null)}
+              style={{ position: 'absolute', top: 14, right: 14, background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4 }}>
+              <X size={20} />
+            </button>
+
+            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
+              {selected.avatar ? (
+                <img src={selected.avatar} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
+              ) : (
+                <div style={{ width: 56, height: 56, borderRadius: 12, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#999' }}>
+                  {(selected.display_name || '?')[0]}
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{selected.display_name || 'Student'}</div>
+                <div style={{ fontSize: 13, color: '#888' }}>
+                  {selected.degree ? `${selected.degree}` : ''}{selected.department ? ` in ${selected.department}` : ''}
+                </div>
+              </div>
+            </div>
+
+            {selected.institution && (
+              <div style={{ fontSize: 13, color: '#555', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                <BookOpen size={14} /> {selected.institution}
+              </div>
+            )}
+            {(selected.city || selected.state) && (
+              <div style={{ fontSize: 13, color: '#888', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                <MapPin size={14} /> {[selected.city, selected.state].filter(Boolean).join(', ')}
+              </div>
+            )}
+            {selected.graduation_year && (
+              <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Class of {selected.graduation_year}</div>
+            )}
+
+            {selected.project_title && (
+              <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>
+                <span style={{ fontWeight: 600 }}>Project:</span> {selected.project_title}
+                {selected.project_description && <div style={{ marginTop: 4, color: '#777' }}>{selected.project_description}</div>}
+              </div>
+            )}
+
+            {selected.bio && (
+              <div style={{ fontSize: 13, color: '#444', marginBottom: 12, lineHeight: 1.5 }}>{selected.bio}</div>
+            )}
+
+            {(selected.skills || []).length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Skills</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {selected.skills.map(sk => (
+                    <span key={sk} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{sk}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(selected.research_areas || []).length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {selected.research_areas.map(r => (
+                    <span key={r} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(selected.looking_for || []).length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Seeking</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {selected.looking_for.map(l => (
+                    <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{l}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(selected.linkedin_url || selected.portfolio_url) && (
+              <div style={{ display: 'flex', gap: 12, marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
+                {selected.linkedin_url && <a href={selected.linkedin_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> LinkedIn</a>}
+                {selected.portfolio_url && <a href={selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
