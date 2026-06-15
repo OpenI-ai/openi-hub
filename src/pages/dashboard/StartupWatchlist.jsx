@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom'; // M3 (27 May 2026) — for Message button deep-link
 import { watchlistAPI, startupAPI, meetingAPI, messageAPI } from '../../services/api';
+import safeStorage from '../../utils/safeStorage';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
@@ -633,7 +634,7 @@ export default function StartupWatchlist() {
                     onClick={async () => {
                       try {
                         const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/watchlists/${selectedList.id}/pdf`;
-                        const token = localStorage.getItem('openi_token') || '';
+                        const token = safeStorage.getItem('openi_token') || '';
                         const resp = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
                         if (!resp.ok) throw new Error('Failed to export PDF');
                         const blob = await resp.blob();

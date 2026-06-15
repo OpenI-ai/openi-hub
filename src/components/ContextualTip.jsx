@@ -10,20 +10,21 @@
  */
 import { useState, useEffect } from 'react';
 import { Lightbulb, X } from 'lucide-react';
+import safeStorage from '../utils/safeStorage';
 
 const G = '#D5AA5B';
 const STORAGE_KEY = 'openi_tips_seen';
 
 function getSeenTips() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return JSON.parse(safeStorage.getItem(STORAGE_KEY) || '{}');
   } catch { return {}; }
 }
 
 function markSeen(tipKey) {
   const seen = getSeenTips();
   seen[tipKey] = Date.now();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(seen));
+  safeStorage.setItem(STORAGE_KEY, JSON.stringify(seen));
 }
 
 export default function ContextualTip({ tipKey, children, position = 'bottom' }) {
@@ -84,5 +85,5 @@ export default function ContextualTip({ tipKey, children, position = 'bottom' })
  * Reset all seen tips (useful for testing or Settings).
  */
 export function resetAllTips() {
-  localStorage.removeItem(STORAGE_KEY);
+  safeStorage.removeItem(STORAGE_KEY);
 }

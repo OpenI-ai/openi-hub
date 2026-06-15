@@ -4,16 +4,21 @@
  * Base URL is read from .env: VITE_API_URL
  */
 
+import safeStorage from '../utils/safeStorage';
+
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // ── Token helpers ───────────────────────────────────────────
-export function getToken()          { return localStorage.getItem('openi_token'); }
-export function setToken(t)         { localStorage.setItem('openi_token', t); }
-export function removeToken()       { localStorage.removeItem('openi_token'); }
+// safeStorage instead of raw localStorage: in-app WebViews / private mode can
+// throw SecurityError on storage access, which would otherwise break every
+// request that reads the token (Sentry OPENI-HUB-FRONTEND-F).
+export function getToken()          { return safeStorage.getItem('openi_token'); }
+export function setToken(t)         { safeStorage.setItem('openi_token', t); }
+export function removeToken()       { safeStorage.removeItem('openi_token'); }
 
 // Phase 60.3 (s50): active-role header. Stored in localStorage by AuthContext;
 // authMiddleware on the server validates it against the user's roles[].
-export function getActiveRole()     { return localStorage.getItem('openi_active_role'); }
+export function getActiveRole()     { return safeStorage.getItem('openi_active_role'); }
 
 // ── Core fetch wrapper ──────────────────────────────────────
 async function request(method, path, body = null, isFormData = false) {

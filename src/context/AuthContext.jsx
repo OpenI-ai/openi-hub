@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { seedFromUser } from '../services/tourService';
 import { authAPI } from '../services/api';
+import safeStorage from '../utils/safeStorage';
 
 // Phase 97 — session hardening config.
 // SILENT_REFRESH_INTERVAL_MS: how often we check the token's exp.
@@ -57,16 +58,16 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let active = true;
     try {
-      const storedToken = localStorage.getItem('openi_token');
-      const storedUser  = localStorage.getItem('openi_user');
+      const storedToken = safeStorage.getItem('openi_token');
+      const storedUser  = safeStorage.getItem('openi_user');
       if (storedToken && storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
-        const stored = localStorage.getItem(ACTIVE_ROLE_KEY);
+        const stored = safeStorage.getItem(ACTIVE_ROLE_KEY);
         const roles = getRolesFromUser(parsed);
         const resolved = (stored && roles.includes(stored)) ? stored : getPrimaryRoleFromUser(parsed);
         setActiveRoleState(resolved);
-        if (resolved) localStorage.setItem(ACTIVE_ROLE_KEY, resolved);
+        if (resolved) safeStorage.setItem(ACTIVE_ROLE_KEY, resolved);
         seedFromUser(parsed);
 
         // Background refresh — get canonical roles[] from server. If the user
@@ -80,25 +81,25 @@ export function AuthProvider({ children }) {
             if (!active || !data?.user) return;
             const fresh = { ...data.user, token: storedToken };
             setUser(fresh);
-            localStorage.setItem('openi_user', JSON.stringify(fresh));
+            safeStorage.setItem('openi_user', JSON.stringify(fresh));
             // Re-resolve active role against fresh roles[] in case the cached
             // active role is no longer valid (was removed in another session).
             const freshRoles = getRolesFromUser(fresh);
-            const cachedActive = localStorage.getItem(ACTIVE_ROLE_KEY);
+            const cachedActive = safeStorage.getItem(ACTIVE_ROLE_KEY);
             const nextActive = (cachedActive && freshRoles.includes(cachedActive))
               ? cachedActive
               : getPrimaryRoleFromUser(fresh);
             if (nextActive) {
-              localStorage.setItem(ACTIVE_ROLE_KEY, nextActive);
+              safeStorage.setItem(ACTIVE_ROLE_KEY, nextActive);
               setActiveRoleState(nextActive);
             }
           })
           .catch(() => { /* silent — cache fallback is fine */ });
       }
     } catch {
-      localStorage.removeItem('openi_token');
-      localStorage.removeItem('openi_user');
-      localStorage.removeItem(ACTIVE_ROLE_KEY);
+      safeStorage.removeItem('openi_token');
+      safeStorage.removeItem('openi_user');
+      safeStorage.removeItem(ACTIVE_ROLE_KEY);
     } finally {
       setLoading(false);
     }
@@ -110,7 +111,7 @@ export function AuthProvider({ children }) {
   const switchRole = (role) => {
     const roles = getRolesFromUser(user);
     if (!role || !roles.includes(role)) return false;
-    localStorage.setItem(ACTIVE_ROLE_KEY, role);
+    safeStorage.setItem(ACTIVE_ROLE_KEY, role);
     setActiveRoleState(role);
     return true;
   };
@@ -146,9 +147,9 @@ export function AuthProvider({ children }) {
     setUser(userData);
     const primary = getPrimaryRoleFromUser(userData);
     setActiveRoleState(primary);
-    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
-    localStorage.setItem('openi_token', data.token);
-    localStorage.setItem('openi_user', JSON.stringify(userData));
+    if (primary) safeStorage.setItem(ACTIVE_ROLE_KEY, primary);
+    safeStorage.setItem('openi_token', data.token);
+    safeStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
     return true;
   };
@@ -167,9 +168,9 @@ export function AuthProvider({ children }) {
     setUser(userData);
     const primary = getPrimaryRoleFromUser(userData);
     setActiveRoleState(primary);
-    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
-    localStorage.setItem('openi_token', data.token);
-    localStorage.setItem('openi_user', JSON.stringify(userData));
+    if (primary) safeStorage.setItem(ACTIVE_ROLE_KEY, primary);
+    safeStorage.setItem('openi_token', data.token);
+    safeStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
     setMfaStep(false);
     setMfaToken(null);
@@ -194,9 +195,9 @@ export function AuthProvider({ children }) {
     setUser(userData);
     const primary = getPrimaryRoleFromUser(userData);
     setActiveRoleState(primary);
-    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
-    localStorage.setItem('openi_token', data.token);
-    localStorage.setItem('openi_user', JSON.stringify(userData));
+    if (primary) safeStorage.setItem(ACTIVE_ROLE_KEY, primary);
+    safeStorage.setItem('openi_token', data.token);
+    safeStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
     return data;
   };
@@ -209,9 +210,9 @@ export function AuthProvider({ children }) {
     setUser(userData);
     const primary = getPrimaryRoleFromUser(userData);
     setActiveRoleState(primary);
-    if (primary) localStorage.setItem(ACTIVE_ROLE_KEY, primary);
-    localStorage.setItem('openi_token', token);
-    localStorage.setItem('openi_user', JSON.stringify(userData));
+    if (primary) safeStorage.setItem(ACTIVE_ROLE_KEY, primary);
+    safeStorage.setItem('openi_token', token);
+    safeStorage.setItem('openi_user', JSON.stringify(userData));
     seedFromUser(userData);
     return true;
   };
@@ -219,7 +220,7 @@ export function AuthProvider({ children }) {
   const updateUser = (updates) => {
     const updated = { ...user, ...updates };
     setUser(updated);
-    localStorage.setItem('openi_user', JSON.stringify(updated));
+    safeStorage.setItem('openi_user', JSON.stringify(updated));
   };
 
   // Phase 60.10 — after a roles change (POST /auth/roles/add etc), the backend
@@ -233,9 +234,9 @@ export function AuthProvider({ children }) {
     const rolesArray = (nextRoles || []).map(r => (typeof r === 'string' ? r : r?.role)).filter(Boolean);
     const updated = { ...user, roles: rolesArray };
     setUser(updated);
-    localStorage.setItem('openi_user', JSON.stringify(updated));
+    safeStorage.setItem('openi_user', JSON.stringify(updated));
     if (nextActiveRole && rolesArray.includes(nextActiveRole)) {
-      localStorage.setItem(ACTIVE_ROLE_KEY, nextActiveRole);
+      safeStorage.setItem(ACTIVE_ROLE_KEY, nextActiveRole);
       setActiveRoleState(nextActiveRole);
     }
   };
@@ -245,9 +246,9 @@ export function AuthProvider({ children }) {
     setMfaStep(false);
     setMfaToken(null);
     setActiveRoleState(null);
-    localStorage.removeItem('openi_token');
-    localStorage.removeItem('openi_user');
-    localStorage.removeItem(ACTIVE_ROLE_KEY);
+    safeStorage.removeItem('openi_token');
+    safeStorage.removeItem('openi_user');
+    safeStorage.removeItem(ACTIVE_ROLE_KEY);
   };
 
   // Phase 97 — silent session refresh. Every 10 min (and on activeRole change),
@@ -260,7 +261,7 @@ export function AuthProvider({ children }) {
     if (!user) return undefined;
     let cancelled = false;
     const tick = async () => {
-      const token = localStorage.getItem('openi_token');
+      const token = safeStorage.getItem('openi_token');
       if (!token) return;
       const payload = decodeJwtPayload(token);
       if (!payload?.exp) return;
@@ -271,8 +272,8 @@ export function AuthProvider({ children }) {
         if (cancelled || !data?.token || !data?.user) return;
         const refreshed = { ...data.user, token: data.token };
         setUser(refreshed);
-        localStorage.setItem('openi_token', data.token);
-        localStorage.setItem('openi_user', JSON.stringify(refreshed));
+        safeStorage.setItem('openi_token', data.token);
+        safeStorage.setItem('openi_user', JSON.stringify(refreshed));
       } catch {
         // silent — natural expiry path will handle it
       }
@@ -301,9 +302,9 @@ export function AuthProvider({ children }) {
           return;
         }
         try {
-          localStorage.removeItem('openi_token');
-          localStorage.removeItem('openi_user');
-          localStorage.removeItem(ACTIVE_ROLE_KEY);
+          safeStorage.removeItem('openi_token');
+          safeStorage.removeItem('openi_user');
+          safeStorage.removeItem(ACTIVE_ROLE_KEY);
         } catch { /* ignore */ }
         // Hard redirect — clears all in-memory React state including this
         // provider's `user`, and lands on Login with the idle banner.

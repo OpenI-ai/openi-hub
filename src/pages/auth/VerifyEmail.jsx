@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { profileAPI, orgAPI } from '../../services/api';
+import safeStorage from '../../utils/safeStorage';
 import { Mail, Loader2, CheckCircle, AlertCircle, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -15,7 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 async function flushPendingProfile() {
   let raw = null;
   try {
-    raw = localStorage.getItem('openi_pending_profile')
+    raw = safeStorage.getItem('openi_pending_profile')
        || sessionStorage.getItem('openi_pending_profile');
     if (!raw) return;
     const profileData = JSON.parse(raw);
@@ -24,7 +25,7 @@ async function flushPendingProfile() {
     );
     if (!hasData) {
       // Empty stash — clear and exit clean
-      localStorage.removeItem('openi_pending_profile');
+      safeStorage.removeItem('openi_pending_profile');
       sessionStorage.removeItem('openi_pending_profile');
       return;
     }
@@ -33,7 +34,7 @@ async function flushPendingProfile() {
     // retry. Console-log the failure so we can diagnose silent drops.
     try {
       await profileAPI.updateMyProfile(profileData);
-      localStorage.removeItem('openi_pending_profile');
+      safeStorage.removeItem('openi_pending_profile');
       sessionStorage.removeItem('openi_pending_profile');
     } catch (err) {
       console.warn('[verify-email] flushPendingProfile PUT failed:', err?.message || err);
@@ -52,16 +53,16 @@ async function flushPendingProfile() {
 async function flushPendingOrgJoin() {
   let raw = null;
   try {
-    raw = localStorage.getItem('openi_pending_org_join');
+    raw = safeStorage.getItem('openi_pending_org_join');
     if (!raw) return;
     const stash = JSON.parse(raw);
     if (!stash || !stash.org_id) {
-      localStorage.removeItem('openi_pending_org_join');
+      safeStorage.removeItem('openi_pending_org_join');
       return;
     }
     try {
       const res = await orgAPI.requestJoin({ org_id: stash.org_id });
-      localStorage.removeItem('openi_pending_org_join');
+      safeStorage.removeItem('openi_pending_org_join');
       const orgName = res?.org_name || stash.org_name || 'the organization';
       if (res?.status === 'invited') {
         toast.success(`Request to join ${orgName} sent`);
@@ -70,7 +71,7 @@ async function flushPendingOrgJoin() {
       const msg = (err?.message || '').toLowerCase();
       // 409 already-member OR 404 org-gone: clear stash, don't retry
       if (msg.includes('already a member') || msg.includes('not found')) {
-        localStorage.removeItem('openi_pending_org_join');
+        safeStorage.removeItem('openi_pending_org_join');
         console.warn('[verify-email] flushPendingOrgJoin terminal:', err?.message);
       } else {
         // Network / 5xx — leave stash, log

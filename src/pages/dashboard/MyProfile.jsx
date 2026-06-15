@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions, resolveCountryCode } from '../../config/locations';
 import { profileAPI, startupProfileAPI } from '../../services/api';
+import safeStorage from '../../utils/safeStorage';
 import { User, Save, Loader2, X, Plus, Trash2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
 import AutoFillMyProfile from '../../components/AutoFillMyProfile';
@@ -416,7 +417,7 @@ export default function MyProfile() {
   // remove the stash on success. Empty stash + clean clear on parse error.
   async function retryPendingStash() {
     try {
-      const raw = localStorage.getItem('openi_pending_profile')
+      const raw = safeStorage.getItem('openi_pending_profile')
                || sessionStorage.getItem('openi_pending_profile');
       if (!raw) return false;
       const data = JSON.parse(raw);
@@ -424,12 +425,12 @@ export default function MyProfile() {
         Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined)
       );
       if (!hasData) {
-        localStorage.removeItem('openi_pending_profile');
+        safeStorage.removeItem('openi_pending_profile');
         sessionStorage.removeItem('openi_pending_profile');
         return false;
       }
       await profileAPI.updateMyProfile(data);
-      localStorage.removeItem('openi_pending_profile');
+      safeStorage.removeItem('openi_pending_profile');
       sessionStorage.removeItem('openi_pending_profile');
       toast.success('Welcome! We finished saving your registration details.');
       return true;

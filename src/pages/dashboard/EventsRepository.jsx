@@ -5,6 +5,7 @@ import {
   Mic, Trophy, BookOpen, Zap, Globe, Video, X, Trash2, Pencil,
 } from 'lucide-react';
 import { eventAPI } from '../../services/api';
+import safeStorage from '../../utils/safeStorage';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
@@ -152,7 +153,7 @@ export default function EventsRepository() {
   const handleDownloadBrochure = async (ev) => {
     try {
       const url = eventAPI.brochureUrl(ev.id);
-      const token = localStorage.getItem('openi_token') || '';
+      const token = safeStorage.getItem('openi_token') || '';
       const resp = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!resp.ok) throw new Error('Failed to download brochure');
       const blob = await resp.blob();

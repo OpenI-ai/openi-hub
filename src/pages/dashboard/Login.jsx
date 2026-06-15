@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, Eye, EyeOff, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
+import safeStorage from '../../utils/safeStorage';
 
 const DEMO_ACCOUNTS = [
   // V2 demo accounts — all 11 personas, password Demo@123, MFA-bypassed via *@demo.openi.ai pattern
@@ -64,7 +65,7 @@ export default function Login() {
       // login() set user + saved localStorage. mfaStep stays false → navigate now.
       // If MFA is required, mfaStep flips true and we render the OTP form instead.
       // Read user from localStorage (state may not be flushed yet) to decide route.
-      const stored = localStorage.getItem('openi_user');
+      const stored = safeStorage.getItem('openi_user');
       const u = stored ? JSON.parse(stored) : null;
       if (u) {
         if (u.profile_completed === false) navigate('/dashboard/profile');
@@ -93,7 +94,7 @@ export default function Login() {
     try {
       await verifyMFA(otp);
       // Redirect to profile if not completed, otherwise dashboard
-      const stored = localStorage.getItem('openi_user');
+      const stored = safeStorage.getItem('openi_user');
       const u = stored ? JSON.parse(stored) : null;
       if (u && u.profile_completed === false) {
         navigate('/dashboard/profile');

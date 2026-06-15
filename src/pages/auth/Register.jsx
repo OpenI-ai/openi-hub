@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD, PERSONA_INDUSTRY_FIELD, PERSONA_DESCRIPTION_FIELD, PERSONA_HAS_INDUSTRY, PERSONA_HAS_DESCRIPTION } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
 import { claimAPI, profileAPI, publicUploadAPI, orgAPI } from '../../services/api';
+import safeStorage from '../../utils/safeStorage';
 import TaxonomySelect from '../../components/TaxonomySelect';
 import TaxonomyTags from '../../components/TaxonomyTags';
 import StateField from '../../components/StateField';
@@ -557,7 +558,7 @@ export default function Register() {
       // we don't have a token yet — so we stash the org_id and replay after
       // verify-email succeeds (similar to Phase 60.10 profileData stash).
       try {
-        localStorage.setItem('openi_pending_org_join', JSON.stringify({
+        safeStorage.setItem('openi_pending_org_join', JSON.stringify({
           org_id: orgMatch.id,
           org_name: orgMatch.name,
         }));
@@ -595,7 +596,7 @@ export default function Register() {
       // shared across tabs of the same origin so the verify-tab can flush.
       if (registerResult?.verification_required) {
         try {
-          localStorage.setItem('openi_pending_profile', JSON.stringify(profileData));
+          safeStorage.setItem('openi_pending_profile', JSON.stringify(profileData));
         } catch { /* localStorage may be disabled — not blocking */ }
         const url = `/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`;
         navigate(url, { replace: true });

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI, subscriptionAPI, creditAPI, mfaAPI, billingAddressAPI } from '../../services/api';
+import safeStorage from '../../utils/safeStorage';
 import BillingAddressModal from '../../components/BillingAddressModal';
 import toast from 'react-hot-toast';
 import {
@@ -398,10 +399,10 @@ export default function Settings() {
         preferred_currency: preferredCurrency,
       });
       // Update localStorage
-      const stored = JSON.parse(localStorage.getItem('openi_user') || '{}');
+      const stored = JSON.parse(safeStorage.getItem('openi_user') || '{}');
       stored.name = res.user?.name || name.trim();
       stored.preferred_currency = res.user?.preferred_currency || preferredCurrency;
-      localStorage.setItem('openi_user', JSON.stringify(stored));
+      safeStorage.setItem('openi_user', JSON.stringify(stored));
       // Also update auth context so downstream components see the new preference
       if (updateUser) updateUser({ preferred_currency: stored.preferred_currency });
       toast.success('Profile updated successfully');
