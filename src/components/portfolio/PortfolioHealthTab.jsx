@@ -23,7 +23,7 @@ import toast from 'react-hot-toast';
 import PortfolioRadarChart from './PortfolioRadarChart';
 import EvaluationForm from './EvaluationForm';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 export default function PortfolioHealthTab({ owner, parentId, pipelineStartups = [] }) {
@@ -517,8 +517,8 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
               ].map(t => (
                 <button key={t.id} onClick={() => setShareTab(t.id)}
                   style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
-                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
-                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D0A848' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D0A848' : '#666', cursor: 'pointer',
                            display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {t.icon} {t.label}
                 </button>
@@ -531,7 +531,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   Branded PDF of this portfolio evaluation snapshot.
                 </p>
                 <button onClick={downloadProgramEvalPdf}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download evaluation PDF
                 </button>
               </div>
@@ -543,7 +543,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   Create a link anyone with the URL can use to view this evaluation. Default 30-day expiry; revocable anytime.
                 </p>
                 <button onClick={mintNewProgramEvalShare} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating...' : '+ Create new share link'}
                 </button>
 

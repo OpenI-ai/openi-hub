@@ -7,7 +7,7 @@ import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loa
 import toast from 'react-hot-toast';
 import { discoveryAPI } from '../../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'border-color 0.15s' };
 
 export default function StudentDiscovery() {

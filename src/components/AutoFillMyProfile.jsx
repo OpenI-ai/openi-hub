@@ -14,7 +14,7 @@ import { Sparkles, RefreshCw, Check, ExternalLink, Loader2, Info, Lock } from 'l
 import { Link } from 'react-router-dom';
 import { crawlAPI } from '../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 // Field definitions: key used in API, label, how to render preview
 const FIELDS = [

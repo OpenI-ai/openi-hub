@@ -321,7 +321,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
                   {/* Comment toggle */}
                   <button
                     onClick={() => setOpenComments(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                    style={{ padding:6, borderRadius:8, background:"none", border:"none", cursor:"pointer", color: commentVal ? "#D5AA5B" : "#ccc", transition:"color 0.15s", flexShrink:0 }}
+                    style={{ padding:6, borderRadius:8, background:"none", border:"none", cursor:"pointer", color: commentVal ? "#D0A848" : "#ccc", transition:"color 0.15s", flexShrink:0 }}
                     title="Add comment"
                   >
                     <MessageSquare className="w-4 h-4" />
@@ -568,14 +568,14 @@ export default function StartupEvaluation() {
             <input type="text" value={startupName} onChange={e => setStartupName(e.target.value)}
               placeholder="Startup name"
               style={{ ...inputStyle, paddingLeft:30, width:160 }}
-              onFocus={e => e.target.style.borderColor="#D5AA5B"}
+              onFocus={e => e.target.style.borderColor="#D0A848"}
               onBlur={e => e.target.style.borderColor="#e0e0e0"}
             />
           </div>
           <input type="text" value={evaluator} onChange={e => setEvaluator(e.target.value)}
             placeholder="Evaluator name"
             style={{ ...inputStyle, width:150 }}
-            onFocus={e => e.target.style.borderColor="#D5AA5B"}
+            onFocus={e => e.target.style.borderColor="#D0A848"}
             onBlur={e => e.target.style.borderColor="#e0e0e0"}
             className="hidden lg:block"
           />
@@ -583,7 +583,7 @@ export default function StartupEvaluation() {
             <Calendar style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#bbb", width:14, height:14 }} />
             <input type="date" value={evalDate} onChange={e => setEvalDate(e.target.value)}
               style={{ ...inputStyle, paddingLeft:30, width:155, color:"#555" }}
-              onFocus={e => e.target.style.borderColor="#D5AA5B"}
+              onFocus={e => e.target.style.borderColor="#D0A848"}
               onBlur={e => e.target.style.borderColor="#e0e0e0"}
             />
           </div>
@@ -592,7 +592,7 @@ export default function StartupEvaluation() {
         <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
           <span style={{ fontSize:12, color:"#888" }}>{completionPct}%</span>
           <div style={{ width:80, height:5, background:"#e8e8e8", borderRadius:4, overflow:"hidden" }} className="hidden sm:block">
-            <div style={{ width:`${completionPct}%`, height:"100%", background:"#D5AA5B", borderRadius:4, transition:"width 0.5s" }} />
+            <div style={{ width:`${completionPct}%`, height:"100%", background:"#D0A848", borderRadius:4, transition:"width 0.5s" }} />
           </div>
         </div>
       </div>
@@ -686,7 +686,7 @@ export default function StartupEvaluation() {
                 style={{
                   display:"inline-flex", alignItems:"center", gap:8,
                   padding:"10px 22px",
-                  background: (!startupName.trim() || saving) ? "#ccc" : "#D5AA5B",
+                  background: (!startupName.trim() || saving) ? "#ccc" : "#D0A848",
                   color:"#fff", border:"none", borderRadius:10, fontSize:13, fontWeight:700,
                   cursor: (!startupName.trim() || saving) ? "not-allowed" : "pointer",
                   boxShadow: (!startupName.trim() || saving) ? "none" : "0 2px 12px rgba(213,170,91,0.3)",
@@ -701,8 +701,8 @@ export default function StartupEvaluation() {
                   onClick={openShareModal}
                   style={{
                     display:"inline-flex", alignItems:"center", gap:8,
-                    padding:"10px 22px", background:"#fff8ec", color:"#D5AA5B",
-                    border:"1.5px solid #D5AA5B", borderRadius:10, fontSize:13, fontWeight:700,
+                    padding:"10px 22px", background:"#fff8ec", color:"#D0A848",
+                    border:"1.5px solid #D0A848", borderRadius:10, fontSize:13, fontWeight:700,
                     cursor:"pointer",
                   }}
                 >
@@ -757,7 +757,7 @@ export default function StartupEvaluation() {
                         cursor: isLoading ? "wait" : "pointer", opacity: isLoading ? 0.6 : 1,
                         transition:"background 0.12s, border-color 0.12s",
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#D5AA5B"; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#D0A848"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f0f0f0"; }}
                     >
                       <div style={{ minWidth:0, flex:1 }}>
@@ -805,8 +805,8 @@ export default function StartupEvaluation() {
               ].map(t => (
                 <button key={t.id} onClick={() => setShareTab(t.id)}
                   style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
-                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
-                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D0A848' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D0A848' : '#666', cursor: 'pointer',
                            display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {t.icon} {t.label}
                 </button>
@@ -819,7 +819,7 @@ export default function StartupEvaluation() {
                   Branded PDF with overall score badge + per-vector breakdown + your notes.
                 </p>
                 <button onClick={downloadEightVectorPdf}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download 8-Vector PDF
                 </button>
               </div>
@@ -831,7 +831,7 @@ export default function StartupEvaluation() {
                   Create a link anyone can use to view your assessment (no OpenI account needed). Default 30-day expiry; revocable anytime.
                 </p>
                 <button onClick={mintNewEightVectorShare} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating...' : '+ Create new share link'}
                 </button>
 

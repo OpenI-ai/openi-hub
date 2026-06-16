@@ -16,7 +16,7 @@ import toast from 'react-hot-toast';
 import { Users, UserPlus, X, Loader2, Shield, Eye, Star, Crown } from 'lucide-react';
 import { collabAPI } from '../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const ROLE_META = {
   owner:    { icon: Crown,  color: '#b45309', bg: '#fef3c7', label: 'Owner',    desc: 'Full access, cannot be removed' },

@@ -3,7 +3,7 @@ import { mentorEnhAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Clock, Save, Trash2 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { FlaskConical, BookOpen, DollarSign, Plus, X, Edit3, Trash2, Star, ExternalLink } from 'lucide-react';
 import { formatCurrency } from '../../utils/currency';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 const TABS = ['Research', 'Publications', 'Grants'];
@@ -14,7 +14,7 @@ const PUB_TYPES = ['journal', 'conference', 'book_chapter', 'thesis', 'preprint'
 const GRANT_TYPES = ['government', 'industry', 'foundation', 'internal', 'international', 'other'];
 const GRANT_STATUSES = ['applied', 'approved', 'active', 'completed', 'rejected'];
 
-const STATUS_COLORS = { proposed: '#9333ea', ongoing: '#2563eb', completed: '#16a34a', published: '#D5AA5B', archived: '#6b7280' };
+const STATUS_COLORS = { proposed: '#9333ea', ongoing: '#2563eb', completed: '#16a34a', published: '#D0A848', archived: '#6b7280' };
 const GRANT_STATUS_COLORS = { applied: '#f59e0b', approved: '#9333ea', active: '#16a34a', completed: '#2563eb', rejected: '#dc2626' };
 const PUB_TYPE_COLORS = { journal: '#2563eb', conference: '#16a34a', book_chapter: '#7c3aed', thesis: '#ec4899', preprint: '#f59e0b', patent: '#dc2626', technical_report: '#6b7280', other: '#888' };
 

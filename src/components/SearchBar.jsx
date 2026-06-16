@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, X, Sparkles, Brain } from 'lucide-react';
 import { publicAPI } from '../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 /**
  * Reusable SearchBar with debounced autocomplete suggestions.

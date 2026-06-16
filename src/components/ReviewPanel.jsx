@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { collabAPI } from '../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const VERDICT_META = {
   strong_yes: { label: 'Strong Yes', color: '#15803d', bg: '#dcfce7', icon: Award },

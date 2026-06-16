@@ -67,7 +67,7 @@ export default function ResetPassword() {
               style={{ width: 56, height: 56, borderRadius: '50%', background: '#FFF8E6' }}>
               {done
                 ? <CheckCircle size={28} style={{ color: '#16a34a' }} />
-                : <Lock size={28} style={{ color: '#D5AA5B' }} />}
+                : <Lock size={28} style={{ color: '#D0A848' }} />}
             </div>
             <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
               {done ? 'Password updated' : 'Set a new password'}
@@ -112,7 +112,7 @@ export default function ResetPassword() {
               <button type="submit" disabled={submitting || pwd.length < 8 || pwd !== confirm}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
                 style={{
-                  background: (pwd.length >= 8 && pwd === confirm && !submitting) ? '#D5AA5B' : '#e5e7eb',
+                  background: (pwd.length >= 8 && pwd === confirm && !submitting) ? '#D0A848' : '#e5e7eb',
                   color:      (pwd.length >= 8 && pwd === confirm && !submitting) ? '#fff' : '#9ca3af',
                   cursor:     (pwd.length >= 8 && pwd === confirm && !submitting) ? 'pointer' : 'not-allowed',
                 }}>
@@ -124,7 +124,7 @@ export default function ResetPassword() {
 
           {done && (
             <div className="text-center py-4">
-              <Loader2 size={20} className="inline-block animate-spin" style={{ color: '#D5AA5B' }} />
+              <Loader2 size={20} className="inline-block animate-spin" style={{ color: '#D0A848' }} />
               <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>Taking you to login…</p>
             </div>
           )}

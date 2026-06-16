@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { ClipboardCheck, Calendar, Building2, ArrowRight, Loader2 } from 'lucide-react';
 import { corporateAPI } from '../../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const ROLE_LABELS = {
   reviewer: 'Reviewer',

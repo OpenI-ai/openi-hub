@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 import { Lightbulb, X } from 'lucide-react';
 import safeStorage from '../utils/safeStorage';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const STORAGE_KEY = 'openi_tips_seen';
 
 function getSeenTips() {

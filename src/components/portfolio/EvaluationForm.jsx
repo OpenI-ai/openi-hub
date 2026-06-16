@@ -12,7 +12,7 @@
  */
 import { useState } from 'react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const VECTORS = [
   { key: 'market_score',        label: 'Market',        desc: 'Market size, timing, fit' },

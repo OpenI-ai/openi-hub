@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 // OpenI light-theme tokens
-const G = "#D5AA5B";   // gold
+const G = "#D0A848";   // gold
 const GH = "#C9983F";  // gold hover
 
 const VECTORS = [
@@ -18,10 +18,10 @@ const VECTORS = [
 ];
 
 // These are populated from API — fallback defaults shown while loading
-const SECTOR_COLORS = ["#D5AA5B", "#16a34a", "#3b82f6", "#7c3aed", "#d97706", "#ef4444", "#94a3b8", "#C9983F", "#06b6d4", "#f59e0b"];
+const SECTOR_COLORS = ["#D0A848", "#16a34a", "#3b82f6", "#7c3aed", "#d97706", "#ef4444", "#94a3b8", "#C9983F", "#06b6d4", "#f59e0b"];
 
 const QUICK_ACTIONS = [
-  { label: "Startup Discovery", desc: "Browse & filter startups", to: "/dashboard/startups",        Icon: Search,         bg: "#fff8ec", fg: "#D5AA5B", border: "rgba(213,170,91,0.2)" },
+  { label: "Startup Discovery", desc: "Browse & filter startups", to: "/dashboard/startups",        Icon: Search,         bg: "#fff8ec", fg: "#D0A848", border: "rgba(213,170,91,0.2)" },
   { label: "New Evaluation",    desc: "Run 8-vector assessment",  to: "/dashboard/evaluate",        Icon: ClipboardCheck, bg: "#f0fdf4", fg: "#16a34a", border: "rgba(22,163,74,0.2)" },
   { label: "Knowledge Hub",     desc: "Articles & resources",     to: "/dashboard/knowledge",       Icon: BookOpen,       bg: "#f5f3ff", fg: "#7c3aed", border: "rgba(124,58,237,0.2)" },
   { label: "Infrastructure",    desc: "Labs & facility bookings", to: "/dashboard/infrastructure",  Icon: Building2,      bg: "#fef3c7", fg: "#d97706", border: "rgba(217,119,6,0.2)" },
@@ -29,7 +29,7 @@ const QUICK_ACTIONS = [
 
 const STATUS_STYLE = {
   Completed:   { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
-  "In Review": { bg: "#fff8ec", color: "#D5AA5B", border: "rgba(213,170,91,0.4)" },
+  "In Review": { bg: "#fff8ec", color: "#D0A848", border: "rgba(213,170,91,0.4)" },
   Pending:     { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" },
 };
 
@@ -42,7 +42,7 @@ const card = {
 
 // Fallback stats shown while loading or on API error
 const FALLBACK_STATS = [
-  { value: "—", label: "Startups Registered", Icon: Rocket,     bg: "#fff8ec", fg: "#D5AA5B", border: "rgba(213,170,91,0.2)" },
+  { value: "—", label: "Startups Registered", Icon: Rocket,     bg: "#fff8ec", fg: "#D0A848", border: "rgba(213,170,91,0.2)" },
   { value: "—", label: "Active Projects",      Icon: Zap,        bg: "#f0fdf4", fg: "#16a34a", border: "rgba(22,163,74,0.2)" },
   { value: "—", label: "Grants Disbursed",     Icon: DollarSign, bg: "#fef3c7", fg: "#d97706", border: "rgba(217,119,6,0.2)" },
   { value: "—", label: "DeepTech Startups",    Icon: BarChart2,  bg: "#f5f3ff", fg: "#7c3aed", border: "rgba(124,58,237,0.2)" },
@@ -70,14 +70,14 @@ export default function DashboardHome() {
   const [evalMeta, setEvalMeta] = useState({ done: 0, avgScore: 0, pending: 0 });
   const [progress, setProgress] = useState([
     { label: "Recommended", pct: 0, color: "#16a34a" },
-    { label: "Under Review", pct: 0, color: "#D5AA5B" },
+    { label: "Under Review", pct: 0, color: "#D0A848" },
     { label: "Needs Work",   pct: 0, color: "#ef4444" },
   ]);
   const [sectorDist, setSectorDist] = useState([]);
   // setScoreDist intentionally unused (kept for future wiring of dynamic score histogram)
   const [scoreDist, _setScoreDist] = useState([
     { range: "80-100", label: "Excellent", pct: 25, color: "#16a34a" },
-    { range: "60-79",  label: "Good",      pct: 25, color: "#D5AA5B" },
+    { range: "60-79",  label: "Good",      pct: 25, color: "#D0A848" },
     { range: "40-59",  label: "Average",   pct: 25, color: "#d97706" },
     { range: "0-39",   label: "Poor",      pct: 25, color: "#ef4444" },
   ]);
@@ -87,7 +87,7 @@ export default function DashboardHome() {
     dashboardAPI.stats()
       .then(data => {
         setStats([
-          { value: (data.totalStartups ?? "—").toLocaleString(), label: "Startups Registered", Icon: Rocket,     bg: "#fff8ec", fg: "#D5AA5B", border: "rgba(213,170,91,0.2)" },
+          { value: (data.totalStartups ?? "—").toLocaleString(), label: "Startups Registered", Icon: Rocket,     bg: "#fff8ec", fg: "#D0A848", border: "rgba(213,170,91,0.2)" },
           { value: String(data.activeProjects ?? "—"),            label: "Active Projects",      Icon: Zap,        bg: "#f0fdf4", fg: "#16a34a", border: "rgba(22,163,74,0.2)" },
           { value: data.grantsDisplay ?? "—",                     label: "Grants Disbursed",     Icon: DollarSign, bg: "#fef3c7", fg: "#d97706", border: "rgba(217,119,6,0.2)" },
           { value: String(data.deeptechStartups ?? "—"),          label: "DeepTech Startups",    Icon: BarChart2,  bg: "#f5f3ff", fg: "#7c3aed", border: "rgba(124,58,237,0.2)" },
@@ -95,7 +95,7 @@ export default function DashboardHome() {
         if (data.evaluationProgress) {
           setProgress([
             { label: "Recommended", pct: data.evaluationProgress.recommended ?? 0, color: "#16a34a" },
-            { label: "Under Review", pct: data.evaluationProgress.underReview ?? 0, color: "#D5AA5B" },
+            { label: "Under Review", pct: data.evaluationProgress.underReview ?? 0, color: "#D0A848" },
             { label: "Needs Work",   pct: data.evaluationProgress.needsWork ?? 0,   color: "#ef4444" },
           ]);
         }

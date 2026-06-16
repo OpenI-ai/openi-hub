@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { claimAPI } from '../../services/api';
 import { Building2, Loader2, CheckCircle2, XCircle, Clock, Mail, RotateCcw, Info } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 function StatusBadge({ status }) {
   const map = {

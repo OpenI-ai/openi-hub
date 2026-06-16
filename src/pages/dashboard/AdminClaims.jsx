@@ -8,7 +8,7 @@ import { claimAPI } from '../../services/api';
 import { Building2, Loader2, CheckCircle2, XCircle, RotateCcw, Eye, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const STATUS_TABS = [
   { key: 'pending',     label: 'Pending' },
@@ -153,7 +153,7 @@ export default function AdminClaims() {
                   className="w-full text-left p-3 rounded-lg transition-all"
                   style={{
                     background: selected?.id === c.id ? '#FFF8E6' : '#fff',
-                    border: `1px solid ${selected?.id === c.id ? '#D5AA5B' : '#e5e7eb'}`,
+                    border: `1px solid ${selected?.id === c.id ? '#D0A848' : '#e5e7eb'}`,
                   }}>
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <p className="text-sm font-semibold truncate" style={{ color: '#1a1a1a' }}>

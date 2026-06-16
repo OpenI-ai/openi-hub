@@ -12,7 +12,7 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 
 // Brand colors (same as PublicReports.jsx / Landing.jsx)
-const GOLD = '#D5AA5B';
+const GOLD = '#D0A848';
 const GOLD_DARK = '#C9983F';
 const DARK = '#1a1a1a';
 const GRAY = '#6b7280';

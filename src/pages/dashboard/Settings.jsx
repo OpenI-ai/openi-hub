@@ -11,7 +11,7 @@ import {
   CreditCard, Loader2, Check, Crown, Zap, X, Download,
 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const card = {
   background: '#ffffff',
@@ -759,7 +759,7 @@ export default function Settings() {
                         </div>
                         {planFeatures.ai_search_daily_cap > 0 && (
                           <div style={{ height: 6, borderRadius: 3, background: '#f3f4f6' }}>
-                            <div style={{ height: '100%', borderRadius: 3, width: `${Math.min(((usage['ai_search'] || 0) / planFeatures.ai_search_daily_cap) * 100, 100)}%`, background: '#D5AA5B', transition: 'width 0.3s' }} />
+                            <div style={{ height: '100%', borderRadius: 3, width: `${Math.min(((usage['ai_search'] || 0) / planFeatures.ai_search_daily_cap) * 100, 100)}%`, background: '#D0A848', transition: 'width 0.3s' }} />
                           </div>
                         )}
                       </div>

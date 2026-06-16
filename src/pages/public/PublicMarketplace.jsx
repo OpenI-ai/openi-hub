@@ -12,7 +12,7 @@ import PublicLayout from '../../components/PublicLayout';
 import { publicAPI } from '../../services/api';
 
 // Brand colors
-const GOLD = '#D5AA5B';
+const GOLD = '#D0A848';
 const GOLD_DARK = '#C9983F';
 const GOLD_LIGHT = 'rgba(213, 170, 91, 0.1)';
 const DARK = '#1a1a1a';

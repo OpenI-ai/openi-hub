@@ -3,7 +3,7 @@ import { corporateAPI } from '../../services/api';
 import { Link2, Loader2, ChevronRight, ChevronLeft, Clock, Plus, Edit3, X, CheckCircle, Trash2, DollarSign, Target } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 const STAGES = [

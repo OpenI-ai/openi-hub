@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { Lock, ArrowRight } from 'lucide-react';
 import { PLAN_LABELS } from '../config/personas';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 export default function UpgradeCTA({ feature, plan = 'free', message, compact = false, category }) {
   const upgradeTarget = category === 'provider' ? 'Growth' : (plan === 'free' ? 'Pro' : 'Enterprise');

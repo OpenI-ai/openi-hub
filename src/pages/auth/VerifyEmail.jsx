@@ -252,7 +252,7 @@ export default function VerifyEmail() {
                 ? <CheckCircle size={28} style={{ color: '#16a34a' }} />
                 : phase === 'failed'
                   ? <AlertCircle size={28} style={{ color: '#dc2626' }} />
-                  : <Mail size={28} style={{ color: '#D5AA5B' }} />}
+                  : <Mail size={28} style={{ color: '#D0A848' }} />}
             </div>
             <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
               {phase === 'done' ? 'Email verified!'
@@ -275,7 +275,7 @@ export default function VerifyEmail() {
             <div className="space-y-3">
               <button onClick={confirmLinkVerify}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
-                style={{ background: '#D5AA5B', color: '#fff', cursor: 'pointer' }}>
+                style={{ background: '#D0A848', color: '#fff', cursor: 'pointer' }}>
                 <CheckCircle size={16} /> Verify my email
               </button>
               <p className="text-center text-xs leading-relaxed" style={{ color: '#9ca3af' }}>
@@ -288,7 +288,7 @@ export default function VerifyEmail() {
           {/* Verifying — spinner only */}
           {phase === 'verifying' && (
             <div className="flex justify-center py-8">
-              <Loader2 size={28} className="animate-spin" style={{ color: '#D5AA5B' }} />
+              <Loader2 size={28} className="animate-spin" style={{ color: '#D0A848' }} />
             </div>
           )}
 
@@ -326,7 +326,7 @@ export default function VerifyEmail() {
               <button type="submit" disabled={submitting || otp.length !== 6 || !email.trim()}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
                 style={{
-                  background: (otp.length === 6 && email.trim() && !submitting) ? '#D5AA5B' : '#e5e7eb',
+                  background: (otp.length === 6 && email.trim() && !submitting) ? '#D0A848' : '#e5e7eb',
                   color:      (otp.length === 6 && email.trim() && !submitting) ? '#fff' : '#9ca3af',
                   cursor:     (otp.length === 6 && email.trim() && !submitting) ? 'pointer' : 'not-allowed',
                 }}>
@@ -358,7 +358,7 @@ export default function VerifyEmail() {
               <div className="text-center">
                 <button type="button" onClick={resend} disabled={resending || !email.trim()}
                   className="text-xs font-semibold inline-flex items-center gap-1.5"
-                  style={{ color: '#D5AA5B', background: 'none', border: 'none', cursor: resending ? 'not-allowed' : 'pointer' }}>
+                  style={{ color: '#D0A848', background: 'none', border: 'none', cursor: resending ? 'not-allowed' : 'pointer' }}>
                   {resending ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
                   {resentAt ? `Sent again at ${resentAt.toLocaleTimeString()}` : 'Resend code & link'}
                 </button>
@@ -384,7 +384,7 @@ export default function VerifyEmail() {
               <button onClick={resend} disabled={resending || !email.trim()}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
                 style={{
-                  background: (email.trim() && !resending) ? '#D5AA5B' : '#e5e7eb',
+                  background: (email.trim() && !resending) ? '#D0A848' : '#e5e7eb',
                   color:      (email.trim() && !resending) ? '#fff' : '#9ca3af',
                   cursor:     (email.trim() && !resending) ? 'pointer' : 'not-allowed',
                 }}>
@@ -400,7 +400,7 @@ export default function VerifyEmail() {
           {/* Done — small success message; redirect handles routing */}
           {phase === 'done' && (
             <div className="text-center py-4">
-              <Loader2 size={20} className="inline-block animate-spin" style={{ color: '#D5AA5B' }} />
+              <Loader2 size={20} className="inline-block animate-spin" style={{ color: '#D0A848' }} />
               <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>Taking you to your dashboard…</p>
             </div>
           )}

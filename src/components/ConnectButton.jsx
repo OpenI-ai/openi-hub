@@ -12,7 +12,7 @@ import { connectionAPI } from '../services/api';
 import { UserPlus, UserCheck, Clock, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
   const [status, setStatus] = useState(null); // null = loading

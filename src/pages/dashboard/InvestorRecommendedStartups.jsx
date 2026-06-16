@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 import { Sparkles, Cpu, MapPin, TrendingUp, Loader2, ArrowRight } from 'lucide-react';
 import { investorAPI, recommendationsAPI } from '../../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const SOURCE = 'investor_recommended_startups';
 const card = {
   background: '#fff',

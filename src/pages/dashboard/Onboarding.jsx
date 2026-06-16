@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const DARK = '#0D2137';
 
 // Map step keys to nav targets (clicking a step takes user to the right page)

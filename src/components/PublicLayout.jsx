@@ -1,6 +1,6 @@
 /**
  * PublicLayout — Shared header/footer for all public (non-auth) pages.
- * Matches the Landing.jsx brand styling: gold (#D5AA5B) primary, dark theme footer.
+ * Matches the Landing.jsx brand styling: gold (#D0A848) primary, dark theme footer.
  */
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Shield, Menu, X } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 // Brand colors (same as Landing.jsx)
-const GOLD = '#D5AA5B';
+const GOLD = '#D0A848';
 const GOLD_DARK = '#C9983F';
 const DARK = '#1a1a1a';
 const GRAY = '#6b7280';

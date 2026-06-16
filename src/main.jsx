@@ -56,7 +56,7 @@ const tree = (
       toastOptions={{
         duration: 3000,
         style: { borderRadius: '10px', background: '#1a1a1a', color: '#fff', fontSize: '13px' },
-        success: { iconTheme: { primary: '#D5AA5B', secondary: '#fff' } },
+        success: { iconTheme: { primary: '#D0A848', secondary: '#fff' } },
       }}
     />
     <VersionWatcher />

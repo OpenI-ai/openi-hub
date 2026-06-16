@@ -13,7 +13,7 @@ import PublicLayout from '../../components/PublicLayout';
 import { publicAPI } from '../../services/api';
 
 // Brand colors
-const GOLD = '#D5AA5B';
+const GOLD = '#D0A848';
 const GOLD_DARK = '#C9983F';
 const GOLD_LIGHT = 'rgba(213, 170, 91, 0.1)';
 const DARK = '#1a1a1a';
@@ -43,7 +43,7 @@ const SECTOR_ICONS = {
 // Sector color mapping
 const SECTOR_COLORS = {
   'Agentic AI': '#8b5cf6',
-  'DeepTech': '#D5AA5B',
+  'DeepTech': '#D0A848',
   'FinTech': '#3b82f6',
   'CPG': '#f97316',
   'FashionTech': '#ec4899',

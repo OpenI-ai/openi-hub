@@ -9,7 +9,7 @@ import {
   UserPlus, Mail, MessageCircle, ChevronLeft, Loader2,
 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const GH = '#C9983F';
 
 const card = {

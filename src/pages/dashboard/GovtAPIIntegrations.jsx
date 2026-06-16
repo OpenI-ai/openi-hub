@@ -8,7 +8,7 @@ import {
   Activity, Lock, Key,
 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const card = {
   background: '#ffffff',

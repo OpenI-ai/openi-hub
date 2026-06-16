@@ -33,7 +33,7 @@ import { useAuth } from '../context/AuthContext';
 import { TOURS, PAGE_TOURS } from '../config/tours';  // Ship #12 (22 May 2026) — page-tour multiplex
 import { hasUserSeenTour, markTourSeen } from '../services/tourService';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const NAVY = '#0D2137';
 
 const styles = {

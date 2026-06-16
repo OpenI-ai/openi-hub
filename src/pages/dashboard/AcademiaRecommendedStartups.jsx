@@ -13,7 +13,7 @@ import toast from 'react-hot-toast';
 import { Sparkles, Cpu, MapPin, TrendingUp, Loader2, ArrowRight } from 'lucide-react';
 import { academiaEnhAPI, recommendationsAPI } from '../../services/api';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const SOURCE = 'academia_recommended_startups';
 const card = {
   background: '#fff',

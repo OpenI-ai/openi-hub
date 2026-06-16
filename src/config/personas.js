@@ -22,7 +22,7 @@ export function getPersonaCategory(role) {
 
 // ── Persona Definitions ────────────────────────────────────
 export const PERSONAS = {
-  startup:     { label: 'Startup',       category: 'provider', icon: 'Rocket',        color: '#D5AA5B', description: 'Tech startup or early-stage company' },
+  startup:     { label: 'Startup',       category: 'provider', icon: 'Rocket',        color: '#D0A848', description: 'Tech startup or early-stage company' },
   student:     { label: 'Student',       category: 'provider', icon: 'GraduationCap', color: '#3b82f6', description: 'Student innovator or researcher' },
   academia:    { label: 'Academia',      category: 'provider', icon: 'BookOpen',      color: '#7c3aed', description: 'University or research institute' },
   corporate:   { label: 'Corporate',     category: 'seeker',   icon: 'Building2',     color: '#16a34a', description: 'Large enterprise seeking innovation' },

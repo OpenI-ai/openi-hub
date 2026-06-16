@@ -14,7 +14,7 @@
 import React from 'react';
 import { Search, X } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const DEFAULT_STAGES = ['Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Late Stage'];
 

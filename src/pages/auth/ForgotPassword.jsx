@@ -62,7 +62,7 @@ export default function ForgotPassword() {
               style={{ width: 56, height: 56, borderRadius: '50%', background: '#FFF8E6' }}>
               {done
                 ? <CheckCircle size={28} style={{ color: '#16a34a' }} />
-                : <Mail size={28} style={{ color: '#D5AA5B' }} />}
+                : <Mail size={28} style={{ color: '#D0A848' }} />}
             </div>
             <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
               {done ? 'Check your inbox' : 'Forgot your password?'}
@@ -93,7 +93,7 @@ export default function ForgotPassword() {
               <button type="submit" disabled={submitting || !email.trim()}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
                 style={{
-                  background: (email.trim() && !submitting) ? '#D5AA5B' : '#e5e7eb',
+                  background: (email.trim() && !submitting) ? '#D0A848' : '#e5e7eb',
                   color:      (email.trim() && !submitting) ? '#fff' : '#9ca3af',
                   cursor:     (email.trim() && !submitting) ? 'pointer' : 'not-allowed',
                 }}>
@@ -105,7 +105,7 @@ export default function ForgotPassword() {
 
           {done && (
             <div className="text-center pt-2">
-              <Link to="/dashboard/login" className="text-xs font-semibold" style={{ color: '#D5AA5B' }}>
+              <Link to="/dashboard/login" className="text-xs font-semibold" style={{ color: '#D0A848' }}>
                 Back to login
               </Link>
             </div>

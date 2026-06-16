@@ -47,7 +47,7 @@ export default function useVersionCheck() {
                   type="button"
                   onClick={() => window.location.reload()}
                   style={{
-                    background: '#D5AA5B',
+                    background: '#D0A848',
                     color: '#1a1a1a',
                     border: 'none',
                     borderRadius: 6,

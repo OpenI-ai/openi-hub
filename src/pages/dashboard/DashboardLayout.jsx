@@ -23,7 +23,7 @@ import PlanBadge from "../../components/PlanBadge"; // Phase 68 — plan visibil
 
 // ── OpenI brand tokens (light theme – matches openi.ai) ───────
 const C = {
-  gold:        "#D5AA5B",   // primary gold (buttons, active)
+  gold:        "#D0A848",   // primary gold (buttons, active)
   goldDark:    "#C9983F",   // hover gold
   goldLight:   "rgba(213,170,91,0.12)",
   goldBorder:  "rgba(213,170,91,0.35)",
@@ -36,7 +36,7 @@ const C = {
   textPrimary: "#1a1a1a",   // near-black headings
   textSecond:  "#555555",   // body text
   textMuted:   "#888888",   // muted labels
-  activeText:  "#D5AA5B",   // active nav item text
+  activeText:  "#D0A848",   // active nav item text
   activeBg:    "rgba(213,170,91,0.10)",
   activeBorder:"rgba(213,170,91,0.30)",
   hoverBg:     "#f7f3ec",   // nav hover

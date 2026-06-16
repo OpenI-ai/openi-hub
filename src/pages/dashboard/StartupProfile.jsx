@@ -490,7 +490,7 @@ const STAGE_COLORS = {
   'Grant':     '#14b8a6', // teal-500
   'Pre-IPO':   '#0ea5e9', // sky-500
 };
-const DEFAULT_BAR_COLOR = '#D5AA5B'; // OpenI gold
+const DEFAULT_BAR_COLOR = '#D0A848'; // OpenI gold
 
 // Format ISO date → "Jan 2024" for X-axis labels
 function fmtMonthYear(d) {
@@ -1113,7 +1113,7 @@ function ClaimStartupModal({ open, onClose, startup, onSuccess }) {
             onClick={submit}
             disabled={submitting || evidence.trim().length < 20}
             className="flex-1 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-            style={{ background: '#D5AA5B', color: '#fff' }}
+            style={{ background: '#D0A848', color: '#fff' }}
           >
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Flag size={14} />}
             {submitting ? 'Submitting…' : 'Submit Claim'}
@@ -1485,7 +1485,7 @@ export default function StartupProfile() {
                   <button
                     onClick={() => setClaimOpen(true)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                    style={{ background: '#D5AA5B', color: '#0D2137' }}
+                    style={{ background: '#D0A848', color: '#0D2137' }}
                     title="Claim ownership of this profile"
                   >
                     <Flag size={13} /> Claim This Profile
@@ -1811,8 +1811,8 @@ export default function StartupProfile() {
               ].filter(t => !t.ownerOnly || shareIsOwner).map(t => (
                 <button key={t.id} onClick={() => setShareTab(t.id)}
                   style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
-                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
-                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D0A848' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D0A848' : '#666', cursor: 'pointer',
                            display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {t.icon} {t.label}
                 </button>
@@ -1826,7 +1826,7 @@ export default function StartupProfile() {
                   Generate a branded PDF of this startup profile. Anyone with this PDF can read it (no link to manage).
                 </p>
                 <button onClick={() => downloadStartupPdf()}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download startup profile PDF
                 </button>
               </div>
@@ -1838,7 +1838,7 @@ export default function StartupProfile() {
                   Create a link to invite someone to this profile. People who aren&apos;t on OpenI yet will be asked to create a free account (or sign in), then taken straight to the profile.
                 </p>
                 <button onClick={() => mintNewProfileShare()} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating link…' : '+ Create new share link'}
                 </button>
 
@@ -1895,7 +1895,7 @@ export default function StartupProfile() {
                   placeholder="Add a note — why you&apos;re sharing this profile."
                   style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
                 <button onClick={() => sendProfileEmailInvite()} disabled={shareEmailBusy || !shareEmail.trim()}
-                  style={{ width: '100%', padding: '10px 16px', background: (!shareEmail.trim() || shareEmailBusy) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!shareEmail.trim() || shareEmailBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: (!shareEmail.trim() || shareEmailBusy) ? '#ccc' : '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!shareEmail.trim() || shareEmailBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <Mail size={14} /> {shareEmailBusy ? 'Sending…' : 'Send invite'}
                 </button>
               </div>
@@ -1935,7 +1935,7 @@ export default function StartupProfile() {
                   <div key={l.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 12px', background: '#fafafa', border: '1.5px solid #eee', borderRadius: 10 }}>
                     <span style={{ fontSize: 14, fontWeight: 600, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.name}</span>
                     <button onClick={() => toggleInList(l)} disabled={wlBusyId === l.id}
-                      style={{ flexShrink: 0, padding: '6px 14px', background: l.contains ? '#fff' : '#D5AA5B', color: l.contains ? '#D5AA5B' : '#fff', border: l.contains ? '1.5px solid #D5AA5B' : 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: wlBusyId === l.id ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 86, justifyContent: 'center' }}>
+                      style={{ flexShrink: 0, padding: '6px 14px', background: l.contains ? '#fff' : '#D0A848', color: l.contains ? '#D0A848' : '#fff', border: l.contains ? '1.5px solid #D0A848' : 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: wlBusyId === l.id ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 86, justifyContent: 'center' }}>
                       {wlBusyId === l.id
                         ? <Loader2 size={13} className="animate-spin" />
                         : l.contains
@@ -1955,7 +1955,7 @@ export default function StartupProfile() {
                   placeholder="e.g. Q3 Pipeline"
                   style={{ flex: 1, boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
                 <button onClick={() => createAndAdd()} disabled={wlCreating || !wlNewName.trim()}
-                  style={{ flexShrink: 0, padding: '9px 16px', background: (!wlNewName.trim() || wlCreating) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!wlNewName.trim() || wlCreating) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  style={{ flexShrink: 0, padding: '9px 16px', background: (!wlNewName.trim() || wlCreating) ? '#ccc' : '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (!wlNewName.trim() || wlCreating) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {wlCreating ? <Loader2 size={14} className="animate-spin" /> : 'Create & save'}
                 </button>
               </div>

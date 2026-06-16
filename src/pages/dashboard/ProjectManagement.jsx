@@ -8,7 +8,7 @@ import {
   Users, Calendar, Search, Circle, PlayCircle,
 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const GH = '#C9983F';
 
 const card = {
@@ -47,14 +47,14 @@ const STATUS_STYLE = {
 
 const PRIORITY_STYLE = {
   Critical: { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' },
-  High:     { bg: '#fff8ec', color: '#D5AA5B', border: 'rgba(213,170,91,0.4)' },
+  High:     { bg: '#fff8ec', color: '#D0A848', border: 'rgba(213,170,91,0.4)' },
   Medium:   { bg: '#f0f9ff', color: '#0284c7', border: '#bae6fd' },
   Low:      { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0' },
 };
 
 const TASK_STATUS = {
   'Done':        { icon: CheckCircle2, color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
-  'In Progress': { icon: PlayCircle,   color: '#D5AA5B', bg: '#fff8ec', border: 'rgba(213,170,91,0.4)' },
+  'In Progress': { icon: PlayCircle,   color: '#D0A848', bg: '#fff8ec', border: 'rgba(213,170,91,0.4)' },
   'Blocked':     { icon: AlertTriangle,color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
   'Todo':        { icon: Circle,       color: '#64748b', bg: '#f8fafc', border: '#e2e8f0' },
 };

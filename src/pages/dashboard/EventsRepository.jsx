@@ -9,7 +9,7 @@ import safeStorage from '../../utils/safeStorage';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const GH = '#C9983F';
 
 // Phase 66 — roles allowed to create events. Mirrors backend

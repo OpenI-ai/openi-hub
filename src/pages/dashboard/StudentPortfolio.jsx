@@ -3,15 +3,15 @@ import { studentEnhAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { FolderKanban, Award, Plus, X, Edit3, Trash2, Star, ExternalLink, Github } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 const TABS = ['Projects', 'Certifications'];
 const PROJECT_TYPES = ['research', 'hackathon', 'capstone', 'thesis', 'side_project', 'open_source', 'other'];
 const PROJECT_STATUSES = ['idea', 'in_progress', 'completed', 'published', 'archived'];
 const CERT_TYPES = ['certification', 'course', 'workshop', 'bootcamp', 'competition', 'award', 'scholarship'];
-const STATUS_COLORS = { idea: '#9333ea', in_progress: '#2563eb', completed: '#16a34a', published: '#D5AA5B', archived: '#6b7280' };
-const TYPE_COLORS = { certification: '#2563eb', course: '#16a34a', workshop: '#f59e0b', bootcamp: '#ec4899', competition: '#9333ea', award: '#D5AA5B', scholarship: '#0ea5e9' };
+const STATUS_COLORS = { idea: '#9333ea', in_progress: '#2563eb', completed: '#16a34a', published: '#D0A848', archived: '#6b7280' };
+const TYPE_COLORS = { certification: '#2563eb', course: '#16a34a', workshop: '#f59e0b', bootcamp: '#ec4899', competition: '#9333ea', award: '#D0A848', scholarship: '#0ea5e9' };
 
 export default function StudentPortfolio() {
   const [tab, setTab] = useState(0);
@@ -114,7 +114,7 @@ export default function StudentPortfolio() {
                   {p.tech_stack.map((t, i) => <span key={i} style={{ fontSize: 11, padding: '1px 7px', borderRadius: 12, background: G + '18', color: G, fontWeight: 500 }}>{t}</span>)}
                 </div>
               )}
-              {p.awards_won && <div style={{ marginTop: 8, fontSize: 12, color: '#D5AA5B', fontWeight: 600 }}>🏆 {p.awards_won}</div>}
+              {p.awards_won && <div style={{ marginTop: 8, fontSize: 12, color: '#D0A848', fontWeight: 600 }}>🏆 {p.awards_won}</div>}
               <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 12, color: '#888' }}>
                 {p.start_date && <span>{fmtDate(p.start_date)}{p.end_date ? ` — ${fmtDate(p.end_date)}` : ' — Present'}</span>}
               </div>

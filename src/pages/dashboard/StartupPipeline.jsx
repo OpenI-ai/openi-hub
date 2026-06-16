@@ -7,7 +7,7 @@ import { CheckCircle2, Circle,
   Search, Award, Users, Zap, FileText,
 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const card = {
   background: '#ffffff',

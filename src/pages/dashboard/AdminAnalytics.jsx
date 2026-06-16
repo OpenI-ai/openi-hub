@@ -15,11 +15,11 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const DARK = '#0D2137';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 20 };
 
-const PIE_COLORS = ['#16a34a', '#D5AA5B', '#7c3aed'];
+const PIE_COLORS = ['#16a34a', '#D0A848', '#7c3aed'];
 
 function StatCard({ icon: Icon, label, value, sub, color = G }) {
   return (

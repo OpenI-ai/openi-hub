@@ -132,12 +132,12 @@ export default function Login() {
           </Link>
           <div
             className="items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-md mx-auto"
-            style={{ backgroundColor: '#D5AA5B', display: 'none' }}
+            style={{ backgroundColor: '#D0A848', display: 'none' }}
           >
             <Shield size={26} style={{ color: '#ffffff' }} />
           </div>
           <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a', fontFamily: 'Lexend, Inter, sans-serif' }}>
-            Open<span style={{ color: '#D5AA5B' }}>I</span> Hub
+            Open<span style={{ color: '#D0A848' }}>I</span> Hub
           </h1>
           <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Secure platform for Open Innovation Ecosystem</p>
         </div>
@@ -178,7 +178,7 @@ export default function Login() {
                       required
                       className="login-input w-full rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none transition-all"
                       style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a' }}
-                      onFocus={e => { e.target.style.borderColor = '#D5AA5B'; e.target.style.backgroundColor = '#ffffff'; }}
+                      onFocus={e => { e.target.style.borderColor = '#D0A848'; e.target.style.backgroundColor = '#ffffff'; }}
                       onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.backgroundColor = '#f9fafb'; }}
                     />
                   </div>
@@ -187,7 +187,7 @@ export default function Login() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
-                    <Link to="/forgot-password" className="text-xs font-semibold" style={{ color: '#D5AA5B' }}>
+                    <Link to="/forgot-password" className="text-xs font-semibold" style={{ color: '#D0A848' }}>
                       Forgot password?
                     </Link>
                   </div>
@@ -201,7 +201,7 @@ export default function Login() {
                       required
                       className="login-input w-full rounded-xl pl-10 pr-11 py-3 text-sm focus:outline-none transition-all"
                       style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a' }}
-                      onFocus={e => { e.target.style.borderColor = '#D5AA5B'; e.target.style.backgroundColor = '#ffffff'; }}
+                      onFocus={e => { e.target.style.borderColor = '#D0A848'; e.target.style.backgroundColor = '#ffffff'; }}
                       onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.backgroundColor = '#f9fafb'; }}
                     />
                     <button
@@ -219,9 +219,9 @@ export default function Login() {
                   type="submit"
                   disabled={loading}
                   className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm mt-2"
-                  style={{ backgroundColor: '#D5AA5B', color: '#ffffff' }}
+                  style={{ backgroundColor: '#D0A848', color: '#ffffff' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c49a4a'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D5AA5B'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D0A848'}
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Signing in…' : 'Sign In'}
@@ -240,10 +240,10 @@ export default function Login() {
                         onClick={() => { setEmail(e); setPassword(p); }}
                         className="text-left px-3 py-2 rounded-lg transition-all"
                         style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
-                        onMouseEnter={el => { el.currentTarget.style.borderColor = '#D5AA5B'; el.currentTarget.style.backgroundColor = '#fffbf0'; }}
+                        onMouseEnter={el => { el.currentTarget.style.borderColor = '#D0A848'; el.currentTarget.style.backgroundColor = '#fffbf0'; }}
                         onMouseLeave={el => { el.currentTarget.style.borderColor = '#e5e7eb'; el.currentTarget.style.backgroundColor = '#f9fafb'; }}
                       >
-                        <div className="text-xs font-medium" style={{ color: '#D5AA5B' }}>{role}</div>
+                        <div className="text-xs font-medium" style={{ color: '#D0A848' }}>{role}</div>
                         <div className="text-[10px] truncate" style={{ color: '#9ca3af' }}>{e}</div>
                       </button>
                     ))}
@@ -275,7 +275,7 @@ export default function Login() {
                     required
                     className="login-input w-full rounded-xl px-4 py-3 text-sm text-center tracking-widest text-lg focus:outline-none transition-all"
                     style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a' }}
-                    onFocus={e => { e.target.style.borderColor = '#D5AA5B'; e.target.style.backgroundColor = '#ffffff'; }}
+                    onFocus={e => { e.target.style.borderColor = '#D0A848'; e.target.style.backgroundColor = '#ffffff'; }}
                     onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.backgroundColor = '#f9fafb'; }}
                   />
                   <p className="text-xs mt-2 text-center" style={{ color: '#9ca3af' }}>Open your authenticator app (Google Authenticator, 1Password, Authy) and enter the current code.</p>
@@ -285,9 +285,9 @@ export default function Login() {
                   type="submit"
                   disabled={loading || otp.length < 6}
                   className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm"
-                  style={{ backgroundColor: '#D5AA5B', color: '#ffffff' }}
+                  style={{ backgroundColor: '#D0A848', color: '#ffffff' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c49a4a'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D5AA5B'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D0A848'}
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Verifying…' : 'Verify & Continue'}
@@ -301,7 +301,7 @@ export default function Login() {
         <div className="text-center mt-5">
           <p className="text-sm" style={{ color: '#6b7280' }}>
             Don&apos;t have an account?{' '}
-            <Link to="/landing" className="font-semibold" style={{ color: '#D5AA5B' }}>
+            <Link to="/landing" className="font-semibold" style={{ color: '#D0A848' }}>
               Join OpenI Hub
             </Link>
           </p>

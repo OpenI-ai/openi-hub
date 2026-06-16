@@ -3,7 +3,7 @@ import { studentEnhAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Users, Plus, X, Edit3, Trash2, MessageSquare } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 const STATUS_COLORS = { seeking: '#9333ea', requested: '#f59e0b', active: '#16a34a', completed: '#2563eb', declined: '#dc2626' };
 

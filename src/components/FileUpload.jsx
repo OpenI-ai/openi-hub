@@ -7,7 +7,7 @@ import { useState, useRef } from 'react';
 import { uploadAPI } from '../services/api';
 import { Upload, X, FileText, Loader2, ExternalLink } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const isImageUrl = (url) => {
   if (!url) return false;

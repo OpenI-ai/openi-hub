@@ -599,8 +599,8 @@ export default function IPRDatabase() {
               ].map(t => (
                 <button key={t.id} onClick={() => setShareTab(t.id)}
                   style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, background: 'none', border: 'none',
-                           borderBottom: shareTab === t.id ? '2.5px solid #D5AA5B' : '2.5px solid transparent',
-                           marginBottom: -1.5, color: shareTab === t.id ? '#D5AA5B' : '#666', cursor: 'pointer',
+                           borderBottom: shareTab === t.id ? '2.5px solid #D0A848' : '2.5px solid transparent',
+                           marginBottom: -1.5, color: shareTab === t.id ? '#D0A848' : '#666', cursor: 'pointer',
                            display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {t.icon} {t.label}
                 </button>
@@ -613,7 +613,7 @@ export default function IPRDatabase() {
                   Branded PDF of this IPR record (admin/evaluator gate enforced by backend).
                 </p>
                 <button onClick={downloadIprPdf}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download IPR PDF
                 </button>
               </div>
@@ -657,7 +657,7 @@ export default function IPRDatabase() {
                   style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
 
                 <button onClick={sendIprEmailInvite} disabled={shareBusy || shareEmails.length === 0}
-                  style={{ width: '100%', padding: '10px 16px', background: (shareEmails.length === 0 || shareBusy) ? '#ccc' : '#D5AA5B', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (shareEmails.length === 0 || shareBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: (shareEmails.length === 0 || shareBusy) ? '#ccc' : '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (shareEmails.length === 0 || shareBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <Mail size={14} /> {shareBusy ? 'Sending...' : 'Send magic-link invites'}
                 </button>
               </div>

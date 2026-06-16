@@ -92,11 +92,11 @@ export default function TaxonomySelect({
             return (
               <div key={`${o.name}-${idx}`}
                 onClick={() => { onChange(o.name); setOpen(false); setQuery(''); }}
-                style={{ padding: '8px 14px', paddingLeft: o.level > 0 ? 28 : 14, fontSize: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isSelected ? '#D5AA5B10' : 'transparent', color: isSelected ? '#D5AA5B' : (o.level === 0 ? '#1a1a1a' : '#555'), fontWeight: o.level === 0 ? 600 : 400 }}
+                style={{ padding: '8px 14px', paddingLeft: o.level > 0 ? 28 : 14, fontSize: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isSelected ? '#D0A84810' : 'transparent', color: isSelected ? '#D0A848' : (o.level === 0 ? '#1a1a1a' : '#555'), fontWeight: o.level === 0 ? 600 : 400 }}
                 onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#f9fafb'; }}
-                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? '#D5AA5B10' : 'transparent'; }}>
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? '#D0A84810' : 'transparent'; }}>
                 <span>{o.level > 0 ? '↳ ' : ''}{o.name}</span>
-                {isSelected && <CheckCircle size={12} style={{ color: '#D5AA5B' }} />}
+                {isSelected && <CheckCircle size={12} style={{ color: '#D0A848' }} />}
               </div>
             );
           })}

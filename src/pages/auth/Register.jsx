@@ -36,7 +36,7 @@ function TagInput({ value = [], onChange, placeholder }) {
       <div className="flex flex-wrap gap-1.5 mb-1.5">
         {(value || []).map((t, i) => (
           <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-            style={{ background: '#D5AA5B15', color: '#D5AA5B', border: '1px solid #D5AA5B30' }}>
+            style={{ background: '#D0A84815', color: '#D0A848', border: '1px solid #D0A84830' }}>
             {t}
             <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="hover:opacity-70">
               <X size={12} />
@@ -49,7 +49,7 @@ function TagInput({ value = [], onChange, placeholder }) {
         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
         placeholder={placeholder || 'Type and press Enter'}
         style={inputStyle}
-        onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+        onFocus={e => e.target.style.borderColor = '#D0A848'}
         onBlur={e => { e.target.style.borderColor = '#e5e7eb'; add(); }}
       />
     </div>
@@ -67,9 +67,9 @@ function MultiSelect({ options = [], value = [], onChange }) {
         <button type="button" key={opt} onClick={() => toggle(opt)}
           className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
           style={{
-            background: value.includes(opt) ? '#D5AA5B' : '#f9fafb',
+            background: value.includes(opt) ? '#D0A848' : '#f9fafb',
             color: value.includes(opt) ? '#fff' : '#555',
-            border: `1px solid ${value.includes(opt) ? '#D5AA5B' : '#e5e7eb'}`,
+            border: `1px solid ${value.includes(opt) ? '#D0A848' : '#e5e7eb'}`,
           }}>
           {opt}
         </button>
@@ -102,7 +102,7 @@ function MoneyRangeField({ label, required, value, onChange, variant = 'revenue'
     border: 'none',
     background: active ? '#fff' : 'transparent',
     color: active ? '#1a1a1a' : '#6b7280',
-    borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
+    borderBottom: `2px solid ${active ? '#D0A848' : 'transparent'}`,
     cursor: 'pointer',
     transition: 'all 0.15s',
   });
@@ -179,7 +179,7 @@ function LogoField({ label, required, value, onChange, placeholder }) {
     border: 'none',
     background: active ? '#fff' : 'transparent',
     color: active ? '#1a1a1a' : '#6b7280',
-    borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
+    borderBottom: `2px solid ${active ? '#D0A848' : 'transparent'}`,
     cursor: 'pointer',
     transition: 'all 0.15s',
   });
@@ -226,7 +226,7 @@ function LogoField({ label, required, value, onChange, placeholder }) {
               transition: 'all 0.15s',
               minHeight: 100,
             }}
-            onMouseEnter={e => { if (!uploading) e.currentTarget.style.borderColor = '#D5AA5B'; }}
+            onMouseEnter={e => { if (!uploading) e.currentTarget.style.borderColor = '#D0A848'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}
           >
             {value ? (
@@ -281,7 +281,7 @@ function LogoField({ label, required, value, onChange, placeholder }) {
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder || 'https://yoursite.com/logo.png'}
           style={inputStyle}
-          onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+          onFocus={e => e.target.style.borderColor = '#D0A848'}
           onBlur={e => e.target.style.borderColor = '#e5e7eb'}
         />
       )}
@@ -315,7 +315,7 @@ function FormField({ field, value, onChange }) {
         <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>{label}</label>
         <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3}
           style={{ ...inputStyle, resize: 'vertical' }}
-          onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+          onFocus={e => e.target.style.borderColor = '#D0A848'}
           onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
       </div>
     );
@@ -324,7 +324,7 @@ function FormField({ field, value, onChange }) {
     return (
       <label className="flex items-center gap-2 cursor-pointer">
         <input type="checkbox" checked={!!value} onChange={e => onChange(e.target.checked)}
-          className="w-4 h-4 rounded" style={{ accentColor: '#D5AA5B' }} />
+          className="w-4 h-4 rounded" style={{ accentColor: '#D0A848' }} />
         <span className="text-sm font-medium" style={{ color: '#374151' }}>{label}</span>
       </label>
     );
@@ -450,7 +450,7 @@ function FormField({ field, value, onChange }) {
         type={type || 'text'} value={value || ''} onChange={e => onChange(type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
         placeholder={placeholder || ''} min={min} max={max}
         style={inputStyle}
-        onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+        onFocus={e => e.target.style.borderColor = '#D0A848'}
         onBlur={e => e.target.style.borderColor = '#e5e7eb'}
       />
     </div>
@@ -680,7 +680,7 @@ export default function Register() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#f5f5f5' }}>
         <div className="text-center">
           <p className="text-lg font-semibold" style={{ color: '#1a1a1a' }}>Invalid persona type</p>
-          <Link to="/landing" className="mt-4 inline-block text-sm font-semibold" style={{ color: '#D5AA5B' }}>
+          <Link to="/landing" className="mt-4 inline-block text-sm font-semibold" style={{ color: '#D0A848' }}>
             Go back
           </Link>
         </div>
@@ -804,19 +804,19 @@ export default function Register() {
             <div key={s} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
-                  background: step >= s ? '#D5AA5B' : '#e5e7eb',
+                  background: step >= s ? '#D0A848' : '#e5e7eb',
                   color: step >= s ? '#fff' : '#9ca3af',
                 }}>
                 {step > s ? <Check size={14} /> : s}
               </div>
-              {s < 3 && <div className="w-12 h-0.5" style={{ background: step > s ? '#D5AA5B' : '#e5e7eb' }} />}
+              {s < 3 && <div className="w-12 h-0.5" style={{ background: step > s ? '#D0A848' : '#e5e7eb' }} />}
             </div>
           ))}
         </div>
         <div className="flex justify-center gap-8 mb-6">
-          <span className="text-xs font-medium" style={{ color: step >= 1 ? '#D5AA5B' : '#9ca3af' }}>Account</span>
-          <span className="text-xs font-medium" style={{ color: step >= 2 ? '#D5AA5B' : '#9ca3af' }}>Profile</span>
-          <span className="text-xs font-medium" style={{ color: step >= 3 ? '#D5AA5B' : '#9ca3af' }}>Done</span>
+          <span className="text-xs font-medium" style={{ color: step >= 1 ? '#D0A848' : '#9ca3af' }}>Account</span>
+          <span className="text-xs font-medium" style={{ color: step >= 2 ? '#D0A848' : '#9ca3af' }}>Profile</span>
+          <span className="text-xs font-medium" style={{ color: step >= 3 ? '#D0A848' : '#9ca3af' }}>Done</span>
         </div>
 
         {/* Card */}
@@ -835,7 +835,7 @@ export default function Register() {
               <div>
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Full Name *</label>
                 <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name"
-                  style={inputStyle} onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
+                  style={inputStyle} onFocus={e => e.target.style.borderColor = '#D0A848'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email *</label>
@@ -851,7 +851,7 @@ export default function Register() {
                     backgroundColor: inviteToken ? '#f3f4f6' : inputStyle.backgroundColor,
                     cursor: inviteToken ? 'not-allowed' : 'text',
                   }}
-                  onFocus={e => { if (!inviteToken) e.target.style.borderColor = '#D5AA5B'; }}
+                  onFocus={e => { if (!inviteToken) e.target.style.borderColor = '#D0A848'; }}
                   onBlur={e => { if (!inviteToken) e.target.style.borderColor = '#e5e7eb'; }}
                 />
                 {inviteToken && (
@@ -880,7 +880,7 @@ export default function Register() {
                         <strong>{orgMatch.name}</strong> is already on OpenI Hub
                         {/* Phase 117c — Platform Operator badge */}
                         {orgMatch.is_platform_owner && (
-                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#0D2137', color: '#D5AA5B', borderRadius: 4, letterSpacing: 0.3 }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#0D2137', color: '#D0A848', borderRadius: 4, letterSpacing: 0.3 }}>
                             PLATFORM OPERATOR
                           </span>
                         )}
@@ -910,7 +910,7 @@ export default function Register() {
                           onClick={handleRequestJoinOrg}
                           disabled={orgJoinSubmitting}
                           style={{
-                            padding: '6px 12px', background: '#D5AA5B', color: '#fff',
+                            padding: '6px 12px', background: '#D0A848', color: '#fff',
                             border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 700,
                             cursor: orgJoinSubmitting ? 'not-allowed' : 'pointer',
                           }}
@@ -952,7 +952,7 @@ export default function Register() {
                 <div className="relative">
                   <input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Min 6 characters" style={inputStyle}
-                    onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
+                    onFocus={e => e.target.style.borderColor = '#D0A848'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
                   <button type="button" onClick={() => setShowPwd(!showPwd)}
                     className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }}>
                     {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -963,7 +963,7 @@ export default function Register() {
                 <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Confirm Password *</label>
                 <input type="password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)}
                   placeholder="Re-enter password" style={inputStyle}
-                  onFocus={e => e.target.style.borderColor = '#D5AA5B'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
+                  onFocus={e => e.target.style.borderColor = '#D0A848'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
                 {confirmPwd && password !== confirmPwd && (
                   <p className="text-xs mt-1" style={{ color: '#ef4444' }}>Passwords do not match</p>
                 )}
@@ -975,7 +975,7 @@ export default function Register() {
                   display: 'flex', alignItems: 'flex-start', gap: 10,
                   padding: '10px 12px', marginTop: 4,
                   background: termsAccepted ? 'rgba(213,170,91,0.08)' : '#fafafa',
-                  border: `1px solid ${termsAccepted ? '#D5AA5B66' : '#e5e7eb'}`,
+                  border: `1px solid ${termsAccepted ? '#D0A84866' : '#e5e7eb'}`,
                   borderRadius: 10, cursor: 'pointer',
                   transition: 'all 0.15s',
                 }}
@@ -984,7 +984,7 @@ export default function Register() {
                   type="checkbox"
                   checked={termsAccepted}
                   onChange={e => setTermsAccepted(e.target.checked)}
-                  style={{ marginTop: 2, accentColor: '#D5AA5B', cursor: 'pointer', flexShrink: 0 }}
+                  style={{ marginTop: 2, accentColor: '#D0A848', cursor: 'pointer', flexShrink: 0 }}
                 />
                 <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>
                   I have read and agree to the{' '}
@@ -1018,7 +1018,7 @@ export default function Register() {
                   setStep(2);
                 }} disabled={!step1Valid}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm mt-2 transition-all"
-                style={{ background: step1Valid ? '#D5AA5B' : '#e5e7eb', color: step1Valid ? '#fff' : '#9ca3af', cursor: step1Valid ? 'pointer' : 'not-allowed' }}>
+                style={{ background: step1Valid ? '#D0A848' : '#e5e7eb', color: step1Valid ? '#fff' : '#9ca3af', cursor: step1Valid ? 'pointer' : 'not-allowed' }}>
                 Continue <ArrowRight size={16} />
               </button>
               {!termsAccepted && (name.trim() || email.trim() || password) && (
@@ -1035,7 +1035,7 @@ export default function Register() {
               {/* Phase 65: short signup form. Nudge users that completing
                   the full profile from MyProfile drives discoverability. */}
               <div className="rounded-xl p-3 mb-2 text-xs flex gap-2 items-start"
-                   style={{ background: '#FFF8E6', border: '1px solid #D5AA5B40', color: '#7C5A1F' }}>
+                   style={{ background: '#FFF8E6', border: '1px solid #D0A84840', color: '#7C5A1F' }}>
                 <Building2 size={14} className="flex-shrink-0 mt-0.5" />
                 <div>
                   Just the basics for now — you can complete the rest from{' '}
@@ -1066,7 +1066,7 @@ export default function Register() {
                 </button>
                 <button onClick={handleRegister} disabled={loading}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-                  style={{ background: '#D5AA5B', color: '#fff' }}>
+                  style={{ background: '#D0A848', color: '#fff' }}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Creating...' : 'Create Account'}
                 </button>
@@ -1086,9 +1086,9 @@ export default function Register() {
             <div className="py-6">
               {/* Phase 53 — Claim candidate modal */}
               {claimCandidates.length > 0 && !claimResult && (
-                <div className="mb-4 p-4 rounded-xl border" style={{ background: '#FFF8E6', borderColor: '#D5AA5B40' }}>
+                <div className="mb-4 p-4 rounded-xl border" style={{ background: '#FFF8E6', borderColor: '#D0A84840' }}>
                   <div className="flex items-start gap-3 mb-3">
-                    <Building2 size={20} style={{ color: '#D5AA5B' }} />
+                    <Building2 size={20} style={{ color: '#D0A848' }} />
                     <div>
                       <h3 className="text-sm font-bold mb-1" style={{ color: '#1a1a1a' }}>Is this your company?</h3>
                       <p className="text-xs" style={{ color: '#6b7280' }}>
@@ -1110,7 +1110,7 @@ export default function Register() {
                           onClick={() => submitClaim(c)}
                           disabled={claimSubmitting}
                           className="ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
-                          style={{ background: '#D5AA5B', color: '#fff' }}>
+                          style={{ background: '#D0A848', color: '#fff' }}>
                           {claimSubmitting ? '...' : 'Claim'}
                         </button>
                       </div>
@@ -1157,8 +1157,8 @@ export default function Register() {
               )}
 
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: '#D5AA5B15' }}>
-                  <Check size={32} style={{ color: '#D5AA5B' }} />
+                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: '#D0A84815' }}>
+                  <Check size={32} style={{ color: '#D0A848' }} />
                 </div>
                 <h2 className="text-lg font-bold mb-2" style={{ color: '#1a1a1a' }}>Welcome to OpenI Hub!</h2>
                 <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
@@ -1166,7 +1166,7 @@ export default function Register() {
                 </p>
                 <button onClick={() => navigate('/dashboard/profile')}
                   className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
-                  style={{ background: '#D5AA5B', color: '#fff' }}>
+                  style={{ background: '#D0A848', color: '#fff' }}>
                   Complete My Profile
                 </button>
                 <button onClick={() => navigate('/dashboard')}
@@ -1183,7 +1183,7 @@ export default function Register() {
           <div className="text-center mt-4 space-y-2">
             <p className="text-sm" style={{ color: '#6b7280' }}>
               Already have an account?{' '}
-              <Link to="/dashboard/login" className="font-semibold" style={{ color: '#D5AA5B' }}>Sign In</Link>
+              <Link to="/dashboard/login" className="font-semibold" style={{ color: '#D0A848' }}>Sign In</Link>
             </p>
             <p className="text-sm">
               <Link to="/landing" style={{ color: '#9ca3af' }}>Choose a different persona</Link>

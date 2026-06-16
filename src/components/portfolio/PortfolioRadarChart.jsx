@@ -26,7 +26,7 @@ const VECTOR_LABELS = {
   strategic_fit_score: 'Strategic Fit',
 };
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const BLUE = '#3b82f6';
 
 function toChartData(scores) {

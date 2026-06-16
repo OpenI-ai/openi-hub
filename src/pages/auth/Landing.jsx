@@ -783,7 +783,7 @@ export default function Landing() {
           <p className="text-sm text-center mb-8" style={{ color: GRAY }}>Click a persona to create your free account</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {[
-              { key: 'startup',          label: 'Startup',          icon: Rocket,        color: '#D5AA5B', desc: 'Tech startup or early-stage' },
+              { key: 'startup',          label: 'Startup',          icon: Rocket,        color: '#D0A848', desc: 'Tech startup or early-stage' },
               { key: 'student',          label: 'Student',          icon: GraduationCap, color: '#3b82f6', desc: 'Student innovator / researcher' },
               { key: 'academia',         label: 'Academia',         icon: BookOpen,      color: '#7c3aed', desc: 'University or research institute' },
               { key: 'corporate',        label: 'Corporate',        icon: Building2,     color: '#16a34a', desc: 'Enterprise seeking innovation' },

@@ -13,7 +13,7 @@ import {
   Star, Map,
 } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const FEATURES = [
   {
@@ -86,7 +86,7 @@ const FEATURES = [
 
 const TIER_CONFIG = {
   free: { label: 'Free', color: '#16a34a', bg: '#f0fdf4' },
-  pro: { label: 'Pro', color: '#D5AA5B', bg: '#fffbeb' },
+  pro: { label: 'Pro', color: '#D0A848', bg: '#fffbeb' },
   enterprise: { label: 'Enterprise', color: '#7c3aed', bg: '#f5f3ff' },
 };
 

@@ -11,7 +11,7 @@
  * re-attaches locally. Keep this module pure data (no React, no lucide).
  */
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 export const DEEPTECH_SECTIONS = [
   {

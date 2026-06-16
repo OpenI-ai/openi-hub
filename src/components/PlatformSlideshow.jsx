@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const SLIDES = [
   { src: '/screenshots/01-login.png', caption: 'Secure Login', desc: 'MFA-protected sign-in with quick demo access for all 11 persona types' },

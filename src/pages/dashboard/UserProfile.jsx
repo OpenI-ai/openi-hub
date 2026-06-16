@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 function Avatar({ src, name, size = 80 }) {
   if (src) return <img src={src} alt={name} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: `3px solid ${G}20` }} />;

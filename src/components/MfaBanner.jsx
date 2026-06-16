@@ -50,7 +50,7 @@ export default function MfaBanner() {
         onClick={() => navigate('/dashboard/settings?tab=security')}
         style={{
           padding: '6px 14px',
-          background: '#D5AA5B',
+          background: '#D0A848',
           color: '#fff',
           border: 'none',
           borderRadius: 6,

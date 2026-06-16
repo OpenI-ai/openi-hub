@@ -6,7 +6,7 @@ import {
 import { feedbackAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 const card = {
   background: '#ffffff',

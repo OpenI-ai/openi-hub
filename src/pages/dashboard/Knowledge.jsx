@@ -19,7 +19,7 @@ const SECTOR_ICONS = {
   'CleanTech': FlaskConical, 'HealthTech': Heart, 'Quantum': Layers, 'Semiconductor': Cpu,
 };
 const SECTOR_COLORS = {
-  'Agentic AI': '#8b5cf6', 'DeepTech': '#D5AA5B', 'FinTech': '#3b82f6', 'CPG': '#f97316',
+  'Agentic AI': '#8b5cf6', 'DeepTech': '#D0A848', 'FinTech': '#3b82f6', 'CPG': '#f97316',
   'FashionTech': '#ec4899', 'ImpactTech': '#10b981', 'ConstructionTech': '#78716c',
   'Cyber Security': '#ef4444', 'AI': '#6366f1', 'AI/ML': '#6366f1', 'Defence': '#16a34a',
   'CleanTech': '#10b981', 'HealthTech': '#ef4444', 'Quantum': '#06b6d4', 'Semiconductor': '#f97316',
@@ -131,7 +131,7 @@ export default function Knowledge() {
           // s49: pick icon by sector (first tag), fall back to type-default, fall back to BookOpen
           const sectorTag = (article.tags || []).find(t => SECTOR_ICONS[t]);
           const Icon = sectorTag ? SECTOR_ICONS[sectorTag] : (TYPE_ICONS[article.type] || BookOpen);
-          const sectorColor = sectorTag ? SECTOR_COLORS[sectorTag] : '#D5AA5B';
+          const sectorColor = sectorTag ? SECTOR_COLORS[sectorTag] : '#D0A848';
           return (
             <div key={article.id} onClick={() => setSelected(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
               style={{ transition: 'all 0.15s' }}
@@ -240,7 +240,7 @@ export default function Knowledge() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
               <button onClick={() => setShowSuggest(false)} style={{ padding: '8px 16px', fontSize: 12, background: '#f3f4f6', color: '#555', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-              <button onClick={submitSuggestion} disabled={suggesting} style={{ padding: '8px 16px', fontSize: 12, background: '#D5AA5B', color: '#fff', border: 'none', borderRadius: 8, cursor: suggesting ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: suggesting ? 0.6 : 1 }}>
+              <button onClick={submitSuggestion} disabled={suggesting} style={{ padding: '8px 16px', fontSize: 12, background: '#D0A848', color: '#fff', border: 'none', borderRadius: 8, cursor: suggesting ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: suggesting ? 0.6 : 1 }}>
                 {suggesting ? 'Sending...' : 'Send Suggestion'}
               </button>
             </div>

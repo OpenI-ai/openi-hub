@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const DARK = '#0C2126';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.openi.ai/api';

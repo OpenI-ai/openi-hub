@@ -4,20 +4,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        // OpenI primary gold — rgb(213,170,91) / #D5AA5B
+        // OpenI primary gold — rgb(208,168,72) / #D0A848 (brand kit standard)
         primary: {
-          50:  '#fdf8ee',
-          100: '#faefd2',
-          200: '#f5dea5',
-          300: '#eec96f',
-          400: '#e6b845',
-          500: '#D5AA5B',   // OpenI gold (buttons, CTA)
-          600: '#CFA745',   // darker gold variant
-          700: '#a87c28',
-          800: '#7d5b1e',
-          900: '#5c4118',
+          50:  '#fbf6ea',
+          100: '#f5e9c6',
+          200: '#ecd28d',
+          300: '#e0bb5b',
+          400: '#d9b251',
+          500: '#D0A848',   // OpenI gold (buttons, CTA)
+          600: '#b8923a',   // darker gold variant
+          700: '#94742d',
+          800: '#6e5722',
+          900: '#4f3e19',
         },
-        // OpenI dark — deep navy #252147 + near-black #111E21
+        // OpenI dark — deep navy #152838 (brand kit standard) + near-black #111E21
         dark: {
           50:  '#f8fafc',
           100: '#f1f5f9',
@@ -28,7 +28,7 @@ export default {
           600: '#475569',
           700: '#334155',
           800: '#1e293b',
-          900: '#252147',   // OpenI deep navy
+          900: '#152838',   // OpenI deep navy
           950: '#111E21',   // OpenI darkest bg
         },
         // OpenI accent blue — rgb(110,193,228) / #6EC1E4
@@ -46,7 +46,7 @@ export default {
           500: '#22c55e',
           600: '#16a34a',
         },
-        navy: '#252147',
+        navy: '#152838',
       },
       fontFamily: {
         sans: ['Lexend', 'sans-serif'],

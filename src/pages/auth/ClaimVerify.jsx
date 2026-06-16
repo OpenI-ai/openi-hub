@@ -8,7 +8,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { claimAPI } from '../../services/api';
 import { Loader2, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 
 export default function ClaimVerify() {
   const { token } = useParams();

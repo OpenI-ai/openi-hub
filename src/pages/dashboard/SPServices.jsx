@@ -3,7 +3,7 @@ import { spAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Briefcase, Users, Star, Plus, X, ToggleLeft, ToggleRight } from 'lucide-react';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
 const TABS = ['Services', 'Clients', 'Reviews'];

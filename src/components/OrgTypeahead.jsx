@@ -115,7 +115,7 @@ export default function OrgTypeahead({
       <div className="flex flex-wrap gap-1.5 mb-1.5">
         {(value || []).map((t, i) => (
           <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-            style={{ background: '#D5AA5B15', color: '#D5AA5B', border: '1px solid #D5AA5B30' }}>
+            style={{ background: '#D0A84815', color: '#D0A848', border: '1px solid #D0A84830' }}>
             {t}
             <button type="button" onClick={() => removeTag(i)}><X size={12} /></button>
           </span>
@@ -167,7 +167,7 @@ export default function OrgTypeahead({
                 onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                  {isTopTier && <Star size={11} fill="#D5AA5B" color="#D5AA5B" />}
+                  {isTopTier && <Star size={11} fill="#D0A848" color="#D0A848" />}
                   <span style={{ fontWeight: isTopTier ? 600 : 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {s.name}
                   </span>

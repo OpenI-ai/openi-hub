@@ -41,7 +41,7 @@ function TagInput({ value = [], onChange, placeholder }) {
       <div className="flex flex-wrap gap-1.5 mb-1.5">
         {(value || []).map((t, i) => (
           <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-            style={{ background: '#D5AA5B15', color: '#D5AA5B', border: '1px solid #D5AA5B30' }}>
+            style={{ background: '#D0A84815', color: '#D0A848', border: '1px solid #D0A84830' }}>
             {t}
             <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))}><X size={12} /></button>
           </span>
@@ -50,7 +50,7 @@ function TagInput({ value = [], onChange, placeholder }) {
       <input type="text" value={input} onChange={e => setInput(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
         placeholder={placeholder} style={inputStyle}
-        onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+        onFocus={e => e.target.style.borderColor = '#D0A848'}
         onBlur={e => { e.target.style.borderColor = '#e5e7eb'; add(); }} />
     </div>
   );
@@ -67,9 +67,9 @@ function MultiSelect({ options = [], value = [], onChange }) {
         <button type="button" key={opt} onClick={() => toggle(opt)}
           className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
           style={{
-            background: value.includes(opt) ? '#D5AA5B' : '#f9fafb',
+            background: value.includes(opt) ? '#D0A848' : '#f9fafb',
             color: value.includes(opt) ? '#fff' : '#555',
-            border: `1px solid ${value.includes(opt) ? '#D5AA5B' : '#e5e7eb'}`,
+            border: `1px solid ${value.includes(opt) ? '#D0A848' : '#e5e7eb'}`,
           }}>
           {opt}
         </button>
@@ -122,7 +122,7 @@ function MoneyRange({ field, value, onChange, label, required }) {
     flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: active ? 600 : 500,
     border: 'none', background: active ? '#fff' : 'transparent',
     color: active ? '#1a1a1a' : '#6b7280',
-    borderBottom: `2px solid ${active ? '#D5AA5B' : 'transparent'}`,
+    borderBottom: `2px solid ${active ? '#D0A848' : 'transparent'}`,
     cursor: 'pointer', transition: 'all 0.15s',
   });
   return (
@@ -190,7 +190,7 @@ function FormField({ field, value, onChange }) {
         <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
         <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3}
           style={{ ...inputStyle, resize: 'vertical' }}
-          onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+          onFocus={e => e.target.style.borderColor = '#D0A848'}
           onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
       </div>
     );
@@ -216,7 +216,7 @@ function FormField({ field, value, onChange }) {
         </label>
         <input type="date" value={formatted} onChange={e => onChange(e.target.value)}
           min={min} max={max} style={inputStyle}
-          onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+          onFocus={e => e.target.style.borderColor = '#D0A848'}
           onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
       </div>
     );
@@ -225,7 +225,7 @@ function FormField({ field, value, onChange }) {
     return (
       <label className="flex items-center gap-2 cursor-pointer">
         <input type="checkbox" checked={!!value} onChange={e => onChange(e.target.checked)}
-          style={{ accentColor: '#D5AA5B' }} />
+          style={{ accentColor: '#D0A848' }} />
         <span className="text-xs font-medium" style={{ color: '#374151' }}>{label}</span>
       </label>
     );
@@ -371,7 +371,7 @@ function FormField({ field, value, onChange }) {
       </label>
       <input type={type || 'text'} value={value ?? ''} onChange={e => onChange(type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
         placeholder={placeholder || ''} min={min} max={max} style={inputStyle}
-        onFocus={e => e.target.style.borderColor = '#D5AA5B'}
+        onFocus={e => e.target.style.borderColor = '#D0A848'}
         onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
     </div>
   );
@@ -611,7 +611,7 @@ export default function MyProfile() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin" style={{ color: '#D5AA5B' }} />
+        <Loader2 size={24} className="animate-spin" style={{ color: '#D0A848' }} />
       </div>
     );
   }
@@ -622,8 +622,8 @@ export default function MyProfile() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: persona?.color ? `${persona.color}15` : '#D5AA5B15' }}>
-            <User size={20} style={{ color: persona?.color || '#D5AA5B' }} />
+            style={{ background: persona?.color ? `${persona.color}15` : '#D0A84815' }}>
+            <User size={20} style={{ color: persona?.color || '#D0A848' }} />
           </div>
           <div>
             <h1 id="tour-page-profile-header" className="text-lg font-bold" style={{ color: '#1a1a1a' }}>My Profile</h1>
@@ -634,9 +634,9 @@ export default function MyProfile() {
         </div>
         <button onClick={handleSave} disabled={saving}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-          style={{ background: '#D5AA5B', color: '#fff' }}
+          style={{ background: '#D0A848', color: '#fff' }}
           onMouseEnter={e => e.currentTarget.style.background = '#c49a4a'}
-          onMouseLeave={e => e.currentTarget.style.background = '#D5AA5B'}>
+          onMouseLeave={e => e.currentTarget.style.background = '#D0A848'}>
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           {saving ? 'Saving...' : 'Save Profile'}
         </button>
@@ -646,14 +646,14 @@ export default function MyProfile() {
       <div className="rounded-xl p-4 mb-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium" style={{ color: '#374151' }}><span id="tour-page-profile-completeness" style={{ position: "absolute", pointerEvents: "none" }} />Profile Completeness</span>
-          <span className="text-xs font-bold" style={{ color: !subProbed ? '#9ca3af' : (completeness === 100 ? '#16a34a' : '#D5AA5B') }}>
+          <span className="text-xs font-bold" style={{ color: !subProbed ? '#9ca3af' : (completeness === 100 ? '#16a34a' : '#D0A848') }}>
             {subProbed ? `${completeness}%` : '—'}
           </span>
         </div>
         <div className="w-full h-2 rounded-full" style={{ background: '#f3f4f6' }}>
           <div className="h-2 rounded-full transition-all" style={{
             width: subProbed ? `${completeness}%` : '0%',
-            background: completeness === 100 ? '#16a34a' : '#D5AA5B',
+            background: completeness === 100 ? '#16a34a' : '#D0A848',
           }} />
         </div>
         {completeness < 100 && (
@@ -701,9 +701,9 @@ export default function MyProfile() {
         <div className="flex justify-end mt-6 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
           <button onClick={handleSave} disabled={saving}
             className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all"
-            style={{ background: '#D5AA5B', color: '#fff' }}
+            style={{ background: '#D0A848', color: '#fff' }}
             onMouseEnter={e => e.currentTarget.style.background = '#c49a4a'}
-            onMouseLeave={e => e.currentTarget.style.background = '#D5AA5B'}>
+            onMouseLeave={e => e.currentTarget.style.background = '#D0A848'}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? 'Saving...' : 'Save Profile'}
           </button>
@@ -735,7 +735,7 @@ export default function MyProfile() {
             <button onClick={handleSave} disabled={disabled}
               className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold"
               style={{
-                background: disabled ? '#e5e7eb' : '#D5AA5B',
+                background: disabled ? '#e5e7eb' : '#D0A848',
                 color: disabled ? '#9ca3af' : '#fff',
                 border: 'none',
                 cursor: disabled ? 'not-allowed' : 'pointer',
@@ -920,7 +920,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
     catch { toast.error('Failed to delete'); }
   };
 
-  const G = '#D5AA5B';
+  const G = '#D0A848';
 
   return (
     <div className="rounded-xl" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>

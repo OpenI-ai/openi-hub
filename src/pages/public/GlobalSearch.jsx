@@ -7,7 +7,7 @@ import UpgradeCTA from '../../components/UpgradeCTA';
 import { publicAPI, crawlAPI, getToken } from '../../services/api';
 import toast from 'react-hot-toast';
 
-const G = '#D5AA5B';
+const G = '#D0A848';
 const NAVY = '#0D2137';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
 
