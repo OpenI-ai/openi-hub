@@ -96,6 +96,7 @@ export default function Marketplace() {
   const [profilePct, setProfilePct] = useState(null);
   const [applying, setApplying] = useState(false);
   const [applyForm, setApplyForm] = useState({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });
+  const [editMode, setEditMode] = useState(false); // Bug 4: edit an already-submitted application
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   // My applications tab
@@ -163,13 +164,37 @@ export default function Marketplace() {
   const submitApplication = async () => {
     setApplying(true);
     try {
-      await challengeAPI.apply(selectedId, applyForm);
-      toast.success('Application submitted successfully!');
+      if (editMode) {
+        await challengeAPI.updateMyApplication(selectedId, applyForm);
+        toast.success('Application updated successfully!');
+      } else {
+        await challengeAPI.apply(selectedId, applyForm);
+        toast.success('Application submitted successfully!');
+      }
       setShowApply(false);
+      setEditMode(false);
       setApplyForm({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });
       openDetail(selectedId); // refresh
     } catch (err) { toast.error(err.message); }
     finally { setApplying(false); }
+  };
+
+  // Bug 4: open the apply form pre-populated with the user's existing application.
+  const startEditApplication = () => {
+    const a = detail?.my_application || {};
+    const parse = (v, fallback) => {
+      if (v == null) return fallback;
+      if (typeof v === 'string') { try { return JSON.parse(v); } catch { return fallback; } }
+      return v;
+    };
+    setApplyForm({
+      pitch: a.pitch || '',
+      proposal_url: a.proposal_url || '',
+      rfi_answers: parse(a.rfi_answers, {}),
+      data_room: parse(a.data_room, []),
+    });
+    setEditMode(true);
+    setShowApply(true);
   };
 
   // ── Detail View ─────────────────────────────────────────────
@@ -180,6 +205,100 @@ export default function Marketplace() {
     const rfiQuestions = (() => { try { return typeof detail.rfi_questions === 'string' ? JSON.parse(detail.rfi_questions) : (detail.rfi_questions || []); } catch { return []; } })();
     const faqs = (() => { try { return typeof detail.faqs === 'string' ? JSON.parse(detail.faqs) : (detail.faqs || []); } catch { return []; } })();
     const minPct = detail.min_profile_pct || 25;
+
+    // Bug 4: shared apply/edit form — used for both new applications and editing an existing one.
+    const applyFormJsx = (
+      <div>
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{editMode ? 'Edit Application' : 'Submit Application'}</h3>
+        <div style={{ display: 'grid', gap: 14 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Your Pitch *</label>
+            <textarea placeholder="Describe how your solution addresses the challenge..." rows={4} value={applyForm.pitch}
+              onChange={e => setApplyForm(p => ({ ...p, pitch: e.target.value }))}
+              style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Proposal / Pitch Deck URL</label>
+            <input type="url" placeholder="https://..." value={applyForm.proposal_url}
+              onChange={e => setApplyForm(p => ({ ...p, proposal_url: e.target.value }))}
+              style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }} />
+          </div>
+
+          {/* RFI Questions */}
+          {rfiQuestions.length > 0 && (
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
+                <FileText size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Request for Information
+              </label>
+              <div style={{ display: 'grid', gap: 12 }}>
+                {rfiQuestions.map(q => (
+                  <div key={q.id} style={{ border: '1px solid #f0f0f0', borderRadius: 10, padding: 14 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6, display: 'block' }}>{q.question}</label>
+                    {q.type === 'mcq' ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {(q.options || []).map(opt => (
+                          <button key={opt} type="button" onClick={() => setApplyForm(p => ({ ...p, rfi_answers: { ...p.rfi_answers, [q.id]: opt } }))}
+                            style={{ padding: '6px 14px', fontSize: 12, borderRadius: 8, border: `1px solid ${applyForm.rfi_answers[q.id] === opt ? G : '#e5e7eb'}`, background: applyForm.rfi_answers[q.id] === opt ? '#fdf6e9' : '#fff', color: applyForm.rfi_answers[q.id] === opt ? '#92700a' : '#666', cursor: 'pointer', fontWeight: applyForm.rfi_answers[q.id] === opt ? 600 : 400 }}>
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <textarea rows={2} placeholder="Your answer..." value={applyForm.rfi_answers[q.id] || ''}
+                        onChange={e => setApplyForm(p => ({ ...p, rfi_answers: { ...p.rfi_answers, [q.id]: e.target.value } }))}
+                        style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Data Room */}
+          {detail.data_room_required && (
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
+                <Upload size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Data Room (URLs)
+              </label>
+              <p style={{ fontSize: 11, color: '#888', marginBottom: 8, marginTop: 0 }}>Provide URLs for your documents (pitch deck, solution video, client testimonials, certifications, etc.)</p>
+              {applyForm.data_room.map((item, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <select value={item.type} onChange={e => {
+                    const updated = [...applyForm.data_room];
+                    updated[i] = { ...updated[i], type: e.target.value };
+                    setApplyForm(p => ({ ...p, data_room: updated }));
+                  }} style={{ padding: '8px 10px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb', minWidth: 140 }}>
+                    <option value="pitch_deck">Pitch Deck</option>
+                    <option value="solution_video">Solution Video</option>
+                    <option value="client_testimonial">Client Testimonial</option>
+                    <option value="financial_data">Financial Data</option>
+                    <option value="certifications">Certifications</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <FileUpload compact value={item.url} onChange={url => {
+                    const updated = [...applyForm.data_room];
+                    updated[i] = { ...updated[i], url };
+                    setApplyForm(p => ({ ...p, data_room: updated }));
+                  }} folder="data_room" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.mp4,.mov" />
+                  <button onClick={() => setApplyForm(p => ({ ...p, data_room: p.data_room.filter((_, j) => j !== i) }))}
+                    style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><X size={14} /></button>
+                </div>
+              ))}
+              <button onClick={() => setApplyForm(p => ({ ...p, data_room: [...p.data_room, { type: 'pitch_deck', url: '', name: '' }] }))}
+                style={{ fontSize: 12, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>+ Add Document</button>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+            <button onClick={() => { setShowApply(false); setEditMode(false); }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#555', border: 'none', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={submitApplication} disabled={applying || !applyForm.pitch.trim()}
+              style={{ padding: '8px 24px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: applyForm.pitch.trim() ? G : '#e5e7eb', color: applyForm.pitch.trim() ? '#fff' : '#999', border: 'none', cursor: applyForm.pitch.trim() ? 'pointer' : 'default' }}>
+              {applying ? <Loader2 size={14} className="animate-spin" /> : (editMode ? 'Save Changes' : 'Submit Application')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -263,17 +382,25 @@ export default function Marketplace() {
 
         {/* Apply Section */}
         <div style={{ ...card, padding: 20, marginBottom: 16 }}>
-          {detail.has_applied ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <CheckCircle size={18} style={{ color: '#16a34a' }} />
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#16a34a' }}>You have already applied</div>
-                <div style={{ fontSize: 12, color: '#888' }}>
-                  Status: {(STATUS_BADGE[detail.my_application?.status] || {}).label || detail.my_application?.status}
-                  {' | '}Applied on {new Date(detail.my_application?.created_at).toLocaleDateString()}
+          {detail.has_applied && !showApply ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <CheckCircle size={18} style={{ color: '#16a34a' }} />
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#16a34a' }}>You have already applied</div>
+                  <div style={{ fontSize: 12, color: '#888' }}>
+                    Status: {(STATUS_BADGE[detail.my_application?.status] || {}).label || detail.my_application?.status}
+                    {' | '}Applied on {new Date(detail.my_application?.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
+              <button onClick={startEditApplication}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
+                <FileText size={14} /> Edit application
+              </button>
             </div>
+          ) : detail.has_applied ? (
+            applyFormJsx
           ) : detail.status !== 'open' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#888' }}>
               <AlertCircle size={18} />
@@ -293,97 +420,7 @@ export default function Marketplace() {
               <Send size={16} /> Apply to this Challenge
             </button>
           ) : (
-            /* Apply form */
-            <div>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Submit Application</h3>
-              <div style={{ display: 'grid', gap: 14 }}>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Your Pitch *</label>
-                  <textarea placeholder="Describe how your solution addresses the challenge..." rows={4} value={applyForm.pitch}
-                    onChange={e => setApplyForm(p => ({ ...p, pitch: e.target.value }))}
-                    style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Proposal / Pitch Deck URL</label>
-                  <input type="url" placeholder="https://..." value={applyForm.proposal_url}
-                    onChange={e => setApplyForm(p => ({ ...p, proposal_url: e.target.value }))}
-                    style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }} />
-                </div>
-
-                {/* RFI Questions */}
-                {rfiQuestions.length > 0 && (
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
-                      <FileText size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Request for Information
-                    </label>
-                    <div style={{ display: 'grid', gap: 12 }}>
-                      {rfiQuestions.map(q => (
-                        <div key={q.id} style={{ border: '1px solid #f0f0f0', borderRadius: 10, padding: 14 }}>
-                          <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6, display: 'block' }}>{q.question}</label>
-                          {q.type === 'mcq' ? (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                              {(q.options || []).map(opt => (
-                                <button key={opt} type="button" onClick={() => setApplyForm(p => ({ ...p, rfi_answers: { ...p.rfi_answers, [q.id]: opt } }))}
-                                  style={{ padding: '6px 14px', fontSize: 12, borderRadius: 8, border: `1px solid ${applyForm.rfi_answers[q.id] === opt ? G : '#e5e7eb'}`, background: applyForm.rfi_answers[q.id] === opt ? '#fdf6e9' : '#fff', color: applyForm.rfi_answers[q.id] === opt ? '#92700a' : '#666', cursor: 'pointer', fontWeight: applyForm.rfi_answers[q.id] === opt ? 600 : 400 }}>
-                                  {opt}
-                                </button>
-                              ))}
-                            </div>
-                          ) : (
-                            <textarea rows={2} placeholder="Your answer..." value={applyForm.rfi_answers[q.id] || ''}
-                              onChange={e => setApplyForm(p => ({ ...p, rfi_answers: { ...p.rfi_answers, [q.id]: e.target.value } }))}
-                              style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Data Room */}
-                {detail.data_room_required && (
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
-                      <Upload size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Data Room (URLs)
-                    </label>
-                    <p style={{ fontSize: 11, color: '#888', marginBottom: 8, marginTop: 0 }}>Provide URLs for your documents (pitch deck, solution video, client testimonials, certifications, etc.)</p>
-                    {applyForm.data_room.map((item, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                        <select value={item.type} onChange={e => {
-                          const updated = [...applyForm.data_room];
-                          updated[i] = { ...updated[i], type: e.target.value };
-                          setApplyForm(p => ({ ...p, data_room: updated }));
-                        }} style={{ padding: '8px 10px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb', minWidth: 140 }}>
-                          <option value="pitch_deck">Pitch Deck</option>
-                          <option value="solution_video">Solution Video</option>
-                          <option value="client_testimonial">Client Testimonial</option>
-                          <option value="financial_data">Financial Data</option>
-                          <option value="certifications">Certifications</option>
-                          <option value="other">Other</option>
-                        </select>
-                        <FileUpload compact value={item.url} onChange={url => {
-                          const updated = [...applyForm.data_room];
-                          updated[i] = { ...updated[i], url };
-                          setApplyForm(p => ({ ...p, data_room: updated }));
-                        }} folder="data_room" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.mp4,.mov" />
-                        <button onClick={() => setApplyForm(p => ({ ...p, data_room: p.data_room.filter((_, j) => j !== i) }))}
-                          style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><X size={14} /></button>
-                      </div>
-                    ))}
-                    <button onClick={() => setApplyForm(p => ({ ...p, data_room: [...p.data_room, { type: 'pitch_deck', url: '', name: '' }] }))}
-                      style={{ fontSize: 12, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>+ Add Document</button>
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                  <button onClick={() => setShowApply(false)} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#555', border: 'none', cursor: 'pointer' }}>Cancel</button>
-                  <button onClick={submitApplication} disabled={applying || !applyForm.pitch.trim()}
-                    style={{ padding: '8px 24px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: applyForm.pitch.trim() ? G : '#e5e7eb', color: applyForm.pitch.trim() ? '#fff' : '#999', border: 'none', cursor: applyForm.pitch.trim() ? 'pointer' : 'default' }}>
-                    {applying ? <Loader2 size={14} className="animate-spin" /> : 'Submit Application'}
-                  </button>
-                </div>
-              </div>
-            </div>
+            applyFormJsx
           )}
         </div>
       </div>

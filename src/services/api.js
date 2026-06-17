@@ -861,6 +861,7 @@ export const challengeAPI = {
   listOpen:         (params = {}) => get(`/challenges/open?${new URLSearchParams(params)}`),
   getDetail:        (id)          => get(`/challenges/${id}`),
   apply:            (id, data)    => post(`/challenges/${id}/apply`, data),
+  updateMyApplication: (id, data) => put(`/challenges/${id}/my-application`, data),
   getMyApplications: ()           => get('/challenges/my-applications'),
   profileCheck:     ()            => get('/challenges/profile-check'),
 };
