@@ -254,13 +254,12 @@ export default function Marketplace() {
             </div>
           )}
 
-          {/* Data Room */}
-          {detail.data_room_required && (
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
-                <Upload size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Data Room (URLs)
-              </label>
-              <p style={{ fontSize: 11, color: '#888', marginBottom: 8, marginTop: 0 }}>Provide URLs for your documents (pitch deck, solution video, client testimonials, certifications, etc.)</p>
+          {/* Supporting Documents — always available so applicants can attach multiple files. */}
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
+              <Upload size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Supporting Documents
+            </label>
+            <p style={{ fontSize: 11, color: '#888', marginBottom: 8, marginTop: 0 }}>Attach any supporting files — pitch deck, solution video, client testimonials, financials, certifications, etc. Upload a file or paste a URL. Add as many as you need.</p>
               {applyForm.data_room.map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <select value={item.type} onChange={e => {
@@ -284,10 +283,9 @@ export default function Marketplace() {
                     style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><X size={14} /></button>
                 </div>
               ))}
-              <button onClick={() => setApplyForm(p => ({ ...p, data_room: [...p.data_room, { type: 'pitch_deck', url: '', name: '' }] }))}
-                style={{ fontSize: 12, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>+ Add Document</button>
-            </div>
-          )}
+            <button onClick={() => setApplyForm(p => ({ ...p, data_room: [...p.data_room, { type: 'pitch_deck', url: '', name: '' }] }))}
+              style={{ fontSize: 12, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>+ Add Document</button>
+          </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
             <button onClick={() => { setShowApply(false); setEditMode(false); }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#555', border: 'none', cursor: 'pointer' }}>Cancel</button>
