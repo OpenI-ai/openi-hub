@@ -74,8 +74,23 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
     if (!inviteEmail.trim()) return toast.error('Enter an email');
     setBusy(true);
     try {
-      await collabAPI.invite(entityType, entityId, { email: inviteEmail.trim(), role: inviteRole });
-      toast.success('Collaborator added');
+      // inviteByEmail handles BOTH registered users (added immediately) and
+      // non-registered emails (a pending invite is created + emailed).
+      const r = await collabAPI.inviteByEmail({
+        entity_type: entityType,
+        entity_id: entityId,
+        emails: [inviteEmail.trim()],
+        role: inviteRole,
+      });
+      const addedCount = r?.added?.length || 0;
+      const pendingCount = r?.pending_email_invites?.length || 0;
+      if (addedCount) {
+        toast.success('Collaborator added');
+      } else if (pendingCount) {
+        toast.success('Invitation emailed — they\u2019ll join once they sign up');
+      } else {
+        toast.success('Invitation sent');
+      }
       setInviteEmail('');
       setInviteOpen(false);
       load();

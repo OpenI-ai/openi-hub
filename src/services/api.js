@@ -614,6 +614,7 @@ export const investorAPI = {
   createDealRequest:    (data)          => post('/investor/deal-requests', data),
   getDealRequest:       (id)            => get(`/investor/deal-requests/${id}`),
   updateDealRequest:    (id, data)      => put(`/investor/deal-requests/${id}`, data),
+  deleteDealRequest:    (id)            => del(`/investor/deal-requests/${id}`),
   updateDealRequestApp: (drId, appId, d) => put(`/investor/deal-requests/${drId}/applications/${appId}`, d),
   promoteToPipeline:    (drId, appId)   => post(`/investor/deal-requests/${drId}/promote/${appId}`),
   // Phase 35B: AI Intelligence
@@ -871,6 +872,7 @@ export const challengeAPI = {
 export const collabAPI = {
   list:         (entityType, entityId)                     => get(`/collaborators/${entityType}/${entityId}`),
   invite:       (entityType, entityId, payload)            => post(`/collaborators/${entityType}/${entityId}`, payload),
+  inviteByEmail: (payload)                                 => post('/collaborators/invite-by-email', payload),
   updateRole:   (entityType, entityId, collabId, role)     => put(`/collaborators/${entityType}/${entityId}/${collabId}`, { role }),
   remove:       (entityType, entityId, collabId)           => del(`/collaborators/${entityType}/${entityId}/${collabId}`),
   listReviews:  (entityType, entityId)                     => get(`/reviews/${entityType}/${entityId}`),
