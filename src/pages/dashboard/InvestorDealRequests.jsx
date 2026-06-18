@@ -61,7 +61,11 @@ export default function InvestorDealRequests() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const payload = { ...form, ticket_size_min: form.ticket_size_min ? parseFloat(form.ticket_size_min) : null, ticket_size_max: form.ticket_size_max ? parseFloat(form.ticket_size_max) : null, max_applicants: parseInt(form.max_applicants) || 50 };
+    const tMin = form.ticket_size_min ? parseFloat(form.ticket_size_min) : null;
+    const tMax = form.ticket_size_max ? parseFloat(form.ticket_size_max) : null;
+    if ((tMin !== null && tMin < 0) || (tMax !== null && tMax < 0)) { alert('Ticket size cannot be negative.'); return; }
+    if (tMin !== null && tMax !== null && tMax < tMin) { alert('Max Ticket must be greater than or equal to Min Ticket.'); return; }
+    const payload = { ...form, ticket_size_min: tMin, ticket_size_max: tMax, max_applicants: parseInt(form.max_applicants) || 50 };
     try {
       if (editId) { await investorAPI.updateDealRequest(editId, payload); }
       else { await investorAPI.createDealRequest(payload); }
@@ -265,11 +269,11 @@ export default function InvestorDealRequests() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Ticket</label>
-              <input type="number" value={form.ticket_size_min} onChange={e => setForm(f => ({ ...f, ticket_size_min: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="e.g., 5000000" />
+              <input type="number" min="0" step="any" value={form.ticket_size_min} onChange={e => setForm(f => ({ ...f, ticket_size_min: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="e.g., 5000000" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Max Ticket</label>
-              <input type="number" value={form.ticket_size_max} onChange={e => setForm(f => ({ ...f, ticket_size_max: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="e.g., 50000000" />
+              <input type="number" min="0" step="any" value={form.ticket_size_max} onChange={e => setForm(f => ({ ...f, ticket_size_max: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="e.g., 50000000" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
