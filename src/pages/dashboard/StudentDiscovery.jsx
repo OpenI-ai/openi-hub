@@ -3,9 +3,9 @@
  * Enables seeker personas to discover and source student talent.
  */
 import { useState, useEffect } from 'react';
-import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink, X } from 'lucide-react';
+import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink, X, FolderGit2, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { discoveryAPI } from '../../services/api';
+import { discoveryAPI, studentEnhAPI } from '../../services/api';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'border-color 0.15s' };
@@ -18,9 +18,25 @@ export default function StudentDiscovery() {
   const [filters, setFilters] = useState({ search: '', city: '', state: '', graduation_year: '', research_area: '', skill: '' });
   const [, setFacets] = useState({ institutions: [] });
   const [selected, setSelected] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
   const limit = 24;
 
   useEffect(() => { load(); }, [page, filters]);
+
+  // Fetch the selected student's structured portfolio (projects + certs).
+  useEffect(() => {
+    if (!selected) { setPortfolio(null); return; }
+    const sid = selected.user_id || selected.id;
+    if (!sid) { setPortfolio(null); return; }
+    let cancelled = false;
+    setPortfolioLoading(true);
+    studentEnhAPI.portfolioByUser(sid)
+      .then(data => { if (!cancelled) setPortfolio(data); })
+      .catch(() => { if (!cancelled) setPortfolio(null); })
+      .finally(() => { if (!cancelled) setPortfolioLoading(false); });
+    return () => { cancelled = true; };
+  }, [selected]);
 
   const load = async () => {
     setLoading(true);
@@ -237,6 +253,56 @@ export default function StudentDiscovery() {
                     <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{l}</span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Structured My-Portfolio: projects + certifications */}
+            {portfolioLoading && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#999' }}>
+                <Loader2 size={14} className="animate-spin" /> Loading portfolio…
+              </div>
+            )}
+            {!portfolioLoading && portfolio && (portfolio.projects || []).length > 0 && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <FolderGit2 size={13} /> Projects ({portfolio.projects.length})
+                </div>
+                {portfolio.projects.map(p => (
+                  <div key={p.id} style={{ marginBottom: 10, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      {p.title}
+                      {p.is_featured && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>Featured</span>}
+                    </div>
+                    {p.description && <div style={{ fontSize: 12, color: '#777', marginTop: 4, lineHeight: 1.45 }}>{p.description}</div>}
+                    {(p.tech_stack || []).length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                        {p.tech_stack.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
+                      {p.github_url && <a href={p.github_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Code</a>}
+                      {p.demo_url && <a href={p.demo_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Demo</a>}
+                      {p.paper_url && <a href={p.paper_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Paper</a>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!portfolioLoading && portfolio && (portfolio.certifications || []).length > 0 && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Award size={13} /> Certifications ({portfolio.certifications.length})
+                </div>
+                {portfolio.certifications.map(c => (
+                  <div key={c.id} style={{ marginBottom: 8, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      {c.title}
+                      {c.is_verified && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>Verified</span>}
+                    </div>
+                    {c.provider && <div style={{ fontSize: 12, color: '#777', marginTop: 3 }}>{c.provider}</div>}
+                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}><ExternalLink size={10} /> Credential</a>}
+                  </div>
+                ))}
               </div>
             )}
 

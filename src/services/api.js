@@ -817,6 +817,22 @@ export const studentEnhAPI = {
   deleteMentorship:     (id)         => del(`/student-enh/mentorships/${id}`),
   // s32 P1.4 Discovery surface — startups recommended via cluster bridge
   recommendedStartups:  ()           => get('/student/recommended-startups'),
+  // Investor/discovery view of another student's structured portfolio.
+  portfolioByUser:      (userId)     => get(`/student-enh/${userId}/portfolio`),
+  // My Portfolio public share links.
+  createPortfolioShare: (opts = {})  => post('/student-enh/portfolio/shares', opts),
+  listPortfolioShares:  ()           => get('/student-enh/portfolio/shares'),
+  revokePortfolioShare: (shareId)    => del(`/student-enh/portfolio/shares/${shareId}`),
+};
+
+// PUBLIC unauthed read by share token. Hits /api/public/student-portfolio/share/:token.
+export const publicStudentPortfolioShare = {
+  read: (token) => fetch(`${BASE_URL}/public/student-portfolio/share/${encodeURIComponent(token)}`)
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.message || body.error || `HTTP ${r.status}`);
+      return body;
+    }),
 };
 
 // ── s36 Recommendations click-through analytics ──────────────

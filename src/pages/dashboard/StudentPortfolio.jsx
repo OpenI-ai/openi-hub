@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { studentEnhAPI } from '../../services/api';
 import toast from 'react-hot-toast';
-import { FolderKanban, Award, Plus, X, Edit3, Trash2, Star, ExternalLink, Github } from 'lucide-react';
+import { FolderKanban, Award, Plus, X, Edit3, Trash2, Star, ExternalLink, Github, Share2, Copy, Link2 } from 'lucide-react';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -21,6 +21,10 @@ export default function StudentPortfolio() {
   const [modal, setModal] = useState(null); // 'project' | 'certification' | null
   const [form, setForm] = useState({});
   const [editId, setEditId] = useState(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shares, setShares] = useState([]);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareExpiry, setShareExpiry] = useState(30);
 
   const load = async () => {
     setLoading(true);
@@ -64,6 +68,43 @@ export default function StudentPortfolio() {
     } catch { toast.error('Delete failed'); }
   };
 
+  const shareUrl = (token) => `${window.location.origin}/share/student-portfolio/${token}`;
+
+  const loadShares = async () => {
+    setShareLoading(true);
+    try {
+      const r = await studentEnhAPI.listPortfolioShares();
+      setShares(r.shares || r.data?.shares || []);
+    } catch { toast.error('Failed to load share links'); }
+    setShareLoading(false);
+  };
+
+  const openShare = () => { setShareOpen(true); loadShares(); };
+
+  const createShare = async () => {
+    setShareLoading(true);
+    try {
+      const r = await studentEnhAPI.createPortfolioShare({ expires_in_days: Number(shareExpiry) || 30 });
+      const token = r.token || r.share?.token || r.data?.token;
+      if (token) {
+        try { await navigator.clipboard.writeText(shareUrl(token)); toast.success('Share link created & copied'); }
+        catch { toast.success('Share link created'); }
+      }
+      loadShares();
+    } catch { toast.error('Could not create share link'); setShareLoading(false); }
+  };
+
+  const copyShare = async (token) => {
+    try { await navigator.clipboard.writeText(shareUrl(token)); toast.success('Link copied'); }
+    catch { toast.error('Copy failed'); }
+  };
+
+  const revokeShare = async (id) => {
+    if (!confirm('Revoke this share link? Anyone using it will lose access.')) return;
+    try { await studentEnhAPI.revokePortfolioShare(id); toast.success('Link revoked'); loadShares(); }
+    catch { toast.error('Revoke failed'); }
+  };
+
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
   if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading...</div>;
@@ -72,10 +113,16 @@ export default function StudentPortfolio() {
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       <div id="tour-page-student-portfolio-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>My Portfolio</h1>
-        <button id="tour-page-student-portfolio-add" onClick={() => openCreate(tab === 0 ? 'project' : 'certification')}
-          style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
-          <Plus size={16} /> {tab === 0 ? 'Add Project' : 'Add Certification'}
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={openShare}
+            style={{ background: '#fff', color: G, border: `1px solid ${G}`, borderRadius: 8, padding: '8px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+            <Share2 size={16} /> Share
+          </button>
+          <button id="tour-page-student-portfolio-add" onClick={() => openCreate(tab === 0 ? 'project' : 'certification')}
+            style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+            <Plus size={16} /> {tab === 0 ? 'Add Project' : 'Add Certification'}
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -203,6 +250,65 @@ export default function StudentPortfolio() {
             <button onClick={handleSave} style={{ marginTop: 16, width: '100%', padding: 10, background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
               {editId ? 'Update' : 'Save'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {shareOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+          <div style={{ ...card, padding: 28, width: 520, maxHeight: '85vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h2 style={{ margin: 0, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={18} color={G}/> Share My Portfolio</h2>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShareOpen(false)}/>
+            </div>
+            <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888', lineHeight: 1.5 }}>
+              Create a public link to your projects &amp; certifications. Anyone with the link can view it — no login required. Revoke any link at any time.
+            </p>
+
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginBottom: 18 }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>Link expires in</label>
+                <select value={shareExpiry} onChange={e => setShareExpiry(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, background: '#fff', boxSizing: 'border-box' }}>
+                  <option value={7}>7 days</option>
+                  <option value={30}>30 days</option>
+                  <option value={90}>90 days</option>
+                </select>
+              </div>
+              <button onClick={createShare} disabled={shareLoading}
+                style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', cursor: shareLoading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, opacity: shareLoading ? 0.6 : 1 }}>
+                <Link2 size={16} /> Create link
+              </button>
+            </div>
+
+            <div style={{ borderTop: '1px solid #eee', paddingTop: 14 }}>
+              <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: '#555' }}>Active links</h3>
+              {shareLoading && shares.length === 0 && <p style={{ color: '#999', fontSize: 13 }}>Loading…</p>}
+              {!shareLoading && shares.length === 0 && <p style={{ color: '#999', fontSize: 13 }}>No active share links. Create one above.</p>}
+              {shares.map(s => {
+                const expired = s.expires_at && new Date(s.expires_at) < new Date();
+                return (
+                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '1px solid #f3f3f3' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, color: '#444', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shareUrl(s.token)}</div>
+                      <div style={{ fontSize: 11, color: expired ? '#dc2626' : '#999', marginTop: 2 }}>
+                        {expired ? 'Expired' : (s.expires_at ? `Expires ${fmtDate(s.expires_at)}` : 'No expiry')}
+                        {s.created_at ? ` · created ${fmtDate(s.created_at)}` : ''}
+                      </div>
+                    </div>
+                    <button onClick={() => copyShare(s.token)} title="Copy link"
+                      style={{ background: 'none', border: '1px solid #ddd', borderRadius: 6, padding: 6, cursor: 'pointer', color: G, display: 'flex' }}>
+                      <Copy size={14} />
+                    </button>
+                    <button onClick={() => revokeShare(s.id)} title="Revoke link"
+                      style={{ background: 'none', border: '1px solid #f0caca', borderRadius: 6, padding: 6, cursor: 'pointer', color: '#dc2626', display: 'flex' }}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

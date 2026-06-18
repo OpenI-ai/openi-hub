@@ -19,6 +19,7 @@ import PublicFAQ         from './pages/public/PublicFAQ';
 import SharedChallenge   from './pages/public/SharedChallenge';
 import SharedWatchlist   from './pages/public/SharedWatchlist';
 import SharedStartupProfile from './pages/public/SharedStartupProfile';  // Phase 110
+import SharedStudentPortfolio from './pages/public/SharedStudentPortfolio';  // 17 Jun 2026 — public student portfolio share
 import SharedDeepTech from './pages/public/SharedDeepTech';  // Phase 111 Ship 2a
 import SharedEightVectorSelf from './pages/public/SharedEightVectorSelf';  // Phase 111 Ship 2c
 import SharedProgramEval from './pages/public/SharedProgramEval';  // Phase 111 Ship 2d
@@ -204,6 +205,7 @@ export default function App() {
           <Route path="/challenges/share/:token" element={<SharedChallenge />} />
           <Route path="/watchlists/share/:token" element={<SharedWatchlist />} />
           <Route path="/share/startup/:token" element={<SharedStartupProfile />} />  {/* Phase 110 */}
+          <Route path="/share/student-portfolio/:token" element={<SharedStudentPortfolio />} />  {/* 17 Jun 2026 */}
           <Route path="/share/deeptech/:token" element={<SharedDeepTech />} />  {/* Phase 111 Ship 2a */}
           <Route path="/share/eight-vector-self/:token" element={<SharedEightVectorSelf />} />  {/* Phase 111 Ship 2c */}
           <Route path="/share/program-evals/:token" element={<SharedProgramEval />} />  {/* Phase 111 Ship 2d */}
