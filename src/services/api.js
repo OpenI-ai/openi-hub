@@ -72,7 +72,17 @@ async function request(method, path, body = null, isFormData = false) {
       err.status = 403;
       throw err;
     }
-    throw new Error(data.message || `HTTP ${res.status}`);
+    // Generic error path. Surface the parsed body so callers can act on
+    // structured responses — e.g. the createOrg 409 duplicate-recourse payload
+    // { error, recourse: 'claim'|'join', org } (no `message` key), which the
+    // OrgAdmin create-form catch reads to offer a claim/join CTA instead of a
+    // dead-end "HTTP 409" toast.
+    const err = new Error(data.error || data.message || `HTTP ${res.status}`);
+    err.status   = res.status;
+    if (data.recourse) err.recourse = data.recourse;
+    if (data.org)      err.org      = data.org;
+    if (data.error)    err.error    = data.error;
+    throw err;
   }
   return data;
 }

@@ -4,7 +4,7 @@
  * Accessible from Settings for org admins, or as a standalone page.
  */
 import { useState, useEffect, useCallback } from 'react';
-import { orgAPI, subscriptionAPI } from '../../services/api';
+import { orgAPI, subscriptionAPI, claimAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   Building2, UserPlus, Trash2, Loader2,
@@ -45,6 +45,11 @@ export default function OrgAdmin() {
   const [newOrgSeats, setNewOrgSeats] = useState(10);
   const [creating, setCreating] = useState(false);
   const [plans, setPlans] = useState([]);
+  // Bug #2a recourse: when createOrg returns 409 (org already exists), the
+  // backend sends { error, recourse:'claim'|'join', org }. We stash it here to
+  // offer a claim/join CTA instead of a dead-end "already exists" toast.
+  const [createRecourse, setCreateRecourse] = useState(null);
+  const [recourseBusy, setRecourseBusy] = useState(false);
 
   const loadOrg = useCallback(async () => {
     setLoading(true);
@@ -94,6 +99,7 @@ export default function OrgAdmin() {
   const handleCreateOrg = async () => {
     if (!newOrgName.trim()) return;
     setCreating(true);
+    setCreateRecourse(null);
     try {
       // Load plans if needed
       if (!plans.length) {
@@ -108,8 +114,40 @@ export default function OrgAdmin() {
       toast.success('Organization created!');
       setShowCreate(false);
       loadOrg();
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      // 409 = this org already exists. The backend tells us whether to claim
+      // (existing org is an unclaimed imported placeholder) or join (existing
+      // org has a real admin). Surface a productive CTA instead of a dead-end.
+      if (err.status === 409 && err.recourse && err.org) {
+        setCreateRecourse({ recourse: err.recourse, org: err.org, error: err.error });
+        toast.error(err.error || 'This organization already exists.');
+      } else {
+        toast.error(err.message);
+      }
+    }
     finally { setCreating(false); }
+  };
+
+  // Act on the 409 recourse: claim an unclaimed placeholder org, or request to
+  // join an org that already has a real admin.
+  const handleRecourse = async () => {
+    if (!createRecourse?.org?.id) return;
+    setRecourseBusy(true);
+    try {
+      if (createRecourse.recourse === 'claim') {
+        await claimAPI.request({
+          target_org_id: createRecourse.org.id,
+          evidence: `Requesting to claim ${createRecourse.org.name} — I created this org record while registering my organization.`,
+        });
+        toast.success('Claim submitted. Check your email or your claims dashboard for next steps.');
+      } else {
+        await orgAPI.requestJoin({ org_id: createRecourse.org.id });
+        toast.success(`Request to join ${createRecourse.org.name} sent to its admin.`);
+      }
+      setCreateRecourse(null);
+      setShowCreate(false);
+    } catch (err) { toast.error(err.error || err.message); }
+    finally { setRecourseBusy(false); }
   };
 
   const isAdmin = myRole === 'admin';
@@ -166,6 +204,28 @@ export default function OrgAdmin() {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Bug #2a recourse: this org already exists. Offer claim (unclaimed
+            placeholder) or request-to-join (real admin) instead of a dead-end. */}
+        {createRecourse && createRecourse.org && (
+          <div style={{ ...card, marginTop: 16, borderColor: G, background: '#fffdf7' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: '#1a1a1a' }}>
+              {createRecourse.org.name} already exists
+            </h3>
+            <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>
+              {createRecourse.recourse === 'claim'
+                ? 'This organization is an unclaimed placeholder. You can claim it to take ownership — its existing data will be merged into your account.'
+                : 'This organization already has an admin. Send a request to join their team.'}
+            </p>
+            <button onClick={handleRecourse} disabled={recourseBusy}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: recourseBusy ? 'wait' : 'pointer', opacity: recourseBusy ? 0.6 : 1 }}>
+              {recourseBusy && <Loader2 size={14} className="animate-spin" />}
+              {createRecourse.recourse === 'claim'
+                ? `Claim ${createRecourse.org.name}`
+                : `Request to join ${createRecourse.org.name}`}
+            </button>
           </div>
         )}
       </div>
