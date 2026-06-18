@@ -98,7 +98,7 @@ export default function InvestorDeals() {
 
   const moveToStage = async (id, newStage) => {
     try {
-      await investorAPI.updateDeal(id, { stage: newStage });
+      await investorAPI.updateDeal(id, { status: newStage });
       toast.success(`Moved to ${STAGES.find(s => s.key === newStage)?.label || newStage}`);
       load();
     } catch (err) { toast.error(err.message); }
@@ -224,7 +224,7 @@ export default function InvestorDeals() {
   // ── DETAIL VIEW ──────────────────────────────────────────
   if (selectedDeal) {
     const deal = deals.find(d => d.id === selectedDeal.id) || selectedDeal;
-    const stage = STAGES.find(s => s.key === deal.stage) || STAGES[0];
+    const stage = STAGES.find(s => s.key === (deal.status || 'sourced')) || STAGES[0];
     const msDone = milestones.filter(m => m.status === 'completed').length;
     const tsDone = tasks.filter(t => t.status === 'done').length;
 
@@ -260,9 +260,9 @@ export default function InvestorDeals() {
               <button key={s.key} onClick={() => moveToStage(deal.id, s.key)}
                 style={{
                   padding: '4px 12px', fontSize: 10, fontWeight: 600, borderRadius: 20, cursor: 'pointer', border: 'none',
-                  background: deal.stage === s.key ? s.color : s.bg,
-                  color: deal.stage === s.key ? '#fff' : s.color,
-                  opacity: deal.stage === s.key ? 1 : 0.7,
+                  background: (deal.status || 'sourced') === s.key ? s.color : s.bg,
+                  color: (deal.status || 'sourced') === s.key ? '#fff' : s.color,
+                  opacity: (deal.status || 'sourced') === s.key ? 1 : 0.7,
                 }}>
                 {s.label}
               </button>
@@ -522,7 +522,7 @@ export default function InvestorDeals() {
 
   // ── KANBAN VIEW ──────────────────────────────────────────
   const grouped = {};
-  STAGES.forEach(s => { grouped[s.key] = deals.filter(d => d.stage === s.key); });
+  STAGES.forEach(s => { grouped[s.key] = deals.filter(d => (d.status || 'sourced') === s.key); });
 
   return (
     <div style={{ padding: 24 }}>
