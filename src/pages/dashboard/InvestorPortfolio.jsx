@@ -45,6 +45,13 @@ export default function InvestorPortfolio() {
 
   const handleAdd = async () => {
     if (!addForm.startup_name) { toast.error('Startup name is required'); return; }
+    const ev = parseFloat(addForm.entry_valuation);
+    const es = parseFloat(addForm.equity_stake);
+    const ia = parseFloat(addForm.investment_amount);
+    if ((addForm.entry_valuation !== '' && ev < 0) || (addForm.equity_stake !== '' && es < 0) || (addForm.investment_amount !== '' && ia < 0)) {
+      toast.error('Values cannot be negative'); return;
+    }
+    if (addForm.equity_stake !== '' && es > 100) { toast.error('Equity Stake cannot exceed 100%'); return; }
     try {
       await investorAPI.addToPortfolio(addForm);
       toast.success('Added to portfolio');
@@ -134,17 +141,17 @@ export default function InvestorPortfolio() {
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Entry Valuation</label>
-              <input type="number" placeholder="Valuation" value={addForm.entry_valuation} onChange={e => setAddForm(f => ({ ...f, entry_valuation: e.target.value }))}
+              <input type="number" min="0" step="any" placeholder="Valuation" value={addForm.entry_valuation} onChange={e => setAddForm(f => ({ ...f, entry_valuation: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Equity Stake (%)</label>
-              <input type="number" step="0.1" placeholder="e.g. 12.5" value={addForm.equity_stake} onChange={e => setAddForm(f => ({ ...f, equity_stake: e.target.value }))}
+              <input type="number" min="0" max="100" step="0.1" placeholder="e.g. 12.5" value={addForm.equity_stake} onChange={e => setAddForm(f => ({ ...f, equity_stake: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Investment Amount</label>
-              <input type="number" placeholder="Amount" value={addForm.investment_amount} onChange={e => setAddForm(f => ({ ...f, investment_amount: e.target.value }))}
+              <input type="number" min="0" step="any" placeholder="Amount" value={addForm.investment_amount} onChange={e => setAddForm(f => ({ ...f, investment_amount: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
