@@ -690,18 +690,34 @@ export default function Register() {
 
   // Step 0: persona picker — render dedicated screen, no stepper, no Account/Profile sections
   if (step === 0) {
-    const PERSONA_PICKER_LIST = [
-      { key: 'startup',          desc: 'Tech startup or early-stage' },
-      { key: 'student',          desc: 'Student innovator / researcher' },
-      { key: 'academia',         desc: 'University or research institute' },
-      { key: 'corporate',        desc: 'Enterprise seeking innovation' },
-      { key: 'government',       desc: 'Government body or PSU' },
-      { key: 'investor',         desc: 'Angel, VC, PE, or fund' },
-      { key: 'mentor',           desc: 'Industry mentor or advisor' },
-      { key: 'lab',              desc: 'Lab offering resources' },
-      { key: 'incubator',        desc: 'Startup incubation program' },
-      { key: 'accelerator',      desc: 'Growth acceleration program' },
-      { key: 'service_provider', desc: 'Cloud, legal, compliance services' },
+    // Persona picker split into two labelled groups to kill the Startup vs
+    // Service Provider mix-up. "Service Provider" = a VENDOR that SELLS support
+    // services TO startups (cloud/legal/compliance) — it is NOT for a company
+    // that builds a product. Startups belong in the first group.
+    const PERSONA_GROUPS = [
+      {
+        title: "I'm building something",
+        subtitle: 'A startup, student or researcher with a product, venture or research to showcase.',
+        items: [
+          { key: 'startup',  desc: "You're building a product or company — pick this for challenges" },
+          { key: 'student',  desc: 'Student innovator / researcher' },
+          { key: 'academia', desc: 'University or research institute' },
+        ],
+      },
+      {
+        title: 'I support innovators',
+        subtitle: 'You seek, fund, host or sell services to startups.',
+        items: [
+          { key: 'corporate',        desc: 'Enterprise seeking innovation' },
+          { key: 'government',       desc: 'Government body or PSU' },
+          { key: 'investor',         desc: 'Angel, VC, PE, or fund' },
+          { key: 'mentor',           desc: 'Industry mentor or advisor' },
+          { key: 'lab',              desc: 'Lab offering resources' },
+          { key: 'incubator',        desc: 'Startup incubation program' },
+          { key: 'accelerator',      desc: 'Growth acceleration program' },
+          { key: 'service_provider', desc: 'Vendor selling services TO startups (cloud, legal, compliance) — not a startup' },
+        ],
+      },
     ];
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
@@ -722,41 +738,51 @@ export default function Register() {
               Pick the role that best describes you. You can always update your profile later.
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {PERSONA_PICKER_LIST.map(p => {
-              const meta = PERSONAS[p.key];
-              if (!meta) return null;
-              return (
-                <button
-                  key={p.key}
-                  type="button"
-                  onClick={() => {
-                    setParams({ type: p.key }, { replace: true });
-                    setStep(1);
-                  }}
-                  className="rounded-xl p-4 text-center transition-all"
-                  style={{ background: '#fff', border: '1px solid #e5e7eb', cursor: 'pointer' }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = meta.color;
-                    e.currentTarget.style.boxShadow = `0 4px 16px ${meta.color}20`;
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = '#e5e7eb';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
-                    style={{ background: `${meta.color}12` }}
-                  >
-                    <Building2 size={20} style={{ color: meta.color }} />
-                  </div>
-                  <div className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{meta.label}</div>
-                  <div className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{p.desc}</div>
-                </button>
-              );
-            })}
-          </div>
+          {PERSONA_GROUPS.map((group, gi) => (
+            <div key={group.title} className={gi > 0 ? 'mt-7' : ''}>
+              {/* Group heading — frames the provider/seeker split so a startup
+                  never scans into the "Service Provider" tile by mistake. */}
+              <div className="mb-3">
+                <div className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{group.title}</div>
+                <div className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{group.subtitle}</div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {group.items.map(p => {
+                  const meta = PERSONAS[p.key];
+                  if (!meta) return null;
+                  return (
+                    <button
+                      key={p.key}
+                      type="button"
+                      onClick={() => {
+                        setParams({ type: p.key }, { replace: true });
+                        setStep(1);
+                      }}
+                      className="rounded-xl p-4 text-center transition-all"
+                      style={{ background: '#fff', border: '1px solid #e5e7eb', cursor: 'pointer' }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = meta.color;
+                        e.currentTarget.style.boxShadow = `0 4px 16px ${meta.color}20`;
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      <div
+                        className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
+                        style={{ background: `${meta.color}12` }}
+                      >
+                        <Building2 size={20} style={{ color: meta.color }} />
+                      </div>
+                      <div className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{meta.label}</div>
+                      <div className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{p.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
           <div className="text-center mt-8">
             <Link to="/dashboard/login" className="text-sm font-semibold" style={{ color: '#9ca3af' }}>
               Already have an account? Sign in
