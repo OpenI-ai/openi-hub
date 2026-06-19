@@ -690,14 +690,17 @@ export default function Register() {
 
   // Step 0: persona picker — render dedicated screen, no stepper, no Account/Profile sections
   if (step === 0) {
-    // Persona picker split into two labelled groups to kill the Startup vs
-    // Service Provider mix-up. "Service Provider" = a VENDOR that SELLS support
-    // services TO startups (cloud/legal/compliance) — it is NOT for a company
-    // that builds a product. Startups belong in the first group.
+    // Persona picker split into the SAME two groups the homepage uses
+    // ("Innovation Providers" / "Innovation Seekers") so the framing is
+    // consistent end-to-end and kills the Startup vs Service Provider mix-up.
+    // "Service Provider" = a VENDOR that SELLS support services TO startups
+    // (cloud/legal/compliance) — it is a Seeker, NOT a company building a product.
     const PERSONA_GROUPS = [
       {
-        title: "I'm building something",
-        subtitle: 'A startup, student or researcher with a product, venture or research to showcase.',
+        title: 'Innovation Providers',
+        tag: 'GET DISCOVERED',
+        accent: '#D0A848',
+        subtitle: 'Showcase your startup, research or technology to get funded, mentored and discovered.',
         items: [
           { key: 'startup',  desc: "You're building a product or company — pick this for challenges" },
           { key: 'student',  desc: 'Student innovator / researcher' },
@@ -705,8 +708,10 @@ export default function Register() {
         ],
       },
       {
-        title: 'I support innovators',
-        subtitle: 'You seek, fund, host or sell services to startups.',
+        title: 'Innovation Seekers',
+        tag: 'FIND THE RIGHT STARTUP',
+        accent: '#3b82f6',
+        subtitle: 'Source, fund, host or sell services to startups — not for companies building a product.',
         items: [
           { key: 'corporate',        desc: 'Enterprise seeking innovation' },
           { key: 'government',       desc: 'Government body or PSU' },
@@ -740,10 +745,13 @@ export default function Register() {
           </div>
           {PERSONA_GROUPS.map((group, gi) => (
             <div key={group.title} className={gi > 0 ? 'mt-7' : ''}>
-              {/* Group heading — frames the provider/seeker split so a startup
-                  never scans into the "Service Provider" tile by mistake. */}
+              {/* Group heading — mirrors the homepage Provider/Seeker split so a
+                  startup never scans into the "Service Provider" tile by mistake. */}
               <div className="mb-3">
-                <div className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{group.title}</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-base font-bold" style={{ color: '#1a1a1a' }}>{group.title}</span>
+                  <span className="text-[11px] font-semibold tracking-wide" style={{ color: group.accent }}>{group.tag}</span>
+                </div>
                 <div className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{group.subtitle}</div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
