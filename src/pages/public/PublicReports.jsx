@@ -8,6 +8,7 @@ import {
   FileText, ArrowRight, Calendar, User, BookOpen, ExternalLink, Download,
   Zap, Shield, FlaskConical, Heart, Cpu, Layers,
   TrendingUp, ShoppingBag, Shirt, Globe, Building2, Brain,
+  Landmark, Leaf, MapPin,
 } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import { publicAPI } from '../../services/api';
@@ -23,6 +24,9 @@ const LIGHT_GRAY = '#f5f5f5';
 
 // Sector icon mapping
 const SECTOR_ICONS = {
+  'BFSI': Landmark,
+  'ESG': Leaf,
+  'TamilNadu': MapPin,
   'Agentic AI': Brain,
   'DeepTech': Zap,
   'FinTech': TrendingUp,
@@ -42,6 +46,9 @@ const SECTOR_ICONS = {
 
 // Sector color mapping
 const SECTOR_COLORS = {
+  'BFSI': '#152838',
+  'ESG': '#10b981',
+  'TamilNadu': '#D0A848',
   'Agentic AI': '#8b5cf6',
   'DeepTech': '#D0A848',
   'FinTech': '#3b82f6',
@@ -62,19 +69,23 @@ const SECTOR_COLORS = {
 export default function PublicReports() {
   const [reports, setReports] = useState([]);
   const [sectors, setSectors] = useState([]);
+  const [technologies, setTechnologies] = useState([]);
   const [selectedSector, setSelectedSector] = useState('');
+  const [selectedTechnology, setSelectedTechnology] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchReports(); }, [selectedSector]);
+  useEffect(() => { fetchReports(); }, [selectedSector, selectedTechnology]);
 
   async function fetchReports() {
     setLoading(true);
     try {
       const params = {};
       if (selectedSector) params.sector = selectedSector;
+      if (selectedTechnology) params.technology = selectedTechnology;
       const data = await publicAPI.listReports(params);
       setReports(data.reports || []);
       if (data.filters?.sectors) setSectors(data.filters.sectors);
+      if (data.filters?.technologies) setTechnologies(data.filters.technologies);
     } catch (err) {
       console.error('Failed to load reports:', err);
     } finally { setLoading(false); }
@@ -100,36 +111,71 @@ export default function PublicReports() {
 
       {/* Filter bar */}
       <section className="px-6 py-6" style={{ background: '#fff', borderBottom: `1px solid ${BORDER}` }}>
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold" style={{ color: DARK }}>Filter by sector:</span>
-          <button
-            onClick={() => setSelectedSector('')}
-            className="px-4 py-2 rounded-full text-xs font-bold transition-all"
-            style={{
-              background: !selectedSector ? GOLD : '#fff',
-              color: !selectedSector ? '#fff' : GRAY,
-              border: `1px solid ${!selectedSector ? GOLD : BORDER}`,
-            }}
-          >
-            All Sectors
-          </button>
-          {sectors.map(s => (
+        <div className="max-w-6xl mx-auto space-y-3">
+          {/* Sector row */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold w-32 shrink-0" style={{ color: DARK }}>Filter by sector:</span>
             <button
-              key={s}
-              onClick={() => setSelectedSector(s)}
+              onClick={() => setSelectedSector('')}
               className="px-4 py-2 rounded-full text-xs font-bold transition-all"
               style={{
-                background: selectedSector === s ? (SECTOR_COLORS[s] || GOLD) : '#fff',
-                color: selectedSector === s ? '#fff' : GRAY,
-                border: `1px solid ${selectedSector === s ? (SECTOR_COLORS[s] || GOLD) : BORDER}`,
+                background: !selectedSector ? GOLD : '#fff',
+                color: !selectedSector ? '#fff' : GRAY,
+                border: `1px solid ${!selectedSector ? GOLD : BORDER}`,
               }}
             >
-              {s}
+              All Sectors
             </button>
-          ))}
-          <span className="ml-auto text-sm" style={{ color: GRAY }}>
-            {reports.length} report{reports.length !== 1 ? 's' : ''}
-          </span>
+            {sectors.map(s => (
+              <button
+                key={s}
+                onClick={() => setSelectedSector(s)}
+                className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                style={{
+                  background: selectedSector === s ? (SECTOR_COLORS[s] || GOLD) : '#fff',
+                  color: selectedSector === s ? '#fff' : GRAY,
+                  border: `1px solid ${selectedSector === s ? (SECTOR_COLORS[s] || GOLD) : BORDER}`,
+                }}
+              >
+                {s}
+              </button>
+            ))}
+            <span className="ml-auto text-sm" style={{ color: GRAY }}>
+              {reports.length} report{reports.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          {/* Technology row */}
+          {technologies.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm font-semibold w-32 shrink-0" style={{ color: DARK }}>Filter by technology:</span>
+              <button
+                onClick={() => setSelectedTechnology('')}
+                className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                style={{
+                  background: !selectedTechnology ? GOLD : '#fff',
+                  color: !selectedTechnology ? '#fff' : GRAY,
+                  border: `1px solid ${!selectedTechnology ? GOLD : BORDER}`,
+                }}
+              >
+                All Technologies
+              </button>
+              {technologies.map(t => (
+                <button
+                  key={t}
+                  onClick={() => setSelectedTechnology(t)}
+                  className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                  style={{
+                    background: selectedTechnology === t ? GOLD : '#fff',
+                    color: selectedTechnology === t ? '#fff' : GRAY,
+                    border: `1px solid ${selectedTechnology === t ? GOLD : BORDER}`,
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -245,6 +291,18 @@ function ReportCard({ report }) {
         <p className="text-xs leading-relaxed mb-4" style={{ color: GRAY, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {report.description}
         </p>
+
+        {/* Technology chips */}
+        {report.technologies?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {report.technologies.map(t => (
+              <span key={t} className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                    style={{ background: LIGHT_GRAY, color: GRAY, border: `1px solid ${BORDER}` }}>
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Meta */}
         <div className="flex items-center gap-4 mb-4 text-xs" style={{ color: GRAY }}>
