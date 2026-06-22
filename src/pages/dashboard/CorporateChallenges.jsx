@@ -924,7 +924,7 @@ const startEdit = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div>
                   <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#111' }}>Invite Startups</h3>
-                  <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>Pick startups to invite. They will see this challenge in their Invitations Inbox.</p>
+                  <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>Pick startups to invite. They will see this challenge under Invited Challenges.</p>
                 </div>
                 <button onClick={() => { setShowInvite(false); setInviteSearch(''); setInviteResults([]); setInviteSelected([]); setInviteMessage(''); setInviteEmails([]); setInviteEmailDraft(''); }}
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>

@@ -94,7 +94,7 @@ const WORKSPACE_ITEMS = {
   knowledge: { to: '/dashboard/knowledge',  label: 'Knowledge',    icon: 'BookOpen' },
   documents: { to: '/dashboard/documents',  label: 'Documents',    icon: 'FolderOpen' },
   // T32-99c: challenge invites workspace item — visible for every persona
-  invites:   { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+  invites:   { to: '/dashboard/challenge-invites', label: 'Invited Challenges', icon: 'Inbox' },
   // Bug #2: reviewer-side inbox — visible across all 11 personas
   challengesToReview: { to: '/dashboard/challenges-to-review', label: 'Challenges to Review', icon: 'ClipboardCheck' },
 };
@@ -184,7 +184,7 @@ export const PERSONA_NAV = {
     // marketplace leads + private invites. Pin both directly under My Profile.
     hubExtra: [
       { to: '/dashboard/marketplace',       label: 'Challenges & Apply', icon: 'Target' },
-      { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+      { to: '/dashboard/challenge-invites', label: 'Invited Challenges', icon: 'Inbox' },
     ],
     // `invites` dropped from the default workspace keys so Invitations Inbox
     // doesn't duplicate in Group 5 (it now lives in the hub group above).
@@ -208,7 +208,7 @@ export const PERSONA_NAV = {
     // private invites directly under My Profile (their two highest-value surfaces).
     hubExtra: [
       { to: '/dashboard/marketplace',       label: 'Challenges & Apply', icon: 'Target' },
-      { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+      { to: '/dashboard/challenge-invites', label: 'Invited Challenges', icon: 'Inbox' },
     ],
     // `invites` dropped from default workspace so Invitations Inbox doesn't
     // duplicate in Group 5 (it now lives in the hub group above).
@@ -225,7 +225,7 @@ export const PERSONA_NAV = {
     // private invites directly under My Profile (their two highest-value surfaces).
     hubExtra: [
       { to: '/dashboard/marketplace',       label: 'Challenges & Apply', icon: 'Target' },
-      { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
+      { to: '/dashboard/challenge-invites', label: 'Invited Challenges', icon: 'Inbox' },
     ],
     // `invites` dropped from default workspace so Invitations Inbox doesn't
     // duplicate in Group 5 (it now lives in the hub group above).

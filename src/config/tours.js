@@ -1187,12 +1187,12 @@ export const PAGE_TOURS = {
     ],
   },
   '/dashboard/challenge-invites': {
-    title: 'Invitations Inbox',
+    title: 'Invited Challenges',
     steps: [
       {
         target: '#tour-page-invites-header',
         title: 'Private challenge invitations',
-        content: 'Challenges you have been personally invited to apply to (not listed on the public Marketplace). Accept to open the apply form, decline to remove from this list.',
+        content: 'Challenges you have been personally invited to apply to (not listed on the public Challenges page). Accept to open the apply form, decline to remove from this list.',
         placement: 'bottom',
         disableBeacon: true,
       },
