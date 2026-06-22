@@ -509,13 +509,28 @@ export default function MyProfile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Only send fields that have values
+      // Parse the baseline snapshot so we can distinguish a deliberate
+      // clear (field had a value when loaded, now emptied) from a field
+      // that was simply never filled in.
+      let prev = {};
+      try { prev = baseline ? JSON.parse(baseline) : {}; } catch { prev = {}; }
+      const isEmpty = (v) =>
+        v === undefined || v === null || (typeof v === 'string' && v.trim() === '');
+
       const payload = {};
       for (const field of fields) {
         const val = profileData[field.name];
-        if (val !== undefined && val !== null && val !== '') {
+        if (!isEmpty(val)) {
+          // Field has a value — send it as-is.
           payload[field.name] = val;
+        } else if (!isEmpty(prev[field.name])) {
+          // Field was non-empty at load but is now empty — the user
+          // deliberately cleared it. Send explicit null so the backend
+          // sets the column to NULL (coerceUpdates honours null as a clear).
+          payload[field.name] = null;
         }
+        // else: empty at baseline and still empty — omit, so we don't
+        // disturb COALESCE-based crawler auto-fill protection.
       }
       const data = await profileAPI.updateMyProfile(payload);
       setProfileData(data.profile);
