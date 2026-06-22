@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { challengeAPI, corporateAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { getPersonaCategory } from '../../config/personas';
 import FileUpload from '../../components/FileUpload';
 import {
   Search, Target, ChevronLeft, Clock, Calendar, DollarSign, MapPin,
   Building2, Users, Loader2, AlertCircle, CheckCircle, FileText,
   ChevronDown, ChevronUp, Upload, X, HelpCircle, Send, Filter, ArrowUpDown,
+  Share2, Linkedin,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -36,6 +39,12 @@ const STATUS_BADGE = {
 };
 
 export default function Marketplace() {
+  const { user, activeRole } = useAuth();
+  // Innovation seekers (corporate, government, investor, mentor, lab,
+  // incubator, accelerator, service_provider) can VIEW and SHARE a challenge
+  // but cannot apply — applying is for innovation providers only.
+  const isSeeker = getPersonaCategory(activeRole || user?.role) === 'seeker';
+
   const [challenges, setChallenges] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -380,7 +389,40 @@ export default function Marketplace() {
 
         {/* Apply Section */}
         <div style={{ ...card, padding: 20, marginBottom: 16 }}>
-          {detail.has_applied && !showApply ? (
+          {isSeeker ? (
+            (() => {
+              const shareUrl = detail.share_token
+                ? `${window.location.origin}/challenges/share/${detail.share_token}`
+                : `${window.location.origin}/marketplace/${detail.id}`;
+              return (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+                    <Share2 size={18} style={{ color: G, marginTop: 2 }} />
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Share this challenge</div>
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                        As an innovation seeker you can pass this on to startups and innovation providers in your network to create a reach-out.
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button onClick={() => { navigator.clipboard.writeText(shareUrl); toast.success('Link copied!'); }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
+                      <Share2 size={14} /> Copy share link
+                    </button>
+                    <button onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank')}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: '#0a66c2', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                      <Linkedin size={14} /> LinkedIn
+                    </button>
+                    <button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(detail.title)}`, '_blank')}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: '#1a1a1a', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                      X
+                    </button>
+                  </div>
+                </div>
+              );
+            })()
+          ) : detail.has_applied && !showApply ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <CheckCircle size={18} style={{ color: '#16a34a' }} />
