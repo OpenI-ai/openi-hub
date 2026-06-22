@@ -542,7 +542,9 @@ export const PROFILE_FIELDS = {
     { name: 'bio',              label: 'About Me',           type: 'textarea' },
     { name: 'looking_for',      label: 'Looking For',        type: 'multiselect', options: ['Mentorship','Funding','Co-founder','Internship','Collaboration','Lab Access'] },
     { name: 'linkedin_url',     label: 'LinkedIn URL',       type: 'url' },
-    { name: 'portfolio_url',    label: 'Portfolio',          type: 'url' },
+    // Phase 87b — portfolio_url upload removed from the profile form. Students
+    // manage portfolio content (projects + certifications) and its public
+    // share link on the dedicated "My Portfolio" page, not here.
     { name: 'resume_url',       label: 'Resume',             type: 'url' },
   ],
   academia: [

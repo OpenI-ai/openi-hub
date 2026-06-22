@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions, resolveCountryCode } from '../../config/locations';
@@ -696,6 +697,24 @@ export default function MyProfile() {
             );
           })}
         </div>
+
+        {/* Phase 87b — students manage their portfolio (projects, certifications)
+            and its public share link on the dedicated My Portfolio page, not via
+            a file upload here. Surface that path so "Show my Portfolio in Public"
+            is discoverable from the profile. */}
+        {user?.role === 'student' && (
+          <Link to="/dashboard/student/portfolio"
+            className="flex items-center justify-between mt-4 rounded-lg p-3 no-underline"
+            style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+            <p className="text-xs m-0" style={{ color: '#92400e' }}>
+              <strong>My Portfolio:</strong> Add projects &amp; certifications and create a
+              public share link to <em>show your portfolio in public</em> — all on your My Portfolio page.
+            </p>
+            <span className="text-xs font-semibold whitespace-nowrap ml-3" style={{ color: '#D0A848' }}>
+              Open My Portfolio →
+            </span>
+          </Link>
+        )}
 
         {/* Bottom save */}
         <div className="flex justify-end mt-6 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
