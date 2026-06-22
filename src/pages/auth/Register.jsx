@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD, PERSONA_INDUSTRY_FIELD, PERSONA_DESCRIPTION_FIELD, PERSONA_HAS_INDUSTRY, PERSONA_HAS_DESCRIPTION } from '../../config/personas';
+import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, SUGGESTION_LISTS, ORG_NAME_FIELD, PERSONA_INDUSTRY_FIELD, PERSONA_DESCRIPTION_FIELD, PERSONA_HAS_INDUSTRY, PERSONA_HAS_DESCRIPTION } from '../../config/personas';
 import { COUNTRIES, MONEY_RANGES, TICKET_SIZE_RANGES, yearOptions } from '../../config/locations';
 import { claimAPI, profileAPI, publicUploadAPI, orgAPI } from '../../services/api';
 import safeStorage from '../../utils/safeStorage';
@@ -294,7 +294,7 @@ function LogoField({ label, required, value, onChange, placeholder }) {
 }
 
 function FormField({ field, value, onChange }) {
-  const { label, type, required, options, placeholder, min, max } = field;
+  const { label, type, required, options, placeholder, min, max, suggestions } = field;
 
   if (type === 'select') {
     return (
@@ -440,7 +440,10 @@ function FormField({ field, value, onChange }) {
   if (type === 'money_range') {
     return <MoneyRangeField label={label} required={required} value={value} onChange={onChange} variant={field.variant || 'revenue'} />;
   }
-  // text, number, url, email
+  // text, number, url, email — with optional curated <datalist> suggestions.
+  // The list still accepts free text; an institution not on the list can be typed.
+  const suggestionItems = suggestions ? (SUGGESTION_LISTS[suggestions] || []) : [];
+  const datalistId = suggestions ? `dl-${field.name}` : undefined;
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
@@ -449,10 +452,16 @@ function FormField({ field, value, onChange }) {
       <input
         type={type || 'text'} value={value || ''} onChange={e => onChange(type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
         placeholder={placeholder || ''} min={min} max={max}
+        list={datalistId}
         style={inputStyle}
         onFocus={e => e.target.style.borderColor = '#D0A848'}
         onBlur={e => e.target.style.borderColor = '#e5e7eb'}
       />
+      {datalistId && (
+        <datalist id={datalistId}>
+          {suggestionItems.map(o => <option key={o} value={o} />)}
+        </datalist>
+      )}
     </div>
   );
 }

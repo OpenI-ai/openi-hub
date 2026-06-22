@@ -332,6 +332,68 @@ export const PERSONA_NAV = {
   }),
 };
 
+// ── Curated suggestion lists for prepopulated text fields ───
+// Rendered as a native <datalist> so the field still accepts free text
+// (an institution not on this list can always be typed). Keyed by the
+// `suggestions` flag on a field def (e.g. { suggestions: 'institutions' }).
+// Frontend-only, no auth/endpoint needed — safe during the signup flow.
+const INSTITUTION_SUGGESTIONS = [
+  // IITs
+  'Indian Institute of Technology Bombay',
+  'Indian Institute of Technology Delhi',
+  'Indian Institute of Technology Madras',
+  'Indian Institute of Technology Kanpur',
+  'Indian Institute of Technology Kharagpur',
+  'Indian Institute of Technology Roorkee',
+  'Indian Institute of Technology Guwahati',
+  'Indian Institute of Technology Hyderabad',
+  'Indian Institute of Technology (BHU) Varanasi',
+  'Indian Institute of Technology Indore',
+  'Indian Institute of Technology Gandhinagar',
+  'Indian Institute of Technology Ropar',
+  // IISc / IISERs
+  'Indian Institute of Science (IISc) Bangalore',
+  'Indian Institute of Science Education and Research (IISER) Pune',
+  'Indian Institute of Science Education and Research (IISER) Kolkata',
+  // IIMs
+  'Indian Institute of Management Ahmedabad',
+  'Indian Institute of Management Bangalore',
+  'Indian Institute of Management Calcutta',
+  'Indian Institute of Management Lucknow',
+  'Indian Institute of Management Kozhikode',
+  'Indian Institute of Management Indore',
+  // NITs
+  'National Institute of Technology Tiruchirappalli',
+  'National Institute of Technology Karnataka, Surathkal',
+  'National Institute of Technology Warangal',
+  'National Institute of Technology Rourkela',
+  'National Institute of Technology Calicut',
+  // Central / deemed / major universities
+  'University of Delhi',
+  'Jawaharlal Nehru University',
+  'Banaras Hindu University',
+  'University of Hyderabad',
+  'Anna University',
+  'Jadavpur University',
+  'Savitribai Phule Pune University',
+  'University of Mumbai',
+  'University of Calcutta',
+  'Vellore Institute of Technology (VIT)',
+  'Birla Institute of Technology and Science (BITS) Pilani',
+  'Manipal Academy of Higher Education',
+  'Amrita Vishwa Vidyapeetham',
+  'SRM Institute of Science and Technology',
+  'Thapar Institute of Engineering and Technology',
+  'All India Institute of Medical Sciences (AIIMS) Delhi',
+  'Tata Institute of Fundamental Research (TIFR)',
+  'Indian Statistical Institute (ISI)',
+  'Other',
+];
+
+export const SUGGESTION_LISTS = {
+  institutions: INSTITUTION_SUGGESTIONS,
+};
+
 // ── Profile Field Definitions per Persona ───────────────────
 // Used by Register.jsx and MyProfile.jsx to render the correct form fields
 export const PROFILE_FIELDS = {
@@ -405,7 +467,7 @@ export const PROFILE_FIELDS = {
     { name: 'pitch_deck_url', label: 'Pitch Deck URL',       type: 'url' },
   ],
   student: [
-    { name: 'institution',      label: 'Institution',        type: 'text',   required: true },
+    { name: 'institution',      label: 'Institution',        type: 'text',   required: true, suggestions: 'institutions' },
     { name: 'logo_url',         label: 'Profile Photo',      type: 'logo',   placeholder: 'Upload a photo' },
     { name: 'degree',           label: 'Degree',             type: 'text' },
     { name: 'department',       label: 'Department',         type: 'text' },
@@ -424,7 +486,7 @@ export const PROFILE_FIELDS = {
     { name: 'resume_url',       label: 'Resume',             type: 'url' },
   ],
   academia: [
-    { name: 'institution_name', label: 'Institution Name',    type: 'text',   required: true },
+    { name: 'institution_name', label: 'Institution Name',    type: 'text',   required: true, suggestions: 'institutions' },
     { name: 'logo_url',         label: 'Institution Logo',    type: 'logo',   placeholder: 'https://yoursite.com/logo.png' },
     { name: 'institution_type', label: 'Institution Type',    type: 'select', options: ['University','Research Institute','College','Think Tank','Other'] },
     { name: 'department',       label: 'Department',          type: 'text' },
