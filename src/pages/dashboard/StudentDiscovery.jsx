@@ -3,7 +3,7 @@
  * Enables seeker personas to discover and source student talent.
  */
 import { useState, useEffect } from 'react';
-import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink, X, FolderGit2, Award } from 'lucide-react';
+import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink, FolderGit2, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { discoveryAPI, studentEnhAPI } from '../../services/api';
 
@@ -52,6 +52,153 @@ export default function StudentDiscovery() {
   };
 
   const totalPages = Math.ceil(total / limit);
+
+  // Phase 87b — when a student is selected, render the profile as a full page
+  // (in place of the results list) rather than a centered popup overlay, per
+  // testing-team feedback. "Back to results" returns to the discovery grid.
+  if (selected) {
+    return (
+      <div style={{ padding: 24, maxWidth: 760, margin: '0 auto' }}>
+        <button onClick={() => setSelected(null)}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: '7px 12px', fontSize: 13, fontWeight: 600, color: '#555', background: '#fff', border: '1px solid #ddd', borderRadius: 8, cursor: 'pointer' }}>
+          <ChevronLeft size={15} /> Back to results
+        </button>
+
+        <div style={{ background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #eee' }}>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
+            {selected.avatar ? (
+              <img src={selected.avatar} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#999' }}>
+                {(selected.display_name || '?')[0]}
+              </div>
+            )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{selected.display_name || 'Student'}</div>
+              <div style={{ fontSize: 13, color: '#888' }}>
+                {selected.degree ? `${selected.degree}` : ''}{selected.department ? ` in ${selected.department}` : ''}
+              </div>
+            </div>
+          </div>
+
+          {selected.institution && (
+            <div style={{ fontSize: 13, color: '#555', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <BookOpen size={14} /> {selected.institution}
+            </div>
+          )}
+          {(selected.city || selected.state) && (
+            <div style={{ fontSize: 13, color: '#888', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <MapPin size={14} /> {[selected.city, selected.state].filter(Boolean).join(', ')}
+            </div>
+          )}
+          {selected.graduation_year && (
+            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Class of {selected.graduation_year}</div>
+          )}
+
+          {selected.project_title && (
+            <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>
+              <span style={{ fontWeight: 600 }}>Project:</span> {selected.project_title}
+              {selected.project_description && <div style={{ marginTop: 4, color: '#777' }}>{selected.project_description}</div>}
+            </div>
+          )}
+
+          {selected.bio && (
+            <div style={{ fontSize: 13, color: '#444', marginBottom: 12, lineHeight: 1.5 }}>{selected.bio}</div>
+          )}
+
+          {(selected.skills || []).length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Skills</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {selected.skills.map(sk => (
+                  <span key={sk} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{sk}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(selected.research_areas || []).length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {selected.research_areas.map(r => (
+                  <span key={r} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(selected.looking_for || []).length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Seeking</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {selected.looking_for.map(l => (
+                  <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{l}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Structured My-Portfolio: projects + certifications */}
+          {portfolioLoading && (
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#999' }}>
+              <Loader2 size={14} className="animate-spin" /> Loading portfolio…
+            </div>
+          )}
+          {!portfolioLoading && portfolio && (portfolio.projects || []).length > 0 && (
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <FolderGit2 size={13} /> Projects ({portfolio.projects.length})
+              </div>
+              {portfolio.projects.map(p => (
+                <div key={p.id} style={{ marginBottom: 10, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    {p.title}
+                    {p.is_featured && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>Featured</span>}
+                  </div>
+                  {p.description && <div style={{ fontSize: 12, color: '#777', marginTop: 4, lineHeight: 1.45 }}>{p.description}</div>}
+                  {(p.tech_stack || []).length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                      {p.tech_stack.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
+                    {p.github_url && <a href={p.github_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Code</a>}
+                    {p.demo_url && <a href={p.demo_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Demo</a>}
+                    {p.paper_url && <a href={p.paper_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Paper</a>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {!portfolioLoading && portfolio && (portfolio.certifications || []).length > 0 && (
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Award size={13} /> Certifications ({portfolio.certifications.length})
+              </div>
+              {portfolio.certifications.map(c => (
+                <div key={c.id} style={{ marginBottom: 8, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    {c.title}
+                    {c.is_verified && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>Verified</span>}
+                  </div>
+                  {c.provider && <div style={{ fontSize: 12, color: '#777', marginTop: 3 }}>{c.provider}</div>}
+                  {c.credential_url && <a href={c.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}><ExternalLink size={10} /> Credential</a>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(selected.linkedin_url || selected.portfolio_url) && (
+            <div style={{ display: 'flex', gap: 12, marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
+              {selected.linkedin_url && <a href={selected.linkedin_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> LinkedIn</a>}
+              {selected.portfolio_url && <a href={selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
@@ -168,151 +315,6 @@ export default function StudentDiscovery() {
             style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8, border: '1px solid #ddd', background: '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer', opacity: page === totalPages ? 0.5 : 1 }}>
             <ChevronRight size={14} />
           </button>
-        </div>
-      )}
-
-      {/* Detail modal */}
-      {selected && (
-        <div onClick={() => setSelected(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-          <div onClick={e => e.stopPropagation()}
-            style={{ background: '#fff', borderRadius: 16, padding: 24, maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            <button onClick={() => setSelected(null)}
-              style={{ position: 'absolute', top: 14, right: 14, background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4 }}>
-              <X size={20} />
-            </button>
-
-            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
-              {selected.avatar ? (
-                <img src={selected.avatar} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
-              ) : (
-                <div style={{ width: 56, height: 56, borderRadius: 12, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#999' }}>
-                  {(selected.display_name || '?')[0]}
-                </div>
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{selected.display_name || 'Student'}</div>
-                <div style={{ fontSize: 13, color: '#888' }}>
-                  {selected.degree ? `${selected.degree}` : ''}{selected.department ? ` in ${selected.department}` : ''}
-                </div>
-              </div>
-            </div>
-
-            {selected.institution && (
-              <div style={{ fontSize: 13, color: '#555', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-                <BookOpen size={14} /> {selected.institution}
-              </div>
-            )}
-            {(selected.city || selected.state) && (
-              <div style={{ fontSize: 13, color: '#888', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-                <MapPin size={14} /> {[selected.city, selected.state].filter(Boolean).join(', ')}
-              </div>
-            )}
-            {selected.graduation_year && (
-              <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Class of {selected.graduation_year}</div>
-            )}
-
-            {selected.project_title && (
-              <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>
-                <span style={{ fontWeight: 600 }}>Project:</span> {selected.project_title}
-                {selected.project_description && <div style={{ marginTop: 4, color: '#777' }}>{selected.project_description}</div>}
-              </div>
-            )}
-
-            {selected.bio && (
-              <div style={{ fontSize: 13, color: '#444', marginBottom: 12, lineHeight: 1.5 }}>{selected.bio}</div>
-            )}
-
-            {(selected.skills || []).length > 0 && (
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Skills</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {selected.skills.map(sk => (
-                    <span key={sk} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{sk}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(selected.research_areas || []).length > 0 && (
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {selected.research_areas.map(r => (
-                    <span key={r} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(selected.looking_for || []).length > 0 && (
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Seeking</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {selected.looking_for.map(l => (
-                    <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{l}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Structured My-Portfolio: projects + certifications */}
-            {portfolioLoading && (
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#999' }}>
-                <Loader2 size={14} className="animate-spin" /> Loading portfolio…
-              </div>
-            )}
-            {!portfolioLoading && portfolio && (portfolio.projects || []).length > 0 && (
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <FolderGit2 size={13} /> Projects ({portfolio.projects.length})
-                </div>
-                {portfolio.projects.map(p => (
-                  <div key={p.id} style={{ marginBottom: 10, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                      {p.title}
-                      {p.is_featured && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>Featured</span>}
-                    </div>
-                    {p.description && <div style={{ fontSize: 12, color: '#777', marginTop: 4, lineHeight: 1.45 }}>{p.description}</div>}
-                    {(p.tech_stack || []).length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-                        {p.tech_stack.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-                      {p.github_url && <a href={p.github_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Code</a>}
-                      {p.demo_url && <a href={p.demo_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Demo</a>}
-                      {p.paper_url && <a href={p.paper_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3 }}><ExternalLink size={10} /> Paper</a>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {!portfolioLoading && portfolio && (portfolio.certifications || []).length > 0 && (
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Award size={13} /> Certifications ({portfolio.certifications.length})
-                </div>
-                {portfolio.certifications.map(c => (
-                  <div key={c.id} style={{ marginBottom: 8, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                      {c.title}
-                      {c.is_verified && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>Verified</span>}
-                    </div>
-                    {c.provider && <div style={{ fontSize: 12, color: '#777', marginTop: 3 }}>{c.provider}</div>}
-                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}><ExternalLink size={10} /> Credential</a>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {(selected.linkedin_url || selected.portfolio_url) && (
-              <div style={{ display: 'flex', gap: 12, marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
-                {selected.linkedin_url && <a href={selected.linkedin_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> LinkedIn</a>}
-                {selected.portfolio_url && <a href={selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>}
-              </div>
-            )}
-          </div>
         </div>
       )}
     </div>
