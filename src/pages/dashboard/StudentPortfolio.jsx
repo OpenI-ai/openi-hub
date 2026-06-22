@@ -74,7 +74,13 @@ export default function StudentPortfolio() {
     setShareLoading(true);
     try {
       const r = await studentEnhAPI.listPortfolioShares();
-      setShares(r.shares || r.data?.shares || []);
+      // Backend returns a bare array (res.json(rows)); tolerate {shares}/{data.shares} too.
+      const list = Array.isArray(r) ? r
+        : Array.isArray(r?.shares) ? r.shares
+        : Array.isArray(r?.data?.shares) ? r.data.shares
+        : Array.isArray(r?.data) ? r.data
+        : [];
+      setShares(list);
     } catch { toast.error('Failed to load share links'); }
     setShareLoading(false);
   };
