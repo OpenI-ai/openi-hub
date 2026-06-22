@@ -183,7 +183,7 @@ export const PERSONA_NAV = {
     // Enhancement (testing-team) — a startup's two highest-value surfaces are
     // marketplace leads + private invites. Pin both directly under My Profile.
     hubExtra: [
-      { to: '/dashboard/marketplace',       label: 'Marketplace',       icon: 'Target' },
+      { to: '/dashboard/marketplace',       label: 'Challenges & Apply', icon: 'Target' },
       { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
     ],
     // `invites` dropped from the default workspace keys so Invitations Inbox
@@ -207,7 +207,7 @@ export const PERSONA_NAV = {
     // Enhancement (testing-team) — provider personas pin marketplace leads +
     // private invites directly under My Profile (their two highest-value surfaces).
     hubExtra: [
-      { to: '/dashboard/marketplace',       label: 'Marketplace',       icon: 'Target' },
+      { to: '/dashboard/marketplace',       label: 'Challenges & Apply', icon: 'Target' },
       { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
     ],
     // `invites` dropped from default workspace so Invitations Inbox doesn't
@@ -224,7 +224,7 @@ export const PERSONA_NAV = {
     // Enhancement (testing-team) — provider personas pin marketplace leads +
     // private invites directly under My Profile (their two highest-value surfaces).
     hubExtra: [
-      { to: '/dashboard/marketplace',       label: 'Marketplace',       icon: 'Target' },
+      { to: '/dashboard/marketplace',       label: 'Challenges & Apply', icon: 'Target' },
       { to: '/dashboard/challenge-invites', label: 'Invitations Inbox', icon: 'Inbox' },
     ],
     // `invites` dropped from default workspace so Invitations Inbox doesn't
@@ -263,7 +263,7 @@ export const PERSONA_NAV = {
   investor: buildPersonaNav('investor', {
     recommended: { to: '/dashboard/investor/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/marketplace',            label: 'Marketplace',   icon: 'Target' },
+      { to: '/dashboard/marketplace',            label: 'Challenges & Apply', icon: 'Target' },
       { to: '/dashboard/investor/deal-requests', label: 'Deal Sourcing', icon: 'FileText' },
       { to: '/dashboard/investor/deals',         label: 'Deal Pipeline', icon: 'GitBranch' },
       { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
@@ -324,7 +324,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/sp/services', label: 'My Services', icon: 'Briefcase' },
       { to: '/dashboard/sp/clients',  label: 'Clients',     icon: 'Building2' },
       { to: '/dashboard/sp/reviews',  label: 'Reviews',     icon: 'Star' },
-      { to: '/dashboard/marketplace', label: 'Marketplace', icon: 'Target' },
+      { to: '/dashboard/marketplace', label: 'Challenges & Apply', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations', label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',    label: '8-Vector Eval', icon: 'BarChart3' },

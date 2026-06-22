@@ -311,7 +311,7 @@ export default function Marketplace() {
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
         <button onClick={() => navigate('/dashboard/marketplace')}
           style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
-          <ChevronLeft size={16} /> Back to Marketplace
+          <ChevronLeft size={16} /> Back to Challenges
         </button>
 
         {/* Challenge header */}
@@ -472,9 +472,16 @@ export default function Marketplace() {
     <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
       {/* Ship #12 follow-up — tour anchors */}
       <div id="tour-page-marketplace-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-          <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Innovation Marketplace
-        </h1>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
+            <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Challenges
+          </h1>
+          <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+            {isSeeker
+              ? 'Browse corporate challenges and share them with startups in your network.'
+              : 'Find corporate challenges and apply to the ones that fit your venture.'}
+          </div>
+        </div>
         <div id="tour-page-marketplace-tabs" style={{ display: 'flex', gap: 4 }}>
           <button onClick={() => { setTab('browse'); }} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: '8px 0 0 8px', border: `1px solid ${tab === 'browse' ? G : '#e5e7eb'}`, background: tab === 'browse' ? G : '#fff', color: tab === 'browse' ? '#fff' : '#666', cursor: 'pointer' }}>Browse</button>
           <button onClick={() => { setTab('applications'); loadMyApps(); }} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: '0 8px 8px 0', border: `1px solid ${tab === 'applications' ? G : '#e5e7eb'}`, background: tab === 'applications' ? G : '#fff', color: tab === 'applications' ? '#fff' : '#666', cursor: 'pointer' }}>My Applications</button>
