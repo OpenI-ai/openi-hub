@@ -338,6 +338,7 @@ export const PERSONA_NAV = {
 // `suggestions` flag on a field def (e.g. { suggestions: 'institutions' }).
 // Frontend-only, no auth/endpoint needed — safe during the signup flow.
 const INSTITUTION_SUGGESTIONS = [
+  // ─── India ───
   // IITs
   'Indian Institute of Technology Bombay',
   'Indian Institute of Technology Delhi',
@@ -387,6 +388,65 @@ const INSTITUTION_SUGGESTIONS = [
   'All India Institute of Medical Sciences (AIIMS) Delhi',
   'Tata Institute of Fundamental Research (TIFR)',
   'Indian Statistical Institute (ISI)',
+  // ─── United States ───
+  'Massachusetts Institute of Technology (MIT)',
+  'Stanford University',
+  'Harvard University',
+  'California Institute of Technology (Caltech)',
+  'University of California, Berkeley',
+  'University of California, Los Angeles (UCLA)',
+  'Carnegie Mellon University',
+  'Princeton University',
+  'Yale University',
+  'Columbia University',
+  'University of Chicago',
+  'Cornell University',
+  'University of Michigan, Ann Arbor',
+  'Georgia Institute of Technology',
+  'University of Illinois Urbana-Champaign',
+  'University of Pennsylvania',
+  'University of Texas at Austin',
+  'University of Washington',
+  'New York University (NYU)',
+  'Johns Hopkins University',
+  // ─── United Kingdom ───
+  'University of Oxford',
+  'University of Cambridge',
+  'Imperial College London',
+  'University College London (UCL)',
+  'London School of Economics (LSE)',
+  'University of Edinburgh',
+  'University of Manchester',
+  "King's College London",
+  // ─── Europe ───
+  'ETH Zurich',
+  'EPFL (École Polytechnique Fédérale de Lausanne)',
+  'Technical University of Munich (TUM)',
+  'Ludwig Maximilian University of Munich (LMU)',
+  'Delft University of Technology (TU Delft)',
+  'KTH Royal Institute of Technology',
+  'Sorbonne University',
+  'École Polytechnique (France)',
+  'KU Leuven',
+  'Karolinska Institute',
+  // ─── Canada ───
+  'University of Toronto',
+  'University of British Columbia (UBC)',
+  'McGill University',
+  'University of Waterloo',
+  // ─── Australia / New Zealand ───
+  'University of Melbourne',
+  'University of Sydney',
+  'Australian National University (ANU)',
+  'University of New South Wales (UNSW)',
+  // ─── Asia-Pacific ───
+  'National University of Singapore (NUS)',
+  'Nanyang Technological University (NTU)',
+  'Tsinghua University',
+  'Peking University',
+  'University of Tokyo',
+  'University of Hong Kong (HKU)',
+  'KAIST (Korea Advanced Institute of Science and Technology)',
   'Other',
 ];
 
