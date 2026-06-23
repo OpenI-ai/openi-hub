@@ -31,6 +31,20 @@ const inputStyle = {
   width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 16, outline: 'none',
 };
 
+// Phase 88 — startup sub-section completeness weights (module-scope so the
+// reference is stable across renders; used by the presence probe effect and
+// the client-side completeness fallback calc).
+const SUBSECTION_WEIGHTS = {
+  team:          3,
+  products:      3,
+  funding:       3,
+  clients:       2,
+  patents:       3,
+  competitors:   2,
+  news:          2,
+  acquisitions:  2,
+};
+
 function TagInput({ value = [], onChange, placeholder }) {
   const [input, setInput] = useState('');
   const add = () => {
@@ -561,16 +575,6 @@ export default function MyProfile() {
   // resolved. Until then the Completeness bar renders "—" instead of an
   // inaccurate top-level-only %. Non-startup personas flip immediately.
   const [subProbed, setSubProbed] = useState(false);
-  const SUBSECTION_WEIGHTS = {
-    team:          3,
-    products:      3,
-    funding:       3,
-    clients:       2,
-    patents:       3,
-    competitors:   2,
-    news:          2,
-    acquisitions:  2,
-  };
 
   useEffect(() => {
     if (user?.role !== 'startup') { setSubProbed(true); return; }
@@ -902,6 +906,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
     catch { /* silent */ }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional load when section expands; `load` is a stable inline closure
   useEffect(() => { if (expanded) load(); }, [expanded]);
 
   // Phase 78 — unified save handler. Branches on editingId: if set, PUT

@@ -20,6 +20,7 @@ export default function AcademiaDiscovery() {
   const [selected, setSelected] = useState(null);
   const limit = 24;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on page/filters change; `load` is a stable inline closure
   useEffect(() => { load(); }, [page, filters]);
 
   const load = async () => {

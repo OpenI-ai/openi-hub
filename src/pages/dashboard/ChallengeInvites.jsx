@@ -30,6 +30,7 @@ export default function ChallengeInvites() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on filter change; `load` is a stable inline closure
   useEffect(() => { load(); }, [filter]);
 
   const respond = async (inviteId, action) => {

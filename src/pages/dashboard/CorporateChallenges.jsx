@@ -146,6 +146,7 @@ export default function CorporateChallenges() {
   const navigate = useNavigate(); // M2 (27 May 2026) — for Message button conversation deep-link
   const persona = user?.role || 'corporate';
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time load on mount; loaders are stable inline closures
   useEffect(() => { load(); loadTaxonomy(); }, []);
 
   // Phase C3 (28 May, feedback #4 fix) — ?challenge=<id> deep-link consumer.
@@ -174,6 +175,7 @@ export default function CorporateChallenges() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on filters change; `load` is a stable inline closure
   useEffect(() => { load(); }, [filters]);
 
   const load = async () => {

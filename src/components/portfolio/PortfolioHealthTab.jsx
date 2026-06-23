@@ -118,6 +118,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
   // Focused view state
   const [focusedStartupId, setFocusedStartupId] = useState(null); // pipeline entry id for trend view
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on id/owner change; `load` is a stable inline closure
   useEffect(() => { load(); }, [parentId, owner]);
 
   const load = async () => {

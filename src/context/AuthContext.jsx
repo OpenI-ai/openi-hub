@@ -283,6 +283,7 @@ export function AuthProvider({ children }) {
     tick();
     const id = setInterval(tick, SILENT_REFRESH_INTERVAL_MS);
     return () => { cancelled = true; clearInterval(id); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on stable user identity; re-arming on every `user` mutation (role switch / profile edit) would needlessly reset the refresh interval
   }, [user?.id]);
 
   // Phase 97 — idle logout. 60 min of no mouse/keyboard/click → clear token +
@@ -318,6 +319,7 @@ export function AuthProvider({ children }) {
       events.forEach(ev => window.removeEventListener(ev, arm));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on stable user identity; re-arming the idle timer on every `user` mutation would reset the countdown mid-session
   }, [user?.id]);
 
   if (loading) return null;

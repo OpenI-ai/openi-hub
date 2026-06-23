@@ -222,6 +222,7 @@ export default function IPRDatabase() {
       })
       .catch(err => { toast.error(err.message || 'Failed to load IPR records'); setIprRecords([]); })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only load; isAdmin is derived from the session user and stable for the session
   }, []);
 
   // Phase 94 Ship 3 — debounced startup search for the Add modal's

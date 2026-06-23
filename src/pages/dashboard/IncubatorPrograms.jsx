@@ -33,6 +33,7 @@ export default function IncubatorPrograms() {
     application_deadline: '', start_date: '', end_date: '', total_seats: 10, status: 'draft',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on filter/search change; `load` is a stable inline closure
   useEffect(() => { load(); }, [statusFilter, search]);
 
   const load = async () => {

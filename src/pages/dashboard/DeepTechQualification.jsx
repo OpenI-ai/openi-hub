@@ -105,6 +105,7 @@ export default function DeepTechQualification() {
       const auto = (user.organization_name || user.name || '').trim();
       if (auto) setStartupName(auto);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-fill-once guard; depending on `startupName` would re-fire on every keystroke and fight the user's typing
   }, [mode, user?.role, user?.organization_name, user?.name]);
 
   useEffect(() => {

@@ -21,6 +21,7 @@ export default function CorporateStartupSearch() {
   const [, setTaxLoading] = useState(true);
 
   useEffect(() => { loadTaxonomy(); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on page/filters change; `loadStartups` is a stable inline closure
   useEffect(() => { loadStartups(); }, [page, filters]);
 
   const loadTaxonomy = async () => {

@@ -44,6 +44,7 @@ export default function AcceleratorBatchDetail() {
   const [showAddStartup, setShowAddStartup] = useState(false);
   const [startupForm, setStartupForm] = useState({ startup_name: '', application_status: 'applied', pitch_order: '', notes: '' });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on id change; `load` is a stable inline closure
   useEffect(() => { load(); }, [id]);
 
   const load = async () => {

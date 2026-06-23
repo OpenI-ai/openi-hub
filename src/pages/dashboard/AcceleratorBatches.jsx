@@ -33,6 +33,7 @@ export default function AcceleratorBatches() {
     end_date: '', demo_day_date: '', total_seats: 10, status: 'draft', location: '', is_virtual: false,
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on filter/search change; `load` is a stable inline closure
   useEffect(() => { load(); }, [statusFilter, search]);
 
   const load = async () => {

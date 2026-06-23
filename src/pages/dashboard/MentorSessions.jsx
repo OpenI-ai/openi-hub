@@ -25,6 +25,7 @@ export default function MentorSessions() {
     } catch { toast.error('Failed to load sessions'); }
     setLoading(false);
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on filter change; `load` is a stable inline closure
   useEffect(() => { load(); }, [filter]);
 
   const handleCreate = async () => {

@@ -225,6 +225,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
   const avgScore = useMemo(() => {
     const vals = criteriaScores.filter(s => s != null);
     return vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- criteriaScores is fully derived from scores + vector.key, which are the listed deps
   }, [scores, vector.key]);
 
   const progress = (scoredCount / vector.criteria.length) * 100;

@@ -74,6 +74,7 @@ export default function AdminAnalytics() {
       setBoostImpact(boost);
       setClickImpact(click);
     }).catch(err => toast.error(err.message)).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initial load; the metric/period reload is handled by the dedicated effect below
   }, []);
 
   // Reload timeseries on metric/period change

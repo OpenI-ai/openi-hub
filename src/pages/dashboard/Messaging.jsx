@@ -79,6 +79,7 @@ export default function Messaging() {
       })
       .catch(err => toast.error(err.message || 'Failed to load conversations'))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only conversation load; loadMessages is an inline closure and searchParams is read once for the deep-link target
   }, []);
 
   const loadMessages = (convId) => {
@@ -125,6 +126,7 @@ export default function Messaging() {
         .catch(() => {});
     }, 5000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on active?.id (granular) rather than the full active object to avoid re-arming the poll on unrelated field changes
   }, [active?.id, user?.id]);
 
   // Poll conversation list every 15s for unread counts

@@ -113,6 +113,7 @@ export default function Marketplace() {
   const [myApps, setMyApps] = useState([]);
   const [appsLoading, setAppsLoading] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time load on mount; loaders are stable inline closures
   useEffect(() => { loadChallenges(); loadTaxonomy(); }, []);
 
   const loadChallenges = async (p = 1, s = search, f = filters, srt = sort, ct = challengeType) => {

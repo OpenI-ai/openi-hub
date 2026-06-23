@@ -332,6 +332,7 @@ export default function StartupCrawling() {
     fetchEnrichment();
     fetchJobs();
     fetchSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only fan-out; all fetchers are useCallback-memoised with [] deps and stable across renders
   }, []);
 
   useEffect(() => { if (activeTab === 'enrichment') fetchEnrichment(); }, [activeTab, fetchEnrichment]);

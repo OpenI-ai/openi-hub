@@ -75,6 +75,7 @@ export default function Meetings() {
   const [searchingUsers, setSearchingUsers] = useState(false);
   const searchTimeout = useRef(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on tab change; `loadMeetings` is a stable inline closure
   useEffect(() => { loadMeetings(); }, [tab]);
 
   const loadMeetings = async () => {

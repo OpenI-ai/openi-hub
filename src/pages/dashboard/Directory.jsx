@@ -42,6 +42,7 @@ export default function Directory() {
     { value: 'profile_score', label: 'Profile Score' },
   ];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time load on mount; loaders are stable inline closures
   useEffect(() => { loadProfiles(); loadFilters(); }, []);
 
   const loadProfiles = async (p = 1, s = search, f = filters, srt = sort) => {

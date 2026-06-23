@@ -47,6 +47,7 @@ export default function IncubatorProgramDetail() {
   const [showAddAssign, setShowAddAssign] = useState(false);
   const [assignForm, setAssignForm] = useState({ program_startup_id: '', mentor_pool_id: '', notes: '' });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on id change; `load` is a stable inline closure
   useEffect(() => { load(); }, [id]);
 
   const load = async () => {

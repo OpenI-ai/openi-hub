@@ -24,6 +24,7 @@ export default function StudentMentorships() {
     } catch { toast.error('Failed to load mentorships'); }
     setLoading(false);
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on filter change; `load` is a stable inline closure
   useEffect(() => { load(); }, [filter]);
 
   const openCreate = () => { setEditId(null); setForm({}); setModal(true); };

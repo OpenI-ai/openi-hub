@@ -186,7 +186,7 @@ export default function TourWrapper({ role, forceStart = false }) {
         setTimeout(() => startFresh(nextIdx), 100);
       }
     }
-  }, [role, steps, location.pathname, navigate, startFresh]);
+  }, [role, steps, location.pathname, navigate, startFresh, pageMode]);
 
   // Ship #12 — relax early-return so page tours work even if the persona
   // has no role-tour defined. Render when either tour mode has steps.

@@ -19,6 +19,10 @@ const card = {
 
 // INTEGRATIONS are loaded from API
 
+// Default color palette for integrations (module-scope so it's stable across renders)
+const DEFAULT_COLORS = ['#ea580c', '#0284c7', '#16a34a', '#9333ea', '#dc2626', '#0284c7', '#64748b', '#64748b'];
+const DEFAULT_BGS = ['#fff7ed', '#f0f9ff', '#f0fdf4', '#fdf4ff', '#fef2f2', '#f0f9ff', '#f8fafc', '#f8fafc'];
+
 const STATUS_STYLE = {
   Connected:       { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0',              icon: CheckCircle2 },
   'Pending Setup': { bg: '#fff8ec', color: G,          border: 'rgba(213,170,91,0.4)', icon: Clock },
@@ -31,10 +35,6 @@ export default function GovtAPIIntegrations() {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [integrations, setIntegrations] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Default color palette for integrations
-  const DEFAULT_COLORS = ['#ea580c', '#0284c7', '#16a34a', '#9333ea', '#dc2626', '#0284c7', '#64748b', '#64748b'];
-  const DEFAULT_BGS = ['#fff7ed', '#f0f9ff', '#f0fdf4', '#fdf4ff', '#fef2f2', '#f0f9ff', '#f8fafc', '#f8fafc'];
 
   useEffect(() => {
     govtIntegrationAPI.list()
