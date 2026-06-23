@@ -273,10 +273,10 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
           <p style={{ margin:0, padding:"10px 20px", fontSize:12, color:"#888", fontStyle:"italic", borderBottom:"1px solid #f5f5f5" }}>
             {vector.desc}
           </p>
-          {/* Column headers */}
-          <div style={{ padding:"8px 20px", display:"grid", gridTemplateColumns:"1fr auto auto", alignItems:"center", gap:14, borderBottom:"1px solid #f5f5f5" }}>
+          {/* Column headers — hidden on mobile (SE1: score row wraps below label on small screens) */}
+          <div className="hidden sm:grid" style={{ padding:"8px 20px", gridTemplateColumns:"1fr auto auto", alignItems:"center", gap:14, borderBottom:"1px solid #f5f5f5" }}>
             <span style={{ fontSize:11, fontWeight:600, color:"#bbb", textTransform:"uppercase", letterSpacing:"0.05em" }}>Criterion</span>
-            <span style={{ fontSize:11, fontWeight:600, color:"#bbb", textTransform:"uppercase", letterSpacing:"0.05em", textAlign:"center", width:180 }} className="hidden sm:block">Score (1–5)</span>
+            <span style={{ fontSize:11, fontWeight:600, color:"#bbb", textTransform:"uppercase", letterSpacing:"0.05em", textAlign:"center", width:180 }}>Score (1–5)</span>
             <span style={{ fontSize:11, fontWeight:600, color:"#bbb", textTransform:"uppercase", letterSpacing:"0.05em" }}>Note</span>
           </div>
           {vector.criteria.map((criterion, idx) => {
@@ -288,7 +288,8 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
 
             return (
               <div key={idx} style={{ borderBottom:"1px solid #f8f8f8" }}>
-                <div style={{ padding:"10px 20px", display:"grid", gridTemplateColumns:"1fr auto auto", alignItems:"center", gap:14 }}>
+                {/* SE1: stacks vertically on mobile (label above score row); 3-col grid at sm+ */}
+                <div className="flex flex-col sm:grid sm:items-center" style={{ padding:"10px 20px", gridTemplateColumns:"1fr auto auto", gap:14 }}>
                   {/* Name */}
                   <div>
                     <span style={{ fontSize:13, color:"#333" }}>{criterion}</span>
@@ -298,6 +299,9 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
                       </span>
                     )}
                   </div>
+                  {/* Score row: buttons + comment toggle. On mobile this sits below the label
+                      and spreads full-width; on sm+ the buttons + icon are separate grid cells. */}
+                  <div className="flex items-center justify-between sm:contents">
                   {/* Score buttons */}
                   <div style={{ display:"flex", gap:4, flexShrink:0 }}>
                     {[1, 2, 3, 4, 5].map(n => (
@@ -327,6 +331,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
                   >
                     <MessageSquare className="w-4 h-4" />
                   </button>
+                  </div>
                 </div>
                 {/* Comment + Status expanded row */}
                 {showComment && (

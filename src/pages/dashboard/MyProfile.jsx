@@ -789,6 +789,34 @@ export default function MyProfile() {
       {/* ── Startup Profile Sections (child tables) ─────────────── */}
       {user?.role === 'startup' && (
         <div className="mt-6 space-y-4">
+          {/* PROF7 (mobile audit) — quick-jump section index. The 8 child-table
+              accordions stack vertically and are slow to discover on a phone, so
+              expose a horizontally-scrollable chip strip (mobile-only, md:hidden)
+              that scrollIntoView()s each section header. Hidden on desktop where
+              the full list is already visible above the fold. */}
+          <div className="md:hidden -mx-1 px-1 flex gap-2 overflow-x-auto pb-1"
+            style={{ WebkitOverflowScrolling: 'touch' }}>
+            {[
+              { section: 'team', label: 'Team' },
+              { section: 'products', label: 'Products' },
+              { section: 'funding', label: 'Funding' },
+              { section: 'clients', label: 'Clients' },
+              { section: 'patents', label: 'Patents' },
+              { section: 'competitors', label: 'Competitors' },
+              { section: 'news', label: 'News' },
+              { section: 'acquisitions', label: 'Acquisitions' },
+            ].map(({ section, label }) => (
+              <button
+                key={section}
+                type="button"
+                onClick={() => document.getElementById(`profsec-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap"
+                style={{ background: '#F5F3EF', border: '1px solid #e5e7eb', color: '#152838', cursor: 'pointer' }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           {/* Phase 87i — sub-sections are saved per-entry (their own Add/Save buttons),
               independent of the top Save Profile button. Hint for first-time users. */}
           <div className="rounded-lg p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
@@ -962,7 +990,10 @@ function ProfileSection({ section, title, fields, displayCols }) {
   const G = '#D0A848';
 
   return (
-    <div className="rounded-xl" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+    // PROF7 (mobile audit) — anchor id + scroll-margin so the mobile quick-jump
+    // chip strip can scrollIntoView each section without the header tucking under
+    // the top of the viewport.
+    <div id={`profsec-${section}`} className="rounded-xl" style={{ background: '#fff', border: '1px solid #e5e7eb', scrollMarginTop: '16px' }}>
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-4"
         style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
         <span className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{title} {items.length > 0 && `(${items.length})`}</span>
