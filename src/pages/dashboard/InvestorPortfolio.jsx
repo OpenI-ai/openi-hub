@@ -170,7 +170,7 @@ export default function InvestorPortfolio() {
               <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Currency</label>
               <select value={addForm.currency} onChange={e => setAddForm(f => ({ ...f, currency: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
-                <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
+                <option>INR</option><option>USD</option>
               </select>
             </div>
           </div>
