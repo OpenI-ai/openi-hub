@@ -241,8 +241,9 @@ export const PERSONA_NAV = {
   corporate: buildPersonaNav('corporate', {
     recommended: { to: '/dashboard/corporate/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/corporate/challenges', label: 'My Challenges',  icon: 'Target' },
-      { to: '/dashboard/corporate/collabs',    label: 'Collaborations', icon: 'Link2' },
+      { to: '/dashboard/corporate/challenges', label: 'My Challenges',   icon: 'Target' },
+      { to: '/dashboard/marketplace',          label: 'View Marketplace', icon: 'Globe' },
+      { to: '/dashboard/corporate/collabs',    label: 'Collaborations',  icon: 'Link2' },
       { to: '/dashboard/ipr',                  label: 'IPR Portfolio',  icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',          label: 'Programs',       icon: 'FileText' },
@@ -252,6 +253,7 @@ export const PERSONA_NAV = {
   government: buildPersonaNav('government', {
     actions: [
       { to: '/dashboard/corporate/challenges', label: 'My Challenges',   icon: 'Target' },
+      { to: '/dashboard/marketplace',          label: 'View Marketplace', icon: 'Globe' },
       { to: '/dashboard/evaluations',          label: 'Programs',        icon: 'FileText' },
       { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
       { to: '/dashboard/govt-apis',            label: 'Govt. APIs',      icon: 'Link2' },
@@ -263,7 +265,7 @@ export const PERSONA_NAV = {
   investor: buildPersonaNav('investor', {
     recommended: { to: '/dashboard/investor/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/marketplace',            label: 'View Challenges', icon: 'Target' },
+      { to: '/dashboard/marketplace',            label: 'View Marketplace', icon: 'Target' },
       { to: '/dashboard/investor/deal-requests', label: 'Deal Sourcing', icon: 'FileText' },
       { to: '/dashboard/investor/deals',         label: 'Deal Pipeline', icon: 'GitBranch' },
       { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
@@ -279,7 +281,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
       { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
       { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
-      { to: '/dashboard/marketplace',         label: 'View Challenges', icon: 'Target' },
+      { to: '/dashboard/marketplace',         label: 'View Marketplace', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',         label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',            label: '8-Vector Eval', icon: 'BarChart3' },
@@ -290,7 +292,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/lab/equipment',    label: 'Equipment',    icon: 'FlaskConical' },
       { to: '/dashboard/lab/bookings',     label: 'Bookings',     icon: 'CalendarCheck' },
       { to: '/dashboard/lab/publications', label: 'Publications', icon: 'FileText' },
-      { to: '/dashboard/marketplace',      label: 'View Challenges', icon: 'Target' },
+      { to: '/dashboard/marketplace',      label: 'View Marketplace', icon: 'Target' },
       // Phase 89.2 — IPR Database removed from lab nav (admin-only feature).
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',      label: 'Programs',      icon: 'FileText' },
@@ -303,7 +305,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/incubator/programs',       label: 'Programs',         icon: 'GraduationCap' },
       { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
-      { to: '/dashboard/marketplace',              label: 'View Challenges',  icon: 'Target' },
+      { to: '/dashboard/marketplace',              label: 'View Marketplace', icon: 'Target' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',    icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',              label: 'Programs',         icon: 'FileText' },
@@ -316,7 +318,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/accelerator/batches',      label: 'Batches',            icon: 'Zap' },
       { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners',   icon: 'Link2' },
-      { to: '/dashboard/marketplace',              label: 'View Challenges',    icon: 'Target' },
+      { to: '/dashboard/marketplace',              label: 'View Marketplace',   icon: 'Target' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',      icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',              label: 'Programs',           icon: 'FileText' },
@@ -328,7 +330,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/sp/services', label: 'My Services', icon: 'Briefcase' },
       { to: '/dashboard/sp/clients',  label: 'Clients',     icon: 'Building2' },
       { to: '/dashboard/sp/reviews',  label: 'Reviews',     icon: 'Star' },
-      { to: '/dashboard/marketplace', label: 'View Challenges', icon: 'Target' },
+      { to: '/dashboard/marketplace', label: 'View Marketplace', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations', label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',    label: '8-Vector Eval', icon: 'BarChart3' },
