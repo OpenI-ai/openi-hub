@@ -162,7 +162,12 @@ export default function InvestorDealRequests() {
 
         {/* Phase 40: Collaboration team */}
         <div className="mb-4">
-          <CollaboratorsPanel entityType="deal_request" entityId={selected.id} title="Deal Team" />
+          <CollaboratorsPanel
+            entityType="deal_request"
+            entityId={selected.id}
+            title="Deal Team"
+            subtitle="Invite your own colleagues here to help review applications (editor / reviewer / viewer). Startups, students and academia don't get invited here — they join by applying to this deal once it's open, and appear under Applications below."
+          />
         </div>
 
         {/* Phase 40 (P8): Reviews */}

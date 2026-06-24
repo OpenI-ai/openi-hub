@@ -44,7 +44,7 @@ function Avatar({ name, id, size = 28 }) {
   );
 }
 
-export default function CollaboratorsPanel({ entityType, entityId, title = 'Collaboration Team', onChange }) {
+export default function CollaboratorsPanel({ entityType, entityId, title = 'Collaboration Team', subtitle, onChange }) {
   const [loading, setLoading] = useState(true);
   const [collaborators, setCollaborators] = useState([]);
   const [myRole, setMyRole] = useState(null);
@@ -132,7 +132,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
 
   return (
     <div style={card}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: subtitle ? 6 : 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Users size={16} style={{ color: G }} />
           <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
@@ -152,6 +152,12 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
           </button>
         )}
       </div>
+
+      {subtitle && (
+        <p style={{ fontSize: 11, color: '#888', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+          {subtitle}
+        </p>
+      )}
 
       {inviteOpen && (
         <div style={{ padding: 10, background: '#fafafa', border: '1px solid #eee', borderRadius: 8, marginBottom: 12 }}>
