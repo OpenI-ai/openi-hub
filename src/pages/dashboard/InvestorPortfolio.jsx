@@ -30,7 +30,8 @@ export default function InvestorPortfolio() {
   // Inline edit (for exit updates)
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({
-    status: '', exit_date: '', exit_valuation: '', exit_type: '',
+    current_status: '', exit_date: '', exit_value: '', exit_type: '',
+    entry_valuation: '', equity_stake: '', investment_amount: '',
   });
 
   useEffect(() => { load(); }, []);
@@ -64,14 +65,25 @@ export default function InvestorPortfolio() {
   const startEdit = (co) => {
     setEditingId(co.id);
     setEditForm({
-      status: co.status || 'active',
+      current_status: co.current_status || 'active',
       exit_date: co.exit_date ? co.exit_date.slice(0, 10) : '',
-      exit_valuation: co.exit_valuation || '',
+      exit_value: co.exit_value || '',
       exit_type: co.exit_type || '',
+      entry_valuation: co.entry_valuation || '',
+      equity_stake: co.equity_stake || '',
+      investment_amount: co.investment_amount || '',
     });
   };
 
   const saveEdit = async (id) => {
+    for (const [label, val] of [['Entry valuation', editForm.entry_valuation], ['Equity stake', editForm.equity_stake], ['Invested amount', editForm.investment_amount], ['Exit value', editForm.exit_value]]) {
+      if (val !== '' && val !== null && val !== undefined && Number(val) < 0) {
+        return toast.error(`${label} cannot be negative`);
+      }
+    }
+    if (editForm.equity_stake !== '' && editForm.equity_stake !== null && Number(editForm.equity_stake) > 100) {
+      return toast.error('Equity stake cannot exceed 100%');
+    }
     try {
       await investorAPI.updatePortfolio(id, editForm);
       toast.success('Portfolio updated');
@@ -82,12 +94,12 @@ export default function InvestorPortfolio() {
 
   // ── Summary stats ──
   const totalInvested = portfolio.reduce((s, c) => s + (parseFloat(c.investment_amount) || 0), 0);
-  const activeCount = portfolio.filter(c => c.status === 'active').length;
-  const exitedCount = portfolio.filter(c => c.status === 'exited').length;
-  const failedCount = portfolio.filter(c => c.status === 'failed').length;
+  const activeCount = portfolio.filter(c => c.current_status === 'active').length;
+  const exitedCount = portfolio.filter(c => c.current_status === 'exited').length;
+  const failedCount = portfolio.filter(c => c.current_status === 'failed').length;
   const totalExitValue = portfolio
-    .filter(c => c.status === 'exited')
-    .reduce((s, c) => s + (parseFloat(c.exit_valuation) || 0), 0);
+    .filter(c => c.current_status === 'exited')
+    .reduce((s, c) => s + (parseFloat(c.exit_value) || 0), 0);
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
 
@@ -237,15 +249,15 @@ export default function InvestorPortfolio() {
                 </div>
 
                 {/* Exit info (if exited) */}
-                {co.status === 'exited' && co.exit_valuation && (
+                {co.current_status === 'exited' && co.exit_value && (
                   <div style={{ padding: 8, background: '#eff6ff', borderRadius: 8, marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                      <span style={{ color: '#3b82f6', fontWeight: 600 }}>Exit: {co.currency || 'INR'} {parseFloat(co.exit_valuation).toLocaleString()}</span>
+                      <span style={{ color: '#3b82f6', fontWeight: 600 }}>Exit: {co.currency || 'INR'} {parseFloat(co.exit_value).toLocaleString()}</span>
                       {co.exit_type && <span style={{ color: '#6b7280', textTransform: 'capitalize' }}>{co.exit_type}</span>}
                     </div>
                     {co.exit_date && <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{new Date(co.exit_date).toLocaleDateString()}</div>}
-                    {co.investment_amount && co.exit_valuation && (() => {
-                      const multiple = (parseFloat(co.exit_valuation) / parseFloat(co.investment_amount)).toFixed(1);
+                    {co.investment_amount && co.exit_value && (() => {
+                      const multiple = (parseFloat(co.exit_value) / parseFloat(co.investment_amount)).toFixed(1);
                       return <div style={{ fontSize: 10, fontWeight: 600, color: parseFloat(multiple) >= 1 ? '#16a34a' : '#dc2626', marginTop: 2 }}>{multiple}x return</div>;
                     })()}
                   </div>
@@ -261,8 +273,23 @@ export default function InvestorPortfolio() {
                   <div style={{ padding: 12, background: '#f9fafb', borderRadius: 10, marginTop: 4 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8, marginBottom: 8 }}>
                       <div>
+                        <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Invested</label>
+                        <input type="number" placeholder="Invested amount" value={editForm.investment_amount} onChange={e => setEditForm(f => ({ ...f, investment_amount: e.target.value }))}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Equity Stake (%)</label>
+                        <input type="number" placeholder="Equity %" value={editForm.equity_stake} onChange={e => setEditForm(f => ({ ...f, equity_stake: e.target.value }))}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Entry Valuation</label>
+                        <input type="number" placeholder="Entry valuation" value={editForm.entry_valuation} onChange={e => setEditForm(f => ({ ...f, entry_valuation: e.target.value }))}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Status</label>
-                        <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}
+                        <select value={editForm.current_status} onChange={e => setEditForm(f => ({ ...f, current_status: e.target.value }))}
                           style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                           <option value="active">Active</option>
                           <option value="exited">Exited</option>
@@ -289,7 +316,7 @@ export default function InvestorPortfolio() {
                       </div>
                       <div>
                         <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Exit Valuation</label>
-                        <input type="number" placeholder="Exit value" value={editForm.exit_valuation} onChange={e => setEditForm(f => ({ ...f, exit_valuation: e.target.value }))}
+                        <input type="number" placeholder="Exit value" value={editForm.exit_value} onChange={e => setEditForm(f => ({ ...f, exit_value: e.target.value }))}
                           style={{ width: '100%', padding: '6px 8px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
                       </div>
                     </div>
