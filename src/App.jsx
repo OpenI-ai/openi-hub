@@ -116,6 +116,17 @@ import InvestorRecommendedStartups    from './pages/dashboard/InvestorRecommende
 import IncubatorRecommendedStartups   from './pages/dashboard/IncubatorRecommendedStartups';
 import AcceleratorRecommendedStartups from './pages/dashboard/AcceleratorRecommendedStartups';
 
+// s38 — minimal inline placeholder for nav targets whose backend is not yet wired
+function ComingSoonPlaceholder({ title, note }) {
+  return (
+    <div style={{ padding: '48px 24px', maxWidth: 640 }}>
+      <h1 style={{ color: '#152838', fontSize: 24, fontWeight: 700, marginBottom: 12 }}>{title}</h1>
+      <p style={{ color: '#585858', fontSize: 15, lineHeight: 1.6 }}>{note}</p>
+      <p style={{ color: '#D0A848', fontSize: 13, marginTop: 16, fontWeight: 600 }}>Coming soon</p>
+    </div>
+  );
+}
+
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -267,6 +278,8 @@ export default function App() {
             <Route path="events"              element={<EventsRepository />} />
             <Route path="feedback"            element={<StartupFeedback />} />
             <Route path="govt-apis"           element={<GovtAPIIntegrations />} />
+            {/* s38 — Disburse Grants placeholder; government grant-disbursement backend wires this later */}
+            <Route path="government/grants"   element={<ComingSoonPlaceholder title="Disburse Grants" note="Disburse investment grants to startups. This surface is being wired up." />} />
             <Route path="marketplace"         element={<Marketplace />} />
             <Route path="marketplace/:id"     element={<Marketplace />} />  {/* Phase 120 — route-based detail */}
             <Route path="directory"           element={<Directory />} />
@@ -282,6 +295,8 @@ export default function App() {
             <Route path="mentor/availability" element={<MentorAvailability />} />
             <Route path="lab/equipment"      element={<LabEquipment />} />
             <Route path="lab/bookings"       element={<LabEquipment />} />
+            {/* s38 — Facility Calls placeholder; Phase C lab_announcements backend wires this later */}
+            <Route path="lab/announcements"  element={<ComingSoonPlaceholder title="Facility Calls" note="Publish calls inviting startups to use your lab facilities. This surface is being wired up." />} />
             <Route path="lab/publications"   element={<LabPublications />} />
             <Route path="student/portfolio"      element={<StudentPortfolio />} />
             <Route path="student/certifications" element={<StudentPortfolio />} />

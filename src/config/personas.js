@@ -252,7 +252,8 @@ export const PERSONA_NAV = {
   }),
   government: buildPersonaNav('government', {
     actions: [
-      { to: '/dashboard/corporate/challenges', label: 'My Challenges',   icon: 'Target' },
+      { to: '/dashboard/corporate/challenges', label: 'My Challenges',    icon: 'Target' },
+      { to: '/dashboard/government/grants',     label: 'Disburse Grants',  icon: 'DollarSign' },
       { to: '/dashboard/marketplace',          label: 'View Marketplace', icon: 'Globe' },
       { to: '/dashboard/evaluations',          label: 'Programs',        icon: 'FileText' },
       { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
@@ -266,7 +267,7 @@ export const PERSONA_NAV = {
     recommended: { to: '/dashboard/investor/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
       { to: '/dashboard/marketplace',            label: 'View Marketplace', icon: 'Target' },
-      { to: '/dashboard/investor/deal-requests', label: 'Deal Sourcing', icon: 'FileText' },
+      { to: '/dashboard/investor/deal-requests', label: 'My Deal Sourcing', icon: 'FileText' },
       { to: '/dashboard/investor/deals',         label: 'Deal Pipeline', icon: 'GitBranch' },
       { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
       { to: '/dashboard/deeptech',               label: 'DeepTech',      icon: 'Zap' },
@@ -289,6 +290,7 @@ export const PERSONA_NAV = {
   }),
   lab: buildPersonaNav('lab', {
     actions: [
+      { to: '/dashboard/lab/announcements', label: 'Facility Calls', icon: 'Megaphone' },
       { to: '/dashboard/lab/equipment',    label: 'Equipment',    icon: 'FlaskConical' },
       { to: '/dashboard/lab/bookings',     label: 'Bookings',     icon: 'CalendarCheck' },
       { to: '/dashboard/lab/publications', label: 'Publications', icon: 'FileText' },
@@ -302,7 +304,7 @@ export const PERSONA_NAV = {
   incubator: buildPersonaNav('incubator', {
     recommended: { to: '/dashboard/incubator/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/incubator/programs',       label: 'Programs',         icon: 'GraduationCap' },
+      { to: '/dashboard/incubator/programs',       label: 'Cohort Applications', icon: 'GraduationCap' },
       { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
       { to: '/dashboard/marketplace',              label: 'View Marketplace', icon: 'Target' },
@@ -315,7 +317,7 @@ export const PERSONA_NAV = {
   accelerator: buildPersonaNav('accelerator', {
     recommended: { to: '/dashboard/accelerator/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/accelerator/batches',      label: 'Batches',            icon: 'Zap' },
+      { to: '/dashboard/accelerator/batches',      label: 'Cohort Applications', icon: 'Zap' },
       { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners',   icon: 'Link2' },
       { to: '/dashboard/marketplace',              label: 'View Marketplace',   icon: 'Target' },

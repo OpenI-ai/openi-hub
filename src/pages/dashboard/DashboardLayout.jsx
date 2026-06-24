@@ -50,6 +50,7 @@ const ICON_MAP = {
   Calendar, UserCheck, ThumbsUp, Link2, Search, User, CalendarCheck,
   TrendingUp, Landmark, FlaskConical, Home, Target, Link,
   Map, Sparkles, Briefcase, Clock, BarChart3, BadgeCheck,
+  Megaphone, DollarSign,
   Handshake: Link, // Handshake not in lucide-react 0.294 — alias to Link
 };
 
