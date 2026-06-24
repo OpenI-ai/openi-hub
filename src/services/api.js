@@ -791,6 +791,20 @@ export const labEnhAPI = {
   deletePublication:  (id)         => del(`/lab-enh/publications/${id}`),
 };
 
+// ── Lab Facility Announcements (Cross-Ecosystem Visibility Phase C) ──
+// Owner: manage own "call for applications". Public: any logged-in persona
+// browses OPEN+PUBLIC announcements from OTHER labs (self-excluded server-side).
+export const labAnnouncementAPI = {
+  // Owner-scoped
+  list:        ()           => get('/lab-announcements'),
+  create:      (data)       => post('/lab-announcements', data),
+  update:      (id, data)   => put(`/lab-announcements/${id}`, data),
+  remove:      (id)         => del(`/lab-announcements/${id}`),
+  // Cross-org browse (auth required, any persona)
+  listPublic:  (params={})  => get(`/lab-announcements/public?${new URLSearchParams(params)}`),
+  getPublic:   (id)         => get(`/lab-announcements/public/${id}`),
+};
+
 // ── Academia Enhancement (Phase 16G) ────────────────────────
 export const academiaEnhAPI = {
   dashboard:            ()           => get('/academia-enh/dashboard'),

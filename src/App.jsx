@@ -80,6 +80,8 @@ import MentorSessions       from './pages/dashboard/MentorSessions';
 import MentorAvailability   from './pages/dashboard/MentorAvailability';
 import LabEquipment         from './pages/dashboard/LabEquipment';
 import LabPublications      from './pages/dashboard/LabPublications';
+import LabAnnouncements     from './pages/dashboard/LabAnnouncements';
+import BrowseLabFacilities  from './pages/dashboard/BrowseLabFacilities';
 import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 // T32-99c: ChallengeInvites import
@@ -295,9 +297,10 @@ export default function App() {
             <Route path="mentor/availability" element={<MentorAvailability />} />
             <Route path="lab/equipment"      element={<LabEquipment />} />
             <Route path="lab/bookings"       element={<LabEquipment />} />
-            {/* s38 — Facility Calls placeholder; Phase C lab_announcements backend wires this later */}
-            <Route path="lab/announcements"  element={<ComingSoonPlaceholder title="Facility Calls" note="Publish calls inviting startups to use your lab facilities. This surface is being wired up." />} />
+            <Route path="lab/announcements"  element={<LabAnnouncements />} />
             <Route path="lab/publications"   element={<LabPublications />} />
+            <Route path="browse-facilities"     element={<BrowseLabFacilities />} />
+            <Route path="browse-facilities/:id" element={<BrowseLabFacilities />} />  {/* Phase C — route-based detail */}
             <Route path="student/portfolio"      element={<StudentPortfolio />} />
             <Route path="student/certifications" element={<StudentPortfolio />} />
             <Route path="student/mentorships"    element={<StudentMentorships />} />

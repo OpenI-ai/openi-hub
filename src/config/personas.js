@@ -79,6 +79,9 @@ const discoverGroup = (role) => [
   { to: '/dashboard/mentors',                               label: 'Find Mentors',   icon: 'Users' },
   { to: '/dashboard/directory',                             label: 'Directory',      icon: 'Search' },
   { to: '/dashboard/clusters',                              label: 'Innovation Map', icon: 'Layers' },
+  // Phase C — cross-org lab facility announcements. Auth-gated, universal across
+  // all personas (browse self-excludes own rows; drafts hidden).
+  { to: '/dashboard/browse-facilities',                     label: 'Lab Facility Calls', icon: 'FlaskConical' },
 ];
 
 // Group 5 — Workspace. Same order for every persona that includes it. A
