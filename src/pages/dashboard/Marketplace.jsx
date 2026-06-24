@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
-import { challengeAPI, corporateAPI } from '../../services/api';
+import { challengeAPI, corporateAPI, opportunityAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { getPersonaCategory } from '../../config/personas';
 import FileUpload from '../../components/FileUpload';
@@ -8,7 +8,7 @@ import {
   Search, Target, ChevronLeft, Clock, Calendar, DollarSign, MapPin,
   Building2, Users, Loader2, AlertCircle, CheckCircle, FileText,
   ChevronDown, ChevronUp, Upload, X, HelpCircle, Send, Filter, ArrowUpDown,
-  Share2, Linkedin,
+  Share2, Linkedin, ExternalLink,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -36,6 +36,17 @@ const STATUS_BADGE = {
   evaluating:  { bg: '#faf5ff', color: '#7c3aed', label: 'Evaluating' },
   selected:    { bg: '#f0fdf4', color: '#16a34a', label: 'Selected' },
   rejected:    { bg: '#fef2f2', color: '#dc2626', label: 'Rejected' },
+};
+
+// Phase D — Unified Opportunities UNION. Each row carries a `type` that drives
+// the card badge and the apply route. Only `challenge` rows use the internal
+// detail flow (/dashboard/marketplace/:id); the rest carry an external apply_url.
+const TYPE_BADGE = {
+  challenge:          { bg: '#eff6ff', color: '#2563eb', label: 'Challenge' },
+  deal_sourcing:      { bg: '#faf5ff', color: '#7c3aed', label: 'Deal Sourcing' },
+  cohort_incubator:   { bg: '#f0fdf4', color: '#16a34a', label: 'Incubator Cohort' },
+  cohort_accelerator: { bg: '#fff7ed', color: '#ea580c', label: 'Accelerator Batch' },
+  lab_facility:       { bg: '#f0f9ff', color: '#0369a1', label: 'Lab Facility' },
 };
 
 export default function Marketplace() {
@@ -116,20 +127,22 @@ export default function Marketplace() {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time load on mount; loaders are stable inline closures
   useEffect(() => { loadChallenges(); loadTaxonomy(); }, []);
 
-  const loadChallenges = async (p = 1, s = search, f = filters, srt = sort, ct = challengeType) => {
+  // Phase D — Unified Opportunities UNION feed. The backend returns a FLAT
+  // array of normalized rows {type,id,title,description,org_name,sectors,
+  // deadline,apply_url,created_at}. It supports only sector + search params
+  // (no sort/challenge_type/technology/usecase/location/company, no facets).
+  const loadChallenges = async (p = 1, s = search, f = filters) => {
     setLoading(true);
     try {
-      const params = { page: p, limit: 20 };
+      const params = {};
       if (s.trim()) params.search = s.trim();
-      if (srt) params.sort = srt;
-      if (ct) params.challenge_type = ct;
-      Object.entries(f).forEach(([k, v]) => { if (v) params[k] = v; });
-      const data = await challengeAPI.listOpen(params);
-      setChallenges(data.challenges || []);
-      setTotal(data.total || 0);
+      if (f.sector) params.sector = f.sector;
+      const data = await opportunityAPI.listAll(params);
+      const rows = Array.isArray(data) ? data : (data?.opportunities || []);
+      setChallenges(rows);
+      setTotal(rows.length);
       setPage(p);
-      if (data.facets) setFacets(data.facets);
-    } catch { toast.error('Failed to load challenges'); }
+    } catch { toast.error('Failed to load opportunities'); }
     finally { setLoading(false); }
   };
 
@@ -475,12 +488,12 @@ export default function Marketplace() {
       <div id="tour-page-marketplace-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-            <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Challenges
+            <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Opportunities
           </h1>
           <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
             {isSeeker
-              ? 'Browse corporate challenges and share them with startups in your network.'
-              : 'Find corporate challenges and apply to the ones that fit your venture.'}
+              ? 'Browse open calls — challenges, deal sourcing, cohorts and lab facilities — and share them with your network.'
+              : 'Browse open calls across the ecosystem and apply to the ones that fit your venture.'}
           </div>
         </div>
         <div id="tour-page-marketplace-tabs" style={{ display: 'flex', gap: 4 }}>
@@ -533,7 +546,7 @@ export default function Marketplace() {
           <div id="tour-page-marketplace-search" style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
-              <input placeholder="Search challenges by title, problem, description..." value={search}
+              <input placeholder="Search opportunities by title or description..." value={search}
                 onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 style={{ width: '100%', padding: '10px 14px 10px 36px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }} />
             </div>
@@ -541,19 +554,6 @@ export default function Marketplace() {
             <button onClick={() => setShowFilters(!showFilters)} style={{ padding: '10px 14px', fontSize: 13, borderRadius: 10, background: showFilters ? '#fdf6e9' : '#f3f4f6', color: showFilters ? G : '#666', border: `1px solid ${showFilters ? G : '#e5e7eb'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Filter size={14} /> Filters
             </button>
-            {/* Sort dropdown */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <ArrowUpDown size={14} style={{ color: '#888' }} />
-              <select value={sort} onChange={e => handleSort(e.target.value)}
-                style={{ padding: '10px 10px', fontSize: 16, borderRadius: 10, border: '1px solid #e5e7eb', background: sort ? '#fdf6e9' : '#f9fafb', color: sort ? '#92700a' : '#555', outline: 'none', cursor: 'pointer', fontWeight: sort ? 600 : 400 }}>
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
-            {/* Challenge type filter */}
-            <select value={challengeType} onChange={e => handleChallengeType(e.target.value)}
-              style={{ padding: '10px 10px', fontSize: 16, borderRadius: 10, border: `1px solid ${challengeType ? G : '#e5e7eb'}`, background: challengeType ? '#fdf6e9' : '#f9fafb', color: challengeType ? '#92700a' : '#555', outline: 'none', cursor: 'pointer', fontWeight: challengeType ? 600 : 400 }}>
-              {CHALLENGE_TYPES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
           </div>
 
           {/* Filters */}
@@ -569,31 +569,9 @@ export default function Marketplace() {
                     {taxonomy.sectors.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Technology</label>
-                  <select value={filters.technology} onChange={e => setFilters(p => ({ ...p, technology: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb' }}>
-                    <option value="">All Technologies</option>
-                    {taxonomy.technologies.filter(t => t.level === 0).map(t => <option key={t.id} value={t.name}>{t.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Use Case</label>
-                  <select value={filters.usecase} onChange={e => setFilters(p => ({ ...p, usecase: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb' }}>
-                    <option value="">All Use Cases</option>
-                    {taxonomy.usecases.map(u => <option key={u.id} value={u.name}>{u.name}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginBottom: 10 }}>
-                <input placeholder="Filter by location..." value={filters.location} onChange={e => setFilters(p => ({ ...p, location: e.target.value }))}
-                  style={{ padding: '8px 12px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb', outline: 'none' }} />
-                <input placeholder="Filter by company..." value={filters.company} onChange={e => setFilters(p => ({ ...p, company: e.target.value }))}
-                  style={{ padding: '8px 12px', fontSize: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => loadChallenges(1, search, filters, sort, challengeType)} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Apply Filters</button>
+                <button onClick={() => loadChallenges(1, search, filters)} style={{ padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Apply Filters</button>
                 <button onClick={clearFilters} style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>Clear</button>
               </div>
             </div>
@@ -623,7 +601,7 @@ export default function Marketplace() {
 
           {/* Results count */}
           <div style={{ fontSize: 12, color: '#888', marginBottom: 12 }}>
-            {loading ? 'Loading...' : `${total} challenge${total !== 1 ? 's' : ''} found`}
+            {loading ? 'Loading...' : `${total} ${total !== 1 ? 'opportunities' : 'opportunity'} found`}
           </div>
 
           {/* Challenge cards */}
@@ -632,69 +610,65 @@ export default function Marketplace() {
           ) : challenges.length === 0 ? (
             <div style={{ ...card, padding: 40, textAlign: 'center' }}>
               <Target size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No open challenges found</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No open opportunities found</p>
               <p style={{ fontSize: 12, color: '#aaa' }}>Try adjusting your search or filters</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gap: 12 }}>
-              {challenges.map(ch => (
-                <div key={ch.id} style={{ ...card, padding: 18, cursor: 'pointer' }}
-                  onClick={() => navigate(`/dashboard/marketplace/${ch.id}`)}
+              {challenges.map(ch => {
+                const tb = TYPE_BADGE[ch.type] || TYPE_BADGE.challenge;
+                const isChallenge = ch.type === 'challenge';
+                const openItem = () => {
+                  if (isChallenge) navigate(`/dashboard/marketplace/${ch.id}`);
+                  else if (ch.apply_url) window.open(ch.apply_url, '_blank', 'noopener');
+                };
+                return (
+                <div key={`${ch.type}-${ch.id}`} style={{ ...card, padding: 18, cursor: 'pointer' }}
+                  onClick={openItem}
                   onMouseEnter={e => e.currentTarget.style.borderColor = G}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    {ch.corporate_logo ? (
-                      <img src={ch.corporate_logo} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 4, flexShrink: 0 }} />
-                    ) : (
-                      <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Building2 size={18} style={{ color: '#bbb' }} /></div>
-                    )}
+                    <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Building2 size={18} style={{ color: '#bbb' }} /></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      {/* Phase 101 Sub-E: Invited chip on marketplace card — gold pill next to title */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
                         <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>{ch.title}</h3>
-                        {ch.visibility === 'invite_only' && (
-                          <span style={{
-                            fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12,
-                            background: `${G}20`, color: '#5a4715', border: `1px solid ${G}`,
-                          }} title="You were invited to this private challenge">
-                            ★ Invited
-                          </span>
-                        )}
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: tb.bg, color: tb.color }}>{tb.label}</span>
                       </div>
                       <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
-                        {ch.company_name || ch.corporate_name || ch.organization_name}
-                        {ch.location && <span style={{ marginLeft: 8 }}><MapPin size={10} style={{ verticalAlign: -2 }} /> {ch.location}</span>}
+                        {ch.org_name}
                       </div>
-                      {ch.problem_statement && (
+                      {ch.description && (
                         <p style={{ fontSize: 12, color: '#666', lineHeight: 1.5, margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                          {ch.problem_statement}
+                          {ch.description}
                         </p>
                       )}
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, fontSize: 11, color: '#999', marginBottom: 6 }}>
-                        {ch.budget_range && <span><DollarSign size={11} style={{ verticalAlign: -2 }} /> {ch.budget_range}</span>}
-                        {ch.timeline && <span><Clock size={11} style={{ verticalAlign: -2 }} /> {ch.timeline}</span>}
                         {ch.deadline && <span><Calendar size={11} style={{ verticalAlign: -2 }} /> {new Date(ch.deadline).toLocaleDateString()}</span>}
-                        <span><Users size={11} style={{ verticalAlign: -2 }} /> {ch.application_count || 0} applicants</span>
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
                         {(ch.sectors || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                        {(ch.technologies || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
-                        {(ch.usecases || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
                       </div>
+                      {!isSeeker && (
+                        <button onClick={e => { e.stopPropagation(); openItem(); }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 8, border: 'none', background: G, color: '#fff', cursor: 'pointer' }}>
+                          {isChallenge ? 'View & Apply' : <>Apply <ExternalLink size={12} /></>}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
           {/* Pagination */}
           {total > 20 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
-              <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters, sort, challengeType)}
+              <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page <= 1 ? '#f9fafb' : '#fff', color: page <= 1 ? '#ccc' : '#555', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous</button>
               <span style={{ padding: '7px 12px', fontSize: 12, color: '#888' }}>Page {page} of {Math.ceil(total / 20)}</span>
-              <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters, sort, challengeType)}
+              <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / 20) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / 20) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / 20) ? 'default' : 'pointer' }}>Next</button>
             </div>
           )}

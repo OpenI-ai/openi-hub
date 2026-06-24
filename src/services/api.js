@@ -968,6 +968,14 @@ export const publicAPI = {
   applyToDealRequest: (id, data)     => post(`/deal-requests/${id}/apply`, data),
 };
 
+// ── Unified Opportunities / Marketplace UNION (Phase D) ─────
+// One feed across every public "call for applications" object
+// (challenge / deal_sourcing / cohort_incubator / cohort_accelerator /
+// lab_facility). Auth required, no role guard — any persona browses.
+export const opportunityAPI = {
+  listAll: (params = {}) => get(`/opportunities?${new URLSearchParams(params)}`),
+};
+
 // ── Crawling ────────────────────────────────────────────────
 export const crawlAPI = {
   stats:           ()                => get('/crawl/stats'),
