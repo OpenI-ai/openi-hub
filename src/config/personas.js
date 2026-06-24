@@ -241,7 +241,7 @@ export const PERSONA_NAV = {
   corporate: buildPersonaNav('corporate', {
     recommended: { to: '/dashboard/corporate/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/corporate/challenges', label: 'Challenges',     icon: 'Target' },
+      { to: '/dashboard/corporate/challenges', label: 'My Challenges',  icon: 'Target' },
       { to: '/dashboard/corporate/collabs',    label: 'Collaborations', icon: 'Link2' },
       { to: '/dashboard/ipr',                  label: 'IPR Portfolio',  icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
@@ -251,7 +251,7 @@ export const PERSONA_NAV = {
   }),
   government: buildPersonaNav('government', {
     actions: [
-      { to: '/dashboard/corporate/challenges', label: 'Challenges/RFPs', icon: 'Target' },
+      { to: '/dashboard/corporate/challenges', label: 'My Challenges',   icon: 'Target' },
       { to: '/dashboard/evaluations',          label: 'Programs',        icon: 'FileText' },
       { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
       { to: '/dashboard/govt-apis',            label: 'Govt. APIs',      icon: 'Link2' },
@@ -263,7 +263,7 @@ export const PERSONA_NAV = {
   investor: buildPersonaNav('investor', {
     recommended: { to: '/dashboard/investor/recommended-startups', label: 'Recommended for You', icon: 'Sparkles' },
     actions: [
-      { to: '/dashboard/marketplace',            label: 'Challenges & Apply', icon: 'Target' },
+      { to: '/dashboard/marketplace',            label: 'View Challenges', icon: 'Target' },
       { to: '/dashboard/investor/deal-requests', label: 'Deal Sourcing', icon: 'FileText' },
       { to: '/dashboard/investor/deals',         label: 'Deal Pipeline', icon: 'GitBranch' },
       { to: '/dashboard/investor/portfolio',     label: 'Portfolio',     icon: 'Briefcase' },
@@ -324,7 +324,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/sp/services', label: 'My Services', icon: 'Briefcase' },
       { to: '/dashboard/sp/clients',  label: 'Clients',     icon: 'Building2' },
       { to: '/dashboard/sp/reviews',  label: 'Reviews',     icon: 'Star' },
-      { to: '/dashboard/marketplace', label: 'Challenges & Apply', icon: 'Target' },
+      { to: '/dashboard/marketplace', label: 'View Challenges', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations', label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',    label: '8-Vector Eval', icon: 'BarChart3' },
