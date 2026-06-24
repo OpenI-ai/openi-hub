@@ -279,6 +279,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/mentor/sessions',     label: 'Sessions',     icon: 'CalendarCheck' },
       { to: '/dashboard/mentor/availability', label: 'Availability', icon: 'Clock' },
       { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
+      { to: '/dashboard/marketplace',         label: 'View Challenges', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',         label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',            label: '8-Vector Eval', icon: 'BarChart3' },
@@ -289,6 +290,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/lab/equipment',    label: 'Equipment',    icon: 'FlaskConical' },
       { to: '/dashboard/lab/bookings',     label: 'Bookings',     icon: 'CalendarCheck' },
       { to: '/dashboard/lab/publications', label: 'Publications', icon: 'FileText' },
+      { to: '/dashboard/marketplace',      label: 'View Challenges', icon: 'Target' },
       // Phase 89.2 — IPR Database removed from lab nav (admin-only feature).
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',      label: 'Programs',      icon: 'FileText' },
@@ -301,6 +303,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/incubator/programs',       label: 'Programs',         icon: 'GraduationCap' },
       { to: '/dashboard/incubator/mentors',        label: 'Mentor Pool',      icon: 'Users' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners', icon: 'Link2' },
+      { to: '/dashboard/marketplace',              label: 'View Challenges',  icon: 'Target' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',    icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',              label: 'Programs',         icon: 'FileText' },
@@ -313,6 +316,7 @@ export const PERSONA_NAV = {
       { to: '/dashboard/accelerator/batches',      label: 'Batches',            icon: 'Zap' },
       { to: '/dashboard/accelerator/partners',     label: 'Partners & Network', icon: 'Building2' },
       { to: '/dashboard/program/service-partners', label: 'Service Partners',   icon: 'Link2' },
+      { to: '/dashboard/marketplace',              label: 'View Challenges',    icon: 'Target' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',      icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluations',              label: 'Programs',           icon: 'FileText' },
