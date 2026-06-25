@@ -976,6 +976,15 @@ export const opportunityAPI = {
   listAll: (params = {}) => get(`/opportunities?${new URLSearchParams(params)}`),
 };
 
+// ── Find Mentees (Cross-Ecosystem Visibility Phase E) ───────
+// Reverse-direction feed: MENTORS discover provider personas (startup/student/
+// academia) who opted in via seeking_mentor = true. Auth required, no role
+// guard — feed self-excludes the viewer's own rows server-side.
+export const menteeAPI = {
+  listPublic: (params = {}) => get(`/mentees/public?${new URLSearchParams(params)}`),
+  getPublic:  (id)          => get(`/mentees/public/${id}`),
+};
+
 // ── Crawling ────────────────────────────────────────────────
 export const crawlAPI = {
   stats:           ()                => get('/crawl/stats'),

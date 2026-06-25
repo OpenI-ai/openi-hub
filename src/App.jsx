@@ -82,6 +82,7 @@ import LabEquipment         from './pages/dashboard/LabEquipment';
 import LabPublications      from './pages/dashboard/LabPublications';
 import LabAnnouncements     from './pages/dashboard/LabAnnouncements';
 import BrowseLabFacilities  from './pages/dashboard/BrowseLabFacilities';
+import FindMentees          from './pages/dashboard/FindMentees';
 import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 // T32-99c: ChallengeInvites import
@@ -301,6 +302,8 @@ export default function App() {
             <Route path="lab/publications"   element={<LabPublications />} />
             <Route path="browse-facilities"     element={<BrowseLabFacilities />} />
             <Route path="browse-facilities/:id" element={<BrowseLabFacilities />} />  {/* Phase C — route-based detail */}
+            <Route path="find-mentees"     element={<FindMentees />} />
+            <Route path="find-mentees/:id" element={<FindMentees />} />  {/* Phase E — route-based detail */}
             <Route path="student/portfolio"      element={<StudentPortfolio />} />
             <Route path="student/certifications" element={<StudentPortfolio />} />
             <Route path="student/mentorships"    element={<StudentMentorships />} />

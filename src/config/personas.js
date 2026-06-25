@@ -82,6 +82,9 @@ const discoverGroup = (role) => [
   // Phase C — cross-org lab facility announcements. Auth-gated, universal across
   // all personas (browse self-excludes own rows; drafts hidden).
   { to: '/dashboard/browse-facilities',                     label: 'Lab Facility Calls', icon: 'FlaskConical' },
+  // Phase E — reverse-direction mentee discovery. Mentors find provider personas
+  // (startup/student/academia) who opted in via seeking_mentor. Universal entry.
+  { to: '/dashboard/find-mentees',                          label: 'Find Mentees',       icon: 'UserPlus' },
 ];
 
 // Group 5 — Workspace. Same order for every persona that includes it. A
@@ -536,6 +539,7 @@ export const PROFILE_FIELDS = {
     { name: 'product_hunt_url', label: 'Product Hunt URL',   type: 'url' },
     { name: 'youtube_url',    label: 'YouTube URL',          type: 'url' },
     { name: 'pitch_deck_url', label: 'Pitch Deck URL',       type: 'url' },
+    { name: 'seeking_mentor', label: 'Open to mentorship?',  type: 'checkbox' },
   ],
   student: [
     { name: 'institution',      label: 'Institution',        type: 'text',   required: true, suggestions: 'institutions' },
@@ -557,6 +561,7 @@ export const PROFILE_FIELDS = {
     // manage portfolio content (projects + certifications) and its public
     // share link on the dedicated "My Portfolio" page, not here.
     { name: 'resume_url',       label: 'Resume',             type: 'url' },
+    { name: 'seeking_mentor',   label: 'Open to mentorship?', type: 'checkbox' },
   ],
   academia: [
     { name: 'institution_name', label: 'Institution Name',    type: 'text',   required: true, suggestions: 'institutions' },
@@ -575,6 +580,7 @@ export const PROFILE_FIELDS = {
     { name: 'offerings',        label: 'What We Offer',       type: 'multiselect', options: ['Research Collaboration','IP Licensing','Consulting','Student Interns','Lab Access','Joint Publications'] },
     { name: 'linkedin_url',     label: 'LinkedIn URL',        type: 'url' },
     { name: 'google_scholar_url', label: 'Google Scholar URL', type: 'url' },
+    { name: 'seeking_mentor',     label: 'Open to mentorship?', type: 'checkbox' },
   ],
   corporate: [
     { name: 'company_name',        label: 'Company Name',        type: 'text',   required: true },
