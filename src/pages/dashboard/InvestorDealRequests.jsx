@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { investorAPI, publicAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
+import ApplicantInvitePanel from '../../components/ApplicantInvitePanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
   Plus, X, ChevronRight, Users, Clock,
@@ -24,6 +26,7 @@ const APP_STATUS_COLORS = {
 };
 
 export default function InvestorDealRequests() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -168,6 +171,11 @@ export default function InvestorDealRequests() {
             title="Deal Team"
             subtitle="Invite your own colleagues here to help review applications (editor / reviewer / viewer). Startups, students and academia don't get invited here — they join by applying to this deal once it's open, and appear under Applications below."
           />
+        </div>
+
+        {/* Cross-Ecosystem Phase F: invite applicants to this deal */}
+        <div className="mb-4">
+          <ApplicantInvitePanel entityType="investor" entityId={selected.id} entityLabel={selected.title} user={user} />
         </div>
 
         {/* Phase 40 (P8): Reviews */}

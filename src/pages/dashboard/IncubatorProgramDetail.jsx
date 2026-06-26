@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
+import ApplicantInvitePanel from '../../components/ApplicantInvitePanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
@@ -33,6 +35,7 @@ const STATUS_COLORS = {
 export default function IncubatorProgramDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [program, setProgram] = useState(null);
   const [startups, setStartups] = useState([]);
   const [milestones, setMilestones] = useState([]);
@@ -166,6 +169,11 @@ export default function IncubatorProgramDetail() {
       {/* Phase 40: Program team */}
       <div style={{ marginBottom: 16 }}>
         <CollaboratorsPanel entityType="incubator_program" entityId={program.id} title="Program Team" />
+      </div>
+
+      {/* Cross-Ecosystem Phase F: invite applicants to this program */}
+      <div style={{ marginBottom: 16 }}>
+        <ApplicantInvitePanel entityType="incubator" entityId={program.id} entityLabel={program.name} user={user} />
       </div>
 
       {/* Phase 40 (P8): Reviews */}

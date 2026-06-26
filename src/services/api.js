@@ -586,6 +586,21 @@ export const inviteAPI = {
   decline:   (id)       => post(`/challenge-invites/${id}/decline`),
 };
 
+// ── Cross-Ecosystem Phase F: generic applicant-invite APIs ───
+// One shared subsystem for the 4 call-for-applications personas
+// (investor deal requests / incubator programs / accelerator batches / lab announcements).
+// The controller requires entityType + entityId on every op (owner-gate).
+export const applicantInviteAPI = {
+  create: (entityType, entityId, { userIds = [], emails = [], message } = {}) =>
+    post('/applicant-invites', { entityType, entityId, userIds, emails, message }),
+  list: (entityType, entityId) =>
+    get(`/applicant-invites?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`),
+  revoke: (id, entityType, entityId, source) =>
+    del(`/applicant-invites/${id}?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}${source ? `&source=${encodeURIComponent(source)}` : ''}`),
+  remind: (id, entityType, entityId, message) =>
+    post(`/applicant-invites/${id}/remind`, { entityType, entityId, message }),
+};
+
 export const notificationAPI = {
   list:        ()        => get('/my/notifications'),
   unreadCount: ()        => get('/my/notifications/unread-count'),

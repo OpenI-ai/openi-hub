@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { labAnnouncementAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import ApplicantInvitePanel from '../../components/ApplicantInvitePanel';
 import toast from 'react-hot-toast';
 import { Megaphone, Plus, X, Pencil, Trash2, Globe, Lock, Calendar } from 'lucide-react';
 
@@ -10,6 +12,7 @@ const STATUS_COLORS = { draft: '#6B7280', open: '#22C55E', closed: '#EF4444' };
 const STATUS_OPTIONS = ['draft', 'open', 'closed'];
 
 export default function LabAnnouncements() {
+  const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
@@ -135,6 +138,10 @@ export default function LabAnnouncements() {
               <span style={{ flex: 1 }} />
               <button onClick={() => openEdit(a)} title="Edit" style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#555', display: 'flex' }}><Pencil size={16}/></button>
               <button onClick={() => handleDelete(a)} title="Delete" style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#EF4444', display: 'flex' }}><Trash2 size={16}/></button>
+            </div>
+            {/* Cross-Ecosystem Phase F: invite applicants to this announcement */}
+            <div style={{ marginTop: 12 }}>
+              <ApplicantInvitePanel entityType="lab" entityId={a.id} entityLabel={a.title} user={user} />
             </div>
           </div>
         ))}

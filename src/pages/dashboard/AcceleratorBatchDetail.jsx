@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { acceleratorAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { formatCurrency } from '../../utils/currency';
 import PortfolioHealthTab from '../../components/portfolio/PortfolioHealthTab';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
+import ApplicantInvitePanel from '../../components/ApplicantInvitePanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
   Loader2, ChevronLeft, Plus, X, CheckCircle, Trash2, Calendar,
@@ -35,6 +37,7 @@ const STATUS_COLORS = {
 export default function AcceleratorBatchDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [batch, setBatch] = useState(null);
   const [startups, setStartups] = useState([]);
   const [milestones, setMilestones] = useState([]);
@@ -149,6 +152,11 @@ export default function AcceleratorBatchDetail() {
       {/* Phase 40: Batch team */}
       <div style={{ marginBottom: 16 }}>
         <CollaboratorsPanel entityType="accelerator_batch" entityId={batch.id} title="Batch Team" />
+      </div>
+
+      {/* Cross-Ecosystem Phase F: invite applicants to this batch */}
+      <div style={{ marginBottom: 16 }}>
+        <ApplicantInvitePanel entityType="accelerator" entityId={batch.id} entityLabel={batch.name} user={user} />
       </div>
 
       {/* Phase 40 (P8): Reviews */}
