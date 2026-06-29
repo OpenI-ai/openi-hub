@@ -26,6 +26,8 @@
  * brief pause for render.
  */
 
+import { matchPath } from 'react-router-dom';
+
 // Helpers ---------------------------------------------------------------
 const navTarget = (slug) => `#tour-nav-${slug}`;
 
@@ -1763,3 +1765,20 @@ export const PAGE_TOURS = {
 
   // Add more pages here (route -> { title, steps }) in follow-up phases.
 };
+
+// Resolve the PAGE_TOURS entry for a given pathname.
+// Exact key match first (fast path, covers the vast majority of routes), then
+// fall back to react-router pattern matching so dynamic detail routes like
+// `/dashboard/find-mentees/42` resolve to their `:id` tour entry. Without this
+// the `:id` keys were dead — both DashboardLayout's "Tour this page" button gate
+// and TourWrapper did a literal `PAGE_TOURS[pathname]` lookup that never matched
+// a real id-bearing path.
+export function resolvePageTour(pathname) {
+  if (!pathname) return null;
+  if (PAGE_TOURS[pathname]) return PAGE_TOURS[pathname];
+  for (const key of Object.keys(PAGE_TOURS)) {
+    if (!key.includes(':')) continue; // only dynamic keys need pattern matching
+    if (matchPath({ path: key, end: true }, pathname)) return PAGE_TOURS[key];
+  }
+  return null;
+}

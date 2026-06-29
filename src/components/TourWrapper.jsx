@@ -30,7 +30,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Joyride, STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import { useAuth } from '../context/AuthContext';
-import { TOURS, PAGE_TOURS } from '../config/tours';  // Ship #12 (22 May 2026) — page-tour multiplex
+import { TOURS, resolvePageTour } from '../config/tours';  // Ship #12 (22 May 2026) — page-tour multiplex
 import { hasUserSeenTour, markTourSeen } from '../services/tourService';
 
 const G = '#D0A848';
@@ -85,7 +85,7 @@ export default function TourWrapper({ role, forceStart = false }) {
   const [pageMode, setPageMode] = useState(false);
   const tourDef = useMemo(() => (role && TOURS[role]) || null, [role]);
   const roleSteps = tourDef?.steps || [];
-  const pageDef = useMemo(() => PAGE_TOURS?.[location.pathname] || null, [location.pathname]);
+  const pageDef = useMemo(() => resolvePageTour(location.pathname), [location.pathname]);
   const pageSteps = pageDef?.steps || [];
   const steps = pageMode ? pageSteps : roleSteps;
 

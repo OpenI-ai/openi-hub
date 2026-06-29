@@ -15,7 +15,7 @@ import {
   BarChart3, Megaphone, CreditCard, BadgeCheck, DollarSign,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS, SECONDARY_NAV } from "../../config/personas";
-import { PAGE_TOURS } from "../../config/tours";  // Ship #12 (22 May 2026)
+import { resolvePageTour } from "../../config/tours";  // Ship #12 (22 May 2026) — matchPath-aware page-tour resolve
 import TourWrapper from "../../components/TourWrapper";  // single page/role tour mount for all dashboard routes
 import SearchBar from "../../components/SearchBar";
 import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
@@ -96,6 +96,8 @@ export default function DashboardLayout() {
   const { user, logout, activeRole } = useAuth();  // Phase 60.3 (s50): read activeRole
   const navigate = useNavigate();
   const location = useLocation();  // Ship #12 — for PAGE_TOURS lookup
+  // matchPath-aware so dynamic detail routes (`/dashboard/<x>/:id`) resolve their tour entry, not just exact keys.
+  const pageTour = resolvePageTour(location.pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Mobile Ship 1 (27 May 2026): mobile search bar visibility (slide-down panel)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -533,12 +535,12 @@ export default function DashboardLayout() {
             >
               <HelpCircle size={16} />
             </button>
-            {/* Ship #12 (22 May 2026) — Tour this page button (visible only when PAGE_TOURS covers current route) */}
-            {PAGE_TOURS && PAGE_TOURS[location.pathname] && (
+            {/* Ship #12 (22 May 2026) — Tour this page button (visible only when a page tour covers current route) */}
+            {pageTour && (
               <button
                 id="tour-topbar-page-tour"
                 onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
-                title={`Tour: ${PAGE_TOURS[location.pathname].title || 'this page'}`}
+                title={`Tour: ${pageTour.title || 'this page'}`}
                 aria-label="Tour this page"
                 style={{
                   marginLeft: 6,
