@@ -8,7 +8,6 @@ import { useParams, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, AlertCircle, Sparkles, CheckCircle2, XCircle, Award } from 'lucide-react';
 import { publicDeepTechShare } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
-import PublicTour from '../../components/PublicTour';
 import { DEEPTECH_SECTIONS, DEEPTECH_OPTIONS } from '../../config/deeptechSections';
 
 const G = '#D0A848';
@@ -137,8 +136,6 @@ export default function SharedDeepTech() {
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>}
           </div>
         )}
-        {/* Page tour */}
-        <PublicTour />
       </div>
     </PublicLayout>
   );

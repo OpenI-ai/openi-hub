@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Loader2, AlertCircle, CheckCircle, Send } from 'lucide-react';
 import PublicTour from '../../components/PublicTour';
+import PageTourButton from '../../components/PageTourButton';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -73,6 +74,9 @@ export default function ForgotPassword() {
                 ? `If an account exists for ${email}, we've sent a password reset link. The link is valid for 1 hour.`
                 : 'Enter your email and we will send you a link to reset your password.'}
             </p>
+            <div className="mt-4 flex justify-center">
+              <PageTourButton />
+            </div>
           </div>
 
           {!done && (

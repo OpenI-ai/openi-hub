@@ -7,7 +7,6 @@ import { useParams, Link } from 'react-router-dom';
 import { Target, Clock, Calendar, DollarSign, MapPin, Building2, Loader2, ArrowRight } from 'lucide-react';
 import { publicAPI } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
-import PublicTour from '../../components/PublicTour';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -124,8 +123,6 @@ export default function SharedChallenge() {
             </div>
           </>
         )}
-        {/* Page tour */}
-        <PublicTour />
       </div>
     </PublicLayout>
   );

@@ -11,6 +11,7 @@ import { publicAPI } from '../../services/api';
 import SearchBar from '../../components/SearchBar';
 import PlatformSlideshow from '../../components/PlatformSlideshow';
 import PublicTour from '../../components/PublicTour';
+import PageTourButton from '../../components/PageTourButton';
 
 // Icon map for CMS-provided icon names (string → component)
 const ICON_MAP = {
@@ -577,6 +578,10 @@ export default function Landing() {
             >
               Browse Marketplace
             </Link>
+          </div>
+
+          <div className="flex justify-center mb-8">
+            <PageTourButton />
           </div>
 
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>

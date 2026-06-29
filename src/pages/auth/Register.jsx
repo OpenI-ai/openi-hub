@@ -13,6 +13,7 @@ import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
 import PublicTour from '../../components/PublicTour';
+import PageTourButton from '../../components/PageTourButton';
 
 // Mobile Ship 6 (27 May 2026, PROF8) — fontSize bumped 14 -> 16 to suppress
 // iOS Safari auto-zoom on focus. Inputs below 16px trigger Safari's input
@@ -752,6 +753,9 @@ export default function Register() {
             <p className="text-sm mt-2" style={{ color: '#6b7280' }}>
               Pick the role that best describes you. You can always update your profile later.
             </p>
+            <div className="mt-4 flex justify-center">
+              <PageTourButton />
+            </div>
           </div>
           {PERSONA_GROUPS.map((group, gi) => (
             <div key={group.title} className={gi > 0 ? 'mt-7' : ''}>

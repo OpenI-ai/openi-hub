@@ -6,6 +6,7 @@ import safeStorage from '../../utils/safeStorage';
 import { Mail, Loader2, CheckCircle, AlertCircle, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PublicTour from '../../components/PublicTour';
+import PageTourButton from '../../components/PageTourButton';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -269,6 +270,9 @@ export default function VerifyEmail() {
                 : phase === 'confirm' ? 'Click the button below to confirm this is really you.'
                 : 'Two ways to verify: enter the 6-digit code below, or click the link in our email.'}
             </p>
+            <div className="mt-4 flex justify-center">
+              <PageTourButton />
+            </div>
           </div>
 
           {/* Confirm — explicit button click avoids pre-fetch consumption */}

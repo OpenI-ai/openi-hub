@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Lock, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import PublicTour from '../../components/PublicTour';
+import PageTourButton from '../../components/PageTourButton';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -78,6 +79,9 @@ export default function ResetPassword() {
                 ? 'Your password has been updated. Redirecting you to login…'
                 : 'Choose a strong password (minimum 8 characters).'}
             </p>
+            <div className="mt-4 flex justify-center">
+              <PageTourButton />
+            </div>
           </div>
 
           {!done && (
