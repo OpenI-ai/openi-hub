@@ -1412,6 +1412,42 @@ export const PAGE_TOURS = {
       },
     ],
   },
+  '/dashboard/lab/announcements': {
+    title: 'Facility Announcements',
+    steps: [
+      {
+        target: '#tour-page-lab-announcements',
+        title: 'Facility Announcements',
+        content: 'Post open calls inviting startups to apply for your lab\'s facilities, equipment time, or programs. Use New Announcement to create one; published calls appear in the ecosystem\'s Lab Facility Calls feed.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/browse-facilities': {
+    title: 'Lab Facility Calls',
+    steps: [
+      {
+        target: '#tour-page-browse-facilities',
+        title: 'Lab Facility Calls',
+        content: 'Discover open calls from labs across the ecosystem inviting startups to apply for facility access. Search and open any call to view its details and apply.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
+  '/dashboard/find-mentees': {
+    title: 'Find Mentees',
+    steps: [
+      {
+        target: '#tour-page-find-mentees',
+        title: 'Find Mentees',
+        content: 'Discover startups, students, and academics who have opted in to being mentored. Filter by persona, open a profile, and reach out to start a mentorship.',
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+    ],
+  },
   '/dashboard/sp/clients': {
     title: 'Active Clients',
     steps: [

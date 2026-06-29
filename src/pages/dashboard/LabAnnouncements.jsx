@@ -95,7 +95,7 @@ export default function LabAnnouncements() {
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h1 id="tour-page-lab-announcements" style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Megaphone size={22} color={G}/> Facility Announcements
         </h1>
         <button onClick={openCreate}

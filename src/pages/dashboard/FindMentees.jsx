@@ -124,7 +124,7 @@ export default function FindMentees() {
   // ── List view ────────────────────────────────────────────────
   return (
     <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <h1 id="tour-page-find-mentees" style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
         <UserPlus size={22} color={G} /> Find Mentees
       </h1>
       <p style={{ color: '#888', fontSize: 14, marginTop: 6, marginBottom: 20 }}>
