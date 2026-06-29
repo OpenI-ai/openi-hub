@@ -100,7 +100,7 @@ export default function PublicReports() {
                style={{ background: GOLD_LIGHT, color: GOLD_DARK }}>
             <BookOpen size={14} /> STARTUP ECOSYSTEM REPORTS
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold mb-4" style={{ color: DARK, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>
+          <h1 id="tour-page-reports" className="text-3xl md:text-5xl font-bold mb-4" style={{ color: DARK, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>
             Curated <span style={{ color: GOLD }}>Insights</span> for Innovators
           </h1>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>

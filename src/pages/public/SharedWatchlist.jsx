@@ -9,6 +9,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, Loader2, ArrowRight, Calendar, MapPin, Briefcase } from 'lucide-react';
 import { publicWatchlistShare } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
+import PublicTour from '../../components/PublicTour';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -66,7 +67,7 @@ export default function SharedWatchlist() {
                 <Star size={13} style={{ color: G }} />
                 <span>Shared Watchlist</span>
               </div>
-              <h1 style={{ fontSize: 26, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>{data.watchlist?.name || 'Watchlist'}</h1>
+              <h1 id="tour-page-share-watchlist" style={{ fontSize: 26, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>{data.watchlist?.name || 'Watchlist'}</h1>
               {data.watchlist?.description && (
                 <p style={{ fontSize: 13, color: '#666', margin: '0 0 12px', lineHeight: 1.6 }}>{data.watchlist.description}</p>
               )}
@@ -142,6 +143,8 @@ export default function SharedWatchlist() {
             </div>
           </>
         )}
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </PublicLayout>
   );

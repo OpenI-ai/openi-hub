@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { publicStartupProfileShare } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
+import PublicTour from '../../components/PublicTour';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -139,7 +140,7 @@ export default function SharedStartupProfile() {
               <img src={p.logo_url} alt={p.name} style={{ width: 96, height: 96, objectFit: 'contain', background: '#fafafa', borderRadius: 12, padding: 6 }} />
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 6px' }}>{p.name || 'Startup'}</h1>
+              <h1 id="tour-page-share-startup" style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 6px' }}>{p.name || 'Startup'}</h1>
               {p.tagline && <p style={{ fontSize: 14, color: '#666', margin: '0 0 14px', lineHeight: 1.5 }}>{p.tagline}</p>}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {p.sector && <Chip icon={<Briefcase size={11} />} label={p.sector} />}
@@ -276,6 +277,8 @@ export default function SharedStartupProfile() {
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</>}
           </div>
         )}
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </PublicLayout>
   );

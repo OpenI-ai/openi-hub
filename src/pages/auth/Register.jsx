@@ -12,6 +12,7 @@ import CityField from '../../components/CityField';
 import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, X, Building2,
 } from 'lucide-react';
+import PublicTour from '../../components/PublicTour';
 
 // Mobile Ship 6 (27 May 2026, PROF8) — fontSize bumped 14 -> 16 to suppress
 // iOS Safari auto-zoom on focus. Inputs below 16px trigger Safari's input
@@ -747,7 +748,7 @@ export default function Register() {
                 onError={e => { e.target.style.display = 'none'; }}
               />
             </Link>
-            <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>Choose your persona</h1>
+            <h1 id="tour-page-register" className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>Choose your persona</h1>
             <p className="text-sm mt-2" style={{ color: '#6b7280' }}>
               Pick the role that best describes you. You can always update your profile later.
             </p>
@@ -1234,6 +1235,8 @@ export default function Register() {
           </div>
         )}
       </div>
+      {/* Page tour */}
+      <PublicTour />
     </div>
   );
 }

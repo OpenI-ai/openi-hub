@@ -114,17 +114,24 @@ export default function TourWrapper({ role, forceStart = false }) {
     }
   }, [user, role, steps.length, forceStart, startFresh]);
 
-  // Listen for the manual "Take a tour" event from the top-bar button.
+  // Listen for the manual "Take a tour" (?) event from the top-bar button.
+  // Role tour first; if this persona has NO role tour but the current route has a
+  // page tour, fall back to the page tour (fixes the dead `?` on /dashboard index
+  // and any left-nav page whose persona lacks a role tour).
   useEffect(() => {
     const onReplay = (e) => {
       if (!e.detail?.role || e.detail.role === role) {
-        setPageMode(false);  // role-tour mode
+        if (roleSteps.length === 0 && pageSteps.length > 0) {
+          setPageMode(true);   // fall back to page tour
+        } else {
+          setPageMode(false);  // role-tour mode
+        }
         startFresh(0);
       }
     };
     window.addEventListener('openi-replay-tour', onReplay);
     return () => window.removeEventListener('openi-replay-tour', onReplay);
-  }, [role, startFresh]);
+  }, [role, startFresh, roleSteps.length, pageSteps.length]);
 
   // Ship #12 (22 May 2026) — page-tour event listener. Top-bar "Tour this
   // page" button dispatches this. Switches to page-mode and resets to step 0.

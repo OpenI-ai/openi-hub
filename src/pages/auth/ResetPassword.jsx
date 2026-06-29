@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Lock, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import PublicTour from '../../components/PublicTour';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -69,7 +70,7 @@ export default function ResetPassword() {
                 ? <CheckCircle size={28} style={{ color: '#16a34a' }} />
                 : <Lock size={28} style={{ color: '#D0A848' }} />}
             </div>
-            <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
+            <h1 id="tour-page-reset-password" className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
               {done ? 'Password updated' : 'Set a new password'}
             </h1>
             <p className="text-sm" style={{ color: '#6b7280' }}>
@@ -135,6 +136,8 @@ export default function ResetPassword() {
             </Link>
           </div>
         </div>
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </div>
   );

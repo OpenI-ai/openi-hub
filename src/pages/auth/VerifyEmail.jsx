@@ -5,6 +5,7 @@ import { profileAPI, orgAPI } from '../../services/api';
 import safeStorage from '../../utils/safeStorage';
 import { Mail, Loader2, CheckCircle, AlertCircle, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PublicTour from '../../components/PublicTour';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -254,7 +255,7 @@ export default function VerifyEmail() {
                   ? <AlertCircle size={28} style={{ color: '#dc2626' }} />
                   : <Mail size={28} style={{ color: '#D0A848' }} />}
             </div>
-            <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
+            <h1 id="tour-page-verify-email" className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
               {phase === 'done' ? 'Email verified!'
                 : phase === 'failed' ? 'Verification failed'
                 : phase === 'verifying' ? 'Verifying your email…'
@@ -412,6 +413,8 @@ export default function VerifyEmail() {
             </Link>
           </div>
         </div>
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </div>
   );

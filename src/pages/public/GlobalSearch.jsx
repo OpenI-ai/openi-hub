@@ -98,7 +98,7 @@ export default function GlobalSearch() {
       <div style={{ minHeight: '70vh', background: '#fafafa' }}>
         {/* Hero search */}
         <div style={{ background: '#1a1a2e', padding: '48px 24px 40px', textAlign: 'center' }}>
-          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
+          <h1 id="tour-page-search" style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
             Search <span style={{ color: G }}>OpenI Hub</span>
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 24 }}>

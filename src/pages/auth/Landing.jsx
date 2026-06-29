@@ -10,6 +10,7 @@ import {
 import { publicAPI } from '../../services/api';
 import SearchBar from '../../components/SearchBar';
 import PlatformSlideshow from '../../components/PlatformSlideshow';
+import PublicTour from '../../components/PublicTour';
 
 // Icon map for CMS-provided icon names (string → component)
 const ICON_MAP = {
@@ -531,6 +532,7 @@ export default function Landing() {
           </div>
 
           <h1
+            id="tour-page-landing"
             className="font-bold tracking-tight mb-6"
             style={{
               color: DARK,
@@ -1213,6 +1215,9 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Page tour (auto-start-once for guests + manual replay) */}
+      <PublicTour />
     </div>
   );
 }

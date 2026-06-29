@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Loader2, AlertCircle, CheckCircle, Send } from 'lucide-react';
+import PublicTour from '../../components/PublicTour';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -64,7 +65,7 @@ export default function ForgotPassword() {
                 ? <CheckCircle size={28} style={{ color: '#16a34a' }} />
                 : <Mail size={28} style={{ color: '#D0A848' }} />}
             </div>
-            <h1 className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
+            <h1 id="tour-page-forgot-password" className="text-xl font-bold mb-1" style={{ color: '#1a1a1a' }}>
               {done ? 'Check your inbox' : 'Forgot your password?'}
             </h1>
             <p className="text-sm" style={{ color: '#6b7280' }}>
@@ -117,6 +118,8 @@ export default function ForgotPassword() {
             </Link>
           </div>
         </div>
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </div>
   );

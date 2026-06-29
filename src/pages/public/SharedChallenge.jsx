@@ -7,6 +7,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Target, Clock, Calendar, DollarSign, MapPin, Building2, Loader2, ArrowRight } from 'lucide-react';
 import { publicAPI } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
+import PublicTour from '../../components/PublicTour';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -61,7 +62,7 @@ export default function SharedChallenge() {
                 </span>
                 {challenge.visibility === 'private' && <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef2f2', color: '#dc2626' }}>Private</span>}
               </div>
-              <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>{challenge.title}</h1>
+              <h1 id="tour-page-share-challenge" style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>{challenge.title}</h1>
               {challenge.company_name && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   {challenge.corporate_logo && <img src={challenge.corporate_logo} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />}
@@ -123,6 +124,8 @@ export default function SharedChallenge() {
             </div>
           </>
         )}
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </PublicLayout>
   );

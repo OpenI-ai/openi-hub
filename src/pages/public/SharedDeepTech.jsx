@@ -8,6 +8,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, AlertCircle, Sparkles, CheckCircle2, XCircle, Award } from 'lucide-react';
 import { publicDeepTechShare } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
+import PublicTour from '../../components/PublicTour';
 import { DEEPTECH_SECTIONS, DEEPTECH_OPTIONS } from '../../config/deeptechSections';
 
 const G = '#D0A848';
@@ -64,7 +65,7 @@ export default function SharedDeepTech() {
         <div style={{ ...card, padding: 28, marginBottom: 16, textAlign: 'center' }}>
           <Award size={36} color={G} style={{ margin: '0 auto 10px', display: 'block' }} />
           <p style={{ fontSize: 11, fontWeight: 700, color: G, letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 8px' }}>DeepTech Assessment</p>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px' }}>{a.startup_name || 'Startup'}</h1>
+          <h1 id="tour-page-share-deeptech" style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px' }}>{a.startup_name || 'Startup'}</h1>
           {a.assessor_name && <p style={{ fontSize: 12, color: '#888', margin: '0 0 18px' }}>Assessed by {a.assessor_name}</p>}
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 12, background: `${verdictColor}15`, border: `1.5px solid ${verdictColor}` }}>
@@ -136,6 +137,8 @@ export default function SharedDeepTech() {
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>}
           </div>
         )}
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </PublicLayout>
   );

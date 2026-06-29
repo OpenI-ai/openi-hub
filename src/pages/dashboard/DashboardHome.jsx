@@ -145,7 +145,7 @@ export default function DashboardHome() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:28, flexWrap:"wrap", gap:12 }}>
         <div>
-          <h1 style={{ margin:0, color:"#1a1a1a", fontSize:22, fontWeight:700 }}>
+          <h1 id="tour-page-dashboard-index" style={{ margin:0, color:"#1a1a1a", fontSize:22, fontWeight:700 }}>
             Welcome back{firstName ? `, ${firstName}` : ""} 👋
           </h1>
           <p style={{ margin:"4px 0 0", color:"#888888", fontSize:13 }}>

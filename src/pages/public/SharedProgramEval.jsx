@@ -8,6 +8,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, AlertCircle, Sparkles, Award, Calendar, User } from 'lucide-react';
 import { publicProgramEvalShare } from '../../services/api';
 import PublicLayout from '../../components/PublicLayout';
+import PublicTour from '../../components/PublicTour';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -59,7 +60,7 @@ export default function SharedProgramEval() {
         <div style={{ ...card, padding: 28, marginBottom: 16, textAlign: 'center' }}>
           <Award size={36} color={G} style={{ margin: '0 auto 10px', display: 'block' }} />
           <p style={{ fontSize: 11, fontWeight: 700, color: G, letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 8px' }}>Portfolio Evaluation</p>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 10px' }}>{e.startup_name || e.title || 'Portfolio Snapshot'}</h1>
+          <h1 id="tour-page-share-program-evals" style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 10px' }}>{e.startup_name || e.title || 'Portfolio Snapshot'}</h1>
 
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 18, fontSize: 12, color: '#666' }}>
             {e.evaluation_date && (
@@ -127,6 +128,8 @@ export default function SharedProgramEval() {
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>}
           </div>
         )}
+        {/* Page tour */}
+        <PublicTour />
       </div>
     </PublicLayout>
   );

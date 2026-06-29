@@ -243,7 +243,7 @@ export default function PublicMarketplace() {
                style={{ background: GOLD_LIGHT, color: GOLD_DARK }}>
             <Briefcase size={14} /> OPEN INNOVATION MARKETPLACE
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold mb-4" style={{ color: DARK, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>
+          <h1 id="tour-page-marketplace" className="text-3xl md:text-5xl font-bold mb-4" style={{ color: DARK, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>
             Explore Innovation <span style={{ color: GOLD }}>Challenges</span>
           </h1>
           <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>

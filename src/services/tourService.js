@@ -71,3 +71,35 @@ export async function markTourSeen(role) {
 export function fireReplayEvent(role) {
   window.dispatchEvent(new CustomEvent('openi-replay-tour', { detail: { role } }));
 }
+
+// ── Page-tour seen store (guest auto-start-once) ──────────────────
+// Separate from the role-tour store (LS_KEY) above. Keyed by pathname so each
+// public/auth/shared page auto-starts its tour at most once per browser. Pure
+// localStorage — works fully logged-out (no backend, no role required).
+const LS_PAGE_KEY = 'openi_page_tours';
+
+function readPageLS() {
+  try {
+    return JSON.parse(localStorage.getItem(LS_PAGE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+/** Whether this browser has already auto-seen the page tour for `pathname`. */
+export function hasSeenPageTour(pathname) {
+  if (!pathname) return true;
+  return Boolean(readPageLS()[pathname]);
+}
+
+/** Record that the page tour for `pathname` has been auto-shown (suppresses future auto-start). */
+export function markPageTourSeen(pathname) {
+  if (!pathname) return;
+  const ls = readPageLS();
+  ls[pathname] = new Date().toISOString();
+  try {
+    localStorage.setItem(LS_PAGE_KEY, JSON.stringify(ls));
+  } catch {
+    /* quota exceeded etc. — non-fatal */
+  }
+}

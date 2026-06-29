@@ -4,8 +4,10 @@
  */
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, Menu, X } from 'lucide-react';
+import { Shield, Menu, X, HelpCircle } from 'lucide-react';
 import SearchBar from './SearchBar';
+import PublicTour from './PublicTour';
+import { resolvePageTour } from '../config/tours';
 
 // Brand colors (same as Landing.jsx)
 const GOLD = '#D0A848';
@@ -38,6 +40,8 @@ export default function PublicLayout({ children }) {
   const isActive = (path) => location.pathname === path;
   // Hide the inline header SearchBar on the /search page itself — it has its own hero bar
   const showHeaderSearch = location.pathname !== '/search';
+  // "Tour this page" button is shown only when a page tour covers the current route.
+  const pageTour = resolvePageTour(location.pathname);
 
   const navLinkStyle = (path) => ({
     color: isActive(path) ? GOLD : GRAY,
@@ -112,6 +116,20 @@ export default function PublicLayout({ children }) {
             >
               <XIcon size={18} />
             </a>
+            {pageTour && (
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
+                title={`Tour: ${pageTour.title || 'this page'}`}
+                aria-label="Tour this page"
+                className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
+                style={{ color: GRAY }}
+                onMouseEnter={e => e.currentTarget.style.color = GOLD}
+                onMouseLeave={e => e.currentTarget.style.color = GRAY}
+              >
+                <HelpCircle size={18} />
+              </button>
+            )}
             <Link
               to="/dashboard/login"
               className="hidden sm:inline text-sm font-semibold px-4 py-2 transition-colors"
@@ -189,6 +207,19 @@ export default function PublicLayout({ children }) {
               >
                 Pricing
               </Link>
+              {pageTour && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    window.dispatchEvent(new CustomEvent('openi-page-tour'));
+                  }}
+                  className="py-2.5 rounded-md transition-colors text-left flex items-center gap-2"
+                  style={{ color: GRAY }}
+                >
+                  <HelpCircle size={16} /> Tour this page
+                </button>
+              )}
               <Link
                 to="/dashboard/login"
                 onClick={() => setMobileNavOpen(false)}
@@ -226,6 +257,9 @@ export default function PublicLayout({ children }) {
 
       {/* ═══ CONTENT ═══ */}
       <main className="flex-1">{children}</main>
+
+      {/* Page tour (auto-start-once for guests + manual replay via header button) */}
+      <PublicTour />
 
       {/* ═══ FOOTER ═══ */}
       <footer className="px-6 py-12" style={{ background: DARK, color: '#9ca3af' }}>

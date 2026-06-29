@@ -167,6 +167,7 @@ export default function PublicFAQ() {
             <span className="text-sm font-semibold">Frequently Asked Questions</span>
           </div>
           <h1
+            id="tour-page-faq"
             className="text-3xl md:text-5xl font-extrabold mb-5"
             style={{ color: DARK, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}
           >
