@@ -35,9 +35,31 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     ignoreErrors: [
       /Unexpected end of JSON input/,
       /Failed to execute 'json' on 'Response'/,
+      // Stale-bundle chunk-load failures — handled by the vite:preloadError
+      // auto-reload above, so the error is recovered noise, not a user-facing bug.
+      /Failed to fetch dynamically imported module/,
+      /Importing a module script failed/,
+      /error loading dynamically imported module/,
     ],
   });
 }
+
+// Stale-bundle recovery (Sentry "Failed to fetch dynamically imported module").
+// When a user keeps a tab open across a Vercel deploy, React.lazy() tries to fetch
+// an old hashed chunk URL that 404s after the new build. Vite fires a
+// `vite:preloadError` event in that case. We force a one-time reload to pull the
+// fresh index.html + new chunk hashes. A sessionStorage guard prevents a reload
+// loop if the reload itself can't recover (e.g. genuine network outage).
+window.addEventListener('vite:preloadError', (event) => {
+  const KEY = 'openi_chunk_reload_ts';
+  const last = Number(sessionStorage.getItem(KEY) || 0);
+  // Only auto-reload once per 10s window — guards against an infinite loop.
+  if (Date.now() - last > 10000) {
+    sessionStorage.setItem(KEY, String(Date.now()));
+    event.preventDefault(); // stop the default unhandled-rejection surfacing
+    window.location.reload();
+  }
+});
 
 const rootElement = document.getElementById('root');
 
