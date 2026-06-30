@@ -163,9 +163,9 @@ export default function PipelineHealth() {
   const ep = data.enrichment_pool || {};
 
   return (
-    <div className="px-6 py-5 space-y-5">
+    <div className="py-5 space-y-5 min-w-0">
       {/* Top status strip */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4 flex-wrap">
+      <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 flex items-center gap-3 sm:gap-4 flex-wrap">
         <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${TONE_CLASS[style.tone]}`}>
           {style.tone === 'green' ? <CheckCircle2 size={18} /> : style.tone === 'red' ? <XCircle size={18} /> : <Activity size={18} />}
           <span className="font-semibold text-sm">{style.label}</span>
@@ -174,7 +174,7 @@ export default function PipelineHealth() {
           <span className="font-mono text-xs text-gray-400">ok_reason:</span>{' '}
           <span className="font-mono text-xs text-gray-700">{reason}</span>
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="sm:ml-auto flex items-center gap-3 flex-wrap">
           <label className="flex items-center gap-2 text-xs text-gray-600 select-none cursor-pointer">
             <input
               type="checkbox"
@@ -228,7 +228,7 @@ export default function PipelineHealth() {
           <Row label="Kicks (lifetime)" value={fmtNum(wd.kick_count)} />
           <Row label="Last kick" value={relTime(wd.last_kick_at)} />
           <Row label="Last wedge" value={relTime(wd.last_wedge_at)} />
-          <div className="pt-2 mt-2 border-t border-gray-100 text-xs text-gray-500">
+          <div className="pt-2 mt-2 border-t border-gray-100 text-xs text-gray-500 break-words">
             stale&gt;{Math.floor((wd.stale_threshold_ms ?? 0) / 1000)}s · backlog&gt;{wd.kick_threshold ?? '?'} · 24h redeploys: {wd.recent_redeploys_24h ?? 0}
           </div>
         </HealthCard>
