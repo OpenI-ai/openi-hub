@@ -312,6 +312,20 @@ export default function StartupDiscovery() {
               </button>
             </div>
           )}
+
+          {canAdd && (
+            <div className="mt-10 flex flex-col items-center gap-2 border-t border-gray-100 pt-6">
+              <p className="text-sm text-gray-500">
+                Can&apos;t find the startup you&apos;re looking for? Add it to the database.
+              </p>
+              <button
+                onClick={() => setShowAdd(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-500 text-dark-950 font-semibold text-sm rounded-lg hover:bg-primary-400"
+              >
+                <Plus size={15} /> Add a startup
+              </button>
+            </div>
+          )}
         </>
       )}
 
