@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { corporateAPI } from '../../services/api';
 import {
-  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu,
+  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu, Plus,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
+import AddStartupModal from '../../components/AddStartupModal';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -19,6 +20,10 @@ export default function CorporateStartupSearch() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [, setTaxLoading] = useState(true);
+  // Add Startup — this route is corporate-gated, and corporate is in the
+  // STARTUP_ADDER_ROLES set, so a scout on this page can submit a startup that
+  // isn't in the Hub yet (same claimable stub the crawler/CSV path makes).
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => { loadTaxonomy(); }, []);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on page/filters change; `loadStartups` is a stable inline closure
@@ -65,6 +70,12 @@ export default function CorporateStartupSearch() {
           <h2 id="tour-page-corp-search-header" style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Discover Startups</h2>
           <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0 0' }}>{total.toLocaleString()} startups found</p>
         </div>
+        <button
+          onClick={() => setShowAdd(true)}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#1a1a1a', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+        >
+          <Plus size={15} /> Add Startup
+        </button>
       </div>
 
       {/* Top horizontal filter bar */}
@@ -85,7 +96,13 @@ export default function CorporateStartupSearch() {
           <div style={{ ...card, padding: 40, textAlign: 'center' }}>
             <Rocket size={32} style={{ color: '#ddd', marginBottom: 10 }} />
             <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No startups found</p>
-            <p style={{ fontSize: 12, color: '#aaa' }}>Try adjusting your filters</p>
+            <p style={{ fontSize: 12, color: '#aaa', marginBottom: 14 }}>Try adjusting your filters — or add a startup that isn&apos;t in the Hub yet.</p>
+            <button
+              onClick={() => setShowAdd(true)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#1a1a1a', border: 'none', cursor: 'pointer' }}
+            >
+              <Plus size={15} /> Add a startup
+            </button>
           </div>
         ) : (
           <>
@@ -157,6 +174,13 @@ export default function CorporateStartupSearch() {
           </>
         )}
       </div>
+
+      <AddStartupModal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        onAdded={() => { setPage(1); loadStartups(); }}
+        initialName={filters.search}
+      />
     </div>
   );
 }
