@@ -13,6 +13,19 @@ const STATUS_COLORS = {
   'Licensed (Exclusive – HAL)': 'bg-purple-100 text-purple-700 border-purple-200',
 };
 
+// Normalize jurisdiction into an array for the render path (`.map`). The DB
+// stores jurisdiction as a plain string (e.g. 'India', 'IN', 'US, EU'); older
+// shapes used an array. Coerce: array → as-is, comma/semicolon string → split,
+// single string → [string], null/empty → ['IN'] fallback. Prevents the
+// `record.jurisdiction.map is not a function` crash on populated tables.
+function toJurisdictionArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === 'string' && value.trim()) {
+    return value.split(/[,;]/).map(s => s.trim()).filter(Boolean);
+  }
+  return ['IN'];
+}
+
 export default function IPRDatabase() {
   // Phase 94 — gate Add/Edit + endpoint choice by role.
   const { user } = useAuth();
@@ -169,14 +182,14 @@ export default function IPRDatabase() {
           startup: r.startup_name || r.startup || '',
           type: r.type || 'Patent',
           status: r.status || 'Filed',
-          jurisdiction: r.jurisdiction || (r.jurisdictions ? r.jurisdictions : ['IN']),
+          jurisdiction: toJurisdictionArray(r.jurisdiction ?? r.jurisdictions),
           openi_share: r.openi_share || 0,
           startup_share: r.startup_share || 100,
           filingDate: r.filing_date ? new Date(r.filing_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.filingDate || '',
           grantDate: r.grant_date ? new Date(r.grant_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.grantDate || null,
           expiryDate: r.expiry_date ? new Date(r.expiry_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.expiryDate || '',
           licensing: r.licensing || 'None',
-          inventors: r.inventors || [],
+          inventors: Array.isArray(r.inventors) ? r.inventors : [],
         }));
         setIprRecords(normalized);
       } catch {
@@ -209,14 +222,14 @@ export default function IPRDatabase() {
           startup: r.startup_name || r.startup || '',
           type: r.type || 'Patent',
           status: r.status || 'Filed',
-          jurisdiction: r.jurisdiction || (r.jurisdictions ? r.jurisdictions : ['IN']),
+          jurisdiction: toJurisdictionArray(r.jurisdiction ?? r.jurisdictions),
           openi_share: r.openi_share || 0,
           startup_share: r.startup_share || 100,
           filingDate: r.filing_date ? new Date(r.filing_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.filingDate || '',
           grantDate: r.grant_date ? new Date(r.grant_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.grantDate || null,
           expiryDate: r.expiry_date ? new Date(r.expiry_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : r.expiryDate || '',
           licensing: r.licensing || 'None',
-          inventors: r.inventors || [],
+          inventors: Array.isArray(r.inventors) ? r.inventors : [],
         }));
         setIprRecords(normalized);
       })
