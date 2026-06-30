@@ -7,28 +7,13 @@ import FileUpload from '../../components/FileUpload';
 import {
   Search, Target, ChevronLeft, Clock, Calendar, DollarSign, MapPin,
   Building2, Users, Loader2, AlertCircle, CheckCircle, FileText,
-  ChevronDown, ChevronUp, Upload, X, HelpCircle, Send, Filter, ArrowUpDown,
+  ChevronDown, ChevronUp, Upload, X, HelpCircle, Send, Filter,
   Share2, Linkedin, ExternalLink,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
-
-const SORT_OPTIONS = [
-  { value: '', label: 'Default' },
-  { value: 'relevance', label: 'Relevance' },
-  { value: 'newest', label: 'Newest First' },
-  { value: 'deadline', label: 'Deadline Soon' },
-  { value: 'applications', label: 'Most Applications' },
-];
-
-const CHALLENGE_TYPES = [
-  { value: '', label: 'All Types' },
-  { value: 'partner', label: 'Partner' },
-  { value: 'source', label: 'Source' },
-  { value: 'invest', label: 'Invest' },
-];
 
 const STATUS_BADGE = {
   applied:     { bg: '#eff6ff', color: '#2563eb', label: 'Applied' },
@@ -66,7 +51,7 @@ export default function Marketplace() {
   const [taxonomy, setTaxonomy] = useState({ sectors: [], technologies: [], usecases: [] });
   const [sort, setSort] = useState('');
   const [challengeType, setChallengeType] = useState('');
-  const [facets, setFacets] = useState({ sector: {}, challenge_type: {} });
+  const [facets] = useState({ sector: {}, challenge_type: {} });
 
   // Detail/apply state — Phase 120: selectedId now derived from URL :id param
   const navigate = useNavigate();
@@ -174,7 +159,6 @@ export default function Marketplace() {
   };
 
   const handleSearch = () => { loadChallenges(1, search, filters, sort, challengeType); };
-  const handleSort = (val) => { setSort(val); loadChallenges(1, search, filters, val, challengeType); };
   const handleChallengeType = (val) => { setChallengeType(val); loadChallenges(1, search, filters, sort, val); };
   const clearFilters = () => {
     const empty = { sector: '', technology: '', usecase: '', location: '', company: '' };

@@ -31,7 +31,8 @@ export default function BrowseLabFacilities() {
     } catch { toast.error('Failed to load facility calls'); }
     setLoading(false);
   };
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [query]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [query]);
 
   // Route-driven detail
   useEffect(() => {

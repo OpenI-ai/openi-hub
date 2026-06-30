@@ -36,7 +36,8 @@ export default function FindMentees() {
     } catch { toast.error('Failed to load mentees'); }
     setLoading(false);
   };
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [query, persona]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [query, persona]);
 
   // Route-driven detail
   useEffect(() => {
