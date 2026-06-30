@@ -11,12 +11,12 @@ import PipelineHealth from '../../components/PipelineHealth';
 
 function StatCard({ label, value, sub, icon: Icon, color }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-start gap-4">
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
         <Icon size={18} className="text-white" />
       </div>
-      <div>
-        <p className="text-2xl font-display font-bold text-gray-900">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-xl sm:text-2xl font-display font-bold text-gray-900 break-words">{typeof value === 'number' ? value.toLocaleString() : value}</p>
         <p className="text-sm text-gray-500">{label}</p>
         {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
       </div>
@@ -503,37 +503,37 @@ export default function StartupCrawling() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div id="tour-page-crawling" className="px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
+      <div id="tour-page-crawling" className="px-4 sm:px-6 py-5 border-b border-gray-200 bg-white flex-shrink-0">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <Globe size={20} className="text-primary-500" />
-              <h1 className="text-xl font-display font-bold text-gray-900">Startup Crawling & Enrichment</h1>
+              <Globe size={20} className="text-primary-500 flex-shrink-0" />
+              <h1 className="text-lg sm:text-xl font-display font-bold text-gray-900">Startup Crawling & Enrichment</h1>
             </div>
             <p className="text-sm text-gray-500">Discover, enrich, and manage startup data from public sources</p>
           </div>
           <button onClick={handleBatchEnrich} disabled={batchRunning}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-xl text-sm font-semibold hover:bg-primary-400 transition-colors disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-xl text-sm font-semibold hover:bg-primary-400 transition-colors disabled:opacity-50 flex-shrink-0 whitespace-nowrap">
             {batchRunning ? <Loader2 size={15} className="animate-spin" /> : <Zap size={15} />}
             {batchRunning ? 'Enriching...' : 'Enrich Missing Data'}
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <StatCard label="Total Startups" value={stats.imported_total || 0} sub="In startup_profiles" icon={Database} color="bg-primary-500" />
           <StatCard label="Pending Admin Review" value={enrichStats.pending || 0} sub={`${enrichStats.approved || 0} approved · ${enrichStats.rejected || 0} rejected · awaiting human decision`} icon={Zap} color="bg-yellow-400" />
           <StatCard label="Pending Review" value={stats.pending_review || 0} sub={`${(stats.approved || 0).toLocaleString()} approved`} icon={Eye} color="bg-blue-500" />
           <StatCard label="Schedules" value={schedules.filter(s => s.is_enabled).length} sub={`${schedules.length} total configured`} icon={Calendar} color="bg-indigo-500" />
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 mb-5 bg-gray-100 rounded-xl p-1">
+        {/* Tabs — scrollable on mobile (6 tabs overflow <sm); equal-width flex-1 from sm up */}
+        <div className="flex gap-1 mb-5 bg-gray-100 rounded-xl p-1 overflow-x-auto">
           {tabs.map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+              className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-2 px-3 sm:px-0 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
               {tab.label}
               {tab.count > 0 && <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-gray-200 text-gray-600'}`}>{tab.count.toLocaleString()}</span>}
             </button>
