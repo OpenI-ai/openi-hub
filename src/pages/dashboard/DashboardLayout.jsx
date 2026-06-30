@@ -98,6 +98,11 @@ export default function DashboardLayout() {
   const location = useLocation();  // Ship #12 — for PAGE_TOURS lookup
   // matchPath-aware so dynamic detail routes (`/dashboard/<x>/:id`) resolve their tour entry, not just exact keys.
   const pageTour = resolvePageTour(location.pathname);
+  // Mobile Ship 2 (DL3): page label for the mobile topbar (breadcrumb is hidden <md).
+  // Longest-matching NAV `to` prefix so detail routes (/dashboard/startups/:id) resolve to their parent label.
+  const currentPageLabel = NAV
+    .filter(n => n.to === location.pathname || (!n.end && location.pathname.startsWith(n.to + '/')) || (n.to !== '/dashboard' && location.pathname.startsWith(n.to)))
+    .sort((a, b) => b.to.length - a.to.length)[0]?.label || 'Dashboard';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Mobile Ship 1 (27 May 2026): mobile search bar visibility (slide-down panel)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -506,6 +511,11 @@ export default function DashboardLayout() {
             <span style={{ color: C.textSecond }}>Dashboard</span>
           </div>
 
+          {/* Mobile Ship 2 (DL3): page-title-only anchor on mobile (breadcrumb is hidden <md) */}
+          <span className="md:hidden" style={{ fontSize:14, fontWeight:700, color: C.textSecond, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", minWidth:0 }}>
+            {currentPageLabel}
+          </span>
+
           {/* Global AI Ask search in top bar */}
           <div style={{ flex:1, justifyContent:"center", maxWidth:480, marginLeft:"auto", marginRight:"auto" }} className="hidden md:flex">  {/* Phase 123: removed inline display:"flex" — was overriding Tailwind `hidden` on mobile */}
             <SearchBar
@@ -542,8 +552,10 @@ export default function DashboardLayout() {
                 onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
                 title={`Tour: ${pageTour.title || 'this page'}`}
                 aria-label="Tour this page"
+                className="hidden sm:inline-flex"  /* Mobile Ship 2 (DL2): hide pill <640px to stop topbar overflow at 375px; HelpCircle replay button stays */
                 style={{
                   marginLeft: 6,
+                  alignItems: 'center',
                   padding: '4px 10px',
                   background: '#fff8ec',
                   color: '#92700a',

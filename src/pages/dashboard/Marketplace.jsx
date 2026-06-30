@@ -306,7 +306,7 @@ export default function Marketplace() {
     );
 
     return (
-      <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
+      <div style={{ padding: '24px 16px', maxWidth: 900, margin: '0 auto' }}>
         <button onClick={() => navigate('/dashboard/marketplace')}
           style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Challenges
@@ -467,7 +467,7 @@ export default function Marketplace() {
 
   // ── Browse / My Applications tabs ───────────────────────────
   return (
-    <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
+    <div style={{ padding: '24px 16px', maxWidth: 1000, margin: '0 auto' }}>
       {/* Ship #12 follow-up — tour anchors */}
       <div id="tour-page-marketplace-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
