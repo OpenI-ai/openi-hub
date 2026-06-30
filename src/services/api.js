@@ -81,6 +81,7 @@ async function request(method, path, body = null, isFormData = false) {
     err.status   = res.status;
     if (data.recourse) err.recourse = data.recourse;
     if (data.org)      err.org      = data.org;
+    if (data.startup)  err.startup  = data.startup;
     if (data.error)    err.error    = data.error;
     throw err;
   }
@@ -599,6 +600,15 @@ export const applicantInviteAPI = {
     del(`/applicant-invites/${id}?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}${source ? `&source=${encodeURIComponent(source)}` : ''}`),
   remind: (id, entityType, entityId, message) =>
     post(`/applicant-invites/${id}/remind`, { entityType, entityId, message }),
+};
+
+// ── Scout-add: in-app "Add Startup" ─────────────────────────
+// Creates a claimable imported stub in startup_profiles. On a dedup hit the
+// backend returns 409 with { error, recourse:'claim'|'join', startup:{...} },
+// surfaced on the thrown error as err.status/err.recourse/err.startup.
+export const startupAddAPI = {
+  add: ({ company_name, website, sector, description } = {}) =>
+    post('/startups/add', { company_name, website, sector, description }),
 };
 
 export const notificationAPI = {

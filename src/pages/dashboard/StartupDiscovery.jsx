@@ -2,12 +2,22 @@ import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { startupAPI, publicAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
+import AddStartupModal from '../../components/AddStartupModal';
 import {
   Search, Cpu, MapPin, Users, Wallet, Bookmark, BookmarkCheck,
-  ChevronLeft, ChevronRight, Globe, Calendar,
+  ChevronLeft, ChevronRight, Globe, Calendar, Plus,
 } from 'lucide-react';
+
+// Personas allowed to submit a scouted startup to the catalogue: OpenI staff
+// (admin, evaluator) + every innovation-seeker persona. Provider personas
+// (startup/student/academia) are excluded — a startup doesn't add startups.
+const STARTUP_ADDER_ROLES = [
+  'admin', 'evaluator', 'corporate', 'government', 'investor',
+  'mentor', 'lab', 'incubator', 'accelerator', 'service_provider',
+];
 
 function formatFunding(val, currency, unit) {
   if (!val) return null;
@@ -129,6 +139,9 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable =
 
 export default function StartupDiscovery() {
   const navigate = useNavigate();
+  const { user, activeRole } = useAuth();
+  const canAdd = STARTUP_ADDER_ROLES.includes(activeRole || user?.role);
+  const [showAdd, setShowAdd] = useState(false);
   const [startups, setStartups] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -205,12 +218,22 @@ export default function StartupDiscovery() {
           <h1 className="text-2xl font-display font-bold text-gray-900">Discover Startups</h1>
           <p className="text-gray-500 text-sm mt-0.5">{total.toLocaleString()} startups · Search and filter the ecosystem</p>
         </div>
-        {watchlist.length > 0 && (
-          <p className="text-sm text-primary-600">
-            <BookmarkCheck size={14} className="inline mr-1" />
-            {watchlist.length} in watchlist
-          </p>
-        )}
+        <div className="flex items-center gap-4">
+          {watchlist.length > 0 && (
+            <p className="text-sm text-primary-600">
+              <BookmarkCheck size={14} className="inline mr-1" />
+              {watchlist.length} in watchlist
+            </p>
+          )}
+          {canAdd && (
+            <button
+              onClick={() => setShowAdd(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-500 text-dark-950 font-semibold text-sm rounded-lg hover:bg-primary-400 flex-shrink-0"
+            >
+              <Plus size={15} /> Add Startup
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Top horizontal filter bar */}
@@ -230,6 +253,21 @@ export default function StartupDiscovery() {
           <Search size={40} className="mx-auto text-gray-200 mb-4" />
           <h3 className="font-semibold text-gray-600">No startups match your filters</h3>
           <p className="text-gray-400 text-sm mt-1">Try clearing filters or adjusting the search term</p>
+          {canAdd && (
+            <div className="mt-5">
+              <p className="text-sm text-gray-500 mb-2">
+                {debouncedSearch
+                  ? <>Can&apos;t find <span className="font-semibold text-gray-700">&ldquo;{debouncedSearch}&rdquo;</span>? Add it to the database.</>
+                  : 'Met a startup that isn\u2019t here yet? Add it to the database.'}
+              </p>
+              <button
+                onClick={() => setShowAdd(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-500 text-dark-950 font-semibold text-sm rounded-lg hover:bg-primary-400"
+              >
+                <Plus size={15} /> Add this startup
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -276,6 +314,13 @@ export default function StartupDiscovery() {
           )}
         </>
       )}
+
+      <AddStartupModal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        onAdded={() => fetchStartups()}
+        initialName={startups.length === 0 ? (debouncedSearch || '') : ''}
+      />
     </div>
   );
 }
