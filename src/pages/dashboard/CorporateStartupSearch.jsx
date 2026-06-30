@@ -171,6 +171,19 @@ export default function CorporateStartupSearch() {
                   style={{ padding: '6px 14px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', cursor: page < Math.ceil(total / 12) ? 'pointer' : 'not-allowed', color: page < Math.ceil(total / 12) ? '#555' : '#ccc' }}>Next</button>
               </div>
             )}
+
+            {/* Always-visible footer CTA — parity with StartupDiscovery. The FTS
+                rarely returns zero rows, so the empty-state CTA above is hard to
+                reach; this gives a scout an Add path even when results exist. */}
+            <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Can&apos;t find the startup you&apos;re looking for? Add it to the database.</p>
+              <button
+                onClick={() => setShowAdd(true)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#1a1a1a', border: 'none', cursor: 'pointer' }}
+              >
+                <Plus size={15} /> Add a startup
+              </button>
+            </div>
           </>
         )}
       </div>
