@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brain, MapPin, Calendar, Tag, Info } from 'lucide-react';
+import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brain, MapPin, Calendar, Tag, Info, BookOpen } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import SearchBar from '../../components/SearchBar';
 import UpgradeCTA from '../../components/UpgradeCTA';
@@ -16,6 +16,7 @@ const TABS = [
   { key: 'challenges', label: 'Challenges', icon: Building2 },
   { key: 'startups', label: 'Startups', icon: Rocket },
   { key: 'directory', label: 'People', icon: Users },
+  { key: 'knowledge', label: 'Knowledge', icon: BookOpen },
 ];
 
 // Map AI intent → default tab
@@ -56,7 +57,7 @@ export default function GlobalSearch() {
         }
       } else if (mode === 'semantic') {
         // Semantic search — one type at a time
-        const types = activeTab === 'all' ? ['challenges', 'startups', 'directory'] : [activeTab];
+        const types = activeTab === 'all' ? ['challenges', 'startups', 'directory', 'knowledge'] : [activeTab];
         const promises = types.map(t => publicAPI.semanticSearch(term, t, 8));
         const res = await Promise.all(promises);
         const combined = {};
@@ -90,7 +91,7 @@ export default function GlobalSearch() {
   };
 
   const totalResults = results
-    ? (results.challenges?.total || 0) + (results.startups?.total || 0) + (results.directory?.total || 0)
+    ? (results.challenges?.total || 0) + (results.startups?.total || 0) + (results.directory?.total || 0) + (results.knowledge?.total || 0)
     : 0;
 
   return (
@@ -211,6 +212,17 @@ export default function GlobalSearch() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                     {results.directory.results.map(d => (
                       <DirectoryCard key={d.user_id} profile={d} />
+                    ))}
+                  </div>
+                </Section>
+              )}
+
+              {/* Knowledge section */}
+              {(activeTab === 'all' || activeTab === 'knowledge') && results.knowledge?.results?.length > 0 && (
+                <Section title="Knowledge Hub" icon={BookOpen} count={results.knowledge.total} viewAllLink="/dashboard/knowledge">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                    {results.knowledge.results.map(k => (
+                      <KnowledgeCard key={k.id} article={k} />
                     ))}
                   </div>
                 </Section>
@@ -454,6 +466,39 @@ function DirectoryCard({ profile: d }) {
       {d.organization && <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>{d.organization}</p>}
       {d.tagline && <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0', lineHeight: 1.4 }}>{d.tagline.slice(0, 80)}{d.tagline.length > 80 ? '...' : ''}</p>}
       {d.city && <span style={{ fontSize: 11, color: '#aaa', display: 'flex', alignItems: 'center', gap: 3, marginTop: 6 }}><MapPin size={10} /> {d.city}</span>}
+    </div>
+  );
+}
+
+function KnowledgeCard({ article: k }) {
+  return (
+    <div style={{ ...card, padding: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <BookOpen size={20} style={{ color: G }} />
+        <div style={{ flex: 1 }}>
+          <h4 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e', margin: 0 }}>{k.title}</h4>
+          {k.category && (
+            <span style={{ fontSize: 10, background: '#f5f0e6', color: '#8B7355', borderRadius: 6, padding: '2px 8px', textTransform: 'capitalize' }}>
+              {k.category.replace('_', ' ')}
+            </span>
+          )}
+        </div>
+      </div>
+      {k.content && (
+        <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0', lineHeight: 1.4 }}>
+          {k.content.slice(0, 100)}{k.content.length > 100 ? '...' : ''}
+        </p>
+      )}
+      {k.file_url && (
+        <a
+          href={k.file_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: 12, color: G, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8 }}
+        >
+          View file <ChevronRight size={12} />
+        </a>
+      )}
     </div>
   );
 }

@@ -364,8 +364,19 @@ export const knowledgeAPI = {
   get:    (id)          => get(`/knowledge/${id}`),
   create: (data)        => post('/knowledge', data),
   update: (id, data)    => put(`/knowledge/${id}`, data),
+  delete: (id)          => del(`/knowledge/${id}`),
   // Ship #5 (22 May 2026) — non-admin can suggest articles; backend emails admin
   suggest:  (data)        => post('/knowledge/suggest', data),
+  // Phase 121 — contributor self-service request + status check
+  requestContributor: (message) => post('/knowledge-contributors/request', { message }),
+  myContributorStatus: ()       => get('/knowledge-contributors/mine'),
+};
+
+// Phase 121 — admin-only contributor-request moderation
+export const knowledgeAdminAPI = {
+  listRequests: (params = {}) => get(`/knowledge-contributors?${new URLSearchParams(params)}`),
+  approve: (id, note) => put(`/knowledge-contributors/${id}/approve`, { admin_note: note }),
+  reject:  (id, note) => put(`/knowledge-contributors/${id}/reject`, { admin_note: note }),
 };
 
 // ── Documents ─────────────────────────────────────────────────

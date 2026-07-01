@@ -102,6 +102,7 @@ import AdminChallenges      from './pages/dashboard/AdminChallenges';
 import AdminStartups        from './pages/dashboard/AdminStartups';
 import AdminLicenses        from './pages/dashboard/AdminLicenses';
 import AdminClaims          from './pages/dashboard/AdminClaims';
+import AdminKnowledge       from './pages/dashboard/AdminKnowledge';
 import MyClaims             from './pages/dashboard/MyClaims';
 import ClaimVerify          from './pages/auth/ClaimVerify';
 import AcceptInvite        from './pages/auth/AcceptInvite';   // Phase 108
@@ -334,6 +335,7 @@ export default function App() {
             <Route path="admin/startups"     element={<AdminRoute><AdminStartups /></AdminRoute>} />
             <Route path="admin/licenses"     element={<AdminRoute><AdminLicenses /></AdminRoute>} />
             <Route path="admin/claims"       element={<AdminRoute><AdminClaims /></AdminRoute>} />
+            <Route path="admin/knowledge"    element={<AdminRoute><AdminKnowledge /></AdminRoute>} />
             <Route path="claims"              element={<MyClaims />} />
             <Route path="roles/add"           element={<AddRole />} />     {/* Phase 60.4b (s50) */}
             <Route path="clusters"            element={<Clusters />} />

@@ -3,12 +3,14 @@ import toast from 'react-hot-toast';
 import { knowledgeAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';  // Ship #5 (22 May 2026)
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import AddArticleModal from '../../components/knowledge/AddArticleModal'; // Phase 121
 import {
-  BookOpen, Search, Lock, Eye, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Download,
+  BookOpen, Search, Lock, Eye, EyeOff, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Download,
   Brain, Zap, TrendingUp, ShoppingBag, Shirt, Heart, Building2, Shield, Cpu, FlaskConical, Layers,
+  Briefcase, Trash2,
 } from 'lucide-react';
 
-const TYPE_ICONS = { report: FileText, article: BookOpen, sop: Bookmark, training_module: PlayCircle };
+const TYPE_ICONS = { report: FileText, article: BookOpen, sop: Bookmark, training_module: PlayCircle, case_study: Briefcase };
 
 // s49: per-sector icons + colors so report cards aren't all identical FileText.
 // Sector is read from the first tag (Strapi reports merge via tags[]).
@@ -28,9 +30,15 @@ const SECTOR_COLORS = {
 const ACCESS_COLORS = { public: 'bg-accent-100 text-accent-700', registered: 'bg-blue-100 text-blue-700', restricted: 'bg-yellow-100 text-yellow-700', classified: 'bg-red-100 text-red-700' };
 
 export default function Knowledge() {
-  // Ship #5 (22 May 2026) — gate Add Article button by role
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin' || user?.role === 'evaluator';
+  // Phase 121 — three-tier "who can add content" gate: true admin, evaluator, or
+  // an approved contributor. Moderation (take-down/delete of ANY article) is
+  // admin-only; authors may take down their own article regardless of role.
+  const isAdminOrEvaluator = user?.role === 'admin' || user?.role === 'evaluator';
+  const isTrueAdmin = user?.role === 'admin';
+  const isContributor = user?.is_knowledge_contributor === true;
+  const canAdd = isAdminOrEvaluator || isContributor;
+
   const [search, setSearch] = useState('');
   const [type, setType] = useState('all');
   const [selected, setSelected] = useState(null);
@@ -40,6 +48,10 @@ export default function Knowledge() {
   const [showSuggest, setShowSuggest] = useState(false);
   const [suggestForm, setSuggestForm] = useState({ title: '', summary: '', suggested_url: '', suggested_type: 'article' });
   const [suggesting, setSuggesting] = useState(false);
+  // Phase 121 — Add Article modal + contributor self-service request state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [contribInfo, setContribInfo] = useState(null);
+  const [requesting, setRequesting] = useState(false);
 
   const submitSuggestion = async () => {
     const t = (suggestForm.title || '').trim();
@@ -55,6 +67,76 @@ export default function Knowledge() {
     } finally {
       setSuggesting(false);
     }
+  };
+
+  // Phase 121 — self-service "request contributor access" (only relevant for
+  // users who aren't already admin/evaluator/contributor).
+  const requestContributorAccess = async () => {
+    setRequesting(true);
+    try {
+      await knowledgeAPI.requestContributor();
+      toast.success('Request sent — an admin will review it');
+      const data = await knowledgeAPI.myContributorStatus();
+      setContribInfo(data);
+    } catch (err) {
+      toast.error(err.message || 'Failed to send request');
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (canAdd) return; // already able to add — no need to check request status
+    knowledgeAPI.myContributorStatus()
+      .then(data => setContribInfo(data))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount / when canAdd resolves
+  }, [canAdd]);
+
+  // Phase 121 — admin (any article) or the article's author (own article only)
+  // may take it down / republish it. Hard delete stays admin-only.
+  const toggleAdminPublish = async (article) => {
+    const nextPublished = article.is_published === false;
+    try {
+      await knowledgeAPI.update(article.id, { is_published: nextPublished });
+      setArticles(prev => prev.map(a => (a.id === article.id ? { ...a, is_published: nextPublished } : a)));
+      setSelected(sel => (sel && sel.id === article.id ? { ...sel, is_published: nextPublished } : sel));
+      toast.success(nextPublished ? 'Article published' : 'Article taken down');
+    } catch (err) {
+      toast.error(err.message || 'Failed to update article');
+    }
+  };
+
+  const deleteArticleHandler = async (article) => {
+    if (!window.confirm(`Permanently delete "${article.title}"? This cannot be undone.`)) return;
+    try {
+      await knowledgeAPI.delete(article.id);
+      setArticles(prev => prev.filter(a => a.id !== article.id));
+      setSelected(null);
+      toast.success('Article deleted');
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete article');
+    }
+  };
+
+  const handleArticleCreated = (created) => {
+    setArticles(prev => [{
+      id: created.id,
+      title: created.title || '',
+      type: created.type || created.category || 'article',
+      access: created.access || 'registered',
+      source: created.source || created.author_name || user?.name || 'You',
+      date: created.created_at ? new Date(created.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
+      summary: created.summary || created.content || '',
+      tags: created.tags || [],
+      views: 0,
+      pdf_url: null,
+      file_url: created.file_url || null,
+      file_name: created.file_name || null,
+      is_published: created.is_published !== undefined ? created.is_published : true,
+      author_id: created.author_id ?? user?.id ?? null,
+      is_public: created.is_public || false,
+    }, ...prev]);
   };
 
   // s49 fix: dismiss the report modal on Escape key for keyboard users
@@ -79,6 +161,11 @@ export default function Knowledge() {
           summary: a.summary || a.content || '',
           tags: a.tags || [],
           views: a.views || 0, pdf_url: a.pdf_url || null,
+          file_url: a.file_url || null,
+          file_name: a.file_name || null,
+          is_published: a.is_published !== undefined ? a.is_published : true,
+          author_id: a.author_id ?? null,
+          is_public: a.is_public || false,
         }));
         setArticles(normalized);
       })
@@ -96,24 +183,34 @@ export default function Knowledge() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Knowledge Hub</h1>
           <p className="text-gray-500 text-sm mt-0.5">Industry reports, SOPs, and curated research for OpenI's innovation ecosystem</p>
         </div>
-        {/* Ship #5 (22 May 2026) — non-admin clicks open Suggest modal; admin button still stub (admin uses backend / admin console) */}
-        <button
-          onClick={() => {
-            if (isAdmin) {
-              toast('Admin: use the Knowledge admin console or POST /knowledge', { icon: 'i' });
-            } else {
-              setShowSuggest(true);
-            }
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400"
-        >
-          <Plus size={16} /> {isAdmin ? 'Add Article' : 'Suggest an Article'}
-        </button>
+        <div className="flex flex-col items-end gap-1.5">
+          {/* Phase 121 — canAdd (admin/evaluator/approved contributor) opens the real Add Article modal; everyone else sends a suggestion */}
+          <button
+            onClick={() => {
+              if (canAdd) setShowAddModal(true);
+              else setShowSuggest(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400"
+          >
+            <Plus size={16} /> {canAdd ? 'Add Article' : 'Suggest an Article'}
+          </button>
+          {!canAdd && (
+            contribInfo?.request?.status === 'pending' ? (
+              <span className="text-xs text-gray-400">Contributor request pending review</span>
+            ) : contribInfo?.request?.status === 'rejected' ? (
+              <span className="text-xs text-red-500">Contributor request rejected</span>
+            ) : (
+              <button onClick={requestContributorAccess} disabled={requesting} className="text-xs text-primary-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed">
+                {requesting ? 'Sending…' : 'Request contributor access'}
+              </button>
+            )
+          )}
+        </div>
       </div>
 
       <div id="tour-page-knowledge-search" className="flex gap-3 mb-5">
@@ -121,7 +218,7 @@ export default function Knowledge() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-primary-400 text-sm" placeholder="Search reports, guides, articles..." />
         </div>
-        {[['all', 'All'], ['report', 'Reports'], ['article', 'Articles'], ['sop', 'SOPs & Guides'], ['training_module', 'Training']].map(([k, label]) => (
+        {[['all', 'All'], ['report', 'Reports'], ['article', 'Articles'], ['sop', 'SOPs & Guides'], ['training_module', 'Training'], ['case_study', 'Case Studies']].map(([k, label]) => (
           <button key={k} onClick={() => setType(k)} className={`px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap ${type === k ? 'bg-primary-500 text-dark-950' : 'bg-white border border-gray-200 text-gray-600'}`}>{label}</button>
         ))}
       </div>
@@ -149,6 +246,9 @@ export default function Knowledge() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-2 mb-1">
                     <h3 className="font-display font-bold text-gray-900 text-sm leading-snug flex-1">{article.title}</h3>
+                    {article.is_published === false && (
+                      <span className="px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0 bg-gray-200 text-gray-600">Unpublished</span>
+                    )}
                     <span className={`px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0 ${ACCESS_COLORS[article.access]}`}>{article.access}</span>
                   </div>
                   <p className="text-xs text-gray-500 mb-2">{article.source} · {article.date}</p>
@@ -157,6 +257,11 @@ export default function Knowledge() {
                     <div className="flex gap-1 flex-wrap flex-1">
                       {article.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">{tag}</span>)}
                     </div>
+                    {article.file_url && (
+                      <a href={article.file_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-xs text-primary-600 flex-shrink-0 hover:underline">
+                        <Download size={11} /> File
+                      </a>
+                    )}
                     <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0">
                       <Eye size={11} /> {article.views.toLocaleString()}
                     </div>
@@ -180,6 +285,9 @@ export default function Knowledge() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${ACCESS_COLORS[selected.access]} mb-2 inline-block capitalize`}>{selected.access}</span>
+                {selected.is_published === false && (
+                  <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-gray-200 text-gray-600 mb-2 ml-2 inline-block">Unpublished</span>
+                )}
                 <h3 className="font-display font-bold text-gray-900 text-lg leading-snug">{selected.title}</h3>
                 <p className="text-xs text-gray-400 mt-1">{selected.source} · {selected.date} · {selected.views.toLocaleString()} views</p>
               </div>
@@ -194,15 +302,34 @@ export default function Knowledge() {
                 <Lock size={18} className="text-red-500" />
                 <p className="text-sm text-red-700">This document is classified. Request access through OpenI secure portal.</p>
               </div>
-            ) : (
+            ) : (selected.file_url || selected.pdf_url) ? (
               <div className="flex gap-3">
-                <a href={selected.pdf_url || "/"} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
-                <a href={selected.pdf_url || "/"} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download PDF</a>
+                <a href={selected.file_url || selected.pdf_url} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
+                <a href={selected.file_url || selected.pdf_url} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download</a>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 italic">No attachment for this item.</p>
+            )}
+
+            {/* Phase 121 — moderation: admin can take down/publish/delete ANY article; an author can take down/publish their own */}
+            {(isTrueAdmin || (user?.id && selected.author_id === user.id)) && (
+              <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                <button onClick={() => toggleAdminPublish(selected)} className="flex-1 py-2 border border-gray-300 text-gray-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-gray-50">
+                  {selected.is_published === false ? (<><Eye size={13} /> Publish</>) : (<><EyeOff size={13} /> Take down</>)}
+                </button>
+                {isTrueAdmin && (
+                  <button onClick={() => deleteArticleHandler(selected)} className="flex-1 py-2 border border-red-300 text-red-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-red-50">
+                    <Trash2 size={13} /> Delete
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
       )}
+
+      {/* Phase 121 — Add Knowledge Hub content modal (admin/evaluator/approved contributor) */}
+      <AddArticleModal open={showAddModal} onClose={() => setShowAddModal(false)} onCreated={handleArticleCreated} />
 
       {/* Ship #5 (22 May 2026) — Suggest an Article modal (non-admin only) */}
       {showSuggest && (
@@ -235,6 +362,7 @@ export default function Knowledge() {
                   <option value="report">Report</option>
                   <option value="sop">SOP / Guide</option>
                   <option value="training_module">Training Module</option>
+                  <option value="case_study">Case Study</option>
                 </select>
               </div>
             </div>

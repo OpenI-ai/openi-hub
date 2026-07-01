@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Shield, Users, Megaphone, Building2, CreditCard, BarChart3, Globe, Database, TrendingUp, BadgeCheck
+  Shield, Users, Megaphone, Building2, CreditCard, BarChart3, Globe, Database, TrendingUp, BadgeCheck, BookOpen
 } from 'lucide-react';
 import { adminAPI, analyticsAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -46,6 +46,7 @@ export default function AdminConsole() {
     { to: '/dashboard/admin/claims', label: 'Profile Claims', desc: 'Review founder claims on imported startup profiles.', icon: BadgeCheck, color: 'bg-amber-500' },
     { to: '/dashboard/admin/analytics', label: 'Analytics', desc: 'Platform metrics, funnel, feature adoption, AI telemetry.', icon: BarChart3, color: 'bg-primary-500' },
     { to: '/dashboard/crawling', label: 'Crawling & Imports', desc: 'Manage crawl sources, review imported startups.', icon: Globe, color: 'bg-indigo-500' },
+    { to: '/dashboard/admin/knowledge', label: 'Knowledge Hub', desc: 'Manage articles, reports, and contributor access.', icon: BookOpen, color: 'bg-teal-500' },
   ];
 
   return (
