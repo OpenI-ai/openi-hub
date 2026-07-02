@@ -115,16 +115,19 @@ export default function TourWrapper({ role, forceStart = false }) {
   }, [user, role, steps.length, forceStart, startFresh]);
 
   // Listen for the manual "Take a tour" (?) event from the top-bar button.
-  // Role tour first; if this persona has NO role tour but the current route has a
-  // page tour, fall back to the page tour (fixes the dead `?` on /dashboard index
-  // and any left-nav page whose persona lacks a role tour).
+  // 2 Jul 2026 — page tour first: PAGE_TOURS now covers nearly every dashboard
+  // route, so the single unified "?" button plays the current page's specific
+  // walkthrough when one exists (most contextual), falling back to the
+  // persona's role/intro tour only on the handful of routes with no page-tour
+  // entry. Previously this preferred the role tour, which made the (then-
+  // separate) "Tour this page" pill button necessary to reach page tours at all.
   useEffect(() => {
     const onReplay = (e) => {
       if (!e.detail?.role || e.detail.role === role) {
-        if (roleSteps.length === 0 && pageSteps.length > 0) {
-          setPageMode(true);   // fall back to page tour
+        if (pageSteps.length > 0) {
+          setPageMode(true);   // page-specific tour for the current route
         } else {
-          setPageMode(false);  // role-tour mode
+          setPageMode(false);  // fall back to role/intro tour
         }
         startFresh(0);
       }

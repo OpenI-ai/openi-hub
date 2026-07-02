@@ -90,13 +90,6 @@ const NAV = [
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
 ];
 
-// Ship #12 fix (2 Jul 2026) — the 3 dashboard landing routes DashboardHome.jsx redirects
-// to: corporate -> /dashboard/corporate, the other 9 PERSONA_ROLES -> /dashboard/home,
-// everyone else (admin/evaluator/service_provider) -> bare /dashboard. Used to hide the
-// redundant "Tour this page" pill on first-login landing pages for personas that already
-// get the same welcome content from their role-tour.
-const DASHBOARD_HOME_ROUTES = ["/dashboard", "/dashboard/home", "/dashboard/corporate"];
-
 // Notifications — empty until platform has a real notification system
 
 export default function DashboardLayout() {
@@ -537,15 +530,21 @@ export default function DashboardLayout() {
 
           {/* Right side */}
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            {/* P4 — Take a tour replay button. Hidden for personas with no role-tour
-                (currently just admin): TourWrapper's fallback would otherwise replay
-                the exact same single-step tour as the "Tour this page" pill below,
-                showing two buttons that do the identical thing on every admin page. */}
-            {TOURS[navRole] && (
+            {/* 2 Jul 2026 — single unified "?" tour button, replacing the old two-button
+                split (icon "Take a tour" + gold "Tour this page" pill). PAGE_TOURS now
+                covers nearly every dashboard route, so the pill was showing on almost
+                every page anyway, and the two buttons' visibility rules (TOURS[navRole]
+                vs pageTour vs DASHBOARD_HOME_ROUTES) kept drifting out of sync — corporate
+                only ever saw "?", admin only ever saw the pill. One button, always visible
+                when a tour exists for this context; still dispatches 'openi-replay-tour'
+                (TourWrapper prioritizes the current page's tour over the role/intro tour —
+                see TourWrapper.jsx onReplay). */}
+            {(TOURS[navRole] || pageTour) && (
               <button
                 id="tour-topbar-take-tour"
                 onClick={() => window.dispatchEvent(new CustomEvent('openi-replay-tour'))}
-                title="Take a tour"
+                title={pageTour ? `Tour: ${pageTour.title || 'this page'}` : 'Take a tour'}
+                aria-label="Take a tour"
                 style={{
                   padding:8, color: C.textMuted,
                   background: "transparent", border:"none", cursor:"pointer",
@@ -555,40 +554,6 @@ export default function DashboardLayout() {
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               >
                 <HelpCircle size={16} />
-              </button>
-            )}
-            {/* Ship #12 (22 May 2026) — Tour this page button (visible only when a page tour covers current route).
-                Hidden on any dashboard LANDING route for a persona that has a real role-tour (TOURS[navRole]).
-                DashboardHome.jsx redirects every persona to one of three landing URLs: corporate → /dashboard/corporate,
-                the other 9 PERSONA_ROLES → /dashboard/home, everyone else (admin/evaluator/service_provider, who have
-                no redirect) → bare /dashboard. Each of those routes' PAGE_TOURS entry re-covers the same #tour-welcome
-                anchor (and often the next 2-3 anchors) as the opening steps of that persona's own role-tour, so a
-                persona with a role-tour saw two buttons surfacing near-duplicate content on the one page everyone
-                lands on first. 2 Jul 2026: 6d003e8 only special-cased bare /dashboard (fixing service_provider, the
-                only role-tour persona that actually lands there) — corporate live-check showed /dashboard/corporate
-                still broken, so all three landing routes are now covered. Personas with NO role-tour (admin/evaluator)
-                are unaffected — the pill remains their only tour entry point. */}
-            {pageTour && !(DASHBOARD_HOME_ROUTES.includes(location.pathname) && TOURS[navRole]) && (
-              <button
-                id="tour-topbar-page-tour"
-                onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
-                title={`Tour: ${pageTour.title || 'this page'}`}
-                aria-label="Tour this page"
-                className="hidden sm:inline-flex"  /* Mobile Ship 2 (DL2): hide pill <640px to stop topbar overflow at 375px; HelpCircle replay button stays */
-                style={{
-                  marginLeft: 6,
-                  alignItems: 'center',
-                  padding: '4px 10px',
-                  background: '#fff8ec',
-                  color: '#92700a',
-                  border: '1px solid rgba(213,170,91,0.3)',
-                  borderRadius: 7,
-                  cursor: 'pointer',
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
-              >
-                Tour this page
               </button>
             )}
 
