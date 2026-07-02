@@ -90,6 +90,13 @@ const NAV = [
   { to: "/dashboard/govt-apis",      label: "Govt. APIs",       Icon: Link2,           roles: ["admin"] },
 ];
 
+// Ship #12 fix (2 Jul 2026) — the 3 dashboard landing routes DashboardHome.jsx redirects
+// to: corporate -> /dashboard/corporate, the other 9 PERSONA_ROLES -> /dashboard/home,
+// everyone else (admin/evaluator/service_provider) -> bare /dashboard. Used to hide the
+// redundant "Tour this page" pill on first-login landing pages for personas that already
+// get the same welcome content from their role-tour.
+const DASHBOARD_HOME_ROUTES = ["/dashboard", "/dashboard/home", "/dashboard/corporate"];
+
 // Notifications — empty until platform has a real notification system
 
 export default function DashboardLayout() {
@@ -551,12 +558,17 @@ export default function DashboardLayout() {
               </button>
             )}
             {/* Ship #12 (22 May 2026) — Tour this page button (visible only when a page tour covers current route).
-                Hidden on the bare /dashboard landing page for any persona that has a real role-tour (TOURS[navRole]):
-                PAGE_TOURS['/dashboard'] is a single generic "Welcome" step that exists as a fallback for personas
-                with no role-tour (admin/evaluator); for the 11 personas that DO have a role-tour, that tour already
-                opens with the same welcome content, so showing both buttons here duplicated the exact same message
-                (found via corporate persona live-check, 2 Jul 2026 — companion fix to the admin-only "?" guard above). */}
-            {pageTour && !(location.pathname === '/dashboard' && TOURS[navRole]) && (
+                Hidden on any dashboard LANDING route for a persona that has a real role-tour (TOURS[navRole]).
+                DashboardHome.jsx redirects every persona to one of three landing URLs: corporate → /dashboard/corporate,
+                the other 9 PERSONA_ROLES → /dashboard/home, everyone else (admin/evaluator/service_provider, who have
+                no redirect) → bare /dashboard. Each of those routes' PAGE_TOURS entry re-covers the same #tour-welcome
+                anchor (and often the next 2-3 anchors) as the opening steps of that persona's own role-tour, so a
+                persona with a role-tour saw two buttons surfacing near-duplicate content on the one page everyone
+                lands on first. 2 Jul 2026: 6d003e8 only special-cased bare /dashboard (fixing service_provider, the
+                only role-tour persona that actually lands there) — corporate live-check showed /dashboard/corporate
+                still broken, so all three landing routes are now covered. Personas with NO role-tour (admin/evaluator)
+                are unaffected — the pill remains their only tour entry point. */}
+            {pageTour && !(DASHBOARD_HOME_ROUTES.includes(location.pathname) && TOURS[navRole]) && (
               <button
                 id="tour-topbar-page-tour"
                 onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
