@@ -15,7 +15,7 @@ import {
   BarChart3, Megaphone, CreditCard, BadgeCheck, DollarSign,
 } from "lucide-react";
 import { PERSONA_NAV, PERSONAS, SECONDARY_NAV } from "../../config/personas";
-import { resolvePageTour } from "../../config/tours";  // Ship #12 (22 May 2026) — matchPath-aware page-tour resolve
+import { resolvePageTour, TOURS } from "../../config/tours";  // Ship #12 (22 May 2026) — matchPath-aware page-tour resolve
 import TourWrapper from "../../components/TourWrapper";  // single page/role tour mount for all dashboard routes
 import SearchBar from "../../components/SearchBar";
 import RoleTabs from "../../components/RoleTabs";  // Phase 60.3 (s50)
@@ -530,21 +530,26 @@ export default function DashboardLayout() {
 
           {/* Right side */}
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            {/* P4 — Take a tour replay button */}
-            <button
-              id="tour-topbar-take-tour"
-              onClick={() => window.dispatchEvent(new CustomEvent('openi-replay-tour'))}
-              title="Take a tour"
-              style={{
-                padding:8, color: C.textMuted,
-                background: "transparent", border:"none", cursor:"pointer",
-                borderRadius:8, transition:"background 0.15s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = C.goldLight}
-              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-            >
-              <HelpCircle size={16} />
-            </button>
+            {/* P4 — Take a tour replay button. Hidden for personas with no role-tour
+                (currently just admin): TourWrapper's fallback would otherwise replay
+                the exact same single-step tour as the "Tour this page" pill below,
+                showing two buttons that do the identical thing on every admin page. */}
+            {TOURS[navRole] && (
+              <button
+                id="tour-topbar-take-tour"
+                onClick={() => window.dispatchEvent(new CustomEvent('openi-replay-tour'))}
+                title="Take a tour"
+                style={{
+                  padding:8, color: C.textMuted,
+                  background: "transparent", border:"none", cursor:"pointer",
+                  borderRadius:8, transition:"background 0.15s",
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = C.goldLight}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              >
+                <HelpCircle size={16} />
+              </button>
+            )}
             {/* Ship #12 (22 May 2026) — Tour this page button (visible only when a page tour covers current route) */}
             {pageTour && (
               <button
