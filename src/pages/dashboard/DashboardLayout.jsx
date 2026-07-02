@@ -550,8 +550,13 @@ export default function DashboardLayout() {
                 <HelpCircle size={16} />
               </button>
             )}
-            {/* Ship #12 (22 May 2026) — Tour this page button (visible only when a page tour covers current route) */}
-            {pageTour && (
+            {/* Ship #12 (22 May 2026) — Tour this page button (visible only when a page tour covers current route).
+                Hidden on the bare /dashboard landing page for any persona that has a real role-tour (TOURS[navRole]):
+                PAGE_TOURS['/dashboard'] is a single generic "Welcome" step that exists as a fallback for personas
+                with no role-tour (admin/evaluator); for the 11 personas that DO have a role-tour, that tour already
+                opens with the same welcome content, so showing both buttons here duplicated the exact same message
+                (found via corporate persona live-check, 2 Jul 2026 — companion fix to the admin-only "?" guard above). */}
+            {pageTour && !(location.pathname === '/dashboard' && TOURS[navRole]) && (
               <button
                 id="tour-topbar-page-tour"
                 onClick={() => window.dispatchEvent(new CustomEvent('openi-page-tour'))}
