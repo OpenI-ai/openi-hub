@@ -34,6 +34,10 @@ const TYPE_BADGE = {
   lab_facility:       { bg: '#f0f9ff', color: '#0369a1', label: 'Lab Facility' },
 };
 
+// Deadline passed or listing manually closed — reuses the grey "Expired" convention
+// established in MyClaims.jsx for visual consistency across the app.
+const EXPIRED_BADGE = { bg: '#F3F4F6', color: '#6B7280', label: 'Expired' };
+
 export default function Marketplace() {
   const { user, activeRole } = useAuth();
   // Innovation seekers (corporate, government, investor, mentor, lab,
@@ -607,7 +611,7 @@ export default function Marketplace() {
                   else if (ch.apply_url) window.open(ch.apply_url, '_blank', 'noopener');
                 };
                 return (
-                <div key={`${ch.type}-${ch.id}`} style={{ ...card, padding: 18, cursor: 'pointer' }}
+                <div key={`${ch.type}-${ch.id}`} style={{ ...card, padding: 18, cursor: 'pointer', opacity: ch.is_expired ? 0.65 : 1 }}
                   onClick={openItem}
                   onMouseEnter={e => e.currentTarget.style.borderColor = G}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
@@ -617,6 +621,7 @@ export default function Marketplace() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
                         <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>{ch.title}</h3>
                         <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: tb.bg, color: tb.color }}>{tb.label}</span>
+                        {ch.is_expired && <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
                       </div>
                       <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
                         {ch.org_name}
