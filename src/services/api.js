@@ -185,6 +185,10 @@ export const subscriptionAPI = {
   changeBillingCycle: (data) => post('/subscription/change-cycle', data),
   downloadInvoice: (paymentId) => blobRequest('GET', `/subscription/invoice/${paymentId}`),
   featureAccess: ()       => get('/subscription/feature-access'),
+  // Phase 123 — real recurring auto-renew (Razorpay Subscriptions API)
+  createRecurringOrder:   (data) => post('/subscription/create-recurring-order', data),
+  verifyRecurringPayment: (data) => post('/subscription/verify-recurring-payment', data),
+  toggleAutoRenew:        (data) => post('/subscription/toggle-auto-renew', data),
 };
 
 // ── Billing Address (Phase 60.11) ─────────────────────────────

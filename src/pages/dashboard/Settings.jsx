@@ -102,6 +102,11 @@ export default function Settings() {
       return sp.get('cycle') === 'annual' ? 'yearly' : 'monthly';
     } catch { return 'monthly'; }
   });
+  // Phase 123 — self-serve recurring auto-renew opt-in (Razorpay Subscriptions
+  // API). Default OFF: existing customers keep today's manual-renewal flow
+  // unless they explicitly opt in at checkout.
+  const [autoRenewSelected, setAutoRenewSelected] = useState(false);
+  const [togglingAutoRenew, setTogglingAutoRenew] = useState(false);
   // Phase 60.11 — Billing address (mandatory before checkout)
   const [billingAddress, setBillingAddress] = useState(null);
   const [billingModalOpen, setBillingModalOpen] = useState(false);
@@ -309,6 +314,10 @@ export default function Settings() {
         myPlan?.plan?.id === planId &&
         myPlan?.subscription?.billing_cycle !== cycle;
 
+      // Phase 123: recurring auto-renew only applies to a fresh subscription
+      // checkout, never to a mid-period cycle change on an existing sub.
+      const wantsRecurring = autoRenewSelected && !isCycleChange;
+
       let orderData;
       if (isCycleChange) {
         // Mid-period change — Razorpay order with prorated amount
@@ -319,27 +328,71 @@ export default function Settings() {
           loadBilling();
           return;
         }
+      } else if (wantsRecurring) {
+        // Phase 123 — real recurring auto-renew (Razorpay Subscriptions API)
+        orderData = await subscriptionAPI.createRecurringOrder({ plan_id: planId, billing_cycle: cycle });
       } else {
-        // New subscription OR plan change — standard createOrder
+        // New subscription OR plan change — standard one-off createOrder
         orderData = await subscriptionAPI.createOrder({ plan_id: planId, billing_cycle: cycle });
       }
 
       if (orderData.test_mode || !window.Razorpay) {
         // Test mode or no Razorpay SDK — simulate payment
-        const result = await subscriptionAPI.verifyPayment({
-          razorpay_payment_id: `pay_test_${Date.now()}`,
-          razorpay_order_id: orderData.order_id,
-          razorpay_signature: 'test_signature',
-          plan_id: planId,
-          billing_cycle: cycle,
-        });
-        if (result.success) {
-          toast.success(`Upgraded to ${result.display_name} (${cycleLabel})!`);
-          updateUser({ current_plan: result.plan });
-          loadBilling();
+        if (wantsRecurring) {
+          const result = await subscriptionAPI.verifyRecurringPayment({
+            razorpay_payment_id: `pay_test_${Date.now()}`,
+            razorpay_subscription_id: orderData.subscription_id,
+            razorpay_signature: 'test_signature',
+            plan_id: planId,
+            billing_cycle: cycle,
+          });
+          if (result.success) {
+            toast.success(`Upgraded to ${result.display_name} (${cycleLabel}, auto-renew on)!`);
+            updateUser({ current_plan: result.plan });
+            loadBilling();
+          }
+        } else {
+          const result = await subscriptionAPI.verifyPayment({
+            razorpay_payment_id: `pay_test_${Date.now()}`,
+            razorpay_order_id: orderData.order_id,
+            razorpay_signature: 'test_signature',
+            plan_id: planId,
+            billing_cycle: cycle,
+          });
+          if (result.success) {
+            toast.success(`Upgraded to ${result.display_name} (${cycleLabel})!`);
+            updateUser({ current_plan: result.plan });
+            loadBilling();
+          }
         }
+      } else if (wantsRecurring) {
+        // Real Razorpay recurring checkout — subscription_id instead of order_id
+        const rzp = new window.Razorpay({
+          key: orderData.key,
+          subscription_id: orderData.subscription_id,
+          currency: orderData.currency || 'INR',
+          name: 'OpenI Hub',
+          description: `${planName} - ${cycleLabel} (auto-renew)`,
+          prefill: { email: user?.email, name: user?.name },
+          handler: async (response) => {
+            try {
+              const result = await subscriptionAPI.verifyRecurringPayment({
+                ...response,
+                plan_id: planId,
+                billing_cycle: cycle,
+              });
+              if (result.success) {
+                toast.success(`Upgraded to ${result.display_name} (${cycleLabel}, auto-renew on)!`);
+                updateUser({ current_plan: result.plan });
+                loadBilling();
+              }
+            } catch (err) { toast.error(err.message); }
+          },
+          theme: { color: G },
+        });
+        rzp.open();
       } else {
-        // Real Razorpay checkout
+        // Real Razorpay one-off checkout
         const rzp = new window.Razorpay({
           key: orderData.key,
           order_id: orderData.order_id,
@@ -388,6 +441,20 @@ export default function Settings() {
       updateUser({ current_plan: 'free' });
       loadBilling();
     } catch (err) { toast.error(err.message); }
+  };
+
+  // Phase 123 — turn off recurring auto-renew. Access + the already-charged
+  // period are retained until current_period_end (Razorpay cancel_at_cycle_end);
+  // this does NOT downgrade the account immediately.
+  const handleToggleAutoRenew = async () => {
+    if (!confirm('Turn off auto-renew? You will keep access until your current billing period ends, then no further charges will be made.')) return;
+    setTogglingAutoRenew(true);
+    try {
+      await subscriptionAPI.toggleAutoRenew({ enabled: false });
+      toast.success('Auto-renew turned off');
+      loadBilling();
+    } catch (err) { toast.error(err.message); }
+    finally { setTogglingAutoRenew(false); }
   };
 
   const saveProfile = async () => {
@@ -714,10 +781,24 @@ export default function Settings() {
                     </div>
                     {currentPlan !== 'free' && myPlan?.subscription && (
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 11, color: '#999' }}>Next billing</div>
+                        <div style={{ fontSize: 11, color: '#999' }}>
+                          {myPlan.subscription.auto_renew ? 'Next auto-charge' : 'Next billing'}
+                        </div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>
                           {myPlan.subscription.current_period_end ? new Date(myPlan.subscription.current_period_end).toLocaleDateString() : '—'}
                         </div>
+                        {/* Phase 123 — recurring auto-renew status + opt-out */}
+                        {myPlan.subscription.auto_renew ? (
+                          <>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#16a34a', marginTop: 4 }}>
+                              Auto-renew is ON
+                            </div>
+                            <button onClick={handleToggleAutoRenew} disabled={togglingAutoRenew}
+                              style={{ marginTop: 4, fontSize: 11, color: '#dc2626', background: 'none', border: 'none', cursor: togglingAutoRenew ? 'wait' : 'pointer', textDecoration: 'underline' }}>
+                              {togglingAutoRenew ? 'Turning off…' : 'Turn off auto-renew'}
+                            </button>
+                          </>
+                        ) : null}
                       </div>
                     )}
                   </div>
@@ -975,6 +1056,18 @@ export default function Settings() {
                         </span>
                       </button>
                     </div>
+                  </div>
+
+                  {/* Phase 123 — self-serve recurring auto-renew opt-in checkbox.
+                     Default unchecked; applies to whichever plan card's Upgrade
+                     button is clicked next. */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#555', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={autoRenewSelected}
+                        onChange={(e) => setAutoRenewSelected(e.target.checked)}
+                        style={{ width: 15, height: 15, cursor: 'pointer', accentColor: G }} />
+                      Enable auto-renew (card charged automatically each {billingCycleSelected === 'yearly' ? 'year' : 'month'} — cancel anytime)
+                    </label>
                   </div>
 
                   {/* Mobile Ship 4 (27 May 2026): plan cards stack on mobile */}
