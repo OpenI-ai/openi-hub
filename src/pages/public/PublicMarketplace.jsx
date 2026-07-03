@@ -19,9 +19,9 @@ const DARK = '#1a1a1a';
 const GRAY = '#6b7280';
 const BORDER = '#e5e7eb';
 const LIGHT_GRAY = '#f5f5f5';
-// Deadline passed or challenge closed/awarded — matches the grey "Expired" convention
-// used in the dashboard Marketplace/MyClaims pages for consistency across the app.
-const EXPIRED_BADGE = { bg: '#F3F4F6', color: '#6B7280', label: 'Expired' };
+// Deadline passed or challenge closed/awarded — OpenI Gold on a light-gold tint so the
+// flag is unmistakable at a glance, matching the dashboard Marketplace page's badge.
+const EXPIRED_BADGE = { bg: 'rgba(208,168,72,0.12)', color: GOLD, label: 'Expired' };
 
 const SORT_OPTIONS = [
   { value: '', label: 'Default' },
@@ -142,7 +142,7 @@ export default function PublicMarketplace() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-2xl font-bold" style={{ color: DARK }}>{c.title}</h1>
-                {c.is_expired && <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
+                {c.is_expired && <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{ background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
               </div>
               <p className="text-sm" style={{ color: GRAY }}>
                 {c.company_name || c.organization_name}
@@ -463,7 +463,7 @@ function ChallengeCard({ challenge: c, onClick }) {
         <h3 className="text-base font-bold line-clamp-2" style={{ color: DARK, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {c.title}
         </h3>
-        {c.is_expired && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
+        {c.is_expired && <span className="text-xs font-extrabold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
       </div>
 
       {/* Problem snippet */}

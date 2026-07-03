@@ -34,9 +34,9 @@ const TYPE_BADGE = {
   lab_facility:       { bg: '#f0f9ff', color: '#0369a1', label: 'Lab Facility' },
 };
 
-// Deadline passed or listing manually closed — reuses the grey "Expired" convention
-// established in MyClaims.jsx for visual consistency across the app.
-const EXPIRED_BADGE = { bg: '#F3F4F6', color: '#6B7280', label: 'Expired' };
+// Deadline passed or listing manually closed — OpenI Gold on a light-gold tint so it
+// reads as a clear, brand-consistent "Expired" flag instead of blending into grey text.
+const EXPIRED_BADGE = { bg: 'rgba(208,168,72,0.12)', color: G, label: 'Expired' };
 
 export default function Marketplace() {
   const { user, activeRole } = useAuth();
@@ -621,7 +621,7 @@ export default function Marketplace() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
                         <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>{ch.title}</h3>
                         <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: tb.bg, color: tb.color }}>{tb.label}</span>
-                        {ch.is_expired && <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
+                        {ch.is_expired && <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 12, background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
                       </div>
                       <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
                         {ch.org_name}
