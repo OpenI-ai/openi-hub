@@ -306,6 +306,12 @@ function ReportCard({ report }) {
 
         {/* Meta */}
         <div className="flex items-center gap-4 mb-4 text-xs" style={{ color: GRAY }}>
+          {report.published_at && (
+            <span className="flex items-center gap-1">
+              <Calendar size={11} />
+              {new Date(report.published_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+            </span>
+          )}
           {report.author && <span className="flex items-center gap-1"><User size={11} /> {report.author}</span>}
           {report.pages && <span className="flex items-center gap-1"><FileText size={11} /> {report.pages} pages</span>}
         </div>
