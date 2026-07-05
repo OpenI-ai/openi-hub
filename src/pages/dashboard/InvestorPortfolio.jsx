@@ -64,14 +64,19 @@ export default function InvestorPortfolio() {
 
   const startEdit = (co) => {
     setEditingId(co.id);
+    // Guard against pre-existing invalid (negative) legacy data: if a value is
+    // already negative, start the field blank instead of re-injecting the bad
+    // number, so it doesn't silently block Save (validation rejects negative
+    // values) when the user is only trying to change an unrelated field like Status.
+    const nonNegative = (v) => (v !== null && v !== undefined && v !== '' && Number(v) < 0 ? '' : (v ?? ''));
     setEditForm({
       current_status: co.current_status || 'active',
       exit_date: co.exit_date ? co.exit_date.slice(0, 10) : '',
-      exit_value: co.exit_value || '',
+      exit_value: nonNegative(co.exit_value),
       exit_type: co.exit_type || '',
-      entry_valuation: co.entry_valuation || '',
-      equity_stake: co.equity_stake || '',
-      investment_amount: co.investment_amount || '',
+      entry_valuation: nonNegative(co.entry_valuation),
+      equity_stake: nonNegative(co.equity_stake),
+      investment_amount: nonNegative(co.investment_amount),
     });
   };
 
