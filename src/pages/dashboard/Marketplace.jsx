@@ -627,6 +627,7 @@ export default function Marketplace() {
                 const isChallenge = ch.type === 'challenge';
                 const openItem = () => {
                   if (isChallenge) navigate(`/dashboard/marketplace/${ch.id}`);
+                  else if (ch.type === 'deal_sourcing' && ch.is_manager) navigate(`/dashboard/investor/deal-requests?open=${ch.id}`);
                   else if (ch.type === 'deal_sourcing') setDealApplyId(ch.id);
                   else if (ch.apply_url) window.open(ch.apply_url, '_blank', 'noopener');
                 };
@@ -660,7 +661,7 @@ export default function Marketplace() {
                       {!isSeeker && (
                         <button onClick={e => { e.stopPropagation(); openItem(); }}
                           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 8, border: 'none', background: G, color: '#fff', cursor: 'pointer' }}>
-                          {isChallenge || ch.type === 'deal_sourcing' ? 'View & Apply' : <>Apply <ExternalLink size={12} /></>}
+                          {ch.type === 'deal_sourcing' && ch.is_manager ? 'Manage Deal' : isChallenge || ch.type === 'deal_sourcing' ? 'View & Apply' : <>Apply <ExternalLink size={12} /></>}
                         </button>
                       )}
                     </div>

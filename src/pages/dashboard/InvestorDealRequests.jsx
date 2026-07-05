@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { investorAPI, publicAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import CollaboratorsPanel from '../../components/CollaboratorsPanel';
@@ -27,6 +28,7 @@ const APP_STATUS_COLORS = {
 
 export default function InvestorDealRequests() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [requests, setRequests] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -42,6 +44,19 @@ export default function InvestorDealRequests() {
   });
 
   useEffect(() => { loadRequests(); loadTaxonomy(); }, []);
+
+  // Deep-link support: ?open=<id> (e.g. from the Marketplace "collaborating on"
+  // route) auto-opens that deal's detail view once, then clears the param.
+  useEffect(() => {
+    const openId = searchParams.get('open');
+    if (openId) {
+      selectRequest(openId);
+      const next = new URLSearchParams(searchParams);
+      next.delete('open');
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to consume the deep-link param
+  }, []);
 
   async function loadRequests() {
     setLoading(true);
