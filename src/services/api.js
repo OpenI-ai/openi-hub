@@ -615,6 +615,8 @@ export const applicantInviteAPI = {
     del(`/applicant-invites/${id}?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}${source ? `&source=${encodeURIComponent(source)}` : ''}`),
   remind: (id, entityType, entityId, message) =>
     post(`/applicant-invites/${id}/remind`, { entityType, entityId, message }),
+  myInvites: (status) => get(`/my/applicant-invites${status ? `?status=${status}` : ''}`),
+  respond: (id, status) => post(`/applicant-invites/${id}/respond`, { status }),
 };
 
 // ── Scout-add: in-app "Add Startup" ─────────────────────────

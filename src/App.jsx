@@ -87,6 +87,7 @@ import Onboarding           from './pages/dashboard/Onboarding';
 import WhatsNew             from './pages/dashboard/WhatsNew';
 // T32-99c: ChallengeInvites import
 import ChallengeInvites     from './pages/dashboard/ChallengeInvites';
+import ApplicationInvites   from './pages/dashboard/ApplicationInvites';
 import FeatureMap           from './pages/dashboard/FeatureMap';
 // s48 — lazy-loaded so recharts (~121 KB gz) is only fetched
 // when user navigates to one of these admin/portfolio surfaces.
@@ -322,6 +323,8 @@ export default function App() {
             <Route path="whats-new"          element={<WhatsNew />} />
             {/* T32-99c: ChallengeInvites route */}
             <Route path="challenge-invites"  element={<ChallengeInvites />} />
+            {/* Bug B fix: applicant-invite acceptance UI (investor/incubator/accelerator/lab) */}
+            <Route path="application-invites" element={<ApplicationInvites />} />
             <Route path="challenges-to-review" element={<ChallengesToReview />} />
             <Route path="features"           element={<FeatureMap />} />
             <Route path="admin/analytics"    element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
