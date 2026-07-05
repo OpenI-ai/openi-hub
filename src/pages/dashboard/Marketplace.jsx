@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
-import { challengeAPI, corporateAPI, opportunityAPI } from '../../services/api';
+import { challengeAPI, corporateAPI, opportunityAPI, publicAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { getPersonaCategory } from '../../config/personas';
 import FileUpload from '../../components/FileUpload';
@@ -113,6 +113,14 @@ export default function Marketplace() {
   const [myApps, setMyApps] = useState([]);
   const [appsLoading, setAppsLoading] = useState(false);
 
+  // Bug fix: deal_sourcing cards had no apply_url and no in-app flow, so the
+  // Apply click was a silent no-op. Standalone modal — deliberately NOT wired
+  // into the challenge-only selectedId/applyForm state above (that flow always
+  // calls challengeAPI, which would break for a deal-request id).
+  const [dealApplyId, setDealApplyId] = useState(null);
+  const [dealForm, setDealForm] = useState({ pitch: '', proposal_url: '' });
+  const [dealApplying, setDealApplying] = useState(false);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time load on mount; loaders are stable inline closures
   useEffect(() => { loadChallenges(); loadTaxonomy(); }, []);
 
@@ -188,6 +196,17 @@ export default function Marketplace() {
       openDetail(selectedId); // refresh
     } catch (err) { toast.error(err.message); }
     finally { setApplying(false); }
+  };
+
+  const submitDealApplication = async () => {
+    setDealApplying(true);
+    try {
+      await publicAPI.applyToDealRequest(dealApplyId, dealForm);
+      toast.success('Application submitted successfully!');
+      setDealApplyId(null);
+      setDealForm({ pitch: '', proposal_url: '' });
+    } catch (err) { toast.error(err.message); }
+    finally { setDealApplying(false); }
   };
 
   // Bug 4: open the apply form pre-populated with the user's existing application.
@@ -608,6 +627,7 @@ export default function Marketplace() {
                 const isChallenge = ch.type === 'challenge';
                 const openItem = () => {
                   if (isChallenge) navigate(`/dashboard/marketplace/${ch.id}`);
+                  else if (ch.type === 'deal_sourcing') setDealApplyId(ch.id);
                   else if (ch.apply_url) window.open(ch.apply_url, '_blank', 'noopener');
                 };
                 return (
@@ -640,7 +660,7 @@ export default function Marketplace() {
                       {!isSeeker && (
                         <button onClick={e => { e.stopPropagation(); openItem(); }}
                           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 8, border: 'none', background: G, color: '#fff', cursor: 'pointer' }}>
-                          {isChallenge ? 'View & Apply' : <>Apply <ExternalLink size={12} /></>}
+                          {isChallenge || ch.type === 'deal_sourcing' ? 'View & Apply' : <>Apply <ExternalLink size={12} /></>}
                         </button>
                       )}
                     </div>
@@ -661,6 +681,36 @@ export default function Marketplace() {
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / 20) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / 20) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / 20) ? 'default' : 'pointer' }}>Next</button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Apply to Deal Sourcing modal — standalone, does not share state with
+          the challenge-only detail/apply flow above. */}
+      {dealApplyId && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
+          onClick={() => !dealApplying && setDealApplyId(null)}>
+          <div style={{ ...card, width: '100%', maxWidth: 440, padding: 24 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Apply to Deal</h3>
+              <button onClick={() => !dealApplying && setDealApplyId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={18} /></button>
+            </div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Pitch</label>
+            <textarea value={dealForm.pitch} onChange={e => setDealForm(f => ({ ...f, pitch: e.target.value }))} rows={5}
+              placeholder="Briefly pitch your startup for this deal..."
+              style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: 14, resize: 'vertical', fontFamily: 'inherit' }} />
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Proposal URL (optional)</label>
+            <input value={dealForm.proposal_url} onChange={e => setDealForm(f => ({ ...f, proposal_url: e.target.value }))}
+              placeholder="https://..."
+              style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: 18 }} />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setDealApplyId(null)} disabled={dealApplying}
+                style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', color: '#555', cursor: dealApplying ? 'default' : 'pointer' }}>Cancel</button>
+              <button onClick={submitDealApplication} disabled={dealApplying || !dealForm.pitch.trim()}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: 'none', background: G, color: '#fff', cursor: dealApplying || !dealForm.pitch.trim() ? 'default' : 'pointer', opacity: dealApplying || !dealForm.pitch.trim() ? 0.6 : 1 }}>
+                {dealApplying ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Submit
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
