@@ -888,7 +888,7 @@ export default function Landing() {
             onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
             onMouseLeave={e => e.currentTarget.style.background = GOLD}
           >
-            Talk to Us <ArrowRight size={16} />
+            Get Started for Free <ArrowRight size={16} />
           </Link>
         </div>
       </Section>
