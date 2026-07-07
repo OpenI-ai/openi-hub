@@ -491,7 +491,7 @@ function KnowledgeCard({ article: k }) {
       )}
       {k.file_url && (
         <a
-          href={k.file_url}
+          href={k.file_proxy_url || k.file_url}
           target="_blank"
           rel="noopener noreferrer"
           style={{ fontSize: 12, color: G, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8 }}

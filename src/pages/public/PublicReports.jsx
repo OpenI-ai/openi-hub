@@ -255,7 +255,7 @@ export default function PublicReports() {
 function ReportCard({ report }) {
   const SectorIcon = SECTOR_ICONS[report.sector] || FileText;
   const sectorColor = SECTOR_COLORS[report.sector] || GOLD;
-  const reportUrl = report.cover_url || '#';
+  const reportUrl = report.cover_proxy_url || report.cover_url || '#';
 
   return (
     <div

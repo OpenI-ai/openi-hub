@@ -269,7 +269,7 @@ export default function Knowledge() {
                       {article.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">{tag}</span>)}
                     </div>
                     {article.file_url && (
-                      <a href={article.file_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-xs text-primary-600 flex-shrink-0 hover:underline">
+                      <a href={article.file_proxy_url || article.file_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-xs text-primary-600 flex-shrink-0 hover:underline">
                         <Download size={11} /> File
                       </a>
                     )}
@@ -327,8 +327,8 @@ export default function Knowledge() {
               </div>
             ) : (selected.file_url || selected.pdf_url) ? (
               <div className="flex gap-3">
-                <a href={selected.file_url || selected.pdf_url} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
-                <a href={selected.file_url || selected.pdf_url} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download</a>
+                <a href={selected.file_proxy_url || selected.file_url || selected.pdf_url} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
+                <a href={selected.file_proxy_url ? `${selected.file_proxy_url}?download=1` : (selected.file_url || selected.pdf_url)} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download</a>
               </div>
             ) : (
               <p className="text-xs text-gray-400 italic">No attachment for this item.</p>

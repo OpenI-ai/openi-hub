@@ -193,7 +193,7 @@ export default function StudentDiscovery() {
           {(selected.linkedin_url || selected.portfolio_url) && (
             <div style={{ display: 'flex', gap: 12, marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
               {selected.linkedin_url && <a href={selected.linkedin_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> LinkedIn</a>}
-              {selected.portfolio_url && <a href={selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>}
+              {selected.portfolio_url && <a href={selected.portfolio_proxy_url || selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>}
             </div>
           )}
         </div>
@@ -296,7 +296,7 @@ export default function StudentDiscovery() {
               {(s.linkedin_url || s.portfolio_url) && (
                 <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
                   {s.linkedin_url && <a href={s.linkedin_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={9} /> LinkedIn</a>}
-                  {s.portfolio_url && <a href={s.portfolio_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={9} /> Portfolio</a>}
+                  {s.portfolio_url && <a href={s.portfolio_proxy_url || s.portfolio_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={9} /> Portfolio</a>}
                 </div>
               )}
             </div>

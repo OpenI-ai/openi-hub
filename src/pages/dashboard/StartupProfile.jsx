@@ -1745,7 +1745,7 @@ export default function StartupProfile() {
                   </a>
                 )}
                 {startup.pitch_deck_url && (
-                  <a href={startup.pitch_deck_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                  <a href={startup.pitch_deck_proxy_url || startup.pitch_deck_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
                     <FileText size={14} /> Pitch Deck
                   </a>
                 )}
