@@ -811,6 +811,12 @@ export default function Register() {
             </Link>
           </div>
         </div>
+        {/* Page tour — must be mounted here too: Step 0 is a separate early
+            `return` from the Step 1-3 JSX below (which has its own
+            <PublicTour /> mount), so without this the "Take a tour" button
+            on the persona picker dispatches openi-page-tour into a void —
+            no PublicTour instance is in the tree yet to catch it. */}
+        <PublicTour />
       </div>
     );
   }
