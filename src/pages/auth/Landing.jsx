@@ -383,7 +383,7 @@ export default function Landing() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium" style={{ color: GRAY }}>
+          <nav className="hidden lg:flex shrink-0 items-center gap-6 text-sm font-medium" style={{ color: GRAY }}>
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors">Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors">Reports</Link>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a>
@@ -391,8 +391,10 @@ export default function Landing() {
             <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
           </nav>
 
-          {/* Global header search — AI Ask enabled */}
-          <div className="hidden lg:block flex-1 max-w-md">
+          {/* Global header search — AI Ask enabled. xl (not lg) so it never
+              contends with the full nav + Sign In/Get Started for space in
+              the 1024-1279px band, which was causing squeeze/wrap there. */}
+          <div className="hidden xl:block flex-1 max-w-md min-w-0">
             <SearchBar
               onSearch={handleHeaderSearch}
               showAiToggle
@@ -400,7 +402,7 @@ export default function Landing() {
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
                className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
                style={{ color: GRAY }}
