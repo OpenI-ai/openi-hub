@@ -18,7 +18,7 @@ const ICON_MAP = {
   Briefcase, Search, Award, Calendar, MessageSquare, Zap, BarChart3, Globe,
   Shield, Users, Target, Network, Sparkles, FileText, Database, Rocket,
   TrendingUp, Star, UserPlus, Building2, Landmark, GraduationCap, FlaskConical,
-  Home, BookOpen, ArrowRight, CheckCircle2,
+  Home, BookOpen, ArrowRight, CheckCircle2, Layers,
 };
 
 // Brand colors — Option B Light tokens (build brief)
@@ -82,6 +82,17 @@ const DEFAULT_FAQS = [
   { q: 'How does the Challenge Marketplace work?', a: 'Corporates, investors, and government bodies post open innovation challenges with sector tags, budget ranges, data rooms, and FAQs. Startups apply with structured proposals; seekers evaluate, rate (1-5 stars), and move applicants through a drag-and-drop pipeline into active collaborations with milestones, tasks, and budget tracking.' },
   { q: 'Does OpenI support multi-currency for global programs?', a: 'Yes. All monetary fields (funding, investment, ticket sizes, perks, etc.) support both INR and USD natively, with compact locale-appropriate display (\u20B95L, \u20B92Cr, $60K, $1.5M). Users can set their preferred currency in Settings \u2192 Profile. No FX conversion \u2014 each amount keeps its entered currency for honest reporting.' },
   { q: 'I am an investor AND a mentor — do I need two accounts?', a: 'No. One account holds multiple roles. Sign up with your primary role, then add as many additional roles as you need from your dashboard. Each role gets its own dashboard, sidebar, and workflows; switch between them with one click using the role tabs at the top of any dashboard page. One inbox, one watchlist, separate per-role billing if you upgrade to Pro on a specific role.' },
+];
+
+// Phase 124 (5 Jul) — Corporate/Enterprise-facing services section, matching the
+// backend DEFAULT_LANDING.services fallback shape (icon, title, description).
+const DEFAULT_SERVICES = [
+  { icon: 'Layers', title: 'Solution Architecture', description: 'We define what needs to be solved, in what sequence, with which capabilities — then assemble the right partners around a blueprint, not a vendor list.' },
+  { icon: 'Network', title: 'Startup Fusion', description: 'When no single startup covers your challenge, we engineer a composite — two or more complementary startups fused into one architecture, one integration plan, one accountable delivery.' },
+  { icon: 'Shield', title: 'Managed Sandbox', description: 'Isolated, secure test environments purpose-built for innovation pilots — ready in days, with the access controls your IT and compliance teams require.' },
+  { icon: 'Database', title: 'Synthetic Data', description: 'Datasets that mirror your real-world conditions so startups can build and you can evaluate — privacy-safe by design, with zero exposure of sensitive records.' },
+  { icon: 'Target', title: 'Innovation Project Management', description: 'A dedicated project lead runs the integration — milestones, escalations, and stakeholder alignment — so a promising pilot doesn\u2019t die from orphaned ownership.' },
+  { icon: 'FlaskConical', title: 'Stealth-Mode Scouting', description: 'We scout university labs and student innovators in stealth mode, surfacing early prototypes before they appear on any database or a competitor\u2019s radar.' },
 ];
 
 // ── Reusable section wrapper ───────────────────────────────
@@ -340,6 +351,7 @@ export default function Landing() {
   const hero = null;                         // Inline hero (not CMS-managed)
   const partners = cms?.partners || DEFAULT_PARTNERS;
   const howItWorks = cms?.howItWorks || null;
+  const services = cms?.services || null;
   const ctaContent = cms?.cta || null;
   const footerTagline = cms?.footer_tagline || null;
 
@@ -375,6 +387,7 @@ export default function Landing() {
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors">Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors">Reports</Link>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a>
+            <a href="#services" className="hover:text-gray-900 transition-colors">Services</a>
             <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
           </nav>
 
@@ -462,6 +475,14 @@ export default function Landing() {
                 style={{ color: DARK }}
               >
                 How It Works
+              </a>
+              <a
+                href="#services"
+                onClick={() => setMobileNavOpen(false)}
+                className="py-2.5 rounded-md transition-colors"
+                style={{ color: DARK }}
+              >
+                Services
               </a>
               <a
                 href="#pricing"
@@ -821,6 +842,54 @@ export default function Landing() {
               </Link>
             ))}
           </div>
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          SERVICES (Corporate/Enterprise-facing) — Phase 124, 5 Jul
+          ═══════════════════════════════════════════════════════════ */}
+      <Section bg={LIGHT_GRAY} id="services">
+        <div className="text-center mb-14">
+          <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: GOLD }}>
+            For Corporates & Enterprises
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
+            Services
+          </h2>
+          <p className="text-lg font-semibold mb-4" style={{ color: DARK }}>
+            The platform finds your partner. Our services deliver your solution.
+          </p>
+          <p className="text-base max-w-2xl mx-auto" style={{ color: GRAY }}>
+            Discovery and evaluation get you to the right startups. Our hands-on services take you the
+            rest of the way — from architecture to fusion to a pilot that actually runs. Delivered by
+            the OpenI team, inside one ecosystem.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {(services || DEFAULT_SERVICES).map((s, i) => {
+            const Icon = ICON_MAP[s.icon] || Layers;
+            return <FeatureCard key={i} icon={Icon} title={s.title} description={s.description} />;
+          })}
+        </div>
+
+        <div className="text-center mt-14">
+          <h3 className="text-xl font-bold mb-2" style={{ color: DARK }}>
+            Every service. One ecosystem.
+          </h3>
+          <p className="text-sm mb-6 max-w-xl mx-auto" style={{ color: GRAY }}>
+            Evaluation, architecture, fusion, sandbox, data, delivery — you don't need six vendors.
+            You need one ecosystem that composes them.
+          </p>
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all"
+            style={{ background: GOLD, color: '#fff' }}
+            onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
+            onMouseLeave={e => e.currentTarget.style.background = GOLD}
+          >
+            Talk to Us <ArrowRight size={16} />
+          </Link>
         </div>
       </Section>
 
