@@ -35,6 +35,7 @@ export default function InvestorDealRequests() {
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [taxonomy, setTaxonomy] = useState({ sectors: [], technologies: [] });
+  const [expandedApps, setExpandedApps] = useState({});
 
   const [form, setForm] = useState({
     title: '', description: '', investment_thesis: '', status: 'open',
@@ -212,7 +213,20 @@ export default function InvestorDealRequests() {
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{app.company_name || app.applicant_name}</p>
                       <p className="text-xs text-gray-500">{app.sector} {app.stage ? `| ${app.stage}` : ''} {app.city ? `| ${app.city}` : ''}</p>
-                      {app.pitch && <p className="text-xs text-gray-600 mt-1 line-clamp-2">{app.pitch}</p>}
+                      {app.pitch && (
+                        <>
+                          <p className={`text-xs text-gray-600 mt-1 ${expandedApps[app.id] ? '' : 'line-clamp-2'}`}>{app.pitch}</p>
+                          {app.pitch.length > 110 && (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedApps(prev => ({ ...prev, [app.id]: !prev[app.id] }))}
+                              className="text-xs text-indigo-600 hover:underline mt-0.5"
+                            >
+                              {expandedApps[app.id] ? 'Show less' : 'Show more'}
+                            </button>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
