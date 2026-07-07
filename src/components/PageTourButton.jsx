@@ -1,10 +1,12 @@
 /**
- * PageTourButton — inline "Take a tour" control for standalone pages.
+ * PageTourButton — inline "?" tour-replay control for standalone pages.
  *
  * Standalone auth / share / landing pages mount <PublicTour /> directly (they
- * don't use PublicLayout's header, which carries the "Tour this page" button).
+ * don't use PublicLayout's header, which carries its own "?" tour button).
  * After PublicTour's auto-start-once is consumed there's no way to replay the
- * tour. This small button gives each such page an inline replay affordance.
+ * tour. This small icon-only button gives each such page an inline replay
+ * affordance, matching the icon-only "?" button style used in PublicLayout's
+ * header (no text label — just the HelpCircle glyph in a circular outline).
  *
  * It dispatches the same `openi-page-tour` event PublicTour listens for, and
  * renders nothing when the current route has no page tour (so it never shows a
@@ -30,15 +32,13 @@ export default function PageTourButton({ style }) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 6,
-        padding: '6px 12px',
-        borderRadius: 8,
+        justifyContent: 'center',
+        width: 36,
+        height: 36,
+        borderRadius: '50%',
         border: `1px solid ${GOLD}`,
         background: 'transparent',
         color: GOLD,
-        fontSize: 13,
-        fontWeight: 600,
-        fontFamily: 'inherit',
         cursor: 'pointer',
         transition: 'background 0.15s, color 0.15s',
         ...style,
@@ -46,8 +46,7 @@ export default function PageTourButton({ style }) {
       onMouseEnter={e => { e.currentTarget.style.background = GOLD; e.currentTarget.style.color = '#fff'; }}
       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = GOLD; }}
     >
-      <HelpCircle size={15} />
-      Take a tour
+      <HelpCircle size={18} />
     </button>
   );
 }
