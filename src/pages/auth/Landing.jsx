@@ -364,7 +364,7 @@ export default function Landing() {
         className="sticky top-0 z-50 px-6 py-4 border-b backdrop-blur"
         style={{ background: 'rgba(255,255,255,0.92)', borderColor: BORDER }}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-3">
             <img
               src="/openi-logo.png"
@@ -383,7 +383,7 @@ export default function Landing() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex shrink-0 items-center gap-6 text-sm font-medium" style={{ color: GRAY }}>
+          <nav className="hidden lg:flex shrink-0 items-center gap-4 text-sm font-medium" style={{ color: GRAY }}>
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors">Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors">Reports</Link>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a>
