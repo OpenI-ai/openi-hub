@@ -383,7 +383,7 @@ export default function Landing() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium" style={{ color: GRAY }}>
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium" style={{ color: GRAY }}>
             <Link to="/marketplace" className="hover:text-gray-900 transition-colors">Marketplace</Link>
             <Link to="/reports" className="hover:text-gray-900 transition-colors">Reports</Link>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a>
@@ -431,13 +431,13 @@ export default function Landing() {
             >
               Get Started
             </Link>
-            {/* Mobile hamburger — only visible below md breakpoint */}
+            {/* Mobile hamburger — only visible below lg breakpoint */}
             <button
               type="button"
               aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileNavOpen}
               onClick={() => setMobileNavOpen(o => !o)}
-              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
+              className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
               style={{ color: DARK }}
             >
               {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
@@ -445,10 +445,10 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Mobile nav drawer — visible only below md breakpoint when open */}
+        {/* Mobile nav drawer — visible only below lg breakpoint when open */}
         {mobileNavOpen && (
           <div
-            className="md:hidden border-t"
+            className="lg:hidden border-t"
             style={{ background: '#fff', borderColor: BORDER }}
           >
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm font-medium">
