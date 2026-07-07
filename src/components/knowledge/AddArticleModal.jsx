@@ -2,6 +2,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { knowledgeAPI, uploadAPI } from '../../services/api';
 import { X, Plus } from 'lucide-react';
+import TaxonomySelect from '../TaxonomySelect';
 
 // Phase 121 — shared "Add Knowledge Hub content" modal. Used from both
 // Knowledge.jsx (contributor/admin/evaluator "Add Article" button) and
@@ -18,7 +19,7 @@ const CATEGORIES = [
 ];
 
 export default function AddArticleModal({ open, onClose, onCreated }) {
-  const empty = { title: '', content: '', category: 'article', tags: '', is_public: false };
+  const empty = { title: '', content: '', category: 'article', tags: '', sector: '', is_public: false };
   const [form, setForm] = useState(empty);
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -52,6 +53,7 @@ export default function AddArticleModal({ open, onClose, onCreated }) {
         content: form.content.trim() || undefined,
         category: form.category,
         tags,
+        sector: form.sector || undefined,
         file_url,
         file_name,
         is_public: form.is_public,
@@ -119,6 +121,15 @@ export default function AddArticleModal({ open, onClose, onCreated }) {
               rows={5}
               placeholder="Optional — text content shown inline on the Knowledge Hub"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-400 focus:border-primary-400 outline-none resize-none"
+            />
+          </div>
+
+          <div>
+            <TaxonomySelect
+              taxonomy="sectors"
+              value={form.sector}
+              onChange={(name) => setForm((p) => ({ ...p, sector: name }))}
+              label="Industry / Sector"
             />
           </div>
 

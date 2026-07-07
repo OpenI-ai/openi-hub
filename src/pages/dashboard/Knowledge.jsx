@@ -129,6 +129,7 @@ export default function Knowledge() {
       date: created.created_at ? new Date(created.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
       summary: created.summary || created.content || '',
       tags: created.tags || [],
+      sector: created.sector || null,
       views: 0,
       pdf_url: null,
       file_url: created.file_url || null,
@@ -160,6 +161,7 @@ export default function Knowledge() {
           date: a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : a.date || '',
           summary: a.summary || a.content || '',
           tags: a.tags || [],
+          sector: a.sector || null,
           views: a.views || 0, pdf_url: a.pdf_url || null,
           file_url: a.file_url || null,
           file_name: a.file_name || null,
@@ -225,10 +227,11 @@ export default function Knowledge() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filtered.map(article => {
-          // s49: pick icon by sector (first tag), fall back to type-default, fall back to BookOpen
-          const sectorTag = (article.tags || []).find(t => SECTOR_ICONS[t]);
-          const Icon = sectorTag ? SECTOR_ICONS[sectorTag] : (TYPE_ICONS[article.type] || BookOpen);
-          const sectorColor = sectorTag ? SECTOR_COLORS[sectorTag] : '#D0A848';
+          // Phase 124: prefer the dedicated sector field; fall back to s49's
+          // tag-based sniffing (for articles created before sector existed).
+          const sectorTag = article.sector || (article.tags || []).find(t => SECTOR_ICONS[t]);
+          const Icon = sectorTag && SECTOR_ICONS[sectorTag] ? SECTOR_ICONS[sectorTag] : (TYPE_ICONS[article.type] || BookOpen);
+          const sectorColor = sectorTag && SECTOR_COLORS[sectorTag] ? SECTOR_COLORS[sectorTag] : '#D0A848';
           return (
             <div key={article.id} onClick={() => setSelected(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
               style={{ transition: 'all 0.15s' }}
@@ -248,6 +251,14 @@ export default function Knowledge() {
                     <h3 className="font-display font-bold text-gray-900 text-sm leading-snug flex-1">{article.title}</h3>
                     {article.is_published === false && (
                       <span className="px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0 bg-gray-200 text-gray-600">Unpublished</span>
+                    )}
+                    {article.sector && (
+                      <span
+                        className="px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0"
+                        style={{ background: `${sectorColor}15`, color: sectorColor, border: `1px solid ${sectorColor}30` }}
+                      >
+                        {article.sector}
+                      </span>
                     )}
                     <span className={`px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0 ${ACCESS_COLORS[article.access]}`}>{article.access}</span>
                   </div>
@@ -287,6 +298,18 @@ export default function Knowledge() {
                 <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${ACCESS_COLORS[selected.access]} mb-2 inline-block capitalize`}>{selected.access}</span>
                 {selected.is_published === false && (
                   <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-gray-200 text-gray-600 mb-2 ml-2 inline-block">Unpublished</span>
+                )}
+                {selected.sector && (
+                  <span
+                    className="px-2 py-0.5 text-xs rounded-full font-medium mb-2 ml-2 inline-block"
+                    style={{
+                      background: `${SECTOR_COLORS[selected.sector] || '#D0A848'}15`,
+                      color: SECTOR_COLORS[selected.sector] || '#D0A848',
+                      border: `1px solid ${SECTOR_COLORS[selected.sector] || '#D0A848'}30`,
+                    }}
+                  >
+                    {selected.sector}
+                  </span>
                 )}
                 <h3 className="font-display font-bold text-gray-900 text-lg leading-snug">{selected.title}</h3>
                 <p className="text-xs text-gray-400 mt-1">{selected.source} · {selected.date} · {selected.views.toLocaleString()} views</p>

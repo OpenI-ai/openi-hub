@@ -56,7 +56,8 @@ export default function AdminKnowledge() {
       const params = {};
       if (status) params.status = status;
       const res = await knowledgeAdminAPI.listRequests(params);
-      setRequests(res?.requests || res?.data || []);
+      // Backend returns a plain array (res.json(rows)) — not {requests:[]}/{data:[]}.
+      setRequests(Array.isArray(res) ? res : (res?.requests || res?.data || []));
     } catch (err) {
       toast.error(err.message || 'Failed to load contributor requests');
     } finally {
