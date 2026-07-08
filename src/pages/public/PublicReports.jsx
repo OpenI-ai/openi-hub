@@ -5,13 +5,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FileText, ArrowRight, Calendar, User, BookOpen, ExternalLink, Download,
-  Zap, Shield, FlaskConical, Heart, Cpu, Layers,
-  TrendingUp, ShoppingBag, Shirt, Globe, Building2, Brain,
-  Landmark, Leaf, MapPin,
+  FileText, ArrowRight, Calendar, User, BookOpen, Download,
+  Zap, Shield,
 } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import { publicAPI } from '../../services/api';
+import { getSectorIcon, getSectorColor } from '../../constants/knowledgeIcons';
 
 // Brand colors
 const GOLD = '#D0A848';
@@ -21,50 +20,6 @@ const DARK = '#1a1a1a';
 const GRAY = '#6b7280';
 const BORDER = '#e5e7eb';
 const LIGHT_GRAY = '#f5f5f5';
-
-// Sector icon mapping
-const SECTOR_ICONS = {
-  'BFSI': Landmark,
-  'ESG': Leaf,
-  'TamilNadu': MapPin,
-  'Agentic AI': Brain,
-  'DeepTech': Zap,
-  'FinTech': TrendingUp,
-  'CPG': ShoppingBag,
-  'FashionTech': Shirt,
-  'ImpactTech': Heart,
-  'ConstructionTech': Building2,
-  'Cyber Security': Shield,
-  'AI': Cpu,
-  'AI/ML': Cpu,
-  'Defence': Shield,
-  'CleanTech': FlaskConical,
-  'HealthTech': Heart,
-  'Quantum': Layers,
-  'Semiconductor': Cpu,
-};
-
-// Sector color mapping
-const SECTOR_COLORS = {
-  'BFSI': '#152838',
-  'ESG': '#10b981',
-  'TamilNadu': '#D0A848',
-  'Agentic AI': '#8b5cf6',
-  'DeepTech': '#D0A848',
-  'FinTech': '#3b82f6',
-  'CPG': '#f97316',
-  'FashionTech': '#ec4899',
-  'ImpactTech': '#10b981',
-  'ConstructionTech': '#78716c',
-  'Cyber Security': '#ef4444',
-  'AI': '#6366f1',
-  'AI/ML': '#6366f1',
-  'Defence': '#16a34a',
-  'CleanTech': '#10b981',
-  'HealthTech': '#ef4444',
-  'Quantum': '#06b6d4',
-  'Semiconductor': '#f97316',
-};
 
 export default function PublicReports() {
   const [reports, setReports] = useState([]);
@@ -132,9 +87,9 @@ export default function PublicReports() {
                 onClick={() => setSelectedSector(s)}
                 className="px-4 py-2 rounded-full text-xs font-bold transition-all"
                 style={{
-                  background: selectedSector === s ? (SECTOR_COLORS[s] || GOLD) : '#fff',
+                  background: selectedSector === s ? getSectorColor(s) : '#fff',
                   color: selectedSector === s ? '#fff' : GRAY,
-                  border: `1px solid ${selectedSector === s ? (SECTOR_COLORS[s] || GOLD) : BORDER}`,
+                  border: `1px solid ${selectedSector === s ? getSectorColor(s) : BORDER}`,
                 }}
               >
                 {s}
@@ -253,8 +208,8 @@ export default function PublicReports() {
 
 // ── Report Card ───────────────────────────────────────────
 function ReportCard({ report }) {
-  const SectorIcon = SECTOR_ICONS[report.sector] || FileText;
-  const sectorColor = SECTOR_COLORS[report.sector] || GOLD;
+  const SectorIcon = getSectorIcon(report.sector, report.tags, report.category);
+  const sectorColor = getSectorColor(report.sector);
   const reportUrl = report.cover_proxy_url || report.cover_url || '#';
 
   return (

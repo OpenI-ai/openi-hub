@@ -5,27 +5,9 @@ import { useAuth } from '../../context/AuthContext';  // Ship #5 (22 May 2026)
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import AddArticleModal from '../../components/knowledge/AddArticleModal'; // Phase 121
 import {
-  BookOpen, Search, Lock, Eye, EyeOff, FileText, PlayCircle, Bookmark, Plus, ExternalLink, Download,
-  Brain, Zap, TrendingUp, ShoppingBag, Shirt, Heart, Building2, Shield, Cpu, FlaskConical, Layers,
-  Briefcase, Trash2,
+  Search, Lock, Eye, EyeOff, Plus, ExternalLink, Download, Trash2,
 } from 'lucide-react';
-
-const TYPE_ICONS = { report: FileText, article: BookOpen, sop: Bookmark, training_module: PlayCircle, case_study: Briefcase };
-
-// s49: per-sector icons + colors so report cards aren't all identical FileText.
-// Sector is read from the first tag (Strapi reports merge via tags[]).
-const SECTOR_ICONS = {
-  'Agentic AI': Brain, 'DeepTech': Zap, 'FinTech': TrendingUp, 'CPG': ShoppingBag,
-  'FashionTech': Shirt, 'ImpactTech': Heart, 'ConstructionTech': Building2,
-  'Cyber Security': Shield, 'AI': Cpu, 'AI/ML': Cpu, 'Defence': Shield,
-  'CleanTech': FlaskConical, 'HealthTech': Heart, 'Quantum': Layers, 'Semiconductor': Cpu,
-};
-const SECTOR_COLORS = {
-  'Agentic AI': '#8b5cf6', 'DeepTech': '#D0A848', 'FinTech': '#3b82f6', 'CPG': '#f97316',
-  'FashionTech': '#ec4899', 'ImpactTech': '#10b981', 'ConstructionTech': '#78716c',
-  'Cyber Security': '#ef4444', 'AI': '#6366f1', 'AI/ML': '#6366f1', 'Defence': '#16a34a',
-  'CleanTech': '#10b981', 'HealthTech': '#ef4444', 'Quantum': '#06b6d4', 'Semiconductor': '#f97316',
-};
+import { getSectorIcon, getSectorColor } from '../../constants/knowledgeIcons';
 
 const ACCESS_COLORS = { public: 'bg-accent-100 text-accent-700', registered: 'bg-blue-100 text-blue-700', restricted: 'bg-yellow-100 text-yellow-700', classified: 'bg-red-100 text-red-700' };
 
@@ -228,10 +210,10 @@ export default function Knowledge() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filtered.map(article => {
           // Phase 124: prefer the dedicated sector field; fall back to s49's
-          // tag-based sniffing (for articles created before sector existed).
-          const sectorTag = article.sector || (article.tags || []).find(t => SECTOR_ICONS[t]);
-          const Icon = sectorTag && SECTOR_ICONS[sectorTag] ? SECTOR_ICONS[sectorTag] : (TYPE_ICONS[article.type] || BookOpen);
-          const sectorColor = sectorTag && SECTOR_COLORS[sectorTag] ? SECTOR_COLORS[sectorTag] : '#D0A848';
+          // tag-based sniffing (for articles created before sector existed)
+          // via the shared getSectorIcon/getSectorColor helpers.
+          const Icon = getSectorIcon(article.sector, article.tags, article.type);
+          const sectorColor = getSectorColor(article.sector);
           return (
             <div key={article.id} onClick={() => setSelected(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
               style={{ transition: 'all 0.15s' }}
@@ -303,9 +285,9 @@ export default function Knowledge() {
                   <span
                     className="px-2 py-0.5 text-xs rounded-full font-medium mb-2 ml-2 inline-block"
                     style={{
-                      background: `${SECTOR_COLORS[selected.sector] || '#D0A848'}15`,
-                      color: SECTOR_COLORS[selected.sector] || '#D0A848',
-                      border: `1px solid ${SECTOR_COLORS[selected.sector] || '#D0A848'}30`,
+                      background: `${getSectorColor(selected.sector)}15`,
+                      color: getSectorColor(selected.sector),
+                      border: `1px solid ${getSectorColor(selected.sector)}30`,
                     }}
                   >
                     {selected.sector}
