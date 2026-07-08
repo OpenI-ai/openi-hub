@@ -102,6 +102,22 @@ export default function Knowledge() {
     }
   };
 
+  // Opens the detail modal immediately with the cached list data, then hits
+  // GET /knowledge/:id in the background — that's the endpoint that actually
+  // increments the views counter server-side (knowledgeController.getOne).
+  // Strapi-sourced reports (id `strapi-report-N`) aren't real DB rows, so skip
+  // the view-count fetch for those.
+  const openArticle = (article) => {
+    setSelected(article);
+    if (String(article.id).startsWith('strapi-report-')) return;
+    knowledgeAPI.get(article.id)
+      .then(fresh => {
+        setArticles(prev => prev.map(a => (a.id === article.id ? { ...a, views: fresh.views } : a)));
+        setSelected(sel => (sel && sel.id === article.id ? { ...sel, views: fresh.views } : sel));
+      })
+      .catch(() => {}); // view-count increment is best-effort, don't surface errors for it
+  };
+
   const handleArticleCreated = (created) => {
     setArticles(prev => [{
       id: created.id,
@@ -217,7 +233,7 @@ export default function Knowledge() {
           const Icon = getSectorIcon(article.sector, article.tags, article.type);
           const sectorColor = getSectorColor(article.sector);
           return (
-            <div key={article.id} onClick={() => setSelected(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
+            <div key={article.id} onClick={() => openArticle(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
               style={{ transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = sectorColor; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}>
