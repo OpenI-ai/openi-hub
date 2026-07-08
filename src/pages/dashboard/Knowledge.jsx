@@ -8,6 +8,7 @@ import {
   Search, Lock, Eye, EyeOff, Plus, ExternalLink, Download, Trash2,
 } from 'lucide-react';
 import { getSectorIcon, getSectorColor } from '../../constants/knowledgeIcons';
+import { openProxyFile } from '../../utils/fileAccess';
 
 const ACCESS_COLORS = { public: 'bg-accent-100 text-accent-700', registered: 'bg-blue-100 text-blue-700', restricted: 'bg-yellow-100 text-yellow-700', classified: 'bg-red-100 text-red-700' };
 
@@ -146,6 +147,7 @@ export default function Knowledge() {
           sector: a.sector || null,
           views: a.views || 0, pdf_url: a.pdf_url || null,
           file_url: a.file_url || null,
+          file_proxy_url: a.file_proxy_url || null,
           file_name: a.file_name || null,
           is_published: a.is_published !== undefined ? a.is_published : true,
           author_id: a.author_id ?? null,
@@ -251,9 +253,25 @@ export default function Knowledge() {
                       {article.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">{tag}</span>)}
                     </div>
                     {article.file_url && (
-                      <a href={article.file_proxy_url || article.file_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-xs text-primary-600 flex-shrink-0 hover:underline">
-                        <Download size={11} /> File
-                      </a>
+                      article.file_proxy_url ? (
+                        <button
+                          onClick={async e => {
+                            e.stopPropagation();
+                            try {
+                              await openProxyFile(article.file_proxy_url);
+                            } catch (err) {
+                              toast.error(err.message || 'Failed to open file');
+                            }
+                          }}
+                          className="flex items-center gap-1 text-xs text-primary-600 flex-shrink-0 hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                        >
+                          <Download size={11} /> File
+                        </button>
+                      ) : (
+                        <a href={article.file_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-xs text-primary-600 flex-shrink-0 hover:underline">
+                          <Download size={11} /> File
+                        </a>
+                      )
                     )}
                     <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0">
                       <Eye size={11} /> {article.views.toLocaleString()}
@@ -309,8 +327,34 @@ export default function Knowledge() {
               </div>
             ) : (selected.file_url || selected.pdf_url) ? (
               <div className="flex gap-3">
-                <a href={selected.file_proxy_url || selected.file_url || selected.pdf_url} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
-                <a href={selected.file_proxy_url ? `${selected.file_proxy_url}?download=1` : (selected.file_url || selected.pdf_url)} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download</a>
+                {selected.file_proxy_url ? (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await openProxyFile(selected.file_proxy_url);
+                      } catch (err) {
+                        toast.error(err.message || 'Failed to open file');
+                      }
+                    }}
+                    className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer border-0"
+                  ><ExternalLink size={14} /> Read Full Report</button>
+                ) : (
+                  <a href={selected.file_url || selected.pdf_url} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 no-underline"><ExternalLink size={14} /> Read Full Report</a>
+                )}
+                {selected.file_proxy_url ? (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await openProxyFile(selected.file_proxy_url, { download: true, filename: selected.file_name || selected.title });
+                      } catch (err) {
+                        toast.error(err.message || 'Failed to download file');
+                      }
+                    }}
+                    className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 cursor-pointer bg-white"
+                  ><Download size={14} /> Download</button>
+                ) : (
+                  <a href={selected.file_url || selected.pdf_url} download className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"><Download size={14} /> Download</a>
+                )}
               </div>
             ) : (
               <p className="text-xs text-gray-400 italic">No attachment for this item.</p>

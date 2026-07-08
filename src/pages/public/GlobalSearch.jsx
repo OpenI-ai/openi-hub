@@ -6,6 +6,7 @@ import SearchBar from '../../components/SearchBar';
 import UpgradeCTA from '../../components/UpgradeCTA';
 import { publicAPI, crawlAPI, getToken } from '../../services/api';
 import toast from 'react-hot-toast';
+import { openProxyFile } from '../../utils/fileAccess';
 
 const G = '#D0A848';
 const NAVY = '#0D2137';
@@ -490,14 +491,29 @@ function KnowledgeCard({ article: k }) {
         </p>
       )}
       {k.file_url && (
-        <a
-          href={k.file_proxy_url || k.file_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ fontSize: 12, color: G, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8 }}
-        >
-          View file <ChevronRight size={12} />
-        </a>
+        k.file_proxy_url ? (
+          <button
+            onClick={async () => {
+              try {
+                await openProxyFile(k.file_proxy_url);
+              } catch (err) {
+                toast.error(err.message || 'Failed to open file');
+              }
+            }}
+            style={{ fontSize: 12, color: G, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, background: 'transparent', border: 0, padding: 0, cursor: 'pointer' }}
+          >
+            View file <ChevronRight size={12} />
+          </button>
+        ) : (
+          <a
+            href={k.file_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 12, color: G, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8 }}
+          >
+            View file <ChevronRight size={12} />
+          </a>
+        )
       )}
     </div>
   );

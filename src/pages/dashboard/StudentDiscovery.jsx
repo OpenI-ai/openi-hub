@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { GraduationCap, Search, MapPin, BookOpen, ChevronLeft, ChevronRight, Loader2, ExternalLink, FolderGit2, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { discoveryAPI, studentEnhAPI } from '../../services/api';
+import { openProxyFile } from '../../utils/fileAccess';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'border-color 0.15s' };
@@ -193,7 +194,22 @@ export default function StudentDiscovery() {
           {(selected.linkedin_url || selected.portfolio_url) && (
             <div style={{ display: 'flex', gap: 12, marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
               {selected.linkedin_url && <a href={selected.linkedin_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> LinkedIn</a>}
-              {selected.portfolio_url && <a href={selected.portfolio_proxy_url || selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>}
+              {selected.portfolio_url && (
+                selected.portfolio_proxy_url ? (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await openProxyFile(selected.portfolio_proxy_url);
+                      } catch (err) {
+                        toast.error(err.message || 'Failed to open file');
+                      }
+                    }}
+                    style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4, background: 'transparent', border: 0, padding: 0, cursor: 'pointer' }}
+                  ><ExternalLink size={11} /> Portfolio</button>
+                ) : (
+                  <a href={selected.portfolio_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}><ExternalLink size={11} /> Portfolio</a>
+                )
+              )}
             </div>
           )}
         </div>
@@ -296,7 +312,23 @@ export default function StudentDiscovery() {
               {(s.linkedin_url || s.portfolio_url) && (
                 <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
                   {s.linkedin_url && <a href={s.linkedin_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={9} /> LinkedIn</a>}
-                  {s.portfolio_url && <a href={s.portfolio_proxy_url || s.portfolio_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={9} /> Portfolio</a>}
+                  {s.portfolio_url && (
+                    s.portfolio_proxy_url ? (
+                      <button
+                        onClick={async e => {
+                          e.stopPropagation();
+                          try {
+                            await openProxyFile(s.portfolio_proxy_url);
+                          } catch (err) {
+                            toast.error(err.message || 'Failed to open file');
+                          }
+                        }}
+                        style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2, background: 'transparent', border: 0, padding: 0, cursor: 'pointer' }}
+                      ><ExternalLink size={9} /> Portfolio</button>
+                    ) : (
+                      <a href={s.portfolio_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 10, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 2 }}><ExternalLink size={9} /> Portfolio</a>
+                    )
+                  )}
                 </div>
               )}
             </div>

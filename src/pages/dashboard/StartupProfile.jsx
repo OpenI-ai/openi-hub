@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { startupAPI, startupProfileAPI, profileViewAPI, claimAPI, startupProfileShareAPI, watchlistAPI, getToken } from '../../services/api';
+import { openProxyFile } from '../../utils/fileAccess';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
@@ -1745,9 +1746,24 @@ export default function StartupProfile() {
                   </a>
                 )}
                 {startup.pitch_deck_url && (
-                  <a href={startup.pitch_deck_proxy_url || startup.pitch_deck_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
-                    <FileText size={14} /> Pitch Deck
-                  </a>
+                  startup.pitch_deck_proxy_url ? (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await openProxyFile(startup.pitch_deck_proxy_url);
+                        } catch (err) {
+                          toast.error(err.message || 'Failed to open file');
+                        }
+                      }}
+                      className="flex items-center gap-2 text-primary-600 hover:text-primary-700 bg-transparent border-0 p-0 cursor-pointer"
+                    >
+                      <FileText size={14} /> Pitch Deck
+                    </button>
+                  ) : (
+                    <a href={startup.pitch_deck_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                      <FileText size={14} /> Pitch Deck
+                    </a>
+                  )
                 )}
                 {startup.video_url && (
                   <a href={startup.video_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-600 hover:text-primary-700">
