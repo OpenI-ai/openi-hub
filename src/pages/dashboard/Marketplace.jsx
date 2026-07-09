@@ -246,6 +246,9 @@ export default function Marketplace() {
             <textarea placeholder="Describe how your solution addresses the challenge..." rows={4} value={applyForm.pitch}
               onChange={e => setApplyForm(p => ({ ...p, pitch: e.target.value }))}
               style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
+            {!applyForm.pitch.trim() && (
+              <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>Fill in your pitch to enable submission.</p>
+            )}
           </div>
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Proposal / Pitch Deck URL</label>
@@ -698,7 +701,10 @@ export default function Marketplace() {
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Pitch</label>
             <textarea value={dealForm.pitch} onChange={e => setDealForm(f => ({ ...f, pitch: e.target.value }))} rows={5}
               placeholder="Briefly pitch your startup for this deal..."
-              style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: 14, resize: 'vertical', fontFamily: 'inherit' }} />
+              style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: !dealForm.pitch.trim() ? 4 : 14, resize: 'vertical', fontFamily: 'inherit' }} />
+            {!dealForm.pitch.trim() && (
+              <p style={{ fontSize: 11, color: '#dc2626', margin: '0 0 14px' }}>Fill in your pitch to enable submission.</p>
+            )}
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Proposal URL (optional)</label>
             <input value={dealForm.proposal_url} onChange={e => setDealForm(f => ({ ...f, proposal_url: e.target.value }))}
               placeholder="https://..."

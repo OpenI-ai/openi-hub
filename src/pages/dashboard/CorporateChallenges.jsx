@@ -120,6 +120,7 @@ export default function CorporateChallenges() {
   const [taxonomy, setTaxonomy] = useState({ sectors: [], functions: [], technologies: [], usecases: [] });
   const [editMode, setEditMode] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [expandedReviewApp, setExpandedReviewApp] = useState(null);
   // Phase 9: Templates, Filters, Recommendations
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [templates, setTemplates] = useState({ builtin: [], saved: [] });
@@ -922,6 +923,14 @@ const startEdit = () => {
                         </span>
                       )}
                     </div>
+                  )}
+                  <button onClick={() => setExpandedReviewApp(expandedReviewApp === app.id ? null : app.id)}
+                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: '#fafafa', border: 'none', cursor: 'pointer', textAlign: 'left', borderRadius: 10, marginTop: 10 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>Review & Feedback</span>
+                    {expandedReviewApp === app.id ? <ChevronUp size={14} color="#999" /> : <ChevronDown size={14} color="#999" />}
+                  </button>
+                  {expandedReviewApp === app.id && (
+                    <ReviewPanel entityType="challenge_application" entityId={app.id} title={`Review: ${app.startup_name || app.applicant_name}`} />
                   )}
                 </div>
               );
