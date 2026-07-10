@@ -96,17 +96,6 @@ const STATUS_STYLE = {
   awarded:   { bg: '#f0fdf4', color: '#16a34a', label: 'Awarded' },
 };
 
-// Bug fix (Jul 2026): accepting a challenge invite auto-creates an empty
-// challenge_applications "stub" row (T32-99e) so the invitee shows up in the
-// review queue immediately. isStubApplication() detects those empty rows so
-// they can be excluded from the "Applications (N)" count — matches the
-// backend's stub-exclusion in corporateController.js.
-function isStubApplication(app) {
-  const rfi = (() => { try { return typeof app.rfi_answers === 'string' ? JSON.parse(app.rfi_answers) : (app.rfi_answers || {}); } catch { return {}; } })();
-  const dataRoom = (() => { try { return typeof app.data_room === 'string' ? JSON.parse(app.data_room) : (app.data_room || []); } catch { return []; } })();
-  return !app.pitch && !app.proposal_url && Object.keys(rfi).length === 0 && dataRoom.length === 0;
-}
-
 export default function CorporateChallenges() {
   const [challenges, setChallenges] = useState([]);
   // Phase 120: selected now derived from URL :id param (mobile back-button fix)
