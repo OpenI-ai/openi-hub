@@ -174,7 +174,7 @@ export default function ChallengeInvites() {
                 )}
 
                 {inv.status === 'accepted' && (
-                  <button type="button" onClick={() => navigate(`/dashboard/challenge/${inv.challenge_id}`)}
+                  <button type="button" onClick={() => navigate(`/dashboard/marketplace?challenge=${inv.challenge_id}&action=apply`)}
                     style={{
                       marginTop: 10, padding: '8px 14px', fontSize: 12, fontWeight: 600,
                       background: 'transparent', color: G, border: `1.5px solid ${G}`,
