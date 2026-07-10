@@ -640,7 +640,7 @@ const startEdit = () => {
         {/* Applications */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-            <Users size={15} style={{ verticalAlign: -3, marginRight: 6 }} />Applications ({(detail.applications || []).filter(a => !isStubApplication(a)).length})
+            <Users size={15} style={{ verticalAlign: -3, marginRight: 6 }} />Applications ({(detail.applications || []).length})
           </h3>
           {(detail.applications || []).length > 0 && (
             <div style={{ display: 'flex', gap: 6 }}>
