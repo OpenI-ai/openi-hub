@@ -12,6 +12,7 @@
  *  - entityType: e.g. 'challenge', 'deal_request'
  *  - entityId:   number
  *  - title:      optional heading override
+ *  - subtitle:   optional helper text clarifying what this panel reviews
  *  - onChange:   optional callback fired after a successful submit
  */
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -89,7 +90,7 @@ function ScoreBadge({ score, size = 'md' }) {
   );
 }
 
-export default function ReviewPanel({ entityType, entityId, title = 'Reviews', onChange }) {
+export default function ReviewPanel({ entityType, entityId, title = 'Reviews', subtitle, onChange }) {
   const [loading, setLoading]       = useState(true);
   const [reviews, setReviews]       = useState([]);
   const [consensus, setConsensus]   = useState({ avg: null, count: 0, verdicts: {} });
@@ -200,9 +201,14 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', o
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Star size={16} style={{ color: G }} />
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-            {title} <span style={{ color: '#999', fontWeight: 400 }}>({consensus.count || 0})</span>
-          </h3>
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
+              {title} <span style={{ color: '#999', fontWeight: 400 }}>({consensus.count || 0})</span>
+            </h3>
+            {subtitle && (
+              <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0 0' }}>{subtitle}</p>
+            )}
+          </div>
         </div>
       </div>
 

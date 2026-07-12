@@ -623,7 +623,7 @@ const startEdit = () => {
 
         {/* Phase 40 (P8): Reviews */}
         <div style={{ marginBottom: 16 }}>
-          <ReviewPanel entityType="challenge" entityId={detail.id} title="Challenge Reviews" />
+          <ReviewPanel entityType="challenge" entityId={detail.id} title="Challenge Reviews" subtitle="Overall feedback on this challenge as a whole" />
         </div>
 
         {/* Applications */}
@@ -919,7 +919,7 @@ const startEdit = () => {
                     {expandedReviewApp === app.id ? <ChevronUp size={14} color="#999" /> : <ChevronDown size={14} color="#999" />}
                   </button>
                   {expandedReviewApp === app.id && (
-                    <ReviewPanel entityType="challenge_application" entityId={app.id} title={`Review: ${app.startup_name || app.applicant_name}`} />
+                    <ReviewPanel entityType="challenge_application" entityId={app.id} title={`Review: ${app.startup_name || app.applicant_name}`} subtitle="Feedback specific to this applicant's submission" />
                   )}
                 </div>
               );
