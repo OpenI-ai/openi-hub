@@ -85,9 +85,13 @@ export default function Marketplace() {
   // Phase 120: Fetch detail whenever URL :id changes (back/forward, click, deep-link)
   useEffect(() => {
     if (selectedId && (!detail || detail.id !== selectedId)) {
-      openDetail(selectedId).then(() => {
+      openDetail(selectedId).then((d) => {
         if (searchParams.get('action') === 'apply') {
-          setShowApply(true);
+          if (d?.my_application) {
+            startEditApplication(d.my_application);
+          } else {
+            setShowApply(true);
+          }
           setTimeout(() => {
             const el = document.querySelector('textarea[placeholder*="solution addresses"]');
             if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
@@ -159,6 +163,7 @@ export default function Marketplace() {
       ]);
       setDetail(d);
       setProfilePct(pc.profile_pct);
+      return d;
     } catch (err) { toast.error(err.message); navigate('/dashboard/marketplace'); }
     finally { setDetailLoading(false); }
   };
@@ -210,8 +215,8 @@ export default function Marketplace() {
   };
 
   // Bug 4: open the apply form pre-populated with the user's existing application.
-  const startEditApplication = () => {
-    const a = detail?.my_application || {};
+  const startEditApplication = (appOverride) => {
+    const a = appOverride || detail?.my_application || {};
     const parse = (v, fallback) => {
       if (v == null) return fallback;
       if (typeof v === 'string') { try { return JSON.parse(v); } catch { return fallback; } }
