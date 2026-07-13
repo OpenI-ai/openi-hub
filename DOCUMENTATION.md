@@ -2,9 +2,9 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.55
+**Version:** 5.56
 
-**Last Updated:** 10 Jul 2026 — Session 40 (per-application review permissions BE `77088ec` + review toggle/pitch helper text FE `5acefa6`). Full session-by-session history (sessions 1-40) archived verbatim in `DOCUMENTATION_ARCHIVE_part1.md` (split 10 Jul 2026, nothing deleted — straight cut at the legacy/living-doc boundary). See that file for the complete narrative changelog.
+**Last Updated:** 12 Jul 2026 — Session 44 (`myCollaborations` endpoint collaborator-access fix BE `2fb535b`, on Session 43's `getUserRoleForEntity` `challenge_members` fix BE `35c8417`, Session 42 ReviewPanel subtitle differentiation FE `de86c98`, Session 41 DOCUMENTATION.md split into `DOCUMENTATION_ARCHIVE_part1.md` FE `0cf4e9b`). Full session-by-session history (sessions 1-40) archived verbatim in `DOCUMENTATION_ARCHIVE_part1.md` (split 10 Jul 2026, nothing deleted — straight cut at the legacy/living-doc boundary). See that file for the complete narrative changelog.
 
 ---
 
@@ -1436,4 +1436,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 8 May 2026 evening (v3.2 — added v2.8.1 Phase 63 backfill section, corrected Database Tables count 63 → 64). Active phase chain shipped 7-8 May: Phase 63 (`audit_logs` backfill, 7 May), then 8 phases on 8 May (64, 65 #1-#4, 65b, 65c, 65d, 65e) covering all 11 personas where applicable.* 🎉
+*Last updated: 12 Jul 2026 (session 44) — myCollaborations endpoint fix, collaborator-access fix, ReviewPanel subtitle differentiation, DOCUMENTATION.md split into DOCUMENTATION_ARCHIVE_part1.md.* 🎉
