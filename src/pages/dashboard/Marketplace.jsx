@@ -463,7 +463,7 @@ export default function Marketplace() {
                   </div>
                 </div>
               </div>
-              <button onClick={startEditApplication}
+              <button onClick={() => startEditApplication()}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
                 <FileText size={14} /> Edit application
               </button>
