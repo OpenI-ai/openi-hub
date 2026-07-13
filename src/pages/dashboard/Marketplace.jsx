@@ -244,7 +244,7 @@ export default function Marketplace() {
     // Bug 4: shared apply/edit form — used for both new applications and editing an existing one.
     const applyFormJsx = (
       <div>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{editMode ? 'Edit Application' : 'Submit Application'}</h3>
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{editMode ? 'Update Application' : 'Submit Application'}</h3>
         <div style={{ display: 'grid', gap: 14 }}>
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Your Pitch *</label>
@@ -329,7 +329,7 @@ export default function Marketplace() {
             <button onClick={() => { setShowApply(false); setEditMode(false); }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#555', border: 'none', cursor: 'pointer' }}>Cancel</button>
             <button onClick={submitApplication} disabled={applying || !applyForm.pitch.trim()}
               style={{ padding: '8px 24px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: applyForm.pitch.trim() ? G : '#e5e7eb', color: applyForm.pitch.trim() ? '#fff' : '#999', border: 'none', cursor: applyForm.pitch.trim() ? 'pointer' : 'default' }}>
-              {applying ? <Loader2 size={14} className="animate-spin" /> : (editMode ? 'Save Changes' : 'Submit Application')}
+              {applying ? <Loader2 size={14} className="animate-spin" /> : (editMode ? 'Update Application' : 'Submit Application')}
             </button>
           </div>
         </div>
@@ -465,7 +465,7 @@ export default function Marketplace() {
               </div>
               <button onClick={() => startEditApplication()}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
-                <FileText size={14} /> Edit application
+                <FileText size={14} /> Update application
               </button>
             </div>
           ) : detail.has_applied ? (
