@@ -6,6 +6,7 @@ import SearchBar from '../../components/SearchBar';
 import UpgradeCTA from '../../components/UpgradeCTA';
 import { publicAPI, crawlAPI, getToken } from '../../services/api';
 import toast from 'react-hot-toast';
+import { isUpgradeError } from '../../utils/upgradeError';
 import { openProxyFile } from '../../utils/fileAccess';
 
 const G = '#D0A848';
@@ -70,7 +71,7 @@ export default function GlobalSearch() {
       }
     } catch (err) {
       // Phase 19: handle 402 upgrade_required from AI/semantic search
-      if (err.message?.includes('402') || err.message?.includes('upgrade') || err.message?.includes('Pro')) {
+      if (isUpgradeError(err)) {
         setUpgradeNeeded(mode === 'ai' ? 'AI Ask Search' : 'Semantic Search');
       } else {
         toast.error('Search failed');

@@ -5,6 +5,8 @@ import {
   Trash2, Star, DollarSign, Target, TrendingUp, Briefcase, FileText, BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { isUpgradeError } from '../../utils/upgradeError';
+import UpgradeCTA from '../../components/UpgradeCTA';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -85,6 +87,7 @@ export default function InvestorDeals() {
   // Create deal
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({ startup_name: '', title: '', investment_type: '', notes: '' });
+  const [upgradeError, setUpgradeError] = useState(null);
 
   useEffect(() => { load(); }, []);
 
@@ -210,13 +213,17 @@ export default function InvestorDeals() {
   // ── Create deal ──
   const handleCreate = async () => {
     if (!createForm.startup_name) { toast.error('Startup name is required'); return; }
+    setUpgradeError(null);
     try {
       await investorAPI.createDeal(createForm);
       toast.success('Deal created');
       setCreateForm({ startup_name: '', title: '', investment_type: '', notes: '' });
       setShowCreate(false);
       load();
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      toast.error(err.message);
+      if (isUpgradeError(err)) setUpgradeError(err);
+    }
   };
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
@@ -575,6 +582,11 @@ export default function InvestorDeals() {
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
+
+          {upgradeError && (
+            <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} />
+          )}
+
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={handleCreate} style={{ padding: '8px 20px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Create Deal</button>
             <button onClick={() => setShowCreate(false)} style={{ padding: '8px 14px', fontSize: 12, borderRadius: 8, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>Cancel</button>

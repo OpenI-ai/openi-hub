@@ -7,6 +7,8 @@ import {
   Check, X, ChevronLeft, Video, Calendar, AlertCircle, Search,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { isUpgradeError } from '../../utils/upgradeError';
+import UpgradeCTA from '../../components/UpgradeCTA';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -65,6 +67,7 @@ export default function Meetings() {
   // Create modal
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [upgradeError, setUpgradeError] = useState(null);
   const [form, setForm] = useState({
     title: '', description: '', meeting_type: 'one_on_one',
     start_time: '', end_time: '', location: '', meeting_link: '', notes: '',
@@ -144,6 +147,7 @@ export default function Meetings() {
     if (!form.title.trim()) return toast.error('Title is required');
     if (!form.start_time || !form.end_time) return toast.error('Start and end time are required');
     setCreating(true);
+    setUpgradeError(null);
     try {
       await meetingAPI.create({
         ...form,
@@ -154,7 +158,10 @@ export default function Meetings() {
       setForm({ title: '', description: '', meeting_type: 'one_on_one', start_time: '', end_time: '', location: '', meeting_link: '', notes: '' });
       setParticipants([]);
       loadMeetings();
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      toast.error(err.message);
+      if (isUpgradeError(err)) setUpgradeError(err);
+    }
     finally { setCreating(false); }
   };
 
@@ -525,6 +532,10 @@ export default function Meetings() {
                   </div>
                 )}
               </div>
+
+              {upgradeError && (
+                <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} />
+              )}
 
               {/* Submit */}
               <button onClick={handleCreate} disabled={creating}

@@ -20,6 +20,8 @@ import {
   ChevronRight, Share2, FileDown, Globe,  // Phase 111 Ship 2d icons added
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { isUpgradeError } from '../../utils/upgradeError';
+import UpgradeCTA from '../../components/UpgradeCTA';
 import PortfolioRadarChart from './PortfolioRadarChart';
 import EvaluationForm from './EvaluationForm';
 
@@ -114,6 +116,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
 
   const [editingEval, setEditingEval] = useState(null);
   const [targetStartupId, setTargetStartupId] = useState(null); // pipeline entry id
+  const [upgradeError, setUpgradeError] = useState(null);
 
   // Focused view state
   const [focusedStartupId, setFocusedStartupId] = useState(null); // pipeline entry id for trend view
@@ -169,6 +172,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
       load();
     } catch (err) {
       toast.error(err.message || 'Failed to save');
+      if (isUpgradeError(err)) setUpgradeError(err);
     }
   };
 
@@ -489,6 +493,9 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
               </div>
               <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => { setShowForm(false); setEditingEval(null); setTargetStartupId(null); }} />
             </div>
+            {upgradeError && (
+              <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} />
+            )}
             <EvaluationForm
               initial={editingEval}
               onSubmit={handleSubmit}

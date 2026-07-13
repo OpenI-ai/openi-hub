@@ -7,6 +7,8 @@ import {
   ToggleLeft, ToggleRight, Search, Gift, CheckCircle, User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { isUpgradeError } from '../../utils/upgradeError';
+import UpgradeCTA from '../../components/UpgradeCTA';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -43,6 +45,7 @@ export default function ProgramServicePartners() {
   // Add/Edit form
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [upgradeError, setUpgradeError] = useState(null);
   const [form, setForm] = useState({
     service_provider_user_id: '',
     service_category: '',
@@ -158,7 +161,10 @@ export default function ProgramServicePartners() {
       setEditingId(null);
       setSelectedSp(null);
       load();
-    } catch (err) { toast.error(err.message || 'Failed'); }
+    } catch (err) {
+      toast.error(err.message || 'Failed');
+      if (isUpgradeError(err)) setUpgradeError(err);
+    }
   };
 
   const toggleActive = async (p) => {
@@ -472,6 +478,10 @@ export default function ProgramServicePartners() {
                 <label style={lbl}>Notes (internal)</label>
                 <textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inp, resize: 'vertical' }} />
               </div>
+
+              {upgradeError && (
+                <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} />
+              )}
 
               <div style={{ display: 'flex', gap: 10, marginTop: 6, justifyContent: 'flex-end' }}>
                 <button type="button" onClick={() => { setShowForm(false); setEditingId(null); setSelectedSp(null); }}
