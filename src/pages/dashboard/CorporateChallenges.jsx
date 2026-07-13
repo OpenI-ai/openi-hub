@@ -7,6 +7,8 @@ import { getStatusLabel, getActionLabel } from '../../config/applicationStatusLa
 // T32-99d: meetingAPI for invitee typeahead
 import { corporateAPI, meetingAPI, messageAPI } from '../../services/api';
 import ReviewPanel from '../../components/ReviewPanel';
+import UpgradeCTA from '../../components/UpgradeCTA';
+import { isUpgradeError } from '../../utils/upgradeError';
 import {
   Target, Plus, ChevronLeft, Clock, CheckCircle,
   Users, Loader2, Calendar, DollarSign, AlertCircle, Star,
@@ -106,6 +108,7 @@ export default function CorporateChallenges() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' });
   const [saving, setSaving] = useState(false);
+  const [upgradeError, setUpgradeError] = useState(null);
   const [taxonomy, setTaxonomy] = useState({ sectors: [], functions: [], technologies: [], usecases: [] });
   const [editMode, setEditMode] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
@@ -219,6 +222,7 @@ export default function CorporateChallenges() {
   const create = async () => {
     if (!form.title.trim()) return toast.error('Title is required');
     setSaving(true);
+    setUpgradeError(null);
     try {
       await corporateAPI.createChallenge(form);
       toast.success('Challenge created');
@@ -226,7 +230,11 @@ export default function CorporateChallenges() {
       // T32-99c-hotfix: post-create form reset keeps all fields including visibility + challenge_type
       setForm({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' });
       load();
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      toast.error(err.message);
+      if (isUpgradeError(err)) setUpgradeError(err);
+      else setUpgradeError(null);
+    }
     finally { setSaving(false); }
   };
 
@@ -805,39 +813,46 @@ const startEdit = () => {
                       </div>
                     </div>
                   )}
-                  {app.pitch && <p style={{ fontSize: 12, color: '#555', marginBottom: 8, lineHeight: 1.5 }}>{app.pitch}</p>}
-                  {app.proposal_url && (
-                    <div style={{ fontSize: 11, marginBottom: 8 }}>
-                      <span style={{ color: '#888' }}>Proposal: </span>
-                      <a href={app.proposal_url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{app.proposal_url}</a>
-                    </div>
+                  {app.details_locked && (
+                    <UpgradeCTA compact feature="application_review" message="Upgrade to review this applicant's full details" plan={user?.current_plan} />
                   )}
-
-                  {/* RFI Answers */}
-                  {Object.keys(appRfiAnswers).length > 0 && rfiQuestions.length > 0 && (
-                    <div style={{ marginBottom: 8, border: '1px solid #f0f0f0', borderRadius: 8, padding: 10 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#333', marginBottom: 6 }}>RFI Answers</div>
-                      {rfiQuestions.map(q => (
-                        appRfiAnswers[q.id] ? (
-                          <div key={q.id} style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>
-                            <span style={{ fontWeight: 600 }}>{q.question}:</span> {appRfiAnswers[q.id]}
-                          </div>
-                        ) : null
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Data Room */}
-                  {appDataRoom.length > 0 && (
-                    <div style={{ marginBottom: 8, border: '1px solid #f0f0f0', borderRadius: 8, padding: 10 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#333', marginBottom: 6 }}>Data Room</div>
-                      {appDataRoom.map((doc, di) => (
-                        <div key={di} style={{ fontSize: 11, marginBottom: 2 }}>
-                          <span style={{ color: '#888', textTransform: 'capitalize' }}>{(doc.type || 'file').replace(/_/g, ' ')}:</span>{' '}
-                          <a href={doc.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{doc.url}</a>
+                  {!app.details_locked && (
+                    <>
+                      {app.pitch && <p style={{ fontSize: 12, color: '#555', marginBottom: 8, lineHeight: 1.5 }}>{app.pitch}</p>}
+                      {app.proposal_url && (
+                        <div style={{ fontSize: 11, marginBottom: 8 }}>
+                          <span style={{ color: '#888' }}>Proposal: </span>
+                          <a href={app.proposal_url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{app.proposal_url}</a>
                         </div>
-                      ))}
-                    </div>
+                      )}
+
+                      {/* RFI Answers */}
+                      {Object.keys(appRfiAnswers).length > 0 && rfiQuestions.length > 0 && (
+                        <div style={{ marginBottom: 8, border: '1px solid #f0f0f0', borderRadius: 8, padding: 10 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: '#333', marginBottom: 6 }}>RFI Answers</div>
+                          {rfiQuestions.map(q => (
+                            appRfiAnswers[q.id] ? (
+                              <div key={q.id} style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>
+                                <span style={{ fontWeight: 600 }}>{q.question}:</span> {appRfiAnswers[q.id]}
+                              </div>
+                            ) : null
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Data Room */}
+                      {appDataRoom.length > 0 && (
+                        <div style={{ marginBottom: 8, border: '1px solid #f0f0f0', borderRadius: 8, padding: 10 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: '#333', marginBottom: 6 }}>Data Room</div>
+                          {appDataRoom.map((doc, di) => (
+                            <div key={di} style={{ fontSize: 11, marginBottom: 2 }}>
+                              <span style={{ color: '#888', textTransform: 'capitalize' }}>{(doc.type || 'file').replace(/_/g, ' ')}:</span>{' '}
+                              <a href={doc.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{doc.url}</a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
 
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -871,14 +886,16 @@ const startEdit = () => {
                       </button>
                     )}
                     {/* Phase 35: AI Evaluate */}
-                    <button onClick={() => runAiEvaluate(app.id)} disabled={evaluatingAppId === app.id}
-                      style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: evaluations[app.id] ? '#f0fdf4' : 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: evaluations[app.id] ? '#16a34a' : '#fff', border: evaluations[app.id] ? '1px solid #bbf7d0' : 'none', cursor: evaluatingAppId === app.id ? 'wait' : 'pointer', opacity: evaluatingAppId === app.id ? 0.7 : 1 }}>
-                      {evaluatingAppId === app.id ? <Loader2 size={11} className="animate-spin" style={{ verticalAlign: -2 }} /> : <Sparkles size={11} style={{ verticalAlign: -2 }} />} {evaluations[app.id] ? 'Re-evaluate' : 'AI Evaluate'}
-                    </button>
+                    {!app.details_locked && (
+                      <button onClick={() => runAiEvaluate(app.id)} disabled={evaluatingAppId === app.id}
+                        style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: evaluations[app.id] ? '#f0fdf4' : 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: evaluations[app.id] ? '#16a34a' : '#fff', border: evaluations[app.id] ? '1px solid #bbf7d0' : 'none', cursor: evaluatingAppId === app.id ? 'wait' : 'pointer', opacity: evaluatingAppId === app.id ? 0.7 : 1 }}>
+                        {evaluatingAppId === app.id ? <Loader2 size={11} className="animate-spin" style={{ verticalAlign: -2 }} /> : <Sparkles size={11} style={{ verticalAlign: -2 }} />} {evaluations[app.id] ? 'Re-evaluate' : 'AI Evaluate'}
+                      </button>
+                    )}
                   </div>
 
                   {/* Phase 35: AI Evaluation Results */}
-                  {evaluations[app.id] && (
+                  {!app.details_locked && evaluations[app.id] && (
                     <div style={{ marginTop: 10, background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 10, padding: 12 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span><Brain size={12} style={{ verticalAlign: -2 }} /> AI Evaluation</span>
@@ -913,13 +930,17 @@ const startEdit = () => {
                       )}
                     </div>
                   )}
-                  <button onClick={() => setExpandedReviewApp(expandedReviewApp === app.id ? null : app.id)}
-                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: '#fafafa', border: 'none', cursor: 'pointer', textAlign: 'left', borderRadius: 10, marginTop: 10 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>Review & Feedback</span>
-                    {expandedReviewApp === app.id ? <ChevronUp size={14} color="#999" /> : <ChevronDown size={14} color="#999" />}
-                  </button>
-                  {expandedReviewApp === app.id && (
-                    <ReviewPanel entityType="challenge_application" entityId={app.id} title={`Review: ${app.startup_name || app.applicant_name}`} subtitle="Feedback specific to this applicant's submission" />
+                  {!app.details_locked && (
+                    <>
+                      <button onClick={() => setExpandedReviewApp(expandedReviewApp === app.id ? null : app.id)}
+                        style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: '#fafafa', border: 'none', cursor: 'pointer', textAlign: 'left', borderRadius: 10, marginTop: 10 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>Review & Feedback</span>
+                        {expandedReviewApp === app.id ? <ChevronUp size={14} color="#999" /> : <ChevronDown size={14} color="#999" />}
+                      </button>
+                      {expandedReviewApp === app.id && (
+                        <ReviewPanel entityType="challenge_application" entityId={app.id} title={`Review: ${app.startup_name || app.applicant_name}`} subtitle="Feedback specific to this applicant's submission" />
+                      )}
+                    </>
                   )}
                 </div>
               );
@@ -1634,6 +1655,11 @@ const startEdit = () => {
                 {saving ? <Loader2 size={14} className="animate-spin" /> : (editMode ? 'Update Challenge' : 'Create Challenge')}
               </button>
             </div>
+            {!editMode && upgradeError && (
+              <div style={{ marginTop: 12 }}>
+                <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} message={upgradeError.message} />
+              </div>
+            )}
           </div>
         </div>
       )}

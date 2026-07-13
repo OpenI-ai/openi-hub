@@ -8,6 +8,8 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { messageAPI, meetingAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import UpgradeCTA from '../../components/UpgradeCTA';
+import { isUpgradeError } from '../../utils/upgradeError';
 
 const G = '#D0A848';
 
@@ -50,6 +52,7 @@ export default function Messaging() {
   const [memberResults, setMemberResults] = useState([]);
   const [memberLoading, setMemberLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [upgradeError, setUpgradeError] = useState(null);
   const memberSeqRef = useRef(0);
   const messagesEndRef = useRef(null);
 
@@ -256,6 +259,7 @@ export default function Messaging() {
       }
     }
     setCreating(true);
+    setUpgradeError(null);
     messageAPI.createConversation({
       name: trimmedName || (selectedMembers[0]?.name || 'Conversation'),
       type: newType,
@@ -273,7 +277,11 @@ export default function Messaging() {
           if (fresh) setActive(fresh);
         });
       })
-      .catch(err => toast.error(err.message || 'Failed to create conversation'))
+      .catch(err => {
+        toast.error(err.message || 'Failed to create conversation');
+        if (isUpgradeError(err)) setUpgradeError(err);
+        else setUpgradeError(null);
+      })
       .finally(() => {
         setCreating(false);
         closeNewModal();
@@ -308,6 +316,12 @@ export default function Messaging() {
           <Plus size={14} /> New Conversation
         </button>
       </div>
+
+      {upgradeError && (
+        <div style={{ marginBottom: 16 }}>
+          <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} message={upgradeError.message} />
+        </div>
+      )}
 
       {/* Mobile Ship 2 (27 May 2026): single-pane on mobile, side-by-side on md+ */}
       <div className="grid grid-cols-1 md:grid-cols-[300px_1fr]" style={{ gap: 16, height: 'calc(100vh - 220px)', minHeight: 500 }}>

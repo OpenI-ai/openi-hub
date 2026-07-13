@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'; // M3 (27 May 2026) — for Mess
 import { watchlistAPI, startupAPI, meetingAPI, messageAPI } from '../../services/api';
 import safeStorage from '../../utils/safeStorage';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import UpgradeCTA from '../../components/UpgradeCTA';
+import { isUpgradeError } from '../../utils/upgradeError';
 import {
   Star, Plus, Trash2, Download, Share2, Search, Rocket, Users, X, Lock, Globe,
   UserPlus, Mail, MessageCircle, ChevronLeft, Loader2,
@@ -72,6 +74,7 @@ export default function StartupWatchlist() {
   const [search, setSearch]         = useState('');
   const [loading, setLoading]       = useState(true);
   const [newList, setNewList]       = useState({ name: '', description: '', visibility: 'internal', tags: '' });
+  const [upgradeError, setUpgradeError] = useState(null);
 
   useEffect(() => {
     Promise.all([watchlistAPI.list(), startupAPI.list()])
@@ -219,11 +222,14 @@ export default function StartupWatchlist() {
       toast.error('This startup has not yet claimed their OpenI profile');
       return;
     }
+    setUpgradeError(null);
     try {
       const conv = await messageAPI.createConversation({ type: 'direct', member_ids: [recipientUserId] });
       navigate('/dashboard/messaging?conversation=' + conv.id);
     } catch (err) {
       toast.error(err?.response?.data?.message || err?.message || `Failed to open conversation with ${startupName || 'startup'}`);
+      if (isUpgradeError(err)) setUpgradeError(err);
+      else setUpgradeError(null);
     }
   };
 
@@ -608,6 +614,11 @@ export default function StartupWatchlist() {
             >
               <ChevronLeft size={16} /> Back to lists
             </button>
+            {upgradeError && (
+              <div style={{ marginBottom: 12 }}>
+                <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} message={upgradeError.message} />
+              </div>
+            )}
             {/* List header */}
             <div style={{ ...card, padding: 22, marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>

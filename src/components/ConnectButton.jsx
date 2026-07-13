@@ -11,6 +11,8 @@ import { useState, useEffect } from 'react';
 import { connectionAPI } from '../services/api';
 import { UserPlus, UserCheck, Clock, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import UpgradeCTA from './UpgradeCTA';
+import { isUpgradeError } from '../utils/upgradeError';
 
 const G = '#D0A848';
 
@@ -20,6 +22,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
   const [connId, setConnId] = useState(null);
   const [busy, setBusy] = useState(false);
   const [showRelType, setShowRelType] = useState(false);
+  const [upgradeError, setUpgradeError] = useState(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -36,6 +39,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
 
   const handleSend = async (relType = 'colleague') => {
     setBusy(true);
+    setUpgradeError(null);
     try {
       const res = await connectionAPI.send({ recipient_id: userId, relationship_type: relType });
       setStatus('pending');
@@ -44,7 +48,11 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
       setShowRelType(false);
       toast.success('Connection request sent!');
       notify('pending');
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      toast.error(err.message);
+      if (isUpgradeError(err)) setUpgradeError(err);
+      else setUpgradeError(null);
+    }
     finally { setBusy(false); }
   };
 
@@ -85,24 +93,38 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
   if (status === 'none' || status === 'declined') {
     if (showRelType) {
       return (
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {['colleague', 'partner', 'investor', 'advisor', 'mentor', 'other'].map(t => (
-            <button key={t} disabled={busy} onClick={() => handleSend(t)}
-              style={{ ...btnBase, background: '#f5f0e6', color: '#333', textTransform: 'capitalize' }}>
-              {t}
+        <div>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {['colleague', 'partner', 'investor', 'advisor', 'mentor', 'other'].map(t => (
+              <button key={t} disabled={busy} onClick={() => handleSend(t)}
+                style={{ ...btnBase, background: '#f5f0e6', color: '#333', textTransform: 'capitalize' }}>
+                {t}
+              </button>
+            ))}
+            <button onClick={() => setShowRelType(false)} style={{ ...btnBase, background: '#eee', color: '#888' }}>
+              <X size={12} />
             </button>
-          ))}
-          <button onClick={() => setShowRelType(false)} style={{ ...btnBase, background: '#eee', color: '#888' }}>
-            <X size={12} />
-          </button>
+          </div>
+          {upgradeError && (
+            <div style={{ marginTop: 6 }}>
+              <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} message={upgradeError.message} />
+            </div>
+          )}
         </div>
       );
     }
     return (
-      <button disabled={busy} onClick={() => setShowRelType(true)}
-        style={{ ...btnBase, background: G, color: '#fff' }}>
-        <UserPlus size={sm ? 12 : 14} /> Connect
-      </button>
+      <div>
+        <button disabled={busy} onClick={() => setShowRelType(true)}
+          style={{ ...btnBase, background: G, color: '#fff' }}>
+          <UserPlus size={sm ? 12 : 14} /> Connect
+        </button>
+        {upgradeError && (
+          <div style={{ marginTop: 6 }}>
+            <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} message={upgradeError.message} />
+          </div>
+        )}
+      </div>
     );
   }
 

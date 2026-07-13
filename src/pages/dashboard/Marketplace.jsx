@@ -4,6 +4,8 @@ import { challengeAPI, corporateAPI, opportunityAPI, publicAPI } from '../../ser
 import { useAuth } from '../../context/AuthContext';
 import { getPersonaCategory } from '../../config/personas';
 import FileUpload from '../../components/FileUpload';
+import UpgradeCTA from '../../components/UpgradeCTA';
+import { isUpgradeError } from '../../utils/upgradeError';
 import {
   Search, Target, ChevronLeft, Clock, Calendar, DollarSign, MapPin,
   Building2, Users, Loader2, AlertCircle, CheckCircle, FileText,
@@ -111,6 +113,7 @@ export default function Marketplace() {
   const [applyForm, setApplyForm] = useState({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });
   const [editMode, setEditMode] = useState(false); // Bug 4: edit an already-submitted application
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [upgradeError, setUpgradeError] = useState(null);
 
   // My applications tab
   const [tab, setTab] = useState('browse'); // 'browse' | 'applications'
@@ -187,6 +190,7 @@ export default function Marketplace() {
 
   const submitApplication = async () => {
     setApplying(true);
+    setUpgradeError(null);
     try {
       if (editMode) {
         await challengeAPI.updateMyApplication(selectedId, applyForm);
@@ -199,7 +203,11 @@ export default function Marketplace() {
       setEditMode(false);
       setApplyForm({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });
       openDetail(selectedId); // refresh
-    } catch (err) { toast.error(err.message); }
+    } catch (err) {
+      toast.error(err.message);
+      if (isUpgradeError(err)) setUpgradeError(err);
+      else setUpgradeError(null);
+    }
     finally { setApplying(false); }
   };
 
@@ -324,6 +332,12 @@ export default function Marketplace() {
             <button onClick={() => setApplyForm(p => ({ ...p, data_room: [...p.data_room, { type: 'pitch_deck', url: '', name: '' }] }))}
               style={{ fontSize: 12, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>+ Add Document</button>
           </div>
+
+          {upgradeError && (
+            <div style={{ marginTop: 4, marginBottom: 4 }}>
+              <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} message={upgradeError.message} />
+            </div>
+          )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
             <button onClick={() => { setShowApply(false); setEditMode(false); }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#555', border: 'none', cursor: 'pointer' }}>Cancel</button>

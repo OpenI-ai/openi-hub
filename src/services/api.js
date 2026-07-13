@@ -83,6 +83,13 @@ async function request(method, path, body = null, isFormData = false) {
     if (data.org)      err.org      = data.org;
     if (data.startup)  err.startup  = data.startup;
     if (data.error)    err.error    = data.error;
+    // Phase (upgrade journey): plan-gate 402/403 payloads carry these fields
+    // so callers can render an UpgradeCTA instead of a bare toast dead-end.
+    if (data.feature)     err.feature    = data.feature;
+    if (data.limit != null) err.limit    = data.limit;
+    if (data.used != null)  err.used     = data.used;
+    if (data.plan)         err.plan      = data.plan;
+    if (data.upgrade_url)  err.upgradeUrl = data.upgrade_url;
     throw err;
   }
   return data;
