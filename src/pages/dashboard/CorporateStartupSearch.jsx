@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { corporateAPI } from '../../services/api';
 import {
-  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu, Plus,
+  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu, Plus, Upload,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
 import AddStartupModal from '../../components/AddStartupModal';
+import BulkUploadModal from '../../components/BulkUploadModal';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -24,6 +25,7 @@ export default function CorporateStartupSearch() {
   // STARTUP_ADDER_ROLES set, so a scout on this page can submit a startup that
   // isn't in the Hub yet (same claimable stub the crawler/CSV path makes).
   const [showAdd, setShowAdd] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
 
   useEffect(() => { loadTaxonomy(); }, []);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on page/filters change; `loadStartups` is a stable inline closure
@@ -76,6 +78,12 @@ export default function CorporateStartupSearch() {
         >
           <Plus size={15} /> Add Startup
         </button>
+            <button
+              onClick={() => setShowBulkUpload(true)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer', flexShrink: 0, marginLeft: 8 }}
+            >
+              <Upload size={15} /> Bulk Upload
+            </button>
       </div>
 
       {/* Top horizontal filter bar */}
@@ -194,6 +202,12 @@ export default function CorporateStartupSearch() {
         onAdded={() => { setPage(1); loadStartups(); }}
         initialName={filters.search}
       />
+
+          <BulkUploadModal
+            open={showBulkUpload}
+            onClose={() => setShowBulkUpload(false)}
+            onUploaded={() => { setPage(1); loadStartups(); }}
+          />
     </div>
   );
 }

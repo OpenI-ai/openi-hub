@@ -628,6 +628,18 @@ export const startupAddAPI = {
     post('/startups/add', { company_name, website, sector, description }),
 };
 
+// ── Bulk-add: CSV "Bulk Upload" (scout-add, per-row) ────────────
+// Uploads a CSV file (multipart/form-data) and returns
+// { summary: {created, duplicate, error}, results: [...] } synchronously.
+export const startupBulkUploadAPI = {
+  upload: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request('POST', '/startups/bulk-upload', formData, true);
+  },
+  downloadTemplate: () => blobRequest('GET', '/startups/bulk-upload/template'),
+};
+
 export const notificationAPI = {
   list:        ()        => get('/my/notifications'),
   unreadCount: ()        => get('/my/notifications/unread-count'),

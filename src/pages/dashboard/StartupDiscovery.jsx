@@ -6,9 +6,10 @@ import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
 import AddStartupModal from '../../components/AddStartupModal';
+import BulkUploadModal from '../../components/BulkUploadModal';
 import {
   Search, Cpu, MapPin, Users, Wallet, Bookmark, BookmarkCheck,
-  ChevronLeft, ChevronRight, Globe, Calendar, Plus,
+  ChevronLeft, ChevronRight, Globe, Calendar, Plus, Upload,
 } from 'lucide-react';
 
 // Personas allowed to submit a scouted startup to the catalogue: OpenI staff
@@ -142,6 +143,7 @@ export default function StartupDiscovery() {
   const { user, activeRole } = useAuth();
   const canAdd = STARTUP_ADDER_ROLES.includes(activeRole || user?.role);
   const [showAdd, setShowAdd] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [startups, setStartups] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -231,6 +233,14 @@ export default function StartupDiscovery() {
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-500 text-dark-950 font-semibold text-sm rounded-lg hover:bg-primary-400 flex-shrink-0"
             >
               <Plus size={15} /> Add Startup
+            </button>
+          )}
+          {canAdd && (
+            <button
+              onClick={() => setShowBulkUpload(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold text-sm rounded-lg hover:bg-gray-50 flex-shrink-0"
+            >
+              <Upload size={15} /> Bulk Upload
             </button>
           )}
         </div>
@@ -334,6 +344,12 @@ export default function StartupDiscovery() {
         onClose={() => setShowAdd(false)}
         onAdded={() => fetchStartups()}
         initialName={startups.length === 0 ? (debouncedSearch || '') : ''}
+      />
+
+      <BulkUploadModal
+        open={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        onUploaded={() => fetchStartups()}
       />
     </div>
   );
