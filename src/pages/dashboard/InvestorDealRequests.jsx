@@ -354,6 +354,32 @@ export default function InvestorDealRequests() {
             </div>
           </div>
 
+          {/* Visibility */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, is_public: true }))}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${form.is_public ? 'bg-primary-500 text-white border-primary-500' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+              >
+                Public — visible on Marketplace
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, is_public: false }))}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${!form.is_public ? 'bg-primary-500 text-white border-primary-500' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+              >
+                Private — invite only
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {form.is_public
+                ? 'This deal request will be listed on the public Marketplace for all startups to discover and apply.'
+                : 'This deal request will be hidden from the public Marketplace. Only startups you invite directly will be able to see and apply.'}
+            </p>
+          </div>
+
           {/* Requirements */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
