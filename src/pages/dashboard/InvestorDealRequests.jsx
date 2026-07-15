@@ -6,7 +6,7 @@ import CollaboratorsPanel from '../../components/CollaboratorsPanel';
 import ApplicantInvitePanel from '../../components/ApplicantInvitePanel';
 import ReviewPanel from '../../components/ReviewPanel';
 import {
-  Plus, X, ChevronRight, Users, Clock,
+  Plus, X, ChevronRight, Users, Clock, Copy,
   CheckCircle, ArrowRight, TrendingUp, Target, Edit2, Trash2,
 } from 'lucide-react';
 
@@ -138,6 +138,19 @@ export default function InvestorDealRequests() {
     return arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item];
   }
 
+  function handleCopyShareLink() {
+    if (!selected?.share_token) return;
+    const url = `https://openi.ai/public/deal-requests/share/${selected.share_token}`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => alert('Share link copied to clipboard'),
+        () => alert(url)
+      );
+    } else {
+      alert(url);
+    }
+  }
+
   // ── Detail View ──
   if (selected) {
     return (
@@ -160,6 +173,22 @@ export default function InvestorDealRequests() {
               <button onClick={() => deleteRequest(selected, true)} className="px-3 py-1.5 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
             </div>
           </div>
+
+          {!selected.is_public && selected.share_token && (
+            <div className="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-indigo-700 uppercase mb-1">Private Share Link</p>
+                <p className="text-xs text-gray-600 truncate">{`https://openi.ai/public/deal-requests/share/${selected.share_token}`}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopyShareLink}
+                className="shrink-0 px-3 py-1.5 text-xs border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-100 flex items-center gap-1"
+              >
+                <Copy size={12} /> Copy Link
+              </button>
+            </div>
+          )}
 
           {selected.investment_thesis && (
             <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
