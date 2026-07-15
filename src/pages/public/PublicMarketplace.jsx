@@ -22,6 +22,9 @@ const LIGHT_GRAY = '#f5f5f5';
 // Deadline passed or challenge closed/awarded — OpenI Gold on a light-gold tint so the
 // flag is unmistakable at a glance, matching the dashboard Marketplace page's badge.
 const EXPIRED_BADGE = { bg: 'rgba(208,168,72,0.12)', color: GOLD, label: 'Expired' };
+// Phase B2 — investor deal-sourcing cards on the public marketplace get a distinct badge,
+// matching the dashboard Marketplace page's TYPE_BADGE.deal_sourcing styling.
+const DEAL_SOURCING_BADGE = { bg: '#faf5ff', color: '#7c3aed', label: 'Deal Sourcing' };
 
 const SORT_OPTIONS = [
   { value: '', label: 'Default' },
@@ -40,6 +43,7 @@ const CHALLENGE_TYPES = [
 
 export default function PublicMarketplace() {
   const [challenges, setChallenges] = useState([]);
+  const [dealRequests, setDealRequests] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -82,6 +86,21 @@ export default function PublicMarketplace() {
     } finally { setLoading(false); }
   }
 
+  // Phase B2 — fetch public deal-sourcing opportunities once on mount (not paginated
+  // alongside challenges; merged into the same grid client-side).
+  useEffect(() => {
+    fetchDealRequests();
+  }, []);
+
+  async function fetchDealRequests() {
+    try {
+      const data = await publicAPI.listDealRequests({ limit: 12 });
+      setDealRequests(data.results || []);
+    } catch (err) {
+      console.error('Failed to load deal requests:', err);
+    }
+  }
+
   function handleSearch(e) {
     e.preventDefault();
     setPage(1);
@@ -89,11 +108,13 @@ export default function PublicMarketplace() {
   }
 
   // Phase 120: Fetch detail whenever URL :id changes (back/forward, click, deep-link)
+  // Phase B2: :id may be a plain challenge id or a `deal-<id>` prefixed deal-request id.
   useEffect(() => {
     if (pmpParamId) {
-      const id = parseInt(pmpParamId, 10);
+      const isDeal = pmpParamId.startsWith('deal-');
+      const id = parseInt(isDeal ? pmpParamId.slice(5) : pmpParamId, 10);
       if (Number.isFinite(id) && (!selectedChallenge || selectedChallenge.id !== id)) {
-        openDetail(id);
+        openDetail(id, isDeal);
       }
     } else if (selectedChallenge) {
       // URL reverted to list — clear detail state
@@ -102,10 +123,10 @@ export default function PublicMarketplace() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pmpParamId]);
 
-  async function openDetail(id) {
+  async function openDetail(id, isDeal) {
     setDetailLoading(true);
     try {
-      const data = await publicAPI.getChallengeDetail(id);
+      const data = isDeal ? await publicAPI.getDealRequest(id) : await publicAPI.getChallengeDetail(id);
       setSelectedChallenge(data);
     } catch (err) { console.error(err); }
     finally { setDetailLoading(false); }
@@ -356,7 +377,7 @@ export default function PublicMarketplace() {
 
           {/* Result count */}
           <div className="flex items-center text-sm mb-6" style={{ color: GRAY }}>
-            {total} challenge{total !== 1 ? 's' : ''} found
+            {total + dealRequests.length} opportunit{(total + dealRequests.length) !== 1 ? 'ies' : 'y'} found
           </div>
 
           {/* Challenge Grid */}
@@ -366,7 +387,7 @@ export default function PublicMarketplace() {
                 <div key={i} className="rounded-xl p-6 animate-pulse" style={{ background: LIGHT_GRAY, height: 280 }} />
               ))}
             </div>
-          ) : challenges.length === 0 ? (
+          ) : challenges.length === 0 && dealRequests.length === 0 ? (
             <div className="text-center py-20">
               <Briefcase size={48} style={{ color: BORDER, margin: '0 auto 16px' }} />
               <h3 className="text-lg font-bold mb-2" style={{ color: DARK }}>No challenges found</h3>
@@ -374,6 +395,9 @@ export default function PublicMarketplace() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {dealRequests.map(d => (
+                <ChallengeCard key={`deal-${d.id}`} challenge={d} typeBadge={DEAL_SOURCING_BADGE} onClick={() => navigate(`/marketplace/deal-${d.id}`)} />
+              ))}
               {challenges.map(c => (
                 <ChallengeCard key={c.id} challenge={c} onClick={() => navigate(`/marketplace/${c.id}`)} />
               ))}
@@ -420,7 +444,7 @@ export default function PublicMarketplace() {
 }
 
 // ── Challenge Card ──────────────────────────────────────────
-function ChallengeCard({ challenge: c, onClick }) {
+function ChallengeCard({ challenge: c, onClick, typeBadge }) {
   return (
     <div
       className="rounded-xl p-6 cursor-pointer transition-all"
@@ -463,6 +487,7 @@ function ChallengeCard({ challenge: c, onClick }) {
         <h3 className="text-base font-bold line-clamp-2" style={{ color: DARK, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {c.title}
         </h3>
+        {typeBadge && <span className="text-xs font-extrabold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: typeBadge.bg, color: typeBadge.color }}>{typeBadge.label}</span>}
         {c.is_expired && <span className="text-xs font-extrabold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
       </div>
 
