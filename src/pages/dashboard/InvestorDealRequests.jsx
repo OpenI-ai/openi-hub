@@ -227,6 +227,16 @@ export default function InvestorDealRequests() {
                           )}
                         </>
                       )}
+                      {app.proposal_url && (
+                        <a
+                          href={app.proposal_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-indigo-600 hover:underline mt-0.5 inline-block"
+                        >
+                          View Document
+                        </a>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
