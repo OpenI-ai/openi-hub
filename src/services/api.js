@@ -1015,6 +1015,7 @@ export const publicAPI = {
   getStats:          ()            => get('/public/stats'),
   getLandingContent: ()            => get('/public/landing-content'),
   downloadReportPdf: (id)          => blobRequest('GET', `/public/reports/${id}/pdf`),
+  reportPdfUrl:       (id)          => `${BASE_URL}/public/reports/${id}/pdf`,
   getSharedChallenge: (token)      => get(`/public/challenges/share/${token}`),
   getTaxonomy:        ()            => get('/public/taxonomy'),
   // Search (Phase 14)

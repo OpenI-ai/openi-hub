@@ -210,7 +210,10 @@ export default function PublicReports() {
 function ReportCard({ report }) {
   const SectorIcon = getSectorIcon(report.sector, report.tags, report.category);
   const sectorColor = getSectorColor(report.sector);
-  const reportUrl = report.cover_proxy_url || report.cover_url || '#';
+  const isKb = String(report.id).startsWith('kb-');
+  const reportUrl = isKb
+    ? (report.cover_proxy_url || report.cover_url || '#')
+    : publicAPI.reportPdfUrl(report.id);
 
   return (
     <div
