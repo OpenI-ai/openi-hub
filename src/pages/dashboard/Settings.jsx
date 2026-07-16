@@ -235,13 +235,15 @@ export default function Settings() {
         setCreditPurchases(bal.purchases || []);
       };
 
-      if (orderData.test_mode || !window.Razorpay) {
+      if (orderData.test_mode) {
         await finish({
           razorpay_payment_id: `pay_test_${Date.now()}`,
           razorpay_order_id: orderData.order_id,
           razorpay_signature: 'test_signature',
           pack_id: pack.id,
         });
+      } else if (!window.Razorpay) {
+        toast.error('Payment gateway failed to load. Please refresh the page and try again.');
       } else {
         const rzp = new window.Razorpay({
           key: orderData.key,
@@ -336,8 +338,8 @@ export default function Settings() {
         orderData = await subscriptionAPI.createOrder({ plan_id: planId, billing_cycle: cycle });
       }
 
-      if (orderData.test_mode || !window.Razorpay) {
-        // Test mode or no Razorpay SDK — simulate payment
+      if (orderData.test_mode) {
+        // Test mode — simulate payment
         if (wantsRecurring) {
           const result = await subscriptionAPI.verifyRecurringPayment({
             razorpay_payment_id: `pay_test_${Date.now()}`,
@@ -365,6 +367,8 @@ export default function Settings() {
             loadBilling();
           }
         }
+      } else if (!window.Razorpay) {
+        toast.error('Payment gateway failed to load. Please refresh the page and try again.');
       } else if (wantsRecurring) {
         // Real Razorpay recurring checkout — subscription_id instead of order_id
         const rzp = new window.Razorpay({
