@@ -169,10 +169,12 @@ export default function InvestorDealRequests() {
               </div>
               {selected.firm_name && <p className="text-sm text-gray-500 mt-1">{selected.firm_name}</p>}
             </div>
-            <div className="flex gap-2">
-              <button onClick={() => { editRequest(selected); setSelected(null); }} className="px-3 py-1.5 text-xs border rounded-lg hover:bg-gray-50 flex items-center gap-1"><Edit2 size={12} /> Edit</button>
-              <button onClick={() => deleteRequest(selected, true)} className="px-3 py-1.5 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
-            </div>
+            {selected.is_owner && (
+              <div className="flex gap-2">
+                <button onClick={() => { editRequest(selected); setSelected(null); }} className="px-3 py-1.5 text-xs border rounded-lg hover:bg-gray-50 flex items-center gap-1"><Edit2 size={12} /> Edit</button>
+                <button onClick={() => deleteRequest(selected, true)} className="px-3 py-1.5 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
+              </div>
+            )}
           </div>
 
           {!selected.is_public && selected.share_token && (
@@ -480,10 +482,12 @@ export default function InvestorDealRequests() {
                   </div>
                   {r.sectors?.length > 0 && <div className="flex flex-wrap gap-1 mt-2">{r.sectors.slice(0, 5).map(s => <span key={s} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">{s}</span>)}</div>}
                 </div>
-                <div className="flex items-center">
-                  <button onClick={e => { e.stopPropagation(); editRequest(r); }} className="p-2 text-gray-400 hover:text-gray-600"><Edit2 size={14} /></button>
-                  <button onClick={e => { e.stopPropagation(); deleteRequest(r); }} className="p-2 text-gray-400 hover:text-red-600"><Trash2 size={14} /></button>
-                </div>
+                {r.is_owner && (
+                  <div className="flex items-center">
+                    <button onClick={e => { e.stopPropagation(); editRequest(r); }} className="p-2 text-gray-400 hover:text-gray-600"><Edit2 size={14} /></button>
+                    <button onClick={e => { e.stopPropagation(); deleteRequest(r); }} className="p-2 text-gray-400 hover:text-red-600"><Trash2 size={14} /></button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
