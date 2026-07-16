@@ -251,6 +251,7 @@ export default function Settings() {
           amount: orderData.amount,
           currency: orderData.currency || 'INR',
           name: 'OpenI Hub',
+          image: 'https://www.openi.ai/openi-logo.png',
           description: `${pack.name} — ${pack.credits} AI credits`,
           prefill: { email: user?.email, name: user?.name },
           handler: async (response) => {
@@ -376,6 +377,7 @@ export default function Settings() {
           subscription_id: orderData.subscription_id,
           currency: orderData.currency || 'INR',
           name: 'OpenI Hub',
+          image: 'https://www.openi.ai/openi-logo.png',
           description: `${planName} - ${cycleLabel} (auto-renew)`,
           prefill: { email: user?.email, name: user?.name },
           handler: async (response) => {
@@ -403,6 +405,7 @@ export default function Settings() {
           amount: orderData.amount,
           currency: orderData.currency || 'INR',
           name: 'OpenI Hub',
+          image: 'https://www.openi.ai/openi-logo.png',
           description: `${planName} - ${cycleLabel}`,
           prefill: { email: user?.email, name: user?.name },
           handler: async (response) => {
