@@ -127,9 +127,41 @@ export default function Marketplace() {
   const [dealApplyId, setDealApplyId] = useState(null);
   const [dealForm, setDealForm] = useState({ pitch: '', proposal_url: '' });
   const [dealApplying, setDealApplying] = useState(false);
+  // Bug fix: second-open-not-editable — deal modal had no knowledge of a prior
+  // application, so reopening always showed a blank, POST-only form.
+  // dealEditMode mirrors the challenge flow's editMode for the deal-specific
+  // submit branch, derived from the fetched has_applied/my_application below.
+  const [dealDetailLoading, setDealDetailLoading] = useState(false);
+  const [dealEditMode, setDealEditMode] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time load on mount; loaders are stable inline closures
   useEffect(() => { loadChallenges(); loadTaxonomy(); }, []);
+
+  // Bug fix: fetch deal detail (has_applied/my_application) whenever the deal
+  // modal opens, so a second open can pre-fill and switch to edit mode.
+  useEffect(() => {
+    if (!dealApplyId) return;
+    let cancelled = false;
+    setDealDetailLoading(true);
+    publicAPI.getDealRequest(dealApplyId)
+      .then(d => {
+        if (cancelled) return;
+        if (d?.has_applied) {
+          const a = d.my_application || {};
+          setDealForm({ pitch: a.pitch || '', proposal_url: a.proposal_url || '' });
+          setDealEditMode(true);
+        }
+      })
+      .catch(err => { if (!cancelled) toast.error(err.message); })
+      .finally(() => { if (!cancelled) setDealDetailLoading(false); });
+    return () => { cancelled = true; };
+  }, [dealApplyId]);
+
+  const closeDealModal = () => {
+    setDealApplyId(null);
+    setDealForm({ pitch: '', proposal_url: '' });
+    setDealEditMode(false);
+  };
 
   // Phase D — Unified Opportunities UNION feed. The backend returns a FLAT
   // array of normalized rows {type,id,title,description,org_name,sectors,
@@ -214,10 +246,14 @@ export default function Marketplace() {
   const submitDealApplication = async () => {
     setDealApplying(true);
     try {
-      await publicAPI.applyToDealRequest(dealApplyId, dealForm);
-      toast.success('Application submitted successfully!');
-      setDealApplyId(null);
-      setDealForm({ pitch: '', proposal_url: '' });
+      if (dealEditMode) {
+        await publicAPI.updateMyDealApplication(dealApplyId, dealForm);
+        toast.success('Application updated successfully!');
+      } else {
+        await publicAPI.applyToDealRequest(dealApplyId, dealForm);
+        toast.success('Application submitted successfully!');
+      }
+      closeDealModal();
     } catch (err) { toast.error(err.message); }
     finally { setDealApplying(false); }
   };
@@ -711,31 +747,44 @@ export default function Marketplace() {
           the challenge-only detail/apply flow above. */}
       {dealApplyId && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
-          onClick={() => !dealApplying && setDealApplyId(null)}>
+          onClick={() => !dealApplying && closeDealModal()}>
           <div style={{ ...card, width: '100%', maxWidth: 440, padding: 24 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Apply to Deal</h3>
-              <button onClick={() => !dealApplying && setDealApplyId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={18} /></button>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{dealEditMode ? 'Update Application' : 'Apply to Deal'}</h3>
+              <button onClick={() => !dealApplying && closeDealModal()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={18} /></button>
             </div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Pitch</label>
-            <textarea value={dealForm.pitch} onChange={e => setDealForm(f => ({ ...f, pitch: e.target.value }))} rows={5}
-              placeholder="Briefly pitch your startup for this deal..."
-              style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: !dealForm.pitch.trim() ? 4 : 14, resize: 'vertical', fontFamily: 'inherit' }} />
-            {!dealForm.pitch.trim() && (
-              <p style={{ fontSize: 11, color: '#dc2626', margin: '0 0 14px' }}>Fill in your pitch to enable submission.</p>
+            {dealDetailLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0', color: '#999', fontSize: 13 }}>
+                <Loader2 size={16} className="animate-spin" style={{ marginRight: 8 }} /> Loading...
+              </div>
+            ) : (
+              <>
+                {dealEditMode && (
+                  <p style={{ fontSize: 12, color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: '8px 10px', marginBottom: 14 }}>
+                    You've already applied to this deal. Edit your application below.
+                  </p>
+                )}
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Pitch</label>
+                <textarea value={dealForm.pitch} onChange={e => setDealForm(f => ({ ...f, pitch: e.target.value }))} rows={5}
+                  placeholder="Briefly pitch your startup for this deal..."
+                  style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: !dealForm.pitch.trim() ? 4 : 14, resize: 'vertical', fontFamily: 'inherit' }} />
+                {!dealForm.pitch.trim() && (
+                  <p style={{ fontSize: 11, color: '#dc2626', margin: '0 0 14px' }}>Fill in your pitch to enable submission.</p>
+                )}
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Proposal URL (optional)</label>
+                <input value={dealForm.proposal_url} onChange={e => setDealForm(f => ({ ...f, proposal_url: e.target.value }))}
+                  placeholder="https://..."
+                  style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: 18 }} />
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button onClick={closeDealModal} disabled={dealApplying}
+                    style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', color: '#555', cursor: dealApplying ? 'default' : 'pointer' }}>Cancel</button>
+                  <button onClick={submitDealApplication} disabled={dealApplying || !dealForm.pitch.trim()}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: 'none', background: G, color: '#fff', cursor: dealApplying || !dealForm.pitch.trim() ? 'default' : 'pointer', opacity: dealApplying || !dealForm.pitch.trim() ? 0.6 : 1 }}>
+                    {dealApplying ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} {dealEditMode ? 'Update' : 'Submit'}
+                  </button>
+                </div>
+              </>
             )}
-            <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>Proposal URL (optional)</label>
-            <input value={dealForm.proposal_url} onChange={e => setDealForm(f => ({ ...f, proposal_url: e.target.value }))}
-              placeholder="https://..."
-              style={{ width: '100%', padding: 10, fontSize: 13, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: 18 }} />
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setDealApplyId(null)} disabled={dealApplying}
-                style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', color: '#555', cursor: dealApplying ? 'default' : 'pointer' }}>Cancel</button>
-              <button onClick={submitDealApplication} disabled={dealApplying || !dealForm.pitch.trim()}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: 'none', background: G, color: '#fff', cursor: dealApplying || !dealForm.pitch.trim() ? 'default' : 'pointer', opacity: dealApplying || !dealForm.pitch.trim() ? 0.6 : 1 }}>
-                {dealApplying ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Submit
-              </button>
-            </div>
           </div>
         </div>
       )}

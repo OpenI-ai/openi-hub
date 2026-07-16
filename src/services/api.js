@@ -1027,6 +1027,7 @@ export const publicAPI = {
   listDealRequests:  (params = {})   => get(`/public/deal-requests?${new URLSearchParams(params)}`),
   getDealRequest:    (id)            => get(`/public/deal-requests/${id}`),
   applyToDealRequest: (id, data)     => post(`/deal-requests/${id}/apply`, data),
+  updateMyDealApplication: (id, data) => put(`/deal-requests/${id}/my-application`, data),
 };
 
 // ── Unified Opportunities / Marketplace UNION (Phase D) ─────
