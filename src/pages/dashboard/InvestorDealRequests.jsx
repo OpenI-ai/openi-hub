@@ -36,6 +36,7 @@ export default function InvestorDealRequests() {
   const [loading, setLoading] = useState(true);
   const [taxonomy, setTaxonomy] = useState({ sectors: [], technologies: [] });
   const [expandedApps, setExpandedApps] = useState({});
+  const [expandedReviewApp, setExpandedReviewApp] = useState({});
 
   const [form, setForm] = useState({
     title: '', description: '', investment_thesis: '', status: 'open',
@@ -236,7 +237,8 @@ export default function InvestorDealRequests() {
           ) : (
             <div className="space-y-3">
               {selected.applications.map(app => (
-                <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                <div key={app.id} className="p-4 border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {app.logo_url ? <img src={app.logo_url} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">{(app.company_name || app.applicant_name || '?')[0]}</div>}
                     <div>
@@ -280,6 +282,21 @@ export default function InvestorDealRequests() {
                       <button onClick={() => promoteApp(app.id)} className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex items-center gap-1"><ArrowRight size={12} /> Pipeline</button>
                     )}
                   </div>
+                  </div>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedReviewApp(prev => ({ ...prev, [app.id]: !prev[app.id] }))}
+                    className="text-xs text-indigo-600 hover:underline"
+                  >
+                    {expandedReviewApp[app.id] ? 'Hide Reviews' : 'Show Reviews'}
+                  </button>
+                  {expandedReviewApp[app.id] && (
+                    <div className="mt-2">
+                      <ReviewPanel entityType="deal_request_application" entityId={app.id} title="Application Review" subtitle={app.company_name || app.applicant_name} />
+                    </div>
+                  )}
+                </div>
                 </div>
               ))}
             </div>
