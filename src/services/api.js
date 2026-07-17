@@ -388,6 +388,11 @@ export const knowledgeAdminAPI = {
   listRequests: (params = {}) => get(`/knowledge-contributors?${new URLSearchParams(params)}`),
   approve: (id, note) => put(`/knowledge-contributors/${id}/approve`, { admin_note: note }),
   reject:  (id, note) => put(`/knowledge-contributors/${id}/reject`, { admin_note: note }),
+  // Phase 122 — admin-only article-suggestion moderation
+  listSuggestions:   (params = {}) => get(`/knowledge/suggestions?${new URLSearchParams(params)}`),
+  approveSuggestion: (id, note)    => put(`/knowledge/suggestions/${id}/approve`, { admin_note: note }),
+  rejectSuggestion:  (id, note)    => put(`/knowledge/suggestions/${id}/reject`,  { admin_note: note }),
+  dismissSuggestion: (id, note)    => put(`/knowledge/suggestions/${id}/dismiss`, { admin_note: note }),
 };
 
 // ── Documents ─────────────────────────────────────────────────
