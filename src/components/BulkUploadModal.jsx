@@ -177,7 +177,25 @@ export default function BulkUploadModal({ open, onClose, onUploaded }) {
                         <td className={`px-2 py-1.5 font-medium ${statusColor[r.status] || 'text-gray-600'}`}>
                           {r.status}
                         </td>
-                        <td className="px-2 py-1.5 text-gray-500 truncate max-w-[160px]">{r.reason || ''}</td>
+                        <td className="px-2 py-1.5 text-gray-500 max-w-[220px]">
+                          {r.status === 'duplicate' ? (
+                            <div>
+                              <p className="text-yellow-700">
+                                {r.recourse === 'claim'
+                                  ? 'Unclaimed imported profile — the founder can claim it to complete the listing.'
+                                  : 'It already has an active profile in the catalogue.'}
+                              </p>
+                              {r.startup?.company_name && (
+                                <p className="text-gray-500 truncate mt-0.5">
+                                  Matches: {r.startup.company_name}
+                                  {r.startup?.website ? ` (${r.startup.website})` : ''}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="truncate block">{r.reason || ''}</span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
