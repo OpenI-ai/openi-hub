@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { profileAPI, orgAPI } from '../../services/api';
+import { claimAPI, profileAPI, orgAPI } from '../../services/api';
 import safeStorage from '../../utils/safeStorage';
 import { Mail, Loader2, CheckCircle, AlertCircle, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -110,6 +110,46 @@ export default function VerifyEmail() {
   const [resending, setResending] = useState(false);
   const [resentAt, setResentAt] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+  // Issue 2 fix — claim-profile detection, reachable now for real (non-bypass) signups.
+  const [claimCandidates, setClaimCandidates] = useState([]);
+  const [claimSubmitting, setClaimSubmitting] = useState(false);
+  const [claimResult, setClaimResult] = useState(null);
+
+  // Detect existing profiles the just-verified startup user might own, then either
+  // surface them (skipping the auto-redirect) or fall through to the normal redirect.
+  const detectClaimAndFinish = async (user) => {
+    let candidates = [];
+    if (user?.role === 'startup') {
+      try {
+        const res = await claimAPI.detect();
+        candidates = res?.candidates || [];
+      } catch {
+        // Silent failure — must never block verification success (matches Register.jsx pattern).
+      }
+    }
+    if (candidates.length > 0) {
+      setClaimCandidates(candidates);
+    } else {
+      setTimeout(() => navigate('/dashboard/profile?fresh=1', { replace: true }), 1500);
+    }
+  };
+
+  const submitClaim = async (candidate) => {
+    setClaimSubmitting(true);
+    try {
+      const res = await claimAPI.request({ target_startup_user_id: candidate.user_id });
+      setClaimResult(res || { requested: true });
+    } catch (err) {
+      setClaimResult({ error: err?.message || 'Could not submit claim request.' });
+    } finally {
+      setClaimSubmitting(false);
+    }
+  };
+
+  const skipClaim = () => {
+    setClaimCandidates([]);
+    navigate('/dashboard/profile?fresh=1', { replace: true });
+  };
 
   // ── 1) Cross-tab sync — if another tab finished verification, jump to dashboard.
   // The success path writes openi_token to localStorage via completeVerification.
@@ -156,7 +196,8 @@ export default function VerifyEmail() {
       // even though their data was in the DB. The ?fresh=1 flag lets
       // MyProfile detect "post-verify" mount and skip any stale React state.
       toast.success('Email verified! Loading your profile…');
-      setTimeout(() => navigate('/dashboard/profile?fresh=1', { replace: true }), 1500);
+      // Issue 2 fix — check for a claimable existing profile before redirecting.
+      await detectClaimAndFinish(data.user);
     } catch {
       setPhase('failed');
       setErrorMsg('Could not verify your email right now. Please try again.');
@@ -193,7 +234,8 @@ export default function VerifyEmail() {
       // even though their data was in the DB. The ?fresh=1 flag lets
       // MyProfile detect "post-verify" mount and skip any stale React state.
       toast.success('Email verified! Loading your profile…');
-      setTimeout(() => navigate('/dashboard/profile?fresh=1', { replace: true }), 1500);
+      // Issue 2 fix — check for a claimable existing profile before redirecting.
+      await detectClaimAndFinish(data.user);
     } catch {
       setErrorMsg('Could not verify your email right now. Please try again.');
     } finally {
@@ -402,11 +444,79 @@ export default function VerifyEmail() {
             </div>
           )}
 
-          {/* Done — small success message; redirect handles routing */}
-          {phase === 'done' && (
+          {/* Done — no claim candidates: small success message; redirect handles routing */}
+          {phase === 'done' && claimCandidates.length === 0 && (
             <div className="text-center py-4">
               <Loader2 size={20} className="inline-block animate-spin" style={{ color: '#D0A848' }} />
               <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>Taking you to your dashboard…</p>
+            </div>
+          )}
+
+          {/* Done — claim candidates found, not yet resolved: show claim options */}
+          {phase === 'done' && claimCandidates.length > 0 && !claimResult && (
+            <div className="py-2">
+              <p className="text-sm font-medium mb-3" style={{ color: '#111827' }}>
+                We found existing profile(s) that might be yours. Claim one to keep its history, or skip.
+              </p>
+              <div className="space-y-2">
+                {claimCandidates.map((c) => (
+                  <div
+                    key={c.user_id}
+                    className="flex items-center justify-between border rounded-lg p-3"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
+                    <div className="flex items-center gap-3">
+                      {c.logo_url ? (
+                        <img src={c.logo_url} alt="" className="w-8 h-8 rounded object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded" style={{ background: '#f3f4f6' }} />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium" style={{ color: '#111827' }}>{c.company_name}</p>
+                        {c.sector && (
+                          <p className="text-xs" style={{ color: '#6b7280' }}>{c.sector}</p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => submitClaim(c)}
+                      disabled={claimSubmitting}
+                      className="text-sm px-3 py-1.5 rounded-lg font-medium"
+                      style={{ background: '#D0A848', color: '#111827' }}
+                    >
+                      This is mine
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={skipClaim}
+                className="mt-3 text-sm underline"
+                style={{ color: '#6b7280' }}
+              >
+                None of these — continue to my dashboard
+              </button>
+            </div>
+          )}
+
+          {/* Done — claim result available: show outcome and continue */}
+          {phase === 'done' && claimCandidates.length > 0 && claimResult && (
+            <div className="text-center py-4">
+              {claimResult.error ? (
+                <p className="text-sm" style={{ color: '#dc2626' }}>{claimResult.error}</p>
+              ) : (
+                <p className="text-sm" style={{ color: '#16a34a' }}>Claim request submitted.</p>
+              )}
+              <button
+                type="button"
+                onClick={skipClaim}
+                className="mt-3 text-sm px-3 py-1.5 rounded-lg font-medium"
+                style={{ background: '#D0A848', color: '#111827' }}
+              >
+                Continue to my dashboard
+              </button>
             </div>
           )}
 
