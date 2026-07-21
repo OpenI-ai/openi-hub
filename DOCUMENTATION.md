@@ -2,9 +2,9 @@
 
 ## OpenI Assessment Platform
 
-**Version:** 5.56
+**Version:** 5.57
 
-**Last Updated:** 12 Jul 2026 — Session 44 (`myCollaborations` endpoint collaborator-access fix BE `2fb535b`, on Session 43's `getUserRoleForEntity` `challenge_members` fix BE `35c8417`, Session 42 ReviewPanel subtitle differentiation FE `de86c98`, Session 41 DOCUMENTATION.md split into `DOCUMENTATION_ARCHIVE_part1.md` FE `0cf4e9b`). Full session-by-session history (sessions 1-40) archived verbatim in `DOCUMENTATION_ARCHIVE_part1.md` (split 10 Jul 2026, nothing deleted — straight cut at the legacy/living-doc boundary). See that file for the complete narrative changelog.
+**Last Updated:** 21 Jul 2026 — Session 53 (Partner API v1 for enterprise clients — self-serve key management + read/write challenge/application endpoints reusing `corporateController`, gated on the `seeker_enterprise` `api_access` flag, BE `7763d88`; documented in § 6.21 below, with the `is_public`/`visibility` create-time bug and the not-yet-built SSO/audit-log-export gap both flagged and tracked in `NEXT_SESSION_TODOS.md`). Full session-by-session history (sessions 1-40) archived verbatim in `DOCUMENTATION_ARCHIVE_part1.md` (split 10 Jul 2026, nothing deleted — straight cut at the legacy/living-doc boundary). See that file for the complete narrative changelog.
 
 ---
 
@@ -494,6 +494,58 @@ Located in `src/services/api.js`:
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/audit` | Admin | List audit logs with filters + pagination |
+
+### 6.21 Partner API (v1) — Enterprise read/write integration
+
+Gated on the `seeker_enterprise` plan's `api_access` feature flag (returns `402 upgrade_required`
+if the key owner's plan doesn't include it, e.g. downgraded after the key was issued). Corporate
+persona only. Reuses the same `corporateController` logic as the dashboard's JWT-authed
+`/api/corporate/challenges` endpoints — a partner API call and the dashboard produce identical
+results for the same account.
+
+**Auth flow — self-serve key management (dashboard-facing, JWT-authed):**
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/partner-api/keys` | Bearer (JWT) | Create a key. Body: `{ "name": "..." }`. Returns the plaintext key **exactly once** — `oi_live_<64-hex-chars>` — it cannot be retrieved again; only `key_prefix` (first 12 chars) is stored for display afterward. |
+| GET | `/api/partner-api/keys` | Bearer (JWT) | List your keys (`id`, `name`, `key_prefix`, `scopes`, `is_active`, `last_used_at`, `created_at`). Revoked keys are excluded. |
+| DELETE | `/api/partner-api/keys/:id` | Bearer (JWT) | Revoke a key immediately (`is_active = false`). Irreversible — issue a new key if needed again. |
+
+**v1 endpoints — API-key-authed (`Authorization: Bearer oi_live_...`):**
+
+| Method | Endpoint | Scope required | Description |
+|--------|----------|-----------------|-------------|
+| GET | `/api/v1/partner/challenges` | `challenges:read` | List your challenges |
+| POST | `/api/v1/partner/challenges` | `challenges:write` | Create a challenge (also subject to the plan's `challenge_create` usage cap) |
+| GET | `/api/v1/partner/challenges/:id` | `challenges:read` | Get one challenge |
+| PUT | `/api/v1/partner/challenges/:id` | `challenges:write` | Update a challenge |
+| PUT | `/api/v1/partner/challenges/:id/applications/:appId` | `applications:write` | Update an application (e.g. status) under one of your challenges |
+
+Every key is issued all four scopes by default (`challenges:read`, `challenges:write`,
+`applications:read`, `applications:write`) — there is currently no self-serve UI to narrow scopes
+per key; all keys for an account carry the same access as the dashboard user.
+
+**Error responses:**
+
+| Status | Body shape | Cause |
+|--------|------------|-------|
+| 401 | `{ "message": "No API key provided" }` | Missing/malformed `Authorization` header |
+| 401 | `{ "message": "Invalid or revoked API key" }` | Key not found, revoked, or `is_active = false` |
+| 402 | `{ "error": "upgrade_required", "message": "...", "feature": "api_access", "plan": "..." }` | Key owner's current plan no longer includes `api_access` |
+| 403 | `{ "message": "This API key is missing the required scope: <scope>", "required_scope": "<scope>" }` | Key lacks the scope needed for that endpoint |
+| 404 | `{ "message": "Challenge not found" }` (or similar) | Resource doesn't exist or isn't owned by this account |
+
+**Known caveat (not a Partner API bug — pre-existing dashboard behavior):** `POST
+/api/v1/partner/challenges` accepts a `visibility` field (`public` / `invite_only` / `draft`), not
+`is_public`. If `visibility` is omitted or invalid, `syncVisibilityFlags()` silently defaults to
+`public` regardless of any `is_public` value sent in the body — `is_public` in the request is a
+no-op. Always pass `visibility` explicitly if the challenge should NOT be public. Tracked as a
+priority fix in `NEXT_SESSION_TODOS.md` (only affects creation; updates preserve the existing
+value unless `visibility` is explicitly and validly passed).
+
+**Not yet built:** SSO and audit-log export as a client-facing feature. The `sso_audit_logs` plan
+flag exists and is advertised on the pricing page, but nothing reads it yet — this is a separate,
+larger SSO-protocol-integration effort, tracked separately in `NEXT_SESSION_TODOS.md`.
 
 ---
 
@@ -1436,4 +1488,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 12 Jul 2026 (session 44) — myCollaborations endpoint fix, collaborator-access fix, ReviewPanel subtitle differentiation, DOCUMENTATION.md split into DOCUMENTATION_ARCHIVE_part1.md.* 🎉
+*Last updated: 21 Jul 2026 (session 53) — Partner API v1 for enterprise clients (self-serve keys + read/write endpoints), documented in § 6.21.* 🎉

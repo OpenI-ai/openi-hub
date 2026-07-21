@@ -4,10 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import { authAPI, subscriptionAPI, creditAPI, mfaAPI, billingAddressAPI } from '../../services/api';
 import safeStorage from '../../utils/safeStorage';
 import BillingAddressModal from '../../components/BillingAddressModal';
+import SettingsAPIKeys from '../../components/SettingsAPIKeys';
 import toast from 'react-hot-toast';
 import {
   User, Shield, Lock, Save, Eye, EyeOff,
-  CheckCircle2, AlertCircle, Bell,
+  CheckCircle2, AlertCircle, Bell, Key,
   CreditCard, Loader2, Check, Crown, Zap, X, Download,
 } from 'lucide-react';
 
@@ -66,7 +67,7 @@ export default function Settings() {
   // Other pages link to /dashboard/settings?tab=billing or
   // ?tab=billing&focus=plans so users land directly on the right tab and,
   // optionally, scroll the plan-comparison grid into view.
-  const initialTab = ['profile', 'security', 'billing', 'notifications'].includes(searchParams.get('tab'))
+  const initialTab = ['profile', 'security', 'billing', 'notifications', 'api-keys'].includes(searchParams.get('tab'))
     ? searchParams.get('tab')
     : 'profile';
   const [tab, setTab] = useState(initialTab);
@@ -510,6 +511,7 @@ export default function Settings() {
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'billing', label: 'Billing', icon: CreditCard },
     { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'api-keys', label: 'API Keys', icon: Key },
   ];
 
   return (
@@ -1291,6 +1293,36 @@ export default function Settings() {
           </div>
         </div>
       )}
+
+      {/* API Keys Tab */}
+      {tab === 'api-keys' && (() => {
+        if (!myPlan && !billingLoading) loadBilling();
+        const planFeatures = myPlan?.plan?.features || {};
+
+        return (
+          <div>
+            {billingLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>
+            ) : planFeatures.api_access ? (
+              <SettingsAPIKeys />
+            ) : (
+              <div style={{ ...card, padding: 28, textAlign: 'center' }}>
+                <Key size={28} style={{ color: '#ccc', marginBottom: 12 }} />
+                <h3 style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Partner API access is an Enterprise feature</h3>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888' }}>
+                  Upgrade to Enterprise to generate API keys and manage challenges programmatically.
+                </p>
+                <button onClick={() => setTab('billing')} style={{
+                  padding: '9px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  border: 'none', cursor: 'pointer', background: G, color: '#fff',
+                }}>
+                  View Plans
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Account Info */}
       <div style={{ ...card, padding: 20, marginTop: 20 }}>

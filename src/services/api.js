@@ -607,6 +607,13 @@ export const corporateAPI = {
   remindInvitee:     (cid, iid, data) => post(`/challenges/${cid}/invites/${iid}/remind`, data || {}),
 };
 
+// ── Partner API self-serve key management (Enterprise) ────────
+export const partnerAPI = {
+  listKeys:  ()     => get('/partner-api/keys'),
+  createKey: (name) => post('/partner-api/keys', { name }),
+  deleteKey: (id)   => del(`/partner-api/keys/${id}`),
+};
+
 // ── T32-99c: invite + notification APIs ──────────────────────
 export const inviteAPI = {
   myInvites: (status)   => get(`/my/challenge-invites${status ? `?status=${status}` : ''}`),
