@@ -107,6 +107,7 @@ import AdminKnowledge       from './pages/dashboard/AdminKnowledge';
 import MyClaims             from './pages/dashboard/MyClaims';
 import ClaimVerify          from './pages/auth/ClaimVerify';
 import AcceptInvite        from './pages/auth/AcceptInvite';   // Phase 108
+import SSOCallback         from './pages/auth/SSOCallback';    // Phase 127
 import AddRole              from './pages/dashboard/AddRole';     // Phase 60.4b (s50)
 import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
 import StudentMentorships  from './pages/dashboard/StudentMentorships';
@@ -214,6 +215,7 @@ export default function App() {
           <Route path="/forgot-password"       element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/invite/accept/:token"  element={<AcceptInvite />} />  {/* Phase 108 */}
+          <Route path="/sso/callback" element={<SSOCallback />} />  {/* Phase 127 */}
           <Route path="/marketplace"       element={<PublicMarketplace />} />
           <Route path="/marketplace/:id"   element={<PublicMarketplace />} />  {/* Phase 120 — route-based detail */}
           <Route path="/reports"            element={<PublicReports />} />

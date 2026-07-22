@@ -614,6 +614,13 @@ export const partnerAPI = {
   deleteKey: (id)   => del(`/partner-api/keys/${id}`),
 };
 
+// ── SSO config self-serve (Enterprise) — Phase 127 ─────────────
+export const ssoAPI = {
+  getConfig:    ()     => get('/corporate/sso/config'),
+  upsertConfig: (data) => post('/corporate/sso/config', data),
+  deleteConfig: ()     => del('/corporate/sso/config'),
+};
+
 // ── T32-99c: invite + notification APIs ──────────────────────
 export const inviteAPI = {
   myInvites: (status)   => get(`/my/challenge-invites${status ? `?status=${status}` : ''}`),
