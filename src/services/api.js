@@ -190,6 +190,9 @@ export const subscriptionAPI = {
   cancel:        ()       => post('/subscription/cancel'),
   // A.5: mid-period billing cycle change
   changeBillingCycle: (data) => post('/subscription/change-cycle', data),
+  // Phase 128 — prorated mid-period plan-tier change (upgrade or downgrade)
+  changePlan:       (data) => post('/subscription/change-plan', data),
+  verifyPlanChange: (data) => post('/subscription/verify-plan-change', data),
   downloadInvoice: (paymentId) => blobRequest('GET', `/subscription/invoice/${paymentId}`),
   featureAccess: ()       => get('/subscription/feature-access'),
   // Phase 123 — real recurring auto-renew (Razorpay Subscriptions API)

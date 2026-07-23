@@ -319,9 +319,16 @@ export default function Settings() {
         myPlan?.plan?.id === planId &&
         myPlan?.subscription?.billing_cycle !== cycle;
 
+      // Phase 128: mid-period plan-tier change (upgrade or downgrade) — different
+      // plan_id on an existing active paid sub, proration handled server-side.
+      const isPlanChange =
+        myPlan?.subscription?.billing_cycle &&
+        myPlan?.plan_name !== 'free' &&
+        myPlan?.plan?.id !== planId;
+
       // Phase 123: recurring auto-renew only applies to a fresh subscription
-      // checkout, never to a mid-period cycle change on an existing sub.
-      const wantsRecurring = autoRenewSelected && !isCycleChange;
+      // checkout, never to a mid-period cycle or plan change on an existing sub.
+      const wantsRecurring = autoRenewSelected && !isCycleChange && !isPlanChange;
 
       let orderData;
       if (isCycleChange) {
@@ -330,6 +337,15 @@ export default function Settings() {
         if (orderData.status === 'switched') {
           // Backend flipped cycle directly (no payment needed)
           toast.success(`Switched to ${cycleLabel.toLowerCase()} billing`);
+          loadBilling();
+          return;
+        }
+      } else if (isPlanChange) {
+        // Mid-period plan-tier change — Razorpay order with prorated amount
+        orderData = await subscriptionAPI.changePlan({ plan_id: planId, billing_cycle: cycle });
+        if (orderData.status === 'switched') {
+          // Backend switched plan directly (credit covered the new plan, no payment needed)
+          toast.success(`Switched to ${planName}`);
           loadBilling();
           return;
         }
@@ -353,6 +369,19 @@ export default function Settings() {
           });
           if (result.success) {
             toast.success(`Upgraded to ${result.display_name} (${cycleLabel}, auto-renew on)!`);
+            updateUser({ current_plan: result.plan });
+            loadBilling();
+          }
+        } else if (isPlanChange) {
+          const result = await subscriptionAPI.verifyPlanChange({
+            razorpay_payment_id: `pay_test_${Date.now()}`,
+            razorpay_order_id: orderData.order_id,
+            razorpay_signature: 'test_signature',
+            plan_id: planId,
+            billing_cycle: cycle,
+          });
+          if (result.success) {
+            toast.success(`Switched to ${result.display_name}!`);
             updateUser({ current_plan: result.plan });
             loadBilling();
           }
@@ -391,6 +420,34 @@ export default function Settings() {
               });
               if (result.success) {
                 toast.success(`Upgraded to ${result.display_name} (${cycleLabel}, auto-renew on)!`);
+                updateUser({ current_plan: result.plan });
+                loadBilling();
+              }
+            } catch (err) { toast.error(err.message); }
+          },
+          theme: { color: G },
+        });
+        rzp.open();
+      } else if (isPlanChange) {
+        // Real Razorpay one-off checkout for the prorated plan-change amount
+        const rzp = new window.Razorpay({
+          key: orderData.key,
+          order_id: orderData.order_id,
+          amount: orderData.amount,
+          currency: orderData.currency || 'INR',
+          name: 'OpenI Hub',
+          image: 'https://www.openi.ai/openi-logo.png',
+          description: `${planName} - plan change`,
+          prefill: { email: user?.email, name: user?.name },
+          handler: async (response) => {
+            try {
+              const result = await subscriptionAPI.verifyPlanChange({
+                ...response,
+                plan_id: planId,
+                billing_cycle: cycle,
+              });
+              if (result.success) {
+                toast.success(`Switched to ${result.display_name}!`);
                 updateUser({ current_plan: result.plan });
                 loadBilling();
               }
@@ -1193,16 +1250,14 @@ export default function Settings() {
                             </button>
                           )}
                           {!isCurrent && direction === 'downgrade' && p.name !== 'free' && (
-                            // Mid-tier downgrade from a top-tier plan (eg Enterprise → Pro).
-                            // The current backend has no direct mid-tier downgrade endpoint,
-                            // so route the user to a contact link rather than firing a
-                            // misleading "Upgrade" CTA. Plain neutral button.
-                            <a
-                              href={`mailto:support@openi.ai?subject=Downgrade%20request%20to%20${encodeURIComponent(p.display_name)}&body=I%20would%20like%20to%20downgrade%20my%20OpenI%20Hub%20subscription%20from%20${encodeURIComponent(myPlan?.plan?.display_name || currentPlan)}%20to%20${encodeURIComponent(p.display_name)}.`}
-                              style={{ width: '100%', display: 'block', textAlign: 'center', textDecoration: 'none', padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 10,
-                                background: '#fff', color: '#666', border: '1px solid #ddd', cursor: 'pointer' }}>
-                              Downgrade to {p.display_name}
-                            </a>
+                            // Phase 128: mid-tier downgrade from a top-tier plan (eg Enterprise → Pro)
+                            // now goes through the same prorated changePlan/verifyPlanChange flow as
+                            // upgrades — handleUpgrade is direction-agnostic (billing-address gate + runUpgrade).
+                            <button onClick={() => handleUpgrade(p.id, p.display_name)} disabled={upgrading}
+                              style={{ width: '100%', padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 10,
+                                background: '#fff', color: '#666', border: '1px solid #ddd', cursor: upgrading ? 'wait' : 'pointer' }}>
+                              {upgrading ? 'Processing...' : `Downgrade to ${p.display_name}`}
+                            </button>
                           )}
                           {isCurrent && (
                             <div style={{ textAlign: 'center', fontSize: 12, color: G, fontWeight: 600 }}>Your current plan</div>
