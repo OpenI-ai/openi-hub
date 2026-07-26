@@ -140,6 +140,9 @@ function PartnerLogo({ name, slug }) {
       <img
         src={src}
         alt={name}
+        loading="lazy"
+        width={160}
+        height={80}
         style={{
           maxWidth: '100%',
           maxHeight: '100%',

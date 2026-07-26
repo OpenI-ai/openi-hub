@@ -38,21 +38,30 @@ export default function PlatformSlideshow() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Images with crossfade */}
+      {/* Images with crossfade — s54: only mount the active slide + the next one
+          (instead of all 8 up front) to cut initial image downloads. The next slide
+          stays mounted at opacity 0 so it's preloaded and ready to crossfade in;
+          zIndex keeps the active image on top so swapping the "next" slide out from
+          under it (e.g. on wraparound) never causes a visible pop. */}
       <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', background: '#f5f5f5' }}>
-        {SLIDES.map((slide, i) => (
-          <img
-            key={i}
-            src={slide.src}
-            alt={slide.caption}
-            loading="lazy"
-            style={{
-              position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-              opacity: i === active ? 1 : 0,
-              transition: 'opacity 0.6s ease-in-out',
-            }}
-          />
-        ))}
+        {SLIDES.map((slide, i) => {
+          const nextIndex = (active + 1) % SLIDES.length;
+          if (i !== active && i !== nextIndex) return null;
+          return (
+            <img
+              key={i}
+              src={slide.src}
+              alt={slide.caption}
+              loading="lazy"
+              style={{
+                position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                opacity: i === active ? 1 : 0,
+                zIndex: i === active ? 2 : 1,
+                transition: 'opacity 0.6s ease-in-out',
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Caption overlay */}

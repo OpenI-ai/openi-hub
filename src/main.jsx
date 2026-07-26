@@ -95,7 +95,12 @@ const tree = (
 // React createRoot() rebuild #root cleanly. No hydration pass → no mismatch. The
 // rebuilt content is visually identical, so there is no perceptible flash.
 // Fixes OPENI-HUB-FRONTEND-E
+// s54: replaceChildren() is unsupported on Chrome <86 (Sentry OPENI-HUB-FRONTEND-R,
+// hard crash on Chrome Mobile 80 / Android 10). Use a while-loop clear instead — same
+// result, universally supported.
 if (rootElement.hasChildNodes()) {
-  rootElement.replaceChildren();
+  while (rootElement.firstChild) {
+    rootElement.removeChild(rootElement.firstChild);
+  }
 }
 ReactDOM.createRoot(rootElement).render(tree);
