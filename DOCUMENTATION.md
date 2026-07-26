@@ -495,6 +495,34 @@ Located in `src/services/api.js`:
 |--------|----------|------|-------------|
 | GET | `/api/audit` | Admin | List audit logs with filters + pagination |
 
+**Self-serve corporate export** — gated on the `seeker_enterprise` plan's `sso_audit_logs`
+feature flag. Scoped to the requesting corporate account only (`req.user.id`), same handler
+(`auditExportController.exportAuditLog`) reused across both the dashboard route below and the
+Partner API v1 route in § 6.21.
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/corporate/audit-log/export` | Bearer (JWT) | Export your own audit log. Query params: `from`, `to`, `action`, `limit`, `offset`, `format` (`json` default or `csv`). |
+
+Dashboard UI: Settings → **Audit Logs** tab (`SettingsAuditLogs.jsx`) — filterable table (date
+range, action) with paginated browsing plus one-click Export CSV/JSON buttons (authenticated blob
+download, since the endpoint requires a Bearer header).
+
+### 6.22 Bulk Data Export
+
+New self-serve feature (26 Jul 2026) — gated on the `seeker_enterprise` plan's `api_access`
+feature flag (same flag as § 6.21's Partner API and the API Keys tab). Scoped to the requesting
+corporate account only (`req.user.id`/`corporate_id`), same handler
+(`dataExportController.exportData`) reused across both the dashboard route below and the Partner
+API v1 route in § 6.21.
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/corporate/data-export` | Bearer (JWT) | Bulk export your own data. Query params: `type` (`challenges` \| `applications` \| `collaborations`, required), `from`, `to` (optional date range), `format` (`json` default or `csv`). |
+
+Dashboard UI: Settings → **Data Export** tab (`SettingsDataExport.jsx`) — type selector, optional
+date range, and Export JSON/CSV buttons (authenticated blob download).
+
 ### 6.21 Partner API (v1) — Enterprise read/write integration
 
 Gated on the `seeker_enterprise` plan's `api_access` feature flag (returns `402 upgrade_required`
@@ -520,10 +548,15 @@ results for the same account.
 | GET | `/api/v1/partner/challenges/:id` | `challenges:read` | Get one challenge |
 | PUT | `/api/v1/partner/challenges/:id` | `challenges:write` | Update a challenge |
 | PUT | `/api/v1/partner/challenges/:id/applications/:appId` | `applications:write` | Update an application (e.g. status) under one of your challenges |
+| GET | `/api/v1/partner/audit-logs` | `audit_logs:read` | Export your audit log programmatically. Same query params as § 6.20's dashboard export (`from`, `to`, `action`, `limit`, `offset`, `format`). Also requires the `sso_audit_logs` plan flag. |
+| GET | `/api/v1/partner/data-export` | `data_export:read` | Bulk-export your challenges/applications/collaborations programmatically. Same query params as § 6.22's dashboard export (`type`, `from`, `to`, `format`). |
 
-Every key is issued all four scopes by default (`challenges:read`, `challenges:write`,
-`applications:read`, `applications:write`) — there is currently no self-serve UI to narrow scopes
-per key; all keys for an account carry the same access as the dashboard user.
+Every key is issued six scopes by default (`challenges:read`, `challenges:write`,
+`applications:read`, `applications:write`, `audit_logs:read`, `data_export:read`) — there is
+currently no self-serve UI to narrow scopes per key; all keys for an account carry the same
+access as the dashboard user. `audit_logs:read` and `data_export:read` were added 26 Jul 2026
+(Phase 129) and backfilled onto every pre-existing key, so no key needs to be regenerated to gain
+these two capabilities.
 
 **Error responses:**
 
@@ -543,9 +576,10 @@ no-op. Always pass `visibility` explicitly if the challenge should NOT be public
 priority fix in `NEXT_SESSION_TODOS.md` (only affects creation; updates preserve the existing
 value unless `visibility` is explicitly and validly passed).
 
-**Not yet built:** SSO and audit-log export as a client-facing feature. The `sso_audit_logs` plan
-flag exists and is advertised on the pricing page, but nothing reads it yet — this is a separate,
-larger SSO-protocol-integration effort, tracked separately in `NEXT_SESSION_TODOS.md`.
+**Not yet built:** SSO itself (SAML/OIDC login) as a client-facing feature — the `sso_audit_logs`
+plan flag now also gates the audit-log export feature (§ 6.20), which IS self-serve as of 26 Jul
+2026, but the SSO login portion is a separate, larger SSO-protocol-integration effort, tracked
+separately in `NEXT_SESSION_TODOS.md`.
 
 ---
 
@@ -1488,4 +1522,4 @@ The first GST-compliant invoice issued to a real customer was `OPENI/FY26-27/000
 ---
 
 *Documentation for OpenI Hub — Multi-Persona Open Innovation Platform*
-*Last updated: 21 Jul 2026 (session 53) — Partner API v1 for enterprise clients (self-serve keys + read/write endpoints), documented in § 6.21.* 🎉
+*Last updated: 26 Jul 2026 (session 54) — self-serve Audit Log export (§ 6.20) and Bulk Data Export (§ 6.22) added, both as dashboard UI + new Partner API v1 endpoints (§ 6.21, `audit_logs:read`/`data_export:read` scopes); USD billing display fixed.* 🎉

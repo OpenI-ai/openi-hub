@@ -624,6 +624,25 @@ export const ssoAPI = {
   deleteConfig: ()     => del('/corporate/sso/config'),
 };
 
+// ── Audit log self-serve export (Enterprise) ───────────────────
+// Backend: auditExportController.js — GET /corporate/audit-log/export,
+// scoped to req.user.id. Table view uses JSON via get(); CSV/JSON file
+// downloads use blobRequest() since the endpoint requires a Bearer header
+// (a plain <a href> can't attach one).
+export const auditLogAPI = {
+  list: (params = {}) => get(`/corporate/audit-log/export?${new URLSearchParams({ ...params, format: 'json' })}`),
+  exportBlob: (params = {}, format = 'csv') =>
+    blobRequest('GET', `/corporate/audit-log/export?${new URLSearchParams({ ...params, format })}`),
+};
+
+// ── Bulk data export self-serve (Enterprise) ───────────────────
+// Backend: dataExportController.js — GET /corporate/data-export.
+export const dataExportAPI = {
+  list: (params = {}) => get(`/corporate/data-export?${new URLSearchParams({ ...params, format: 'json' })}`),
+  exportBlob: (params = {}, format = 'csv') =>
+    blobRequest('GET', `/corporate/data-export?${new URLSearchParams({ ...params, format })}`),
+};
+
 // ── T32-99c: invite + notification APIs ──────────────────────
 export const inviteAPI = {
   myInvites: (status)   => get(`/my/challenge-invites${status ? `?status=${status}` : ''}`),

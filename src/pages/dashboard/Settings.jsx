@@ -6,11 +6,13 @@ import safeStorage from '../../utils/safeStorage';
 import BillingAddressModal from '../../components/BillingAddressModal';
 import SettingsAPIKeys from '../../components/SettingsAPIKeys';
 import SettingsSSO from '../../components/SettingsSSO';
+import SettingsAuditLogs from '../../components/SettingsAuditLogs';
+import SettingsDataExport from '../../components/SettingsDataExport';
 import toast from 'react-hot-toast';
 import {
   User, Shield, Lock, Save, Eye, EyeOff,
   CheckCircle2, AlertCircle, Bell, Key,
-  CreditCard, Loader2, Check, Crown, Zap, X, Download,
+  CreditCard, Loader2, Check, Crown, Zap, X, Download, FileText,
 } from 'lucide-react';
 
 const G = '#D0A848';
@@ -68,7 +70,7 @@ export default function Settings() {
   // Other pages link to /dashboard/settings?tab=billing or
   // ?tab=billing&focus=plans so users land directly on the right tab and,
   // optionally, scroll the plan-comparison grid into view.
-  const initialTab = ['profile', 'security', 'billing', 'notifications', 'api-keys', 'sso'].includes(searchParams.get('tab'))
+  const initialTab = ['profile', 'security', 'billing', 'notifications', 'api-keys', 'sso', 'audit-logs', 'data-export'].includes(searchParams.get('tab'))
     ? searchParams.get('tab')
     : 'profile';
   const [tab, setTab] = useState(initialTab);
@@ -571,6 +573,8 @@ export default function Settings() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'api-keys', label: 'API Keys', icon: Key },
     { id: 'sso', label: 'SSO', icon: Shield },
+    { id: 'audit-logs', label: 'Audit Logs', icon: FileText },
+    { id: 'data-export', label: 'Data Export', icon: Download },
   ];
 
   return (
@@ -1398,6 +1402,66 @@ export default function Settings() {
                 <h3 style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Single Sign-On is an Enterprise feature</h3>
                 <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888' }}>
                   Upgrade to Enterprise to let your team sign in with your identity provider.
+                </p>
+                <button onClick={() => setTab('billing')} style={{
+                  padding: '9px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  border: 'none', cursor: 'pointer', background: G, color: '#fff',
+                }}>
+                  View Plans
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Audit Logs Tab */}
+      {tab === 'audit-logs' && (() => {
+        if (!myPlan && !billingLoading) loadBilling();
+        const planFeatures = myPlan?.plan?.features || {};
+
+        return (
+          <div>
+            {billingLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>
+            ) : planFeatures.sso_audit_logs ? (
+              <SettingsAuditLogs />
+            ) : (
+              <div style={{ ...card, padding: 28, textAlign: 'center' }}>
+                <FileText size={28} style={{ color: '#ccc', marginBottom: 12 }} />
+                <h3 style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Audit log export is an Enterprise feature</h3>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888' }}>
+                  Upgrade to Enterprise to view and export a record of security-relevant account activity.
+                </p>
+                <button onClick={() => setTab('billing')} style={{
+                  padding: '9px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  border: 'none', cursor: 'pointer', background: G, color: '#fff',
+                }}>
+                  View Plans
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Data Export Tab */}
+      {tab === 'data-export' && (() => {
+        if (!myPlan && !billingLoading) loadBilling();
+        const planFeatures = myPlan?.plan?.features || {};
+
+        return (
+          <div>
+            {billingLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>
+            ) : planFeatures.api_access ? (
+              <SettingsDataExport />
+            ) : (
+              <div style={{ ...card, padding: 28, textAlign: 'center' }}>
+                <Download size={28} style={{ color: '#ccc', marginBottom: 12 }} />
+                <h3 style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Bulk data export is an Enterprise feature</h3>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888' }}>
+                  Upgrade to Enterprise to bulk-export your challenges, applications, and collaborations as CSV or JSON.
                 </p>
                 <button onClick={() => setTab('billing')} style={{
                   padding: '9px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600,
