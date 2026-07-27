@@ -35,6 +35,8 @@ export default function Knowledge() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [contribInfo, setContribInfo] = useState(null);
   const [requesting, setRequesting] = useState(false);
+  // Phase 130 — submitter-side status view for "Suggest an Article" submissions
+  const [mySuggestions, setMySuggestions] = useState([]);
 
   const submitSuggestion = async () => {
     const t = (suggestForm.title || '').trim();
@@ -45,6 +47,7 @@ export default function Knowledge() {
       toast.success('Suggestion sent to admin');
       setShowSuggest(false);
       setSuggestForm({ title: '', summary: '', suggested_url: '', suggested_type: 'article', requested_public: false });
+      knowledgeAPI.mySuggestions().then(setMySuggestions).catch(() => {});
     } catch (err) {
       toast.error(err.message || 'Failed to send suggestion');
     } finally {
@@ -75,6 +78,14 @@ export default function Knowledge() {
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount / when canAdd resolves
   }, [canAdd]);
+
+  // Phase 130 — fetch the user's own suggestion history so the "Suggest an
+  // Article" flow isn't a one-way submission into an admin-only queue.
+  useEffect(() => {
+    knowledgeAPI.mySuggestions()
+      .then(setMySuggestions)
+      .catch(() => {});
+  }, []);
 
   // Phase 121 — admin (any article) or the article's author (own article only)
   // may take it down / republish it. Hard delete stays admin-only.
@@ -214,6 +225,31 @@ export default function Knowledge() {
           )}
         </div>
       </div>
+
+      {/* Phase 130 — submitter-side status view; only rendered once the user has
+          submitted at least one suggestion, so it stays invisible otherwise. */}
+      {mySuggestions.length > 0 && (
+        <div className="mb-5 bg-white border border-gray-200 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2">My Suggestions</h3>
+          <div className="space-y-2">
+            {mySuggestions.map(s => (
+              <div key={s.id} className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-gray-700 truncate">{s.title}</span>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${
+                    s.status === 'approved' ? 'bg-accent-100 text-accent-700'
+                    : s.status === 'rejected' ? 'bg-red-100 text-red-700'
+                    : s.status === 'dismissed' ? 'bg-gray-100 text-gray-500'
+                    : 'bg-yellow-100 text-yellow-700'
+                  }`}
+                >
+                  {s.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div id="tour-page-knowledge-search" className="flex gap-3 mb-5">
         <div className="relative flex-1">

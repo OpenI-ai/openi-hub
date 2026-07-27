@@ -384,6 +384,8 @@ export const knowledgeAPI = {
   // Phase 121 — contributor self-service request + status check
   requestContributor: (message) => post('/knowledge-contributors/request', { message }),
   myContributorStatus: ()       => get('/knowledge-contributors/mine'),
+  // Phase 130 — submitter self-service status check for article suggestions
+  mySuggestions: () => get('/knowledge/suggestions/mine'),
 };
 
 // Phase 121 — admin-only contributor-request moderation
