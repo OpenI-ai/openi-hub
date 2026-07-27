@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { knowledgeAPI, uploadAPI } from '../../services/api';
 import { X, Plus } from 'lucide-react';
@@ -18,18 +18,37 @@ const CATEGORIES = [
   { value: 'case_study', label: 'Case Study' },
 ];
 
-export default function AddArticleModal({ open, onClose, onCreated }) {
-  const empty = { title: '', content: '', category: 'article', tags: '', sector: '', is_public: false };
-  const [form, setForm] = useState(empty);
+// Phase 130c — exported so callers (e.g. AdminKnowledge's Convert-to-Article
+// flow) can validate a freeform value against the known category set without
+// duplicating this list.
+export const CATEGORY_VALUES = CATEGORIES.map((c) => c.value);
+
+const emptyForm = { title: '', content: '', category: 'article', tags: '', sector: '', is_public: false, file_url: '' };
+
+// Phase 130c — optional initialValues (title/content/category/sector/file_url)
+// lets callers pre-fill this form, e.g. converting a Knowledge Hub suggestion
+// into an article.
+export default function AddArticleModal({ open, onClose, onCreated, initialValues }) {
+  const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setForm({ ...emptyForm, ...initialValues });
+      setFile(null);
+      setSaving(false);
+      setUploading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (!open) return null;
 
   const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const reset = () => { setForm(empty); setFile(null); setSaving(false); setUploading(false); };
+  const reset = () => { setForm(emptyForm); setFile(null); setSaving(false); setUploading(false); };
   const close = () => { reset(); onClose?.(); };
 
   const handleSubmit = async (e) => {
@@ -38,7 +57,7 @@ export default function AddArticleModal({ open, onClose, onCreated }) {
     if (!title) { toast.error('Title is required'); return; }
     setSaving(true);
     try {
-      let file_url;
+      let file_url = form.file_url || undefined;
       let file_name;
       if (file) {
         setUploading(true);
@@ -152,6 +171,11 @@ export default function AddArticleModal({ open, onClose, onCreated }) {
               className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
             />
             {file && <p className="text-[11px] text-gray-400 mt-1">{file.name}</p>}
+            {!file && form.file_url && (
+              <p className="text-[11px] text-gray-400 mt-1 truncate">
+                Reference link from suggestion: <span className="text-gray-500">{form.file_url}</span>
+              </p>
+            )}
           </div>
 
           <label className="flex items-center gap-2 text-sm text-gray-700">

@@ -6,9 +6,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { knowledgeAdminAPI } from '../../services/api';
-import { BookOpen, Loader2, CheckCircle2, XCircle, Eye, ArrowLeft, Plus } from 'lucide-react';
+import { BookOpen, Loader2, CheckCircle2, XCircle, Eye, ArrowLeft, Plus, FileText } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AddArticleModal from '../../components/knowledge/AddArticleModal';
+import AddArticleModal, { CATEGORY_VALUES } from '../../components/knowledge/AddArticleModal';
 
 const G = '#D0A848';
 
@@ -61,6 +61,9 @@ export default function AdminKnowledge() {
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  // Phase 130c — Convert-to-Article: holds the suggestion being converted so the
+  // Add Article modal can be pre-filled and the suggestion auto-approved on success.
+  const [convertingSuggestion, setConvertingSuggestion] = useState(null);
 
   // Phase 122 — Suggestions tab state
   const [suggestions, setSuggestions] = useState([]);
@@ -166,6 +169,13 @@ export default function AdminKnowledge() {
     } catch (err) {
       toast.error(err.message || 'Failed to dismiss suggestion');
     } finally { setSuggestionSubmitting(false); }
+  };
+
+  // Phase 130c — pre-fill the Add Article modal from a suggestion and open it;
+  // the suggestion is auto-approved once the article is created (see onCreated below).
+  const handleConvertSuggestion = (suggestion) => {
+    setConvertingSuggestion(suggestion);
+    setShowAddModal(true);
   };
 
   return (
@@ -423,6 +433,16 @@ export default function AdminKnowledge() {
                     )}
                   </div>
 
+                  {(selectedSuggestion.status === 'pending' || selectedSuggestion.status === 'approved') && (
+                    <div className="mt-4 pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
+                      <button onClick={() => handleConvertSuggestion(selectedSuggestion)}
+                        className="w-full py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1 mb-3"
+                        style={{ background: '#1a1a1a', color: '#fff' }}>
+                        <FileText size={14} /> Convert to Article
+                      </button>
+                    </div>
+                  )}
+
                   {selectedSuggestion.status === 'pending' && (
                     <div className="mt-4 pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
                       <textarea value={suggestionNote} onChange={e => setSuggestionNote(e.target.value)}
@@ -472,8 +492,29 @@ export default function AdminKnowledge() {
 
       <AddArticleModal
         open={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onCreated={() => { setShowAddModal(false); toast.success('Content published to the Knowledge Hub'); }}
+        initialValues={convertingSuggestion ? {
+          title: convertingSuggestion.title,
+          content: convertingSuggestion.summary || '',
+          category: CATEGORY_VALUES.includes(convertingSuggestion.suggested_type) ? convertingSuggestion.suggested_type : 'article',
+          file_url: convertingSuggestion.suggested_url || '',
+        } : undefined}
+        onClose={() => { setShowAddModal(false); setConvertingSuggestion(null); }}
+        onCreated={async (created) => {
+          setShowAddModal(false);
+          if (convertingSuggestion) {
+            try {
+              await knowledgeAdminAPI.approveSuggestion(convertingSuggestion.id, `Converted to article: ${created?.title || ''}`);
+              toast.success('Suggestion converted and published');
+              fetchSuggestions();
+            } catch (err) {
+              toast.error(err.message || 'Article published, but the suggestion link-back failed (it may already be resolved).');
+            } finally {
+              setConvertingSuggestion(null);
+            }
+          } else {
+            toast.success('Content published to the Knowledge Hub');
+          }
+        }}
       />
     </div>
   );
