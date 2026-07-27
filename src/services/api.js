@@ -1058,6 +1058,7 @@ export const publicAPI = {
   downloadReportPdf: (id)          => blobRequest('GET', `/public/reports/${id}/pdf`),
   reportPdfUrl:       (id)          => `${BASE_URL}/public/reports/${id}/pdf`,
   getSharedChallenge: (token)      => get(`/public/challenges/share/${token}`),
+  getSharedDealRequest: (token)    => get(`/public/deal-requests/share/${token}`),  // Phase 131 blank-page fix
   getTaxonomy:        ()            => get('/public/taxonomy'),
   // Search (Phase 14)
   globalSearch:      (q, limit = 5) => get(`/public/search?q=${encodeURIComponent(q)}&limit=${limit}`),

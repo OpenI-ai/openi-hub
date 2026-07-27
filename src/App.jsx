@@ -23,6 +23,7 @@ import SharedStudentPortfolio from './pages/public/SharedStudentPortfolio';  // 
 import SharedDeepTech from './pages/public/SharedDeepTech';  // Phase 111 Ship 2a
 import SharedEightVectorSelf from './pages/public/SharedEightVectorSelf';  // Phase 111 Ship 2c
 import SharedProgramEval from './pages/public/SharedProgramEval';  // Phase 111 Ship 2d
+import SharedDealRequest from './pages/public/SharedDealRequest';  // Phase 131 — blank-page fix
 import GlobalSearch      from './pages/public/GlobalSearch';
 
 // Pages — Dashboard
@@ -227,6 +228,7 @@ export default function App() {
           <Route path="/share/deeptech/:token" element={<SharedDeepTech />} />  {/* Phase 111 Ship 2a */}
           <Route path="/share/eight-vector-self/:token" element={<SharedEightVectorSelf />} />  {/* Phase 111 Ship 2c */}
           <Route path="/share/program-evals/:token" element={<SharedProgramEval />} />  {/* Phase 111 Ship 2d */}
+          <Route path="/public/deal-requests/share/:token" element={<SharedDealRequest />} />  {/* Phase 131 — blank-page fix */}
           <Route path="/claims/verify/:token"    element={<ClaimVerify />} />
           <Route path="/search"                  element={<GlobalSearch />} />
           <Route path="/dashboard/login" element={<LoginRoute />} />
