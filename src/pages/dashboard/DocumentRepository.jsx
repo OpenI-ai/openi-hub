@@ -38,6 +38,17 @@ const getFileType = (name) => {
   return FILE_TYPES[ext] || FILE_TYPES.default;
 };
 
+// Phase 130b — bug fix: the old inline calc (`(bytes/1024/1024).toFixed(2)+' MB'`)
+// hardcoded MB with 2 decimals, so any file under ~10KB rounded down to "0.00 MB",
+// which read as "size not fetched" even though file_size was stored correctly.
+// Mirrors the existing formatBytes() in components/FileUpload.jsx.
+const formatBytes = (bytes) => {
+  if (!bytes) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
 // Phase 104b — folder seed (suggested categories in the Upload modal dropdown).
 // Actual folder list in the sidebar is derived dynamically from real files state.
 // Pre-Phase-104b hardcoded fictional demo sub-folders were dropped.
@@ -113,7 +124,7 @@ export default function DocumentRepository() {
           id: d.id,
           name: d.name || d.title || '',
           folder: d.folder || d.category || 'Other',
-          size: d.size || (d.file_size ? `${(d.file_size / 1024 / 1024).toFixed(2)} MB` : '—'),
+          size: formatBytes(d.file_size),
           file_size: d.file_size || 0,
           type: d.type || d.file_type || (d.name ? d.name.split('.').pop() : 'pdf'),
           file_path: d.file_path || '',
@@ -151,7 +162,13 @@ export default function DocumentRepository() {
       setUploadedMeta({
         filename: file.name,
         size: file.size,
-        type: file.type || file.name.split('.').pop().toLowerCase(),
+        // Phase 130c — bug fix: this used to send the browser's full MIME string
+        // (e.g. 71 chars for .docx) as file_type, which fits the app-level check
+        // (file_type.length > 500) but exceeds the actual DB column, documents.file_type
+        // VARCHAR(50) — causing an INSERT failure whose raw Postgres error was shown to
+        // the user via toast. The rest of this file (getFileType) already keys off the
+        // extension, so send that instead — short, and consistent with existing usage.
+        type: file.name.split('.').pop().toLowerCase(),
       });
       // Auto-fill the name field if empty
       setUploadForm(prev => ({ ...prev, name: prev.name || file.name }));
@@ -489,12 +506,12 @@ export default function DocumentRepository() {
                       <div style={{ width: 30, height: 30, borderRadius: 7, background: ft.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <FIcon size={14} color={ft.color} />
                       </div>
-                      <div style={{ minWidth: 0 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {f.starred && <Star size={9} style={{ fill: G, color: G, marginRight: 4, verticalAlign: 'middle' }} />}
                           {f.name}
                         </div>
-                        <div style={{ display: 'flex', gap: 4, marginTop: 3, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: 4, marginTop: 3, flexWrap: 'wrap', overflow: 'hidden' }}>
                           {f.tags.slice(0, 2).map(t => (
                             <span key={t} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 20, background: '#f5f5f5', color: '#888', border: '1px solid #eee' }}>{t}</span>
                           ))}
