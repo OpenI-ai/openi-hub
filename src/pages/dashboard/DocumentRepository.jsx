@@ -476,9 +476,14 @@ export default function DocumentRepository() {
             </div>
           ) : (
             /* List view */
-            <div style={{ ...card, overflow: 'hidden' }}>
+            /* Phase 130d — bug fix: fixed columns (470px) + gaps (60px) = 530px minimum,
+               which exceeds the available row width on realistic panel sizes, forcing the
+               bare `1fr` Name column to collapse to 0px (grid `fr` tracks can't go negative).
+               Fix: floor the Name column at minmax(160px, 1fr), give rows a matching minWidth
+               so they never shrink below that, and scroll horizontally instead of clipping. */
+            <div style={{ ...card, overflowX: 'auto' }}>
               {/* Header row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 90px 100px 80px 80px', gap: 12, padding: '10px 18px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px, 1fr) 120px 90px 100px 80px 80px', minWidth: 720, gap: 12, padding: '10px 18px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
                 {['Name', 'Folder', 'Size', 'Uploaded', 'Access', 'Actions'].map(h => (
                   <span key={h} style={{ fontSize: 11, color: '#888', fontWeight: 600 }}>{h}</span>
                 ))}
@@ -493,7 +498,7 @@ export default function DocumentRepository() {
                 const AIcon = as.icon;
                 return (
                   <div key={f.id} style={{
-                    display: 'grid', gridTemplateColumns: '1fr 120px 90px 100px 80px 80px', gap: 12,
+                    display: 'grid', gridTemplateColumns: 'minmax(160px, 1fr) 120px 90px 100px 80px 80px', minWidth: 720, gap: 12,
                     padding: '12px 18px',
                     borderBottom: i < filteredFiles.length - 1 ? '1px solid #f5f5f5' : 'none',
                     alignItems: 'center', cursor: 'pointer', transition: 'background 0.1s',
