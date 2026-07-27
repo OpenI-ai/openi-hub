@@ -29,7 +29,7 @@ export default function Knowledge() {
   const [loading, setLoading] = useState(true);
   // Ship #5 — Suggest Article modal state (non-admin only)
   const [showSuggest, setShowSuggest] = useState(false);
-  const [suggestForm, setSuggestForm] = useState({ title: '', summary: '', suggested_url: '', suggested_type: 'article' });
+  const [suggestForm, setSuggestForm] = useState({ title: '', summary: '', suggested_url: '', suggested_type: 'article', requested_public: false });
   const [suggesting, setSuggesting] = useState(false);
   // Phase 121 — Add Article modal + contributor self-service request state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -44,7 +44,7 @@ export default function Knowledge() {
       await knowledgeAPI.suggest(suggestForm);
       toast.success('Suggestion sent to admin');
       setShowSuggest(false);
-      setSuggestForm({ title: '', summary: '', suggested_url: '', suggested_type: 'article' });
+      setSuggestForm({ title: '', summary: '', suggested_url: '', suggested_type: 'article', requested_public: false });
     } catch (err) {
       toast.error(err.message || 'Failed to send suggestion');
     } finally {
@@ -430,6 +430,10 @@ export default function Knowledge() {
                   <option value="case_study">Case Study</option>
                 </select>
               </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#374151' }}>
+                <input type="checkbox" checked={suggestForm.requested_public} onChange={e => setSuggestForm(p => ({ ...p, requested_public: e.target.checked }))} />
+                I think this should be public (visible on openi.ai/reports)
+              </label>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
               <button onClick={() => setShowSuggest(false)} style={{ padding: '8px 16px', fontSize: 12, background: '#f3f4f6', color: '#555', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Cancel</button>

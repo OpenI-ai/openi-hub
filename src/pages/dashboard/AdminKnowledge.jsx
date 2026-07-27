@@ -417,6 +417,7 @@ export default function AdminKnowledge() {
                       <p><strong>Type:</strong> {selectedSuggestion.suggested_type}</p>
                     )}
                     <p><strong>Suggested by:</strong> {selectedSuggestion.suggested_by_name || selectedSuggestion.suggested_by_email || '—'}</p>
+                    <p><strong>Requested visibility:</strong> {selectedSuggestion.requested_public ? 'Public' : 'Internal only'}</p>
                     {selectedSuggestion.summary && (
                       <div className="mt-2 p-2 rounded" style={{ background: '#F9FAFB' }}>
                         <p className="font-semibold mb-1">Summary:</p>
@@ -497,6 +498,7 @@ export default function AdminKnowledge() {
           content: convertingSuggestion.summary || '',
           category: CATEGORY_VALUES.includes(convertingSuggestion.suggested_type) ? convertingSuggestion.suggested_type : 'article',
           file_url: convertingSuggestion.suggested_url || '',
+          is_public: !!convertingSuggestion.requested_public,
         } : undefined}
         onClose={() => { setShowAddModal(false); setConvertingSuggestion(null); }}
         onCreated={async (created) => {
