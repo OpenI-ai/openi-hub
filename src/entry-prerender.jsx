@@ -9,9 +9,12 @@
 //    children behind `if (loading) return null` with loading cleared inside a
 //    useEffect that never runs during renderToString. No public component uses
 //    useAuth, so AuthProvider is unnecessary and would render empty markup.
-//  - Pages that fetch listings at runtime (marketplace/reports) start in a
-//    loading state, so only their static chrome + intro copy prerenders. That
-//    is still a large GEO win over an empty <div id="root">.
+//  - /marketplace receives real initial data (challenges + deal requests)
+//    fetched by prerender.js at build time and passed in as the `initialData`
+//    prop below, so its prerendered HTML shows actual listings instead of a
+//    frozen loading/empty state. Other listing pages (reports) still start in
+//    their default loading state, so only their static chrome + intro copy
+//    prerenders — still a GEO win over an empty <div id="root">.
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 
@@ -33,16 +36,19 @@ export const PRERENDER_ROUTES = Object.keys(ROUTES);
 /**
  * Render a single public route to a static HTML string.
  * @param {string} route - one of PRERENDER_ROUTES (e.g. '/', '/marketplace')
+ * @param {object|null} [initialData] - optional prefetched data to seed the
+ *   component's initial render (currently only used by /marketplace).
+ *   Components that don't accept this prop simply ignore it.
  * @returns {string} HTML markup for the #root contents
  */
-export function render(route) {
+export function render(route, initialData) {
   const Component = ROUTES[route];
   if (!Component) {
     throw new Error(`[prerender] no component mapped for route: ${route}`);
   }
   return renderToString(
     <StaticRouter location={route}>
-      <Component />
+      <Component initialData={initialData} />
     </StaticRouter>
   );
 }

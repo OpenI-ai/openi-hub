@@ -41,16 +41,24 @@ const CHALLENGE_TYPES = [
   { value: 'invest', label: 'Invest' },
 ];
 
-export default function PublicMarketplace() {
-  const [challenges, setChallenges] = useState([]);
-  const [dealRequests, setDealRequests] = useState([]);
-  const [total, setTotal] = useState(0);
+export default function PublicMarketplace({ initialData }) {
+  // GEO P1b — when rendered during build-time prerendering, initialData carries
+  // real challenges/deal-requests fetched by prerender.js (see entry-prerender.jsx),
+  // so the static HTML shows actual listings instead of a frozen loading/empty
+  // state. In normal browser page loads initialData is always undefined (App.jsx's
+  // <Route> passes no props), so every fallback below is identical to the prior
+  // defaults and the existing fetch-on-mount effects are unchanged.
+  const [challenges, setChallenges] = useState(initialData?.challenges?.challenges || []);
+  const [dealRequests, setDealRequests] = useState(initialData?.dealRequests?.results || []);
+  const [total, setTotal] = useState(initialData?.challenges?.total || 0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialData);
   const [search, setSearch] = useState('');
   const [sector, setSector] = useState('');
   const [technology, setTechnology] = useState('');
-  const [filters, setFilters] = useState({ sectors: [], technologies: [], usecases: [] });
+  const [filters, setFilters] = useState(
+    initialData?.challenges?.filters || { sectors: [], technologies: [], usecases: [] }
+  );
   // Phase 120: selectedChallenge data still in state, but URL :id drives the fetch trigger
   const navigate = useNavigate();
   const { id: pmpParamId } = useParams();
@@ -59,7 +67,9 @@ export default function PublicMarketplace() {
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState('');
   const [challengeType, setChallengeType] = useState('');
-  const [facets, setFacets] = useState({ sector: {}, challenge_type: {} });
+  const [facets, setFacets] = useState(
+    initialData?.challenges?.facets || { sector: {}, challenge_type: {} }
+  );
   const limit = 12;
 
   // Fetch challenges

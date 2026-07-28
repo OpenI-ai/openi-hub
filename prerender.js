@@ -127,6 +127,41 @@ function applyRouteMeta(html, route) {
   return out;
 }
 
+// GEO P1b — real initial data for /marketplace. Without this, the prerendered
+// HTML freezes at the component's default loading/empty state (useEffect data
+// fetching never runs during renderToString), which Google classifies as a
+// Soft 404. Fetched here with a plain Node fetch() against the public,
+// unauthenticated backend endpoints, using the exact same default params the
+// client sends on first mount (page=1/limit=12, limit=12) so prerendered
+// markup matches what a real first paint would show.
+const API_URL = process.env.VITE_API_URL || 'https://api.openi.ai/api';
+
+async function fetchMarketplaceInitialData() {
+  try {
+    const [challengesRes, dealRequestsRes] = await Promise.all([
+      fetch(`${API_URL}/public/challenges?page=1&limit=12`),
+      fetch(`${API_URL}/public/deal-requests?limit=12`),
+    ]);
+    if (!challengesRes.ok || !dealRequestsRes.ok) {
+      throw new Error(
+        `non-OK response (challenges: ${challengesRes.status}, deal-requests: ${dealRequestsRes.status})`
+      );
+    }
+    const [challenges, dealRequests] = await Promise.all([
+      challengesRes.json(),
+      dealRequestsRes.json(),
+    ]);
+    return { challenges, dealRequests };
+  } catch (err) {
+    // Never fail the build over a flaky/unreachable API at build time — fall
+    // back to the component's existing default loading/empty state.
+    console.warn(
+      `[prerender] failed to fetch /marketplace initial data, falling back to default loading state: ${err.message}`
+    );
+    return null;
+  }
+}
+
 async function buildSsrBundle() {
   await build({
     // Keep this self-contained: do not inherit the app's client build config.
@@ -168,11 +203,15 @@ async function main() {
     throw new Error('[prerender] could not find empty <div id="root"></div> in dist/index.html');
   }
 
-  // 3. Render + write each route.
+  // 3. Fetch real initial data for routes that need it, then render + write.
+  const ROUTE_INITIAL_DATA = {
+    '/marketplace': await fetchMarketplaceInitialData(),
+  };
+
   for (const route of PRERENDER_ROUTES) {
     let bodyHtml;
     try {
-      bodyHtml = render(route);
+      bodyHtml = render(route, ROUTE_INITIAL_DATA[route]);
     } catch (err) {
       // A single bad route must not silently ship an empty page; fail the build.
       throw new Error(`[prerender] render failed for ${route}: ${err.stack || err}`);
