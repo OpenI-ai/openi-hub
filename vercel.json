@@ -8,6 +8,7 @@
     { "source": "/platform{/}?", "destination": "/marketplace", "statusCode": 301 },
     { "source": "/solution{/}?", "destination": "/marketplace", "statusCode": 301 },
     { "source": "/openi-one{/}?", "destination": "/marketplace", "statusCode": 301 },
+    { "source": "/openi-marketplace{/}?", "destination": "/marketplace", "statusCode": 301 },
     { "source": "/our-services{/}?", "destination": "/marketplace", "statusCode": 301 },
     { "source": "/insights{/}?", "destination": "/reports", "statusCode": 301 },
     { "source": "/innox-labs{/}?", "destination": "/reports", "statusCode": 301 },
