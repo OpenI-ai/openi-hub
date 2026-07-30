@@ -520,6 +520,10 @@ export const PROFILE_FIELDS = {
     { name: 'funding_raised_currency', label: 'Total Funding Currency', type: 'select', options: ['INR','USD'] },
     { name: 'total_funding_rounds', label: 'Total Funding Rounds', type: 'number', min: 0 },
     { name: 'last_funding_date', label: 'Last Funding Date', type: 'date' },
+    // Phase 131 — deep-enrich extracts these from company websites (funding
+    // announcements/news pages); also user-editable here.
+    { name: 'last_funding_stage', label: 'Last Funding Stage', type: 'select', options: ['Pre-seed','Seed','Angel','Series A','Series B','Series C','Series D','Bridge','Growth','IPO'] },
+    { name: 'last_funding_year', label: 'Last Funding Year', type: 'number', min: 1990 },
     { name: 'last_funding_amount_range', label: 'Last Funding Amount', type: 'money_range', variant: 'revenue' },
     { name: 'total_investors', label: 'Total Investors',     type: 'number', min: 0 },
     { name: 'investor_names', label: 'Key Investors',        type: 'org_typeahead', lookup: 'investors', placeholder: 'Start typing… e.g., Sequoia, Accel' },

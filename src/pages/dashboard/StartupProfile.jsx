@@ -1645,6 +1645,8 @@ export default function StartupProfile() {
                     (startup.employee_range || startup.team_size) && ['Team Size', startup.employee_range || startup.team_size, 'text-blue-600'],
                     startup.total_funding_rounds && ['Funding Rounds', startup.total_funding_rounds, 'text-gray-700'],
                     startup.total_investors && ['Total Investors', startup.total_investors, 'text-gray-700'],
+                    startup.last_funding_stage && ['Last Funding Stage', startup.last_funding_stage, 'text-primary-600'],
+                    startup.last_funding_year && ['Last Funding Year', startup.last_funding_year, 'text-gray-700'],
                     startup.revenue_range && ['Revenue', /^[<>]?\d/.test(startup.revenue_range) ? `₹ ${startup.revenue_range}` : startup.revenue_range, 'text-accent-600'],
                   ].filter(Boolean).map(([k,v,c]) => (
                     <div key={k} className="p-4 bg-gray-50 rounded-xl text-center border border-gray-100">

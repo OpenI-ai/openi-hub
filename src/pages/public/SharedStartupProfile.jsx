@@ -187,6 +187,8 @@ export default function SharedStartupProfile() {
               {p.valuation_range && <Stat label="Valuation" value={p.valuation_range} />}
               {p.revenue_range && <Stat label="Revenue" value={p.revenue_range} />}
               {p.last_funding_amount_range && <Stat label="Last Round" value={p.last_funding_amount_range} />}
+              {p.last_funding_stage && <Stat label="Last Funding Stage" value={p.last_funding_stage} />}
+              {p.last_funding_year && <Stat label="Last Funding Year" value={p.last_funding_year} />}
             </div>
             {(p.funding_rounds || []).length > 0 && (
               <div>
