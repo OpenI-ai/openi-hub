@@ -540,18 +540,21 @@ export default function MyProfile() {
       const payload = {};
       for (const field of fields) {
         const val = profileData[field.name];
-        // Phase 132 — org_typeahead fields load from a `_v2` JSONB column
-        // (see V2_MAP) but ALLOWED_COLUMNS only whitelists the _v2 name —
-        // translate the outgoing key or coerceUpdates silently drops it.
-        const outKey = V2_MAP[field.name] || field.name;
+        // Phase 132b — org_typeahead fields (see V2_MAP) are sent under
+        // their BARE legacy key (e.g. investor_names), not the _v2 name.
+        // The backend's Phase 87c-6 hook expects the bare key + plain
+        // string[], resolves each chip via orgResolver, and writes the
+        // enriched JSONB to the _v2 column itself. Do NOT translate here —
+        // sending the _v2 key directly bypasses orgResolver enrichment
+        // and fails with "invalid input syntax for type json".
         if (!isEmpty(val)) {
           // Field has a value — send it as-is.
-          payload[outKey] = val;
+          payload[field.name] = val;
         } else if (!isEmpty(prev[field.name])) {
           // Field was non-empty at load but is now empty — the user
           // deliberately cleared it. Send explicit null so the backend
           // sets the column to NULL (coerceUpdates honours null as a clear).
-          payload[outKey] = null;
+          payload[field.name] = null;
         }
         // else: empty at baseline and still empty — omit, so we don't
         // disturb COALESCE-based crawler auto-fill protection.
