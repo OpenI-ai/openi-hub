@@ -31,6 +31,17 @@ const inputStyle = {
   width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 16, outline: 'none',
 };
 
+// Phase 132 — org_typeahead fields whose DB column carries a `_v2` JSONB
+// suffix (module-scope so both the profile-load overlay and handleSave's
+// reverse-translation reference the same mapping). Loading overlays the
+// _v2 column onto the bare name for the org_typeahead component; saving
+// must translate back to the _v2 name or ALLOWED_COLUMNS silently drops it.
+const V2_MAP = {
+  investor_names: 'investor_names_v2',
+  accelerator_programs: 'accelerator_programs_v2',
+  corporate_partners: 'corporate_partners_v2',
+};
+
 // Phase 88 — startup sub-section completeness weights (module-scope so the
 // reference is stable across renders; used by the presence probe effect and
 // the client-side completeness fallback calc).
@@ -500,11 +511,6 @@ export default function MyProfile() {
         // FormField org_typeahead branch flattens objects -> string[] for
         // the component.
         const p = { ...data.profile };
-        const V2_MAP = {
-          investor_names: 'investor_names_v2',
-          accelerator_programs: 'accelerator_programs_v2',
-          corporate_partners: 'corporate_partners_v2',
-        };
         for (const [textCol, v2Col] of Object.entries(V2_MAP)) {
           const v2 = p[v2Col];
           if (Array.isArray(v2) && v2.length > 0) p[textCol] = v2;
@@ -534,14 +540,18 @@ export default function MyProfile() {
       const payload = {};
       for (const field of fields) {
         const val = profileData[field.name];
+        // Phase 132 — org_typeahead fields load from a `_v2` JSONB column
+        // (see V2_MAP) but ALLOWED_COLUMNS only whitelists the _v2 name —
+        // translate the outgoing key or coerceUpdates silently drops it.
+        const outKey = V2_MAP[field.name] || field.name;
         if (!isEmpty(val)) {
           // Field has a value — send it as-is.
-          payload[field.name] = val;
+          payload[outKey] = val;
         } else if (!isEmpty(prev[field.name])) {
           // Field was non-empty at load but is now empty — the user
           // deliberately cleared it. Send explicit null so the backend
           // sets the column to NULL (coerceUpdates honours null as a clear).
-          payload[field.name] = null;
+          payload[outKey] = null;
         }
         // else: empty at baseline and still empty — omit, so we don't
         // disturb COALESCE-based crawler auto-fill protection.
