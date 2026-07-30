@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../services/api';
-import { Users, UserCheck, TrendingUp, DollarSign, IndianRupee, Database, Activity, AlertCircle, Loader2 } from 'lucide-react';
+import { Users, UserCheck, TrendingUp, DollarSign, IndianRupee, Database, Activity, AlertCircle, Loader2, Layers, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import toast from 'react-hot-toast';
 
@@ -16,6 +16,25 @@ function fmtINR(n) {
 }
 function fmtUSD(n) {
   return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtDate(d) {
+  if (!d) return 'never';
+  return new Date(d).toLocaleString('en-IN');
+}
+
+function StatusBadge({ status }) {
+  if (!status) return <span style={{ fontSize: 11, color: '#9ca3af' }}>—</span>;
+  const map = {
+    completed: { color: '#10B981', Icon: CheckCircle2 },
+    running: { color: '#F59E0B', Icon: Loader2 },
+    failed: { color: '#EF4444', Icon: XCircle },
+  };
+  const { color, Icon } = map[status] || { color: '#9ca3af', Icon: Clock };
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color }}>
+      <Icon size={12} /> {status}
+    </span>
+  );
 }
 
 function Tile({ icon: Icon, label, value, sub, color }) {
@@ -75,6 +94,8 @@ export default function AdminPlatformHealth() {
   const u = data.users || {};
   const rev = data.revenue || { mtd: { inr: {}, usd: {} }, ytd: { inr: {}, usd: {} }, monthly_history_12mo: [] };
   const churn = data.churn || {};
+  const embeddingHealth = data.embedding_health || [];
+  const clusterHealth = data.cluster_health || {};
   const generated = data.generated_at ? new Date(data.generated_at).toLocaleString('en-IN') : 'unknown';
 
   return (
@@ -161,6 +182,64 @@ export default function AdminPlatformHealth() {
               <Legend wrapperStyle={{ fontSize: 11 }} />
             </PieChart>
           </ResponsiveContainer>
+        </div>
+      </Section>
+
+      <Section title="Embedding coverage" sub="Vector search index freshness per entity type (text-embedding-3-small).">
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: '#6b7280', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                <th style={{ padding: '4px 8px 8px 0' }}>Table</th>
+                <th style={{ padding: '4px 8px 8px' }}>Total</th>
+                <th style={{ padding: '4px 8px 8px' }}>Embedded</th>
+                <th style={{ padding: '4px 8px 8px' }}>Missing</th>
+                <th style={{ padding: '4px 8px 8px' }}>Stale</th>
+                <th style={{ padding: '4px 0 8px 8px' }}>Coverage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {embeddingHealth.map((row) => {
+                const total = Number(row.total || 0);
+                const withEmb = Number(row.with_embedding || 0);
+                const pct = total ? Math.round((withEmb / total) * 100) : 0;
+                return (
+                  <tr key={row.table_name} style={{ borderTop: '1px solid #f3f4f6' }}>
+                    <td style={{ padding: '8px 8px 8px 0', fontWeight: 600, color: '#374151' }}>{row.table_name}</td>
+                    <td style={{ padding: '8px' }}>{fmt(total)}</td>
+                    <td style={{ padding: '8px', color: '#10B981' }}>{fmt(withEmb)}</td>
+                    <td style={{ padding: '8px', color: Number(row.without_embedding || 0) > 0 ? '#EF4444' : '#9ca3af' }}>{fmt(row.without_embedding)}</td>
+                    <td style={{ padding: '8px', color: Number(row.stale_count || 0) > 0 ? '#F59E0B' : '#9ca3af' }}>{fmt(row.stale_count)}</td>
+                    <td style={{ padding: '8px 0 8px 8px', color: pct === 100 ? '#10B981' : '#374151' }}>{pct}%</td>
+                  </tr>
+                );
+              })}
+              {!embeddingHealth.length && (
+                <tr><td colSpan={6} style={{ padding: 12, color: '#9ca3af' }}>No data.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
+      <Section title="Cluster health" sub="Startup k-means clustering — full recompute (monthly) and incremental delta (daily).">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Layers size={12} style={{ color: G }} /> Last full recompute
+            </div>
+            <StatusBadge status={clusterHealth.last_full_status} />
+            <div style={{ fontSize: 12, color: '#374151' }}>{fmtDate(clusterHealth.last_full_completed_at || clusterHealth.last_full_run)}</div>
+            <div style={{ fontSize: 11, color: '#9ca3af' }}>{fmt(clusterHealth.last_full_entities_processed || 0)} startups processed</div>
+          </div>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Layers size={12} style={{ color: G }} /> Last delta run
+            </div>
+            <StatusBadge status={clusterHealth.last_delta_status} />
+            <div style={{ fontSize: 12, color: '#374151' }}>{fmtDate(clusterHealth.last_delta_completed_at || clusterHealth.last_delta_run)}</div>
+            <div style={{ fontSize: 11, color: '#9ca3af' }}>{fmt(clusterHealth.last_delta_entities_processed || 0)} startups processed</div>
+          </div>
         </div>
       </Section>
     </div>
