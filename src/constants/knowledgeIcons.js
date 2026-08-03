@@ -142,6 +142,9 @@ export const SECTOR_COLORS = {
 export const SECTOR_ALIASES = {
   'Cyber Security': 'Cybersecurity',
   'AI': 'AI/ML',
+  'Logistics & Supply Chain': 'SupplyChain/Logistics',
+  'Enterprise Software': 'SaaS/Enterprise',
+  'Real Estate & Construction': 'PropTech',
 };
 
 const DEFAULT_COLOR = '#D0A848';
