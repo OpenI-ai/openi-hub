@@ -1,0 +1,94 @@
+# Phase 7c (4 Aug 2026) — frontend CI gate.
+#
+# WHY THIS EXISTS
+# ---------------
+# This repo had no .github/ at all. Nothing gated main: a direct push went
+# straight to Vercel, and a PR showed zero checks, so the first signal that
+# something was broken was a failed production deploy. This workflow is the
+# missing signal. It is a gate, not a test suite — the repo has no test
+# framework, so "does it lint and does it build" is the whole contract.
+#
+# WHY `npx vite build` AND NOT `npm run build`
+# --------------------------------------------
+# Two reasons, both load-bearing:
+#
+#   1. package.json's "build" is `npm run lint && vite build`. Calling it here
+#      would run ESLint twice, since the lint step below already ran it.
+#
+#   2. npm auto-runs "postbuild" after "build". postbuild is
+#      `gen-version.js && prerender.js && indexnow-submit.js`, and
+#      prerender.js:137-143 fetches LIVE production:
+#
+#          const API_URL = process.env.VITE_API_URL || 'https://api.openi.ai/api';
+#          fetch(`${API_URL}/public/challenges?page=1&limit=12`)
+#          fetch(`${API_URL}/public/deal-requests?limit=12`)
+#
+#      Running that from CI would make every PR depend on api.openi.ai being
+#      up and fast. A gate that goes red when production hiccups trains people
+#      to ignore red, which defeats the point of having a gate. Calling the
+#      vite binary directly skips the postbuild chain entirely.
+#
+#      (indexnow-submit.js is independently safe — it no-ops unless
+#      VERCEL_ENV === 'production' and never throws — but it is skipped too,
+#      for free, by not going through the npm lifecycle.)
+#
+# Vercel still runs the full `npm run build` incl. postbuild on real deploys.
+# This workflow deliberately does not reproduce that; it verifies the bundle
+# compiles, which is what a merge gate needs to know.
+#
+# WHAT THIS DOES NOT NEED
+# -----------------------
+# No secrets. vite.config.js gates the Sentry plugin on
+# `disable: !process.env.SENTRY_AUTH_TOKEN`, so it self-disables here and the
+# build succeeds without one. Do not add SENTRY_AUTH_TOKEN to make sourcemap
+# upload happen in CI — uploading a sourcemap for a bundle that is never
+# deployed just pollutes Sentry releases.
+#
+# NODE VERSION
+# ------------
+# Pinned to 20 to match the backend's test.yml. The repo pins nothing itself
+# (no "engines", no .nvmrc) and local dev is on 24, so without an explicit pin
+# here CI would silently drift with the runner image default.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A force-push or a rapid second push makes the in-flight run irrelevant.
+# Cancel it rather than pay for a result nobody will read. Not applied to main
+# runs by accident: the group key includes the ref, so main cancels only main.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: lint & build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # `npm ci` (not `npm install`) — it honours package-lock.json exactly and
+      # fails loudly if the lockfile and package.json have drifted apart, which
+      # is itself something worth catching at the gate.
+      - name: Install dependencies
+        run: npm ci
+
+      # package.json's lint script carries --max-warnings=9999, so warnings
+      # never fail this step; only actual ESLint errors do. Baseline is 0
+      # errors — if this goes red, something new genuinely broke.
+      - name: Lint
+        run: npm run lint
+
+      # See header: vite binary directly, NOT `npm run build`.
+      - name: Build
+        run: npx vite build
