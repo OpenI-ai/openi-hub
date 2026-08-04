@@ -3,5 +3,17 @@ dist/
 .ssr-prerender/
 .DS_Store
 *.local
-.env
+
+# `.env` on its own matches ONLY the file named exactly `.env`. It does not
+# match `.env.production`, `.env.local`, `.env.staging` and so on — which is
+# exactly how `.env.production` ended up tracked in this repo. `.env*` covers
+# every variant, so a future `.env.local` holding a real secret cannot be
+# committed by accident.
+#
+# Caveat: .gitignore only governs UNTRACKED files. `.env.production` is already
+# tracked and stays tracked — it holds a public backend URL and serves as the
+# build-time fallback if Vercel's dashboard VITE_API_URL is ever missing. To
+# genuinely stop tracking it: `git rm --cached .env.production`.
+.env*
+
 .vercel
