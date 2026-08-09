@@ -27,7 +27,7 @@ export default function AdminCosts() {
   // R: DR Drill + db-backup state
   const [drill, setDrill] = useState({ workflows: {}, error: null });
   // Phase 119: Email outbox state
-  const [outbox, setOutbox] = useState({ status_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
+  const [outbox, setOutbox] = useState({ status_counts: [], kind_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
   const [loading, setLoading] = useState(true);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState({ service: 'railway', month_label: '', cost_usd: '', note: '' });
@@ -43,14 +43,14 @@ export default function AdminCosts() {
         adminAPI.uptimeSummary().catch(() => ({ monitors: [], stats: null })),
         adminAPI.errorsSummary().catch(() => ({ issues: [], stats: null })),
         adminAPI.drillHistory().catch(() => ({ workflows: {}, error: 'failed to load' })),
-        adminAPI.emailOutboxHealth().catch(() => ({ status_counts: [], recent_emails: [], unacknowledged_exhausted: [] })),
+        adminAPI.emailOutboxHealth().catch(() => ({ status_counts: [], kind_counts: [], recent_emails: [], unacknowledged_exhausted: [] })),
       ]);
       setSummary(s);
       setAlerts(a.alerts || []);
       setUptime(u || { monitors: [], stats: null });
       setErrors(e || { issues: [], stats: null });
       setDrill(d || { workflows: {}, error: null });
-      setOutbox(o || { status_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
+      setOutbox(o || { status_counts: [], kind_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
     } catch (e) {
       console.error('[admin-costs]', e);
       toast.error('Failed to load costs: ' + (e?.message || 'unknown'));
@@ -279,6 +279,34 @@ export default function AdminCosts() {
             {outbox.unacknowledged_exhausted.length > 0 && (
               <div style={{ padding: 12, background: '#fef2f2', borderBottom: '1px solid #fecaca', color: '#991b1b', fontSize: 12, fontWeight: 600 }}>
                 ⚠ {outbox.unacknowledged_exhausted.length} email(s) exhausted all retries (triple-fallback fired). Investigate and acknowledge below.
+              </div>
+            )}
+            {/* Screenshot item #6 — per-kind breakdown. status_counts alone hides WHICH
+                email types are failing; a single failing payment_confirmation matters far
+                more than twenty failing digests. */}
+            {outbox.kind_counts && outbox.kind_counts.length > 0 && (
+              <div style={{ padding: '10px 12px', borderBottom: '1px solid #e5e7eb', background: '#fafafa' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#666', marginBottom: 6, letterSpacing: 0.3 }}>BY KIND (7d)</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {Object.entries(outbox.kind_counts.reduce((acc, r) => {
+                    acc[r.kind] = acc[r.kind] || {};
+                    acc[r.kind][r.status] = (acc[r.kind][r.status] || 0) + r.cnt;
+                    return acc;
+                  }, {}))
+                    .map(([kind, c]) => [kind, c, Object.entries(c).filter(([s]) => s !== 'sent')])
+                    .sort((a, b) => (b[2].length - a[2].length) || ((b[1].sent || 0) - (a[1].sent || 0)))
+                    .map(([kind, c, notSent]) => {
+                      const hasBad = notSent.some(([s]) => s !== 'pending');
+                      return (
+                        <span key={kind} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 999, border: '1px solid ' + (hasBad ? '#fecaca' : '#e5e7eb'), background: hasBad ? '#fef2f2' : '#fff', color: '#333' }}>
+                          <strong>{kind}</strong> {c.sent || 0} sent
+                          {notSent.map(([s, n]) => (
+                            <span key={s} style={{ color: s === 'pending' ? '#b45309' : '#dc2626', fontWeight: 700 }}> · {n} {s}</span>
+                          ))}
+                        </span>
+                      );
+                    })}
+                </div>
               </div>
             )}
             {(!outbox.recent_emails || outbox.recent_emails.length === 0) ? (
