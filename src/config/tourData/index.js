@@ -37,6 +37,18 @@
  *      cannot shadow one another today. Adding a key that already exists in an
  *      earlier group WOULD shadow it - grep before adding.
  *   3. Module bodies stay verbatim. Reformatting them voids the recipe above.
+ *      ONE SANCTIONED DIVERGENCE (11 Aug 2026): the per-step key `disableBeacon`
+ *      was renamed to `skipBeacon` across all six modules — 118 occurrences, a
+ *      1:1 line swap with nothing else touched. react-joyride v3 renamed that
+ *      flag (grep react-joyride/src for `disableBeacon`: zero hits), so every
+ *      step here was carrying a dead key and the library default `skipBeacon:
+ *      false` won. Every persona tour and all 107 page tours were opening as a
+ *      click-to-open beacon instead of showing their tooltip. Caught by the W4-3
+ *      E2E block, not by a user report. CONSEQUENCE FOR THE RECIPE: these modules
+ *      no longer byte-match the pre-split tours.js as-is. Apply
+ *      `s/disableBeacon:/skipBeacon:/g` to the original first and it matches
+ *      again. Any FURTHER divergence must be appended here in the same form, with
+ *      its own normalizing transform, or the recipe silently becomes unusable.
  *   4. Keep ../tours.js as a shim. Five files import from '../config/tours'
  *      (PageTourButton, PublicLayout, PublicTour, TourWrapper, DashboardLayout)
  *      and only ever pull `resolvePageTour` and `TOURS`.

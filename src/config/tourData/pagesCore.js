@@ -22,7 +22,7 @@ export const pagesCore = {
         title: 'Your profile, all in one place',
         content: 'This is your master profile. Everything you fill in here surfaces on directory listings, recommendations and challenge applications.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-profile-completeness',
@@ -47,7 +47,7 @@ export const pagesCore = {
         title: 'Innovation Marketplace',
         content: 'This is where you discover open challenges from corporates, government bodies, investors and incubators. Anyone can apply if they match the brief.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-marketplace-tabs',
@@ -71,7 +71,7 @@ export const pagesCore = {
         title: 'The OpenI Directory',
         content: 'Every innovator, mentor, investor, lab and partner on the platform lives here. Use this to discover, connect, and grow your network.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-directory-search',
@@ -95,7 +95,7 @@ export const pagesCore = {
         title: 'Your challenges, all in one place',
         content: 'Every challenge you launched lives here. Click any card to see the application queue, invite startups, manage RFI responses, and review submissions.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-challenges-new',
@@ -113,7 +113,7 @@ export const pagesCore = {
         title: 'Curated for you',
         content: 'Startups matching your innovation areas, ranked by topical alignment and applied signal. We surface providers whose offerings overlap with what your organisation cares about.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-recs-basedon',
@@ -136,7 +136,7 @@ export const pagesCore = {
         title: 'Curate your startup watchlists',
         content: 'A watchlist is a saved list of startups you are tracking. Organize them by program, sector, or any theme that matters to you. Multiple watchlists per account.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-watchlist-create',
@@ -166,7 +166,7 @@ export const pagesCore = {
         title: 'Direct + group messaging',
         content: 'Every active OpenI user can be reached here. Use Messaging to coordinate on a challenge, exchange documents privately, or follow up after a meeting.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-messaging-new',
@@ -196,7 +196,7 @@ export const pagesCore = {
         title: 'Your current plan',
         content: 'This card shows your active plan, billing cycle (Monthly or Annual), and next billing date. Free accounts have no billing date.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-settings-cycle',
@@ -220,7 +220,7 @@ export const pagesCore = {
         title: 'The OpenI Innovation Map',
         content: 'We cluster every startup in the OpenI directory into themes using semantic embeddings. Each theme groups startups working on similar problems — a map of where innovation is happening.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-clusters-grid',
@@ -238,7 +238,7 @@ export const pagesCore = {
         title: 'OpenI 8-Vector framework',
         content: 'A structured rubric to evaluate a startup across 8 dimensions — People, Solution, Tech, Innovation, Scalability, Integration, Team, Strategic Fit. Free for all OpenI users.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-8vector-name',
@@ -262,7 +262,7 @@ export const pagesCore = {
         title: 'Ecosystem events',
         content: 'Workshops, demo days, conferences, and community events. Public events are visible to everyone; draft events stay visible only to the creator until published.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-events-create',
@@ -286,7 +286,7 @@ export const pagesCore = {
         title: 'Find startups for your innovation needs',
         content: 'Corporate-specific search across the OpenI directory. Browse startups, filter by sector and technology, start collaborations or open conversations directly.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-corp-search-filters',

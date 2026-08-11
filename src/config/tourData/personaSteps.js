@@ -24,7 +24,7 @@ const startupSteps = [
     title: 'Welcome to OpenI Hub',
     content: 'You are signed in as a Startup. This quick tour will walk you through the key tools available to grow your venture.',
     placement: 'bottom',
-    disableBeacon: true,
+    skipBeacon: true,
   },
   {
     target: '#tour-stat-cards',
@@ -114,7 +114,7 @@ const startupSteps = [
 
 // ── STUDENT — 11 steps ──────────────────────────────────────────────────
 const studentSteps = [
-  { target: '#tour-welcome',                       title: 'Welcome, Student',         content: 'This tour shows you how to build a great academic profile and connect with startups, mentors and corporate challenges.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',                       title: 'Welcome, Student',         content: 'This tour shows you how to build a great academic profile and connect with startups, mentors and corporate challenges.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',                    title: 'Your Activity',            content: 'Track your projects, certifications, applications and active mentorships at a glance.', placement: 'bottom' },
   { target: '#tour-profile-score',                 title: 'Build a Standout Profile', content: 'A complete profile with projects and skills gets noticed faster. Aim for 80+ on the completeness score.', placement: 'top' },
   { target: '#tour-quick-actions',                 title: 'Quick Actions',            content: 'Add a project, browse open challenges or find a mentor — all from this panel.', placement: 'top' },
@@ -129,7 +129,7 @@ const studentSteps = [
 
 // ── ACADEMIA — 12 steps ─────────────────────────────────────────────────
 const academiaSteps = [
-  { target: '#tour-welcome',                       title: 'Welcome, Academic',        content: 'OpenI Hub helps universities and research institutes connect with startups, file IPR, track grants and run programs.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',                       title: 'Welcome, Academic',        content: 'OpenI Hub helps universities and research institutes connect with startups, file IPR, track grants and run programs.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',                    title: 'Your Research Activity',   content: 'Active research projects, publications, grants, applications, lab bookings — all surfaced here.', placement: 'bottom' },
   { target: '#tour-profile-score',                 title: 'Institutional Profile',    content: 'Complete your institution profile so startups and funders can find you. Higher completeness = better discoverability.', placement: 'top' },
   { target: '#tour-quick-actions',                 title: 'Quick Actions',            content: 'Add research, publications, grants in one click.', placement: 'top' },
@@ -145,7 +145,7 @@ const academiaSteps = [
 
 // ── CORPORATE — 12 steps ────────────────────────────────────────────────
 const corporateSteps = [
-  { target: '#tour-welcome',                  title: 'Welcome, Corporate',         content: 'OpenI Hub helps you discover startups, run innovation challenges, and manage open-innovation collaborations.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',                  title: 'Welcome, Corporate',         content: 'OpenI Hub helps you discover startups, run innovation challenges, and manage open-innovation collaborations.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-corp-pipeline',            title: 'Collaboration Pipeline',     content: 'Active collaborations across all stages — from outreach to signed Proof-of-Concept agreements — visible right here.', placement: 'bottom' },
   { target: '#tour-corp-applications',        title: 'Recent Applications',        content: 'Latest startup applications to your live challenges. Click any row to open the full application + reviews panel.', placement: 'bottom' },
   { target: '#tour-corp-recommended',         title: 'AI-Recommended Startups',    content: 'Our AI matches startups to your sector, focus areas and corporate strategy. Refreshed weekly.', placement: 'top' },
@@ -161,7 +161,7 @@ const corporateSteps = [
 
 // ── GOVERNMENT — 12 steps ──────────────────────────────────────────────
 const governmentSteps = [
-  { target: '#tour-welcome',              title: 'Welcome, Government',         content: 'Use OpenI Hub to discover and track innovative startups, post RFPs, manage programs and integrate with public APIs.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',              title: 'Welcome, Government',         content: 'Use OpenI Hub to discover and track innovative startups, post RFPs, manage programs and integrate with public APIs.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',           title: 'Your Coverage',               content: 'Tracked startups, DeepTech ventures, active programs, open challenges and unicorn candidates — all visible here.', placement: 'bottom' },
   { target: '#tour-quick-actions',        title: 'Quick Actions',               content: 'Post a challenge/RFP, discover startups, manage programs in one click.', placement: 'top' },
   { target: navTarget('challenges-rfps'), title: 'Challenges & RFPs',           content: 'Post structured RFPs with criteria, deadlines and budgets. Invite reviewers and track applications.', placement: 'right' },
@@ -177,7 +177,7 @@ const governmentSteps = [
 
 // ── INVESTOR — 13 steps ────────────────────────────────────────────────
 const investorSteps = [
-  { target: '#tour-welcome',                 title: 'Welcome, Investor',         content: 'Use OpenI Hub to source deals, manage your pipeline, track portfolio companies and run deal-screening reviews.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',                 title: 'Welcome, Investor',         content: 'Use OpenI Hub to source deals, manage your pipeline, track portfolio companies and run deal-screening reviews.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',              title: 'Your Activity',             content: 'Active deals, watchlists and tracked startups — at a glance.', placement: 'bottom' },
   { target: '#tour-quick-actions',           title: 'Quick Actions',             content: 'Open your deal pipeline, portfolio or browse startups directly from here.', placement: 'top' },
   { target: navTarget('deal-pipeline'),      title: 'Deal Pipeline',             content: 'Kanban-style pipeline of deals from sourced → diligence → term-sheet → closed. Drag-drop between stages.', placement: 'right' },
@@ -194,7 +194,7 @@ const investorSteps = [
 
 // ── MENTOR — 10 steps ──────────────────────────────────────────────────
 const mentorSteps = [
-  { target: '#tour-welcome',           title: 'Welcome, Mentor',          content: 'OpenI Hub connects you with startups, students and academic researchers who need your guidance.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',           title: 'Welcome, Mentor',          content: 'OpenI Hub connects you with startups, students and academic researchers who need your guidance.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',        title: 'Your Mentees',             content: 'Active mentees, total sessions, tracked projects and feedback given — all surfaced here.', placement: 'bottom' },
   { target: '#tour-quick-actions',     title: 'Quick Actions',            content: 'Browse startups, jump to your projects or give feedback in one click.', placement: 'top' },
   { target: navTarget('sessions'),     title: 'Mentor Sessions',          content: 'Manage past and upcoming mentor sessions. Add notes, track outcomes, schedule follow-ups.', placement: 'right' },
@@ -208,7 +208,7 @@ const mentorSteps = [
 
 // ── LAB — 10 steps ─────────────────────────────────────────────────────
 const labSteps = [
-  { target: '#tour-welcome',           title: 'Welcome, Lab',             content: 'OpenI Hub helps your lab list equipment, manage bookings, file IPR and connect with startups needing infra access.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',           title: 'Welcome, Lab',             content: 'OpenI Hub helps your lab list equipment, manage bookings, file IPR and connect with startups needing infra access.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',        title: 'Your Capacity',            content: 'Equipment count, active bookings, IPR records and current capacity — at a glance.', placement: 'bottom' },
   { target: '#tour-quick-actions',     title: 'Quick Actions',            content: 'Manage infrastructure, IPR or browse startups in one click.', placement: 'top' },
   { target: navTarget('equipment'),    title: 'Equipment Catalog',        content: 'Add and manage your equipment listings. Each item has specs, location, hourly rate and availability calendar.', placement: 'right' },
@@ -222,7 +222,7 @@ const labSteps = [
 
 // ── INCUBATOR — 12 steps ───────────────────────────────────────────────
 const incubatorSteps = [
-  { target: '#tour-welcome',                 title: 'Welcome, Incubator',         content: 'Run your incubation programs, manage your mentor pool, and source startups — all from here.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',                 title: 'Welcome, Incubator',         content: 'Run your incubation programs, manage your mentor pool, and source startups — all from here.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',              title: 'Your Programs at a Glance',  content: 'Total/active programs, pipeline startups, pending applications, graduated cohorts and active mentors.', placement: 'bottom' },
   { target: '#tour-quick-actions',           title: 'Quick Actions',              content: 'Manage programs, the mentor pool, or discover startups directly from this panel.', placement: 'top' },
   { target: navTarget('programs'),           title: 'Programs',                   content: 'Create, edit and run your incubation programs. Each program supports cohorts, applications, milestones, equity terms.', placement: 'right' },
@@ -238,7 +238,7 @@ const incubatorSteps = [
 
 // ── ACCELERATOR — 12 steps ─────────────────────────────────────────────
 const acceleratorSteps = [
-  { target: '#tour-welcome',                  title: 'Welcome, Accelerator',       content: 'Run your batches, manage your partner network, and source the best startups for the next cohort.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',                  title: 'Welcome, Accelerator',       content: 'Run your batches, manage your partner network, and source the best startups for the next cohort.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',               title: 'Your Batches',               content: 'Total/active batches, pipeline startups, graduated, corporate partners and investor network.', placement: 'bottom' },
   { target: '#tour-quick-actions',            title: 'Quick Actions',              content: 'Manage batches, partners and discover startups in one click.', placement: 'top' },
   { target: navTarget('batches'),             title: 'Manage Batches',             content: 'Create cohorts with start/end dates, batch leads, equity terms, milestones and Demo Day planning.', placement: 'right' },
@@ -254,7 +254,7 @@ const acceleratorSteps = [
 
 // ── SERVICE PROVIDER — 10 steps ────────────────────────────────────────
 const serviceProviderSteps = [
-  { target: '#tour-welcome',          title: 'Welcome, Service Provider',  content: 'OpenI Hub helps service providers — legal, design, cloud, marketing — connect with the startup ecosystem.', placement: 'bottom', disableBeacon: true },
+  { target: '#tour-welcome',          title: 'Welcome, Service Provider',  content: 'OpenI Hub helps service providers — legal, design, cloud, marketing — connect with the startup ecosystem.', placement: 'bottom', skipBeacon: true },
   { target: '#tour-stat-cards',       title: 'Your Activity',              content: 'Services offered, active client connections and certifications — at a glance.', placement: 'bottom' },
   { target: '#tour-quick-actions',    title: 'Quick Actions',              content: 'Browse open challenges, find startups or manage your services from this panel.', placement: 'top' },
   { target: navTarget('my-services'), title: 'My Services',                content: 'Add and edit your service offerings. Each service has a category, pricing model, deliverables and SLA.', placement: 'right' },

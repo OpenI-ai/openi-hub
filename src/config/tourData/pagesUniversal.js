@@ -26,7 +26,7 @@ export const pagesUniversal = {
         title: 'Your home base',
         content: 'This is your persona-tailored dashboard. The cards, stats, and quick-actions you see depend on your role on OpenI.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-stat-cards',
@@ -50,7 +50,7 @@ export const pagesUniversal = {
         title: 'Your professional network on OpenI',
         content: 'Build connections with founders, mentors, investors, corporates, academics — anyone active on the platform. Accepted connections unlock direct messaging.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-network-tabs',
@@ -74,7 +74,7 @@ export const pagesUniversal = {
         title: 'Schedule with anyone on OpenI',
         content: 'Send meeting invites to any active user — founders, mentors, investors. Accepted invites sync to your calendar via .ics or Google Meet links.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-meetings-create',
@@ -98,7 +98,7 @@ export const pagesUniversal = {
         title: 'Track every project end-to-end',
         content: 'Manage projects, tasks, milestones, collaborators, and budgets all in one place. Useful for tracking incubation cohorts, corporate pilots, mentor engagements.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-projects-toggle',
@@ -122,7 +122,7 @@ export const pagesUniversal = {
         title: 'Centralised file storage',
         content: 'Store program documents, pitch decks, RFP responses, contracts, MoUs — anything your team needs to share. Files are scoped to your organisation by default.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-documents-upload',
@@ -146,7 +146,7 @@ export const pagesUniversal = {
         title: 'Industry reports + curated articles',
         content: 'Browse research reports, sector primers, SOPs, training modules, and ecosystem playbooks curated by OpenI. New articles publish weekly.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-knowledge-search',
@@ -170,7 +170,7 @@ export const pagesUniversal = {
         title: 'Latest platform updates',
         content: 'See what we shipped recently — new features, bug fixes, performance improvements. Updates are filtered to your role so you only see what is relevant.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-whats-new-refresh',
@@ -194,7 +194,7 @@ export const pagesUniversal = {
         title: 'Your corporate command center',
         content: 'This dashboard surfaces everything you need to run open innovation: live challenges, applications, AI-recommended startups, and collaboration pipeline.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-corp-pipeline',
@@ -224,7 +224,7 @@ export const pagesUniversal = {
         title: 'Your invested companies',
         content: 'Every startup you have invested in lives here — with current valuation, equity stake, exit status, and follow-on opportunities.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-portfolio-add',
@@ -248,7 +248,7 @@ export const pagesUniversal = {
         title: 'Your deal pipeline',
         content: 'Kanban-style pipeline of deals from sourced through diligence, term-sheet, and closed. Drag deals between stages or click for full detail.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-deals-create',
@@ -266,7 +266,7 @@ export const pagesUniversal = {
         title: 'Manage your programs',
         content: 'Every incubation program you run lives here — with applications, cohorts, milestones, and equity terms.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-incubator-programs-create',
@@ -284,7 +284,7 @@ export const pagesUniversal = {
         title: 'Your batches and cohorts',
         content: 'Manage every accelerator batch end-to-end — pitch pipeline, demo day planning, equity terms, and graduation tracking.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-accelerator-batches-create',
@@ -302,7 +302,7 @@ export const pagesUniversal = {
         title: 'Your mentoring history',
         content: 'Every mentoring session you have given — with the mentee, topic, date, status, and outcome notes. Filter by status to focus on what needs follow-up.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-mentor-sessions-create',
@@ -320,7 +320,7 @@ export const pagesUniversal = {
         title: 'Set your weekly availability',
         content: 'Tell mentees when you are free. They can book directly into your open slots — no scheduling back-and-forth.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-mentor-availability-save',
@@ -338,7 +338,7 @@ export const pagesUniversal = {
         title: 'Equipment + booking management',
         content: 'List the equipment your lab offers for use by startups. Manage incoming booking requests and approve or decline based on availability.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-lab-equipment-add',
@@ -356,7 +356,7 @@ export const pagesUniversal = {
         title: 'Showcase your research output',
         content: 'List your lab publications, patents, and conference papers. Higher publication count boosts your lab visibility for collaboration and licensing.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-lab-publications-add',
@@ -374,7 +374,7 @@ export const pagesUniversal = {
         title: 'Your projects and credentials',
         content: 'Showcase the work that makes you stand out — research projects, hackathons, certifications, and side projects. Corporates and startups search by skills and tags here.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-student-portfolio-add',
@@ -392,7 +392,7 @@ export const pagesUniversal = {
         title: 'Track your mentoring journey',
         content: 'Log every mentor connection — from initial request through active mentorship to completion. Useful for reflection, references, and showing your network growth.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-student-mentorships-create',
@@ -410,7 +410,7 @@ export const pagesUniversal = {
         title: 'Research, publications, and grants',
         content: 'Track every research project, published paper, and active grant in one place. Each section has its own tab — switch between Research, Publications, and Grants.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-academia-portfolio-add',
@@ -428,7 +428,7 @@ export const pagesUniversal = {
         title: 'Your services + clients',
         content: 'List the services you offer — legal, design, cloud, accounting, marketing — and manage your client relationships. The Reviews tab shows ratings from past clients.',
         placement: 'bottom',
-        disableBeacon: true,
+        skipBeacon: true,
       },
       {
         target: '#tour-page-sp-services-add',
