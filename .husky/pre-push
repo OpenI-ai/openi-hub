@@ -1,0 +1,22 @@
+# Phase 172 — pre-push build gate.
+#
+# WHY: pushing to main bypasses the required "lint & build" status check,
+# because branch protection has enforce_admins=false. GitHub reports it as
+#   remote: Bypassed rule violations for refs/heads/main:
+#   remote:  - Required status check "lint & build" is expected.
+# Vercel then deploys that commit immediately, while CI takes ~40s to report —
+# so a broken bundle can reach production before anything flags it. This hook
+# closes that window locally.
+#
+# Runs lint + a real vite build. The build is the part that matters: it is the
+# only gate that resolves ESM import specifiers, which is exactly what the
+# W5 file splits keep getting wrong (a module moved one directory deeper
+# silently repoints every relative import — Phase 161, Phase 171).
+#
+# `npx vite build` rather than `npm run build` on purpose: the latter fires the
+# postbuild chain (gen-version / prerender / indexnow), which has side effects
+# we don't want on every push.
+#
+# Bypass when you genuinely need to: `git push --no-verify`.
+
+npm run lint && npx vite build
