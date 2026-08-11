@@ -1,4 +1,4 @@
-import { Globe, Mail, Plus, Search, UserPlus, Users, X } from 'lucide-react';
+import { Globe, Mail, Plus, UserPlus, Users, X } from 'lucide-react';
 import Modal from './Modal';
 import { G } from './styles';
 

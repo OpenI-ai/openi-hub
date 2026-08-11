@@ -8,7 +8,7 @@
  * see ./index.js for the re-concat verification recipe and the invariants.
  */
 
-import { ExternalLink, Target, X } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 // --- BODY START (verbatim, do not reformat) ---
 // --- lines 18-302 ---

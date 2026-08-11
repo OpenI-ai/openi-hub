@@ -8,7 +8,7 @@
  * see ./index.js for the re-concat verification recipe and the invariants.
  */
 
-import { Calendar, ExternalLink, FileText, Globe, X } from 'lucide-react';
+import { Calendar, ExternalLink, FileText, Globe } from 'lucide-react';
 import {
   Badge, FallbackFields, LogoImg, MoneyPill, RowCard, RowHeader,
   StatusBadge, UrlChip, fmtDate,
