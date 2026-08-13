@@ -10,6 +10,10 @@
  *  - facets: { stage: { [name]: count }, sector: { [name]: count } }
  *  - stages (optional): array of stage labels to show
  *  - showDeeptech: whether to include the DeepTech toggle (default true)
+ *  - geo (optional): { countries: [{value,label,count}], cities: [...] } from
+ *      GET /api/startups/geo-options. OPTIONAL on purpose — CorporateStartupSearch
+ *      also mounts this panel and does not pass it, and must keep working.
+ *      Omit it and the two geography controls simply do not render.
  */
 import React from 'react';
 import { Search, X } from 'lucide-react';
@@ -23,7 +27,7 @@ const selectStyle = {
   background: '#f9fafb', minWidth: 140, cursor: 'pointer',
 };
 
-export default function TaxonomyFilterPanel({ taxonomy, filters, onChange, onClear, facets = {}, stages = DEFAULT_STAGES, showDeeptech = true }) {
+export default function TaxonomyFilterPanel({ taxonomy, filters, onChange, onClear, facets = {}, stages = DEFAULT_STAGES, showDeeptech = true, geo = null }) {
   const hasFilters = Object.entries(filters || {}).some(([k, v]) => k !== 'search' && v && v !== 'All' && v !== false);
   const sectorFacets = facets.sector || {};
   const stageFacets = facets.stage || {};
@@ -57,6 +61,54 @@ export default function TaxonomyFilterPanel({ taxonomy, filters, onChange, onCle
             onBlur={e => e.target.style.borderColor = '#e5e7eb'}
           />
         </div>
+
+        {/* Geography — placed first among the dropdowns deliberately. The client
+            report that prompted these controls was "I am getting startup's from
+            all geography", so country is the filter that needs to be found without
+            hunting. Counts are corpus-wide (rows carrying that country), NOT
+            facet-scoped like sector/stage — geo-options is a cached standalone
+            query, not part of the listing query, so it does not react to the
+            other filters. */}
+        {geo && (geo.countries || []).length > 0 && (
+          <select
+            value={filters.country || ''}
+            onChange={e => onChange('country', e.target.value)}
+            style={selectStyle}
+            aria-label="Country"
+          >
+            <option value="">All Countries</option>
+            {geo.countries.map(c => (
+              <option key={c.value} value={c.label}>
+                {c.label}{c.count != null ? ` (${c.count})` : ''}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* City — free-text input backed by a datalist, not a <select>. The list
+            only carries cities with >=2 startups (533 of 874); the remaining 341
+            are still filterable server-side, so typing one has to stay possible.
+            A <select> would make those unreachable from the UI. */}
+        {geo && (geo.cities || []).length > 0 && (
+          <>
+            <input
+              type="text"
+              list="geo-city-options"
+              value={filters.city || ''}
+              onChange={e => onChange('city', e.target.value)}
+              placeholder="City"
+              aria-label="City"
+              style={{ ...selectStyle, cursor: 'text', minWidth: 130 }}
+              onFocus={e => e.target.style.borderColor = G}
+              onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+            />
+            <datalist id="geo-city-options">
+              {geo.cities.map(c => (
+                <option key={c.value} value={c.label}>{c.count}</option>
+              ))}
+            </datalist>
+          </>
+        )}
 
         {/* Sector */}
         <select

@@ -149,13 +149,15 @@ export default function StartupDiscovery() {
   const [loading, setLoading] = useState(true);
   const [facets, setFacets] = useState({ stage: {}, sector: {} });
 
-  const [filters, setFilters] = useState({ sector: '', func: '', technology: '', usecase: '', stage: '', search: '', deeptech: false });
+  const [filters, setFilters] = useState({ sector: '', func: '', technology: '', usecase: '', stage: '', search: '', country: '', city: '', deeptech: false });
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [debouncedCity, setDebouncedCity] = useState('');
   const [watchlist, setWatchlist] = useState([]);
   const [page, setPage] = useState(1);
   const limit = 24;
 
   const [taxonomy, setTaxonomy] = useState({ sectors: [], functions: [], technologies: [], usecases: [] });
+  const [geo, setGeo] = useState({ countries: [], cities: [] });
 
   useEffect(() => {
     publicAPI.getTaxonomy().then(data => {
@@ -168,11 +170,28 @@ export default function StartupDiscovery() {
     }).catch(() => {});
   }, []);
 
+  // Country/city options. Server-cached 30 min and derived from a live GROUP BY,
+  // so this is one cheap call per mount. Failure is non-fatal: geo stays empty,
+  // the two controls do not render, and every other filter still works.
+  useEffect(() => {
+    startupAPI.geoOptions().then(data => {
+      if (data) setGeo({ countries: data.countries || [], cities: data.cities || [] });
+    }).catch(() => {});
+  }, []);
+
   // Debounce search
   useEffect(() => {
     const t = setTimeout(() => { setDebouncedSearch(filters.search); setPage(1); }, 400);
     return () => clearTimeout(t);
   }, [filters.search]);
+
+  // Debounce city for the same reason as search — it is a free-text input, so
+  // without this every keystroke while typing "Bengaluru" is a listing query.
+  // Country is a <select> and needs no debounce.
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedCity(filters.city); setPage(1); }, 400);
+    return () => clearTimeout(t);
+  }, [filters.city]);
 
   const fetchStartups = useCallback(async () => {
     setLoading(true);
@@ -185,6 +204,9 @@ export default function StartupDiscovery() {
       if (filters.func) params.func = filters.func;
       if (filters.usecase) params.usecase = filters.usecase;
       if (filters.deeptech) params.deeptech = 'true';
+      if (filters.country) params.country = filters.country;
+      // debouncedCity, not filters.city — see the debounce effect above.
+      if (debouncedCity) params.city = debouncedCity;
 
       const data = await startupAPI.list(params);
       setStartups(data.startups || []);
@@ -195,7 +217,7 @@ export default function StartupDiscovery() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, filters.sector, filters.stage, filters.technology, filters.func, filters.usecase, filters.deeptech]);
+  }, [page, debouncedSearch, filters.sector, filters.stage, filters.technology, filters.func, filters.usecase, filters.deeptech, filters.country, debouncedCity]);
 
   useEffect(() => { fetchStartups(); }, [fetchStartups]);
 
@@ -204,7 +226,7 @@ export default function StartupDiscovery() {
     if (key !== 'search') setPage(1);
   };
   const clearFilters = () => {
-    setFilters({ sector: '', func: '', technology: '', usecase: '', stage: '', search: '', deeptech: false });
+    setFilters({ sector: '', func: '', technology: '', usecase: '', stage: '', search: '', country: '', city: '', deeptech: false });
     setPage(1);
   };
 
@@ -254,6 +276,7 @@ export default function StartupDiscovery() {
         onChange={setFilter}
         onClear={clearFilters}
         facets={facets}
+        geo={geo}
       />
 
       {loading ? (

@@ -17,6 +17,9 @@ export const startupAPI = {
   getEvaluations: (id)          => get(`/startups/${id}/evaluations`),
   // Q3 (s27): cluster-mate discovery via s21 K=100 clusters
   getSimilar:     (id, limit = 8) => get(`/startups/${id}/similar?limit=${limit}`),
+  // Country/city options for the Find Startups geography filters. Derived from a
+  // live GROUP BY on the data (server-cached 30 min), not a static gazetteer.
+  geoOptions:     ()            => get('/startups/geo-options'),
 };
 
 // ── Evaluations ─────────────────────────────────────────────
