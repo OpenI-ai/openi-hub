@@ -1,4 +1,4 @@
-<!-- Verbatim section of OpenI Hub DOCUMENTATION.md (lines 796-863 of the pre-split original). -->
+<!-- Section of OpenI Hub DOCUMENTATION.md (lines 796-863 of the pre-split original). EDITED 14 Aug 2026 (§12 Backend + Database) — NO LONGER VERBATIM, out of the re-concat recipe. -->
 <!-- Index: ../../DOCUMENTATION.md · Body starts line 4 (uniform across all parts: tail -n +4). -->
 
 ## 12. Deployment
@@ -17,11 +17,13 @@
 - **Project:** capable-energy
 - **GitHub:** RajeevBanduni/openi-hub-backend (private)
 - **Auto-deploy:** On push to `main` branch
-- **Entry Point:** `src/startup.js` (runs migrate + seed, then starts server)
+- **Entry Point:** `src/startup.js` (82-line re-export shim; the migration steps live in `src/migrations/` — 14 ordered modules + an `index.js` registry — and the demo seed in `src/seed/index.js`)
 
 ### Database (Railway PostgreSQL)
 
-- **Auto-migration:** Runs on every deploy via `startup.js`
+- **Auto-migration: OFF in production.** Migrations run on boot **only** when `RUN_MIGRATIONS_ON_BOOT` is set to `true`/`1`/`yes`; that variable is deliberately unset on Railway, so a deploy starts the server and skips schema work entirely (`src/startup.js` logs `⏭  RUN_MIGRATIONS_ON_BOOT not enabled`). The gate was added after the s42 incident (29 Apr 2026), where a redeploy's `CREATE INDEX` statements deadlocked against a concurrent backup `pg_dump`.
+- **To apply a schema change in production:** `railway ssh` → `npm run migrate:bootstrap` (`src/scripts/migrate-bootstrap.js`). This is the **only** migration entrypoint — the second one, `src/db/migrate.js` + its `db:migrate` script, was deleted on 12 Aug 2026 (`fb0b9f1`) because it was three months stale yet still connected to whatever `DATABASE_URL` was in scope. Do not recreate it.
+- **Migrations are idempotent but ORDER-DEPENDENT and run with no surrounding transaction** — a mid-way failure leaves earlier steps applied. A new migration APPENDS a `0NN-*.js` module at the end of `src/migrations/` plus an entry at the end of the `steps` array; never edit `startup.js` and never insert into the middle of `steps`.
 - **Seed Data:** 10 startups, 5 projects, 10 tasks, 6 evaluations, 7 messages, 5 feedback, 7 IPR records, 6 infrastructure, 10 documents, 3 watchlists, 4 assessments, 4 knowledge articles, 8 crawl sources, 8 crawled startups, 5 crawl jobs
 
 ---

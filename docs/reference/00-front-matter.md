@@ -1,13 +1,17 @@
-<!-- Verbatim section of OpenI Hub DOCUMENTATION.md (lines 1-34 of the pre-split original). -->
+<!-- Section of OpenI Hub DOCUMENTATION.md (lines 1-34 of the pre-split original). EDITED 14 Aug 2026 (version + last-updated stamp) — NO LONGER VERBATIM, out of the re-concat recipe. -->
 <!-- Index: ../../DOCUMENTATION.md · Body starts line 4 (uniform across all parts: tail -n +4). -->
 
 # OpenI Hub - Project Documentation
 
 ## OpenI Assessment Platform
 
-**Version:** 5.57
+**Version:** 5.58
 
-**Last Updated:** 21 Jul 2026 — Session 53 (Partner API v1 for enterprise clients — self-serve key management + read/write challenge/application endpoints reusing `corporateController`, gated on the `seeker_enterprise` `api_access` flag, BE `7763d88`; documented in § 6.21 below, with the `is_public`/`visibility` create-time bug and the not-yet-built SSO/audit-log-export gap both flagged and tracked in `NEXT_SESSION_TODOS.md`). Full session-by-session history (sessions 1-40) archived verbatim in `DOCUMENTATION_ARCHIVE_part1.md` (split 10 Jul 2026, nothing deleted — straight cut at the legacy/living-doc boundary). See that file for the complete narrative changelog.
+**Last Updated:** 14 Aug 2026 — accuracy re-census after sessions 54-76. The doc had not been content-updated since 21 Jul 2026 (v5.57, Session 53); the 6 Aug split into `docs/reference/` (`3a86a62`) moved bytes only and updated nothing. Five parts were corrected against the source tree: **§12** (the "auto-migration runs on every deploy" line was false — `RUN_MIGRATIONS_ON_BOOT` is deliberately unset in prod), **§3/§5** (post-split file map; `npm run db:migrate` was deleted 12 Aug, `fb0b9f1`), **§8** (28 tables → **165**, full re-census), **§16** (public pages 3 → 12, endpoint table 4 → 22 rows, `publicController.js` is now a 17-line shim), and this stamp. Corrections are dated inline where they appear.
+
+> **Sessions 54-76 are NOT narrated here.** This is a correctness pass over the existing sections, not a changelog catch-up: the intervening work (W6 controller/route splits, Partner API hardening, CI + backup alerting, geo filters, Phase 172 scoring diagnostics) is recorded per-session in `SESSIONS.md`, which is the authoritative log. Sections not listed above were last verified 21 Jul 2026 and may still be stale.
+
+Full session-by-session history (sessions 1-40) archived verbatim in `DOCUMENTATION_ARCHIVE_part1.md` (split 10 Jul 2026, nothing deleted — straight cut at the legacy/living-doc boundary). See that file for the complete narrative changelog.
 
 ---
 

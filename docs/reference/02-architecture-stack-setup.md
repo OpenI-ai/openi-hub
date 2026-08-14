@@ -1,4 +1,4 @@
-<!-- Verbatim section of OpenI Hub DOCUMENTATION.md (lines 116-233 of the pre-split original). -->
+<!-- Section of OpenI Hub DOCUMENTATION.md (lines 116-233 of the pre-split original). EDITED 14 Aug 2026 (§3 Architecture, §5 Backend Setup) — NO LONGER VERBATIM, out of the re-concat recipe. -->
 <!-- Index: ../../DOCUMENTATION.md · Body starts line 4 (uniform across all parts: tail -n +4). -->
 
 ## 3. Architecture
@@ -9,18 +9,26 @@ Frontend (React + Vite)          Backend (Node.js + Express)        Database
 Vercel (auto-deploy)             Railway (auto-deploy)              Railway PostgreSQL
 
 src/                             src/
-  config/personas.js               startup.js (entry point)
+  config/personas.js               startup.js (82-line re-export shim)
   context/AuthContext.jsx          server.js (Express app)
-  services/api.js (20 modules)    db/
-  components/LoadingSkeleton         pool.js (pg connection)
-  pages/auth/ (2 pages)             migrate.js (42+ tables)
-  pages/dashboard/ (27 pages)        seed.js (demo data)
-                                   middleware/
+  services/                        db/
+    api.js + apiDomains/ (10)        pool.js (pg connection)
+    clusterAPI.js, tourService.js    seed.js (demo data)
+  components/LoadingSkeleton       migrations/ (14 modules + index,
+  pages/auth/ (10 pages)             165 tables)
+  pages/dashboard/ (86 pages)      seed/index.js
+  (146 page components total)      middleware/
                                      auth.js (JWT + persona fields)
                                      audit.js (audit logging)
-                                   controllers/ (20 controllers)
-                                   routes/index.js (~58 endpoints)
+                                   controllers/ (81 top-level + 5 dirs:
+                                     corporate/ enrich/ profile/
+                                     public/ subscription/)
+                                   routes/index.js (116 L aggregator —
+                                     mounts 14 router modules, defines
+                                     no endpoints of its own)
 ```
+
+> **Both entrypoints are now shims, not implementations.** `startup.js` was 5,332 lines until 6 Aug 2026, when it was split into `src/migrations/` + `src/seed/`; it now only re-exports. `routes/index.js` defines zero routes — every endpoint lives in one of the 14 router modules it mounts (`admin`, `auth`, `billing`, `core`, `corporate`, `crawl`, `ecosystem`, `investor`, `misc`, `personaAI`, `platform`, `programs`, `public`, plus `index` itself). Several large controllers followed the same pattern in the 12 Aug W6 split — `publicController.js` and `profileController.js` are re-export shims over `controllers/public/` and `controllers/profile/`. **Edit the leaf module, never the shim.**
 
 ### Data Flow
 
@@ -92,11 +100,13 @@ npm run dev             # http://localhost:5173
 ```bash
 cd openi-hub-backend
 npm install
-cp .env.example .env    # Set DATABASE_URL, JWT_SECRET, etc.
-npm run db:migrate      # Create tables
-npm run db:seed         # Load demo data
-npm run dev             # http://localhost:5000
+cp .env.example .env      # Set DATABASE_URL, JWT_SECRET, etc.
+npm run migrate:bootstrap # Create tables (165) — the ONLY migration entrypoint
+npm run db:seed           # Load demo data
+npm run dev               # http://localhost:5000
 ```
+
+> ⚠️ **`npm run db:migrate` no longer exists.** It was deleted on 12 Aug 2026 (`fb0b9f1`) along with `src/db/migrate.js`. That script was a three-month-stale strict subset of `src/migrations/` but still opened a connection from whatever `DATABASE_URL` was in scope, so running it against production would have replayed obsolete DDL there. `npm run migrate:bootstrap` is the replacement and the only supported path, locally and in production. `npm run db:seed` is unaffected and still valid.
 
 ### Environment Variables
 

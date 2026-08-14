@@ -1,4 +1,4 @@
-<!-- Verbatim section of OpenI Hub DOCUMENTATION.md (lines 1073-1240 of the pre-split original). -->
+<!-- Section of OpenI Hub DOCUMENTATION.md (lines 1073-1240 of the pre-split original). EDITED 14 Aug 2026 (§16 Public Pages — file sizes, page census, endpoint table) — NO LONGER VERBATIM, out of the re-concat recipe. -->
 <!-- Index: ../../DOCUMENTATION.md · Body starts line 4 (uniform across all parts: tail -n +4). -->
 
 ## 15. Marketing Landing Page
@@ -92,11 +92,19 @@ Ideas captured here for when they're needed:
 
 ## 16. Public Pages (v2.5)
 
-Three new public pages accessible without authentication, designed to drive organic traffic and conversions.
+Public pages accessible without authentication, designed to drive organic traffic and conversions.
+
+> **Updated 14 Aug 2026.** This section described the three pages that existed at v2.5.
+> `src/pages/public/` now holds **12 components (3,014 lines)** — the two marketing pages
+> below plus `GlobalSearch.jsx` (521) `PublicFAQ.jsx` (249) and eight `Shared*.jsx` token-
+> landing pages (`SharedStartupProfile` 314, `SharedEightVectorSelf` 202, `SharedStudent-
+> Portfolio` 197, `SharedWatchlist` 148, `SharedDeepTech` 142, `SharedDealRequest` 134,
+> `SharedProgramEval` 133, `SharedChallenge` 129). The `Shared*` pages render a record from
+> a share token (`*_shares` tables in §8) and are unauthenticated by design.
 
 ### 16.1 Public Marketplace (`/marketplace`)
 
-**File:** `src/pages/public/PublicMarketplace.jsx` (433 lines)
+**File:** `src/pages/public/PublicMarketplace.jsx` (554 lines)
 **Route:** `/marketplace` (public, no auth required)
 **Backend:** `GET /api/public/challenges` + `GET /api/public/challenges/:id`
 
@@ -114,7 +122,7 @@ Three new public pages accessible without authentication, designed to drive orga
 
 ### 16.2 Startup Reports (`/reports`)
 
-**File:** `src/pages/public/PublicReports.jsx` (303 lines)
+**File:** `src/pages/public/PublicReports.jsx` (291 lines)
 **Route:** `/reports` (public, no auth required)
 **Backend:** `GET /api/public/reports`
 
@@ -129,7 +137,7 @@ Three new public pages accessible without authentication, designed to drive orga
 
 ### 16.3 PublicLayout Component
 
-**File:** `src/components/PublicLayout.jsx` (186 lines)
+**File:** `src/components/PublicLayout.jsx` (338 lines)
 **Used by:** PublicMarketplace, PublicReports
 
 Shared layout wrapper for all public pages:
@@ -138,16 +146,49 @@ Shared layout wrapper for all public pages:
 
 ### 16.4 Public API Controller
 
-**File:** `src/controllers/publicController.js` (131 lines, backend)
+**Files:** `src/controllers/public/` (12 modules, 2,219 lines) — routed by `src/routes/public.js`
+
+> ⚠️ **`src/controllers/publicController.js` is a 17-line re-export shim, not the implementation.**
+> It was 1,749 lines — the largest controller in the repo — until the W6 split on 12 Aug 2026.
+> The shim survives only because `src/routes/public.js`, `src/routes/admin.js`, and
+> `src/controllers/fileProxyController.js` require that path directly. **Edit the leaf module,
+> never the shim.** Leaves, by size: `filterSearch.js` (484) `marketplace.js` (317)
+> `aiSearch.js` (274) `search.js` (245) `invites.js` (149) `index.js` (145) `landing.js` (140)
+> `defaults.js` (126) `strapiMappers.js` (123) `admin.js` (97) `shares.js` (65) `helpers.js` (54).
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/public/challenges` | GET | List open public challenges with search, sector, technology, usecase filters + pagination. Returns challenges array + filter options (distinct sectors, technologies, usecases) |
 | `/api/public/challenges/:id` | GET | Single challenge detail (limited fields, no RFI questions or internal data) |
+| `/api/public/challenges/share/:token` | GET | Challenge resolved from a share token |
 | `/api/public/reports` | GET | Startup ecosystem reports with sector filter. Hardcoded data, CMS-ready |
+| `/api/public/reports/:id/pdf` | GET | Report PDF download |
+| `/api/public/files/report/:id` | GET | Report cover image, streamed via `fileProxyController` |
 | `/api/public/stats` | GET | Platform statistics (startup count, corporate count, challenge count, application count). Uses real DB counts with minimum thresholds |
+| `/api/public/landing-content` | GET | Landing-page content blocks (Strapi-backed, falls back to `defaults.js`) |
+| `/api/public/taxonomy` | GET | Taxonomy lookups for public filter dropdowns |
+| `/api/public/search` | GET | Global keyword search |
+| `/api/public/search/suggest` | GET | Typeahead suggestions |
+| `/api/public/search/semantic` | GET | pgvector semantic search — gated by `checkFeatureAccess('semantic_search')` |
+| `/api/public/search/ai` | GET | AI-assisted search — gated by `checkAiSearchQuota()` |
+| `/api/public/deal-requests` | GET | Browse open investor deal requests (Phase A2) |
+| `/api/public/deal-requests/:id` | GET | Deal request detail (Phase A2) |
+| `/api/public/deal-requests/share/:token` | GET | Deal request resolved from a share token |
+| `/api/public/invite/accept/:token` | GET | Resolve a pending email invite by token |
+| `/api/public/org-by-domain` | GET | Look up an organization by email domain (registration autofill) |
+| `/api/public/org-exists` | GET | Check whether an organization name is already taken |
+| `/api/public/states` | GET | State list for location dropdowns |
+| `/api/public/cities` | GET | City list for location dropdowns |
+| `/api/public/logo-upload` | POST | Unauthenticated logo upload used during registration |
 
-All endpoints have **no authentication middleware** — fully public access.
+> **The old blanket claim "all endpoints have no authentication middleware" is no longer true.**
+> Most are still fully open, but `search/semantic` carries `checkFeatureAccess`,
+> `search/ai` carries `checkAiSearchQuota`, and several (`search/semantic`, `search/ai`,
+> `deal-requests`, `deal-requests/:id`) run `optionalAuth` — no token is required, but a token
+> if present changes the result (e.g. investor self-exclusion on `deal-requests`). Most public
+> GETs also pass through a `publicCache60` response cache. `src/routes/public.js` additionally
+> mounts four `/api/admin/email-*` routes and two authenticated `/api/deal-requests/:id/*`
+> routes, which are **not** public despite living in that file.
 
 ### 16.5 CMS Migration Plan
 
