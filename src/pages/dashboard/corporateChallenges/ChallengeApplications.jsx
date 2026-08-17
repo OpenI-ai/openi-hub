@@ -15,11 +15,12 @@ import { corporateAPI, messageAPI } from '../../../services/api';
 import ReviewPanel from '../../../components/ReviewPanel';
 import UpgradeCTA from '../../../components/UpgradeCTA';
 import {
-  CheckCircle, Users, Loader2, Star, ChevronDown, ChevronUp, Sparkles, Brain, BarChart3, Zap,
+  CheckCircle, Users, Loader2, Star, ChevronDown, ChevronUp, Sparkles, BarChart3, Zap,
   MessageCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { G, card } from './constants';
+import AIEvaluationCard from '../../../components/AIEvaluationCard';
 
 export default function ChallengeApplications({
   analysisData, analysisLoading, detail, evaluatingAppId, evaluations, expandedReviewApp,
@@ -289,41 +290,10 @@ export default function ChallengeApplications({
                     )}
                   </div>
 
-                  {/* Phase 35: AI Evaluation Results */}
+                  {/* Phase 35 evaluation card; Phase 172b moved it into a component
+                      when the cutover gave it caps, coverage and confidence to show. */}
                   {!app.details_locked && evaluations[app.id] && (
-                    <div style={{ marginTop: 10, background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 10, padding: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span><Brain size={12} style={{ verticalAlign: -2 }} /> AI Evaluation</span>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: evaluations[app.id].overall_score >= 3.5 ? '#16a34a' : evaluations[app.id].overall_score >= 2.5 ? '#f59e0b' : '#dc2626' }}>{evaluations[app.id].overall_score}/5</span>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 4, marginBottom: 8 }}>
-                        {[
-                          { k: 'solution_fit', l: 'Solution Fit' }, { k: 'tech_maturity', l: 'Tech Maturity' },
-                          { k: 'scalability', l: 'Scalability' }, { k: 'integration_feasibility', l: 'Integration' },
-                          { k: 'team_capability', l: 'Team' }, { k: 'cost_effectiveness', l: 'Cost' },
-                          { k: 'innovation_score', l: 'Innovation' }, { k: 'strategic_alignment', l: 'Strategy' },
-                        ].map(v => (
-                          <div key={v.k} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 10, color: '#666', width: 65, flexShrink: 0 }}>{v.l}</span>
-                            <div style={{ flex: 1, height: 5, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden' }}>
-                              <div style={{ width: `${((evaluations[app.id][v.k] || 0) / 5) * 100}%`, height: '100%', borderRadius: 3, background: '#7c3aed' }} />
-                            </div>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed', width: 14 }}>{evaluations[app.id][v.k] || '-'}</span>
-                          </div>
-                        ))}
-                      </div>
-                      {evaluations[app.id].explanation && <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5, marginBottom: 6 }}>{evaluations[app.id].explanation}</div>}
-                      {(evaluations[app.id].red_flags || []).length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-                          {evaluations[app.id].red_flags.map((f, i) => <span key={i} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626' }}>{f}</span>)}
-                        </div>
-                      )}
-                      {evaluations[app.id].recommended_action && (
-                        <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: evaluations[app.id].recommended_action === 'shortlist' ? '#f0fdf4' : evaluations[app.id].recommended_action === 'reject' ? '#fef2f2' : '#eff6ff', color: evaluations[app.id].recommended_action === 'shortlist' ? '#16a34a' : evaluations[app.id].recommended_action === 'reject' ? '#dc2626' : '#2563eb' }}>
-                          AI: {evaluations[app.id].recommended_action}
-                        </span>
-                      )}
-                    </div>
+                    <AIEvaluationCard evaluation={evaluations[app.id]} />
                   )}
                   {!app.details_locked && (
                     <>
