@@ -82,6 +82,10 @@ export const adminAPI = {
   getUser:            (id)          => get(`/admin/users/${id}`),
   updateUser:         (id, data)    => put(`/admin/users/${id}`, data),
   overridePlan:       (id, plan)    => put(`/admin/users/${id}/plan`, { plan }),
+  // Assignable plans, sourced server-side from subscription_plans WHERE
+  // is_active = true. Admin screens must NOT hardcode this list — see the
+  // note above PLANS in AdminUsers.jsx for what that cost.
+  listPlans:          ()            => get('/admin/plans'),
   toggleActive:       (id)          => put(`/admin/users/${id}/toggle-active`),
   deleteUser:         (id)          => del(`/admin/users/${id}`),
   // Challenges
