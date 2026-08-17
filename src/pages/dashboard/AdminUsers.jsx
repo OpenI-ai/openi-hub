@@ -6,10 +6,10 @@ import {
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import { planColor, planOptions, planOptionLabel, useAssignablePlans } from '../../utils/plans';
 
 const ROLES = ['admin','evaluator','startup','student','academia','corporate','government','investor','lab','incubator','accelerator','service_provider','mentor'];
-const PLANS = ['free','pro','enterprise'];
-const PLAN_COLOR = { free: 'bg-gray-100 text-gray-600', pro: 'bg-primary-100 text-primary-700', enterprise: 'bg-purple-100 text-purple-700' };
+// Plans are FETCHED, never hardcoded — see src/utils/plans.js for why.
 const STATUS_COLOR = { true: 'bg-green-100 text-green-700', false: 'bg-red-100 text-red-600' };
 
 export default function AdminUsers() {
@@ -24,6 +24,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const plans = useAssignablePlans();
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -113,7 +114,7 @@ export default function AdminUsers() {
           <select value={planFilter} onChange={e => { setPlanFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white">
             <option value="">All Plans</option>
-            {PLANS.map(p => <option key={p} value={p}>{p}</option>)}
+            {plans.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
           <select value={activeFilter} onChange={e => { setActiveFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white">
@@ -154,9 +155,16 @@ export default function AdminUsers() {
                       <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{u.role}</span>
                     </td>
                     <td className="px-4 py-3">
+                      {/* The user's OWN plan is always an option, even when it
+                          is not assignable (a deprecated tier they are validly
+                          still on). Without this the <select> falls back to
+                          rendering its first option and reports a plan the
+                          user is not on — which is the whole bug this fixes. */}
                       <select value={u.current_plan || 'free'} onChange={e => handleOverridePlan(u.id, e.target.value)}
-                        className={`px-2 py-0.5 text-xs font-semibold rounded-full border-0 cursor-pointer ${PLAN_COLOR[u.current_plan] || PLAN_COLOR.free}`}>
-                        {PLANS.map(p => <option key={p} value={p}>{p}</option>)}
+                        className={`px-2 py-0.5 text-xs font-semibold rounded-full border-0 cursor-pointer ${planColor(u.current_plan)}`}>
+                        {planOptions(plans, u.current_plan).map(p => (
+                          <option key={p} value={p}>{planOptionLabel(plans, p)}</option>
+                        ))}
                       </select>
                     </td>
                     <td className="px-4 py-3">

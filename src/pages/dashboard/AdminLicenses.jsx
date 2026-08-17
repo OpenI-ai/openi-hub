@@ -6,15 +6,16 @@ import {
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import { planColor, planOptions, planOptionLabel, useAssignablePlans } from '../../utils/plans';
 
-const PLANS = ['free','pro','enterprise'];
-const PLAN_COLOR = { free: 'bg-gray-100 text-gray-600', pro: 'bg-primary-100 text-primary-700', enterprise: 'bg-purple-100 text-purple-700' };
+// Plans are FETCHED, never hardcoded — see src/utils/plans.js for why.
 
 export default function AdminLicenses() {
   const [data, setData] = useState({ users: [], organizations: [], plan_summary: [], total: 0 });
   const [page, setPage] = useState(1);
   const [planFilter, setPlanFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const plans = useAssignablePlans();
 
   useEffect(() => {
     setLoading(true);
@@ -65,7 +66,7 @@ export default function AdminLicenses() {
               {data.plan_summary.map(p => (
                 <div key={p.current_plan} className="bg-white rounded-2xl border border-gray-200 p-4 flex-1 text-center">
                   <p className="text-2xl font-display font-bold text-gray-900">{parseInt(p.count).toLocaleString()}</p>
-                  <p className={`text-xs font-semibold uppercase mt-1 px-2 py-0.5 rounded-full inline-block ${PLAN_COLOR[p.current_plan] || PLAN_COLOR.free}`}>{p.current_plan}</p>
+                  <p className={`text-xs font-semibold uppercase mt-1 px-2 py-0.5 rounded-full inline-block ${planColor(p.current_plan)}`}>{p.current_plan}</p>
                 </div>
               ))}
             </div>
@@ -79,7 +80,7 @@ export default function AdminLicenses() {
                     <div key={o.id} className="bg-white rounded-2xl border border-gray-200 p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold text-gray-900">{o.name}</h3>
-                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${PLAN_COLOR[o.plan_name?.toLowerCase()] || PLAN_COLOR.free}`}>
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${planColor(o.plan_name?.toLowerCase())}`}>
                           {o.plan_name || 'free'}
                         </span>
                       </div>
@@ -99,7 +100,7 @@ export default function AdminLicenses() {
               <select value={planFilter} onChange={e => { setPlanFilter(e.target.value); setPage(1); }}
                 className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 bg-white">
                 <option value="">All Plans</option>
-                {PLANS.map(p => <option key={p} value={p}>{p}</option>)}
+                {plans.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
 
@@ -126,8 +127,10 @@ export default function AdminLicenses() {
                       </td>
                       <td className="px-4 py-3">
                         <select value={u.current_plan || 'free'} onChange={e => handleOverridePlan(u.id, e.target.value)}
-                          className={`px-2 py-0.5 text-xs font-semibold rounded-full border-0 cursor-pointer ${PLAN_COLOR[u.current_plan] || PLAN_COLOR.free}`}>
-                          {PLANS.map(p => <option key={p} value={p}>{p}</option>)}
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-full border-0 cursor-pointer ${planColor(u.current_plan)}`}>
+                          {planOptions(plans, u.current_plan).map(p => (
+                            <option key={p} value={p}>{planOptionLabel(plans, p)}</option>
+                          ))}
                         </select>
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500">
