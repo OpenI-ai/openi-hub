@@ -13,6 +13,7 @@ import { corporateAPI, meetingAPI } from '../../../services/api';
 import { Plus, X, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { G } from './constants';
+import { canInviteToChallenge } from '../../../utils/challengeGate';
 
 export default function InviteStartupsModal({
   detail, inviteBusy, inviteEmailDraft, inviteEmails, inviteList, inviteMessage, inviteResults,
@@ -20,6 +21,46 @@ export default function InviteStartupsModal({
   setInviteEmails, setInviteList, setInviteMessage, setInviteResults, setInviteSearch,
   setInviteSelected, setShowInvite, user,
 }) {
+  // s81 (Dentsu) — refuse BEFORE the user builds a list of invitees. The backend
+  // 409 is the real gate and its message already reaches the toast via
+  // core.js:96; this only moves the answer earlier, from after-Send to on-open.
+  //
+  // Deliberately placed OUTSIDE the verbatim sentinels below. That body is a
+  // byte-identical slice of the pre-split CorporateChallenges.jsx (W5-2) and the
+  // file header forbids reformatting it — an early return costs nothing and
+  // keeps the slice provable, where threading a conditional through the JSX
+  // would not.
+  const gate = canInviteToChallenge(detail);
+  if (!gate.ok) {
+    return (
+      <div role="dialog" aria-modal="true"
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+        <div style={{ background: '#fff', borderRadius: 14, padding: 24, maxWidth: 460, width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#111' }}>Invite Startups</h3>
+            <button onClick={() => setShowInvite(false)}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }} aria-label="Close">
+              <X size={20} color="#666" />
+            </button>
+          </div>
+          <div data-testid="invite-blocked"
+            style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: '#991B1B', lineHeight: 1.5 }}>
+            {gate.message}
+          </div>
+          <p style={{ fontSize: 12, color: '#666', margin: '12px 0 0' }}>
+            Reopen the challenge or extend its deadline to invite more startups.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+            <button onClick={() => setShowInvite(false)}
+              style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: G, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     // ---- BODY START (original lines 953-1179) ----
           <div role="dialog" aria-modal="true"
