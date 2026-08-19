@@ -144,8 +144,20 @@ export default function AddArticleModal({ open, onClose, onCreated, initialValue
           </div>
 
           <div>
+            {/* s82 (19 Aug 2026): was taxonomy="sectors". The label says
+                "Industry / Sector", and taxonomy_industries is the tree that
+                actually matches its seed (287 items / 30 parents, zero diffs),
+                whereas taxonomy_sectors has drifted — 33 parents against the
+                seed's 48, with seven near-duplicate pairs. Reported symptom:
+                no Semiconductor option when uploading a report; it is present
+                under industries, and absent from sectors.
+                Safe to switch because knowledge_articles.sector is free text
+                (max 100 chars, knowledgeController.js:127) rendered as a display
+                tag (:14) — no FK, no join, nothing filters on it. Articles
+                created before today keep their old sector strings; they are
+                labels, so a mixed vocabulary displays fine. */}
             <TaxonomySelect
-              taxonomy="sectors"
+              taxonomy="industries"
               value={form.sector}
               onChange={(name) => setForm((p) => ({ ...p, sector: name }))}
               label="Industry / Sector"
