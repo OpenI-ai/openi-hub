@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Megaphone, Search, ChevronLeft, ChevronRight, Star, Trash2, ArrowLeft
+  Megaphone, Search, ChevronLeft, ChevronRight, Star, Trash2, ArrowLeft, RotateCcw
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
@@ -22,6 +22,8 @@ export default function AdminChallenges() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  // s83 — '' = live only (the historical view), 'only' = the restore queue.
+  const [deletedFilter, setDeletedFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchChallenges = useCallback(async () => {
@@ -31,12 +33,13 @@ export default function AdminChallenges() {
       if (search) params.search = search;
       if (statusFilter) params.status = statusFilter;
       if (typeFilter) params.challenge_type = typeFilter;
+      if (deletedFilter) params.deleted = deletedFilter;
       const data = await adminAPI.listChallenges(params);
       setChallenges(data.challenges);
       setTotal(data.total);
     } catch (err) { toast.error(err.message || 'Failed to load challenges'); }
     finally { setLoading(false); }
-  }, [page, search, statusFilter, typeFilter]);
+  }, [page, search, statusFilter, typeFilter, deletedFilter]);
 
   useEffect(() => { fetchChallenges(); }, [fetchChallenges]);
 
@@ -57,12 +60,29 @@ export default function AdminChallenges() {
   };
 
   const handleDelete = async (id, title) => {
-    if (!window.confirm(`Delete challenge "${title}"? This cannot be undone.`)) return;
+    // s83 — the old copy said "This cannot be undone", which is no longer true and
+    // was the scarier half of the problem: it pushed admins to avoid a reversible
+    // action while the truly destructive one (wiping applications) happened silently.
+    if (!window.confirm(
+      `Delete challenge "${title}"?\n\n` +
+      'Applications, members and evaluations are kept, and an admin can restore ' +
+      'this from the Deleted view. Notifications about it are removed and do not ' +
+      'come back.'
+    )) return;
     try {
       await adminAPI.deleteChallenge(id);
       setChallenges(prev => prev.filter(c => c.id !== id));
       setTotal(t => t - 1);
-      toast.success('Challenge deleted');
+      toast.success('Challenge deleted — restorable from the Deleted view');
+    } catch (err) { toast.error(err.message); }
+  };
+
+  const handleRestore = async (id, title) => {
+    try {
+      await adminAPI.restoreChallenge(id);
+      setChallenges(prev => prev.filter(c => c.id !== id));
+      setTotal(t => t - 1);
+      toast.success(`"${title}" restored`);
     } catch (err) { toast.error(err.message); }
   };
 
@@ -97,6 +117,12 @@ export default function AdminChallenges() {
             <option value="">All Types</option>
             {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
+          <select value={deletedFilter} onChange={e => { setDeletedFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white">
+            <option value="">Live challenges</option>
+            <option value="only">Deleted (restorable)</option>
+            <option value="any">Live + deleted</option>
+          </select>
         </div>
 
         {loading ? <LoadingSkeleton type="card" /> : (
@@ -117,7 +143,14 @@ export default function AdminChallenges() {
                   <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3">
                       <p className="font-semibold text-gray-900 truncate max-w-[250px]">{c.title}</p>
-                      <p className="text-xs text-gray-400">{c.sectors?.slice(0, 2).join(', ')}</p>
+                      {c.deleted_at ? (
+                        <p className="text-xs text-red-500 font-medium">
+                          Deleted {new Date(c.deleted_at).toLocaleDateString()}
+                          {c.deleted_by_name ? ` by ${c.deleted_by_name}` : ''}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400">{c.sectors?.slice(0, 2).join(', ')}</p>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-xs text-gray-700">{c.creator_name}</p>
@@ -125,7 +158,8 @@ export default function AdminChallenges() {
                     </td>
                     <td className="px-4 py-3">
                       <select value={c.status} onChange={e => handleStatusChange(c.id, e.target.value)}
-                        className={`px-2 py-0.5 text-xs font-semibold rounded-full border-0 cursor-pointer ${STATUS_COLOR[c.status] || 'bg-gray-100'}`}>
+                        disabled={!!c.deleted_at}
+                        className={`px-2 py-0.5 text-xs font-semibold rounded-full border-0 ${c.deleted_at ? 'opacity-50' : 'cursor-pointer'} ${STATUS_COLOR[c.status] || 'bg-gray-100'}`}>
                         {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </td>
@@ -142,10 +176,17 @@ export default function AdminChallenges() {
                           title={c.is_featured ? 'Unfeature' : 'Feature'}>
                           <Star size={14} fill={c.is_featured ? 'currentColor' : 'none'} />
                         </button>
-                        <button onClick={() => handleDelete(c.id, c.title)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
-                          <Trash2 size={14} />
-                        </button>
+                        {c.deleted_at ? (
+                          <button onClick={() => handleRestore(c.id, c.title)}
+                            className="p-1.5 text-gray-400 hover:text-green-600 transition-colors" title="Restore">
+                            <RotateCcw size={14} />
+                          </button>
+                        ) : (
+                          <button onClick={() => handleDelete(c.id, c.title)}
+                            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

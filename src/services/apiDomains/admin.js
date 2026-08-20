@@ -93,6 +93,8 @@ export const adminAPI = {
   updateChallengeStatus: (id, status) => put(`/admin/challenges/${id}/status`, { status }),
   toggleFeature:      (id)          => put(`/admin/challenges/${id}/feature`),
   deleteChallenge:    (id)          => del(`/admin/challenges/${id}`),
+  // s83 — soft-delete: the DELETE above stamps deleted_at, this is its undo.
+  restoreChallenge:   (id)          => post(`/admin/challenges/${id}/restore`),
   // Startups
   listStartups:       (params = {}) => get(`/admin/startups?${new URLSearchParams(params)}`),
   updateStartup:      (id, data)    => put(`/admin/startups/${id}`, data),
