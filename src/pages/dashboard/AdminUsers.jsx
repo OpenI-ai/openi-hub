@@ -6,6 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import { planColor, planOptions, planOptionLabel, useAssignablePlans } from '../../utils/plans';
 
 const ROLES = ['admin','evaluator','startup','student','academia','corporate','government','investor','lab','incubator','accelerator','service_provider','mentor'];
@@ -14,6 +15,8 @@ const STATUS_COLOR = { true: 'bg-green-100 text-green-700', false: 'bg-red-100 t
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
+  const [pendingDelete, setPendingDelete] = useState(null);  // s83
+  const [deleting, setDeleting] = useState(false);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -60,14 +63,28 @@ export default function AdminUsers() {
     } catch (err) { toast.error(err.message); }
   };
 
-  const handleDelete = async (id, name) => {
-    if (!window.confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+  // s83 — was `window.confirm('Delete user "X"? This cannot be undone.')`. That was
+  // TRUE but told an admin nothing. adminController.deleteUser performs ~59 table
+  // operations: hard deletes across ~24 tables, FK NULL-outs across ~35 more, and —
+  // the part nobody could guess from the old string — it can delete the user's whole
+  // ORGANISATION, because organizations.admin_user_id cascades. The controller has an
+  // explicit guard for when that is BLOCKED by remaining members; when it is not
+  // blocked, the org simply goes. Naming the blast radius is the point here; the
+  // dialog component is incidental.
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(true);
     try {
-      await adminAPI.deleteUser(id);
-      setUsers(prev => prev.filter(u => u.id !== id));
+      await adminAPI.deleteUser(pendingDelete.id);
+      setUsers(prev => prev.filter(u => u.id !== pendingDelete.id));
       setTotal(t => t - 1);
       toast.success('User deleted');
-    } catch (err) { toast.error(err.message); }
+      setPendingDelete(null);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -185,7 +202,7 @@ export default function AdminUsers() {
                           title={u.is_active ? 'Disable' : 'Enable'}>
                           <Power size={14} />
                         </button>
-                        <button onClick={() => handleDelete(u.id, u.name)}
+                        <button onClick={() => setPendingDelete({ id: u.id, name: u.name })}
                           className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
                           <Trash2 size={14} />
                         </button>
@@ -251,6 +268,28 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        busy={deleting}
+        title={`Delete user "${pendingDelete?.name ?? ''}"?`}
+        confirmLabel="Delete user"
+        tone="danger"
+        onConfirm={handleDelete}
+        onClose={() => setPendingDelete(null)}
+        body={(
+          <>
+            <p><strong className="text-gray-900">This is permanent and wide-reaching.</strong> It removes their
+            profile, subscription, connections, usage history and onboarding, and strips their
+            authorship from startups, projects, documents and watchlists they created.</p>
+            <p className="text-red-600">
+              <strong>If this user is the admin of an organisation, that organisation is deleted too.</strong>{' '}
+              The delete is refused only when other members still belong to it.
+            </p>
+            <p className="text-gray-500">There is no restore. Consider deactivating the account instead.</p>
+          </>
+        )}
+      />
     </div>
   );
 }
