@@ -6,6 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const STATUS_COLOR = {
   draft: 'bg-gray-100 text-gray-600', open: 'bg-green-100 text-green-700',
@@ -24,6 +25,9 @@ export default function AdminChallenges() {
   const [typeFilter, setTypeFilter] = useState('');
   // s83 — '' = live only (the historical view), 'only' = the restore queue.
   const [deletedFilter, setDeletedFilter] = useState('');
+  // s83 — { id, title } while the delete dialog is open; null when closed.
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchChallenges = useCallback(async () => {
@@ -59,22 +63,25 @@ export default function AdminChallenges() {
     } catch (err) { toast.error(err.message); }
   };
 
-  const handleDelete = async (id, title) => {
-    // s83 — the old copy said "This cannot be undone", which is no longer true and
-    // was the scarier half of the problem: it pushed admins to avoid a reversible
-    // action while the truly destructive one (wiping applications) happened silently.
-    if (!window.confirm(
-      `Delete challenge "${title}"?\n\n` +
-      'Applications, members and evaluations are kept, and an admin can restore ' +
-      'this from the Deleted view. Notifications about it are removed and do not ' +
-      'come back.'
-    )) return;
+  // s83 — was a window.confirm(). Replaced with a real dialog: the native one is
+  // unstyleable, prefixes "openi.ai says", cannot emphasise what is KEPT vs what
+  // is lost (the distinction that actually matters on a delete), and blocks the
+  // renderer synchronously.
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    const { id } = pendingDelete;
+    setDeleting(true);
     try {
       await adminAPI.deleteChallenge(id);
       setChallenges(prev => prev.filter(c => c.id !== id));
       setTotal(t => t - 1);
       toast.success('Challenge deleted — restorable from the Deleted view');
-    } catch (err) { toast.error(err.message); }
+      setPendingDelete(null);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleRestore = async (id, title) => {
@@ -182,7 +189,7 @@ export default function AdminChallenges() {
                             <RotateCcw size={14} />
                           </button>
                         ) : (
-                          <button onClick={() => handleDelete(c.id, c.title)}
+                          <button onClick={() => setPendingDelete({ id: c.id, title: c.title })}
                             className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
                             <Trash2 size={14} />
                           </button>
@@ -212,6 +219,28 @@ export default function AdminChallenges() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        busy={deleting}
+        title={`Delete "${pendingDelete?.title ?? ''}"?`}
+        confirmLabel="Delete challenge"
+        tone="danger"
+        onConfirm={handleDelete}
+        onClose={() => setPendingDelete(null)}
+        body={(
+          <>
+            <p>
+              <strong className="text-gray-900">Applications, members and evaluations are kept.</strong>{' '}
+              The challenge is hidden from the marketplace and can be brought back from the{' '}
+              <em>Deleted (restorable)</em> view.
+            </p>
+            <p className="text-gray-500">
+              Notifications about this challenge are removed and do not come back on restore.
+            </p>
+          </>
+        )}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { isUpgradeError } from '../../utils/upgradeError';
 import { corporateAPI } from '../../services/api';
 import ReviewPanel from '../../components/ReviewPanel';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import {
   Target, Plus, ChevronLeft, Clock, Users, Loader2, Calendar, DollarSign, AlertCircle, MapPin,
   FileText, HelpCircle, Trash2, ChevronDown, ChevronUp, Download, UserPlus,
@@ -19,6 +20,9 @@ import {
 } from './corporateChallenges/index.js';
 
 export default function CorporateChallenges() {
+  // s83 — delete-confirmation dialog state (replaces window.confirm)
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [challenges, setChallenges] = useState([]);
   // Phase 120: selected now derived from URL :id param (mobile back-button fix)
   const { id: ccParamId } = useParams();
@@ -295,19 +299,27 @@ const startEdit = () => {
     finally { setSaving(false); }
   };
 
+  // s83 — this copy was flatly WRONG after soft-delete shipped. It promised
+  // "permanently removes the challenge and ALL applications, team members, and
+  // evaluations… cannot be undone", every clause of which is now false: the
+  // children are kept and an admin can restore. Leaving it would have scared
+  // owners away from a reversible action on exactly the grounds that no longer
+  // apply. Also moved off window.confirm() — see components/ConfirmDialog.jsx.
   const deleteChallenge = async () => {
     if (!detail) return;
-    const ok = window.confirm(
-      `Delete "${detail.title}"?\n\nThis permanently removes the challenge and ALL applications, team members, and evaluations attached to it. This cannot be undone.`
-    );
-    if (!ok) return;
+    setDeleting(true);
     try {
       await corporateAPI.deleteChallenge(detail.id);
       toast.success('Challenge deleted');
+      setConfirmDelete(false);
       setDetail(null);
       navigate('/dashboard/corporate/challenges');
       load();
-    } catch (err) { toast.error(err.message || 'Failed to delete challenge'); }
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete challenge');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const changeStatus = async (newStatus) => {
@@ -396,7 +408,7 @@ const startEdit = () => {
                 </button>
               )}
               {canEdit && (
-                <button onClick={deleteChallenge}
+                <button onClick={() => setConfirmDelete(true)}
                   title="Delete challenge"
                   style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 8, background: '#fff', color: '#c43c3c', border: '1px solid #c43c3c40', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Trash2 size={12} /> Delete
@@ -649,6 +661,28 @@ const startEdit = () => {
       {/* Challenge list */}
       <ChallengeListCards
         challenges={challenges} navigate={navigate}
+      />
+
+      <ConfirmDialog
+        open={confirmDelete}
+        busy={deleting}
+        title={`Delete "${detail?.title ?? ''}"?`}
+        confirmLabel="Delete challenge"
+        tone="danger"
+        onConfirm={deleteChallenge}
+        onClose={() => setConfirmDelete(false)}
+        body={(
+          <>
+            <p>
+              <strong className="text-gray-900">Applications, team members and evaluations are kept.</strong>{' '}
+              The challenge is removed from the marketplace and stops accepting applications.
+            </p>
+            <p className="text-gray-500">
+              Ask an OpenI admin if you need it restored. Notifications about this challenge are
+              removed and do not come back.
+            </p>
+          </>
+        )}
       />
     </div>
   );
