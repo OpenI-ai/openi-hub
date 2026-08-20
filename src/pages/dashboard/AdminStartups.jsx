@@ -7,9 +7,12 @@ import {
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 export default function AdminStartups() {
   const [startups, setStartups] = useState([]);
+  const [pendingDelete, setPendingDelete] = useState(null);  // s83
+  const [deleting, setDeleting] = useState(false);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -39,14 +42,26 @@ export default function AdminStartups() {
 
   useEffect(() => { fetchStartups(); }, [fetchStartups]);
 
-  const handleDelete = async (userId, name) => {
-    if (!window.confirm(`Delete startup "${name}"? This cannot be undone.`)) return;
+  // s83 — the old string hid the branch that actually matters. deleteStartup always
+  // removes directory_profiles + startup_profiles, but removes the USER ACCOUNT only
+  // when is_imported is true. So deleting a CLAIMED startup leaves a real person with
+  // a login and no profile, while deleting an imported stub removes the account
+  // outright. `is_imported` is already on the row (it drives the Imported/Organic
+  // badge), so the dialog can just say which case this is.
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(true);
     try {
-      await adminAPI.deleteStartup(userId);
-      setStartups(prev => prev.filter(s => s.user_id !== userId));
+      await adminAPI.deleteStartup(pendingDelete.user_id);
+      setStartups(prev => prev.filter(s => s.user_id !== pendingDelete.user_id));
       setTotal(t => t - 1);
       toast.success('Startup deleted');
-    } catch (err) { toast.error(err.message); }
+      setPendingDelete(null);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -228,7 +243,7 @@ export default function AdminStartups() {
                             className="p-1.5 text-gray-400 hover:text-primary-600 transition-colors"><ExternalLink size={14} /></a>
                         )}
                         <button onClick={() => openEdit(s)} className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"><Edit3 size={14} /></button>
-                        <button onClick={() => handleDelete(s.user_id, s.company_name)}
+                        <button onClick={() => setPendingDelete({ user_id: s.user_id, name: s.company_name, is_imported: s.is_imported })}
                           className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
                       </div>
                     </td>
@@ -278,6 +293,31 @@ export default function AdminStartups() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        busy={deleting}
+        title={`Delete startup "${pendingDelete?.name ?? ''}"?`}
+        confirmLabel="Delete startup"
+        tone="danger"
+        onConfirm={handleDelete}
+        onClose={() => setPendingDelete(null)}
+        body={(
+          <>
+            <p>Removes the startup profile and its directory listing. <strong className="text-gray-900">There is no restore.</strong></p>
+            {pendingDelete?.is_imported ? (
+              <p className="text-gray-500">
+                This is an <strong>imported</strong> stub, so the placeholder account is removed with it.
+              </p>
+            ) : (
+              <p className="text-red-600">
+                This is an <strong>organic</strong> (claimed) startup — a real person owns it.
+                Their login is <strong>kept</strong>, so they will be left with an account and no profile.
+              </p>
+            )}
+          </>
+        )}
+      />
     </div>
   );
 }
