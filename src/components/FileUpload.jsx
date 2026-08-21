@@ -102,7 +102,7 @@ export default function FileUpload({
               style={{ fontSize: 10, padding: '3px 8px', borderRadius: 6, background: '#f3f4f6', border: '1px solid #e5e7eb', cursor: 'pointer', color: '#555', whiteSpace: 'nowrap' }}>
               {uploading ? <Loader2 size={10} className="animate-spin" /> : 'Change'}
             </button>
-            <button onClick={clear} style={{ fontSize: 10, padding: '3px 6px', borderRadius: 6, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#dc2626' }}>
+            <button onClick={clear} style={{ fontSize: 10, padding: '3px 6px', borderRadius: 6, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#b91c1c' }}>
               <X size={10} />
             </button>
           </>
@@ -149,7 +149,7 @@ export default function FileUpload({
               {uploading ? <Loader2 size={12} className="animate-spin" style={{ color: G }} /> : 'Change'}
             </button>
             <button onClick={clear}
-              style={{ fontSize: 11, padding: '5px 8px', borderRadius: 8, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#dc2626' }}>
+              style={{ fontSize: 11, padding: '5px 8px', borderRadius: 8, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#b91c1c' }}>
               <X size={14} />
             </button>
           </div>

@@ -352,7 +352,7 @@ function StartupCard({ startup: s }) {
       </div>
       {s.tagline && <p style={{ fontSize: 12, color: '#666', margin: 0, lineHeight: 1.4 }}>{s.tagline.slice(0, 100)}{s.tagline.length > 100 ? '...' : ''}</p>}
       <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-        {s.sector && <span style={{ fontSize: 10, background: '#f5f0e6', color: '#8B7355', borderRadius: 6, padding: '2px 8px' }}>{s.sector}</span>}
+        {s.sector && <span style={{ fontSize: 10, background: '#f5f0e6', color: '#6b5842', borderRadius: 6, padding: '2px 8px' }}>{s.sector}</span>}
         {s.stage && <span style={{ fontSize: 10, background: '#eef', color: '#558', borderRadius: 6, padding: '2px 8px' }}>{s.stage}</span>}
       </div>
     </Link>
@@ -480,7 +480,7 @@ function KnowledgeCard({ article: k }) {
         <div style={{ flex: 1 }}>
           <h4 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e', margin: 0 }}>{k.title}</h4>
           {k.category && (
-            <span style={{ fontSize: 10, background: '#f5f0e6', color: '#8B7355', borderRadius: 6, padding: '2px 8px', textTransform: 'capitalize' }}>
+            <span style={{ fontSize: 10, background: '#f5f0e6', color: '#6b5842', borderRadius: 6, padding: '2px 8px', textTransform: 'capitalize' }}>
               {k.category.replace('_', ' ')}
             </span>
           )}

@@ -768,7 +768,7 @@ function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDow
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setCalDrop(prev => !prev)}
-              style={{ padding: '9px 20px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
+              style={{ padding: '9px 20px', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
             >
               <ExternalLink size={13} /> Add to Calendar
             </button>

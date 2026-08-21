@@ -825,7 +825,7 @@ export default function StartupEvaluation() {
                   Branded PDF with overall score badge + per-vector breakdown + your notes.
                 </p>
                 <button onClick={downloadEightVectorPdf}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download 8-Vector PDF
                 </button>
               </div>
@@ -837,7 +837,7 @@ export default function StartupEvaluation() {
                   Create a link anyone can use to view your assessment (no OpenI account needed). Default 30-day expiry; revocable anytime.
                 </p>
                 <button onClick={mintNewEightVectorShare} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating...' : '+ Create new share link'}
                 </button>
 
@@ -864,7 +864,7 @@ export default function StartupEvaluation() {
                             {!inactive && (
                               <>
                                 <button onClick={() => copyEightVectorLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
-                                <button onClick={() => revokeEightVectorShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                                <button onClick={() => revokeEightVectorShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#b91c1c', cursor: 'pointer' }}>Revoke</button>
                               </>
                             )}
                           </div>

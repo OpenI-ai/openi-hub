@@ -117,7 +117,7 @@ export default function AcademiaDiscovery() {
                   <span key={r} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
                 ))}
                 {(a.offerings || []).slice(0, 2).map(o => (
-                  <span key={o} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{o}</span>
+                  <span key={o} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{o}</span>
                 ))}
               </div>
 
@@ -217,7 +217,7 @@ export default function AcademiaDiscovery() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Offerings</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.offerings.map(o => (
-                    <span key={o} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{o}</span>
+                    <span key={o} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{o}</span>
                   ))}
                 </div>
               </div>

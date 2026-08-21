@@ -292,7 +292,7 @@ export default function CorporateDashboard() {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
                   {(r.technologies || r.focus_areas || []).slice(0, 3).map(t => (
-                    <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>
+                    <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>
                   ))}
                 </div>
                 {/* AI narrative */}

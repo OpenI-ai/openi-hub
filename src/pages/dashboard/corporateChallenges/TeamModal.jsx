@@ -84,7 +84,7 @@ export default function TeamModal({
                         <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.email}</div>
                       </div>
                       {m.role === 'owner' ? (
-                        <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 12, background: '#fff3cd', color: '#8a6d3b', border: '1px solid #ffeaa7' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 12, background: '#fff3cd', color: '#6f5629', border: '1px solid #ffeaa7' }}>
                           Owner
                         </span>
                       ) : (

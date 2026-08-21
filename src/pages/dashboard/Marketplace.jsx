@@ -362,7 +362,7 @@ export default function Marketplace() {
                     setApplyForm(p => ({ ...p, data_room: updated }));
                   }} folder="data_room" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.mp4,.mov" />
                   <button onClick={() => setApplyForm(p => ({ ...p, data_room: p.data_room.filter((_, j) => j !== i) }))}
-                    style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><X size={14} /></button>
+                    style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', color: '#b91c1c', cursor: 'pointer' }}><X size={14} /></button>
                 </div>
               ))}
             <button onClick={() => setApplyForm(p => ({ ...p, data_room: [...p.data_room, { type: 'pitch_deck', url: '', name: '' }] }))}
@@ -422,8 +422,8 @@ export default function Marketplace() {
           {/* Tags */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {(detail.sectors || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-            {(detail.technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
-            {(detail.usecases || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
+            {(detail.technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>)}
+            {(detail.usecases || []).map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{t}</span>)}
           </div>
         </div>
 
@@ -596,7 +596,7 @@ export default function Marketplace() {
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                       {(app.sectors || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                      {(app.technologies || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
+                      {(app.technologies || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>)}
                     </div>
                   </div>
                 );
@@ -778,7 +778,7 @@ export default function Marketplace() {
             ) : (
               <>
                 {dealEditMode && (
-                  <p style={{ fontSize: 12, color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: '8px 10px', marginBottom: 14 }}>
+                  <p style={{ fontSize: 12, color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: '8px 10px', marginBottom: 14 }}>
                     You've already applied to this deal. Edit your application below.
                   </p>
                 )}

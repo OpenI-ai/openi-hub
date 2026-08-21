@@ -828,7 +828,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 600 }}>{p.pm || p.project_manager}</div>
                     <div style={{ color: '#5c5c5c', fontSize: 11 }}>Project Manager</div>
                   </div>
-                  <span style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>Lead</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>Lead</span>
                 </div>
               )}
               {p.team > 1 && <div style={{ color: '#5c5c5c', fontSize: 12, padding: '12px 0' }}>+ {p.team - 1} more team members</div>}

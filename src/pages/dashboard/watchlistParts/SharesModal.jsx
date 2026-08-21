@@ -94,7 +94,7 @@ export default function SharesModal({
                           <button onClick={() => copyShareUrl(s.token)} style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#555', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                             Copy
                           </button>
-                          <button onClick={() => revokeOneShare(s.id)} style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#dc2626', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => revokeOneShare(s.id)} style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#b91c1c', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                             Revoke
                           </button>
                         </>
@@ -230,7 +230,7 @@ export default function SharesModal({
                       <option value="editor">Editor</option>
                     </select>
                     <button onClick={() => removeOneCollaborator(c.id)}
-                      style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>
+                      style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 10, fontWeight: 600, color: '#b91c1c', cursor: 'pointer' }}>
                       Remove
                     </button>
                   </div>

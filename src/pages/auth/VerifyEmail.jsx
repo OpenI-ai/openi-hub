@@ -322,7 +322,7 @@ export default function VerifyEmail() {
             <div className="space-y-3">
               <button onClick={confirmLinkVerify}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
-                style={{ background: '#D0A848', color: '#fff', cursor: 'pointer' }}>
+                style={{ background: '#D0A848', color: '#0D2137', cursor: 'pointer' }}>
                 <CheckCircle size={16} /> Verify my email
               </button>
               <p className="text-center text-xs leading-relaxed" style={{ color: '#6e6e6e' }}>

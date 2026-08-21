@@ -161,7 +161,7 @@ export default function StudentRecommendedStartups() {
                   {boosted && (
                     <span
                       title={lift > 0 ? `Lifted by ${lift} ranks via cluster match` : 'Matched your research cluster'}
-                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#a06600', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
+                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#8a5700', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
                     >
                       <TrendingUp size={10} />
                       {lift > 0 ? `+${lift} cluster` : 'cluster match'}

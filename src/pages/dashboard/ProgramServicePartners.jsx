@@ -361,7 +361,7 @@ export default function ProgramServicePartners() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{sp.company_name || sp.name}</span>
                           {sp.already_added && (
-                            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                               <CheckCircle size={9} /> ADDED
                             </span>
                           )}

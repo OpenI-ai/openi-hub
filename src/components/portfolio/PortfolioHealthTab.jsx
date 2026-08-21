@@ -393,7 +393,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{ps.startup_name}</span>
-                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f3f4f6', color: '#6b7280', textTransform: 'uppercase' }}>
+                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f3f4f6', color: '#4b5563', textTransform: 'uppercase' }}>
                             {ps.application_status}
                           </span>
                           {history.length > 0 && (
@@ -539,7 +539,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   Branded PDF of this portfolio evaluation snapshot.
                 </p>
                 <button onClick={downloadProgramEvalPdf}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download evaluation PDF
                 </button>
               </div>
@@ -551,7 +551,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   Create a link anyone with the URL can use to view this evaluation. Default 30-day expiry; revocable anytime.
                 </p>
                 <button onClick={mintNewProgramEvalShare} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating...' : '+ Create new share link'}
                 </button>
 
@@ -578,7 +578,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                             {!inactive && (
                               <>
                                 <button onClick={() => copyProgramEvalLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
-                                <button onClick={() => revokeProgramEvalShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                                <button onClick={() => revokeProgramEvalShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#b91c1c', cursor: 'pointer' }}>Revoke</button>
                               </>
                             )}
                           </div>

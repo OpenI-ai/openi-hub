@@ -238,12 +238,12 @@ export default function AdminClaims() {
                   <div className="flex gap-2">
                     <button onClick={handleApprove} disabled={submitting}
                       className="flex-1 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1"
-                      style={{ background: '#10B981', color: '#fff' }}>
+                      style={{ background: '#047857', color: '#fff' }}>
                       <CheckCircle2 size={14} /> Approve
                     </button>
                     <button onClick={handleReject} disabled={submitting}
                       className="flex-1 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1"
-                      style={{ background: '#EF4444', color: '#fff' }}>
+                      style={{ background: '#dc2626', color: '#fff' }}>
                       <XCircle size={14} /> Reject
                     </button>
                   </div>

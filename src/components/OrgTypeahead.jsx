@@ -176,7 +176,7 @@ export default function OrgTypeahead({
                   {s.type && <span>{s.type}</span>}
                   {s.country && <span>· {s.country}</span>}
                   {s.source === 'platform' && (
-                    <span style={{ background: '#eef2ff', color: '#6366f1', padding: '1px 6px', borderRadius: 6 }}>OpenI</span>
+                    <span style={{ background: '#eef2ff', color: '#4f46e5', padding: '1px 6px', borderRadius: 6 }}>OpenI</span>
                   )}
                 </span>
               </div>

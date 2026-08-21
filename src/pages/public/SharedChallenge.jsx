@@ -56,10 +56,10 @@ export default function SharedChallenge() {
             {/* Header */}
             <div style={{ ...card, padding: 24, marginBottom: 16 }}>
               <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
-                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>
+                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>
                   {challenge.challenge_type === 'partner' ? 'Partnership' : challenge.challenge_type === 'source' ? 'Sourcing' : challenge.challenge_type === 'invest' ? 'Investment' : 'Challenge'}
                 </span>
-                {challenge.visibility === 'private' && <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef2f2', color: '#dc2626' }}>Private</span>}
+                {challenge.visibility === 'private' && <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef2f2', color: '#b91c1c' }}>Private</span>}
               </div>
               <h1 id="tour-page-share-challenge" style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>{challenge.title}</h1>
               {challenge.company_name && (
@@ -95,8 +95,8 @@ export default function SharedChallenge() {
             <div style={{ ...card, padding: 24, marginBottom: 16 }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {(challenge.sectors || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                {(challenge.technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
-                {(challenge.usecases || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
+                {(challenge.technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>)}
+                {(challenge.usecases || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{t}</span>)}
               </div>
             </div>
 

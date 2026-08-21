@@ -130,7 +130,7 @@ export default function SettingsAPIKeys() {
                   <span
                     style={{
                       fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
-                      background: '#e8f5ee', color: '#1e8a52',
+                      background: '#e8f5ee', color: '#15703f',
                     }}
                   >
                     Active

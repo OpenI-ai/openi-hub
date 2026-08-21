@@ -213,7 +213,7 @@ export default function AcceleratorPartners() {
                       {i.firm_name && <div style={{ fontSize: 11, color: '#5c5c5c' }}>{i.firm_name}</div>}
                       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                         <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb', textTransform: 'uppercase' }}>{i.investor_type}</span>
-                        {i.deals_closed > 0 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{i.deals_closed} deals</span>}
+                        {i.deals_closed > 0 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{i.deals_closed} deals</span>}
                       </div>
                     </div>
                   </div>

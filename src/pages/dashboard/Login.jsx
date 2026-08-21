@@ -159,7 +159,7 @@ export default function Login() {
             </div>
           )}
           {error && (
-                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
+                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
                   <AlertCircle size={15} className="shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -219,7 +219,7 @@ export default function Login() {
                   type="submit"
                   disabled={loading}
                   className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm mt-2"
-                  style={{ backgroundColor: '#D0A848', color: '#ffffff' }}
+                  style={{ backgroundColor: '#D0A848', color: '#0D2137' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c49a4a'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D0A848'}
                 >
@@ -257,7 +257,7 @@ export default function Login() {
               <p className="text-sm mb-6" style={{ color: '#6b7280' }}>Enter the 6-digit code from your authenticator app.</p>
 
               {error && (
-                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
+                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
                   <AlertCircle size={15} className="shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -285,7 +285,7 @@ export default function Login() {
                   type="submit"
                   disabled={loading || otp.length < 6}
                   className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm"
-                  style={{ backgroundColor: '#D0A848', color: '#ffffff' }}
+                  style={{ backgroundColor: '#D0A848', color: '#0D2137' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c49a4a'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D0A848'}
                 >

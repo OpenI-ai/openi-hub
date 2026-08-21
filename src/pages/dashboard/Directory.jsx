@@ -394,7 +394,7 @@ export default function Directory() {
                 {p.skills_or_focus && p.skills_or_focus.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
                     {p.skills_or_focus.slice(0, 4).map(t => (
-                      <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>
+                      <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>
                     ))}
                     {p.skills_or_focus.length > 4 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f3f4f6', color: '#666' }}>+{p.skills_or_focus.length - 4}</span>}
                   </div>

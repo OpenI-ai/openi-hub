@@ -322,7 +322,7 @@ export default function OrgAdmin() {
                     {m.role === 'admin' ? 'Demote' : 'Promote'}
                   </button>
                   <button onClick={() => handleRemove(m.id, m.display_name || m.email)} title="Remove"
-                    style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#dc2626' }}>
+                    style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#b91c1c' }}>
                     <Trash2 size={12} />
                   </button>
                 </div>

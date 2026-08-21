@@ -63,10 +63,10 @@ export default function SharedDealRequest() {
             {/* Header */}
             <div style={{ ...card, padding: 24, marginBottom: 16 }}>
               <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
-                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>
+                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>
                   Deal Request
                 </span>
-                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef2f2', color: '#dc2626' }}>Private</span>
+                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef2f2', color: '#b91c1c' }}>Private</span>
               </div>
               <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>{dealRequest.title}</h1>
               {dealRequest.firm_name && (
@@ -113,7 +113,7 @@ export default function SharedDealRequest() {
               <div style={{ ...card, padding: 24, marginBottom: 16 }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {(dealRequest.sectors || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                  {(dealRequest.technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
+                  {(dealRequest.technologies || []).map(t => <span key={t} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>)}
                 </div>
               </div>
             )}

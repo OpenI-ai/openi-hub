@@ -636,7 +636,7 @@ export default function InvestorDeals() {
                       )}
 
                       {deal.investment_type && (
-                        <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#f59e0b', textTransform: 'capitalize' }}>{deal.investment_type.replace(/_/g, ' ')}</span>
+                        <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#a16207', textTransform: 'capitalize' }}>{deal.investment_type.replace(/_/g, ' ')}</span>
                       )}
 
                       {/* Mini milestone progress */}

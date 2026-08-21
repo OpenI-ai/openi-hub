@@ -473,7 +473,7 @@ export default function Knowledge() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
               <button onClick={() => setShowSuggest(false)} style={{ padding: '8px 16px', fontSize: 12, background: '#f3f4f6', color: '#555', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-              <button onClick={submitSuggestion} disabled={suggesting} style={{ padding: '8px 16px', fontSize: 12, background: '#D0A848', color: '#fff', border: 'none', borderRadius: 8, cursor: suggesting ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: suggesting ? 0.6 : 1 }}>
+              <button onClick={submitSuggestion} disabled={suggesting} style={{ padding: '8px 16px', fontSize: 12, background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 8, cursor: suggesting ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: suggesting ? 0.6 : 1 }}>
                 {suggesting ? 'Sending...' : 'Send Suggestion'}
               </button>
             </div>

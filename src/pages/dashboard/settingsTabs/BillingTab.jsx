@@ -307,7 +307,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                           boxShadow: billingCycleSelected === 'yearly' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                         }}>
                         Annual
-                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: '#16a34a', color: '#fff' }}>
+                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: '#15803d', color: '#fff' }}>
                           Save 20%
                         </span>
                       </button>

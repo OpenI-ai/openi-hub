@@ -421,8 +421,8 @@ export default function PersonaDashboard() {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                   {(c.sectors || []).slice(0, 2).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                  {(c.technologies || []).slice(0, 2).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
-                  {parseInt(c.match_score) > 0 && <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fff7ed', color: '#ea580c', fontWeight: 600 }}>{c.match_score}pt match</span>}
+                  {(c.technologies || []).slice(0, 2).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>)}
+                  {parseInt(c.match_score) > 0 && <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fff7ed', color: '#c2410c', fontWeight: 600 }}>{c.match_score}pt match</span>}
                 </div>
               </div>
             ))}

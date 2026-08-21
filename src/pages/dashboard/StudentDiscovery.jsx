@@ -135,7 +135,7 @@ export default function StudentDiscovery() {
               <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Seeking</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {selected.looking_for.map(l => (
-                  <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{l}</span>
+                  <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{l}</span>
                 ))}
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function StudentDiscovery() {
                 <div key={c.id} style={{ marginBottom: 8, padding: 10, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     {c.title}
-                    {c.is_verified && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>Verified</span>}
+                    {c.is_verified && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>Verified</span>}
                   </div>
                   {c.provider && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 3 }}>{c.provider}</div>}
                   {c.credential_url && <a href={c.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}><ExternalLink size={10} /> Credential</a>}

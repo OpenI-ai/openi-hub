@@ -171,7 +171,7 @@ export default function CorporateRecommendedStartups() {
                   {applied && (
                     <span
                       title="Applied to one of your challenges"
-                      style={{ fontSize: 10, padding: '2px 8px', background: '#e6f6ec', color: '#0d8a3e', borderRadius: 4, fontWeight: 600 }}
+                      style={{ fontSize: 10, padding: '2px 8px', background: '#e6f6ec', color: '#0b7133', borderRadius: 4, fontWeight: 600 }}
                     >
                       Applied
                     </span>
@@ -179,7 +179,7 @@ export default function CorporateRecommendedStartups() {
                   {boosted && (
                     <span
                       title={lift > 0 ? `Lifted by ${lift} via Innovation Map match` : 'Matches your focus theme'}
-                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#a06600', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
+                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#8a5700', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
                     >
                       <TrendingUp size={10} />
                       {lift > 0 ? `+${lift} theme` : 'theme match'}

@@ -405,7 +405,7 @@ export default function Register() {
         <div className="rounded-2xl p-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
           {error && (
             <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5"
-              style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
+              style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
               <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
             </div>
@@ -467,7 +467,7 @@ export default function Register() {
                           </span>
                         )}
                         {orgMatch.is_verified && !orgMatch.is_platform_owner && (
-                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#16a34a', color: '#fff', borderRadius: 4, letterSpacing: 0.3 }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#15803d', color: '#fff', borderRadius: 4, letterSpacing: 0.3 }}>
                             VERIFIED
                           </span>
                         )}
@@ -492,7 +492,7 @@ export default function Register() {
                           onClick={handleRequestJoinOrg}
                           disabled={orgJoinSubmitting}
                           style={{
-                            padding: '6px 12px', background: '#D0A848', color: '#fff',
+                            padding: '6px 12px', background: '#D0A848', color: '#0D2137',
                             border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 700,
                             cursor: orgJoinSubmitting ? 'not-allowed' : 'pointer',
                           }}
@@ -648,7 +648,7 @@ export default function Register() {
                 </button>
                 <button onClick={handleRegister} disabled={loading}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-                  style={{ background: '#D0A848', color: '#fff' }}>
+                  style={{ background: '#D0A848', color: '#0D2137' }}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Creating...' : 'Create Account'}
                 </button>
@@ -692,7 +692,7 @@ export default function Register() {
                           onClick={() => submitClaim(c)}
                           disabled={claimSubmitting}
                           className="ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
-                          style={{ background: '#D0A848', color: '#fff' }}>
+                          style={{ background: '#D0A848', color: '#0D2137' }}>
                           {claimSubmitting ? '...' : 'Claim'}
                         </button>
                       </div>
@@ -748,7 +748,7 @@ export default function Register() {
                 </p>
                 <button onClick={() => navigate('/dashboard/profile')}
                   className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
-                  style={{ background: '#D0A848', color: '#fff' }}>
+                  style={{ background: '#D0A848', color: '#0D2137' }}>
                   Complete My Profile
                 </button>
                 <button onClick={() => navigate('/dashboard')}

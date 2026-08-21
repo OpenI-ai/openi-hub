@@ -63,7 +63,7 @@ function ConnectionCard({ person, onAction }) {
           <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center', flexWrap: 'wrap' }}>
             {person.city && <span style={{ fontSize: 11, color: '#666', display: 'flex', alignItems: 'center', gap: 2 }}><MapPin size={10} /> {person.city}</span>}
             {person.relationship_type && person.relationship_type !== 'colleague' && (
-              <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 6, background: '#f5f0e6', color: '#b8860b' }}>{person.relationship_type}</span>
+              <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 6, background: '#f5f0e6', color: '#8a6508' }}>{person.relationship_type}</span>
             )}
             <MutualConnectionsBadge userId={person.user_id || person.id} />
           </div>
@@ -219,7 +219,7 @@ export default function MyNetwork() {
                     }} onAction={
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => handleRespond(r.id, 'accept')}
-                          style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: '#16a34a', border: 'none', borderRadius: 8, padding: '5px 14px', cursor: 'pointer' }}>
+                          style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: '#15803d', border: 'none', borderRadius: 8, padding: '5px 14px', cursor: 'pointer' }}>
                           Accept
                         </button>
                         <button onClick={() => handleRespond(r.id, 'decline')}
@@ -245,7 +245,7 @@ export default function MyNetwork() {
                       organization: r.recipient_org, logo_url: r.recipient_logo, tagline: r.recipient_tagline, city: r.recipient_city,
                     }} onAction={
                       <button onClick={() => handleWithdraw(r.id)}
-                        style={{ fontSize: 11, color: '#b8860b', background: '#f5f0e6', border: `1px solid ${G}`, borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
+                        style={{ fontSize: 11, color: '#8a6508', background: '#f5f0e6', border: `1px solid ${G}`, borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
                         <Clock size={10} style={{ marginRight: 4 }} /> Withdraw
                       </button>
                     } />

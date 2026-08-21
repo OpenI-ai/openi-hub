@@ -745,7 +745,7 @@ export default function StartupProfile() {
                   Generate a branded PDF of this startup profile. Anyone with this PDF can read it (no link to manage).
                 </p>
                 <button onClick={() => downloadStartupPdf()}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download startup profile PDF
                 </button>
               </div>
@@ -757,7 +757,7 @@ export default function StartupProfile() {
                   Create a link to invite someone to this profile. People who aren&apos;t on OpenI yet will be asked to create a free account (or sign in), then taken straight to the profile.
                 </p>
                 <button onClick={() => mintNewProfileShare()} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating link…' : '+ Create new share link'}
                 </button>
 
@@ -788,7 +788,7 @@ export default function StartupProfile() {
                             {!inactive && (
                               <>
                                 <button onClick={() => copyShareLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
-                                <button onClick={() => revokeProfileShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                                <button onClick={() => revokeProfileShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#b91c1c', cursor: 'pointer' }}>Revoke</button>
                               </>
                             )}
                           </div>

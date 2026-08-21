@@ -201,7 +201,7 @@ export default function AdminCosts() {
             )}
           </h2>
           {(!errors.issues || errors.issues.length === 0) ? (
-            <div style={{ padding: 24, color: '#16a34a', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
+            <div style={{ padding: 24, color: '#15803d', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
               ✓ No unresolved errors in the last 24h.
             </div>
           ) : (
@@ -383,7 +383,7 @@ export default function AdminCosts() {
                       <div style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{wfName}</div>
                     </div>
                     {wf.error ? (
-                      <div style={{ fontSize: 12, color: '#dc2626', padding: 8, background: '#fee2e2', borderRadius: 6 }}>
+                      <div style={{ fontSize: 12, color: '#b91c1c', padding: 8, background: '#fee2e2', borderRadius: 6 }}>
                         Error: {wf.error}
                       </div>
                     ) : (
@@ -472,7 +472,7 @@ export default function AdminCosts() {
             </h2>
           </div>
           {alerts.length === 0 ? (
-            <div style={{ padding: 24, color: '#16a34a', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
+            <div style={{ padding: 24, color: '#15803d', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
               ✓ No alerts fired in the last 30 days.
             </div>
           ) : (

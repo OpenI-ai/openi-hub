@@ -84,12 +84,12 @@ export default function ChallengeApplications({
                     <div style={{ display: 'flex', gap: 8 }}>
                       {(analysis.strengths || []).length > 0 && (
                         <div style={{ flex: 1 }}>
-                          {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', margin: '0 3px 3px 0' }}>{s}</span>)}
+                          {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#15803d', margin: '0 3px 3px 0' }}>{s}</span>)}
                         </div>
                       )}
                       {(analysis.weaknesses || []).length > 0 && (
                         <div style={{ flex: 1 }}>
-                          {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626', margin: '0 3px 3px 0' }}>{w}</span>)}
+                          {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#b91c1c', margin: '0 3px 3px 0' }}>{w}</span>)}
                         </div>
                       )}
                     </div>
@@ -258,13 +258,13 @@ export default function ChallengeApplications({
                         <button onClick={() => updateAppStatus(app.id, 'shortlisted')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#fefce815', color: '#ca8a04', border: '1px solid #fde68a', cursor: 'pointer' }}>
                           <Star size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'shortlist')}
                         </button>
-                        <button onClick={() => updateAppStatus(app.id, 'rejected')} style={{ padding: '5px 12px', fontSize: 11, borderRadius: 7, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', cursor: 'pointer' }}>
+                        <button onClick={() => updateAppStatus(app.id, 'rejected')} style={{ padding: '5px 12px', fontSize: 11, borderRadius: 7, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', cursor: 'pointer' }}>
                           {getActionLabel(persona, 'reject')}
                         </button>
                       </>
                     )}
                     {app.status === 'shortlisted' && (
-                      <button onClick={() => updateAppStatus(app.id, 'selected')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
+                      <button onClick={() => updateAppStatus(app.id, 'selected')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
                         <CheckCircle size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'select')}
                       </button>
                     )}

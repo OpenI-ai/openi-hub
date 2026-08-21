@@ -244,7 +244,7 @@ export default function Meetings() {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>
                       {p.name}
-                      {p.role === 'organizer' && <span style={{ fontSize: 10, marginLeft: 6, padding: '1px 6px', borderRadius: 10, background: '#fff7ed', color: '#ea580c' }}>Organizer</span>}
+                      {p.role === 'organizer' && <span style={{ fontSize: 10, marginLeft: 6, padding: '1px 6px', borderRadius: 10, background: '#fff7ed', color: '#c2410c' }}>Organizer</span>}
                     </div>
                     <div style={{ fontSize: 11, color: '#666' }}>
                       {p.organization || ''}{p.organization && persona.label ? ' - ' : ''}{persona.label || ''}
@@ -262,7 +262,7 @@ export default function Meetings() {
           {canRespond && (
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => handleRsvp(detail.id, 'accepted')}
-                style={{ flex: 1, padding: '10px 20px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                style={{ flex: 1, padding: '10px 20px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: '#15803d', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 <Check size={16} /> Accept
               </button>
               <button onClick={() => handleRsvp(detail.id, 'declined')}
@@ -353,7 +353,7 @@ export default function Meetings() {
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: typeBadge.bg, color: typeBadge.color }}>{typeBadge.label}</span>
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: statusBadge.bg, color: statusBadge.color }}>{statusBadge.label}</span>
                       {canRespond && (
-                        <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>Action Required</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>Action Required</span>
                       )}
                     </div>
                   </div>
@@ -393,7 +393,7 @@ export default function Meetings() {
                 {canRespond && (
                   <div style={{ display: 'flex', gap: 8, marginTop: 10 }} onClick={e => e.stopPropagation()}>
                     <button onClick={() => handleRsvp(m.id, 'accepted')}
-                      style={{ padding: '6px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      style={{ padding: '6px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: '#15803d', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Check size={14} /> Accept
                     </button>
                     <button onClick={() => handleRsvp(m.id, 'declined')}

@@ -208,7 +208,7 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
             )}
             {integ.status === 'Connected' && (
               <>
-                <button onClick={() => onSync && onSync(integ.id)} style={{ padding: '8px 14px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                <button onClick={() => onSync && onSync(integ.id)} style={{ padding: '8px 14px', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
                   <RefreshCw size={11} /> Sync Now
                 </button>
                 <button style={{ padding: '8px 14px', background: '#f5f5f5', color: '#555', border: '1px solid #eee', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -265,7 +265,7 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
               <span>All data encrypted in transit (TLS 1.3)</span>
             </div>
           </div>
-          <button style={{ width: '100%', padding: '8px 0', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+          <button style={{ width: '100%', padding: '8px 0', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
             <ExternalLink size={11} /> View API Docs
           </button>
         </div>

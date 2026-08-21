@@ -51,7 +51,7 @@ export function EvalScoreCard({ evaluation }) {
       {evaluation.explanation && <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5, marginBottom: 6 }}>{evaluation.explanation}</div>}
       {(evaluation.red_flags || []).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-          {evaluation.red_flags.map((f, i) => <span key={i} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626' }}>{f}</span>)}
+          {evaluation.red_flags.map((f, i) => <span key={i} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#b91c1c' }}>{f}</span>)}
         </div>
       )}
       {evaluation.recommended_action && (
@@ -110,7 +110,7 @@ export function AIAdvisorPanel({ suggestions, onApply, onClose }) {
           <div>
             <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Technologies</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 4 }}>
-              {suggestions.technologies.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
+              {suggestions.technologies.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#15803d' }}>{t}</span>)}
             </div>
             <button onClick={() => onApply('technologies', suggestions.technologies)}
               style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
@@ -187,12 +187,12 @@ export function AIAnalysisPanel({ analysisData, applications }) {
               <div style={{ display: 'flex', gap: 8 }}>
                 {(analysis.strengths || []).length > 0 && (
                   <div style={{ flex: 1 }}>
-                    {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', margin: '0 3px 3px 0' }}>{s}</span>)}
+                    {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#15803d', margin: '0 3px 3px 0' }}>{s}</span>)}
                   </div>
                 )}
                 {(analysis.weaknesses || []).length > 0 && (
                   <div style={{ flex: 1 }}>
-                    {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626', margin: '0 3px 3px 0' }}>{w}</span>)}
+                    {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#b91c1c', margin: '0 3px 3px 0' }}>{w}</span>)}
                   </div>
                 )}
               </div>

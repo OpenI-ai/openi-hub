@@ -44,7 +44,7 @@ export default function ChallengeListCards({ challenges, navigate }) {
                     )}
                     {/* T32-99c-hotfix: list badge */}
                     {(ch.visibility === 'invite_only' || ch.visibility === 'private') && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>Invite-only</span>}
-                    {ch.visibility === 'draft' && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#f3f4f6', color: '#6b7280' }}>Draft</span>}
+                    {ch.visibility === 'draft' && <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#f3f4f6', color: '#4b5563' }}>Draft</span>}
                     <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
                 </div>
@@ -61,7 +61,7 @@ export default function ChallengeListCards({ challenges, navigate }) {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
                   {(ch.sectors || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
-                  {(ch.technologies || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>)}
+                  {(ch.technologies || []).map(t => <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>)}
                 </div>
               </div>
             );

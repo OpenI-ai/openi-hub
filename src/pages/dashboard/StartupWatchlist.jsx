@@ -614,7 +614,7 @@ export default function StartupWatchlist() {
                   <button
                     id="tour-page-watchlist-add"
                     onClick={() => setShowAdd(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     <Plus size={12} /> Add Startup
                   </button>
@@ -641,7 +641,7 @@ export default function StartupWatchlist() {
                         toast.error(err.message || 'Failed to export PDF');
                       }
                     }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     <Download size={12} /> Export PDF
                   </button>
