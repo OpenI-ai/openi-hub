@@ -117,7 +117,7 @@ export default function ForgotPassword() {
           )}
 
           <div className="text-center mt-6 pt-4 border-t" style={{ borderColor: '#f3f4f6' }}>
-            <Link to="/dashboard/login" className="text-xs" style={{ color: '#9ca3af' }}>
+            <Link to="/dashboard/login" className="text-xs" style={{ color: '#6e6e6e' }}>
               Remember your password? Log in
             </Link>
           </div>

@@ -101,7 +101,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
                 {t}
               </button>
             ))}
-            <button onClick={() => setShowRelType(false)} style={{ ...btnBase, background: '#eee', color: '#888' }}>
+            <button onClick={() => setShowRelType(false)} style={{ ...btnBase, background: '#eee', color: '#5c5c5c' }}>
               <X size={12} />
             </button>
           </div>
@@ -132,7 +132,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
   if (status === 'pending' && direction === 'outgoing') {
     return (
       <button disabled={busy} onClick={handleWithdraw}
-        style={{ ...btnBase, background: '#f5f0e6', color: '#b8860b', border: `1px solid ${G}` }}>
+        style={{ ...btnBase, background: '#f5f0e6', color: '#8a6508', border: `1px solid ${G}` }}>
         <Clock size={sm ? 12 : 14} /> Pending
       </button>
     );
@@ -143,7 +143,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
     return (
       <div style={{ display: 'flex', gap: 4 }}>
         <button disabled={busy} onClick={() => handleRespond('accept')}
-          style={{ ...btnBase, background: '#16a34a', color: '#fff' }}>
+          style={{ ...btnBase, background: '#15803d', color: '#fff' }}>
           <Check size={sm ? 12 : 14} /> Accept
         </button>
         <button disabled={busy} onClick={() => handleRespond('decline')}
@@ -158,7 +158,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
   if (status === 'accepted') {
     return (
       <button disabled={busy} onClick={handleWithdraw}
-        style={{ ...btnBase, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>
+        style={{ ...btnBase, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
         <UserCheck size={sm ? 12 : 14} /> Connected
       </button>
     );

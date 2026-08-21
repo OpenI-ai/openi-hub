@@ -69,12 +69,12 @@ export default function CorporateRecommendedStartups() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>
-        <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>
+        <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0' }}>
           Startups matching your innovation areas, ranked by topical alignment and applied signal.
         </p>
         {basedOn.length > 0 && (
           <div id="tour-page-recs-basedon" style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            <span style={{ fontSize: 11, color: '#888' }}>Based on:</span>
+            <span style={{ fontSize: 11, color: '#5c5c5c' }}>Based on:</span>
             {basedOn.slice(0, 6).map((tag, i) => (
               <span
                 key={i}
@@ -155,7 +155,7 @@ export default function CorporateRecommendedStartups() {
                       {s.is_deeptech && <Cpu size={11} style={{ color: G, flexShrink: 0 }} />}
                     </div>
                     {location && (
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
                         <MapPin size={10} /> {location}
                       </div>
                     )}
@@ -171,7 +171,7 @@ export default function CorporateRecommendedStartups() {
                   {applied && (
                     <span
                       title="Applied to one of your challenges"
-                      style={{ fontSize: 10, padding: '2px 8px', background: '#e6f6ec', color: '#0d8a3e', borderRadius: 4, fontWeight: 600 }}
+                      style={{ fontSize: 10, padding: '2px 8px', background: '#e6f6ec', color: '#0b7133', borderRadius: 4, fontWeight: 600 }}
                     >
                       Applied
                     </span>
@@ -179,7 +179,7 @@ export default function CorporateRecommendedStartups() {
                   {boosted && (
                     <span
                       title={lift > 0 ? `Lifted by ${lift} via Innovation Map match` : 'Matches your focus theme'}
-                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#a06600', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
+                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#8a5700', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
                     >
                       <TrendingUp size={10} />
                       {lift > 0 ? `+${lift} theme` : 'theme match'}

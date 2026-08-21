@@ -29,7 +29,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                 <div id="tour-page-settings-current-plan" style={{ ...card, padding: 24, marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <div>
-                      <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Current Plan</div>
+                      <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>Current Plan</div>
                       <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 8 }}>
                         {currentPlan === 'enterprise' ? <Crown size={20} style={{ color: '#f59e0b' }} /> : currentPlan === 'pro' ? <Zap size={20} style={{ color: G }} /> : null}
                         {myPlan?.plan?.display_name || 'Free Plan'}
@@ -37,7 +37,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                     </div>
                     {currentPlan !== 'free' && myPlan?.subscription && (
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 11, color: '#999' }}>
+                        <div style={{ fontSize: 11, color: '#666' }}>
                           {myPlan.subscription.auto_renew ? 'Next auto-charge' : 'Next billing'}
                         </div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>
@@ -124,15 +124,15 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8 }}>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{myPlan.ai_consumption.queries_this_month || 0}</div>
-                          <div style={{ fontSize: 10, color: '#888' }}>Queries</div>
+                          <div style={{ fontSize: 10, color: '#5c5c5c' }}>Queries</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{((myPlan.ai_consumption.tokens_this_month || 0) / 1000).toFixed(1)}K</div>
-                          <div style={{ fontSize: 10, color: '#888' }}>Tokens</div>
+                          <div style={{ fontSize: 10, color: '#5c5c5c' }}>Tokens</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>${(myPlan.ai_consumption.cost_this_month_usd || 0).toFixed(4)}</div>
-                          <div style={{ fontSize: 10, color: '#888' }}>Est. Cost</div>
+                          <div style={{ fontSize: 10, color: '#5c5c5c' }}>Est. Cost</div>
                         </div>
                       </div>
                     </div>
@@ -150,7 +150,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                     <div>
                       <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Billing Details</h3>
-                      <p style={{ fontSize: 12, color: '#888', margin: '3px 0 0 0' }}>
+                      <p style={{ fontSize: 12, color: '#5c5c5c', margin: '3px 0 0 0' }}>
                         Required on every GST tax invoice. Your saved details are reused for all future payments.
                       </p>
                     </div>
@@ -208,14 +208,14 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                         <Zap size={16} style={{ color: G }} />
                         AI Credit Packs
                       </h3>
-                      <p style={{ fontSize: 12, color: '#888', margin: '3px 0 0 0' }}>
+                      <p style={{ fontSize: 12, color: '#5c5c5c', margin: '3px 0 0 0' }}>
                         Top up extra AI credits that never expire. Used after your monthly quota runs out.
                       </p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 11, color: '#999' }}>Your balance</div>
+                      <div style={{ fontSize: 11, color: '#666' }}>Your balance</div>
                       <div style={{ fontSize: 22, fontWeight: 700, color: creditBalance > 0 ? G : '#aaa' }}>
-                        {creditBalance ?? 0} <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>credits</span>
+                        {creditBalance ?? 0} <span style={{ fontSize: 11, fontWeight: 400, color: '#5c5c5c' }}>credits</span>
                       </div>
                     </div>
                   </div>
@@ -232,7 +232,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                           <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>
                             <strong style={{ color: '#1a1a1a' }}>{pack.credits}</strong> credits · ₹{pack.price_per_credit}/credit
                           </div>
-                          <p style={{ fontSize: 11, color: '#777', margin: '4px 0 12px 0', minHeight: 28 }}>
+                          <p style={{ fontSize: 11, color: '#5c5c5c', margin: '4px 0 12px 0', minHeight: 28 }}>
                             {pack.description}
                           </p>
                           <button
@@ -307,7 +307,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                           boxShadow: billingCycleSelected === 'yearly' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                         }}>
                         Annual
-                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: '#16a34a', color: '#fff' }}>
+                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: '#15803d', color: '#fff' }}>
                           Save 20%
                         </span>
                       </button>
@@ -384,13 +384,13 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                                 <div style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 4 }}>
                                   {basePrice === 0 ? 'Free' : `${sym}${isUsd ? fmt2(basePrice) : fmt(basePrice)}`}
                                   {basePrice > 0 && (
-                                    <span style={{ fontSize: 12, fontWeight: 400, color: '#999' }}>
+                                    <span style={{ fontSize: 12, fontWeight: 400, color: '#666' }}>
                                       {isAnnual ? '/yr' : '/mo'}
                                     </span>
                                   )}
                                 </div>
                                 {isAnnual && monthlyEquiv > 0 && (
-                                  <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+                                  <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 4 }}>
                                     ≈ {sym}{isUsd ? fmt2(monthlyEquiv) : fmt(monthlyEquiv)}/mo equivalent
                                   </div>
                                 )}
@@ -400,7 +400,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                                   </div>
                                 )}
                                 {basePrice > 0 && (
-                                  <div style={{ fontSize: 11, fontWeight: 500, color: '#999', marginBottom: 12 }}>
+                                  <div style={{ fontSize: 11, fontWeight: 500, color: '#666', marginBottom: 12 }}>
                                     {isUsd
                                       ? 'IGST 0% (Export under LUT)'
                                       : `+ 18% GST · ₹${(basePrice * 1.18).toLocaleString('en-IN', { maximumFractionDigits: 2 })} total`
@@ -465,7 +465,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                         <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f5f5f5', fontSize: 12 }}>
                           <div>
                             <div style={{ fontWeight: 600, color: '#333' }}>₹{parseInt(p.amount)}</div>
-                            <div style={{ fontSize: 11, color: '#999' }}>{new Date(p.created_at).toLocaleDateString()}</div>
+                            <div style={{ fontSize: 11, color: '#666' }}>{new Date(p.created_at).toLocaleDateString()}</div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,

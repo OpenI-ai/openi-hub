@@ -146,7 +146,7 @@ export default function OrgTypeahead({
           maxHeight: 240, overflowY: 'auto',
         }}>
           {loading && (
-            <div style={{ padding: '8px 14px', fontSize: 11, color: '#9ca3af' }}>Searching…</div>
+            <div style={{ padding: '8px 14px', fontSize: 11, color: '#6e6e6e' }}>Searching…</div>
           )}
           {!loading && suggestions.map((s, i) => {
             const isTopTier = (s.tier_score || 0) >= 85;
@@ -172,18 +172,18 @@ export default function OrgTypeahead({
                     {s.name}
                   </span>
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#9ca3af', fontSize: 10 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6e6e6e', fontSize: 10 }}>
                   {s.type && <span>{s.type}</span>}
                   {s.country && <span>· {s.country}</span>}
                   {s.source === 'platform' && (
-                    <span style={{ background: '#eef2ff', color: '#6366f1', padding: '1px 6px', borderRadius: 6 }}>OpenI</span>
+                    <span style={{ background: '#eef2ff', color: '#4f46e5', padding: '1px 6px', borderRadius: 6 }}>OpenI</span>
                   )}
                 </span>
               </div>
             );
           })}
           {!loading && input.trim().length >= MIN_CHARS && suggestions.length === 0 && (
-            <div style={{ padding: '8px 14px', fontSize: 11, color: '#9ca3af' }}>
+            <div style={{ padding: '8px 14px', fontSize: 11, color: '#6e6e6e' }}>
               No matches — press Enter to add &ldquo;{input.trim()}&rdquo; anyway
             </div>
           )}

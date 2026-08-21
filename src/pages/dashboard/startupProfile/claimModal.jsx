@@ -132,7 +132,7 @@ function ClaimStartupModal({ open, onClose, startup, onSuccess }) {
             onClick={submit}
             disabled={submitting || evidence.trim().length < 20}
             className="flex-1 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-            style={{ background: '#D0A848', color: '#fff' }}
+            style={{ background: '#D0A848', color: '#0D2137' }}
           >
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Flag size={14} />}
             {submitting ? 'Submitting…' : 'Submit Claim'}

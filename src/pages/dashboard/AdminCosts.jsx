@@ -113,7 +113,7 @@ export default function AdminCosts() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 80, color: '#999' }}>
+        <div style={{ textAlign: 'center', padding: 80, color: '#666' }}>
           <Loader2 size={32} className="spin" />
         </div>
       ) : (
@@ -137,7 +137,7 @@ export default function AdminCosts() {
                       {pct.toFixed(1)}%
                     </div>
                   ) : (
-                    <div style={{ fontSize: 13, fontStyle: 'italic', color: '#888', marginBottom: 4 }}>
+                    <div style={{ fontSize: 13, fontStyle: 'italic', color: '#5c5c5c', marginBottom: 4 }}>
                       {s.service === 'railway' ? 'Manual tracking' : 'No data'}
                     </div>
                   )}
@@ -158,7 +158,7 @@ export default function AdminCosts() {
             )}
           </h2>
           {(!uptime.monitors || uptime.monitors.length === 0) ? (
-            <div style={{ padding: 24, color: '#999', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>
+            <div style={{ padding: 24, color: '#666', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>
               No uptime data yet. Hourly poll runs at the top of each hour; BetterStack token must be set in Railway env (BETTERSTACK_API_TOKEN).
             </div>
           ) : (
@@ -201,7 +201,7 @@ export default function AdminCosts() {
             )}
           </h2>
           {(!errors.issues || errors.issues.length === 0) ? (
-            <div style={{ padding: 24, color: '#16a34a', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
+            <div style={{ padding: 24, color: '#15803d', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
               ✓ No unresolved errors in the last 24h.
             </div>
           ) : (
@@ -243,14 +243,14 @@ export default function AdminCosts() {
                         </td>
                         <td style={{ padding: '10px 12px', maxWidth: 320, color: '#333', wordBreak: 'break-word' }}>
                           <div style={{ fontWeight: 600 }}>{i.title}</div>
-                          {i.culprit && <div style={{ fontSize: 10, color: '#888', fontFamily: 'monospace', marginTop: 2 }}>{i.culprit}</div>}
+                          {i.culprit && <div style={{ fontSize: 10, color: '#5c5c5c', fontFamily: 'monospace', marginTop: 2 }}>{i.culprit}</div>}
                         </td>
                         <td style={{ padding: '10px 12px' }}>
                           <span style={{ padding: '2px 8px', borderRadius: 10, background: lc.bg, color: lc.fg, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>{i.level}</span>
                         </td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{Number(i.event_count || 0).toLocaleString()}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>{Number(i.user_count || 0)}</td>
-                        <td style={{ padding: '10px 12px', color: '#888', fontSize: 11 }}>{i.last_seen ? new Date(i.last_seen).toLocaleString() : '—'}</td>
+                        <td style={{ padding: '10px 12px', color: '#5c5c5c', fontSize: 11 }}>{i.last_seen ? new Date(i.last_seen).toLocaleString() : '—'}</td>
                       </tr>
                     );
                   })}
@@ -342,7 +342,7 @@ export default function AdminCosts() {
                           <span style={{ padding: '2px 8px', borderRadius: 10, background: sc.bg, color: sc.fg, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>{r.status}</span>
                         </td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{r.attempts || 0}</td>
-                        <td style={{ padding: '10px 12px', color: '#888', fontSize: 11 }}>{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                        <td style={{ padding: '10px 12px', color: '#5c5c5c', fontSize: 11 }}>{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
                         <td style={{ padding: '10px 12px', color: r.last_error ? '#dc2626' : '#888', fontSize: 11, maxWidth: 240, wordBreak: 'break-word' }}>
                           {r.sent_at ? new Date(r.sent_at).toLocaleString() : (r.last_error || '—')}
                         </td>
@@ -383,20 +383,20 @@ export default function AdminCosts() {
                       <div style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{wfName}</div>
                     </div>
                     {wf.error ? (
-                      <div style={{ fontSize: 12, color: '#dc2626', padding: 8, background: '#fee2e2', borderRadius: 6 }}>
+                      <div style={{ fontSize: 12, color: '#b91c1c', padding: 8, background: '#fee2e2', borderRadius: 6 }}>
                         Error: {wf.error}
                       </div>
                     ) : (
                       <>
                         <div style={{ display: 'flex', gap: 16, marginBottom: 10 }}>
                           <div>
-                            <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase' }}>Success 30d</div>
+                            <div style={{ fontSize: 10, color: '#6e6e6e', textTransform: 'uppercase' }}>Success 30d</div>
                             <div style={{ fontSize: 20, fontWeight: 700, color: successColor }}>
                               {successPct == null ? '-' : `${successPct}%`}
                             </div>
                           </div>
                           <div>
-                            <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase' }}>Total runs</div>
+                            <div style={{ fontSize: 10, color: '#6e6e6e', textTransform: 'uppercase' }}>Total runs</div>
                             <div style={{ fontSize: 20, fontWeight: 700, color: '#1f2937' }}>{wf.total || 0}</div>
                           </div>
                         </div>
@@ -407,7 +407,7 @@ export default function AdminCosts() {
                               {lastSuc.html_url && <a href={lastSuc.html_url} target="_blank" rel="noreferrer" style={{ marginLeft: 'auto', color: '#3b82f6', fontSize: 10 }}>view</a>}
                             </div>
                           ) : (
-                            <div style={{ color: '#9ca3af' }}>No recent successes</div>
+                            <div style={{ color: '#6e6e6e' }}>No recent successes</div>
                           )}
                           {lastFail ? (
                             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -424,7 +424,7 @@ export default function AdminCosts() {
                 );
               })}
               {Object.keys(drill.workflows || {}).length === 0 && !drill.error && (
-                <div style={{ padding: 16, color: '#9ca3af', fontSize: 12, gridColumn: 'span 2' }}>
+                <div style={{ padding: 16, color: '#6e6e6e', fontSize: 12, gridColumn: 'span 2' }}>
                   Loading workflow history...
                 </div>
               )}
@@ -433,7 +433,7 @@ export default function AdminCosts() {
 
           <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333' }}>30-Day Trend</h2>
           {Object.keys(seriesByService).length === 0 ? (
-            <div style={{ padding: 24, color: '#999', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>
+            <div style={{ padding: 24, color: '#666', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>
               No daily data yet. The watchdog runs at 02:00 IST nightly.
             </div>
           ) : (
@@ -472,7 +472,7 @@ export default function AdminCosts() {
             </h2>
           </div>
           {alerts.length === 0 ? (
-            <div style={{ padding: 24, color: '#16a34a', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
+            <div style={{ padding: 24, color: '#15803d', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
               ✓ No alerts fired in the last 30 days.
             </div>
           ) : (
@@ -497,10 +497,10 @@ export default function AdminCosts() {
                           <span style={{ padding: '3px 9px', borderRadius: 12, background: sev.bg, color: sev.fg, fontSize: 11, fontWeight: 600 }}>{sev.label}</span>
                         </td>
                         <td style={{ padding: '10px 12px', color: '#555' }}>{a.message}</td>
-                        <td style={{ padding: '10px 12px', color: '#888' }}>{new Date(a.fired_at).toLocaleString()}</td>
+                        <td style={{ padding: '10px 12px', color: '#5c5c5c' }}>{new Date(a.fired_at).toLocaleString()}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                           <button onClick={() => clearAlert(a.id)} title="Clear alert"
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#999' }}>
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#666' }}>
                             <Trash2 size={14} />
                           </button>
                         </td>
@@ -523,7 +523,7 @@ export default function AdminCosts() {
             </button>
           </div>
           {(summary.manual || []).length === 0 ? (
-            <div style={{ padding: 24, color: '#999', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8 }}>
+            <div style={{ padding: 24, color: '#666', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8 }}>
               No manual cost entries yet. Click "Record Cost" to log Railway billing.
             </div>
           ) : (
@@ -545,7 +545,7 @@ export default function AdminCosts() {
                       <td style={{ padding: '10px 12px' }}>{m.month_label}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>${Number(m.cost_usd).toFixed(2)}</td>
                       <td style={{ padding: '10px 12px', color: '#666' }}>{m.note || '—'}</td>
-                      <td style={{ padding: '10px 12px', color: '#888' }}>{new Date(m.created_at).toLocaleDateString()}</td>
+                      <td style={{ padding: '10px 12px', color: '#5c5c5c' }}>{new Date(m.created_at).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -66,14 +66,14 @@ export default function ChallengeForm({
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', border: 'none', cursor: aiAdvisorLoading ? 'wait' : 'pointer', opacity: aiAdvisorLoading ? 0.7 : 1 }}>
                 {aiAdvisorLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} AI Advisor
               </button>
-              <span style={{ fontSize: 10, color: '#999' }}>Get AI suggestions for sectors, technologies, budget, and more</span>
+              <span style={{ fontSize: 10, color: '#666' }}>Get AI suggestions for sectors, technologies, budget, and more</span>
             </div>
 
             {aiSuggestions && (
               <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: 14 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Brain size={14} /> AI Suggestions
-                  <button onClick={() => setAiSuggestions(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={12} /></button>
+                  <button onClick={() => setAiSuggestions(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={12} /></button>
                 </div>
                 {aiSuggestions.refined_problem_statement && (
                   <div style={{ marginBottom: 10 }}>
@@ -98,7 +98,7 @@ export default function ChallengeForm({
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 600, color: '#555', marginBottom: 3 }}>Technologies</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 4 }}>
-                        {aiSuggestions.technologies.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a' }}>{t}</span>)}
+                        {aiSuggestions.technologies.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#15803d' }}>{t}</span>)}
                       </div>
                       <button onClick={() => setForm(f => ({ ...f, technologies: [...new Set([...f.technologies, ...(aiSuggestions.technologies || [])])] }))}
                         style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer' }}>Apply</button>
@@ -232,7 +232,7 @@ export default function ChallengeForm({
                             const upd = [...form.rfi_questions];
                             upd[i] = { ...upd[i], options: (upd[i].options || []).filter((_, oj) => oj !== oi) };
                             setForm(p => ({ ...p, rfi_questions: upd }));
-                          }} style={{ padding: '3px 6px', fontSize: 11, borderRadius: 5, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}>×</button>
+                          }} style={{ padding: '3px 6px', fontSize: 11, borderRadius: 5, border: '1px solid #fecaca', background: '#fef2f2', color: '#b91c1c', cursor: 'pointer' }}>×</button>
                         </div>
                       ))}
                       <button type="button" onClick={() => {
@@ -243,7 +243,7 @@ export default function ChallengeForm({
                     </div>
                   )}
                   <button onClick={() => setForm(p => ({ ...p, rfi_questions: p.rfi_questions.filter((_, j) => j !== i) }))}
-                    style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><Trash2 size={12} /></button>
+                    style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#b91c1c', cursor: 'pointer' }}><Trash2 size={12} /></button>
                 </div>
               ))}
               <button onClick={() => setForm(p => ({ ...p, rfi_questions: [...p.rfi_questions, { id: `rfi_${Date.now()}`, type: 'text', question: '', options: [] }] }))}
@@ -266,7 +266,7 @@ export default function ChallengeForm({
                     setForm(p => ({ ...p, faqs: upd }));
                   }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
                   <button onClick={() => setForm(p => ({ ...p, faqs: p.faqs.filter((_, j) => j !== i) }))}
-                    style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}><Trash2 size={12} /></button>
+                    style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#b91c1c', cursor: 'pointer' }}><Trash2 size={12} /></button>
                 </div>
               ))}
               <button onClick={() => setForm(p => ({ ...p, faqs: [...p.faqs, { question: '', answer: '' }] }))}
@@ -280,7 +280,7 @@ export default function ChallengeForm({
                   const name = prompt('Template name:');
                   if (!name) return;
                   try { await corporateAPI.createTemplate({ name, template_data: form }); toast.success('Template saved!'); } catch { toast.error('Failed to save template'); }
-                }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#8b5cf6', border: '1px solid #8b5cf620', cursor: 'pointer' }}>
+                }} style={{ padding: '8px 16px', fontSize: 13, borderRadius: 8, background: '#f3f4f6', color: '#7c3aed', border: '1px solid #8b5cf620', cursor: 'pointer' }}>
                   Save as Template
                 </button>
               )}

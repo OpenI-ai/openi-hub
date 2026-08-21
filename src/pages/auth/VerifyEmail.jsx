@@ -322,10 +322,10 @@ export default function VerifyEmail() {
             <div className="space-y-3">
               <button onClick={confirmLinkVerify}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
-                style={{ background: '#D0A848', color: '#fff', cursor: 'pointer' }}>
+                style={{ background: '#D0A848', color: '#0D2137', cursor: 'pointer' }}>
                 <CheckCircle size={16} /> Verify my email
               </button>
-              <p className="text-center text-xs leading-relaxed" style={{ color: '#9ca3af' }}>
+              <p className="text-center text-xs leading-relaxed" style={{ color: '#6e6e6e' }}>
                 For security, email scanners cannot complete this step on your behalf.
                 Click the button above to confirm.
               </p>
@@ -384,7 +384,7 @@ export default function VerifyEmail() {
               {/* Divider */}
               <div className="flex items-center gap-3 py-1">
                 <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
-                <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>OR</span>
+                <span className="text-xs font-semibold" style={{ color: '#6e6e6e' }}>OR</span>
                 <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
               </div>
 
@@ -438,7 +438,7 @@ export default function VerifyEmail() {
                 {resending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                 Send a fresh link & code
               </button>
-              <p className="text-center text-xs" style={{ color: '#9ca3af' }}>
+              <p className="text-center text-xs" style={{ color: '#6e6e6e' }}>
                 We will email you a new link and a new 6-digit code.
               </p>
             </div>
@@ -522,7 +522,7 @@ export default function VerifyEmail() {
 
           {/* Footer */}
           <div className="text-center mt-6 pt-4 border-t" style={{ borderColor: '#f3f4f6' }}>
-            <Link to="/dashboard/login" className="text-xs" style={{ color: '#9ca3af' }}>
+            <Link to="/dashboard/login" className="text-xs" style={{ color: '#6e6e6e' }}>
               Back to login
             </Link>
           </div>

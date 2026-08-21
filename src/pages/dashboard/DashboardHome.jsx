@@ -182,7 +182,7 @@ export default function DashboardHome() {
               <Icon size={18} color={fg} />
             </div>
             <div style={{ fontSize:24, fontWeight:700, color:"#1a1a1a", marginBottom:2 }}>{value}</div>
-            <div style={{ fontSize:12, color:"#888" }}>{label}</div>
+            <div style={{ fontSize:12, color:"#5c5c5c" }}>{label}</div>
           </div>
         ))}
       </div>
@@ -282,7 +282,7 @@ export default function DashboardHome() {
                 <Icon size={15} color={c} />
                 <div>
                   <div style={{ color:"#1a1a1a", fontSize:15, fontWeight:700 }}>{v}</div>
-                  <div style={{ color:"#888", fontSize:11 }}>{l}</div>
+                  <div style={{ color:"#5c5c5c", fontSize:11 }}>{l}</div>
                 </div>
               </div>
             ))}
@@ -298,7 +298,7 @@ export default function DashboardHome() {
             <div key={label} style={{ marginBottom:14 }}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
                 <span style={{ fontSize:12, color:"#555" }}>{label}</span>
-                <span style={{ fontSize:12, color:"#888" }}>{pct}%</span>
+                <span style={{ fontSize:12, color:"#5c5c5c" }}>{pct}%</span>
               </div>
               <div style={{ height:7, background:"#f0f0f0", borderRadius:4, overflow:"hidden" }}>
                 <div style={{
@@ -332,7 +332,7 @@ export default function DashboardHome() {
                   flexDirection: "column",
                 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", lineHeight: 1 }}>100</span>
-                  <span style={{ fontSize: 9, color: "#888" }}>total</span>
+                  <span style={{ fontSize: 9, color: "#5c5c5c" }}>total</span>
                 </div>
               </div>
               <div style={{ flex: 1 }}>
@@ -340,7 +340,7 @@ export default function DashboardHome() {
                   <div key={s.range} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
                     <span style={{ fontSize: 11, color: "#555", flex: 1 }}>{s.label}</span>
-                    <span style={{ fontSize: 11, color: "#888", fontWeight: 600 }}>{s.pct}%</span>
+                    <span style={{ fontSize: 11, color: "#5c5c5c", fontWeight: 600 }}>{s.pct}%</span>
                   </div>
                 ))}
               </div>
@@ -374,7 +374,7 @@ export default function DashboardHome() {
             </button>
           </div>
           {recentEvals.length === 0 && (
-            <div style={{ padding:"24px", textAlign:"center", color:"#aaa", fontSize:13 }}>
+            <div style={{ padding:"24px", textAlign:"center", color:"#6e6e6e", fontSize:13 }}>
               No evaluations yet.
             </div>
           )}
@@ -407,7 +407,7 @@ export default function DashboardHome() {
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ color:"#1a1a1a", fontSize:13, fontWeight:500, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{displayName}</div>
-                  <div style={{ color:"#888", fontSize:11 }}>{displaySector}</div>
+                  <div style={{ color:"#5c5c5c", fontSize:11 }}>{displaySector}</div>
                 </div>
                 <span style={{
                   padding:"4px 10px", borderRadius:20, fontSize:11, fontWeight:600,
@@ -438,7 +438,7 @@ export default function DashboardHome() {
             <div key={label} style={{ marginBottom: 12 }}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom: 4 }}>
                 <span style={{ fontSize: 12, color: "#555" }}>{label}</span>
-                <span style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>{pct}%</span>
+                <span style={{ fontSize: 12, color: "#5c5c5c", fontWeight: 600 }}>{pct}%</span>
               </div>
               <div style={{ height: 8, background: "#f0f0f0", borderRadius: 4, overflow: "hidden" }}>
                 <div style={{
@@ -484,7 +484,7 @@ export default function DashboardHome() {
                   <Icon size={18} color={fg} />
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a", marginBottom: 4 }}>{label}</div>
-                <div style={{ fontSize: 12, color: "#888" }}>{desc}</div>
+                <div style={{ fontSize: 12, color: "#5c5c5c" }}>{desc}</div>
               </div>
             </Link>
           ))}

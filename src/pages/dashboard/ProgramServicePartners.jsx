@@ -197,7 +197,7 @@ export default function ProgramServicePartners() {
       <div id="tour-page-program-service-partners" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{label}</h1>
-          <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>{sublabel}</p>
+          <p style={{ fontSize: 13, color: '#5c5c5c', margin: '4px 0 0' }}>{sublabel}</p>
         </div>
         <button onClick={openAddFlow}
           style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -209,7 +209,7 @@ export default function ProgramServicePartners() {
         <div style={{ ...card, padding: 60, textAlign: 'center' }}>
           <Link2 size={42} style={{ color: '#ddd', marginBottom: 12 }} />
           <div style={{ fontSize: 16, fontWeight: 600, color: '#666', marginBottom: 6 }}>No service partners yet</div>
-          <div style={{ fontSize: 13, color: '#999', marginBottom: 18 }}>Link registered Service Providers who offer perks to your startups</div>
+          <div style={{ fontSize: 13, color: '#666', marginBottom: 18 }}>Link registered Service Providers who offer perks to your startups</div>
           <button onClick={openAddFlow}
             style={{ padding: '10px 20px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Browse Directory
@@ -230,7 +230,7 @@ export default function ProgramServicePartners() {
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{p.company_name || p.sp_user_name}</div>
-                  {p.tagline && <div style={{ fontSize: 11, color: '#888', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.tagline}</div>}
+                  {p.tagline && <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.tagline}</div>}
                   {p.service_category && (
                     <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb', display: 'inline-block', marginTop: 4 }}>
                       {p.service_category}
@@ -307,15 +307,15 @@ export default function ProgramServicePartners() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', borderBottom: '1px solid #eee' }}>
               <div>
                 <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Pick a Service Provider</h2>
-                <p style={{ fontSize: 11, color: '#888', margin: '3px 0 0' }}>Only registered Service Providers on the platform can be added as partners</p>
+                <p style={{ fontSize: 11, color: '#5c5c5c', margin: '3px 0 0' }}>Only registered Service Providers on the platform can be added as partners</p>
               </div>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => setShowPicker(false)} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowPicker(false)} />
             </div>
 
             {/* Search + filter */}
             <div style={{ padding: '14px 22px', borderBottom: '1px solid #eee', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8 }}>
-                <Search size={14} style={{ color: '#888' }} />
+                <Search size={14} style={{ color: '#5c5c5c' }} />
                 <input value={directorySearch} onChange={e => setDirectorySearch(e.target.value)} placeholder="Search by name or tagline..."
                   style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
               </div>
@@ -331,7 +331,7 @@ export default function ProgramServicePartners() {
               {directoryLoading ? (
                 <div style={{ textAlign: 'center', padding: 30 }}><Loader2 size={22} className="animate-spin" style={{ color: G }} /></div>
               ) : directory.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 30, color: '#999' }}>
+                <div style={{ textAlign: 'center', padding: 30, color: '#666' }}>
                   <Search size={28} style={{ color: '#ddd', marginBottom: 8 }} />
                   <div style={{ fontSize: 13 }}>No service providers found</div>
                   <div style={{ fontSize: 11, marginTop: 4 }}>Try broadening your search or category filter</div>
@@ -361,18 +361,18 @@ export default function ProgramServicePartners() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{sp.company_name || sp.name}</span>
                           {sp.already_added && (
-                            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                               <CheckCircle size={9} /> ADDED
                             </span>
                           )}
                         </div>
-                        {sp.tagline && <div style={{ fontSize: 11, color: '#888', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sp.tagline}</div>}
+                        {sp.tagline && <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sp.tagline}</div>}
                         {(sp.service_categories || []).length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 5 }}>
                             {sp.service_categories.slice(0, 3).map(c => (
                               <span key={c} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{c}</span>
                             ))}
-                            {sp.service_categories.length > 3 && <span style={{ fontSize: 9, color: '#999' }}>+{sp.service_categories.length - 3}</span>}
+                            {sp.service_categories.length > 3 && <span style={{ fontSize: 9, color: '#666' }}>+{sp.service_categories.length - 3}</span>}
                           </div>
                         )}
                       </div>
@@ -393,7 +393,7 @@ export default function ProgramServicePartners() {
               <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
                 {editingId ? 'Edit Service Partner' : 'Add Service Partner'}
               </h2>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => { setShowForm(false); setEditingId(null); setSelectedSp(null); }} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => { setShowForm(false); setEditingId(null); setSelectedSp(null); }} />
             </div>
 
             {/* Locked SP header */}
@@ -408,7 +408,7 @@ export default function ProgramServicePartners() {
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{selectedSp.company_name || selectedSp.name}</div>
-                  {selectedSp.tagline && <div style={{ fontSize: 11, color: '#888' }}>{selectedSp.tagline}</div>}
+                  {selectedSp.tagline && <div style={{ fontSize: 11, color: '#5c5c5c' }}>{selectedSp.tagline}</div>}
                 </div>
               </div>
             )}

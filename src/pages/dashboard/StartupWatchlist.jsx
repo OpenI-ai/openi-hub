@@ -485,7 +485,7 @@ export default function StartupWatchlist() {
         <div>
           <span id="tour-page-watchlist-header" style={{ position: 'absolute' }} />
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Startup Watchlists</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Curate and share startup selection lists by program, technology or interest</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Curate and share startup selection lists by program, technology or interest</p>
         </div>
         <button
           id="tour-page-watchlist-create"
@@ -511,7 +511,7 @@ export default function StartupWatchlist() {
               <Icon size={15} color={fg} />
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-            <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -522,7 +522,7 @@ export default function StartupWatchlist() {
         <div className={selected ? 'hidden md:block' : 'block'} style={{ ...card, overflow: 'hidden', alignSelf: 'start' }}>
           <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #f5f5f5' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <Search size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input placeholder="Search lists…" value={search} onChange={e => setSearch(e.target.value)}
                 style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 26, paddingRight: 10, paddingTop: 7, paddingBottom: 7, background: '#f8f8f8', border: '1.5px solid #eee', borderRadius: 8, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
               />
@@ -551,7 +551,7 @@ export default function StartupWatchlist() {
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 20, background: vs.bg, color: vs.color, border: `1px solid ${vs.border}`, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                         <VIcon size={8} />{vs.label}
                       </span>
-                      <span style={{ fontSize: 10, color: '#888' }}>{l.startupCount ?? l.startupIds.length} startups</span>
+                      <span style={{ fontSize: 10, color: '#5c5c5c' }}>{l.startupCount ?? l.startupIds.length} startups</span>
                     </div>
                   </div>
                   <button
@@ -565,14 +565,14 @@ export default function StartupWatchlist() {
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
                   {l.tags.slice(0, 3).map(t => (
-                    <span key={t} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 20, background: '#f5f5f5', color: '#888', border: '1px solid #eee' }}>{t}</span>
+                    <span key={t} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 20, background: '#f5f5f5', color: '#5c5c5c', border: '1px solid #eee' }}>{t}</span>
                   ))}
                 </div>
               </div>
             );
           })}
           {filteredLists.length === 0 && (
-            <div style={{ padding: 28, textAlign: 'center', color: '#aaa', fontSize: 12 }}>No watchlists found</div>
+            <div style={{ padding: 28, textAlign: 'center', color: '#6e6e6e', fontSize: 12 }}>No watchlists found</div>
           )}
         </div>
 
@@ -614,7 +614,7 @@ export default function StartupWatchlist() {
                   <button
                     id="tour-page-watchlist-add"
                     onClick={() => setShowAdd(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     <Plus size={12} /> Add Startup
                   </button>
@@ -641,7 +641,7 @@ export default function StartupWatchlist() {
                         toast.error(err.message || 'Failed to export PDF');
                       }
                     }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     <Download size={12} /> Export PDF
                   </button>
@@ -654,7 +654,7 @@ export default function StartupWatchlist() {
                   </button>
                 </div>
               </div>
-              <div style={{ marginTop: 12, fontSize: 12, color: '#aaa' }}>
+              <div style={{ marginTop: 12, fontSize: 12, color: '#6e6e6e' }}>
                 Created by {selectedList.createdBy} · {selectedList.createdOn} · {listStartups.length} startups
               </div>
             </div>
@@ -663,12 +663,12 @@ export default function StartupWatchlist() {
             {hydratingId === selectedList.id && listStartups.length === 0 ? (
               <div style={{ ...card, padding: 48, textAlign: 'center' }}>
                 <Loader2 size={28} color={G} className="animate-spin" style={{ marginBottom: 12 }} />
-                <p style={{ color: '#aaa', fontSize: 13, margin: 0 }}>Loading startups…</p>
+                <p style={{ color: '#6e6e6e', fontSize: 13, margin: 0 }}>Loading startups…</p>
               </div>
             ) : listStartups.length === 0 ? (
               <div style={{ ...card, padding: 48, textAlign: 'center' }}>
                 <Star size={32} color="#eee" style={{ marginBottom: 12 }} />
-                <p style={{ color: '#aaa', fontSize: 13, margin: 0 }}>No startups in this list yet.</p>
+                <p style={{ color: '#6e6e6e', fontSize: 13, margin: 0 }}>No startups in this list yet.</p>
                 <button onClick={() => setShowAdd(true)} style={{ marginTop: 14, padding: '8px 18px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
                   Add Startup
                 </button>
@@ -703,7 +703,7 @@ export default function StartupWatchlist() {
                           <span style={{ color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>{s.name}</span>
                           {s.deeptech && <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 20, background: '#fdf4ff', color: '#9333ea', border: '1px solid #e9d5ff' }}>DeepTech</span>}
                         </div>
-                        <div style={{ color: '#888', fontSize: 12 }}>{s.sector} · Stage: {s.stage}</div>
+                        <div style={{ color: '#5c5c5c', fontSize: 12 }}>{s.sector} · Stage: {s.stage}</div>
                       </div>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}` }}>{s.status}</span>
                       {s.score && <span style={{ fontSize: 13, color: G, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}><Star size={11} style={{ fill: G, color: G }} />{s.score}</span>}
@@ -739,7 +739,7 @@ export default function StartupWatchlist() {
         ) : (
           <div style={{ ...card, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 12 }}>
             <Star size={36} color="#eee" />
-            <p style={{ color: '#aaa', fontSize: 13, margin: 0 }}>Select a watchlist to view startups</p>
+            <p style={{ color: '#6e6e6e', fontSize: 13, margin: 0 }}>Select a watchlist to view startups</p>
             <button onClick={() => setShowCreate(true)} style={{ padding: '8px 18px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700, marginTop: 4 }}>
               Create New Watchlist
             </button>

@@ -716,7 +716,7 @@ export default function StartupProfile() {
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share this startup profile</h2>
-              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6e6e6e', padding: 4 }}>
                 <X size={16} />
               </button>
             </div>
@@ -745,7 +745,7 @@ export default function StartupProfile() {
                   Generate a branded PDF of this startup profile. Anyone with this PDF can read it (no link to manage).
                 </p>
                 <button onClick={() => downloadStartupPdf()}
-                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  style={{ width: '100%', padding: '11px 18px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <FileDown size={14} /> Download startup profile PDF
                 </button>
               </div>
@@ -757,15 +757,15 @@ export default function StartupProfile() {
                   Create a link to invite someone to this profile. People who aren&apos;t on OpenI yet will be asked to create a free account (or sign in), then taken straight to the profile.
                 </p>
                 <button onClick={() => mintNewProfileShare()} disabled={shareMinting}
-                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
+                  style={{ width: '100%', padding: '10px 16px', background: '#D0A848', color: '#0D2137', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: shareMinting ? 'not-allowed' : 'pointer', marginBottom: 16, opacity: shareMinting ? 0.6 : 1 }}>
                   {shareMinting ? 'Creating link…' : '+ Create new share link'}
                 </button>
 
                 {/* Existing shares list */}
                 {shareLoading ? (
-                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading existing shares…</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading existing shares…</p>
                 ) : shareList.length === 0 ? (
-                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet. Click above to create one.</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet. Click above to create one.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 260, overflowY: 'auto' }}>
                     {shareList.map(s => {
@@ -788,7 +788,7 @@ export default function StartupProfile() {
                             {!inactive && (
                               <>
                                 <button onClick={() => copyShareLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
-                                <button onClick={() => revokeProfileShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                                <button onClick={() => revokeProfileShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#b91c1c', cursor: 'pointer' }}>Revoke</button>
                               </>
                             )}
                           </div>
@@ -832,7 +832,7 @@ export default function StartupProfile() {
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>Save to watchlist</h3>
-              <button onClick={() => setWlOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4, lineHeight: 0 }}>
+              <button onClick={() => setWlOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666', padding: 4, lineHeight: 0 }}>
                 <X size={20} />
               </button>
             </div>
@@ -841,11 +841,11 @@ export default function StartupProfile() {
             </p>
 
             {wlLoading ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '28px 0', color: '#999', fontSize: 13 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '28px 0', color: '#666', fontSize: 13 }}>
                 <Loader2 size={18} className="animate-spin" /> Loading your lists…
               </div>
             ) : wlLists.length === 0 ? (
-              <p style={{ fontSize: 13, color: '#888', textAlign: 'center', padding: '18px 0' }}>
+              <p style={{ fontSize: 13, color: '#5c5c5c', textAlign: 'center', padding: '18px 0' }}>
                 You don&apos;t have any watchlists yet. Create one below.
               </p>
             ) : (

@@ -91,7 +91,7 @@ export default function AcademiaPortfolio() {
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const fmtAmt = (amt, cur) => amt ? formatCurrency(amt, cur || 'INR', 'full') : '';
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading...</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
@@ -108,7 +108,7 @@ export default function AcademiaPortfolio() {
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)}
             style={{ padding: '8px 20px', border: 'none', borderBottom: tab === i ? `3px solid ${G}` : '3px solid transparent', background: 'none', fontWeight: tab === i ? 700 : 400, color: tab === i ? G : '#666', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {[<FlaskConical key="fc" size={14}/>, <BookOpen key="bo" size={14}/>, <DollarSign key="ds" size={14}/>][i]} {t} <span style={{ fontSize: 12, color: '#999' }}>({[projects.length, publications.length, grants.length][i]})</span>
+            {[<FlaskConical key="fc" size={14}/>, <BookOpen key="bo" size={14}/>, <DollarSign key="ds" size={14}/>][i]} {t} <span style={{ fontSize: 12, color: '#666' }}>({[projects.length, publications.length, grants.length][i]})</span>
           </button>
         ))}
       </div>
@@ -116,7 +116,7 @@ export default function AcademiaPortfolio() {
       {/* Research Projects Tab */}
       {tab === 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
-          {projects.length === 0 && <p style={{ color: '#888' }}>No research projects yet. Add your ongoing and completed research!</p>}
+          {projects.length === 0 && <p style={{ color: '#5c5c5c' }}>No research projects yet. Add your ongoing and completed research!</p>}
           {projects.map(p => (
             <div key={p.id} style={{ ...card, padding: 18, borderLeft: p.is_featured ? `4px solid ${G}` : undefined }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -125,7 +125,7 @@ export default function AcademiaPortfolio() {
                   {p.is_featured && <span style={{ fontSize: 11, color: G, fontWeight: 600 }}>★ Featured</span>}
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#888' }} onClick={() => openEdit('project', p)}/>
+                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => openEdit('project', p)}/>
                   <Trash2 size={15} style={{ cursor: 'pointer', color: '#ccc' }} onClick={() => handleDelete('project', p.id)}/>
                 </div>
               </div>
@@ -140,8 +140,8 @@ export default function AcademiaPortfolio() {
                 </div>
               )}
               {p.funding_amount && <div style={{ marginTop: 8, fontSize: 13, color: '#16a34a', fontWeight: 600 }}>💰 {fmtAmt(p.funding_amount, p.funding_currency)}{p.funding_source ? ` — ${p.funding_source}` : ''}</div>}
-              {p.partner_institutions && <div style={{ marginTop: 4, fontSize: 12, color: '#888' }}>🏛 {p.partner_institutions}</div>}
-              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12, color: '#888' }}>
+              {p.partner_institutions && <div style={{ marginTop: 4, fontSize: 12, color: '#5c5c5c' }}>🏛 {p.partner_institutions}</div>}
+              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12, color: '#5c5c5c' }}>
                 {p.start_date && <span>{fmtDate(p.start_date)}{p.end_date ? ` — ${fmtDate(p.end_date)}` : ' — Present'}</span>}
               </div>
               {p.paper_url && <a href={p.paper_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 12, color: G }}><ExternalLink size={12}/> Paper</a>}
@@ -153,21 +153,21 @@ export default function AcademiaPortfolio() {
       {/* Publications Tab */}
       {tab === 1 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
-          {publications.length === 0 && <p style={{ color: '#888' }}>No publications yet. Add your journal papers, conference proceedings, and preprints!</p>}
+          {publications.length === 0 && <p style={{ color: '#5c5c5c' }}>No publications yet. Add your journal papers, conference proceedings, and preprints!</p>}
           {publications.map(p => (
             <div key={p.id} style={{ ...card, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, flex: 1 }}>{p.title}</h3>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginLeft: 8 }}>
-                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#888' }} onClick={() => openEdit('publication', p)}/>
+                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => openEdit('publication', p)}/>
                   <Trash2 size={15} style={{ cursor: 'pointer', color: '#ccc' }} onClick={() => handleDelete('publication', p.id)}/>
                 </div>
               </div>
-              {p.authors?.length > 0 && <p style={{ margin: '4px 0 0', fontSize: 12, color: '#888' }}>{p.authors.join(', ')}</p>}
+              {p.authors?.length > 0 && <p style={{ margin: '4px 0 0', fontSize: 12, color: '#5c5c5c' }}>{p.authors.join(', ')}</p>}
               <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: (PUB_TYPE_COLORS[p.pub_type] || '#888') + '18', color: PUB_TYPE_COLORS[p.pub_type] || '#888', fontWeight: 600 }}>{p.pub_type?.replace(/_/g, ' ')}</span>
                 {p.is_open_access && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 10, background: '#16a34a18', color: '#16a34a', fontWeight: 600 }}>Open Access</span>}
-                {p.citations_count > 0 && <span style={{ fontSize: 11, color: '#888' }}>📖 {p.citations_count} citation{p.citations_count > 1 ? 's' : ''}</span>}
+                {p.citations_count > 0 && <span style={{ fontSize: 11, color: '#5c5c5c' }}>📖 {p.citations_count} citation{p.citations_count > 1 ? 's' : ''}</span>}
               </div>
               {p.journal_or_venue && <p style={{ margin: '6px 0 0', fontSize: 13, color: '#555', fontStyle: 'italic' }}>{p.journal_or_venue}</p>}
               {p.keywords?.length > 0 && (
@@ -175,7 +175,7 @@ export default function AcademiaPortfolio() {
                   {p.keywords.map((k, i) => <span key={i} style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: '#f0f0f0', color: '#666' }}>{k}</span>)}
                 </div>
               )}
-              {p.publication_date && <div style={{ marginTop: 6, fontSize: 12, color: '#888' }}>{fmtDate(p.publication_date)}</div>}
+              {p.publication_date && <div style={{ marginTop: 6, fontSize: 12, color: '#5c5c5c' }}>{fmtDate(p.publication_date)}</div>}
               <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
                 {p.doi_url && <a href={p.doi_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: G, fontWeight: 600 }}>DOI</a>}
                 {p.paper_url && <a href={p.paper_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#2563eb' }}>PDF</a>}
@@ -188,25 +188,25 @@ export default function AcademiaPortfolio() {
       {/* Grants Tab */}
       {tab === 2 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
-          {grants.length === 0 && <p style={{ color: '#888' }}>No grants yet. Track your research funding and grant applications!</p>}
+          {grants.length === 0 && <p style={{ color: '#5c5c5c' }}>No grants yet. Track your research funding and grant applications!</p>}
           {grants.map(g => (
             <div key={g.id} style={{ ...card, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>{g.title}</h3>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#888' }} onClick={() => openEdit('grant', g)}/>
+                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => openEdit('grant', g)}/>
                   <Trash2 size={15} style={{ cursor: 'pointer', color: '#ccc' }} onClick={() => handleDelete('grant', g.id)}/>
                 </div>
               </div>
-              {g.granting_body && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>{g.granting_body}</p>}
+              {g.granting_body && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5c5c5c' }}>{g.granting_body}</p>}
               <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
                 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f0f0f0', color: '#555', fontWeight: 600 }}>{g.grant_type}</span>
                 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: (GRANT_STATUS_COLORS[g.status] || '#888') + '18', color: GRANT_STATUS_COLORS[g.status] || '#888', fontWeight: 600 }}>{g.status}</span>
               </div>
               {g.amount && <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: '#16a34a' }}>{fmtAmt(g.amount, g.currency)}</div>}
               {g.project_title && <div style={{ marginTop: 4, fontSize: 12, color: '#555' }}>Project: {g.project_title}</div>}
-              {g.co_investigators?.length > 0 && <div style={{ marginTop: 4, fontSize: 11, color: '#999' }}>Co-PIs: {g.co_investigators.join(', ')}</div>}
-              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12, color: '#888' }}>
+              {g.co_investigators?.length > 0 && <div style={{ marginTop: 4, fontSize: 11, color: '#666' }}>Co-PIs: {g.co_investigators.join(', ')}</div>}
+              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12, color: '#5c5c5c' }}>
                 {g.start_date && <span>{fmtDate(g.start_date)}{g.end_date ? ` — ${fmtDate(g.end_date)}` : ''}</span>}
               </div>
             </div>

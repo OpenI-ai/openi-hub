@@ -17,6 +17,18 @@ import { TagInput, MultiSelect, MoneyRange } from './fields.jsx';
 // ---- BODY START (original lines 174-404) ----
 function FormField({ field, value, onChange }) {
   const { name, label, type, required, options, placeholder, min, max } = field;
+  // s85 a11y — WCAG 2.2 SC 1.3.1 / 4.1.2. Every <label> below is a SIBLING of
+  // its control with no htmlFor, and no control carried an id, so the labels
+  // were visual only: a screen reader reached these fields and announced
+  // "edit text, blank". The profile form is 10 such controls, which is a
+  // profile a blind user cannot complete.
+  //
+  // `name` is the field key from the schema and is unique within a form, so it
+  // is a stable id source -- no counter, no useId, nothing that changes between
+  // renders (an id that changes breaks the association it exists to create).
+  // Prefixed because bare names like "city" or "type" would collide with ids
+  // elsewhere on the page.
+  const fid = `pf-${name}`;
   // Phase 92.3 hotfix — select_dependent in top-level FormField. Mirrors the
   // ProfileSection inline branch from Phase 92.1.4. Reads field.__parentValue
   // (injected by the fields.map below) and resolves options from
@@ -30,10 +42,10 @@ function FormField({ field, value, onChange }) {
     const displayVal = isValid ? currentVal : '';
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
           {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
-        <select value={displayVal} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+        <select id={fid} value={displayVal} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
           {/* Title-case dependsOn for friendlier placeholder text (carry-forward fix 21 May 2026) */}
           <option value="">{parentVal ? 'Select...' : `Pick ${field.dependsOn.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} first`}</option>
           {opts.map(o => <option key={o} value={o}>{o}</option>)}
@@ -44,10 +56,10 @@ function FormField({ field, value, onChange }) {
   if (type === 'select') {
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
           {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
-        <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+        <select id={fid} value={value || ''} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
           <option value="">Select...</option>
           {(options || []).map(o => <option key={o} value={o}>{o}</option>)}
         </select>
@@ -57,8 +69,8 @@ function FormField({ field, value, onChange }) {
   if (type === 'textarea') {
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
-        <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3}
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
+        <textarea id={fid} value={value || ''} onChange={e => onChange(e.target.value)} rows={3}
           style={{ ...inputStyle, resize: 'vertical' }}
           onFocus={e => e.target.style.borderColor = '#D0A848'}
           onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
@@ -81,10 +93,10 @@ function FormField({ field, value, onChange }) {
     }
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
           {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
-        <input type="date" value={formatted} onChange={e => onChange(e.target.value)}
+        <input id={fid} type="date" value={formatted} onChange={e => onChange(e.target.value)}
           min={min} max={max} style={inputStyle}
           onFocus={e => e.target.style.borderColor = '#D0A848'}
           onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
@@ -103,16 +115,19 @@ function FormField({ field, value, onChange }) {
   if (type === 'tags') {
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
-        <TagInput value={value || []} onChange={onChange} placeholder={placeholder} />
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
+        <TagInput value={value || []} onChange={onChange} placeholder={placeholder} inputId={fid} />
       </div>
     );
   }
   if (type === 'multiselect') {
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
-        <MultiSelect options={options || []} value={value || []} onChange={onChange} />
+        {/* No htmlFor: MultiSelect renders toggle BUTTONS, not a form control,
+            so a label could never resolve to it. The group points back at the
+            label instead (WAI-ARIA group + aria-labelledby). */}
+        <label id={`${fid}-label`} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>{label}</label>
+        <MultiSelect options={options || []} value={value || []} onChange={onChange} labelledBy={`${fid}-label`} />
       </div>
     );
   }
@@ -142,10 +157,10 @@ function FormField({ field, value, onChange }) {
     const resolved = resolveCountryCode(value) || 'IN';
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
           {label || 'Country'} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
-        <select value={resolved} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+        <select id={fid} value={resolved} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
           {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
         </select>
       </div>
@@ -186,10 +201,10 @@ function FormField({ field, value, onChange }) {
     const opts = yearOptions(field.min || 1970);
     return (
       <div>
-        <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+        <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
           {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
         </label>
-        <select value={value || ''} onChange={e => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+        <select id={fid} value={value || ''} onChange={e => onChange(e.target.value === '' ? '' : Number(e.target.value))}
                 style={{ ...inputStyle, cursor: 'pointer' }}>
           <option value="">Select year…</option>
           {opts.map(y => <option key={y} value={y}>{y}</option>)}
@@ -236,10 +251,10 @@ function FormField({ field, value, onChange }) {
   }
   return (
     <div>
-      <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
+      <label htmlFor={fid} className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>
         {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
       </label>
-      <input type={type || 'text'} value={value ?? ''} onChange={e => onChange(type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
+      <input id={fid} type={type || 'text'} value={value ?? ''} onChange={e => onChange(type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
         placeholder={placeholder || ''} min={min} max={max} style={inputStyle}
         onFocus={e => e.target.style.borderColor = '#D0A848'}
         onBlur={e => e.target.style.borderColor = '#e5e7eb'} />

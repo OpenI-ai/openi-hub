@@ -159,7 +159,7 @@ export default function Login() {
             </div>
           )}
           {error && (
-                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
+                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
                   <AlertCircle size={15} className="shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -169,7 +169,7 @@ export default function Login() {
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Email address</label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }} />
+                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#6e6e6e' }} />
                     <input
                       type="email"
                       value={email}
@@ -192,7 +192,7 @@ export default function Login() {
                     </Link>
                   </div>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }} />
+                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#6e6e6e' }} />
                     <input
                       type={showPwd ? 'text' : 'password'}
                       value={password}
@@ -208,7 +208,7 @@ export default function Login() {
                       type="button"
                       onClick={() => setShowPwd(!showPwd)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
-                      style={{ color: '#9ca3af' }}
+                      style={{ color: '#6e6e6e' }}
                     >
                       {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -219,7 +219,7 @@ export default function Login() {
                   type="submit"
                   disabled={loading}
                   className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm mt-2"
-                  style={{ backgroundColor: '#D0A848', color: '#ffffff' }}
+                  style={{ backgroundColor: '#D0A848', color: '#0D2137' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c49a4a'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D0A848'}
                 >
@@ -232,7 +232,7 @@ export default function Login() {
                   public visitors to avoid exposing credentials (e.g. admin@drdo.gov.in). */}
               {showDemoAccounts && (
                 <div className="mt-6 pt-5" style={{ borderTop: '1px solid #f3f4f6' }}>
-                  <p className="text-xs text-center mb-3" style={{ color: '#9ca3af' }}>Quick login (click to fill credentials)</p>
+                  <p className="text-xs text-center mb-3" style={{ color: '#6e6e6e' }}>Quick login (click to fill credentials)</p>
                   <div className="grid grid-cols-2 gap-2">
                     {DEMO_ACCOUNTS.map(({ email: e, password: p, role }) => (
                       <button
@@ -244,7 +244,7 @@ export default function Login() {
                         onMouseLeave={el => { el.currentTarget.style.borderColor = '#e5e7eb'; el.currentTarget.style.backgroundColor = '#f9fafb'; }}
                       >
                         <div className="text-xs font-medium" style={{ color: '#D0A848' }}>{role}</div>
-                        <div className="text-[10px] truncate" style={{ color: '#9ca3af' }}>{e}</div>
+                        <div className="text-[10px] truncate" style={{ color: '#6e6e6e' }}>{e}</div>
                       </button>
                     ))}
                   </div>
@@ -257,7 +257,7 @@ export default function Login() {
               <p className="text-sm mb-6" style={{ color: '#6b7280' }}>Enter the 6-digit code from your authenticator app.</p>
 
               {error && (
-                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
+                <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
                   <AlertCircle size={15} className="shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -278,14 +278,14 @@ export default function Login() {
                     onFocus={e => { e.target.style.borderColor = '#D0A848'; e.target.style.backgroundColor = '#ffffff'; }}
                     onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.backgroundColor = '#f9fafb'; }}
                   />
-                  <p className="text-xs mt-2 text-center" style={{ color: '#9ca3af' }}>Open your authenticator app (Google Authenticator, 1Password, Authy) and enter the current code.</p>
+                  <p className="text-xs mt-2 text-center" style={{ color: '#6e6e6e' }}>Open your authenticator app (Google Authenticator, 1Password, Authy) and enter the current code.</p>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading || otp.length < 6}
                   className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm"
-                  style={{ backgroundColor: '#D0A848', color: '#ffffff' }}
+                  style={{ backgroundColor: '#D0A848', color: '#0D2137' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c49a4a'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = '#D0A848'}
                 >
@@ -307,7 +307,7 @@ export default function Login() {
           </p>
         </div>
 
-        <p className="text-center text-xs mt-6" style={{ color: '#9ca3af' }}>
+        <p className="text-center text-xs mt-6" style={{ color: '#6e6e6e' }}>
           &copy; {new Date().getFullYear()} OpenI Hub. All rights reserved.
         </p>
       </div>

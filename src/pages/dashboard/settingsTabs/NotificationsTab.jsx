@@ -23,7 +23,7 @@ export default function NotificationsTab({ emailNotif, pushNotif, setEmailNotif,
               <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{label}</div>
-                  <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{desc}</div>
+                  <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2 }}>{desc}</div>
                 </div>
                 <button onClick={() => toggle(!value)} style={{
                   width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
@@ -39,7 +39,7 @@ export default function NotificationsTab({ emailNotif, pushNotif, setEmailNotif,
             ))}
           </div>
 
-          <div style={{ marginTop: 24, padding: '14px 18px', background: '#fff8ec', borderRadius: 10, border: '1px solid rgba(213,170,91,0.3)', fontSize: 12, color: '#888' }}>
+          <div style={{ marginTop: 24, padding: '14px 18px', background: '#fff8ec', borderRadius: 10, border: '1px solid rgba(213,170,91,0.3)', fontSize: 12, color: '#5c5c5c' }}>
             <strong style={{ color: G }}>Note:</strong> Notification preferences are stored locally and will be synced to the server in a future update.
           </div>
         </div>

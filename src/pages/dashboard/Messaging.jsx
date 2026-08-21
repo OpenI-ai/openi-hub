@@ -301,7 +301,7 @@ export default function Messaging() {
               <span style={{ marginLeft: 10, fontSize: 13, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#dc2626', color: '#fff' }}>{totalUnread}</span>
             )}
           </h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Internal comms between OpenI, startups & evaluators</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Internal comms between OpenI, startups & evaluators</p>
         </div>
         <button
           id="tour-page-messaging-new"
@@ -331,7 +331,7 @@ export default function Messaging() {
           {/* Search */}
           <div style={{ padding: '14px 14px 10px', borderBottom: '1px solid #f5f5f5' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={13} style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <Search size={13} style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input
                 placeholder="Search conversations…"
                 value={search}
@@ -361,7 +361,7 @@ export default function Messaging() {
           {/* List */}
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {filteredConvs.length === 0 && (
-              <div style={{ padding: 24, textAlign: 'center', color: '#aaa', fontSize: 12 }}>No conversations</div>
+              <div style={{ padding: 24, textAlign: 'center', color: '#6e6e6e', fontSize: 12 }}>No conversations</div>
             )}
             {filteredConvs.map(c => (
               <div
@@ -397,7 +397,7 @@ export default function Messaging() {
                       <span style={{ fontSize: 10, color: '#bbb', flexShrink: 0 }}>{c.time}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 11, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>{c.lastMsg}</span>
+                      <span style={{ fontSize: 11, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>{c.lastMsg}</span>
                       {c.unread > 0 && (
                         <span style={{ flexShrink: 0, width: 18, height: 18, borderRadius: '50%', background: G, color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{c.unread}</span>
                       )}
@@ -420,7 +420,7 @@ export default function Messaging() {
                 onClick={() => setActive(null)}
                 className="md:hidden"
                 aria-label="Back to conversations"
-                style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#888', borderRadius: 6, marginLeft: -4 }}
+                style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#5c5c5c', borderRadius: 6, marginLeft: -4 }}
               >
                 <ChevronLeft size={20} />
               </button>
@@ -435,11 +435,11 @@ export default function Messaging() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ color: '#1a1a1a', fontSize: 14, fontWeight: 700 }}>{active.name}</div>
-                <div style={{ color: '#888', fontSize: 11 }}>{active.online ? 'Online' : active.role}</div>
+                <div style={{ color: '#5c5c5c', fontSize: 11 }}>{active.online ? 'Online' : active.role}</div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {[Bell, Archive, MoreHorizontal].map((Icon, i) => (
-                  <button key={i} style={{ padding: 7, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 7 }}
+                  <button key={i} style={{ padding: 7, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 7 }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
@@ -451,8 +451,8 @@ export default function Messaging() {
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 10px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {msgLoading && <div style={{ textAlign: 'center', padding: 24, color: '#aaa', fontSize: 12 }}>Loading messages…</div>}
-              {!msgLoading && activeMessages.length === 0 && <div style={{ textAlign: 'center', padding: 24, color: '#aaa', fontSize: 12 }}>No messages yet — start the conversation!</div>}
+              {msgLoading && <div style={{ textAlign: 'center', padding: 24, color: '#6e6e6e', fontSize: 12 }}>Loading messages…</div>}
+              {!msgLoading && activeMessages.length === 0 && <div style={{ textAlign: 'center', padding: 24, color: '#6e6e6e', fontSize: 12 }}>No messages yet — start the conversation!</div>}
               {activeMessages.map((msg) => (
                 <div key={msg.id} style={{ display: 'flex', flexDirection: msg.self ? 'row-reverse' : 'row', alignItems: 'flex-end', gap: 8 }}>
                   {!msg.self && (
@@ -465,7 +465,7 @@ export default function Messaging() {
                   )}
                   <div style={{ maxWidth: '70%' }}>
                     {!msg.self && (
-                      <div style={{ fontSize: 10, color: '#aaa', marginBottom: 3, paddingLeft: 4 }}>{msg.from}</div>
+                      <div style={{ fontSize: 10, color: '#6e6e6e', marginBottom: 3, paddingLeft: 4 }}>{msg.from}</div>
                     )}
                     <div style={{
                       padding: '9px 13px',
@@ -487,7 +487,7 @@ export default function Messaging() {
 
             {/* Input */}
             <div style={{ padding: '12px 16px', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button style={{ padding: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 7 }}>
+              <button style={{ padding: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 7 }}>
                 <Paperclip size={15} />
               </button>
               <div style={{ flex: 1, position: 'relative' }}>
@@ -530,7 +530,7 @@ export default function Messaging() {
         ) : (
           <div className="hidden md:flex" style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
             <MessageSquare size={40} color="#ddd" />
-            <p style={{ color: '#aaa', fontSize: 13 }}>Select a conversation to start messaging</p>
+            <p style={{ color: '#6e6e6e', fontSize: 13 }}>Select a conversation to start messaging</p>
           </div>
         )}
       </div>
@@ -553,7 +553,7 @@ export default function Messaging() {
           }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>New Conversation</h3>
-              <button onClick={closeNewModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#888', padding: 4, display: 'flex' }}>
+              <button onClick={closeNewModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#5c5c5c', padding: 4, display: 'flex' }}>
                 <X size={18} />
               </button>
             </div>
@@ -621,7 +621,7 @@ export default function Messaging() {
                   </div>
                 )}
                 <div style={{ position: 'relative' }}>
-                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#666' }} />
                   <input
                     value={memberSearch}
                     onChange={e => setMemberSearch(e.target.value)}
@@ -638,9 +638,9 @@ export default function Messaging() {
               {memberSearch.trim().length >= 2 && (
                 <div style={{ marginTop: 6, maxHeight: 220, overflowY: 'auto', border: '1px solid #eee', borderRadius: 9 }}>
                   {memberLoading ? (
-                    <p style={{ padding: '12px', color: '#888', fontSize: 12, textAlign: 'center', margin: 0 }}>Searching…</p>
+                    <p style={{ padding: '12px', color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: 0 }}>Searching…</p>
                   ) : memberResults.length === 0 ? (
-                    <p style={{ padding: '12px', color: '#888', fontSize: 12, textAlign: 'center', margin: 0 }}>No matches.</p>
+                    <p style={{ padding: '12px', color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: 0 }}>No matches.</p>
                   ) : (
                     memberResults
                       .filter(u => !selectedMembers.some(m => m.id === u.id))
@@ -673,7 +673,7 @@ export default function Messaging() {
                           }}>{(u.name || '?').charAt(0).toUpperCase()}</div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{u.name}</div>
-                            {u.role && <div style={{ fontSize: 11, color: '#888' }}>{u.role}</div>}
+                            {u.role && <div style={{ fontSize: 11, color: '#5c5c5c' }}>{u.role}</div>}
                           </div>
                         </button>
                       ))

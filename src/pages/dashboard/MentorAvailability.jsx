@@ -49,7 +49,7 @@ export default function MentorAvailability() {
     setSlots(prev => prev.map((s, i) => i === idx ? { ...emptySlot(s.day_of_week), is_active: false } : s));
   };
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 700, margin: '0 auto' }}>
@@ -57,7 +57,7 @@ export default function MentorAvailability() {
         <div>
           <span id="tour-page-mentor-availability-header" />
           <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Availability</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#888' }}>Set your weekly availability for mentoring sessions</p>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5c5c5c' }}>Set your weekly availability for mentoring sessions</p>
         </div>
         <button id="tour-page-mentor-availability-save" onClick={handleSave} disabled={saving}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 22px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
@@ -81,7 +81,7 @@ export default function MentorAvailability() {
               <input type="time" value={slot.start_time} disabled={!slot.is_active}
                 onChange={e => update(idx, 'start_time', e.target.value)}
                 style={{ padding: '6px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 16 }}/>
-              <span style={{ color: '#888' }}>to</span>
+              <span style={{ color: '#5c5c5c' }}>to</span>
               <input type="time" value={slot.end_time} disabled={!slot.is_active}
                 onChange={e => update(idx, 'end_time', e.target.value)}
                 style={{ padding: '6px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 16 }}/>

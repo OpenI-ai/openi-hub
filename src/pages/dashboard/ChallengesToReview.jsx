@@ -54,7 +54,7 @@ export default function ChallengesToReview() {
       </p>
 
       {loading && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#888', fontSize: 13 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5c5c5c', fontSize: 13 }}>
           <Loader2 size={14} className="animate-spin" /> Loading…
         </div>
       )}
@@ -62,7 +62,7 @@ export default function ChallengesToReview() {
       {!loading && challenges.length === 0 && (
         <div style={{
           padding: 32, textAlign: 'center', background: '#f9fafb',
-          border: '1.5px dashed #e5e7eb', borderRadius: 12, color: '#999', fontSize: 14,
+          border: '1.5px dashed #e5e7eb', borderRadius: 12, color: '#666', fontSize: 14,
         }}>
           <ClipboardCheck size={32} color="#ccc" style={{ marginBottom: 8 }} />
           <div style={{ fontWeight: 600, color: '#666', marginBottom: 4 }}>
@@ -113,14 +113,14 @@ export default function ChallengesToReview() {
                     {ch.description}
                   </p>
                 )}
-                <div style={{ fontSize: 11, color: '#999', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 11, color: '#666', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   {ch.created_at && (
                     <span>
                       <Calendar size={10} style={{ verticalAlign: -1, marginRight: 3 }} />
                       Posted {new Date(ch.created_at).toLocaleDateString()}
                     </span>
                   )}
-                  <span style={{ color: '#888' }}>
+                  <span style={{ color: '#5c5c5c' }}>
                     {ROLE_DESCRIPTIONS[ch.my_role] || ''}
                   </span>
                 </div>

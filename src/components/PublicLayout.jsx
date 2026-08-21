@@ -266,7 +266,7 @@ export default function PublicLayout({ children }) {
       <PublicTour />
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="px-6 py-12" style={{ background: DARK, color: '#9ca3af' }}>
+      <footer className="px-6 py-12" style={{ background: DARK, color: '#6e6e6e' }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             {/* Logo & tagline */}

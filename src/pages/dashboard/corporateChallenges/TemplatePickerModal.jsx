@@ -20,7 +20,7 @@ export default function TemplatePickerModal({ form, loadTemplates, setEditMode, 
         <div style={{ ...card, padding: 20, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Start from a Template</h3>
-            <button onClick={() => setShowTemplatePicker(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={16} /></button>
+            <button onClick={() => setShowTemplatePicker(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={16} /></button>
           </div>
           {/* Challenge Type Selector */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
@@ -32,7 +32,7 @@ export default function TemplatePickerModal({ form, loadTemplates, setEditMode, 
               <button key={t.key} onClick={() => setForm(f => ({ ...f, challenge_type: t.key }))}
                 style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: `2px solid ${form.challenge_type === t.key ? t.color : '#eee'}`, background: form.challenge_type === t.key ? `${t.color}08` : '#fff', cursor: 'pointer', textAlign: 'left' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: form.challenge_type === t.key ? t.color : '#333' }}>{t.label}</div>
-                <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{t.desc}</div>
+                <div style={{ fontSize: 10, color: '#5c5c5c', marginTop: 2 }}>{t.desc}</div>
               </button>
             ))}
           </div>
@@ -44,7 +44,7 @@ export default function TemplatePickerModal({ form, loadTemplates, setEditMode, 
               onMouseEnter={e => e.currentTarget.style.borderColor = G} onMouseLeave={e => e.currentTarget.style.borderColor = '#ddd'}>
               <Plus size={20} style={{ color: '#ccc', margin: '8px auto' }} />
               <div style={{ fontSize: 12, fontWeight: 600, color: '#666' }}>Blank Challenge</div>
-              <div style={{ fontSize: 10, color: '#aaa' }}>Start from scratch</div>
+              <div style={{ fontSize: 10, color: '#6e6e6e' }}>Start from scratch</div>
             </div>
             {/* Built-in */}
             {(templates.builtin || []).map(t => (

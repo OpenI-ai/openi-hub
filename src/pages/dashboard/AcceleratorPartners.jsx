@@ -133,7 +133,7 @@ export default function AcceleratorPartners() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div id="tour-page-accelerator-partners" style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Partnerships & Network</h1>
-        <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>Manage corporate partners, investor network, and demo day events</p>
+        <p style={{ fontSize: 13, color: '#5c5c5c', margin: '4px 0 0' }}>Manage corporate partners, investor network, and demo day events</p>
       </div>
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1px solid #eee' }}>
@@ -210,10 +210,10 @@ export default function AcceleratorPartners() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{i.investor_name}</div>
-                      {i.firm_name && <div style={{ fontSize: 11, color: '#888' }}>{i.firm_name}</div>}
+                      {i.firm_name && <div style={{ fontSize: 11, color: '#5c5c5c' }}>{i.firm_name}</div>}
                       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                         <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb', textTransform: 'uppercase' }}>{i.investor_type}</span>
-                        {i.deals_closed > 0 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{i.deals_closed} deals</span>}
+                        {i.deals_closed > 0 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{i.deals_closed} deals</span>}
                       </div>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export default function AcceleratorPartners() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                     <div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{d.title}</div>
-                      {d.batch_name && <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{d.batch_name}</div>}
+                      {d.batch_name && <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{d.batch_name}</div>}
                     </div>
                     <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: d.status === 'completed' ? '#f0fdf4' : '#eff6ff', color: d.status === 'completed' ? '#16a34a' : '#2563eb', textTransform: 'capitalize' }}>{d.status}</span>
                   </div>
@@ -381,7 +381,7 @@ function EmptyState({ icon: Icon, label, onAdd }) {
 function Stat({ icon: Icon, label, value }) {
   return (
     <div>
-      <div style={{ fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+      <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
         <Icon size={10} />{label}
       </div>
       <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
@@ -395,7 +395,7 @@ function Modal({ title, onClose, children }) {
       <div style={{ ...card, width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto', padding: 22 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{title}</h2>
-          <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={onClose} />
+          <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={onClose} />
         </div>
         {children}
       </div>

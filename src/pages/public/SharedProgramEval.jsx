@@ -76,7 +76,7 @@ export default function SharedProgramEval() {
 
           <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 6, padding: '14px 28px', borderRadius: 12, background: '#fff8ec', border: `1.5px solid ${G}` }}>
             <span style={{ fontSize: 36, fontWeight: 800, color: G }}>{overall.toFixed(1)}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>/ 5.0</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>/ 5.0</span>
           </div>
         </div>
 
@@ -122,7 +122,7 @@ export default function SharedProgramEval() {
         </div>
 
         {meta.created_at && (
-          <div style={{ marginTop: 18, fontSize: 11, color: '#aaa', textAlign: 'center' }}>
+          <div style={{ marginTop: 18, fontSize: 11, color: '#6e6e6e', textAlign: 'center' }}>
             Shared {new Date(meta.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>}
           </div>

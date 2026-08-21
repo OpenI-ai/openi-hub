@@ -122,7 +122,7 @@ export default function WhatsNew() {
           <RefreshCcw size={12} /> Refresh
         </button>
       </div>
-      <p style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>
+      <p style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 24 }}>
         Latest platform updates — relevant to your role
       </p>
 
@@ -151,7 +151,7 @@ export default function WhatsNew() {
                 onClick={() => setExpanded(expanded === gi ? -1 : gi)}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#999', textTransform: 'uppercase', marginBottom: 2 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#666', textTransform: 'uppercase', marginBottom: 2 }}>
                     {formatDate(g.date)}
                   </div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>
@@ -202,7 +202,7 @@ export default function WhatsNew() {
                                   key={a}
                                   style={{
                                     fontSize: 9, padding: '2px 6px', background: '#f7f5f0',
-                                    color: '#888', borderRadius: 4, fontWeight: 500,
+                                    color: '#5c5c5c', borderRadius: 4, fontWeight: 500,
                                   }}
                                 >
                                   {a.replace('_', ' ')}

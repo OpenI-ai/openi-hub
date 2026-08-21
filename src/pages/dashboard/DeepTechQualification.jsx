@@ -237,7 +237,7 @@ export default function DeepTechQualification() {
       <div id="tour-page-deeptech-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>DeepTech Qualification</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Qualify startups as DeepTech using structured criteria across 5 dimensions</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Qualify startups as DeepTech using structured criteria across 5 dimensions</p>
         </div>
         {mode === 'list' && (
           <button id="tour-page-deeptech-assess"
@@ -274,7 +274,7 @@ export default function DeepTechQualification() {
                   <Icon size={15} color={fg} />
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+                <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
               </div>
             ))}
           </div>
@@ -305,12 +305,12 @@ export default function DeepTechQualification() {
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{r.name[0]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 600 }}>{r.name}</div>
-                    <div style={{ color: '#888', fontSize: 11 }}>{r.date}</div>
+                    <div style={{ color: '#5c5c5c', fontSize: 11 }}>{r.date}</div>
                   </div>
                   {/* Score bar */}
                   <div style={{ minWidth: 120 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, color: '#888' }}>Score</span>
+                      <span style={{ fontSize: 11, color: '#5c5c5c' }}>Score</span>
                       <span style={{ fontSize: 11, fontWeight: 700, color: v.color }}>{r.score}%</span>
                     </div>
                     <div style={{ height: 5, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
@@ -390,7 +390,7 @@ export default function DeepTechQualification() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{sec.label}</div>
-                      <div style={{ fontSize: 11, color: '#888' }}>{sectionAnswered}/{sec.questions.length} answered</div>
+                      <div style={{ fontSize: 11, color: '#5c5c5c' }}>{sectionAnswered}/{sec.questions.length} answered</div>
                     </div>
                     {/* Section progress */}
                     <div style={{ width: 60, height: 4, background: '#f0f0f0', borderRadius: 2, overflow: 'hidden' }}>
@@ -411,7 +411,7 @@ export default function DeepTechQualification() {
                             </div>
                             <div style={{ flex: 1 }}>
                               <span style={{ fontSize: 13, color: '#1a1a1a', lineHeight: 1.5 }}>{q.text}</span>
-                              <span style={{ fontSize: 10, color: '#aaa', marginLeft: 8 }}>Weight: {q.weight}x</span>
+                              <span style={{ fontSize: 10, color: '#6e6e6e', marginLeft: 8 }}>Weight: {q.weight}x</span>
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingLeft: 28 }}>
@@ -476,7 +476,7 @@ export default function DeepTechQualification() {
               Submit Qualification Assessment
             </button>
             {(answeredCount < totalQ * 0.8 || !startupName.trim()) && (
-              <p style={{ textAlign: 'center', color: '#aaa', fontSize: 12, marginTop: 8 }}>
+              <p style={{ textAlign: 'center', color: '#6e6e6e', fontSize: 12, marginTop: 8 }}>
                 {!startupName.trim() && answeredCount < totalQ * 0.8
                   ? `Enter a startup name above and answer at least ${Math.ceil(totalQ * 0.8)} questions to submit (${answeredCount}/${totalQ} answered)`
                   : !startupName.trim()
@@ -493,7 +493,7 @@ export default function DeepTechQualification() {
               {/* Circular-ish score */}
               <div style={{ textAlign: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: 40, fontWeight: 800, color: score >= 70 ? '#16a34a' : score >= 50 ? G : '#dc2626', lineHeight: 1 }}>{score}%</div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>DeepTech Score</div>
+                <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 4 }}>DeepTech Score</div>
                 {/* Phase 89.6 (T29) — surface the "partial assessment" signal so users
                     understand the score will rise as they answer more questions. */}
                 {answeredCount < totalQ && (
@@ -509,7 +509,7 @@ export default function DeepTechQualification() {
                 <VIcon size={14} color={verdict.color} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: verdict.color }}>{verdict.label}</span>
               </div>
-              <div style={{ marginTop: 14, fontSize: 11, color: '#aaa' }}>
+              <div style={{ marginTop: 14, fontSize: 11, color: '#6e6e6e' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span>Answered</span><span style={{ color: '#1a1a1a', fontWeight: 600 }}>{answeredCount}/{totalQ}</span>
                 </div>
@@ -571,7 +571,7 @@ export default function DeepTechQualification() {
             ].map(({ label, value, color }) => (
               <div key={label}>
                 <div style={{ fontSize: 20, fontWeight: 700, color }}>{value}</div>
-                <div style={{ fontSize: 11, color: '#aaa' }}>{label}</div>
+                <div style={{ fontSize: 11, color: '#6e6e6e' }}>{label}</div>
               </div>
             ))}
           </div>
@@ -598,7 +598,7 @@ export default function DeepTechQualification() {
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share DeepTech Assessment</h2>
-              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>×</button>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6e6e6e', padding: 4 }}>×</button>
             </div>
 
             {/* Tab strip */}
@@ -640,9 +640,9 @@ export default function DeepTechQualification() {
                 </button>
 
                 {shareLoading ? (
-                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading…</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading…</p>
                 ) : shareList.length === 0 ? (
-                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
                     {shareList.map(s => {
@@ -662,7 +662,7 @@ export default function DeepTechQualification() {
                             {!inactive && (
                               <>
                                 <button onClick={() => copyDeepTechLink(s.token)} style={{ padding: '3px 7px', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#555', cursor: 'pointer' }}>Copy</button>
-                                <button onClick={() => revokeDeepTechShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#dc2626', cursor: 'pointer' }}>Revoke</button>
+                                <button onClick={() => revokeDeepTechShare(s.id)} style={{ padding: '3px 7px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 5, fontSize: 9, fontWeight: 600, color: '#b91c1c', cursor: 'pointer' }}>Revoke</button>
                               </>
                             )}
                           </div>

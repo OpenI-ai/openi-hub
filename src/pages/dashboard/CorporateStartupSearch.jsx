@@ -70,7 +70,7 @@ export default function CorporateStartupSearch() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <div>
           <h2 id="tour-page-corp-search-header" style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Discover Startups</h2>
-          <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0 0' }}>{total.toLocaleString()} startups found</p>
+          <p style={{ fontSize: 12, color: '#5c5c5c', margin: '2px 0 0 0' }}>{total.toLocaleString()} startups found</p>
         </div>
         <button
           onClick={() => setShowAdd(true)}
@@ -103,8 +103,8 @@ export default function CorporateStartupSearch() {
         ) : startups.length === 0 ? (
           <div style={{ ...card, padding: 40, textAlign: 'center' }}>
             <Rocket size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No startups found</p>
-            <p style={{ fontSize: 12, color: '#aaa', marginBottom: 14 }}>Try adjusting your filters — or add a startup that isn&apos;t in the Hub yet.</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>No startups found</p>
+            <p style={{ fontSize: 12, color: '#6e6e6e', marginBottom: 14 }}>Try adjusting your filters — or add a startup that isn&apos;t in the Hub yet.</p>
             <button
               onClick={() => setShowAdd(true)}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#1a1a1a', border: 'none', cursor: 'pointer' }}
@@ -142,7 +142,7 @@ export default function CorporateStartupSearch() {
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
-                      {(s.city || s.state) && <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><MapPin size={9} style={{ verticalAlign: -1 }} /> {s.city}{s.state ? `, ${s.state}` : ''}</div>}
+                      {(s.city || s.state) && <div style={{ fontSize: 10, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><MapPin size={9} style={{ verticalAlign: -1 }} /> {s.city}{s.state ? `, ${s.state}` : ''}</div>}
                     </div>
                     {s.is_deeptech && <Cpu size={12} style={{ color: '#7c3aed', flexShrink: 0 }} />}
                   </div>
@@ -184,7 +184,7 @@ export default function CorporateStartupSearch() {
                 rarely returns zero rows, so the empty-state CTA above is hard to
                 reach; this gives a scout an Add path even when results exist. */}
             <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Can&apos;t find the startup you&apos;re looking for? Add it to the database.</p>
+              <p style={{ fontSize: 13, color: '#5c5c5c', margin: 0 }}>Can&apos;t find the startup you&apos;re looking for? Add it to the database.</p>
               <button
                 onClick={() => setShowAdd(true)}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: G, color: '#1a1a1a', border: 'none', cursor: 'pointer' }}

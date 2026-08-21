@@ -14,7 +14,7 @@ import { LinkedInIcon, XIcon } from './icons.jsx';
 export default function LandingFooter({ footerTagline }) {
   return (
     // ---- BODY START (original lines 1209-1296) ----
-      <footer className="px-6 py-12" style={{ background: DARK, color: '#9ca3af' }}>
+      <footer className="px-6 py-12" style={{ background: DARK, color: '#6e6e6e' }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             {/* Logo & tagline */}
@@ -81,7 +81,7 @@ export default function LandingFooter({ footerTagline }) {
           </div>
 
           {/* Phase 60.7 (s50) — ISO 27001 trust strip */}
-          <div className="border-t pt-6 mb-2 flex flex-wrap items-center justify-center gap-3 text-xs" style={{ borderColor: '#333', color: '#9ca3af' }}>
+          <div className="border-t pt-6 mb-2 flex flex-wrap items-center justify-center gap-3 text-xs" style={{ borderColor: '#333', color: '#6e6e6e' }}>
             <Shield size={14} style={{ color: GOLD }} />
             <span>
               <strong style={{ color: '#fff' }}>OpenI Partners LLP</strong> is{' '}

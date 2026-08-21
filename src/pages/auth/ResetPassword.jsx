@@ -92,7 +92,7 @@ export default function ResetPassword() {
                   <input type={showPwd ? 'text' : 'password'} value={pwd} onChange={e => setPwd(e.target.value)}
                     placeholder="At least 8 characters" style={inputStyle} autoComplete="new-password" autoFocus />
                   <button type="button" onClick={() => setShowPwd(!showPwd)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }}>
+                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#6e6e6e' }}>
                     {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
@@ -135,7 +135,7 @@ export default function ResetPassword() {
           )}
 
           <div className="text-center mt-6 pt-4 border-t" style={{ borderColor: '#f3f4f6' }}>
-            <Link to="/dashboard/login" className="text-xs" style={{ color: '#9ca3af' }}>
+            <Link to="/dashboard/login" className="text-xs" style={{ color: '#6e6e6e' }}>
               Back to login
             </Link>
           </div>

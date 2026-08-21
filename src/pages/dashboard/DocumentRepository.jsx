@@ -296,7 +296,7 @@ export default function DocumentRepository() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Document Repository</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Centralised storage for all OpenI program documents</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Centralised storage for all OpenI program documents</p>
         </div>
         {/* Phase 104b — wire Upload Document button (was Phase 66/T9 pattern stub) */}
         <button
@@ -327,7 +327,7 @@ export default function DocumentRepository() {
               <Icon size={15} color={fg} />
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-            <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -349,11 +349,11 @@ export default function DocumentRepository() {
           >
             <FolderOpen size={14} color={G} />
             <span style={{ fontSize: 12, fontWeight: !selectedFolder ? 700 : 500, color: !selectedFolder ? G : '#555', flex: 1 }}>All Documents</span>
-            <span style={{ fontSize: 10, color: '#aaa' }}>{files.length}</span>
+            <span style={{ fontSize: 10, color: '#6e6e6e' }}>{files.length}</span>
           </div>
           {/* Phase 104b — dynamic folder list (replaces hardcoded FOLDERS) */}
           {dynamicFolders.length === 0 && (
-            <div style={{ fontSize: 11, color: '#aaa', padding: '8px 10px', fontStyle: 'italic' }}>
+            <div style={{ fontSize: 11, color: '#6e6e6e', padding: '8px 10px', fontStyle: 'italic' }}>
               No documents yet
             </div>
           )}
@@ -372,7 +372,7 @@ export default function DocumentRepository() {
                 <div style={{ width: 10 }} />
                 <Folder size={13} color={folder.color} />
                 <span style={{ fontSize: 12, fontWeight: 500, color: '#555', flex: 1 }}>{folder.name}</span>
-                <span style={{ fontSize: 10, color: '#aaa' }}>{folder.count}</span>
+                <span style={{ fontSize: 10, color: '#6e6e6e' }}>{folder.count}</span>
               </div>
             </div>
           ))}
@@ -397,7 +397,7 @@ export default function DocumentRepository() {
           {/* Toolbar */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-              <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input
                 placeholder="Search documents, tags…"
                 value={search}
@@ -439,7 +439,7 @@ export default function DocumentRepository() {
 
           {/* Breadcrumb */}
           {selectedFolder && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, fontSize: 12, color: '#888' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, fontSize: 12, color: '#5c5c5c' }}>
               <button onClick={() => setSelectedFolder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: G, fontWeight: 600, fontSize: 12, padding: 0 }}>All Documents</button>
               <ChevronRight size={12} />
               <span style={{ color: '#1a1a1a', fontWeight: 600 }}>{selectedFolder}</span>
@@ -466,7 +466,7 @@ export default function DocumentRepository() {
                     </div>
                     <div style={{ fontSize: 11, fontWeight: 700, color: ft.color, marginBottom: 4 }}>{ft.label}</div>
                     <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 500, marginBottom: 6, wordBreak: 'break-word', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{f.name}</div>
-                    <div style={{ fontSize: 10, color: '#aaa', marginBottom: 6 }}>{f.size} · {f.uploaded}</div>
+                    <div style={{ fontSize: 10, color: '#6e6e6e', marginBottom: 6 }}>{f.size} · {f.uploaded}</div>
                     <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, background: as.bg, color: as.color, border: `1px solid ${as.border}`, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                       <AIcon size={8} />{as.label}
                     </span>
@@ -485,11 +485,11 @@ export default function DocumentRepository() {
               {/* Header row */}
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px, 1fr) 120px 90px 100px 80px 80px', minWidth: 720, gap: 12, padding: '10px 18px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
                 {['Name', 'Folder', 'Size', 'Uploaded', 'Access', 'Actions'].map(h => (
-                  <span key={h} style={{ fontSize: 11, color: '#888', fontWeight: 600 }}>{h}</span>
+                  <span key={h} style={{ fontSize: 11, color: '#5c5c5c', fontWeight: 600 }}>{h}</span>
                 ))}
               </div>
               {filteredFiles.length === 0 && (
-                <div style={{ padding: 40, textAlign: 'center', color: '#aaa', fontSize: 13 }}>No documents found</div>
+                <div style={{ padding: 40, textAlign: 'center', color: '#6e6e6e', fontSize: 13 }}>No documents found</div>
               )}
               {filteredFiles.map((f, i) => {
                 const ft = getFileType(f.name);
@@ -518,19 +518,19 @@ export default function DocumentRepository() {
                         </div>
                         <div style={{ display: 'flex', gap: 4, marginTop: 3, flexWrap: 'wrap', overflow: 'hidden' }}>
                           {f.tags.slice(0, 2).map(t => (
-                            <span key={t} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 20, background: '#f5f5f5', color: '#888', border: '1px solid #eee' }}>{t}</span>
+                            <span key={t} style={{ fontSize: 9, padding: '1px 5px', borderRadius: 20, background: '#f5f5f5', color: '#5c5c5c', border: '1px solid #eee' }}>{t}</span>
                           ))}
                         </div>
                       </div>
                     </div>
                     {/* Folder */}
-                    <span style={{ fontSize: 11, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.folder}</span>
+                    <span style={{ fontSize: 11, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.folder}</span>
                     {/* Size */}
-                    <span style={{ fontSize: 11, color: '#888' }}>{f.size}</span>
+                    <span style={{ fontSize: 11, color: '#5c5c5c' }}>{f.size}</span>
                     {/* Date */}
                     <div>
                       <div style={{ fontSize: 11, color: '#555' }}>{f.uploaded}</div>
-                      <div style={{ fontSize: 10, color: '#aaa' }}>{f.by}</div>
+                      <div style={{ fontSize: 10, color: '#6e6e6e' }}>{f.by}</div>
                     </div>
                     {/* Access */}
                     <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: as.bg, color: as.color, border: `1px solid ${as.border}`, display: 'inline-flex', alignItems: 'center', gap: 3, width: 'fit-content' }}>
@@ -543,7 +543,7 @@ export default function DocumentRepository() {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleEdit(f); }}
                           title="Edit"
-                          style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                          style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 6 }}
                           onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
                         >
@@ -553,7 +553,7 @@ export default function DocumentRepository() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePreview(f); }}
                         title="Preview"
-                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 6 }}
                         onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
                       >
@@ -562,7 +562,7 @@ export default function DocumentRepository() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDownload(f); }}
                         title="Download"
-                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 6 }}
                         onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
                       >
@@ -571,7 +571,7 @@ export default function DocumentRepository() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleShare(f); }}
                         title="Copy link"
-                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#aaa', borderRadius: 6 }}
+                        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 6 }}
                         onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#555'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#aaa'; }}
                       >
@@ -585,7 +585,7 @@ export default function DocumentRepository() {
           )}
 
           {filteredFiles.length > 0 && (
-            <div style={{ marginTop: 10, fontSize: 12, color: '#aaa', textAlign: 'right' }}>
+            <div style={{ marginTop: 10, fontSize: 12, color: '#6e6e6e', textAlign: 'right' }}>
               Showing {filteredFiles.length} of {files.length} documents
             </div>
           )}
@@ -696,7 +696,7 @@ export default function DocumentRepository() {
 
             {/* Tags */}
             <div style={{ marginBottom: 18 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tags <span style={{ color: '#888', fontWeight: 400 }}>(comma-separated, optional)</span></label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tags <span style={{ color: '#5c5c5c', fontWeight: 400 }}>(comma-separated, optional)</span></label>
               <input
                 type="text"
                 value={uploadForm.tags}
@@ -829,7 +829,7 @@ export default function DocumentRepository() {
               </div>
             </div>
             <div style={{ marginBottom: 18 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tags <span style={{ color: '#888', fontWeight: 400 }}>(comma-separated, optional)</span></label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tags <span style={{ color: '#5c5c5c', fontWeight: 400 }}>(comma-separated, optional)</span></label>
               <input
                 type="text"
                 value={editForm.tags}

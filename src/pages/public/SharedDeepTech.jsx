@@ -65,7 +65,7 @@ export default function SharedDeepTech() {
           <Award size={36} color={G} style={{ margin: '0 auto 10px', display: 'block' }} />
           <p style={{ fontSize: 11, fontWeight: 700, color: G, letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 8px' }}>DeepTech Assessment</p>
           <h1 id="tour-page-share-deeptech" style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px' }}>{a.startup_name || 'Startup'}</h1>
-          {a.assessor_name && <p style={{ fontSize: 12, color: '#888', margin: '0 0 18px' }}>Assessed by {a.assessor_name}</p>}
+          {a.assessor_name && <p style={{ fontSize: 12, color: '#5c5c5c', margin: '0 0 18px' }}>Assessed by {a.assessor_name}</p>}
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 12, background: `${verdictColor}15`, border: `1.5px solid ${verdictColor}` }}>
             <VerdictIcon size={20} color={verdictColor} />
@@ -87,12 +87,12 @@ export default function SharedDeepTech() {
                   <div style={{ display: 'grid', gap: 8 }}>
                     {rows.map((q) => {
                       const opt = DEEPTECH_OPTIONS.find((o) => o.value === a.answers[q.id])
-                        || { label: String(a.answers[q.id]).toUpperCase(), color: '#888', bg: '#f8fafc', border: '#e2e8f0' };
+                        || { label: String(a.answers[q.id]).toUpperCase(), color: '#5c5c5c', bg: '#f8fafc', border: '#e2e8f0' };
                       return (
                         <div key={q.id} style={{ padding: 12, background: '#fafafa', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                           <div style={{ flex: 1 }}>
                             <span style={{ fontSize: 13, color: '#333', lineHeight: 1.5 }}>{q.text}</span>
-                            <span style={{ fontSize: 10, color: '#aaa', marginLeft: 8, whiteSpace: 'nowrap' }}>Weight: {q.weight}x</span>
+                            <span style={{ fontSize: 10, color: '#6e6e6e', marginLeft: 8, whiteSpace: 'nowrap' }}>Weight: {q.weight}x</span>
                           </div>
                           <span style={{ fontSize: 11, fontWeight: 700, color: opt.color, background: opt.bg, border: `1px solid ${opt.border}`, borderRadius: 6, padding: '3px 10px', whiteSpace: 'nowrap' }}>{opt.label}</span>
                         </div>
@@ -111,7 +111,7 @@ export default function SharedDeepTech() {
                   {extra.map(([q, ans]) => (
                     <div key={q} style={{ padding: 12, background: '#fafafa', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                       <span style={{ fontSize: 12, color: '#555', fontFamily: 'monospace' }}>{q}</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#888' }}>{String(ans).toUpperCase()}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#5c5c5c' }}>{String(ans).toUpperCase()}</span>
                     </div>
                   ))}
                 </div>
@@ -131,7 +131,7 @@ export default function SharedDeepTech() {
         </div>
 
         {meta.created_at && (
-          <div style={{ marginTop: 18, fontSize: 11, color: '#aaa', textAlign: 'center' }}>
+          <div style={{ marginTop: 18, fontSize: 11, color: '#6e6e6e', textAlign: 'center' }}>
             Shared {new Date(meta.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>}
           </div>

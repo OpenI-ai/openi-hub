@@ -142,7 +142,7 @@ export default function AIEvaluationCard({ evaluation }) {
       {(evaluation.red_flags || []).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
           {evaluation.red_flags.map((f, i) => (
-            <span key={i} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626' }}>{f}</span>
+            <span key={i} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#b91c1c' }}>{f}</span>
           ))}
         </div>
       )}
@@ -156,7 +156,7 @@ export default function AIEvaluationCard({ evaluation }) {
         {isLegacy && (
           <span
             title="Scored before the weighted evidence-based rubric. Not directly comparable with newer evaluations — re-evaluate to update."
-            style={{ fontSize: 9, fontWeight: 600, padding: '3px 8px', borderRadius: 20, background: '#f3f4f6', color: '#6b7280', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            style={{ fontSize: 9, fontWeight: 600, padding: '3px 8px', borderRadius: 20, background: '#f3f4f6', color: '#4b5563', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <Info size={10} /> legacy scoring
           </span>
         )}

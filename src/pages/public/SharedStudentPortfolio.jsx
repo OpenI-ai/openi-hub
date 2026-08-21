@@ -141,8 +141,8 @@ export default function SharedStudentPortfolio() {
                   <div key={c.id || i} style={{ padding: 14, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{c.title}</div>
-                      {c.provider && <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{c.provider}</div>}
-                      {c.completion_date && <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>{fmtDate(c.completion_date)}</div>}
+                      {c.provider && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2 }}>{c.provider}</div>}
+                      {c.completion_date && <div style={{ fontSize: 11, color: '#6e6e6e', marginTop: 4 }}>{fmtDate(c.completion_date)}</div>}
                     </div>
                     {c.credential_url && <a href={c.credential_url} target="_blank" rel="noopener noreferrer" style={iconLink()}><ExternalLink size={15} /></a>}
                   </div>
@@ -162,7 +162,7 @@ export default function SharedStudentPortfolio() {
 
         {/* Share meta footer */}
         {meta.created_at && (
-          <div style={{ marginTop: 20, fontSize: 11, color: '#aaa', textAlign: 'center' }}>
+          <div style={{ marginTop: 20, fontSize: 11, color: '#6e6e6e', textAlign: 'center' }}>
             Shared {new Date(meta.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</>}
           </div>
@@ -177,11 +177,11 @@ function chipStyle() {
 }
 
 function iconLink() {
-  return { color: '#888', display: 'inline-flex' };
+  return { color: '#5c5c5c', display: 'inline-flex' };
 }
 
 function Empty({ label }) {
-  return <div style={{ fontSize: 13, color: '#aaa', padding: '8px 0' }}>{label}</div>;
+  return <div style={{ fontSize: 13, color: '#6e6e6e', padding: '8px 0' }}>{label}</div>;
 }
 
 function Section({ title, icon, count, children }) {
@@ -189,7 +189,7 @@ function Section({ title, icon, count, children }) {
     <div style={{ ...card, padding: 22, marginBottom: 14 }}>
       <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
         {icon} {title}
-        {typeof count === 'number' && <span style={{ fontSize: 11, color: '#aaa', fontWeight: 600 }}>({count})</span>}
+        {typeof count === 'number' && <span style={{ fontSize: 11, color: '#6e6e6e', fontWeight: 600 }}>({count})</span>}
       </h2>
       {children}
     </div>

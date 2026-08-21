@@ -60,7 +60,7 @@ export default function BrowseLabFacilities() {
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
         <button onClick={() => navigate('/dashboard/browse-facilities')}
-          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Facility Calls
         </button>
 
@@ -151,14 +151,14 @@ export default function BrowseLabFacilities() {
       <h1 id="tour-page-browse-facilities" style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Megaphone size={22} color={G} /> Lab Facility Calls
       </h1>
-      <p style={{ color: '#888', fontSize: 14, marginTop: 6, marginBottom: 20 }}>
+      <p style={{ color: '#5c5c5c', fontSize: 14, marginTop: 6, marginBottom: 20 }}>
         Discover open calls from labs across the ecosystem inviting startups to apply for facility access.
       </p>
 
       {/* Search */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') setQuery(search.trim()); }}
             placeholder="Search facility calls…"
             style={{ width: '100%', padding: '10px 12px 10px 36px', border: '1px solid #ddd', borderRadius: 10, fontSize: 16, boxSizing: 'border-box' }} />
@@ -172,7 +172,7 @@ export default function BrowseLabFacilities() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>
       ) : items.length === 0 ? (
-        <p style={{ color: '#888', textAlign: 'center', marginTop: 40 }}>No open facility calls right now. Check back soon.</p>
+        <p style={{ color: '#5c5c5c', textAlign: 'center', marginTop: 40 }}>No open facility calls right now. Check back soon.</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
           {items.map(a => (
@@ -188,7 +188,7 @@ export default function BrowseLabFacilities() {
                   </span>
                 )}
               </div>
-              <p style={{ margin: '4px 0 0', fontSize: 12, color: '#888' }}>
+              <p style={{ margin: '4px 0 0', fontSize: 12, color: '#5c5c5c' }}>
                 {a.lab_org || a.lab_name || 'Lab Facility'}
               </p>
               {Array.isArray(a.sectors) && a.sectors.length > 0 && (
@@ -200,7 +200,7 @@ export default function BrowseLabFacilities() {
               )}
               {a.description && <p style={{ margin: '10px 0 0', fontSize: 13, color: '#666', lineHeight: 1.45 }}>{a.description.substring(0, 120)}{a.description.length > 120 ? '…' : ''}</p>}
               {a.deadline && (
-                <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <p style={{ margin: '8px 0 0', fontSize: 12, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Calendar size={12} /> Deadline: {fmtDate(a.deadline)}
                 </p>
               )}

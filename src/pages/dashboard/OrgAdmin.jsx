@@ -155,7 +155,7 @@ export default function OrgAdmin() {
   if (loading) {
     return (
       <div style={{ padding: 24, textAlign: 'center' }}>
-        <Loader2 size={24} className="spin" style={{ color: '#aaa' }} />
+        <Loader2 size={24} className="spin" style={{ color: '#6e6e6e' }} />
       </div>
     );
   }
@@ -165,7 +165,7 @@ export default function OrgAdmin() {
     return (
       <div style={{ padding: 24, maxWidth: 600, margin: '0 auto' }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Organization</h1>
-        <p style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>
+        <p style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 24 }}>
           Create an organization to manage bulk licenses for your team.
         </p>
 
@@ -239,7 +239,7 @@ export default function OrgAdmin() {
       <div id="tour-page-organization" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{org.name}</h1>
-          <p style={{ fontSize: 13, color: '#888' }}>
+          <p style={{ fontSize: 13, color: '#5c5c5c' }}>
             {org.plan_display_name || org.plan_name || 'No plan'} &middot; {seatsUsed}/{org.seat_limit} seats used
             {org.domain && <span> &middot; {org.domain}</span>}
           </p>
@@ -288,7 +288,7 @@ export default function OrgAdmin() {
               <X size={14} />
             </button>
           </div>
-          <p style={{ fontSize: 11, color: '#888', marginTop: 8 }}>
+          <p style={{ fontSize: 11, color: '#5c5c5c', marginTop: 8 }}>
             If the user exists on OpenI Hub, they will be added immediately and inherit the org plan. Otherwise, an invite email will be sent.
           </p>
         </div>
@@ -306,7 +306,7 @@ export default function OrgAdmin() {
                   {m.display_name || m.name || m.email}
                   {m.role === 'admin' && <Crown size={12} style={{ color: G, marginLeft: 6, verticalAlign: 'middle' }} />}
                 </div>
-                <div style={{ fontSize: 11, color: '#888' }}>{m.email} &middot; {m.persona_type || 'pending'}</div>
+                <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.email} &middot; {m.persona_type || 'pending'}</div>
               </div>
               <span style={{
                 fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10,
@@ -322,7 +322,7 @@ export default function OrgAdmin() {
                     {m.role === 'admin' ? 'Demote' : 'Promote'}
                   </button>
                   <button onClick={() => handleRemove(m.id, m.display_name || m.email)} title="Remove"
-                    style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#dc2626' }}>
+                    style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#b91c1c' }}>
                     <Trash2 size={12} />
                   </button>
                 </div>
@@ -330,7 +330,7 @@ export default function OrgAdmin() {
             </div>
           ))}
           {members.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 20, color: '#aaa', fontSize: 13 }}>No members yet</div>
+            <div style={{ textAlign: 'center', padding: 20, color: '#6e6e6e', fontSize: 13 }}>No members yet</div>
           )}
         </div>
       </div>

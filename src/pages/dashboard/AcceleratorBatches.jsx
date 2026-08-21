@@ -82,7 +82,7 @@ export default function AcceleratorBatches() {
         <div>
           <span id="tour-page-accelerator-batches-header" />
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Accelerator Batches</h1>
-          <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>Manage cohorts, pitch pipelines, and demo day events</p>
+          <p style={{ fontSize: 13, color: '#5c5c5c', margin: '4px 0 0' }}>Manage cohorts, pitch pipelines, and demo day events</p>
         </div>
         <button id="tour-page-accelerator-batches-create" onClick={() => setShowCreate(true)}
           style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -92,7 +92,7 @@ export default function AcceleratorBatches() {
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         <div style={{ ...card, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 240px' }}>
-          <Search size={15} style={{ color: '#888' }} />
+          <Search size={15} style={{ color: '#5c5c5c' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search batches..."
             style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
         </div>
@@ -111,7 +111,7 @@ export default function AcceleratorBatches() {
         <div style={{ ...card, padding: 60, textAlign: 'center' }}>
           <Zap size={42} style={{ color: '#ddd', marginBottom: 12 }} />
           <div style={{ fontSize: 16, fontWeight: 600, color: '#666', marginBottom: 6 }}>No batches yet</div>
-          <div style={{ fontSize: 13, color: '#999', marginBottom: 18 }}>Create your first accelerator batch to get started</div>
+          <div style={{ fontSize: 13, color: '#666', marginBottom: 18 }}>Create your first accelerator batch to get started</div>
           <button onClick={() => setShowCreate(true)}
             style={{ padding: '10px 20px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Create Batch
@@ -131,11 +131,11 @@ export default function AcceleratorBatches() {
                   <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: sc.bg, color: sc.color }}>
                     {sc.label}
                   </span>
-                  {b.batch_number && <span style={{ fontSize: 10, color: '#999', fontWeight: 600 }}>{b.batch_number}</span>}
+                  {b.batch_number && <span style={{ fontSize: 10, color: '#666', fontWeight: 600 }}>{b.batch_number}</span>}
                 </div>
 
                 <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>{b.name}</h3>
-                <p style={{ fontSize: 12, color: '#888', margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                <p style={{ fontSize: 12, color: '#5c5c5c', margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {b.description || 'No description provided'}
                 </p>
 
@@ -144,27 +144,27 @@ export default function AcceleratorBatches() {
                     {b.focus_sectors.slice(0, 3).map(s => (
                       <span key={s} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fff8ec', color: G }}>{s}</span>
                     ))}
-                    {b.focus_sectors.length > 3 && <span style={{ fontSize: 9, color: '#999' }}>+{b.focus_sectors.length - 3}</span>}
+                    {b.focus_sectors.length > 3 && <span style={{ fontSize: 9, color: '#666' }}>+{b.focus_sectors.length - 3}</span>}
                   </div>
                 )}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid #f5f5f5', borderBottom: '1px solid #f5f5f5', marginBottom: 10 }}>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{b.startup_count || 0}</div>
-                    <div style={{ fontSize: 9, color: '#999' }}>STARTUPS</div>
+                    <div style={{ fontSize: 9, color: '#666' }}>STARTUPS</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#16a34a' }}>{b.selected_count || 0}</div>
-                    <div style={{ fontSize: 9, color: '#999' }}>SELECTED</div>
+                    <div style={{ fontSize: 9, color: '#666' }}>SELECTED</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#ca8a04' }}>{b.graduated_count || 0}</div>
-                    <div style={{ fontSize: 9, color: '#999' }}>GRADUATED</div>
+                    <div style={{ fontSize: 9, color: '#666' }}>GRADUATED</div>
                   </div>
                 </div>
 
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#888', marginBottom: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#5c5c5c', marginBottom: 4 }}>
                     <span>Milestones</span>
                     <span>{b.milestone_done}/{b.milestone_total}</span>
                   </div>
@@ -173,7 +173,7 @@ export default function AcceleratorBatches() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#888' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#5c5c5c' }}>
                   {b.demo_day_date ? (
                     <span><Calendar size={11} style={{ verticalAlign: -2, marginRight: 3 }} />Demo Day: {new Date(b.demo_day_date).toLocaleDateString()}</span>
                   ) : b.location ? (
@@ -194,7 +194,7 @@ export default function AcceleratorBatches() {
           <div style={{ ...card, width: '100%', maxWidth: 620, maxHeight: '90vh', overflowY: 'auto', padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
               <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Accelerator Batch</h2>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => setShowCreate(false)} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowCreate(false)} />
             </div>
             <form onSubmit={handleCreate}>
               <div style={{ display: 'grid', gap: 12 }}>

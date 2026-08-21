@@ -84,12 +84,12 @@ export default function ChallengeApplications({
                     <div style={{ display: 'flex', gap: 8 }}>
                       {(analysis.strengths || []).length > 0 && (
                         <div style={{ flex: 1 }}>
-                          {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', margin: '0 3px 3px 0' }}>{s}</span>)}
+                          {analysis.strengths.map((s, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#f0fdf4', color: '#15803d', margin: '0 3px 3px 0' }}>{s}</span>)}
                         </div>
                       )}
                       {(analysis.weaknesses || []).length > 0 && (
                         <div style={{ flex: 1 }}>
-                          {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#dc2626', margin: '0 3px 3px 0' }}>{w}</span>)}
+                          {analysis.weaknesses.map((w, i) => <span key={i} style={{ display: 'inline-block', fontSize: 10, padding: '2px 7px', borderRadius: 6, background: '#fef2f2', color: '#b91c1c', margin: '0 3px 3px 0' }}>{w}</span>)}
                         </div>
                       )}
                     </div>
@@ -101,7 +101,7 @@ export default function ChallengeApplications({
         )}
 
         {(detail.applications || []).length === 0 ? (
-          <div style={{ ...card, padding: 30, textAlign: 'center', color: '#999', fontSize: 13 }}>No applications yet</div>
+          <div style={{ ...card, padding: 30, textAlign: 'center', color: '#666', fontSize: 13 }}>No applications yet</div>
         ) : (!showAnalysis) && (
           <div style={{ display: 'grid', gap: 10 }}>
             {(detail.applications || []).map(app => {
@@ -158,7 +158,7 @@ export default function ChallengeApplications({
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 11, color: '#888' }}>
+                      <div style={{ fontSize: 11, color: '#5c5c5c' }}>
                         {app.applicant_email} {app.sector ? `| ${app.sector}` : ''} {app.stage ? `| ${app.stage}` : ''}
                         {app.profile_pct != null && <span style={{ marginLeft: 8, color: '#16a34a' }}>Profile: {app.profile_pct}%</span>}
                       </div>
@@ -217,7 +217,7 @@ export default function ChallengeApplications({
                       {app.pitch && <p style={{ fontSize: 12, color: '#555', marginBottom: 8, lineHeight: 1.5 }}>{app.pitch}</p>}
                       {app.proposal_url && (
                         <div style={{ fontSize: 11, marginBottom: 8 }}>
-                          <span style={{ color: '#888' }}>Proposal: </span>
+                          <span style={{ color: '#5c5c5c' }}>Proposal: </span>
                           <a href={app.proposal_url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{app.proposal_url}</a>
                         </div>
                       )}
@@ -242,7 +242,7 @@ export default function ChallengeApplications({
                           <div style={{ fontSize: 11, fontWeight: 600, color: '#333', marginBottom: 6 }}>Data Room</div>
                           {appDataRoom.map((doc, di) => (
                             <div key={di} style={{ fontSize: 11, marginBottom: 2 }}>
-                              <span style={{ color: '#888', textTransform: 'capitalize' }}>{(doc.type || 'file').replace(/_/g, ' ')}:</span>{' '}
+                              <span style={{ color: '#5c5c5c', textTransform: 'capitalize' }}>{(doc.type || 'file').replace(/_/g, ' ')}:</span>{' '}
                               <a href={doc.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{doc.url}</a>
                             </div>
                           ))}
@@ -258,13 +258,13 @@ export default function ChallengeApplications({
                         <button onClick={() => updateAppStatus(app.id, 'shortlisted')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#fefce815', color: '#ca8a04', border: '1px solid #fde68a', cursor: 'pointer' }}>
                           <Star size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'shortlist')}
                         </button>
-                        <button onClick={() => updateAppStatus(app.id, 'rejected')} style={{ padding: '5px 12px', fontSize: 11, borderRadius: 7, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', cursor: 'pointer' }}>
+                        <button onClick={() => updateAppStatus(app.id, 'rejected')} style={{ padding: '5px 12px', fontSize: 11, borderRadius: 7, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', cursor: 'pointer' }}>
                           {getActionLabel(persona, 'reject')}
                         </button>
                       </>
                     )}
                     {app.status === 'shortlisted' && (
-                      <button onClick={() => updateAppStatus(app.id, 'selected')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
+                      <button onClick={() => updateAppStatus(app.id, 'selected')} style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', cursor: 'pointer' }}>
                         <CheckCircle size={11} style={{ verticalAlign: -2 }} /> {getActionLabel(persona, 'select')}
                       </button>
                     )}

@@ -92,7 +92,7 @@ export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabe
           <div style={{ fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 }}>
             8-Vector Scores (1–5)
           </div>
-          <div style={{ fontSize: 11, color: '#888' }}>
+          <div style={{ fontSize: 11, color: '#5c5c5c' }}>
             Overall: <strong style={{ color: G, fontSize: 14 }}>{computeOverall()}</strong>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabe
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
               <div>
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{v.label}</span>
-                <span style={{ fontSize: 10, color: '#888', marginLeft: 6 }}>— {v.desc}</span>
+                <span style={{ fontSize: 10, color: '#5c5c5c', marginLeft: 6 }}>— {v.desc}</span>
               </div>
               <div style={{
                 fontSize: 12, fontWeight: 700, color: G, minWidth: 28, textAlign: 'right',

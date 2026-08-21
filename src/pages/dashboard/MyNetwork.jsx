@@ -59,11 +59,11 @@ function ConnectionCard({ person, onAction }) {
             </div>
             <PersonaBadge type={person.role || person.persona_type} />
           </div>
-          {person.tagline && <div style={{ fontSize: 12, color: '#888', marginTop: 4, lineHeight: 1.4 }}>{person.tagline}</div>}
+          {person.tagline && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 4, lineHeight: 1.4 }}>{person.tagline}</div>}
           <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-            {person.city && <span style={{ fontSize: 11, color: '#999', display: 'flex', alignItems: 'center', gap: 2 }}><MapPin size={10} /> {person.city}</span>}
+            {person.city && <span style={{ fontSize: 11, color: '#666', display: 'flex', alignItems: 'center', gap: 2 }}><MapPin size={10} /> {person.city}</span>}
             {person.relationship_type && person.relationship_type !== 'colleague' && (
-              <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 6, background: '#f5f0e6', color: '#b8860b' }}>{person.relationship_type}</span>
+              <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 6, background: '#f5f0e6', color: '#8a6508' }}>{person.relationship_type}</span>
             )}
             <MutualConnectionsBadge userId={person.user_id || person.id} />
           </div>
@@ -141,7 +141,7 @@ export default function MyNetwork() {
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>My Network</h1>
-      <p style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+      <p style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 8 }}>
         {stats.total_connections} connection{stats.total_connections !== 1 ? 's' : ''}
         {stats.pending_incoming > 0 && <span style={{ color: G, fontWeight: 600 }}> &middot; {stats.pending_incoming} pending</span>}
       </p>
@@ -176,7 +176,7 @@ export default function MyNetwork() {
       {(tab === 'connections' || tab === 'discover') && (
         <div id="tour-page-network-search" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           <div style={{ flex: 1, position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
+            <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e6e6e' }} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or organization..."
               style={{ width: '100%', padding: '8px 10px 8px 30px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
           </div>
@@ -184,7 +184,7 @@ export default function MyNetwork() {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}><Loader2 size={24} className="spin" /> Loading...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: '#6e6e6e' }}><Loader2 size={24} className="spin" /> Loading...</div>
       ) : (
         <>
           {/* ── CONNECTIONS TAB ─── */}
@@ -196,7 +196,7 @@ export default function MyNetwork() {
                     <ConnectionCard key={c.id} person={c}
                       onAction={
                         <button onClick={() => handleWithdraw(c.id)}
-                          style={{ fontSize: 11, color: '#999', background: 'none', border: '1px solid #eee', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
+                          style={{ fontSize: 11, color: '#666', background: 'none', border: '1px solid #eee', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
                           Disconnect
                         </button>
                       }
@@ -219,14 +219,14 @@ export default function MyNetwork() {
                     }} onAction={
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => handleRespond(r.id, 'accept')}
-                          style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: '#16a34a', border: 'none', borderRadius: 8, padding: '5px 14px', cursor: 'pointer' }}>
+                          style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: '#15803d', border: 'none', borderRadius: 8, padding: '5px 14px', cursor: 'pointer' }}>
                           Accept
                         </button>
                         <button onClick={() => handleRespond(r.id, 'decline')}
                           style={{ fontSize: 12, fontWeight: 600, color: '#666', background: '#eee', border: 'none', borderRadius: 8, padding: '5px 14px', cursor: 'pointer' }}>
                           Decline
                         </button>
-                        {r.message && <span style={{ fontSize: 11, color: '#888', fontStyle: 'italic', alignSelf: 'center' }}>"{r.message}"</span>}
+                        {r.message && <span style={{ fontSize: 11, color: '#5c5c5c', fontStyle: 'italic', alignSelf: 'center' }}>"{r.message}"</span>}
                       </div>
                     } />
                   ))}
@@ -245,7 +245,7 @@ export default function MyNetwork() {
                       organization: r.recipient_org, logo_url: r.recipient_logo, tagline: r.recipient_tagline, city: r.recipient_city,
                     }} onAction={
                       <button onClick={() => handleWithdraw(r.id)}
-                        style={{ fontSize: 11, color: '#b8860b', background: '#f5f0e6', border: `1px solid ${G}`, borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
+                        style={{ fontSize: 11, color: '#8a6508', background: '#f5f0e6', border: `1px solid ${G}`, borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
                         <Clock size={10} style={{ marginRight: 4 }} /> Withdraw
                       </button>
                     } />
@@ -274,7 +274,7 @@ export default function MyNetwork() {
 
 function EmptyState({ icon: Icon, title, description }) {
   return (
-    <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
+    <div style={{ textAlign: 'center', padding: 48, color: '#6e6e6e' }}>
       <Icon size={36} style={{ marginBottom: 8, opacity: 0.4 }} />
       <div style={{ fontSize: 15, fontWeight: 600, color: '#666' }}>{title}</div>
       <div style={{ fontSize: 13, marginTop: 4 }}>{description}</div>

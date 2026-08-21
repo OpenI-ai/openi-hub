@@ -248,11 +248,11 @@ function LogoField({ label, required, value, onChange, placeholder }) {
               </>
             ) : (
               <>
-                <span style={{ fontSize: 24, color: '#9ca3af' }}>📷</span>
+                <span style={{ fontSize: 24, color: '#6e6e6e' }}>📷</span>
                 <span style={{ fontSize: 13, fontWeight: 500, color: '#374151' }}>
                   {uploading ? 'Uploading…' : 'Click to choose an image'}
                 </span>
-                <span style={{ fontSize: 11, color: '#9ca3af' }}>
+                <span style={{ fontSize: 11, color: '#6e6e6e' }}>
                   PNG, JPG, GIF, WEBP, SVG · max 2 MB
                 </span>
               </>

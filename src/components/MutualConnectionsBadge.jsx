@@ -30,7 +30,7 @@ export default function MutualConnectionsBadge({ userId, size = 'sm' }) {
         onClick={() => setExpanded(!expanded)}
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 4,
-          fontSize: small ? 11 : 12, color: '#888', background: 'none',
+          fontSize: small ? 11 : 12, color: '#5c5c5c', background: 'none',
           border: 'none', cursor: 'pointer', padding: 0,
         }}
       >
@@ -46,7 +46,7 @@ export default function MutualConnectionsBadge({ userId, size = 'sm' }) {
           {names.slice(0, 10).map((n, i) => (
             <div key={i} style={{ fontSize: 12, color: '#333', padding: '2px 0' }}>{n}</div>
           ))}
-          {count > 10 && <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>+{count - 10} more</div>}
+          {count > 10 && <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 4 }}>+{count - 10} more</div>}
         </div>
       )}
     </div>

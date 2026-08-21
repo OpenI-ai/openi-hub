@@ -45,7 +45,7 @@ export default function MentorSessions() {
     catch { return d; }
   };
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -69,7 +69,7 @@ export default function MentorSessions() {
       </div>
 
       {/* Sessions List */}
-      {sessions.length === 0 && <p style={{ color: '#888', textAlign: 'center', marginTop: 40 }}>No sessions found.</p>}
+      {sessions.length === 0 && <p style={{ color: '#5c5c5c', textAlign: 'center', marginTop: 40 }}>No sessions found.</p>}
       {sessions.map(s => (
         <div key={s.id} style={{ ...card, padding: 18, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
@@ -80,7 +80,7 @@ export default function MentorSessions() {
                 {s.status || 'scheduled'}
               </span>
             </div>
-            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5c5c5c' }}>
               {s.mentee_name && <span>👤 {s.mentee_name} &nbsp;·&nbsp; </span>}
               <Calendar size={12} style={{ verticalAlign: 'middle' }}/> {fmtDate(s.session_date)}
               {s.duration_minutes && <span> &nbsp;·&nbsp; <Clock size={12} style={{ verticalAlign: 'middle' }}/> {s.duration_minutes} min</span>}

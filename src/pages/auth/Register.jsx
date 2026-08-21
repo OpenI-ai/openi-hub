@@ -294,7 +294,7 @@ export default function Register() {
                   <span className="text-base font-bold" style={{ color: '#1a1a1a' }}>{group.title}</span>
                   <span className="text-[11px] font-semibold tracking-wide" style={{ color: group.accent }}>{group.tag}</span>
                 </div>
-                <div className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{group.subtitle}</div>
+                <div className="text-xs mt-0.5" style={{ color: '#6e6e6e' }}>{group.subtitle}</div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {group.items.map(p => {
@@ -334,7 +334,7 @@ export default function Register() {
             </div>
           ))}
           <div className="text-center mt-8">
-            <Link to="/dashboard/login" className="text-sm font-semibold" style={{ color: '#9ca3af' }}>
+            <Link to="/dashboard/login" className="text-sm font-semibold" style={{ color: '#6e6e6e' }}>
               Already have an account? Sign in
             </Link>
           </div>
@@ -405,7 +405,7 @@ export default function Register() {
         <div className="rounded-2xl p-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
           {error && (
             <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5"
-              style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}>
+              style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
               <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
             </div>
@@ -467,14 +467,14 @@ export default function Register() {
                           </span>
                         )}
                         {orgMatch.is_verified && !orgMatch.is_platform_owner && (
-                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#16a34a', color: '#fff', borderRadius: 4, letterSpacing: 0.3 }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', background: '#15803d', color: '#fff', borderRadius: 4, letterSpacing: 0.3 }}>
                             VERIFIED
                           </span>
                         )}
                       </div>
                       {/* Phase 117b — Multi-persona display: show all roles this org plays */}
                       {Array.isArray(orgMatch.personas) && orgMatch.personas.length > 1 && (
-                        <div style={{ fontSize: 10, color: '#888', marginBottom: 6 }}>
+                        <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 6 }}>
                           Plays {orgMatch.personas.length} roles on OpenI:&nbsp;
                           {orgMatch.personas.map((p, i) => (
                             <span key={p.type} style={{ fontWeight: p.is_primary ? 600 : 400, color: p.is_primary ? '#1a1a1a' : '#888' }}>
@@ -492,7 +492,7 @@ export default function Register() {
                           onClick={handleRequestJoinOrg}
                           disabled={orgJoinSubmitting}
                           style={{
-                            padding: '6px 12px', background: '#D0A848', color: '#fff',
+                            padding: '6px 12px', background: '#D0A848', color: '#0D2137',
                             border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 700,
                             cursor: orgJoinSubmitting ? 'not-allowed' : 'pointer',
                           }}
@@ -536,7 +536,7 @@ export default function Register() {
                     placeholder="Min 6 characters" style={inputStyle}
                     onFocus={e => e.target.style.borderColor = '#D0A848'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
                   <button type="button" onClick={() => setShowPwd(!showPwd)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }}>
+                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#6e6e6e' }}>
                     {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
@@ -604,7 +604,7 @@ export default function Register() {
                 Continue <ArrowRight size={16} />
               </button>
               {!termsAccepted && (name.trim() || email.trim() || password) && (
-                <p className="text-xs text-center" style={{ color: '#9ca3af', marginTop: -4 }}>
+                <p className="text-xs text-center" style={{ color: '#6e6e6e', marginTop: -4 }}>
                   Please accept the Terms of Use and Privacy Policy to continue.
                 </p>
               )}
@@ -648,7 +648,7 @@ export default function Register() {
                 </button>
                 <button onClick={handleRegister} disabled={loading}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-                  style={{ background: '#D0A848', color: '#fff' }}>
+                  style={{ background: '#D0A848', color: '#0D2137' }}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Creating...' : 'Create Account'}
                 </button>
@@ -685,14 +685,14 @@ export default function Register() {
                           {c.logo_url && <img src={c.logo_url} alt="" className="w-8 h-8 rounded" onError={e => e.target.style.display = 'none'} />}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold truncate" style={{ color: '#1a1a1a' }}>{c.company_name}</p>
-                            <p className="text-xs truncate" style={{ color: '#9ca3af' }}>{c.website} · {c.sector || 'Unknown sector'}</p>
+                            <p className="text-xs truncate" style={{ color: '#6e6e6e' }}>{c.website} · {c.sector || 'Unknown sector'}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => submitClaim(c)}
                           disabled={claimSubmitting}
                           className="ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
-                          style={{ background: '#D0A848', color: '#fff' }}>
+                          style={{ background: '#D0A848', color: '#0D2137' }}>
                           {claimSubmitting ? '...' : 'Claim'}
                         </button>
                       </div>
@@ -701,7 +701,7 @@ export default function Register() {
                   <button
                     onClick={() => setClaimCandidates([])}
                     className="w-full text-xs text-center mt-3"
-                    style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    style={{ color: '#6e6e6e', background: 'none', border: 'none', cursor: 'pointer' }}>
                     Not my company — skip
                   </button>
                 </div>
@@ -748,7 +748,7 @@ export default function Register() {
                 </p>
                 <button onClick={() => navigate('/dashboard/profile')}
                   className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
-                  style={{ background: '#D0A848', color: '#fff' }}>
+                  style={{ background: '#D0A848', color: '#0D2137' }}>
                   Complete My Profile
                 </button>
                 <button onClick={() => navigate('/dashboard')}
@@ -768,7 +768,7 @@ export default function Register() {
               <Link to="/dashboard/login" className="font-semibold" style={{ color: '#D0A848' }}>Sign In</Link>
             </p>
             <p className="text-sm">
-              <Link to="/landing" style={{ color: '#9ca3af' }}>Choose a different persona</Link>
+              <Link to="/landing" style={{ color: '#6e6e6e' }}>Choose a different persona</Link>
             </p>
           </div>
         )}

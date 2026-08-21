@@ -43,13 +43,13 @@ export default function AcademiaDiscovery() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <BookOpen size={22} style={{ color: G }} /> Source Academia
         </h1>
-        <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>Connect with universities, researchers, and academic institutions for R&D collaborations</p>
+        <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0' }}>Connect with universities, researchers, and academic institutions for R&D collaborations</p>
       </div>
 
       {/* Filters */}
       <div style={{ ...card, padding: 12, marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', cursor: 'auto' }}>
         <div style={{ flex: '1 1 200px', position: 'relative' }}>
-          <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
+          <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e6e6e' }} />
           <input value={filters.search} onChange={e => { setFilters(f => ({ ...f, search: e.target.value })); setPage(1); }}
             placeholder="Search institutions, researchers, departments..."
             style={{ width: '100%', padding: '7px 10px 7px 30px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
@@ -71,12 +71,12 @@ export default function AcademiaDiscovery() {
         )}
       </div>
 
-      <div style={{ fontSize: 12, color: '#888', marginBottom: 12 }}>{total} academic profile{total !== 1 ? 's' : ''} found</div>
+      <div style={{ fontSize: 12, color: '#5c5c5c', marginBottom: 12 }}>{total} academic profile{total !== 1 ? 's' : ''} found</div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40 }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite', color: G }} /></div>
       ) : academia.length === 0 ? (
-        <div style={{ ...card, padding: 40, textAlign: 'center', color: '#999', fontSize: 13, cursor: 'auto' }}>No academic profiles found matching your criteria</div>
+        <div style={{ ...card, padding: 40, textAlign: 'center', color: '#666', fontSize: 13, cursor: 'auto' }}>No academic profiles found matching your criteria</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
           {academia.map(a => (
@@ -93,7 +93,7 @@ export default function AcademiaDiscovery() {
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{a.display_name || 'Researcher'}</div>
-                  <div style={{ fontSize: 11, color: '#888' }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c' }}>
                     {a.designation || ''}{a.department ? ` - ${a.department}` : ''}
                   </div>
                 </div>
@@ -107,7 +107,7 @@ export default function AcademiaDiscovery() {
               )}
 
               {(a.city || a.state) && (
-                <div style={{ fontSize: 11, color: '#888', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <MapPin size={11} /> {[a.city, a.state].filter(Boolean).join(', ')}
                 </div>
               )}
@@ -117,11 +117,11 @@ export default function AcademiaDiscovery() {
                   <span key={r} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
                 ))}
                 {(a.offerings || []).slice(0, 2).map(o => (
-                  <span key={o} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{o}</span>
+                  <span key={o} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{o}</span>
                 ))}
               </div>
 
-              <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#999' }}>
+              <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#666' }}>
                 {a.publications_count > 0 && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><FileText size={10} /> {a.publications_count} publications</span>
                 )}
@@ -163,7 +163,7 @@ export default function AcademiaDiscovery() {
           <div onClick={e => e.stopPropagation()}
             style={{ background: '#fff', borderRadius: 16, padding: 24, maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <button onClick={() => setSelected(null)}
-              style={{ position: 'absolute', top: 14, right: 14, background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 4 }}>
+              style={{ position: 'absolute', top: 14, right: 14, background: 'none', border: 'none', cursor: 'pointer', color: '#666', padding: 4 }}>
               <X size={20} />
             </button>
             <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
@@ -176,7 +176,7 @@ export default function AcademiaDiscovery() {
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{selected.display_name || 'Researcher'}</div>
-                <div style={{ fontSize: 13, color: '#888' }}>
+                <div style={{ fontSize: 13, color: '#5c5c5c' }}>
                   {selected.designation || ''}{selected.department ? ` - ${selected.department}` : ''}
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function AcademiaDiscovery() {
               </div>
             )}
             {(selected.city || selected.state) && (
-              <div style={{ fontSize: 13, color: '#888', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
                 <MapPin size={14} /> {[selected.city, selected.state].filter(Boolean).join(', ')}
               </div>
             )}
@@ -204,7 +204,7 @@ export default function AcademiaDiscovery() {
             )}
             {(selected.research_areas || []).length > 0 && (
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.research_areas.map(r => (
                     <span key={r} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
@@ -214,10 +214,10 @@ export default function AcademiaDiscovery() {
             )}
             {(selected.offerings || []).length > 0 && (
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Offerings</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Offerings</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.offerings.map(o => (
-                    <span key={o} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{o}</span>
+                    <span key={o} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#15803d' }}>{o}</span>
                   ))}
                 </div>
               </div>

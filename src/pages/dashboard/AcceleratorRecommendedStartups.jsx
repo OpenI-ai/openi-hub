@@ -60,7 +60,7 @@ export default function AcceleratorRecommendedStartups() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>
-        <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>
+        <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0' }}>
           Startups matching your accelerator's focus sectors, ranked for batch fit.
         </p>
       </div>
@@ -132,7 +132,7 @@ export default function AcceleratorRecommendedStartups() {
                       {s.is_deeptech && <Cpu size={11} style={{ color: G, flexShrink: 0 }} />}
                     </div>
                     {location && (
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
                         <MapPin size={10} /> {location}
                       </div>
                     )}
@@ -154,7 +154,7 @@ export default function AcceleratorRecommendedStartups() {
                   {boosted && (
                     <span
                       title={lift > 0 ? `Lifted by ${lift} ranks via cluster match` : 'Matched your focus cluster'}
-                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#a06600', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
+                      style={{ fontSize: 10, padding: '2px 8px', background: '#fff7e6', color: '#8a5700', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}
                     >
                       <TrendingUp size={10} />
                       {lift > 0 ? `+${lift} cluster` : 'cluster match'}

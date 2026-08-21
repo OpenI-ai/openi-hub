@@ -112,7 +112,7 @@ export default function Directory() {
     const initials = (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     return (
       <div style={{ width: size, height: size, borderRadius: 12, background: '#f3f4f6', display: 'flex',
-        alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, fontWeight: 700, color: '#999', border: '1px solid #eee' }}>
+        alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, fontWeight: 700, color: '#666', border: '1px solid #eee' }}>
         {initials}
       </div>
     );
@@ -131,7 +131,7 @@ export default function Directory() {
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
         <button onClick={() => { setSelectedId(null); setDetail(null); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Directory
         </button>
 
@@ -144,7 +144,7 @@ export default function Directory() {
               <div style={{ fontSize: 13, color: '#666', marginBottom: 8 }}>{u.organization_name || ''}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
                 <PersonaBadge type={u.role} />
-                <span style={{ fontSize: 11, color: '#999', padding: '2px 10px', borderRadius: 20, background: '#f9fafb' }}>
+                <span style={{ fontSize: 11, color: '#666', padding: '2px 10px', borderRadius: 20, background: '#f9fafb' }}>
                   {PERSONA_CATEGORIES[u.persona_category]?.label || u.persona_category}
                 </span>
               </div>
@@ -160,7 +160,7 @@ export default function Directory() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
                 {section.fields.filter(f => f.value).map((f, j) => (
                   <div key={j}>
-                    <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>{f.label}</div>
+                    <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>{f.label}</div>
                     <div style={{ fontSize: 13, color: '#333', fontWeight: 500 }}>{f.value}</div>
                   </div>
                 ))}
@@ -188,7 +188,7 @@ export default function Directory() {
       {/* Header — Ship #12 follow-up tour anchor */}
       <div id="tour-page-directory-header" style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px' }}>Directory</h1>
-        <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Discover innovators, mentors, investors, labs, and more across the ecosystem</p>
+        <p style={{ fontSize: 13, color: '#5c5c5c', margin: 0 }}>Discover innovators, mentors, investors, labs, and more across the ecosystem</p>
         <ContextualTip tipKey="directory-intro">
           Search by name, filter by persona type or sector, and click Connect to build your network. Use the sort dropdown to find the most relevant profiles.
         </ContextualTip>
@@ -197,7 +197,7 @@ export default function Directory() {
       {/* Search bar — Ship #12 follow-up tour anchor */}
       <div id="tour-page-directory-search" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <div style={{ flex: 1, position: 'relative' }}>
-          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -215,7 +215,7 @@ export default function Directory() {
           <Filter size={14} /> Filters
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <ArrowUpDown size={14} style={{ color: '#888' }} />
+          <ArrowUpDown size={14} style={{ color: '#5c5c5c' }} />
           <select value={sort} onChange={e => handleSort(e.target.value)}
             style={{ padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', background: '#fff', cursor: 'pointer' }}>
             {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -252,7 +252,7 @@ export default function Directory() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             {/* Persona Type */}
             <div>
-              <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Persona Type</label>
+              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Persona Type</label>
               <select value={filters.persona_type} onChange={e => setFilters(f => ({ ...f, persona_type: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }}>
                 <option value="">All Types</option>
@@ -262,7 +262,7 @@ export default function Directory() {
 
             {/* Category */}
             <div>
-              <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Category</label>
+              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Category</label>
               <select value={filters.persona_category} onChange={e => setFilters(f => ({ ...f, persona_category: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }}>
                 <option value="">All Categories</option>
@@ -272,7 +272,7 @@ export default function Directory() {
 
             {/* City */}
             <div>
-              <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>City</label>
+              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>City</label>
               <input value={filters.city} onChange={e => setFilters(f => ({ ...f, city: e.target.value }))}
                 placeholder="e.g., Delhi" list="dir-cities"
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
@@ -281,7 +281,7 @@ export default function Directory() {
 
             {/* State */}
             <div>
-              <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>State</label>
+              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>State</label>
               <input value={filters.state} onChange={e => setFilters(f => ({ ...f, state: e.target.value }))}
                 placeholder="e.g., Karnataka" list="dir-states"
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
@@ -290,7 +290,7 @@ export default function Directory() {
 
             {/* Sector */}
             <div>
-              <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Sector / Focus Area</label>
+              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Sector / Focus Area</label>
               <input value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
                 placeholder="e.g., AI/ML" list="dir-sectors"
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
@@ -299,7 +299,7 @@ export default function Directory() {
 
             {/* Skill */}
             <div>
-              <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>Skill / Technology</label>
+              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Skill / Technology</label>
               <input value={filters.skill} onChange={e => setFilters(f => ({ ...f, skill: e.target.value }))}
                 placeholder="e.g., Python" list="dir-skills"
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
@@ -321,7 +321,7 @@ export default function Directory() {
       )}
 
       {/* Result count */}
-      <div style={{ fontSize: 12, color: '#999', marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
         {loading ? 'Searching...' : `${total} profile${total !== 1 ? 's' : ''} found`}
       </div>
 
@@ -334,7 +334,7 @@ export default function Directory() {
         /* Empty state */
         <div style={{ ...card, padding: 48, textAlign: 'center' }}>
           <Users size={40} style={{ color: '#ddd', marginBottom: 12 }} />
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#999', marginBottom: 4 }}>No profiles found</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#666', marginBottom: 4 }}>No profiles found</div>
           <div style={{ fontSize: 13, color: '#bbb' }}>Try adjusting your search or filters</div>
         </div>
       ) : (
@@ -368,14 +368,14 @@ export default function Directory() {
 
                 {/* Tagline */}
                 {p.tagline && (
-                  <div style={{ fontSize: 12, color: '#777', marginBottom: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <div style={{ fontSize: 12, color: '#5c5c5c', marginBottom: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {p.tagline}
                   </div>
                 )}
 
                 {/* Location */}
                 {(p.city || p.state) && (
-                  <div style={{ fontSize: 12, color: '#999', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 12, color: '#666', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <MapPin size={12} /> {[p.city, p.state].filter(Boolean).join(', ')}
                   </div>
                 )}
@@ -386,7 +386,7 @@ export default function Directory() {
                     {p.sectors.slice(0, 4).map(t => (
                       <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>
                     ))}
-                    {p.sectors.length > 4 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f3f4f6', color: '#999' }}>+{p.sectors.length - 4}</span>}
+                    {p.sectors.length > 4 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f3f4f6', color: '#666' }}>+{p.sectors.length - 4}</span>}
                   </div>
                 )}
 
@@ -394,9 +394,9 @@ export default function Directory() {
                 {p.skills_or_focus && p.skills_or_focus.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
                     {p.skills_or_focus.slice(0, 4).map(t => (
-                      <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>
+                      <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>
                     ))}
-                    {p.skills_or_focus.length > 4 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f3f4f6', color: '#999' }}>+{p.skills_or_focus.length - 4}</span>}
+                    {p.skills_or_focus.length > 4 && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#f3f4f6', color: '#666' }}>+{p.skills_or_focus.length - 4}</span>}
                   </div>
                 )}
 
@@ -430,7 +430,7 @@ export default function Directory() {
                 style={{ padding: '8px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #ddd', background: '#fff', cursor: page <= 1 ? 'not-allowed' : 'pointer', color: page <= 1 ? '#ccc' : '#333' }}>
                 Previous
               </button>
-              <span style={{ fontSize: 12, color: '#999' }}>Page {page} of {totalPages}</span>
+              <span style={{ fontSize: 12, color: '#666' }}>Page {page} of {totalPages}</span>
               <button onClick={() => loadProfiles(page + 1, search, filters)} disabled={page >= totalPages}
                 style={{ padding: '8px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #ddd', background: '#fff', cursor: page >= totalPages ? 'not-allowed' : 'pointer', color: page >= totalPages ? '#ccc' : '#333' }}>
                 Next

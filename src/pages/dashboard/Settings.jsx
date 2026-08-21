@@ -534,7 +534,7 @@ export default function Settings() {
   return (
     <div style={{ padding: 28, maxWidth: 800, background: '#f5f5f5', minHeight: '100%' }}>
       <h1 style={{ margin: '0 0 4px', color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Settings</h1>
-      <p style={{ margin: '0 0 24px', color: '#888', fontSize: 13 }}>Manage your profile, security and preferences</p>
+      <p style={{ margin: '0 0 24px', color: '#5c5c5c', fontSize: 13 }}>Manage your profile, security and preferences</p>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#fff', border: '1px solid #eee', borderRadius: 10, padding: 4, width: 'fit-content' }}>

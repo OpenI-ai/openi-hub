@@ -57,7 +57,7 @@ export default function UserProfile() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
-        <Loader2 size={28} className="spin" style={{ color: '#aaa' }} />
+        <Loader2 size={28} className="spin" style={{ color: '#6e6e6e' }} />
       </div>
     );
   }
@@ -142,7 +142,7 @@ export default function UserProfile() {
   return (
     <div id="tour-page-user-profile" style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
       <button onClick={() => navigate(-1)}
-        style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
         <ChevronLeft size={16} /> Back
       </button>
 
@@ -169,7 +169,7 @@ export default function UserProfile() {
               </span>
             )}
             {(p.city || p.state) && (
-              <span style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 3 }}>
+              <span style={{ fontSize: 12, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 3 }}>
                 <MapPin size={12} /> {[p.city, p.state].filter(Boolean).join(', ')}
               </span>
             )}
@@ -181,7 +181,7 @@ export default function UserProfile() {
             <div style={{ display: 'grid', gap: 12, marginTop: 8 }}>
               {fields.map((f, i) => (
                 <div key={i}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#999', textTransform: 'uppercase', marginBottom: 2 }}>{f.label}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#666', textTransform: 'uppercase', marginBottom: 2 }}>{f.label}</div>
                   {f.link ? (
                     <a href={f.value.startsWith('http') ? f.value : `https://${f.value}`} target="_blank" rel="noopener noreferrer"
                       style={{ fontSize: 13, color: G, display: 'flex', alignItems: 'center', gap: 4 }}>

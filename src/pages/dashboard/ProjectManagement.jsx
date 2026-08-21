@@ -240,7 +240,7 @@ export default function ProjectManagement() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Project Management</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Track milestones, tasks, collaboration & financial health</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Track milestones, tasks, collaboration & financial health</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {/* View toggle */}
@@ -299,7 +299,7 @@ export default function ProjectManagement() {
                 type="button"
                 onClick={() => !creating && setShowCreate(false)}
                 disabled={creating}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: creating ? 'not-allowed' : 'pointer', color: '#888', padding: 0, lineHeight: 1 }}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: creating ? 'not-allowed' : 'pointer', color: '#5c5c5c', padding: 0, lineHeight: 1 }}
               >×</button>
             </div>
 
@@ -407,7 +407,7 @@ export default function ProjectManagement() {
               <Icon size={16} color={fg} />
             </div>
             <div style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-            <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -416,7 +416,7 @@ export default function ProjectManagement() {
       {view === 'projects' && (
         <div style={{ display: 'grid', gap: 16 }}>
           {projects.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: '#aaa', fontSize: 13 }}>No projects found.</div>
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#6e6e6e', fontSize: 13 }}>No projects found.</div>
           )}
           {projects.map(p => {
             const ss = STATUS_STYLE[p.status] || STATUS_STYLE['Planning'];
@@ -444,7 +444,7 @@ export default function ProjectManagement() {
                     {/* Progress bar */}
                     <div style={{ marginBottom: 4 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ fontSize: 11, color: '#888' }}>Overall Progress</span>
+                        <span style={{ fontSize: 11, color: '#5c5c5c' }}>Overall Progress</span>
                         <span style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600 }}>{p.progress}%</span>
                       </div>
                       <div style={{ height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
@@ -462,7 +462,7 @@ export default function ProjectManagement() {
                     ].map(({ label, value, color }) => (
                       <div key={label} style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
-                        <div style={{ fontSize: 11, color: '#888' }}>{label}</div>
+                        <div style={{ fontSize: 11, color: '#5c5c5c' }}>{label}</div>
                       </div>
                     ))}
                   </div>
@@ -470,14 +470,14 @@ export default function ProjectManagement() {
                   {/* Right: budget */}
                   <div style={{ minWidth: 160 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, color: '#888' }}>Budget Used</span>
+                      <span style={{ fontSize: 11, color: '#5c5c5c' }}>Budget Used</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: pctSpent > 85 ? '#dc2626' : '#1a1a1a' }}>{pctSpent}%</span>
                     </div>
                     <div style={{ height: 5, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
                       <div style={{ width: `${pctSpent}%`, height: '100%', background: pctSpent > 85 ? '#dc2626' : '#16a34a', borderRadius: 3 }} />
                     </div>
-                    <div style={{ fontSize: 11, color: '#888' }}>{p.spent || '—'} of {p.budget || '—'}</div>
-                    <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{p.start_date || p.start} → {p.end_date || p.end}</div>
+                    <div style={{ fontSize: 11, color: '#5c5c5c' }}>{p.spent || '—'} of {p.budget || '—'}</div>
+                    <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{p.start_date || p.start} → {p.end_date || p.end}</div>
                   </div>
 
                   <ChevronRight size={16} color="#ccc" style={{ alignSelf: 'center' }} />
@@ -510,7 +510,7 @@ export default function ProjectManagement() {
           {/* Filters */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-              <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input
                 placeholder="Search tasks…"
                 value={search}
@@ -538,7 +538,7 @@ export default function ProjectManagement() {
 
           <div style={{ ...card, overflow: 'hidden' }}>
             {filteredTasks.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#aaa', fontSize: 13 }}>No tasks found</div>
+              <div style={{ padding: 40, textAlign: 'center', color: '#6e6e6e', fontSize: 13 }}>No tasks found</div>
             ) : filteredTasks.map((t, i) => {
               const ts = TASK_STATUS[t.status] || TASK_STATUS['Todo'];
               const StatusIcon = ts.icon;
@@ -552,14 +552,14 @@ export default function ProjectManagement() {
                   <StatusIcon size={16} color={ts.color} style={{ flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 500 }}>{t.title}</div>
-                    <div style={{ color: '#888', fontSize: 11, marginTop: 2 }}>{t.project}</div>
+                    <div style={{ color: '#5c5c5c', fontSize: 11, marginTop: 2 }}>{t.project}</div>
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: pp.bg, color: pp.color, border: `1px solid ${pp.border}`, whiteSpace: 'nowrap' }}>{t.priority}</span>
                   <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: ts.bg, color: ts.color, border: `1px solid ${ts.border}`, whiteSpace: 'nowrap' }}>{t.status}</span>
-                  <div style={{ fontSize: 11, color: '#888', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Users size={11} /> {t.assignee}
                   </div>
-                  <div style={{ fontSize: 11, color: '#888', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Calendar size={11} /> {t.due}
                   </div>
                 </div>
@@ -672,7 +672,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a' }}>{p.progress}%</div>
-            <div style={{ fontSize: 12, color: '#888' }}>Overall Progress</div>
+            <div style={{ fontSize: 12, color: '#5c5c5c' }}>Overall Progress</div>
           </div>
         </div>
         <div style={{ marginTop: 16, height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
@@ -705,7 +705,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
           ].map(({ label, value, color }) => (
             <div key={label} style={{ ...card, padding: 18 }}>
               <div style={{ fontSize: 22, fontWeight: 700, color }}>{value}</div>
-              <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{label}</div>
+              <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 4 }}>{label}</div>
             </div>
           ))}
         </div>
@@ -718,7 +718,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
             <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>Milestones</h3>
           </div>
           {milestones.length === 0 && (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#aaa', fontSize: 13 }}>No milestones yet.</div>
+            <div style={{ padding: '24px', textAlign: 'center', color: '#6e6e6e', fontSize: 13 }}>No milestones yet.</div>
           )}
           {milestones.map((m, i) => (
             <div key={i} style={{
@@ -735,7 +735,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 500 }}>{m.name || m.title}</div>
-                <div style={{ color: '#888', fontSize: 11, marginTop: 2 }}>{m.date || m.due_date}</div>
+                <div style={{ color: '#5c5c5c', fontSize: 11, marginTop: 2 }}>{m.date || m.due_date}</div>
               </div>
               <span style={{
                 fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
@@ -771,11 +771,11 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
           <div style={{ ...card, padding: 22 }}>
             <h3 style={{ margin: '0 0 16px', color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>Budget Utilization</h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 12, color: '#888', width: 60 }}>Spent</span>
+              <span style={{ fontSize: 12, color: '#5c5c5c', width: 60 }}>Spent</span>
               <div style={{ flex: 1, height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{ width: `${pctSpent}%`, height: '100%', background: G, borderRadius: 3 }} />
               </div>
-              <span style={{ fontSize: 11, color: '#888', width: 40, textAlign: 'right' }}>{pctSpent}%</span>
+              <span style={{ fontSize: 11, color: '#5c5c5c', width: 40, textAlign: 'right' }}>{pctSpent}%</span>
             </div>
           </div>
         </div>
@@ -801,7 +801,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
           </div>
           {tab === 'tasks' && (
             projectTasks.length === 0
-              ? <div style={{ padding: '24px', textAlign: 'center', color: '#aaa', fontSize: 13 }}>No tasks yet.</div>
+              ? <div style={{ padding: '24px', textAlign: 'center', color: '#6e6e6e', fontSize: 13 }}>No tasks yet.</div>
               : projectTasks.map((t, i, arr) => {
                   const ts = TASK_STATUS[t.status] || TASK_STATUS['Todo'];
                   const StatusIcon = ts.icon;
@@ -810,7 +810,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
                       <StatusIcon size={15} color={ts.color} />
                       <div style={{ flex: 1 }}>
                         <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 500 }}>{t.title}</div>
-                        <div style={{ color: '#888', fontSize: 11 }}>{t.assignee || t.assigned_to} · Due {t.due || t.due_date}</div>
+                        <div style={{ color: '#5c5c5c', fontSize: 11 }}>{t.assignee || t.assigned_to} · Due {t.due || t.due_date}</div>
                       </div>
                       <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>{t.status}</span>
                     </div>
@@ -826,12 +826,12 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
                   </div>
                   <div>
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 600 }}>{p.pm || p.project_manager}</div>
-                    <div style={{ color: '#888', fontSize: 11 }}>Project Manager</div>
+                    <div style={{ color: '#5c5c5c', fontSize: 11 }}>Project Manager</div>
                   </div>
-                  <span style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>Lead</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>Lead</span>
                 </div>
               )}
-              {p.team > 1 && <div style={{ color: '#888', fontSize: 12, padding: '12px 0' }}>+ {p.team - 1} more team members</div>}
+              {p.team > 1 && <div style={{ color: '#5c5c5c', fontSize: 12, padding: '12px 0' }}>+ {p.team - 1} more team members</div>}
             </div>
           )}
         </div>
@@ -862,7 +862,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
                 type="button"
                 onClick={() => !creatingTask && setShowAddTask(false)}
                 disabled={creatingTask}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: creatingTask ? 'not-allowed' : 'pointer', color: '#888', padding: 0, lineHeight: 1 }}
+                style={{ background: 'none', border: 'none', fontSize: 20, cursor: creatingTask ? 'not-allowed' : 'pointer', color: '#5c5c5c', padding: 0, lineHeight: 1 }}
               >×</button>
             </div>
 

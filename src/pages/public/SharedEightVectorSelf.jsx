@@ -131,11 +131,11 @@ export default function SharedEightVectorSelf() {
           <Award size={36} color={G} style={{ margin: '0 auto 10px', display: 'block' }} />
           <p style={{ fontSize: 11, fontWeight: 700, color: G, letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 8px' }}>8-Vector Self-Assessment</p>
           <h1 id="tour-page-share-eight-vector-self" style={{ fontSize: 26, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px' }}>{a.startup_name || 'Startup'}</h1>
-          <p style={{ fontSize: 12, color: '#888', margin: '0 0 18px' }}>Assessed by {ownerName}</p>
+          <p style={{ fontSize: 12, color: '#5c5c5c', margin: '0 0 18px' }}>Assessed by {ownerName}</p>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 12, background: '#fff8ec', border: `1.5px solid ${G}` }}>
             <span style={{ fontSize: 36, fontWeight: 800, color: G }}>{overall.toFixed(1)}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>/ 5.0</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>/ 5.0</span>
           </div>
         </div>
 
@@ -191,7 +191,7 @@ export default function SharedEightVectorSelf() {
         </div>
 
         {meta.created_at && (
-          <div style={{ marginTop: 18, fontSize: 11, color: '#aaa', textAlign: 'center' }}>
+          <div style={{ marginTop: 18, fontSize: 11, color: '#6e6e6e', textAlign: 'center' }}>
             Shared {new Date(meta.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>}
           </div>

@@ -274,7 +274,7 @@ export default function MyProfile() {
         </div>
         <button onClick={handleSave} disabled={saving}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-          style={{ background: '#D0A848', color: '#fff' }}
+          style={{ background: '#D0A848', color: '#0D2137' }}
           onMouseEnter={e => e.currentTarget.style.background = '#c49a4a'}
           onMouseLeave={e => e.currentTarget.style.background = '#D0A848'}>
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
@@ -297,7 +297,7 @@ export default function MyProfile() {
           }} />
         </div>
         {completeness < 100 && (
-          <p className="text-xs mt-2" style={{ color: '#9ca3af' }}>
+          <p className="text-xs mt-2" style={{ color: '#6e6e6e' }}>
             Complete your profile to get discovered by the ecosystem.
           </p>
         )}
@@ -359,7 +359,7 @@ export default function MyProfile() {
         <div className="flex justify-end mt-6 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
           <button onClick={handleSave} disabled={saving}
             className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all"
-            style={{ background: '#D0A848', color: '#fff' }}
+            style={{ background: '#D0A848', color: '#0D2137' }}
             onMouseEnter={e => e.currentTarget.style.background = '#c49a4a'}
             onMouseLeave={e => e.currentTarget.style.background = '#D0A848'}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}

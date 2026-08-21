@@ -94,7 +94,7 @@ export default function IncubatorMentorPool() {
       <div id="tour-page-incubator-mentors" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Mentor Pool</h1>
-          <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>{active.length} active · {mentors.length} total mentors</p>
+          <p style={{ fontSize: 13, color: '#5c5c5c', margin: '4px 0 0' }}>{active.length} active · {mentors.length} total mentors</p>
         </div>
         <button onClick={() => { resetForm(); setShowAdd(true); }}
           style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -106,7 +106,7 @@ export default function IncubatorMentorPool() {
         <div style={{ ...card, padding: 60, textAlign: 'center' }}>
           <Users size={42} style={{ color: '#ddd', marginBottom: 12 }} />
           <div style={{ fontSize: 16, fontWeight: 600, color: '#666', marginBottom: 6 }}>No mentors yet</div>
-          <div style={{ fontSize: 13, color: '#999', marginBottom: 18 }}>Add mentors to your pool to assign them to startups in your programs</div>
+          <div style={{ fontSize: 13, color: '#666', marginBottom: 18 }}>Add mentors to your pool to assign them to startups in your programs</div>
           <button onClick={() => { resetForm(); setShowAdd(true); }}
             style={{ padding: '10px 20px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Add Your First Mentor
@@ -117,7 +117,7 @@ export default function IncubatorMentorPool() {
           {/* Active mentors */}
           {active.length > 0 && (
             <div style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
+              <h2 style={{ fontSize: 13, fontWeight: 700, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
                 Active ({active.length})
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
@@ -129,7 +129,7 @@ export default function IncubatorMentorPool() {
           {/* Inactive mentors */}
           {inactive.length > 0 && (
             <div>
-              <h2 style={{ fontSize: 13, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
+              <h2 style={{ fontSize: 13, fontWeight: 700, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
                 Inactive ({inactive.length})
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
@@ -146,7 +146,7 @@ export default function IncubatorMentorPool() {
           <div style={{ ...card, width: '100%', maxWidth: 520, padding: 22 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{editingId ? 'Edit Mentor' : 'Add Mentor to Pool'}</h2>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => { setShowAdd(false); resetForm(); }} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => { setShowAdd(false); resetForm(); }} />
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div>
@@ -200,8 +200,8 @@ function MentorCard({ mentor: m, onEdit, onToggle, onRemove }) {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.mentor_name}</div>
-          {m.mentor_email && <div style={{ fontSize: 11, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={10} />{m.mentor_email}</div>}
-          {m.hours_per_month && <div style={{ fontSize: 11, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={10} />{m.hours_per_month} hrs/mo</div>}
+          {m.mentor_email && <div style={{ fontSize: 11, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={10} />{m.mentor_email}</div>}
+          {m.hours_per_month && <div style={{ fontSize: 11, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={10} />{m.hours_per_month} hrs/mo</div>}
         </div>
       </div>
 
@@ -211,10 +211,10 @@ function MentorCard({ mentor: m, onEdit, onToggle, onRemove }) {
         </div>
       )}
 
-      {m.notes && <div style={{ fontSize: 11, color: '#888', marginTop: 8, fontStyle: 'italic' }}>"{m.notes.substring(0, 100)}{m.notes.length > 100 ? '...' : ''}"</div>}
+      {m.notes && <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 8, fontStyle: 'italic' }}>"{m.notes.substring(0, 100)}{m.notes.length > 100 ? '...' : ''}"</div>}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 10, borderTop: '1px solid #f5f5f5' }}>
-        <div style={{ fontSize: 11, color: '#888' }}>
+        <div style={{ fontSize: 11, color: '#5c5c5c' }}>
           {m.active_mentees > 0 && <span><Users size={11} style={{ verticalAlign: -2, marginRight: 3 }} />{m.active_mentees} mentees</span>}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>

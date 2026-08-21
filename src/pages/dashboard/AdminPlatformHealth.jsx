@@ -23,13 +23,13 @@ function fmtDate(d) {
 }
 
 function StatusBadge({ status }) {
-  if (!status) return <span style={{ fontSize: 11, color: '#9ca3af' }}>—</span>;
+  if (!status) return <span style={{ fontSize: 11, color: '#6e6e6e' }}>—</span>;
   const map = {
     completed: { color: '#10B981', Icon: CheckCircle2 },
     running: { color: '#F59E0B', Icon: Loader2 },
     failed: { color: '#EF4444', Icon: XCircle },
   };
-  const { color, Icon } = map[status] || { color: '#9ca3af', Icon: Clock };
+  const { color, Icon } = map[status] || { color: '#6e6e6e', Icon: Clock };
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color }}>
       <Icon size={12} /> {status}
@@ -45,7 +45,7 @@ function Tile({ icon: Icon, label, value, sub, color }) {
         {label}
       </div>
       <div style={{ fontSize: 22, fontWeight: 700, color: color || '#111' }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: '#9ca3af' }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: '#6e6e6e' }}>{sub}</div>}
     </div>
   );
 }
@@ -88,7 +88,7 @@ export default function AdminPlatformHealth() {
   }
 
   if (!data) {
-    return <div style={{ padding: 40, color: '#9ca3af' }}>No data available.</div>;
+    return <div style={{ padding: 40, color: '#6e6e6e' }}>No data available.</div>;
   }
 
   const u = data.users || {};
@@ -102,7 +102,7 @@ export default function AdminPlatformHealth() {
     <div style={{ padding: '20px 24px', maxWidth: 1200, margin: '0 auto' }}>
       <div id="tour-page-admin-platform-health" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 18 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>Platform Health</h1>
-        <span style={{ fontSize: 11, color: '#9ca3af' }}>As of {generated}</span>
+        <span style={{ fontSize: 11, color: '#6e6e6e' }}>As of {generated}</span>
       </div>
 
       <Section title="Real Signups" sub="Self-registered users (excludes bulk-imported directory substrate).">
@@ -215,7 +215,7 @@ export default function AdminPlatformHealth() {
                 );
               })}
               {!embeddingHealth.length && (
-                <tr><td colSpan={6} style={{ padding: 12, color: '#9ca3af' }}>No data.</td></tr>
+                <tr><td colSpan={6} style={{ padding: 12, color: '#6e6e6e' }}>No data.</td></tr>
               )}
             </tbody>
           </table>
@@ -230,7 +230,7 @@ export default function AdminPlatformHealth() {
             </div>
             <StatusBadge status={clusterHealth.last_full_status} />
             <div style={{ fontSize: 12, color: '#374151' }}>{fmtDate(clusterHealth.last_full_completed_at || clusterHealth.last_full_run)}</div>
-            <div style={{ fontSize: 11, color: '#9ca3af' }}>{fmt(clusterHealth.last_full_entities_processed || 0)} startups processed</div>
+            <div style={{ fontSize: 11, color: '#6e6e6e' }}>{fmt(clusterHealth.last_full_entities_processed || 0)} startups processed</div>
           </div>
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -238,7 +238,7 @@ export default function AdminPlatformHealth() {
             </div>
             <StatusBadge status={clusterHealth.last_delta_status} />
             <div style={{ fontSize: 12, color: '#374151' }}>{fmtDate(clusterHealth.last_delta_completed_at || clusterHealth.last_delta_run)}</div>
-            <div style={{ fontSize: 11, color: '#9ca3af' }}>{fmt(clusterHealth.last_delta_entities_processed || 0)} startups processed</div>
+            <div style={{ fontSize: 11, color: '#6e6e6e' }}>{fmt(clusterHealth.last_delta_entities_processed || 0)} startups processed</div>
           </div>
         </div>
       </Section>

@@ -135,7 +135,7 @@ export default function SettingsAuditLogs() {
         </div>
       </div>
 
-      <p style={{ margin: '0 0 18px', fontSize: 12.5, color: '#888' }}>
+      <p style={{ margin: '0 0 18px', fontSize: 12.5, color: '#5c5c5c' }}>
         A record of security-relevant actions on your account — logins, key changes, permission
         updates, and data access. Filter and export below, or pull this programmatically via the
         Partner API (see note below).
@@ -190,7 +190,7 @@ export default function SettingsAuditLogs() {
           <button
             type="button"
             onClick={clearFilters}
-            style={{ padding: '8px 10px', fontSize: 12.5, color: '#888', background: 'none', border: 'none', cursor: 'pointer' }}
+            style={{ padding: '8px 10px', fontSize: 12.5, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             Clear
           </button>
@@ -203,14 +203,14 @@ export default function SettingsAuditLogs() {
           <Loader2 size={24} className="animate-spin" style={{ color: G }} />
         </div>
       ) : logs.length === 0 ? (
-        <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>
+        <p style={{ fontSize: 13, color: '#666', textAlign: 'center', padding: '20px 0' }}>
           No audit log entries match these filters.
         </p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
-              <tr style={{ textAlign: 'left', color: '#888', fontSize: 11, textTransform: 'uppercase' }}>
+              <tr style={{ textAlign: 'left', color: '#5c5c5c', fontSize: 11, textTransform: 'uppercase' }}>
                 <th style={{ padding: '8px 10px', borderBottom: '1px solid #eee' }}>Action</th>
                 <th style={{ padding: '8px 10px', borderBottom: '1px solid #eee' }}>Entity</th>
                 <th style={{ padding: '8px 10px', borderBottom: '1px solid #eee' }}>IP Address</th>
@@ -222,8 +222,8 @@ export default function SettingsAuditLogs() {
                 <tr key={log.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
                   <td style={{ padding: '9px 10px', fontWeight: 600, color: '#1a1a1a' }}>{log.action}</td>
                   <td style={{ padding: '9px 10px', color: '#555' }}>{log.entity_type || '—'}</td>
-                  <td style={{ padding: '9px 10px', color: '#888', fontFamily: 'monospace' }}>{log.ip_address || '—'}</td>
-                  <td style={{ padding: '9px 10px', color: '#888' }}>
+                  <td style={{ padding: '9px 10px', color: '#5c5c5c', fontFamily: 'monospace' }}>{log.ip_address || '—'}</td>
+                  <td style={{ padding: '9px 10px', color: '#5c5c5c' }}>
                     {log.created_at ? new Date(log.created_at).toLocaleString() : '—'}
                   </td>
                 </tr>
@@ -233,7 +233,7 @@ export default function SettingsAuditLogs() {
 
           {/* Pagination */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
-            <span style={{ fontSize: 11.5, color: '#999' }}>
+            <span style={{ fontSize: 11.5, color: '#666' }}>
               Showing {logs.length ? offset + 1 : 0}–{offset + logs.length}{count === PAGE_SIZE ? '+' : ''}
             </span>
             <div style={{ display: 'flex', gap: 8 }}>

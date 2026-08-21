@@ -60,7 +60,7 @@ export default function FindMentees() {
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
         <button onClick={() => navigate('/dashboard/find-mentees')}
-          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Mentees
         </button>
 
@@ -86,7 +86,7 @@ export default function FindMentees() {
                 {detail.org_name || ''}
               </p>
               {loc && (
-                <p style={{ fontSize: 12, color: '#888', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <p style={{ fontSize: 12, color: '#5c5c5c', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <MapPin size={12} /> {loc}
                 </p>
               )}
@@ -128,14 +128,14 @@ export default function FindMentees() {
       <h1 id="tour-page-find-mentees" style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
         <UserPlus size={22} color={G} /> Find Mentees
       </h1>
-      <p style={{ color: '#888', fontSize: 14, marginTop: 6, marginBottom: 20 }}>
+      <p style={{ color: '#5c5c5c', fontSize: 14, marginTop: 6, marginBottom: 20 }}>
         Discover startups, students, and academics across the ecosystem who are open to mentorship.
       </p>
 
       {/* Search + persona filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
-          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') setQuery(search.trim()); }}
             placeholder="Search by name or organization…"
             style={{ width: '100%', padding: '10px 12px 10px 36px', border: '1px solid #ddd', borderRadius: 10, fontSize: 16, boxSizing: 'border-box' }} />
@@ -156,7 +156,7 @@ export default function FindMentees() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>
       ) : items.length === 0 ? (
-        <p style={{ color: '#888', textAlign: 'center', marginTop: 40 }}>No one is currently seeking mentorship. Check back soon.</p>
+        <p style={{ color: '#5c5c5c', textAlign: 'center', marginTop: 40 }}>No one is currently seeking mentorship. Check back soon.</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
           {items.map(m => {
@@ -181,7 +181,7 @@ export default function FindMentees() {
                         </span>
                       )}
                     </div>
-                    {m.org_name && <p style={{ margin: '2px 0 0', fontSize: 12, color: '#888' }}>{m.org_name}</p>}
+                    {m.org_name && <p style={{ margin: '2px 0 0', fontSize: 12, color: '#5c5c5c' }}>{m.org_name}</p>}
                   </div>
                 </div>
                 {m.headline && <p style={{ margin: '10px 0 0', fontSize: 13, color: '#444', fontWeight: 500 }}>{m.headline}</p>}
@@ -194,7 +194,7 @@ export default function FindMentees() {
                 )}
                 {m.summary && <p style={{ margin: '10px 0 0', fontSize: 13, color: '#666', lineHeight: 1.45 }}>{m.summary.substring(0, 120)}{m.summary.length > 120 ? '…' : ''}</p>}
                 {loc && (
-                  <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <p style={{ margin: '8px 0 0', fontSize: 12, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <MapPin size={12} /> {loc}
                   </p>
                 )}

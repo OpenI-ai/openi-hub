@@ -102,7 +102,7 @@ export default function FileUpload({
               style={{ fontSize: 10, padding: '3px 8px', borderRadius: 6, background: '#f3f4f6', border: '1px solid #e5e7eb', cursor: 'pointer', color: '#555', whiteSpace: 'nowrap' }}>
               {uploading ? <Loader2 size={10} className="animate-spin" /> : 'Change'}
             </button>
-            <button onClick={clear} style={{ fontSize: 10, padding: '3px 6px', borderRadius: 6, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#dc2626' }}>
+            <button onClick={clear} style={{ fontSize: 10, padding: '3px 6px', borderRadius: 6, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#b91c1c' }}>
               <X size={10} />
             </button>
           </>
@@ -138,7 +138,7 @@ export default function FileUpload({
             <div style={{ fontSize: 12, fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {lastFilename || (isImage ? 'Image' : 'Document')}
             </div>
-            {lastBytes && <div style={{ fontSize: 10, color: '#999' }}>{formatBytes(lastBytes)}</div>}
+            {lastBytes && <div style={{ fontSize: 10, color: '#666' }}>{formatBytes(lastBytes)}</div>}
             <a href={value} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: '#2563eb', textDecoration: 'none' }}>
               View file <ExternalLink size={9} style={{ verticalAlign: -1 }} />
             </a>
@@ -149,7 +149,7 @@ export default function FileUpload({
               {uploading ? <Loader2 size={12} className="animate-spin" style={{ color: G }} /> : 'Change'}
             </button>
             <button onClick={clear}
-              style={{ fontSize: 11, padding: '5px 8px', borderRadius: 8, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#dc2626' }}>
+              style={{ fontSize: 11, padding: '5px 8px', borderRadius: 8, background: '#fef2f2', border: '1px solid #fecaca', cursor: 'pointer', color: '#b91c1c' }}>
               <X size={14} />
             </button>
           </div>
@@ -174,7 +174,7 @@ export default function FileUpload({
           {uploading ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
               <Loader2 size={24} className="animate-spin" style={{ color: G }} />
-              <span style={{ fontSize: 12, color: '#888' }}>Uploading...</span>
+              <span style={{ fontSize: 12, color: '#5c5c5c' }}>Uploading...</span>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
@@ -182,7 +182,7 @@ export default function FileUpload({
                 <Upload size={18} style={{ color: G }} />
               </div>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#555' }}>Click or drag to upload</div>
-              <div style={{ fontSize: 10, color: '#aaa' }}>Max 10MB · {accept.replace(/\./g, '').replace(/,/g, ', ')}</div>
+              <div style={{ fontSize: 10, color: '#6e6e6e' }}>Max 10MB · {accept.replace(/\./g, '').replace(/,/g, ', ')}</div>
             </div>
           )}
         </div>

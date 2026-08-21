@@ -50,8 +50,8 @@ export default function SharedWatchlist() {
         {error && (
           <div style={{ ...card, padding: 40, textAlign: 'center' }}>
             <Star size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#888' }}>{error}</p>
-            <p style={{ fontSize: 13, color: '#aaa' }}>This share link may have been revoked, expired, or the watchlist no longer exists.</p>
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#5c5c5c' }}>{error}</p>
+            <p style={{ fontSize: 13, color: '#6e6e6e' }}>This share link may have been revoked, expired, or the watchlist no longer exists.</p>
             <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, color: G, fontWeight: 600, fontSize: 13, textDecoration: 'none' }}>
               Visit OpenI <ArrowRight size={14} />
             </Link>
@@ -62,7 +62,7 @@ export default function SharedWatchlist() {
           <>
             {/* Header */}
             <div style={{ ...card, padding: 28, marginBottom: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, fontSize: 11, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>
                 <Star size={13} style={{ color: G }} />
                 <span>Shared Watchlist</span>
               </div>
@@ -70,7 +70,7 @@ export default function SharedWatchlist() {
               {data.watchlist?.description && (
                 <p style={{ fontSize: 13, color: '#666', margin: '0 0 12px', lineHeight: 1.6 }}>{data.watchlist.description}</p>
               )}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 11, color: '#888' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 11, color: '#5c5c5c' }}>
                 {data.watchlist?.created_by_name && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Briefcase size={11} /> Curated by <strong style={{ color: '#555' }}>{data.watchlist.created_by_name}</strong>
@@ -94,11 +94,11 @@ export default function SharedWatchlist() {
             {/* Startups */}
             {(!data.startups || data.startups.length === 0) ? (
               <div style={{ ...card, padding: 40, textAlign: 'center' }}>
-                <p style={{ fontSize: 14, color: '#888' }}>This watchlist does not have any startups yet.</p>
+                <p style={{ fontSize: 14, color: '#5c5c5c' }}>This watchlist does not have any startups yet.</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ fontSize: 12, color: '#888', fontWeight: 600 }}>
+                <div style={{ fontSize: 12, color: '#5c5c5c', fontWeight: 600 }}>
                   {data.startups.length} {data.startups.length === 1 ? 'Startup' : 'Startups'}
                 </div>
                 {data.startups.map(s => (

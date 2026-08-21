@@ -26,7 +26,7 @@ export default function AuditLogsTab({ billingLoading, loadBilling, myPlan, setT
               <div style={{ ...card, padding: 28, textAlign: 'center' }}>
                 <FileText size={28} style={{ color: '#ccc', marginBottom: 12 }} />
                 <h3 style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Audit log export is an Enterprise feature</h3>
-                <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888' }}>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: '#5c5c5c' }}>
                   Upgrade to Enterprise to view and export a record of security-relevant account activity.
                 </p>
                 <button onClick={() => setTab('billing')} style={{

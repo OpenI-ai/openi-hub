@@ -104,7 +104,7 @@ export default function CorporateDashboard() {
               <div style={{ width: 36, height: 36, borderRadius: 9, background: `${s.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <s.icon size={18} style={{ color: s.color }} />
               </div>
-              <span style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>{s.label}</span>
+              <span style={{ fontSize: 12, color: '#5c5c5c', fontWeight: 500 }}>{s.label}</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 700, color: '#1a1a1a' }}>{s.value}</div>
           </div>
@@ -126,7 +126,7 @@ export default function CorporateDashboard() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{a.label}</div>
-                  <div style={{ fontSize: 11, color: '#888' }}>{a.desc}</div>
+                  <div style={{ fontSize: 11, color: '#5c5c5c' }}>{a.desc}</div>
                 </div>
                 <ArrowRight size={14} style={{ color: '#ccc' }} />
               </div>
@@ -155,18 +155,18 @@ export default function CorporateDashboard() {
           <h2 id="tour-corp-applications" style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, marginTop: 20 }}>Recent Applications</h2>
           <div style={{ ...card, padding: 0 }}>
             {(data?.recent_applications || []).length === 0 ? (
-              <div style={{ padding: 24, textAlign: 'center', color: '#999', fontSize: 13 }}>No applications yet</div>
+              <div style={{ padding: 24, textAlign: 'center', color: '#666', fontSize: 13 }}>No applications yet</div>
             ) : (
               (data?.recent_applications || []).slice(0, 5).map((app, i) => (
                 <div key={app.id} style={{ padding: '12px 16px', borderBottom: i < 4 ? '1px solid #f5f5f5' : 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${(STATUS_COLORS[app.status] || STATUS_COLORS.applied).bg}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {app.status === 'selected' ? <CheckCircle size={13} style={{ color: '#16a34a' }} /> : <Clock size={13} style={{ color: '#888' }} />}
+                    {app.status === 'selected' ? <CheckCircle size={13} style={{ color: '#16a34a' }} /> : <Clock size={13} style={{ color: '#5c5c5c' }} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {app.applicant_name || 'Unknown'}
                     </div>
-                    <div style={{ fontSize: 11, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: 11, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {app.challenge_title}
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function CorporateDashboard() {
               ].map((m, i) => (
                 <div key={i} style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: `${m.color}08` }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: m.color }}>{m.value}</div>
-                  <div style={{ fontSize: 10, color: '#888', fontWeight: 500 }}>{m.label}</div>
+                  <div style={{ fontSize: 10, color: '#5c5c5c', fontWeight: 500 }}>{m.label}</div>
                 </div>
               ))}
             </div>
@@ -225,7 +225,7 @@ export default function CorporateDashboard() {
                         </span>
                       </div>
                       {i < 2 && data.application_analytics.total > 0 && (
-                        <div style={{ textAlign: 'center', fontSize: 9, color: '#999', marginTop: 2 }}>
+                        <div style={{ textAlign: 'center', fontSize: 9, color: '#666', marginTop: 2 }}>
                           {Math.round((step.value / data.application_analytics.total) * 100)}%
                         </div>
                       )}
@@ -279,27 +279,27 @@ export default function CorporateDashboard() {
                   {r.logo_url || r.avatar ? (
                     <img src={r.logo_url || r.avatar} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', border: '1px solid #eee' }} />
                   ) : (
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#999' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#666' }}>
                       {(r.name || r.organization || '?')[0]}
                     </div>
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.organization || r.name}</div>
-                    <div style={{ fontSize: 11, color: '#888' }}>
+                    <div style={{ fontSize: 11, color: '#5c5c5c' }}>
                       {r.sector || ''}{r.city ? ` · ${r.city}` : ''}
                     </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
                   {(r.technologies || r.focus_areas || []).slice(0, 3).map(t => (
-                    <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#ca8a04' }}>{t}</span>
+                    <span key={t} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fefce8', color: '#a16207' }}>{t}</span>
                   ))}
                 </div>
                 {/* AI narrative */}
                 {r.fit_narrative && (
                   <div style={{ fontSize: 10, color: '#555', lineHeight: 1.4, marginBottom: 6 }}>{r.fit_narrative}</div>
                 )}
-                <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#999', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#666', flexWrap: 'wrap' }}>
                   {r.tech_readiness && <span title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness {r.tech_readiness}</span>}
                   {r.is_deeptech && <span style={{ color: '#7c3aed', fontWeight: 600 }}>DeepTech</span>}
                   {r.match_score > 0 && <span style={{ color: G, fontWeight: 600 }}>{r.match_score >= 100 ? `${r.match_score}/100` : `${r.match_score}pt`} match</span>}
