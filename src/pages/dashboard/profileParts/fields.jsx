@@ -10,7 +10,7 @@ import { MONEY_RANGES, TICKET_SIZE_RANGES } from '../../../config/locations';
 import { inputStyle } from './constants.js';
 
 // ---- BODY START (original lines 59-83) ----
-function TagInput({ value = [], onChange, placeholder }) {
+function TagInput({ value = [], onChange, placeholder, inputId }) {
   const [input, setInput] = useState('');
   const add = () => {
     const tag = input.trim();
@@ -27,7 +27,7 @@ function TagInput({ value = [], onChange, placeholder }) {
           </span>
         ))}
       </div>
-      <input type="text" value={input} onChange={e => setInput(e.target.value)}
+      <input id={inputId} type="text" value={input} onChange={e => setInput(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
         placeholder={placeholder} style={inputStyle}
         onFocus={e => e.target.style.borderColor = '#D0A848'}
@@ -38,13 +38,13 @@ function TagInput({ value = [], onChange, placeholder }) {
 // ---- BODY END ----
 
 // ---- BODY START (original lines 85-105) ----
-function MultiSelect({ options = [], value = [], onChange }) {
+function MultiSelect({ options = [], value = [], onChange, labelledBy }) {
   const toggle = (opt) => {
     if (value.includes(opt)) onChange(value.filter(v => v !== opt));
     else onChange([...value, opt]);
   };
   return (
-    <div className="flex flex-wrap gap-2">
+    <div role="group" aria-labelledby={labelledBy} className="flex flex-wrap gap-2">
       {options.map(opt => (
         <button type="button" key={opt} onClick={() => toggle(opt)}
           className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
