@@ -10,6 +10,7 @@ import {
 import { publicAPI } from '../../services/api';
 import PlatformSlideshow from '../../components/PlatformSlideshow';
 import PublicTour from '../../components/PublicTour';
+import SearchBar from '../../components/SearchBar';
 import PageTourButton from '../../components/PageTourButton';
 
 // Phase 167 (W5-4): 1,302 lines -> this page + ./landingParts/.
@@ -60,6 +61,14 @@ export default function Landing() {
   // s47: Hero subtitle pulls the live "Global Startups" count from cms.stats by label match.
   // Fallback string used until cms loads (avoids hardcoding stale numbers in the bundle).
   const liveStartupsValue = statValue(cms?.stats, 'Global Startups', '');
+  // ONE startup count, ONE format, everywhere on this page (UX audit, 21 Aug 2026).
+  // The hero subheadline hardcoded "575,000+" while the stats tile 900px below
+  // rendered the live CMS value as "576K+". Two different numbers for the same
+  // fact on the same page, and it is the primary proof-of-scale claim — it read
+  // as carelessness rather than as a counter ticking up. Every surface here now
+  // reads this one binding, so the hero and the tile cannot drift apart again:
+  // when the live count moves, all of them move together.
+  const startupCount = liveStartupsValue || '575K+';
   // s51 homepage redesign — the stats strip shows a curated 4-stat set
   // (Global Startups / AI Clusters / Personas / ISO 27001) from DEFAULT_STATS,
   // so it stays on-brief regardless of what the CMS stats array contains.
@@ -133,8 +142,31 @@ export default function Landing() {
             className="max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            Search 575,000+ startups, post a challenge, and connect directly. Free to start, no credit card.
+            Search {startupCount} startups, post a challenge, and connect directly. Free to start, no credit card.
           </p>
+
+          {/* Hero search — shown BELOW xl only (UX audit, 21 Aug 2026).
+              At 390px the header collapsed to logo + Get Started + hamburger,
+              so the product's actual differentiator — asking a question across
+              575k startups in plain English — was not on the first mobile
+              screen at all. It was reachable only by opening the menu, and a
+              menu is where people look for navigation, not for the core action.
+
+              The breakpoint is `xl:hidden`, NOT `lg:hidden`, and that is
+              load-bearing: LandingHeader.jsx:52 reveals its SearchBar at
+              `hidden xl:block` (deliberately xl, so the field never contends
+              with the nav in the 1024-1279px band). Hiding this one at `lg`
+              would leave 1024-1279px with no search field anywhere on the page.
+              `xl:hidden` here is exactly complementary to the header's
+              `xl:block`: one search field on screen at every width, never two
+              and never zero.
+
+              No onSearch prop needed — SearchBar's own default (SearchBar.jsx:74)
+              navigates to /search?q=…&mode=…, which is character-for-character
+              what Landing.handleHeaderSearch does for the header instance. */}
+          <div className="xl:hidden max-w-xl mx-auto mb-6 text-left">
+            <SearchBar showAiToggle placeholder={`Ask or search ${startupCount} startups...`} />
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
             <Link
@@ -169,7 +201,7 @@ export default function Landing() {
           </div>
 
           <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            {hero?.sectors_text || 'AI-powered search · 575K+ startups · ISO/IEC 27001 certified'}
+            {hero?.sectors_text || `AI-powered search · ${startupCount} startups · ISO/IEC 27001 certified`}
           </p>
 
           {/* Phase 60.7 (s50) — ISO 27001 trust badge */}
@@ -264,7 +296,7 @@ export default function Landing() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {(howItWorks || [
             { number: '1', title: 'Register your role', description: 'Choose from 11 roles — startup, corporate, investor, government, mentor, lab, and more. Each gets a tailored profile and dashboard.' },
-            { number: '2', title: 'Discover & connect', description: 'Search 575,000+ startups, browse challenges, and use the 8-vector evaluation framework to find the right partners, investments, and innovations.' },
+            { number: '2', title: 'Discover & connect', description: `Search ${startupCount} startups, browse challenges, and use the 8-vector evaluation framework to find the right partners, investments, and innovations.` },
             { number: '3', title: 'Collaborate & grow', description: 'Schedule meetings, submit proposals, and track projects — manage the full journey from first contact to successful pilot.' },
           ]).map((step, i) => (
             <Step key={i} number={step.number || String(i + 1)} title={step.title} description={step.description} />
@@ -472,9 +504,9 @@ export default function Landing() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(features || [
             { icon: 'Award', title: '8-Vector AI Evaluation', description: 'Score startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment — with clear explanations, red flags, and recommended next steps.' },
-            { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${liveStartupsValue || '575K+'} startups grouped into 200 AI clusters.` },
+            { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${startupCount} startups grouped into 200 AI clusters.` },
             { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, and public share links. AI evaluates and ranks applicants automatically.' },
-            { icon: 'Rocket', title: 'Global Startup Database', description: `${liveStartupsValue || '575K+'} enriched startup profiles, kept current by AI — sectors classified, funding detected, and location and DeepTech flags added automatically.` },
+            { icon: 'Rocket', title: 'Global Startup Database', description: `${startupCount} enriched startup profiles, kept current by AI — sectors classified, funding detected, and location and DeepTech flags added automatically.` },
           ]).map((f, i) => (
             <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
           ))}

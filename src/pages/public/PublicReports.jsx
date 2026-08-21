@@ -39,8 +39,13 @@ export default function PublicReports() {
       if (selectedTechnology) params.technology = selectedTechnology;
       const data = await publicAPI.listReports(params);
       setReports(data.reports || []);
-      if (data.filters?.sectors) setSectors(data.filters.sectors);
-      if (data.filters?.technologies) setTechnologies(data.filters.technologies);
+      // Deduped for the same reason as the card chips below: these arrays are
+      // rendered with key={value}, so one repeated entry from the API is a
+      // duplicate-key warning and a doubled filter button. Clean as of 21 Aug
+      // 2026 (9 sectors, 58 technologies, no repeats) — this keeps it that way
+      // without depending on the backend to guarantee it.
+      if (data.filters?.sectors) setSectors([...new Set(data.filters.sectors)]);
+      if (data.filters?.technologies) setTechnologies([...new Set(data.filters.technologies)]);
     } catch (err) {
       console.error('Failed to load reports:', err);
     } finally { setLoading(false); }
@@ -72,7 +77,7 @@ export default function PublicReports() {
             <span className="text-sm font-semibold w-32 shrink-0" style={{ color: DARK }}>Filter by sector:</span>
             <button
               onClick={() => setSelectedSector('')}
-              className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+              className="px-4 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold transition-all"
               style={{
                 background: !selectedSector ? GOLD : '#fff',
                 color: !selectedSector ? '#fff' : GRAY,
@@ -85,7 +90,7 @@ export default function PublicReports() {
               <button
                 key={s}
                 onClick={() => setSelectedSector(s)}
-                className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                className="px-4 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold transition-all"
                 style={{
                   background: selectedSector === s ? getSectorColor(s) : '#fff',
                   color: selectedSector === s ? '#fff' : GRAY,
@@ -106,7 +111,7 @@ export default function PublicReports() {
               <span className="text-sm font-semibold w-32 shrink-0" style={{ color: DARK }}>Filter by technology:</span>
               <button
                 onClick={() => setSelectedTechnology('')}
-                className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                className="px-4 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold transition-all"
                 style={{
                   background: !selectedTechnology ? GOLD : '#fff',
                   color: !selectedTechnology ? '#fff' : GRAY,
@@ -119,7 +124,7 @@ export default function PublicReports() {
                 <button
                   key={t}
                   onClick={() => setSelectedTechnology(t)}
-                  className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                  className="px-4 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold transition-all"
                   style={{
                     background: selectedTechnology === t ? GOLD : '#fff',
                     color: selectedTechnology === t ? '#fff' : GRAY,
@@ -178,7 +183,8 @@ export default function PublicReports() {
                 <div className="w-11 h-11 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ background: GOLD_LIGHT }}>
                   <item.icon size={22} style={{ color: GOLD }} />
                 </div>
-                <h4 className="text-sm font-bold mb-2" style={{ color: DARK }}>{item.title}</h4>
+                {/* h3 under the "Why OpenI Reports?" h2 — h4 here skipped a level. */}
+                <h3 className="text-sm font-bold mb-2" style={{ color: DARK }}>{item.title}</h3>
                 <p className="text-xs leading-relaxed" style={{ color: GRAY }}>{item.desc}</p>
               </div>
             ))}
@@ -240,9 +246,10 @@ function ReportCard({ report }) {
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-base font-bold mb-2 line-clamp-2" style={{ color: DARK, minHeight: 44 }}>
+        {/* h2: directly under the page <h1>; h3 here skipped a level. */}
+        <h2 className="text-base font-bold mb-2 line-clamp-2" style={{ color: DARK, minHeight: 44 }}>
           {report.title}
-        </h3>
+        </h2>
         <p className="text-xs leading-relaxed mb-4" style={{ color: GRAY, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {report.description}
         </p>
@@ -250,7 +257,18 @@ function ReportCard({ report }) {
         {/* Technology chips */}
         {report.technologies?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {report.technologies.map(t => (
+            {/* Deduped before render (UX audit, 21 Aug 2026). The live payload
+                has at least one report — "THE FUTURE OF FASHION" — carrying
+                "Manufacturing" twice in technologies[]. With key={t} that threw
+                React's "Encountered two children with the same key" warning on
+                every /reports load, and rendered the same chip twice. Keys must
+                be unique among siblings, and React's recovery from a duplicate
+                is to reuse one element for both, which attaches state to the
+                wrong node the moment this list re-renders under a filter
+                change. Deduping fixes the warning and the visible repeat at
+                once; it is also simply what the UI means — a tag list is a set.
+                Order is preserved: Set keeps insertion order. */}
+            {[...new Set(report.technologies)].map(t => (
               <span key={t} className="px-2 py-0.5 rounded-full text-[10px] font-bold"
                     style={{ background: LIGHT_GRAY, color: GRAY, border: `1px solid ${BORDER}` }}>
                 {t}

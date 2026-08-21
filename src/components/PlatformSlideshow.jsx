@@ -79,20 +79,43 @@ export default function PlatformSlideshow() {
           <div style={{ fontSize: 12, opacity: 0.6, flexShrink: 0 }}>{active + 1} / {SLIDES.length}</div>
         </div>
 
-        {/* Navigation dots */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'center' }}>
+        {/* Navigation dots.
+            The BUTTON is the touch target; the SPAN inside is the dot you see.
+            Previously the button itself was the 8px dot — an 8x8 tap target on
+            a phone, against a 44px guideline, and the smallest control measured
+            anywhere on the site in the 21 Aug 2026 UX audit. Missing it either
+            does nothing or scrolls the page, and the visitor has no idea the
+            slideshow is steerable.
+
+            The visual is unchanged: same 8px dot, same 24px active pill, same
+            colours and transition. The button contributes no size of its own
+            (transparent, no border, no padding beyond the inline-flex box) and
+            the row's negative vertical margin cancels the extra height, so the
+            layout below is identical to before — only the hit area grew. */}
+        <div style={{ display: 'flex', gap: 4, marginTop: 12, marginBottom: -16, justifyContent: 'center' }}>
           {SLIDES.map((_, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
               aria-label={`Slide ${i + 1}`}
+              aria-current={i === active ? 'true' : undefined}
               style={{
-                width: i === active ? 24 : 8, height: 8,
-                borderRadius: 4, border: 'none', cursor: 'pointer',
-                background: i === active ? G : 'rgba(255,255,255,0.4)',
-                transition: 'all 0.3s ease',
+                height: 44, minWidth: 44, padding: 0,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                marginTop: -16,
               }}
-            />
+            >
+              <span
+                style={{
+                  display: 'block',
+                  width: i === active ? 24 : 8, height: 8,
+                  borderRadius: 4,
+                  background: i === active ? G : 'rgba(255,255,255,0.4)',
+                  transition: 'all 0.3s ease',
+                }}
+              />
+            </button>
           ))}
         </div>
       </div>

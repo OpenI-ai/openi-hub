@@ -32,12 +32,14 @@ export default function LandingFooter({ footerTagline }) {
               {/* Social Links */}
               <div className="flex items-center gap-4 mt-4">
                 <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
+                   aria-label="OpenI on LinkedIn"
                    className="transition-colors"
                    onMouseEnter={e => e.currentTarget.querySelector('svg').setAttribute('fill', GOLD)}
                    onMouseLeave={e => e.currentTarget.querySelector('svg').setAttribute('fill', '#9ca3af')}>
                   <LinkedInIcon size={20} color="#9ca3af" />
                 </a>
                 <a href="https://x.com/OpenIPartners" target="_blank" rel="noopener noreferrer"
+                   aria-label="OpenI on X"
                    className="transition-colors"
                    onMouseEnter={e => e.currentTarget.querySelector('svg').setAttribute('fill', GOLD)}
                    onMouseLeave={e => e.currentTarget.querySelector('svg').setAttribute('fill', '#9ca3af')}>
@@ -48,7 +50,8 @@ export default function LandingFooter({ footerTagline }) {
 
             {/* Product */}
             <div>
-              <h4 className="text-sm font-bold mb-4 text-white">Product</h4>
+              {/* h2, not h4: this sits under the page <h1>, and h1->h4 skipped two levels. Size unchanged. */}
+              <h2 className="text-sm font-bold mb-4 text-white">Product</h2>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/marketplace" className="hover:text-white transition-colors">Marketplace</Link></li>
                 <li><Link to="/reports" className="hover:text-white transition-colors">Startup Reports</Link></li>
@@ -61,7 +64,7 @@ export default function LandingFooter({ footerTagline }) {
 
             {/* Company */}
             <div>
-              <h4 className="text-sm font-bold mb-4 text-white">Company</h4>
+              <h2 className="text-sm font-bold mb-4 text-white">Company</h2>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/dashboard/login" className="hover:text-white transition-colors">Sign In</Link></li>
                 <li><a href="mailto:info@openi.ai" className="hover:text-white transition-colors">Contact</a></li>

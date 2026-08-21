@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import useDocumentTitle from './hooks/useDocumentTitle';
 import { AuthProvider } from './context/AuthContext';
 
 // Pages — Auth
@@ -194,12 +195,24 @@ function EmailVerifyBridge() {
   return null;
 }
 
+// Sets <title> on every location change. Rendered inside BrowserRouter (the
+// hook calls useLocation) and returns null — it is behaviour, not UI. Mounting
+// it once here beats calling a hook in 124 page components: a route added later
+// gets a sensible title automatically instead of silently inheriting the
+// marketing one. See src/hooks/useDocumentTitle.js for why this is needed at
+// all and why three of its strings must stay identical to prerender.js.
+function DocumentTitle() {
+  useDocumentTitle();
+  return null;
+}
+
 // ── App ───────────────────────────────────────────────────────
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <EmailVerifyBridge />
+        <DocumentTitle />
         {/* s48 — Suspense boundary for lazy-loaded routes (recharts surfaces) */}
         <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
         <Routes>

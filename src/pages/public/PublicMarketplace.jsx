@@ -214,7 +214,7 @@ export default function PublicMarketplace({ initialData }) {
           {/* Problem Statement */}
           {c.problem_statement && (
             <div className="mb-8">
-              <h3 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Problem Statement</h3>
+              <h2 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Problem Statement</h2>
               <div className="p-5 rounded-xl text-sm leading-relaxed" style={{ background: LIGHT_GRAY, color: DARK, border: `1px solid ${BORDER}` }}>
                 {c.problem_statement}
               </div>
@@ -224,7 +224,7 @@ export default function PublicMarketplace({ initialData }) {
           {/* Description */}
           {c.description && (
             <div className="mb-8">
-              <h3 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Description</h3>
+              <h2 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Description</h2>
               <div className="text-sm leading-relaxed" style={{ color: DARK }}>{c.description}</div>
             </div>
           )}
@@ -232,7 +232,7 @@ export default function PublicMarketplace({ initialData }) {
           {/* Requirements */}
           {c.requirements && (
             <div className="mb-8">
-              <h3 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Requirements</h3>
+              <h2 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Requirements</h2>
               <div className="text-sm leading-relaxed" style={{ color: DARK }}>{c.requirements}</div>
             </div>
           )}
@@ -240,7 +240,7 @@ export default function PublicMarketplace({ initialData }) {
           {/* FAQs */}
           {c.faqs && c.faqs.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Frequently Asked Questions</h3>
+              <h2 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ color: GRAY }}>Frequently Asked Questions</h2>
               <div className="space-y-2">
                 {c.faqs.map((faq, i) => (
                   <FAQAccordion key={i} question={faq.question || faq.q} answer={faq.answer || faq.a} />
@@ -324,6 +324,7 @@ export default function PublicMarketplace({ initialData }) {
           <div className={`flex flex-wrap gap-3 mb-4 ${showFilters ? '' : 'hidden md:flex'}`}>
             {/* Sector filter */}
             <select value={sector} onChange={e => { setSector(e.target.value); setPage(1); }}
+                    aria-label="Filter challenges by sector"
                     className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, outline: 'none', minWidth: 180 }}>
               <option value="">All Sectors</option>
               {filters.sectors.map(s => <option key={s} value={s}>{s}</option>)}
@@ -331,6 +332,7 @@ export default function PublicMarketplace({ initialData }) {
 
             {/* Technology filter */}
             <select value={technology} onChange={e => { setTechnology(e.target.value); setPage(1); }}
+                    aria-label="Filter challenges by technology"
                     className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, outline: 'none', minWidth: 180 }}>
               <option value="">All Technologies</option>
               {filters.technologies.map(t => <option key={t} value={t}>{t}</option>)}
@@ -338,6 +340,7 @@ export default function PublicMarketplace({ initialData }) {
 
             {/* Challenge type filter */}
             <select value={challengeType} onChange={e => { setChallengeType(e.target.value); setPage(1); }}
+                    aria-label="Filter challenges by type"
                     className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${challengeType ? GOLD : BORDER}`, color: DARK, outline: 'none', minWidth: 140, background: challengeType ? GOLD_LIGHT : '#fff', fontWeight: challengeType ? 600 : 400 }}>
               {CHALLENGE_TYPES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
@@ -346,6 +349,7 @@ export default function PublicMarketplace({ initialData }) {
             <div className="flex items-center gap-1.5 ml-auto">
               <ArrowUpDown size={14} style={{ color: GRAY }} />
               <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
+                      aria-label="Sort challenges"
                       className="px-3 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${sort ? GOLD : BORDER}`, color: DARK, outline: 'none', background: sort ? GOLD_LIGHT : '#fff', fontWeight: sort ? 600 : 400 }}>
                 {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -404,14 +408,63 @@ export default function PublicMarketplace({ initialData }) {
               <p className="text-sm" style={{ color: GRAY }}>Try adjusting your search or filters.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {dealRequests.map(d => (
-                <ChallengeCard key={`deal-${d.id}`} challenge={d} typeBadge={DEAL_SOURCING_BADGE} onClick={() => navigate(`/marketplace/deal-${d.id}`)} />
-              ))}
-              {challenges.map(c => (
-                <ChallengeCard key={c.id} challenge={c} onClick={() => navigate(`/marketplace/${c.id}`)} />
-              ))}
-            </div>
+            <>
+              {/* Sparse-state layout (UX audit, 21 Aug 2026).
+                  A 3-column grid holding two cards left two-thirds of the row
+                  empty, which read as "this marketplace is dead" rather than
+                  "this marketplace is young". Below 3 results the grid stops
+                  stretching to 3 columns and centres instead, so the row looks
+                  deliberate at any count. This is presentation only — no result
+                  is hidden, reordered or filtered. */}
+              <div className={
+                (dealRequests.length + challenges.length) < 3
+                  ? 'grid grid-cols-1 sm:grid-cols-2 gap-5 justify-center max-w-3xl mx-auto'
+                  : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'
+              }>
+                {dealRequests.map(d => (
+                  <ChallengeCard key={`deal-${d.id}`} challenge={d} typeBadge={DEAL_SOURCING_BADGE} onClick={() => navigate(`/marketplace/deal-${d.id}`)} />
+                ))}
+                {challenges.map(c => (
+                  <ChallengeCard key={c.id} challenge={c} onClick={() => navigate(`/marketplace/${c.id}`)} />
+                ))}
+              </div>
+
+              {/* When the board is thin, give the visitor somewhere to go that
+                  is not the back button. Both destinations already exist and
+                  hold real substance — twelve published reports, and an account
+                  that lets them post their own challenge. Deliberately NOT an
+                  email-capture field: there is no endpoint behind one today, and
+                  a form that silently discards an address is worse than no form.
+                  Threshold matches the grid switch above. */}
+              {(dealRequests.length + challenges.length) < 3 && !loading && (
+                <div className="mt-10 rounded-xl p-6 md:p-8 text-center" style={{ background: LIGHT_GRAY, border: `1px solid ${BORDER}` }}>
+                  <h2 className="text-lg font-bold mb-2" style={{ color: DARK }}>
+                    More challenges are posted every week
+                  </h2>
+                  <p className="text-sm mb-5 max-w-xl mx-auto" style={{ color: GRAY }}>
+                    Corporates, government bodies and investors publish new problem statements here as
+                    they open. In the meantime, our sector reports cover where the opportunities are
+                    forming — or post a challenge of your own and let the ecosystem come to you.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Link
+                      to="/reports"
+                      className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-lg text-sm font-bold transition-all"
+                      style={{ background: GOLD, color: '#fff' }}
+                    >
+                      Read the sector reports
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-lg text-sm font-bold transition-all"
+                      style={{ background: '#fff', color: DARK, border: `1px solid ${BORDER}` }}
+                    >
+                      Post a challenge
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {/* Pagination */}
@@ -494,9 +547,12 @@ function ChallengeCard({ challenge: c, onClick, typeBadge }) {
 
       {/* Title */}
       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-        <h3 className="text-base font-bold line-clamp-2" style={{ color: DARK, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        {/* h2, not h3: the page heading is the <h1> above, so a card title at
+            h3 skipped a level and screen-reader users navigating by heading
+            heard a missing section. Visual size is unchanged. */}
+        <h2 className="text-base font-bold line-clamp-2" style={{ color: DARK, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {c.title}
-        </h3>
+        </h2>
         {typeBadge && <span className="text-xs font-extrabold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: typeBadge.bg, color: typeBadge.color }}>{typeBadge.label}</span>}
         {c.is_expired && <span className="text-xs font-extrabold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
       </div>
