@@ -66,7 +66,7 @@ export default function WhoViewedProfile() {
     return (
       <div style={card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120 }}>
-          <Loader2 size={18} className="animate-spin" style={{ color: '#999' }} />
+          <Loader2 size={18} className="animate-spin" style={{ color: '#666' }} />
         </div>
       </div>
     );
@@ -87,7 +87,7 @@ export default function WhoViewedProfile() {
           </div>
           <div>
             <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>Who viewed your profile</h3>
-            <p style={{ fontSize: 11, color: '#888', margin: 0 }}>{total} total · {v7d} in past 7 days</p>
+            <p style={{ fontSize: 11, color: '#5c5c5c', margin: 0 }}>{total} total · {v7d} in past 7 days</p>
           </div>
         </div>
       </div>
@@ -126,20 +126,20 @@ export default function WhoViewedProfile() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</div>
-                  <div style={{ fontSize: 10, color: '#888', textTransform: 'capitalize' }}>{v.role}{v.persona_category === 'seeker' ? ' · seeker' : ''}</div>
+                  <div style={{ fontSize: 10, color: '#5c5c5c', textTransform: 'capitalize' }}>{v.role}{v.persona_category === 'seeker' ? ' · seeker' : ''}</div>
                 </div>
-                <span style={{ fontSize: 10, color: '#999' }}>{relativeTime(v.viewed_at)}</span>
+                <span style={{ fontSize: 10, color: '#666' }}>{relativeTime(v.viewed_at)}</span>
               </div>
             ))}
           </div>
           {viewers.viewers.length > 5 && (
-            <p style={{ fontSize: 11, color: '#888', margin: '8px 0 0 0', textAlign: 'center' }}>+ {viewers.viewers.length - 5} more in the past {viewers.period_days} days</p>
+            <p style={{ fontSize: 11, color: '#5c5c5c', margin: '8px 0 0 0', textAlign: 'center' }}>+ {viewers.viewers.length - 5} more in the past {viewers.period_days} days</p>
           )}
         </div>
       ) : total === 0 ? (
-        <p style={{ fontSize: 11, color: '#888', textAlign: 'center', margin: '12px 0' }}>No profile views yet. Share your profile to attract seekers.</p>
+        <p style={{ fontSize: 11, color: '#5c5c5c', textAlign: 'center', margin: '12px 0' }}>No profile views yet. Share your profile to attract seekers.</p>
       ) : (
-        <p style={{ fontSize: 11, color: '#888', textAlign: 'center', margin: '12px 0' }}>No recent named viewers in the past 30 days.</p>
+        <p style={{ fontSize: 11, color: '#5c5c5c', textAlign: 'center', margin: '12px 0' }}>No recent named viewers in the past 30 days.</p>
       )}
     </div>
   );
@@ -150,7 +150,7 @@ function MiniStat({ icon: Icon, label, value, color }) {
     <div style={{ padding: '10px 10px', borderRadius: 10, background: '#fafafa', border: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
         <Icon size={11} style={{ color }} />
-        <span style={{ fontSize: 10, color: '#888' }}>{label}</span>
+        <span style={{ fontSize: 10, color: '#5c5c5c' }}>{label}</span>
       </div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', lineHeight: 1 }}>{value.toLocaleString()}</div>
     </div>

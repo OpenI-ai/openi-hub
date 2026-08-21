@@ -641,7 +641,7 @@ export default function DashboardLayout() {
                     </div>
                     {/* Phase 101 Sub-D: mark-read on row click + navigate to link */}
                     {notifications.length === 0 && (
-                      <div style={{ padding:"24px 16px", textAlign:"center", fontSize:12, color:"#999" }}>
+                      <div style={{ padding:"24px 16px", textAlign:"center", fontSize:12, color:"#666" }}>
                         No notifications yet.
                       </div>
                     )}
@@ -674,7 +674,7 @@ export default function DashboardLayout() {
                           <div style={{ fontSize:12, color:"#1a1a1a", fontWeight: n.read ? 400 : 600, lineHeight:1.4 }}>
                             {n.title}
                           </div>
-                          <div style={{ fontSize:11, color:"#888", marginTop:3 }}>{n.time}</div>
+                          <div style={{ fontSize:11, color:"#5c5c5c", marginTop:3 }}>{n.time}</div>
                         </div>
                         {!n.read && (
                           <span style={{

@@ -94,7 +94,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
   if (loading) {
     return (
       <div style={{ ...card, padding: 20, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#9ca3af' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#6e6e6e' }}>
           <Loader2 size={18} className="animate-spin" />
           <span style={{ fontSize: 14 }}>Loading AI profile score…</span>
         </div>
@@ -117,7 +117,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
           </div>
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#111' }}>AI Profile Insights</h3>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#888' }}>
+            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#5c5c5c' }}>
               Quality coaching by GPT — separate from completeness
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
               <><Sparkles size={15} /> Analyze my profile</>
             )}
           </button>
-          <p style={{ margin: '10px 0 0', fontSize: 11, color: '#9ca3af' }}>
+          <p style={{ margin: '10px 0 0', fontSize: 11, color: '#6e6e6e' }}>
             Cached for 30 days · Up to 5 analyses per day
           </p>
         </div>
@@ -189,7 +189,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 16 }}>
             {/* AI Quality Score */}
             <div style={{ padding: 14, borderRadius: 10, background: '#fafafa', border: '1px solid #f0f0f0' }}>
-              <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+              <div style={{ fontSize: 11, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
                 AI Quality
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -206,7 +206,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
             {/* Completeness (Phase 55) for context */}
             {completeness != null && (
               <div style={{ padding: 14, borderRadius: 10, background: '#fafafa', border: '1px solid #f0f0f0' }}>
-                <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                <div style={{ fontSize: 11, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
                   Completeness
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -215,7 +215,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
                   </span>
                   <span style={{ fontSize: 13, color: '#666', fontWeight: 500 }}>/ 100</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 4 }}>
                   Fields filled
                 </div>
               </div>
@@ -269,12 +269,12 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
                     </div>
                     {imp.why && (
                       <div style={{ fontSize: 13, color: '#555', marginBottom: 6, lineHeight: 1.5 }}>
-                        <span style={{ color: '#888' }}>Why:</span> {imp.why}
+                        <span style={{ color: '#5c5c5c' }}>Why:</span> {imp.why}
                       </div>
                     )}
                     {imp.suggestion && (
                       <div style={{ fontSize: 13, color: '#1f2937', lineHeight: 1.5, fontWeight: 500 }}>
-                        <span style={{ color: '#888', fontWeight: 400 }}>Suggestion:</span> {imp.suggestion}
+                        <span style={{ color: '#5c5c5c', fontWeight: 400 }}>Suggestion:</span> {imp.suggestion}
                       </div>
                     )}
                   </div>
@@ -284,7 +284,7 @@ export default function ProfileScoreAiCard({ completenessScore = null }) {
           )}
 
           {/* Footer: cached indicator */}
-          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#9ca3af' }}>
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#6e6e6e' }}>
             <span>Last analyzed {timeAgo(data.computed_at)}</span>
             {narrative.model && <span>Model: {narrative.model}</span>}
           </div>

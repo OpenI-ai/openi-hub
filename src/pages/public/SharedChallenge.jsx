@@ -43,8 +43,8 @@ export default function SharedChallenge() {
         {error && (
           <div style={{ ...card, padding: 40, textAlign: 'center' }}>
             <Target size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#888' }}>{error}</p>
-            <p style={{ fontSize: 13, color: '#aaa' }}>This challenge may have been closed or the link is invalid.</p>
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#5c5c5c' }}>{error}</p>
+            <p style={{ fontSize: 13, color: '#6e6e6e' }}>This challenge may have been closed or the link is invalid.</p>
             <Link to="/marketplace" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, color: G, fontWeight: 600, fontSize: 13, textDecoration: 'none' }}>
               Browse Public Challenges <ArrowRight size={14} />
             </Link>

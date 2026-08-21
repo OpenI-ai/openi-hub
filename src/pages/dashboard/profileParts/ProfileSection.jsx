@@ -92,7 +92,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-4"
         style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
         <span className="text-sm font-bold" style={{ color: '#1a1a1a' }}>{title} {items.length > 0 && `(${items.length})`}</span>
-        {expanded ? <ChevronUp size={16} style={{ color: '#999' }} /> : <ChevronDown size={16} style={{ color: '#999' }} />}
+        {expanded ? <ChevronUp size={16} style={{ color: '#666' }} /> : <ChevronDown size={16} style={{ color: '#666' }} />}
       </button>
 
       {expanded && (
@@ -272,7 +272,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
                         <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
                           <button onClick={() => handleEdit(item)}
                             title="Edit"
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#888' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#5c5c5c' }}
                             onMouseEnter={e => e.currentTarget.style.color = G}
                             onMouseLeave={e => e.currentTarget.style.color = '#888'}>
                             <Pencil size={12} />

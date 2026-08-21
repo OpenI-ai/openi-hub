@@ -216,7 +216,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied, autoStart
                 </Link>
                 <button
                   onClick={() => setDismissed(true)}
-                  style={{ fontSize: 11, color: '#888', background: 'none', border: 'none', cursor: 'pointer' }}
+                  style={{ fontSize: 11, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
                   Dismiss
                 </button>
@@ -272,7 +272,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied, autoStart
               </button>
               <button
                 onClick={() => setDismissed(true)}
-                style={{ fontSize: 11, color: '#888', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ fontSize: 11, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 No thanks
               </button>
@@ -328,7 +328,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied, autoStart
       )}
 
       {scrapedFields.length === 0 ? (
-        <p style={{ fontSize: 12, color: '#888', textAlign: 'center', margin: '16px 0' }}>
+        <p style={{ fontSize: 12, color: '#5c5c5c', textAlign: 'center', margin: '16px 0' }}>
           We couldn't find enough info on your website. Try adding an About page or clear company description.
         </p>
       ) : (
@@ -363,7 +363,7 @@ export default function AutoFillMyProfile({ currentProfile, onApplied, autoStart
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 6 }}>{f.label}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                         <div>
-                          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, color: '#9ca3af', marginBottom: 3 }}>Current</div>
+                          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, color: '#6e6e6e', marginBottom: 3 }}>Current</div>
                           <FieldPreview type={f.type} value={current} />
                         </div>
                         <div>

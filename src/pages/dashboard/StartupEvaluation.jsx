@@ -208,7 +208,7 @@ function RadarChart({ vectorScores }) {
 
 // ─── SCORE BAND ────────────────────────────────────────────────────────────────
 function scoreBand(s) {
-  if (!s) return { label: "—", cls: "text-gray-400", color: "#aaa" };
+  if (!s) return { label: "—", cls: "text-gray-400", color: "#6e6e6e" };
   if (s >= 4.5) return { label: "Excellent", cls: "text-emerald-600", color: "#16a34a" };
   if (s >= 3.5) return { label: "Good", cls: "text-lime-600", color: "#65a30d" };
   if (s >= 2.5) return { label: "Developing", cls: "text-amber-600", color: "#d97706" };
@@ -258,7 +258,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
             <div style={{ flex:1, height:4, background:"#f0f0f0", borderRadius:4, overflow:"hidden" }}>
               <div style={{ width:`${progress}%`, height:"100%", borderRadius:4, transition:"width 0.5s ease", backgroundColor: vector.hex + "cc" }} />
             </div>
-            <span style={{ fontSize:11, color:"#aaa", flexShrink:0 }}>{scoredCount}/{vector.criteria.length}</span>
+            <span style={{ fontSize:11, color:"#6e6e6e", flexShrink:0 }}>{scoredCount}/{vector.criteria.length}</span>
           </div>
         </div>
         <div style={{ color:"#bbb", flexShrink:0 }}>
@@ -270,7 +270,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
       {expanded && (
         <div style={{ borderTop:"1px solid #f0f0f0" }}>
           {/* Description */}
-          <p style={{ margin:0, padding:"10px 20px", fontSize:12, color:"#888", fontStyle:"italic", borderBottom:"1px solid #f5f5f5" }}>
+          <p style={{ margin:0, padding:"10px 20px", fontSize:12, color:"#5c5c5c", fontStyle:"italic", borderBottom:"1px solid #f5f5f5" }}>
             {vector.desc}
           </p>
           {/* Column headers — hidden on mobile (SE1: score row wraps below label on small screens) */}
@@ -565,7 +565,7 @@ export default function StartupEvaluation() {
       <div style={{ marginBottom:24, display:"flex", alignItems:"center", flexWrap:"wrap", gap:14, paddingBottom:20, borderBottom:"1px solid #eeeeee" }}>
         <div>
           <h1 style={{ margin:0, color:"#1a1a1a", fontSize:20, fontWeight:700 }}>8-Vector Startup Evaluation</h1>
-          <p style={{ margin:"4px 0 0", color:"#888", fontSize:12 }}>OpenI 8-Vector Assessment · {completionPct}% complete</p>
+          <p style={{ margin:"4px 0 0", color:"#5c5c5c", fontSize:12 }}>OpenI 8-Vector Assessment · {completionPct}% complete</p>
         </div>
 
         <div style={{ flex:1, display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", justifyContent:"flex-end" }}>
@@ -596,7 +596,7 @@ export default function StartupEvaluation() {
         </div>
 
         <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
-          <span style={{ fontSize:12, color:"#888" }}>{completionPct}%</span>
+          <span style={{ fontSize:12, color:"#5c5c5c" }}>{completionPct}%</span>
           <div style={{ width:80, height:5, background:"#e8e8e8", borderRadius:4, overflow:"hidden" }} className="hidden sm:block">
             <div style={{ width:`${completionPct}%`, height:"100%", background:"#D0A848", borderRadius:4, transition:"width 0.5s" }} />
           </div>
@@ -663,7 +663,7 @@ export default function StartupEvaluation() {
             <h2 style={{ margin:"0 0 4px", fontSize:18, fontWeight:700, color:"#1a1a1a" }}>
               {startupName ? `${startupName} — ` : ""}OpenI 8-Vector Assessment
             </h2>
-            <p style={{ margin:0, fontSize:13, color:"#888" }}>
+            <p style={{ margin:0, fontSize:13, color:"#5c5c5c" }}>
               Rate each criterion from <strong style={{ color:"#555" }}>1</strong> (poor) to <strong style={{ color:"#555" }}>5</strong> (excellent). Click <MessageSquare style={{ width:13, height:13, display:"inline", verticalAlign:"middle", color:"#bbb" }} /> to add status & notes.
             </p>
           </div>
@@ -736,12 +736,12 @@ export default function StartupEvaluation() {
           <div style={{ marginTop:18, background:"#fff", border:"1px solid #eee", borderRadius:14, padding:"18px 20px" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
               <h3 style={{ margin:0, fontSize:15, fontWeight:700, color:"#1a1a1a" }}>Recent Assessments</h3>
-              <span style={{ fontSize:12, color:"#999" }}>Saved 8-Vector assessments — click a row to review or re-assess</span>
+              <span style={{ fontSize:12, color:"#666" }}>Saved 8-Vector assessments — click a row to review or re-assess</span>
             </div>
             {pastLoading ? (
-              <p style={{ margin:0, fontSize:13, color:"#999" }}>Loading…</p>
+              <p style={{ margin:0, fontSize:13, color:"#666" }}>Loading…</p>
             ) : pastAssessments.length === 0 ? (
-              <p style={{ margin:0, fontSize:13, color:"#999" }}>No saved assessments yet. Score the vectors above and click <strong style={{ color:"#777" }}>Save Assessment</strong> to keep one for past review.</p>
+              <p style={{ margin:0, fontSize:13, color:"#666" }}>No saved assessments yet. Score the vectors above and click <strong style={{ color:"#5c5c5c" }}>Save Assessment</strong> to keep one for past review.</p>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                 {pastAssessments.map(a => {
@@ -770,7 +770,7 @@ export default function StartupEvaluation() {
                         <div style={{ fontSize:14, fontWeight:600, color:"#1a1a1a", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
                           {a.startup_name || "Untitled assessment"}
                         </div>
-                        <div style={{ fontSize:12, color:"#999", display:"flex", alignItems:"center", gap:5, marginTop:2 }}>
+                        <div style={{ fontSize:12, color:"#666", display:"flex", alignItems:"center", gap:5, marginTop:2 }}>
                           <Calendar style={{ width:12, height:12 }} />
                           {created ? created.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }) : "—"}
                           {created && ` · ${created.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' })}`}
@@ -798,7 +798,7 @@ export default function StartupEvaluation() {
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share 8-Vector Assessment</h2>
-              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6e6e6e', padding: 4 }}>
                 <X size={16} />
               </button>
             </div>
@@ -842,9 +842,9 @@ export default function StartupEvaluation() {
                 </button>
 
                 {shareLoading ? (
-                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading...</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading...</p>
                 ) : shareList.length === 0 ? (
-                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
                     {shareList.map(s => {

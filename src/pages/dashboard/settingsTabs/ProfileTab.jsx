@@ -28,7 +28,7 @@ export default function ProfileTab({ name, preferredCurrency, saveProfile, savin
             </div>
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{name || user?.email}</div>
-              <div style={{ fontSize: 12, color: '#888', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Shield size={11} color={G} />
                 <span style={{ textTransform: 'capitalize' }}>{user?.role || 'User'}</span>
               </div>
@@ -51,18 +51,18 @@ export default function ProfileTab({ name, preferredCurrency, saveProfile, savin
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#444', marginBottom: 6 }}>Email</label>
               <div style={{
                 padding: '10px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0',
-                borderRadius: 9, fontSize: 14, color: '#888',
+                borderRadius: 9, fontSize: 14, color: '#5c5c5c',
               }}>
-                {user?.email} <span style={{ fontSize: 11, color: '#aaa' }}>(cannot be changed)</span>
+                {user?.email} <span style={{ fontSize: 11, color: '#6e6e6e' }}>(cannot be changed)</span>
               </div>
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#444', marginBottom: 6 }}>Role</label>
               <div style={{
                 padding: '10px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0',
-                borderRadius: 9, fontSize: 14, color: '#888', textTransform: 'capitalize',
+                borderRadius: 9, fontSize: 14, color: '#5c5c5c', textTransform: 'capitalize',
               }}>
-                {user?.role} <span style={{ fontSize: 11, color: '#aaa' }}>(assigned by admin)</span>
+                {user?.role} <span style={{ fontSize: 11, color: '#6e6e6e' }}>(assigned by admin)</span>
               </div>
             </div>
             <div>
@@ -75,7 +75,7 @@ export default function ProfileTab({ name, preferredCurrency, saveProfile, savin
                 <option value="INR">₹ Indian Rupee (INR)</option>
                 <option value="USD">$ US Dollar (USD)</option>
               </select>
-              <div style={{ fontSize: 11, color: '#888', marginTop: 5 }}>
+              <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 5 }}>
                 Default currency used when creating new programs, batches, and partnerships. Existing records keep their original currency.
               </div>
             </div>

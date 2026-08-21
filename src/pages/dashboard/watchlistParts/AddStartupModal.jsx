@@ -12,7 +12,7 @@ export default function AddStartupModal({
               startup across the 575k+ catalogue rather than picking from a
               static slice of 24. */}
           <div style={{ position: 'relative', marginBottom: 12 }}>
-            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#666' }} />
             <input
               autoFocus
               type="text"
@@ -33,15 +33,15 @@ export default function AddStartupModal({
             />
           </div>
           {addSearch.trim().length < 2 ? (
-            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+            <p style={{ color: '#5c5c5c', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
               Type at least 2 characters to search.
             </p>
           ) : addLoading ? (
-            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+            <p style={{ color: '#5c5c5c', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
               Searching…
             </p>
           ) : availableToAdd.length === 0 ? (
-            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+            <p style={{ color: '#5c5c5c', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
               No matching startups found (or all matches are already in this list).
             </p>
           ) : (
@@ -60,7 +60,7 @@ export default function AddStartupModal({
                   />
                   Select all visible ({availableToAdd.length})
                 </label>
-                <span style={{ fontSize: 11, color: '#888' }}>
+                <span style={{ fontSize: 11, color: '#5c5c5c' }}>
                   {addSelected.size > 0 ? `${addSelected.size} selected` : 'Click row or checkbox to select'}
                 </span>
               </div>
@@ -109,7 +109,7 @@ export default function AddStartupModal({
                       )}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</div>
-                        <div style={{ fontSize: 11, color: '#888' }}>{s.sector} · {s.stage}</div>
+                        <div style={{ fontSize: 11, color: '#5c5c5c' }}>{s.sector} · {s.stage}</div>
                       </div>
                     </div>
                   );

@@ -244,7 +244,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
         <div style={{ ...card, padding: 48, textAlign: 'center' }}>
           <BarChart3 size={42} style={{ color: '#ddd', marginBottom: 12 }} />
           <div style={{ fontSize: 16, fontWeight: 600, color: '#666', marginBottom: 6 }}>No evaluations yet</div>
-          <div style={{ fontSize: 13, color: '#999', marginBottom: 18, maxWidth: 480, margin: '0 auto 18px' }}>
+          <div style={{ fontSize: 13, color: '#666', marginBottom: 18, maxWidth: 480, margin: '0 auto 18px' }}>
             Score each startup in your pipeline across 8 dimensions (Market, Team, Tech, Traction, Financials, IP, Scalability, Strategic Fit) and track their progress over multiple checkpoints.
           </div>
           {pipelineStartups.length > 0 ? (
@@ -265,7 +265,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
             <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>
               {focusedStartup?.startup_name || 'Startup'} — Progression
             </div>
-            <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>
               {focusedHistory.length} checkpoint{focusedHistory.length === 1 ? '' : 's'} tracked
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
             <PortfolioRadarChart title="Latest Checkpoint" data={focusedHistory[0]} size="lg" />
           )}
           <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #f0f0f0' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
               All Checkpoints
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -289,7 +289,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{ev.checkpoint_label}</span>
-                      <span style={{ fontSize: 10, color: '#888' }}>{ev.evaluation_date?.slice(0, 10)}</span>
+                      <span style={{ fontSize: 10, color: '#5c5c5c' }}>{ev.evaluation_date?.slice(0, 10)}</span>
                       <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#fff8ec', color: G, fontWeight: 700 }}>
                         Overall {ev.overall_score || '—'}
                       </span>
@@ -342,7 +342,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   Portfolio At Risk
                 </span>
-                <span style={{ fontSize: 11, color: '#888' }}>— startups with overall score &lt; 3 or red flags set</span>
+                <span style={{ fontSize: 11, color: '#5c5c5c' }}>— startups with overall score &lt; 3 or red flags set</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {health.at_risk.map(s => (
@@ -369,11 +369,11 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
 
           {/* Per-startup table */}
           <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '12px 18px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <div style={{ padding: '12px 18px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Latest Evaluation Per Startup · Click for trend view
             </div>
             {pipelineStartups.length === 0 ? (
-              <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: '#999' }}>No pipeline startups</div>
+              <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: '#666' }}>No pipeline startups</div>
             ) : (
               <div>
                 {pipelineStartups.map(ps => {
@@ -397,7 +397,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                             {ps.application_status}
                           </span>
                           {history.length > 0 && (
-                            <span style={{ fontSize: 9, color: '#888' }}>
+                            <span style={{ fontSize: 9, color: '#5c5c5c' }}>
                               {history.length} checkpoint{history.length > 1 ? 's' : ''}
                             </span>
                           )}
@@ -475,7 +475,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   {editingEval ? 'Edit Evaluation' : 'New Evaluation'}
                 </h2>
                 {!editingEval && (
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 3 }}>
                     Startup:&nbsp;
                     <select value={targetStartupId || ''} onChange={e => setTargetStartupId(parseInt(e.target.value, 10))}
                       style={{ padding: '4px 8px', border: '1px solid #ddd', borderRadius: 5, fontSize: 11 }}>
@@ -486,12 +486,12 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                   </div>
                 )}
                 {editingEval && (
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 3 }}>
                     {editingEval.startup_name || 'Startup'} · {editingEval.checkpoint_label}
                   </div>
                 )}
               </div>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => { setShowForm(false); setEditingEval(null); setTargetStartupId(null); }} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => { setShowForm(false); setEditingEval(null); setTargetStartupId(null); }} />
             </div>
             {upgradeError && (
               <UpgradeCTA compact feature={upgradeError.feature} plan={upgradeError.plan} />
@@ -512,7 +512,7 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Share Portfolio Evaluation</h2>
-              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4 }}>
+              <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6e6e6e', padding: 4 }}>
                 <X size={16} />
               </button>
             </div>
@@ -556,9 +556,9 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
                 </button>
 
                 {shareLoading ? (
-                  <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading...</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading...</p>
                 ) : shareList.length === 0 ? (
-                  <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
+                  <p style={{ color: '#5c5c5c', fontSize: 12, fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '12px 0' }}>No share links yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
                     {shareList.map(s => {
@@ -604,9 +604,9 @@ function KpiCard({ icon: Icon, label, value, color, suffix = '' }) {
         <Icon size={18} style={{ color }} />
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+        <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.1 }}>
-          {value}{suffix && <span style={{ fontSize: 11, color: '#888', fontWeight: 500 }}>{suffix}</span>}
+          {value}{suffix && <span style={{ fontSize: 11, color: '#5c5c5c', fontWeight: 500 }}>{suffix}</span>}
         </div>
       </div>
     </div>

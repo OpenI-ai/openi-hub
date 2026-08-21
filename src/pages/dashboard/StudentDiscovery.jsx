@@ -71,13 +71,13 @@ export default function StudentDiscovery() {
             {selected.avatar ? (
               <img src={selected.avatar} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
             ) : (
-              <div style={{ width: 56, height: 56, borderRadius: 12, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#999' }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#666' }}>
                 {(selected.display_name || '?')[0]}
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{selected.display_name || 'Student'}</div>
-              <div style={{ fontSize: 13, color: '#888' }}>
+              <div style={{ fontSize: 13, color: '#5c5c5c' }}>
                 {selected.degree ? `${selected.degree}` : ''}{selected.department ? ` in ${selected.department}` : ''}
               </div>
             </div>
@@ -89,18 +89,18 @@ export default function StudentDiscovery() {
             </div>
           )}
           {(selected.city || selected.state) && (
-            <div style={{ fontSize: 13, color: '#888', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
               <MapPin size={14} /> {[selected.city, selected.state].filter(Boolean).join(', ')}
             </div>
           )}
           {selected.graduation_year && (
-            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Class of {selected.graduation_year}</div>
+            <div style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 8 }}>Class of {selected.graduation_year}</div>
           )}
 
           {selected.project_title && (
             <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>
               <span style={{ fontWeight: 600 }}>Project:</span> {selected.project_title}
-              {selected.project_description && <div style={{ marginTop: 4, color: '#777' }}>{selected.project_description}</div>}
+              {selected.project_description && <div style={{ marginTop: 4, color: '#5c5c5c' }}>{selected.project_description}</div>}
             </div>
           )}
 
@@ -110,7 +110,7 @@ export default function StudentDiscovery() {
 
           {(selected.skills || []).length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Skills</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Skills</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {selected.skills.map(sk => (
                   <span key={sk} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{sk}</span>
@@ -121,7 +121,7 @@ export default function StudentDiscovery() {
 
           {(selected.research_areas || []).length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Research Areas</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {selected.research_areas.map(r => (
                   <span key={r} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>{r}</span>
@@ -132,7 +132,7 @@ export default function StudentDiscovery() {
 
           {(selected.looking_for || []).length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 6, textTransform: 'uppercase' }}>Seeking</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6, textTransform: 'uppercase' }}>Seeking</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {selected.looking_for.map(l => (
                   <span key={l} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>{l}</span>
@@ -143,13 +143,13 @@ export default function StudentDiscovery() {
 
           {/* Structured My-Portfolio: projects + certifications */}
           {portfolioLoading && (
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#999' }}>
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#666' }}>
               <Loader2 size={14} className="animate-spin" /> Loading portfolio…
             </div>
           )}
           {!portfolioLoading && portfolio && (portfolio.projects || []).length > 0 && (
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
                 <FolderGit2 size={13} /> Projects ({portfolio.projects.length})
               </div>
               {portfolio.projects.map(p => (
@@ -158,7 +158,7 @@ export default function StudentDiscovery() {
                     {p.title}
                     {p.is_featured && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#fef3c7', color: '#92400e' }}>Featured</span>}
                   </div>
-                  {p.description && <div style={{ fontSize: 12, color: '#777', marginTop: 4, lineHeight: 1.45 }}>{p.description}</div>}
+                  {p.description && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 4, lineHeight: 1.45 }}>{p.description}</div>}
                   {(p.tech_stack || []).length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                       {p.tech_stack.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{t}</span>)}
@@ -175,7 +175,7 @@ export default function StudentDiscovery() {
           )}
           {!portfolioLoading && portfolio && (portfolio.certifications || []).length > 0 && (
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee' }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#999', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 8, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
                 <Award size={13} /> Certifications ({portfolio.certifications.length})
               </div>
               {portfolio.certifications.map(c => (
@@ -184,7 +184,7 @@ export default function StudentDiscovery() {
                     {c.title}
                     {c.is_verified && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f0fdf4', color: '#16a34a' }}>Verified</span>}
                   </div>
-                  {c.provider && <div style={{ fontSize: 12, color: '#777', marginTop: 3 }}>{c.provider}</div>}
+                  {c.provider && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 3 }}>{c.provider}</div>}
                   {c.credential_url && <a href={c.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}><ExternalLink size={10} /> Credential</a>}
                 </div>
               ))}
@@ -223,13 +223,13 @@ export default function StudentDiscovery() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <GraduationCap size={22} style={{ color: G }} /> Source Students
         </h1>
-        <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>Discover student talent for internships, projects, and research collaborations</p>
+        <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0' }}>Discover student talent for internships, projects, and research collaborations</p>
       </div>
 
       {/* Filters */}
       <div style={{ ...card, padding: 12, marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', cursor: 'auto' }}>
         <div style={{ flex: '1 1 200px', position: 'relative' }}>
-          <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#aaa' }} />
+          <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e6e6e' }} />
           <input value={filters.search} onChange={e => { setFilters(f => ({ ...f, search: e.target.value })); setPage(1); }}
             placeholder="Search students, institutions, projects..."
             style={{ width: '100%', padding: '7px 10px 7px 30px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
@@ -249,12 +249,12 @@ export default function StudentDiscovery() {
       </div>
 
       {/* Results count */}
-      <div style={{ fontSize: 12, color: '#888', marginBottom: 12 }}>{total} student{total !== 1 ? 's' : ''} found</div>
+      <div style={{ fontSize: 12, color: '#5c5c5c', marginBottom: 12 }}>{total} student{total !== 1 ? 's' : ''} found</div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40 }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite', color: G }} /></div>
       ) : students.length === 0 ? (
-        <div style={{ ...card, padding: 40, textAlign: 'center', color: '#999', fontSize: 13, cursor: 'auto' }}>No students found matching your criteria</div>
+        <div style={{ ...card, padding: 40, textAlign: 'center', color: '#666', fontSize: 13, cursor: 'auto' }}>No students found matching your criteria</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
           {students.map(s => (
@@ -265,13 +265,13 @@ export default function StudentDiscovery() {
                 {s.avatar ? (
                   <img src={s.avatar} alt="" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#999' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#666' }}>
                     {(s.display_name || '?')[0]}
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.display_name || 'Student'}</div>
-                  <div style={{ fontSize: 11, color: '#888' }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c' }}>
                     {s.degree ? `${s.degree}` : ''}{s.department ? ` in ${s.department}` : ''}
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export default function StudentDiscovery() {
               )}
 
               {(s.city || s.state) && (
-                <div style={{ fontSize: 11, color: '#888', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <MapPin size={11} /> {[s.city, s.state].filter(Boolean).join(', ')}
                 </div>
               )}
@@ -304,7 +304,7 @@ export default function StudentDiscovery() {
                 ))}
               </div>
 
-              <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#999' }}>
+              <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#666' }}>
                 {s.graduation_year && <span>Class of {s.graduation_year}</span>}
                 {(s.looking_for || []).length > 0 && <span>Seeking: {s.looking_for.slice(0, 2).join(', ')}</span>}
               </div>

@@ -101,7 +101,7 @@ export default function CorporateCollaborations() {
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-        <button onClick={() => setSelectedCollab(null)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#888', cursor: 'pointer', marginBottom: 16, fontSize: 13 }}>
+        <button onClick={() => setSelectedCollab(null)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#5c5c5c', cursor: 'pointer', marginBottom: 16, fontSize: 13 }}>
           <ChevronLeft size={16} /> Back to Collaborations
         </button>
 
@@ -110,8 +110,8 @@ export default function CorporateCollaborations() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{co.startup_name || co.title || 'Collaboration'}</h2>
-              {co.title && co.startup_name && <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{co.title}</div>}
-              <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}><Clock size={11} style={{ verticalAlign: -1 }} /> Started {new Date(co.started_at || co.created_at).toLocaleDateString()}</div>
+              {co.title && co.startup_name && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2 }}>{co.title}</div>}
+              <div style={{ fontSize: 11, color: '#6e6e6e', marginTop: 4 }}><Clock size={11} style={{ verticalAlign: -1 }} /> Started {new Date(co.started_at || co.created_at).toLocaleDateString()}</div>
             </div>
             <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20, background: stage.bg, color: stage.color }}>{stage.label}</span>
           </div>
@@ -136,7 +136,7 @@ export default function CorporateCollaborations() {
               </div>
             ) : (
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#888', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#5c5c5c', marginBottom: 4 }}>
                   <span>Spent: {co.currency || 'INR'} {parseFloat(co.budget_spent || 0).toLocaleString()}</span>
                   <span>Estimated: {co.currency || 'INR'} {parseFloat(co.budget_estimated || 0).toLocaleString()}</span>
                 </div>
@@ -173,7 +173,7 @@ export default function CorporateCollaborations() {
               <input type="date" value={mForm.due_date} onChange={e => setMForm(f => ({ ...f, due_date: e.target.value }))}
                 style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <button onClick={addMilestone} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
-              <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={14} /></button>
+              <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={14} /></button>
             </div>
           )}
           {/* Milestone list */}
@@ -188,7 +188,7 @@ export default function CorporateCollaborations() {
                   </button>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 500, color: m.status === 'completed' ? '#999' : '#333', textDecoration: m.status === 'completed' ? 'line-through' : 'none' }}>{m.title}</div>
-                    {m.description && <div style={{ fontSize: 10, color: '#aaa' }}>{m.description}</div>}
+                    {m.description && <div style={{ fontSize: 10, color: '#6e6e6e' }}>{m.description}</div>}
                   </div>
                   {m.due_date && (
                     <span style={{ fontSize: 10, color: m.status === 'completed' ? '#16a34a' : new Date(m.due_date) < new Date() ? '#dc2626' : '#f59e0b', fontWeight: 500, flexShrink: 0 }}>
@@ -279,14 +279,14 @@ export default function CorporateCollaborations() {
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
           <Link2 size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Collaborations
         </h1>
-        <span style={{ fontSize: 12, color: '#888' }}>{collabs.length} total</span>
+        <span style={{ fontSize: 12, color: '#5c5c5c' }}>{collabs.length} total</span>
       </div>
 
       {collabs.length === 0 ? (
         <div style={{ ...card, padding: 40, textAlign: 'center' }}>
           <Link2 size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No collaborations yet</p>
-          <p style={{ fontSize: 12, color: '#aaa' }}>Start a collaboration from the Startup Search page</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>No collaborations yet</p>
+          <p style={{ fontSize: 12, color: '#6e6e6e' }}>Start a collaboration from the Startup Search page</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STAGES.length}, 1fr)`, gap: 12, overflowX: 'auto' }}>
@@ -295,7 +295,7 @@ export default function CorporateCollaborations() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, padding: '8px 12px', borderRadius: 10, background: stage.bg }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: stage.color }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: stage.color }}>{stage.label}</span>
-                <span style={{ fontSize: 11, color: '#999', marginLeft: 'auto' }}>{grouped[stage.key]?.length || 0}</span>
+                <span style={{ fontSize: 11, color: '#666', marginLeft: 'auto' }}>{grouped[stage.key]?.length || 0}</span>
               </div>
               <div style={{ display: 'grid', gap: 8 }}>
                 {(grouped[stage.key] || []).map(co => {
@@ -327,13 +327,13 @@ export default function CorporateCollaborations() {
                         )}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{co.startup_name || 'Unknown Startup'}</div>
-                          {co.title && <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{co.title}</div>}
+                          {co.title && <div style={{ fontSize: 10, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{co.title}</div>}
                         </div>
                       </div>
 
                       {co.sector && <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{co.sector}</span>}
 
-                      {co.notes && <p style={{ fontSize: 10, color: '#888', marginTop: 6, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{co.notes}</p>}
+                      {co.notes && <p style={{ fontSize: 10, color: '#5c5c5c', marginTop: 6, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{co.notes}</p>}
 
                       {/* Mini milestone progress */}
                       {msTotal > 0 && (
@@ -341,11 +341,11 @@ export default function CorporateCollaborations() {
                           <div style={{ flex: 1, height: 3, background: '#f0f0f0', borderRadius: 2 }}>
                             <div style={{ height: '100%', borderRadius: 2, width: `${msPct}%`, background: G }} />
                           </div>
-                          <span style={{ fontSize: 9, color: '#aaa' }}>{msDone}/{msTotal}</span>
+                          <span style={{ fontSize: 9, color: '#6e6e6e' }}>{msDone}/{msTotal}</span>
                         </div>
                       )}
 
-                      <div style={{ fontSize: 10, color: '#aaa', marginTop: 6 }}>
+                      <div style={{ fontSize: 10, color: '#6e6e6e', marginTop: 6 }}>
                         <Clock size={10} style={{ verticalAlign: -1 }} /> {new Date(co.started_at || co.updated_at).toLocaleDateString()}
                       </div>
 

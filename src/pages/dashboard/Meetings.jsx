@@ -47,7 +47,7 @@ const Avatar = ({ src, name, size = 32 }) => {
   const initials = (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
     <div style={{ width: size, height: size, borderRadius: '50%', background: '#f3f4f6', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', fontSize: size * 0.38, fontWeight: 700, color: '#999', border: '1px solid #eee', flexShrink: 0 }}>
+      alignItems: 'center', justifyContent: 'center', fontSize: size * 0.38, fontWeight: 700, color: '#666', border: '1px solid #eee', flexShrink: 0 }}>
       {initials}
     </div>
   );
@@ -179,7 +179,7 @@ export default function Meetings() {
     return (
       <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
         <button onClick={() => { setSelectedId(null); setDetail(null); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Meetings
         </button>
 
@@ -246,7 +246,7 @@ export default function Meetings() {
                       {p.name}
                       {p.role === 'organizer' && <span style={{ fontSize: 10, marginLeft: 6, padding: '1px 6px', borderRadius: 10, background: '#fff7ed', color: '#ea580c' }}>Organizer</span>}
                     </div>
-                    <div style={{ fontSize: 11, color: '#999' }}>
+                    <div style={{ fontSize: 11, color: '#666' }}>
                       {p.organization || ''}{p.organization && persona.label ? ' - ' : ''}{persona.label || ''}
                     </div>
                   </div>
@@ -284,7 +284,7 @@ export default function Meetings() {
             </button>
           )}
           {!canRespond && !isOrganizer && myParticipant && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#888', fontSize: 13 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5c5c5c', fontSize: 13 }}>
               <AlertCircle size={16} />
               <span>You {myParticipant.rsvp === 'accepted' ? 'accepted' : 'declined'} this meeting</span>
             </div>
@@ -301,7 +301,7 @@ export default function Meetings() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px' }}>Meetings</h1>
-          <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Schedule and manage meetings with anyone on the platform</p>
+          <p style={{ fontSize: 13, color: '#5c5c5c', margin: 0 }}>Schedule and manage meetings with anyone on the platform</p>
         </div>
         <button onClick={() => setShowCreate(true)}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -329,7 +329,7 @@ export default function Meetings() {
       ) : meetings.length === 0 ? (
         <div style={{ ...card, padding: 48, textAlign: 'center' }}>
           <CalendarCheck size={40} style={{ color: '#ddd', marginBottom: 12 }} />
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#999', marginBottom: 4 }}>No {tab} meetings</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#666', marginBottom: 4 }}>No {tab} meetings</div>
           <div style={{ fontSize: 13, color: '#bbb' }}>Click "Schedule Meeting" to get started</div>
         </div>
       ) : (
@@ -361,14 +361,14 @@ export default function Meetings() {
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 12, color: '#666', marginBottom: 10 }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Calendar size={12} style={{ color: '#aaa' }} /> {fmtDate(m.start_time)}
+                    <Calendar size={12} style={{ color: '#6e6e6e' }} /> {fmtDate(m.start_time)}
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Clock size={12} style={{ color: '#aaa' }} /> {fmtTime(m.start_time)} - {fmtTime(m.end_time)}
+                    <Clock size={12} style={{ color: '#6e6e6e' }} /> {fmtTime(m.start_time)} - {fmtTime(m.end_time)}
                   </span>
                   {m.location && (
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <MapPin size={12} style={{ color: '#aaa' }} /> {m.location}
+                      <MapPin size={12} style={{ color: '#6e6e6e' }} /> {m.location}
                     </span>
                   )}
                 </div>
@@ -382,11 +382,11 @@ export default function Meetings() {
                   ))}
                   {pList.length > 5 && (
                     <div style={{ marginLeft: -8, width: 28, height: 28, borderRadius: '50%', background: '#f3f4f6', display: 'flex',
-                      alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#999', border: '1px solid #eee' }}>
+                      alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#666', border: '1px solid #eee' }}>
                       +{pList.length - 5}
                     </div>
                   )}
-                  <span style={{ marginLeft: 8, fontSize: 11, color: '#999' }}>{m.participant_count || pList.length} participant{(m.participant_count || pList.length) !== 1 ? 's' : ''}</span>
+                  <span style={{ marginLeft: 8, fontSize: 11, color: '#666' }}>{m.participant_count || pList.length} participant{(m.participant_count || pList.length) !== 1 ? 's' : ''}</span>
                 </div>
 
                 {/* RSVP quick actions */}
@@ -416,7 +416,7 @@ export default function Meetings() {
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Schedule Meeting</h2>
-              <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={20} /></button>
+              <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={20} /></button>
             </div>
 
             <div style={{ display: 'grid', gap: 14 }}>
@@ -492,7 +492,7 @@ export default function Meetings() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Invite Participants</label>
                 <div style={{ position: 'relative' }}>
-                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
                   <input value={userSearch} onChange={e => handleUserSearch(e.target.value)}
                     placeholder="Search by name or email..."
                     style={{ width: '100%', padding: '10px 12px 10px 32px', fontSize: 16, border: '1px solid #ddd', borderRadius: 10, outline: 'none', boxSizing: 'border-box' }} />
@@ -512,7 +512,7 @@ export default function Meetings() {
                           <Avatar src={u.avatar} name={u.name} size={28} />
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{u.name}</div>
-                            <div style={{ fontSize: 11, color: '#999' }}>{u.organization_name || u.email}{p.label ? ` - ${p.label}` : ''}</div>
+                            <div style={{ fontSize: 11, color: '#666' }}>{u.organization_name || u.email}{p.label ? ` - ${p.label}` : ''}</div>
                           </div>
                         </div>
                       );
@@ -526,7 +526,7 @@ export default function Meetings() {
                     {participants.map(p => (
                       <span key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, padding: '4px 10px', borderRadius: 20, background: '#f3f4f6', color: '#333' }}>
                         {p.name}
-                        <X size={12} style={{ cursor: 'pointer', color: '#999' }} onClick={() => removeParticipant(p.id)} />
+                        <X size={12} style={{ cursor: 'pointer', color: '#666' }} onClick={() => removeParticipant(p.id)} />
                       </span>
                     ))}
                   </div>

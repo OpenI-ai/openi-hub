@@ -54,13 +54,13 @@ function TagDropdown({ label, options, selected, onChange, colorScheme = { bg: '
           placeholder={selected.length === 0 ? `Search ${label.toLowerCase()}...` : ''}
           style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontSize: 16, padding: '2px 0' }}
         />
-        <ChevronDown size={13} style={{ color: '#aaa', flexShrink: 0 }} />
+        <ChevronDown size={13} style={{ color: '#6e6e6e', flexShrink: 0 }} />
       </div>
       {/* Dropdown */}
       {open && (
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 220, overflowY: 'auto' }}>
           {filtered.length === 0 ? (
-            <div style={{ padding: '12px 14px', fontSize: 12, color: '#999', textAlign: 'center' }}>No matches found</div>
+            <div style={{ padding: '12px 14px', fontSize: 12, color: '#666', textAlign: 'center' }}>No matches found</div>
           ) : (
             filtered.map(o => {
               const name = typeof o === 'string' ? o : o.name;

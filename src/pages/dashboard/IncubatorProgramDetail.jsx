@@ -121,7 +121,7 @@ export default function IncubatorProgramDetail() {
   };
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
-  if (!program) return <div style={{ padding: 24, textAlign: 'center', color: '#999' }}>Program not found</div>;
+  if (!program) return <div style={{ padding: 24, textAlign: 'center', color: '#666' }}>Program not found</div>;
 
   const sc = STATUS_COLORS[program.status] || STATUS_COLORS.draft;
   const milestoneDone = milestones.filter(m => m.status === 'completed').length;
@@ -217,9 +217,9 @@ export default function IncubatorProgramDetail() {
                     {stageStartups.map(s => (
                       <div key={s.id} style={{ padding: 10, background: '#fafafa', borderRadius: 8, border: '1px solid #f0f0f0' }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 3 }}>{s.startup_name}</div>
-                        {s.cohort_label && <div style={{ fontSize: 9, color: '#888', marginBottom: 4 }}>{s.cohort_label}</div>}
+                        {s.cohort_label && <div style={{ fontSize: 9, color: '#5c5c5c', marginBottom: 4 }}>{s.cohort_label}</div>}
                         {s.evaluation_score && <div style={{ fontSize: 9, color: G, fontWeight: 600, marginBottom: 4 }}>★ {s.evaluation_score}/5</div>}
-                        {s.notes && <div style={{ fontSize: 10, color: '#888', marginBottom: 6, fontStyle: 'italic' }}>{s.notes.substring(0, 60)}{s.notes.length > 60 ? '...' : ''}</div>}
+                        {s.notes && <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 6, fontStyle: 'italic' }}>{s.notes.substring(0, 60)}{s.notes.length > 60 ? '...' : ''}</div>}
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                           <select value={s.application_status} onChange={e => moveStartup(s.id, e.target.value)}
                             style={{ flex: 1, fontSize: 16, padding: '3px 5px', border: '1px solid #ddd', borderRadius: 4, background: '#fff' }}>
@@ -248,7 +248,7 @@ export default function IncubatorProgramDetail() {
       {tab === 'milestones' && (
         <div style={{ ...card, padding: 18 }}>
           <div style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#5c5c5c', marginBottom: 6 }}>
               <span>Program Progress</span>
               <span>{milestoneDone}/{milestones.length} ({milestonePct}%)</span>
             </div>
@@ -265,13 +265,13 @@ export default function IncubatorProgramDetail() {
                 </button>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', textDecoration: m.status === 'completed' ? 'line-through' : 'none' }}>{m.title}</div>
-                  {m.description && <div style={{ fontSize: 11, color: '#888' }}>{m.description}</div>}
-                  {m.due_date && <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}><Clock size={10} style={{ verticalAlign: -1, marginRight: 3 }} />{new Date(m.due_date).toLocaleDateString()}</div>}
+                  {m.description && <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.description}</div>}
+                  {m.due_date && <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}><Clock size={10} style={{ verticalAlign: -1, marginRight: 3 }} />{new Date(m.due_date).toLocaleDateString()}</div>}
                 </div>
               </div>
             ))}
             {milestones.length === 0 && (
-              <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: '#999' }}>No milestones yet</div>
+              <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: '#666' }}>No milestones yet</div>
             )}
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function IncubatorProgramDetail() {
           </div>
           <div style={{ ...card, padding: 18 }}>
             {assignments.length === 0 ? (
-              <div style={{ padding: 30, textAlign: 'center', color: '#999', fontSize: 13 }}>No mentor assignments yet</div>
+              <div style={{ padding: 30, textAlign: 'center', color: '#666', fontSize: 13 }}>No mentor assignments yet</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {assignments.map(a => (
@@ -298,7 +298,7 @@ export default function IncubatorProgramDetail() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{a.pool_mentor_name || a.mentor_name}</div>
-                      <div style={{ fontSize: 11, color: '#888' }}>→ {a.startup_name} · {a.sessions_completed} sessions completed</div>
+                      <div style={{ fontSize: 11, color: '#5c5c5c' }}>→ {a.startup_name} · {a.sessions_completed} sessions completed</div>
                       {(a.expertise || []).length > 0 && (
                         <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
                           {a.expertise.slice(0, 4).map(e => <span key={e} style={{ fontSize: 9, padding: '2px 6px', borderRadius: 20, background: '#eff6ff', color: '#2563eb' }}>{e}</span>)}
@@ -397,7 +397,7 @@ function Stat({ icon: Icon, label, value, color }) {
       </div>
       <div>
         <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-        <div style={{ fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+        <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
       </div>
     </div>
   );
@@ -409,7 +409,7 @@ function Modal({ title, onClose, children }) {
       <div style={{ ...card, width: '100%', maxWidth: 500, maxHeight: '90vh', overflowY: 'auto', padding: 22 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{title}</h2>
-          <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={onClose} />
+          <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={onClose} />
         </div>
         {children}
       </div>

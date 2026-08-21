@@ -66,7 +66,7 @@ export default function StudentRecommendedStartups() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>
-        <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>
+        <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0' }}>
           Startups matching your research areas and skills, ranked by topical alignment.
         </p>
       </div>
@@ -138,7 +138,7 @@ export default function StudentRecommendedStartups() {
                       {s.is_deeptech && <Cpu size={11} style={{ color: G, flexShrink: 0 }} />}
                     </div>
                     {location && (
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
                         <MapPin size={10} /> {location}
                       </div>
                     )}

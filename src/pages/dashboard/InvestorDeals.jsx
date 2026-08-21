@@ -237,7 +237,7 @@ export default function InvestorDeals() {
 
     return (
       <div style={{ padding: 24, maxWidth: 920, margin: '0 auto' }}>
-        <button onClick={() => setSelectedDeal(null)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#888', cursor: 'pointer', marginBottom: 16, fontSize: 13 }}>
+        <button onClick={() => setSelectedDeal(null)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#5c5c5c', cursor: 'pointer', marginBottom: 16, fontSize: 13 }}>
           <ChevronLeft size={16} /> Back to Pipeline
         </button>
 
@@ -246,8 +246,8 @@ export default function InvestorDeals() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{deal.startup_name || 'Untitled Deal'}</h2>
-              {deal.title && <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{deal.title}</div>}
-              <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>
+              {deal.title && <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2 }}>{deal.title}</div>}
+              <div style={{ fontSize: 11, color: '#6e6e6e', marginTop: 4 }}>
                 <Clock size={11} style={{ verticalAlign: -1 }} /> Created {new Date(deal.created_at).toLocaleDateString()}
               </div>
             </div>
@@ -290,22 +290,22 @@ export default function InvestorDeals() {
           {termsEdit ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8 }}>
               <div>
-                <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Amount</label>
+                <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Amount</label>
                 <input type="number" placeholder="Amount" value={termsForm.investment_amount} onChange={e => setTermsForm(f => ({ ...f, investment_amount: e.target.value }))}
                   style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Equity %</label>
+                <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Equity %</label>
                 <input type="number" step="0.1" placeholder="Equity %" value={termsForm.equity_pct} onChange={e => setTermsForm(f => ({ ...f, equity_pct: e.target.value }))}
                   style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Valuation</label>
+                <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Valuation</label>
                 <input type="number" placeholder="Valuation" value={termsForm.valuation} onChange={e => setTermsForm(f => ({ ...f, valuation: e.target.value }))}
                   style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Type</label>
+                <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Type</label>
                 <select value={termsForm.investment_type} onChange={e => setTermsForm(f => ({ ...f, investment_type: e.target.value }))}
                   style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                   <option value="">Select type</option>
@@ -317,7 +317,7 @@ export default function InvestorDeals() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Currency</label>
+                <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Currency</label>
                 <select value={termsForm.currency} onChange={e => setTermsForm(f => ({ ...f, currency: e.target.value }))}
                   style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                   <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
@@ -337,7 +337,7 @@ export default function InvestorDeals() {
                 { label: 'Currency', val: deal.currency || 'INR' },
               ].map(item => (
                 <div key={item.label} style={{ padding: 10, background: '#f9fafb', borderRadius: 8, textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, color: '#888', marginBottom: 2 }}>{item.label}</div>
+                  <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 2 }}>{item.label}</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', textTransform: 'capitalize' }}>{item.val}</div>
                 </div>
               ))}
@@ -365,9 +365,9 @@ export default function InvestorDeals() {
                   : 0;
                 return (
                   <div key={v.key} style={{ padding: 8, background: '#f9fafb', borderRadius: 8, textAlign: 'center' }}>
-                    <div style={{ fontSize: 10, color: '#888', marginBottom: 4 }}>{v.label}</div>
+                    <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 4 }}>{v.label}</div>
                     <StarRating value={Math.round(avg)} readonly />
-                    <div style={{ fontSize: 10, color: '#aaa', marginTop: 2 }}>{avg}/5</div>
+                    <div style={{ fontSize: 10, color: '#6e6e6e', marginTop: 2 }}>{avg}/5</div>
                   </div>
                 );
               })}
@@ -375,7 +375,7 @@ export default function InvestorDeals() {
           )}
 
           {evaluations.length > 0 && (
-            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>{evaluations.length} evaluation{evaluations.length !== 1 ? 's' : ''} recorded</div>
+            <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 8 }}>{evaluations.length} evaluation{evaluations.length !== 1 ? 's' : ''} recorded</div>
           )}
 
           {/* Add evaluation form */}
@@ -425,7 +425,7 @@ export default function InvestorDeals() {
               <input type="date" value={mForm.due_date} onChange={e => setMForm(f => ({ ...f, due_date: e.target.value }))}
                 style={{ flex: 1, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
               <button onClick={addMilestone} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
-              <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={14} /></button>
+              <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={14} /></button>
             </div>
           )}
           {milestones.length === 0 ? (
@@ -439,7 +439,7 @@ export default function InvestorDeals() {
                   </button>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 500, color: m.status === 'completed' ? '#999' : '#333', textDecoration: m.status === 'completed' ? 'line-through' : 'none' }}>{m.title}</div>
-                    {m.description && <div style={{ fontSize: 10, color: '#aaa' }}>{m.description}</div>}
+                    {m.description && <div style={{ fontSize: 10, color: '#6e6e6e' }}>{m.description}</div>}
                   </div>
                   {m.due_date && (
                     <span style={{ fontSize: 10, color: m.status === 'completed' ? '#16a34a' : new Date(m.due_date) < new Date() ? '#dc2626' : '#f59e0b', fontWeight: 500, flexShrink: 0 }}>
@@ -538,7 +538,7 @@ export default function InvestorDeals() {
           <TrendingUp size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Deal Pipeline
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 12, color: '#888' }}>{deals.length} deals</span>
+          <span style={{ fontSize: 12, color: '#5c5c5c' }}>{deals.length} deals</span>
           <button id="tour-page-deals-create" onClick={() => setShowCreate(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 16px', fontSize: 12, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>
             <Plus size={14} /> Create Deal
@@ -551,21 +551,21 @@ export default function InvestorDeals() {
         <div style={{ ...card, padding: 20, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Deal</h3>
-            <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={16} /></button>
+            <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={16} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 10 }}>
             <div>
-              <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Startup Name *</label>
+              <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Startup Name *</label>
               <input placeholder="e.g. ArmorTech" value={createForm.startup_name} onChange={e => setCreateForm(f => ({ ...f, startup_name: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Deal Title</label>
+              <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Deal Title</label>
               <input placeholder="e.g. Series A Lead" value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Investment Type</label>
+              <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Investment Type</label>
               <select value={createForm.investment_type} onChange={e => setCreateForm(f => ({ ...f, investment_type: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                 <option value="">Select type</option>
@@ -577,7 +577,7 @@ export default function InvestorDeals() {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 10, color: '#888', display: 'block', marginBottom: 2 }}>Notes</label>
+              <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Notes</label>
               <input placeholder="Initial notes" value={createForm.notes} onChange={e => setCreateForm(f => ({ ...f, notes: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
             </div>
@@ -597,8 +597,8 @@ export default function InvestorDeals() {
       {deals.length === 0 && !showCreate ? (
         <div style={{ ...card, padding: 40, textAlign: 'center' }}>
           <TrendingUp size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No deals in pipeline</p>
-          <p style={{ fontSize: 12, color: '#aaa' }}>Create your first deal to start tracking</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>No deals in pipeline</p>
+          <p style={{ fontSize: 12, color: '#6e6e6e' }}>Create your first deal to start tracking</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STAGES.length}, minmax(160px, 1fr))`, gap: 10, overflowX: 'auto' }}>
@@ -607,7 +607,7 @@ export default function InvestorDeals() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, padding: '8px 12px', borderRadius: 10, background: stage.bg }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: stage.color }} />
                 <span style={{ fontSize: 11, fontWeight: 700, color: stage.color }}>{stage.label}</span>
-                <span style={{ fontSize: 10, color: '#999', marginLeft: 'auto' }}>{grouped[stage.key]?.length || 0}</span>
+                <span style={{ fontSize: 10, color: '#666', marginLeft: 'auto' }}>{grouped[stage.key]?.length || 0}</span>
               </div>
               <div style={{ display: 'grid', gap: 8 }}>
                 {(grouped[stage.key] || []).map(deal => {
@@ -625,7 +625,7 @@ export default function InvestorDeals() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.startup_name || 'Unknown'}</div>
-                          {deal.title && <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.title}</div>}
+                          {deal.title && <div style={{ fontSize: 10, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.title}</div>}
                         </div>
                       </div>
 
@@ -645,11 +645,11 @@ export default function InvestorDeals() {
                           <div style={{ flex: 1, height: 3, background: '#f0f0f0', borderRadius: 2 }}>
                             <div style={{ height: '100%', borderRadius: 2, width: `${msPct}%`, background: G }} />
                           </div>
-                          <span style={{ fontSize: 9, color: '#aaa' }}>{msDone2}/{msTotal}</span>
+                          <span style={{ fontSize: 9, color: '#6e6e6e' }}>{msDone2}/{msTotal}</span>
                         </div>
                       )}
 
-                      <div style={{ fontSize: 10, color: '#aaa', marginTop: 6 }}>
+                      <div style={{ fontSize: 10, color: '#6e6e6e', marginTop: 6 }}>
                         <Clock size={10} style={{ verticalAlign: -1 }} /> {new Date(deal.updated_at || deal.created_at).toLocaleDateString()}
                       </div>
 

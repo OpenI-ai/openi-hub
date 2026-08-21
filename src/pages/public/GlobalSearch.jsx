@@ -160,13 +160,13 @@ export default function GlobalSearch() {
           {loading && (
             <div style={{ textAlign: 'center', padding: 60 }}>
               <Loader2 size={32} style={{ color: G, animation: 'spin 1s linear infinite' }} />
-              <p style={{ color: '#888', marginTop: 12 }}>Searching...</p>
+              <p style={{ color: '#5c5c5c', marginTop: 12 }}>Searching...</p>
             </div>
           )}
 
           {/* No query */}
           {!q && !loading && (
-            <div style={{ textAlign: 'center', padding: 80, color: '#999' }}>
+            <div style={{ textAlign: 'center', padding: 80, color: '#666' }}>
               <Search size={48} style={{ color: '#ddd', marginBottom: 16 }} />
               <p>Enter a search term to find challenges, startups, and people</p>
             </div>
@@ -178,7 +178,7 @@ export default function GlobalSearch() {
               {/* Suggestions */}
               {results.suggestions?.length > 0 && (
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, color: '#999' }}>Related:</span>
+                  <span style={{ fontSize: 12, color: '#666' }}>Related:</span>
                   {results.suggestions.map((s, i) => (
                     <button key={i} onClick={() => handleSearch(s)}
                       style={{ background: '#f0f0f0', border: 'none', borderRadius: 16, padding: '4px 12px', fontSize: 12, color: '#555', cursor: 'pointer' }}>
@@ -258,7 +258,7 @@ function NoResultsCTA({ query }) {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
+    <div style={{ textAlign: 'center', padding: 60, color: '#666' }}>
       <Search size={40} style={{ color: '#ddd', marginBottom: 12 }} />
       <p style={{ fontSize: 16 }}>No results found for "{query}"</p>
       <p style={{ fontSize: 13, marginBottom: 24 }}>Try different keywords or check the spelling</p>
@@ -295,7 +295,7 @@ function Section({ title, icon: Icon, count, viewAllLink, children }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Icon size={18} style={{ color: G }} />
           <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', margin: 0 }}>{title}</h2>
-          <span style={{ fontSize: 12, color: '#999' }}>({count})</span>
+          <span style={{ fontSize: 12, color: '#666' }}>({count})</span>
         </div>
         {viewAllLink && (
           <Link to={viewAllLink} style={{ fontSize: 13, color: G, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -317,12 +317,12 @@ function ChallengeCard({ challenge: c }) {
           <Link to={`/marketplace`} style={{ textDecoration: 'none' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1a1a2e', margin: '0 0 4px' }}>{c.title}</h3>
           </Link>
-          <p style={{ fontSize: 12, color: '#888', margin: 0 }}>{c.company_name || c.corporate_name}</p>
+          <p style={{ fontSize: 12, color: '#5c5c5c', margin: 0 }}>{c.company_name || c.corporate_name}</p>
           {c.problem_statement && <p style={{ fontSize: 13, color: '#555', margin: '8px 0 0', lineHeight: 1.5 }}>{c.problem_statement.slice(0, 120)}{c.problem_statement.length > 120 ? '...' : ''}</p>}
           <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
             {c.budget_range && <span style={{ fontSize: 11, color: '#666', display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={11} /> {c.budget_range}</span>}
             {c.deadline && <span style={{ fontSize: 11, color: '#666', display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={11} /> {new Date(c.deadline).toLocaleDateString()}</span>}
-            {c.relevance && <span style={{ fontSize: 10, background: '#f0f0f0', borderRadius: 8, padding: '2px 8px', color: '#888' }}>Relevance: {(c.relevance * 100).toFixed(0)}%</span>}
+            {c.relevance && <span style={{ fontSize: 10, background: '#f0f0f0', borderRadius: 8, padding: '2px 8px', color: '#5c5c5c' }}>Relevance: {(c.relevance * 100).toFixed(0)}%</span>}
           </div>
         </div>
       </div>
@@ -346,7 +346,7 @@ function StartupCard({ startup: s }) {
         {s.logo_url ? <img src={s.logo_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} /> : <Rocket size={20} style={{ color: G }} />}
         <div>
           <h4 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e', margin: 0 }}>{s.company_name || s.name}</h4>
-          {s.city && <span style={{ fontSize: 11, color: '#888', display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} /> {s.city}</span>}
+          {s.city && <span style={{ fontSize: 11, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} /> {s.city}</span>}
         </div>
         {s.is_deeptech && <span style={{ marginLeft: 'auto', fontSize: 10, background: '#1a1a2e', color: G, borderRadius: 6, padding: '2px 8px' }}>DeepTech</span>}
       </div>
@@ -396,7 +396,7 @@ function InterpretationBanner({ interpretation }) {
         <span style={{ fontSize: 13, fontWeight: 600, color: NAVY }}>Interpreted as:</span>
         {confidence > 0 && (
           <span style={{
-            fontSize: 11, color: '#888', marginLeft: 'auto',
+            fontSize: 11, color: '#5c5c5c', marginLeft: 'auto',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
             <Info size={11} /> {confPct}% confidence
@@ -461,13 +461,13 @@ function DirectoryCard({ profile: d }) {
         {d.logo_url ? <img src={d.logo_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} /> : <Users size={20} style={{ color: G }} />}
         <div>
           <h4 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e', margin: 0 }}>{d.display_name}</h4>
-          <span style={{ fontSize: 11, color: '#999', textTransform: 'capitalize' }}>{d.persona_type?.replace('_', ' ')}</span>
+          <span style={{ fontSize: 11, color: '#666', textTransform: 'capitalize' }}>{d.persona_type?.replace('_', ' ')}</span>
         </div>
         {d.is_verified && <span style={{ marginLeft: 'auto', fontSize: 10, background: '#e8f5e9', color: '#2e7d32', borderRadius: 6, padding: '2px 8px' }}>Verified</span>}
       </div>
       {d.organization && <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>{d.organization}</p>}
-      {d.tagline && <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0', lineHeight: 1.4 }}>{d.tagline.slice(0, 80)}{d.tagline.length > 80 ? '...' : ''}</p>}
-      {d.city && <span style={{ fontSize: 11, color: '#aaa', display: 'flex', alignItems: 'center', gap: 3, marginTop: 6 }}><MapPin size={10} /> {d.city}</span>}
+      {d.tagline && <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0', lineHeight: 1.4 }}>{d.tagline.slice(0, 80)}{d.tagline.length > 80 ? '...' : ''}</p>}
+      {d.city && <span style={{ fontSize: 11, color: '#6e6e6e', display: 'flex', alignItems: 'center', gap: 3, marginTop: 6 }}><MapPin size={10} /> {d.city}</span>}
     </div>
   );
 }

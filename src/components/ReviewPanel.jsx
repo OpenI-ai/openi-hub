@@ -72,7 +72,7 @@ function VerdictPill({ verdict, size = 'sm' }) {
 }
 
 function ScoreBadge({ score, size = 'md' }) {
-  if (score == null) return <span style={{ fontSize: 11, color: '#999' }}>—</span>;
+  if (score == null) return <span style={{ fontSize: 11, color: '#666' }}>—</span>;
   const num = Number(score);
   const color = num >= 75 ? '#15803d' : num >= 50 ? '#b45309' : '#b91c1c';
   const dim = size === 'lg' ? 56 : 36;
@@ -188,7 +188,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
   if (loading) {
     return (
       <div style={card}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#888' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5c5c5c' }}>
           <Loader2 size={14} className="animate-spin" /> Loading reviews…
         </div>
       </div>
@@ -203,10 +203,10 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
           <Star size={16} style={{ color: G }} />
           <div>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-              {title} <span style={{ color: '#999', fontWeight: 400 }}>({consensus.count || 0})</span>
+              {title} <span style={{ color: '#666', fontWeight: 400 }}>({consensus.count || 0})</span>
             </h3>
             {subtitle && (
-              <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0 0' }}>{subtitle}</p>
+              <p style={{ fontSize: 11, color: '#5c5c5c', margin: '2px 0 0 0' }}>{subtitle}</p>
             )}
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
         <div style={{
           padding: 12, background: '#fafafa', border: '1px dashed #e5e7eb',
           borderRadius: 10, marginBottom: 14, textAlign: 'center',
-          fontSize: 12, color: '#888',
+          fontSize: 12, color: '#5c5c5c',
         }}>
           No reviews yet{canReview ? ' — be the first to score this.' : '.'}
         </div>
@@ -288,7 +288,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
               onChange={e => setScore(Number(e.target.value))}
               style={{ width: '100%', accentColor: G }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#999', marginTop: 2 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#666', marginTop: 2 }}>
               <span>0</span><span>50</span><span>100</span>
             </div>
           </div>
@@ -327,11 +327,11 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
           {/* Criteria scores */}
           {showCriteria && (
             <div style={{ marginBottom: 10, padding: 10, background: 'white', border: '1px solid #f0e7c8', borderRadius: 8 }}>
-              <div style={{ fontSize: 10, color: '#888', marginBottom: 6 }}>
+              <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 6 }}>
                 Optional. Add criteria like <code>market</code>, <code>team</code>, <code>tech</code> with scores (e.g. 4.2).
               </div>
               {criteria.length === 0 && (
-                <div style={{ fontSize: 11, color: '#999', textAlign: 'center', padding: '4px 0 8px' }}>
+                <div style={{ fontSize: 11, color: '#666', textAlign: 'center', padding: '4px 0 8px' }}>
                   No criteria yet.
                 </div>
               )}
@@ -378,7 +378,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
           {/* Comments */}
           <div style={{ marginBottom: 10 }}>
             <label style={{ fontSize: 11, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>
-              Comments <span style={{ color: '#999', fontWeight: 400 }}>(optional)</span>
+              Comments <span style={{ color: '#666', fontWeight: 400 }}>(optional)</span>
             </label>
             <textarea
               value={comments}
@@ -417,7 +417,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
       {/* All reviews */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {reviews.length === 0 && !canReview && (
-          <p style={{ fontSize: 11, color: '#888', textAlign: 'center', margin: '4px 0 0 0' }}>
+          <p style={{ fontSize: 11, color: '#5c5c5c', textAlign: 'center', margin: '4px 0 0 0' }}>
             No reviews yet.
           </p>
         )}
@@ -445,7 +445,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
                     )}
                   </div>
                   {r.updated_at && (
-                    <div style={{ fontSize: 10, color: '#999' }}>
+                    <div style={{ fontSize: 10, color: '#666' }}>
                       {new Date(r.updated_at).toLocaleDateString()}
                     </div>
                   )}
@@ -455,7 +455,7 @@ export default function ReviewPanel({ entityType, entityId, title = 'Reviews', s
               </div>
               {r.comments && (
                 <div style={{ display: 'flex', gap: 6, fontSize: 11, color: '#444', lineHeight: 1.5, paddingLeft: 38 }}>
-                  <MessageSquare size={11} style={{ flexShrink: 0, marginTop: 2, color: '#999' }} />
+                  <MessageSquare size={11} style={{ flexShrink: 0, marginTop: 2, color: '#666' }} />
                   <span style={{ whiteSpace: 'pre-wrap' }}>{r.comments}</span>
                 </div>
               )}

@@ -301,7 +301,7 @@ export default function EventsRepository() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Events Repository</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Hackathons, workshops, demo days and conferences for the OpenI startup ecosystem</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Hackathons, workshops, demo days and conferences for the OpenI startup ecosystem</p>
         </div>
         {canCreate && (
           <button id="tour-page-events-create" onClick={() => { setEditing(null); setForm(EMPTY_FORM); setShowCreate(true); }}
@@ -327,7 +327,7 @@ export default function EventsRepository() {
               <Icon size={15} color={fg} />
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-            <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -335,7 +335,7 @@ export default function EventsRepository() {
       {/* Filters */}
       <div id="tour-page-events-filters" style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-          <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+          <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
           <input placeholder="Search events, tags…" value={search} onChange={e => setSearch(e.target.value)}
             style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
           />
@@ -373,7 +373,7 @@ export default function EventsRepository() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
           {filtered.map(ev => <EventCard key={ev.id} ev={ev} currentUserId={userId} onClick={() => setSelected(ev)} />)}
           {filtered.length === 0 && (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#aaa', fontSize: 13 }}>
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#6e6e6e', fontSize: 13 }}>
               No events found{canCreate ? <> · <button onClick={() => setShowCreate(true)} style={{ background: 'none', border: 'none', color: G, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>Create the first one</button></> : null}
             </div>
           )}
@@ -389,9 +389,9 @@ export default function EventsRepository() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div>
                 <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>{editing ? 'Edit Event' : 'Create Event'}</h3>
-                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>{editing ? 'Changes are saved immediately to this event.' : 'Saved as a draft. Only you can see it until you publish.'}</p>
+                <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 12 }}>{editing ? 'Changes are saved immediately to this event.' : 'Saved as a draft. Only you can see it until you publish.'}</p>
               </div>
-              <button type="button" onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 4 }}><X size={18} /></button>
+              <button type="button" onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5c5c5c', padding: 4 }}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
@@ -451,7 +451,7 @@ export default function EventsRepository() {
         <div className="md:hidden" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {filtered.map(ev => <EventCard key={ev.id} ev={ev} currentUserId={userId} onClick={() => setSelected(ev)} />)}
           {filtered.length === 0 && (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#aaa', fontSize: 13 }}>
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 48, color: '#6e6e6e', fontSize: 13 }}>
               No events found
             </div>
           )}
@@ -462,7 +462,7 @@ export default function EventsRepository() {
       {view === 'list' && (
         <div className="hidden md:block" style={{ ...card, overflow: 'hidden' }}>
           <div style={{ padding: '12px 22px', borderBottom: '1px solid #eee', background: '#fafafa', display: 'grid', gridTemplateColumns: '1fr 120px 140px 90px 80px', gap: 12 }}>
-            {['Event', 'Type', 'Date', 'Status', 'Regs'].map(h => <span key={h} style={{ fontSize: 11, color: '#888', fontWeight: 600 }}>{h}</span>)}
+            {['Event', 'Type', 'Date', 'Status', 'Regs'].map(h => <span key={h} style={{ fontSize: 11, color: '#5c5c5c', fontWeight: 600 }}>{h}</span>)}
           </div>
           {filtered.map((ev, i) => {
             const et = EVENT_TYPES[ev.type] || EVENT_TYPES.workshop;
@@ -475,7 +475,7 @@ export default function EventsRepository() {
               >
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{ev.title}</div>
-                  <div style={{ fontSize: 11, color: '#888', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
                     <MapPin size={10} />{ev.location}
                   </div>
                 </div>
@@ -484,7 +484,7 @@ export default function EventsRepository() {
                 </span>
                 <span style={{ fontSize: 11, color: '#555' }}>{ev.date}</span>
                 <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, width: 'fit-content' }}>{ev.status}</span>
-                <span style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600 }}>{ev.registrations}<span style={{ color: '#aaa', fontWeight: 400 }}>/{ev.capacity}</span></span>
+                <span style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600 }}>{ev.registrations}<span style={{ color: '#6e6e6e', fontWeight: 400 }}>/{ev.capacity}</span></span>
               </div>
             );
           })}
@@ -512,7 +512,7 @@ function Field({ label, hint, children }) {
     <label style={{ display: 'block' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: '#444' }}>{label}</span>
-        {hint ? <span style={{ fontSize: 10, color: '#999' }}>{hint}</span> : null}
+        {hint ? <span style={{ fontSize: 10, color: '#666' }}>{hint}</span> : null}
       </div>
       {children}
     </label>
@@ -551,7 +551,7 @@ function EventCard({ ev, currentUserId, onClick }) {
 
         <h3 style={{ margin: '0 0 8px', color: '#1a1a1a', fontSize: 14, fontWeight: 700, lineHeight: 1.4 }}>{ev.title}</h3>
         {ev.organization_name && (
-          <div style={{ margin: '0 0 8px', fontSize: 11, color: '#888', fontStyle: 'italic' }}>Hosted by {ev.organization_name}</div>
+          <div style={{ margin: '0 0 8px', fontSize: 11, color: '#5c5c5c', fontStyle: 'italic' }}>Hosted by {ev.organization_name}</div>
         )}
         <p style={{ margin: '0 0 14px', color: '#666', fontSize: 12, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{ev.description}</p>
 
@@ -570,13 +570,13 @@ function EventCard({ ev, currentUserId, onClick }) {
 
         {/* Tags */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 14 }}>
-          {ev.tags.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f5f5f5', color: '#888', border: '1px solid #eee' }}>{t}</span>)}
+          {ev.tags.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f5f5f5', color: '#5c5c5c', border: '1px solid #eee' }}>{t}</span>)}
         </div>
 
         {/* Registrations */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 11, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}><Users size={10} /> Registrations</span>
+            <span style={{ fontSize: 11, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4 }}><Users size={10} /> Registrations</span>
             <span style={{ fontSize: 11, fontWeight: 700, color: regPct > 85 ? '#dc2626' : '#1a1a1a' }}>{ev.registrations}/{ev.capacity}</span>
           </div>
           <div style={{ height: 5, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
@@ -727,7 +727,7 @@ function EventDetail({ event: ev, onBack, onRegister, onPublish, onDelete, onDow
                 <Icon size={13} color={G} />
               </div>
               <div>
-                <div style={{ fontSize: 10, color: '#aaa', marginBottom: 2 }}>{label}</div>
+                <div style={{ fontSize: 10, color: '#6e6e6e', marginBottom: 2 }}>{label}</div>
                 <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600 }}>{value}</div>
               </div>
             </div>

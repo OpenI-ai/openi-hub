@@ -107,7 +107,7 @@ export default function FeatureMap() {
         <Map size={22} color={G} />
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Feature Map</h1>
       </div>
-      <p style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 20 }}>
         Explore all platform capabilities. Your plan: <strong style={{ color: TIER_CONFIG[plan]?.color }}>{TIER_CONFIG[plan]?.label || 'Free'}</strong>
       </p>
 
@@ -163,7 +163,7 @@ export default function FeatureMap() {
                         </div>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', marginBottom: 3 }}>{feat.title}</div>
-                          <div style={{ fontSize: 11, color: '#888', lineHeight: 1.5 }}>{feat.desc}</div>
+                          <div style={{ fontSize: 11, color: '#5c5c5c', lineHeight: 1.5 }}>{feat.desc}</div>
                         </div>
                       </div>
 

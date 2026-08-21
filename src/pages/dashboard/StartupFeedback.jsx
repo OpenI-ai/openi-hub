@@ -168,7 +168,7 @@ export default function StartupFeedback() {
       <div id="tour-page-feedback-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Startup Feedback on OpenI</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Collect, track and act on startup feedback to improve OpenI programs</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Collect, track and act on startup feedback to improve OpenI programs</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {['list', 'analytics', 'submit'].map(v => (
@@ -196,7 +196,7 @@ export default function StartupFeedback() {
               <Icon size={15} color={fg} />
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-            <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -206,7 +206,7 @@ export default function StartupFeedback() {
         <>
           <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-              <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input placeholder="Search feedback…" value={search} onChange={e => setSearch(e.target.value)}
                 style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
               />
@@ -232,7 +232,7 @@ export default function StartupFeedback() {
                       <div style={{ width: 38, height: 38, borderRadius: 9, background: 'rgba(213,170,91,0.12)', color: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, border: '1px solid rgba(213,170,91,0.2)', flexShrink: 0 }}>{f.startup[0]}</div>
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{f.startup}</div>
-                        <div style={{ fontSize: 11, color: '#888' }}>{f.program} · {f.date}</div>
+                        <div style={{ fontSize: 11, color: '#5c5c5c' }}>{f.program} · {f.date}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -291,7 +291,7 @@ export default function StartupFeedback() {
                   <div style={{ flex: 1, height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ width: `${pct}%`, height: '100%', background: r >= 4 ? '#16a34a' : r === 3 ? G : '#dc2626', borderRadius: 4 }} />
                   </div>
-                  <span style={{ fontSize: 11, color: '#888', width: 24, textAlign: 'right' }}>{count}</span>
+                  <span style={{ fontSize: 11, color: '#5c5c5c', width: 24, textAlign: 'right' }}>{count}</span>
                 </div>
               );
             })}
@@ -334,7 +334,7 @@ export default function StartupFeedback() {
                 <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                   <span style={{ fontSize: 11, color: '#555', flex: 1 }}>{c}</span>
                   <span style={{ fontSize: 11, color: G, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}><Star size={9} style={{ fill: G, color: G }} />{avg.toFixed(1)}</span>
-                  <span style={{ fontSize: 10, color: '#aaa', width: 20, textAlign: 'right' }}>{count}</span>
+                  <span style={{ fontSize: 10, color: '#6e6e6e', width: 20, textAlign: 'right' }}>{count}</span>
                 </div>
               );
             })}
@@ -346,7 +346,7 @@ export default function StartupFeedback() {
       {view === 'submit' && !submitted && (
         <div style={{ ...card, padding: 32, maxWidth: 640, margin: '0 auto' }}>
           <h2 style={{ margin: '0 0 6px', color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>Submit Feedback</h2>
-          <p style={{ margin: '0 0 24px', color: '#888', fontSize: 13 }}>Share your experience with OpenI programs, mentoring and support</p>
+          <p style={{ margin: '0 0 24px', color: '#5c5c5c', fontSize: 13 }}>Share your experience with OpenI programs, mentoring and support</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <FormField label="Startup Name">
               <input value={form.startup} onChange={e => setForm(p => ({ ...p, startup: e.target.value }))} placeholder="Your startup name" />
@@ -388,7 +388,7 @@ export default function StartupFeedback() {
             <CheckCircle2 size={24} color="#16a34a" />
           </div>
           <h2 style={{ margin: '0 0 8px', color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>Feedback Submitted!</h2>
-          <p style={{ margin: '0 0 20px', color: '#888', fontSize: 13 }}>Thank you for your feedback. The OpenI team will review and respond within 3 working days.</p>
+          <p style={{ margin: '0 0 20px', color: '#5c5c5c', fontSize: 13 }}>Thank you for your feedback. The OpenI team will review and respond within 3 working days.</p>
           <button onClick={() => { setView('list'); setSubmitted(false); setForm({ startup: '', program: '', category: CATEGORIES[0], rating: 0, text: '' }); }}
             style={{ padding: '9px 22px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
             View All Feedback

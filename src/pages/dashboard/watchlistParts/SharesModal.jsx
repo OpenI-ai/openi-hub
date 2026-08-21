@@ -50,11 +50,11 @@ export default function SharesModal({
           </button>
 
           {sharesLoading ? (
-            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
+            <p style={{ color: '#5c5c5c', fontSize: 13, textAlign: 'center', margin: '20px 0' }}>
               Loading existing share links…
             </p>
           ) : sharesList.length === 0 ? (
-            <p style={{ color: '#888', fontSize: 13, textAlign: 'center', margin: '20px 0', fontStyle: 'italic' }}>
+            <p style={{ color: '#5c5c5c', fontSize: 13, textAlign: 'center', margin: '20px 0', fontStyle: 'italic' }}>
               No share links yet. Click the button above to create one.
             </p>
           ) : (
@@ -75,7 +75,7 @@ export default function SharesModal({
                       <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: revoked ? '#fef2f2' : (expired ? '#fef9e7' : '#f0fdf4'), color: revoked ? '#dc2626' : (expired ? '#a16207' : '#16a34a') }}>
                         {revoked ? 'REVOKED' : (expired ? 'EXPIRED' : 'ACTIVE')}
                       </span>
-                      <span style={{ fontSize: 11, color: '#888', flex: 1 }}>
+                      <span style={{ fontSize: 11, color: '#5c5c5c', flex: 1 }}>
                         Created {new Date(s.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                         {s.expires_at && !revoked && !expired && (
                           <> · Expires {new Date(s.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</>
@@ -143,7 +143,7 @@ export default function SharesModal({
                     setCollabSearch(''); setCollabResults([]);
                   }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', background: 'transparent', border: 'none', borderBottom: '1px solid #f3f4f6', cursor: 'pointer', fontSize: 12 }}>
                     <div style={{ fontWeight: 600, color: '#1a1a1a' }}>{u.name}</div>
-                    <div style={{ color: '#888', fontSize: 11 }}>{u.email}</div>
+                    <div style={{ color: '#5c5c5c', fontSize: 11 }}>{u.email}</div>
                   </button>
                 ))}
               </div>
@@ -213,16 +213,16 @@ export default function SharesModal({
           <div style={{ borderTop: '1px solid #eee', paddingTop: 14 }}>
             <h4 style={{ fontSize: 12, fontWeight: 700, color: '#333', margin: '0 0 10px' }}>Collaborators ({collabList.length})</h4>
             {collabLoading ? (
-              <p style={{ color: '#888', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading…</p>
+              <p style={{ color: '#5c5c5c', fontSize: 12, textAlign: 'center', margin: '14px 0' }}>Loading…</p>
             ) : collabList.length === 0 ? (
-              <p style={{ color: '#888', fontSize: 12, fontStyle: 'italic', margin: 0 }}>No collaborators yet.</p>
+              <p style={{ color: '#5c5c5c', fontSize: 12, fontStyle: 'italic', margin: 0 }}>No collaborators yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 240, overflowY: 'auto' }}>
                 {collabList.map(c => (
                   <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fafafa', borderRadius: 7 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div>
-                      <div style={{ fontSize: 10, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}{c.organization_name ? ` · ${c.organization_name}` : ''}</div>
+                      <div style={{ fontSize: 10, color: '#5c5c5c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}{c.organization_name ? ` · ${c.organization_name}` : ''}</div>
                     </div>
                     <select value={c.role} onChange={e => changeCollaboratorRole(c.id, e.target.value)}
                       style={{ fontSize: 16, padding: '4px 8px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 6, color: '#555' }}>

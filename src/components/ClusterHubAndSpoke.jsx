@@ -99,6 +99,10 @@ function HubNode({ data }) {
       <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2, marginBottom: 4 }}>
         {data.label}
       </div>
+      {/* #94A3B8 is deliberate here and must NOT be darkened with the rest of the
+          grey ramp: this node sits on the #0D2137 navy fill set above, where the
+          light slate reads at 6.6:1. The AA fix applied elsewhere (-> #6e6e6e)
+          would drop it to 1.5:1. */}
       <div style={{ fontSize: 11, color: '#94A3B8' }}>
         {data.member_count.toLocaleString()} startups
       </div>
@@ -196,7 +200,7 @@ function LeafNode({ data }) {
             }}
           />
         ) : (
-          <span style={{ fontSize: 22, fontWeight: 700, color: '#94A3B8' }}>
+          <span style={{ fontSize: 22, fontWeight: 700, color: '#6e6e6e' }}>
             {(data.company_name || '?').charAt(0).toUpperCase()}
           </span>
         )}
@@ -250,7 +254,7 @@ function SubgroupNode({ data }) {
       <div style={{ fontSize: 12, fontWeight: 600, color: '#0D2137', textAlign: 'center', lineHeight: 1.15 }}>
         {data.label}
       </div>
-      <div style={{ fontSize: 9, color: '#94A3B8' }}>
+      <div style={{ fontSize: 9, color: '#6e6e6e' }}>
         {data.member_count?.toLocaleString()} startups
       </div>
     </div>

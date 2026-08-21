@@ -59,7 +59,7 @@ export default function TeamModal({
                     {addMemberBusy ? 'Adding...' : 'Add'}
                   </button>
                 </div>
-                <p style={{ fontSize: 11, color: '#888', margin: 0 }}>
+                <p style={{ fontSize: 11, color: '#5c5c5c', margin: 0 }}>
                   If they're not on OpenI Hub yet, we'll email them a sign-up invite and add them to your team automatically once they join.
                 </p>
               </div>
@@ -69,10 +69,10 @@ export default function TeamModal({
                 Team Members ({teamMembers.length})
               </h4>
               {teamLoading && (
-                <p style={{ fontSize: 12, color: '#888', fontStyle: 'italic', margin: 0 }}>Loading...</p>
+                <p style={{ fontSize: 12, color: '#5c5c5c', fontStyle: 'italic', margin: 0 }}>Loading...</p>
               )}
               {!teamLoading && teamMembers.length === 0 && (
-                <p style={{ fontSize: 12, color: '#999', fontStyle: 'italic', margin: 0 }}>No team members yet. Add reviewers above.</p>
+                <p style={{ fontSize: 12, color: '#666', fontStyle: 'italic', margin: 0 }}>No team members yet. Add reviewers above.</p>
               )}
               {!teamLoading && teamMembers.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -81,7 +81,7 @@ export default function TeamModal({
                       style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{m.name || m.email}</div>
-                        <div style={{ fontSize: 11, color: '#888' }}>{m.email}</div>
+                        <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.email}</div>
                       </div>
                       {m.role === 'owner' ? (
                         <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 12, background: '#fff3cd', color: '#8a6d3b', border: '1px solid #ffeaa7' }}>

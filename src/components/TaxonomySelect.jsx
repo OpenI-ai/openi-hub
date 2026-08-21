@@ -77,7 +77,7 @@ export default function TaxonomySelect({
       <div onClick={() => setOpen(true)}
         style={{ ...inputStyle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ color: value ? '#1a1a1a' : '#9ca3af', fontSize: inputStyle.fontSize || 13 }}>{value || 'Select...'}</span>
-        <ChevronDown size={13} style={{ color: '#aaa' }} />
+        <ChevronDown size={13} style={{ color: '#6e6e6e' }} />
       </div>
       {open && (
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 260, overflowY: 'auto' }}>
@@ -86,7 +86,7 @@ export default function TaxonomySelect({
               autoFocus style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, padding: '4px 0', background: 'transparent' }} />
           </div>
           {filtered.length === 0 ? (
-            <div style={{ padding: '12px 14px', fontSize: 12, color: '#999', textAlign: 'center' }}>No matches</div>
+            <div style={{ padding: '12px 14px', fontSize: 12, color: '#666', textAlign: 'center' }}>No matches</div>
           ) : filtered.map((o, idx) => {
             const isSelected = value === o.name;
             return (

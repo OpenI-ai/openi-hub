@@ -142,9 +142,9 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
           padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 700, color: '#152838' }}>
           <Mail size={16} color={G} /> Invite applicants
-          {entityLabel && <span style={{ color: '#888', fontWeight: 500 }}> · {entityLabel}</span>}
+          {entityLabel && <span style={{ color: '#5c5c5c', fontWeight: 500 }}> · {entityLabel}</span>}
         </span>
-        <span style={{ fontSize: 12, color: '#888' }}>{open ? 'Hide' : 'Show'}</span>
+        <span style={{ fontSize: 12, color: '#5c5c5c' }}>{open ? 'Hide' : 'Show'}</span>
       </button>
 
       {open && (
@@ -168,14 +168,14 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}
                   onMouseEnter={e => e.currentTarget.style.background = '#fef9e8'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-                  <span><strong>{u.name}</strong>{u.organization_name && <span style={{ color: '#888' }}> · {u.organization_name}</span>}</span>
+                  <span><strong>{u.name}</strong>{u.organization_name && <span style={{ color: '#5c5c5c' }}> · {u.organization_name}</span>}</span>
                   <Plus size={14} color={G} />
                 </div>
               ))}
             </div>
           )}
           {search.trim().length >= 2 && results.length === 0 && (
-            <p style={{ fontSize: 12, color: '#999', marginBottom: 12, fontStyle: 'italic' }}>No matching users found.</p>
+            <p style={{ fontSize: 12, color: '#666', marginBottom: 12, fontStyle: 'italic' }}>No matching users found.</p>
           )}
 
           {/* Selected user chips */}
@@ -244,9 +244,9 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
               Invited ({list.length})
             </h4>
             {loading ? (
-              <p style={{ fontSize: 12, color: '#999', margin: 0 }}>Loading…</p>
+              <p style={{ fontSize: 12, color: '#666', margin: 0 }}>Loading…</p>
             ) : list.length === 0 ? (
-              <p style={{ fontSize: 12, color: '#999', fontStyle: 'italic', margin: 0 }}>No invites sent yet.</p>
+              <p style={{ fontSize: 12, color: '#666', fontStyle: 'italic', margin: 0 }}>No invites sent yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {list.map(inv => {
@@ -259,7 +259,7 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
                       alignItems: 'center', padding: '8px 10px', background: '#fafafa', borderRadius: 8, fontSize: 12 }}>
                       <div>
                         <strong>{inv.invitee_name}</strong>
-                        {inv.invitee_org && <span style={{ color: '#888' }}> · {inv.invitee_org}</span>}
+                        {inv.invitee_org && <span style={{ color: '#5c5c5c' }}> · {inv.invitee_org}</span>}
                         {isPendingEmail && <span style={{ color: '#a16207' }}> · email invite</span>}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

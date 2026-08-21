@@ -126,7 +126,7 @@ export default function SettingsSSO() {
         <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Single Sign-On (OIDC)</h2>
       </div>
 
-      <p style={{ margin: '0 0 20px', fontSize: 12.5, color: '#888' }}>
+      <p style={{ margin: '0 0 20px', fontSize: 12.5, color: '#5c5c5c' }}>
         Let your team sign in with your identity provider (Okta, Azure AD, Google Workspace, etc.)
         instead of a password. Your client secret is encrypted at rest and never returned by this API —
         you'll need to re-enter it whenever you update this configuration.
@@ -193,7 +193,7 @@ export default function SettingsSSO() {
 
         <div style={{ marginBottom: 14 }}>
           <label style={label}>
-            Client Secret {config && <span style={{ fontWeight: 400, color: '#999' }}>(re-enter to save changes)</span>}
+            Client Secret {config && <span style={{ fontWeight: 400, color: '#666' }}>(re-enter to save changes)</span>}
           </label>
           <input
             type="password"
@@ -213,7 +213,7 @@ export default function SettingsSSO() {
             placeholder="example.com, subsidiary.com"
             style={input}
           />
-          <p style={{ margin: '6px 0 0', fontSize: 11, color: '#999' }}>
+          <p style={{ margin: '6px 0 0', fontSize: 11, color: '#666' }}>
             Comma-separated. Leave blank to allow any email domain.
           </p>
         </div>

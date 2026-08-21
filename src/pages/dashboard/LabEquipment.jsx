@@ -49,7 +49,7 @@ export default function LabEquipment() {
 
   const fmtCurrency = (v) => v ? `₹${Number(v).toLocaleString('en-IN')}` : '—';
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
@@ -76,7 +76,7 @@ export default function LabEquipment() {
       {/* Equipment Grid */}
       {tab === 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
-          {equipment.length === 0 && <p style={{ color: '#888' }}>No equipment listed. Add your first item.</p>}
+          {equipment.length === 0 && <p style={{ color: '#5c5c5c' }}>No equipment listed. Add your first item.</p>}
           {equipment.map(eq => (
             <div key={eq.id} style={{ ...card, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -85,12 +85,12 @@ export default function LabEquipment() {
                   {eq.is_available !== false ? <ToggleRight size={22} color={G}/> : <ToggleLeft size={22} color="#ccc"/>}
                 </span>
               </div>
-              {eq.category && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>{eq.category}</p>}
+              {eq.category && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5c5c5c' }}>{eq.category}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 10, fontSize: 13, color: '#555' }}>
                 <span>Hourly: {fmtCurrency(eq.hourly_rate)}</span>
                 <span>Daily: {fmtCurrency(eq.daily_rate)}</span>
               </div>
-              {eq.description && <p style={{ margin: '8px 0 0', fontSize: 12, color: '#999', lineHeight: 1.4 }}>{eq.description.substring(0, 100)}</p>}
+              {eq.description && <p style={{ margin: '8px 0 0', fontSize: 12, color: '#666', lineHeight: 1.4 }}>{eq.description.substring(0, 100)}</p>}
             </div>
           ))}
         </div>
@@ -99,12 +99,12 @@ export default function LabEquipment() {
       {/* Bookings List */}
       {tab === 1 && (
         <>
-          {bookings.length === 0 && <p style={{ color: '#888', textAlign: 'center', marginTop: 40 }}>No bookings yet.</p>}
+          {bookings.length === 0 && <p style={{ color: '#5c5c5c', textAlign: 'center', marginTop: 40 }}>No bookings yet.</p>}
           {bookings.map(b => (
             <div key={b.id} style={{ ...card, padding: 16, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>{b.equipment_name || `Equipment #${b.equipment_id}`}</h3>
-                <p style={{ margin: '3px 0 0', fontSize: 13, color: '#888' }}>
+                <p style={{ margin: '3px 0 0', fontSize: 13, color: '#5c5c5c' }}>
                   Booked by: {b.booked_by_name || b.booked_by || '—'} &nbsp;·&nbsp; {fmtDate(b.start_date)}{b.end_date ? ` – ${fmtDate(b.end_date)}` : ''}
                 </p>
               </div>

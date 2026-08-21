@@ -114,7 +114,7 @@ export default function SearchBar({
           }}
         />
         {query && (
-          <X size={14} style={{ cursor: 'pointer', color: '#999' }} onClick={() => { setQuery(''); setSuggestions([]); }} />
+          <X size={14} style={{ cursor: 'pointer', color: '#666' }} onClick={() => { setQuery(''); setSuggestions([]); }} />
         )}
         {showAiToggle && (
           <button
@@ -183,7 +183,7 @@ export default function SearchBar({
             >
               <span style={{ fontSize: 14 }}>{TYPE_ICONS[s.type] || '\uD83D\uDD0D'}</span>
               <span style={{ fontSize: 14, color: '#1a1a2e' }}>{s.name || s}</span>
-              <span style={{ fontSize: 11, color: '#999', marginLeft: 'auto', textTransform: 'capitalize' }}>{s.type}</span>
+              <span style={{ fontSize: 11, color: '#666', marginLeft: 'auto', textTransform: 'capitalize' }}>{s.type}</span>
             </div>
           ))}
         </div>

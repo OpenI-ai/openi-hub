@@ -229,7 +229,7 @@ export default function PersonaDashboard() {
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
 
-  if (!config) return <div style={{ padding: 24, textAlign: 'center', color: '#999' }}>Dashboard not available for this role</div>;
+  if (!config) return <div style={{ padding: 24, textAlign: 'center', color: '#666' }}>Dashboard not available for this role</div>;
 
   const stats = (config.stats || []).map(s => ({
     ...s,
@@ -255,7 +255,7 @@ export default function PersonaDashboard() {
         {/* Profile score */}
         {data?.profile_score != null && (
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Profile</div>
+            <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>Profile</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 80, height: 6, borderRadius: 3, background: '#f3f4f6' }}>
                 <div style={{ height: '100%', borderRadius: 3, width: `${data.profile_score}%`,
@@ -309,7 +309,7 @@ export default function PersonaDashboard() {
               <div style={{ width: 36, height: 36, borderRadius: 9, background: `${s.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <s.icon size={18} style={{ color: s.color }} />
               </div>
-              <span style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>{s.label}</span>
+              <span style={{ fontSize: 12, color: '#5c5c5c', fontWeight: 500 }}>{s.label}</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 700, color: '#1a1a1a' }}>{s.value}</div>
           </div>
@@ -332,7 +332,7 @@ export default function PersonaDashboard() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{a.label}</div>
-                  <div style={{ fontSize: 11, color: '#888' }}>{a.desc}</div>
+                  <div style={{ fontSize: 11, color: '#5c5c5c' }}>{a.desc}</div>
                 </div>
                 <ArrowRight size={14} style={{ color: '#ccc' }} />
               </div>
@@ -347,7 +347,7 @@ export default function PersonaDashboard() {
             {(data?.recent_meetings || []).length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center' }}>
                 <CalendarCheck size={28} style={{ color: '#ddd', marginBottom: 8 }} />
-                <div style={{ fontSize: 13, color: '#999' }}>No upcoming meetings</div>
+                <div style={{ fontSize: 13, color: '#666' }}>No upcoming meetings</div>
                 <button onClick={() => navigate('/dashboard/meetings')}
                   style={{ marginTop: 8, fontSize: 12, fontWeight: 600, color: G, background: 'none', border: 'none', cursor: 'pointer' }}>
                   Schedule a Meeting
@@ -364,7 +364,7 @@ export default function PersonaDashboard() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.title}</div>
-                    <div style={{ fontSize: 11, color: '#888' }}>
+                    <div style={{ fontSize: 11, color: '#5c5c5c' }}>
                       {fmtDate(m.start_time)} at {fmtTime(m.start_time)}
                       {m.participant_count && <span> · {m.participant_count} participants</span>}
                     </div>
@@ -389,7 +389,7 @@ export default function PersonaDashboard() {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>Explore the Ecosystem</div>
-              <div style={{ fontSize: 11, color: '#888' }}>Discover innovators, mentors, investors & more</div>
+              <div style={{ fontSize: 11, color: '#5c5c5c' }}>Discover innovators, mentors, investors & more</div>
             </div>
             <ArrowRight size={14} style={{ color: '#ccc' }} />
           </div>
@@ -415,7 +415,7 @@ export default function PersonaDashboard() {
                 onMouseEnter={e => e.currentTarget.style.borderColor = G}
                 onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.title}</div>
-                <div style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>
+                <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 8 }}>
                   {c.company_name || 'Corporate'}{c.budget_range ? ` · ${c.budget_range}` : ''}
                   {c.deadline ? ` · Due ${new Date(c.deadline).toLocaleDateString()}` : ''}
                 </div>
@@ -454,13 +454,13 @@ export default function PersonaDashboard() {
                     {p.logo_url || p.avatar ? (
                       <img src={p.logo_url || p.avatar} alt="" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover', border: '1px solid #eee' }} />
                     ) : (
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#999' }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#666' }}>
                         {(p.display_name || p.organization || '?')[0]}
                       </div>
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.display_name || p.organization}</div>
-                      <div style={{ fontSize: 10, color: '#888' }}>{p.organization}{p.city ? ` · ${p.city}` : ''}</div>
+                      <div style={{ fontSize: 10, color: '#5c5c5c' }}>{p.organization}{p.city ? ` · ${p.city}` : ''}</div>
                     </div>
                   </div>
                   <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: `${persona.color || '#999'}14`, color: persona.color || '#999' }}>

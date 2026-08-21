@@ -83,7 +83,7 @@ export default function IncubatorPrograms() {
         <div>
           <span id="tour-page-incubator-programs-header" />
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Incubation Programs</h1>
-          <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>Manage your incubation cohorts, applications, and pipeline</p>
+          <p style={{ fontSize: 13, color: '#5c5c5c', margin: '4px 0 0' }}>Manage your incubation cohorts, applications, and pipeline</p>
         </div>
         <button id="tour-page-incubator-programs-create" onClick={() => setShowCreate(true)}
           style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -94,7 +94,7 @@ export default function IncubatorPrograms() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         <div style={{ ...card, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 240px' }}>
-          <Search size={15} style={{ color: '#888' }} />
+          <Search size={15} style={{ color: '#5c5c5c' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search programs..."
             style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
         </div>
@@ -113,7 +113,7 @@ export default function IncubatorPrograms() {
         <div style={{ ...card, padding: 60, textAlign: 'center' }}>
           <GraduationCap size={42} style={{ color: '#ddd', marginBottom: 12 }} />
           <div style={{ fontSize: 16, fontWeight: 600, color: '#666', marginBottom: 6 }}>No programs yet</div>
-          <div style={{ fontSize: 13, color: '#999', marginBottom: 18 }}>Create your first incubation program to get started</div>
+          <div style={{ fontSize: 13, color: '#666', marginBottom: 18 }}>Create your first incubation program to get started</div>
           <button onClick={() => setShowCreate(true)}
             style={{ padding: '10px 20px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Create Program
@@ -134,12 +134,12 @@ export default function IncubatorPrograms() {
                   <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: sc.bg, color: sc.color }}>
                     {sc.label}
                   </span>
-                  <span style={{ fontSize: 10, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>{p.program_type}</span>
+                  <span style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 }}>{p.program_type}</span>
                 </div>
 
                 {/* Title */}
                 <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>{p.name}</h3>
-                <p style={{ fontSize: 12, color: '#888', margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                <p style={{ fontSize: 12, color: '#5c5c5c', margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {p.description || 'No description provided'}
                 </p>
 
@@ -149,7 +149,7 @@ export default function IncubatorPrograms() {
                     {p.focus_sectors.slice(0, 3).map(s => (
                       <span key={s} style={{ fontSize: 9, padding: '2px 7px', borderRadius: 20, background: '#fff8ec', color: G }}>{s}</span>
                     ))}
-                    {p.focus_sectors.length > 3 && <span style={{ fontSize: 9, color: '#999' }}>+{p.focus_sectors.length - 3}</span>}
+                    {p.focus_sectors.length > 3 && <span style={{ fontSize: 9, color: '#666' }}>+{p.focus_sectors.length - 3}</span>}
                   </div>
                 )}
 
@@ -157,21 +157,21 @@ export default function IncubatorPrograms() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid #f5f5f5', borderBottom: '1px solid #f5f5f5', marginBottom: 10 }}>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{p.startup_count || 0}</div>
-                    <div style={{ fontSize: 9, color: '#999' }}>STARTUPS</div>
+                    <div style={{ fontSize: 9, color: '#666' }}>STARTUPS</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#16a34a' }}>{p.selected_count || 0}</div>
-                    <div style={{ fontSize: 9, color: '#999' }}>SELECTED</div>
+                    <div style={{ fontSize: 9, color: '#666' }}>SELECTED</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{p.total_seats || '—'}</div>
-                    <div style={{ fontSize: 9, color: '#999' }}>SEATS</div>
+                    <div style={{ fontSize: 9, color: '#666' }}>SEATS</div>
                   </div>
                 </div>
 
                 {/* Milestone progress */}
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#888', marginBottom: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#5c5c5c', marginBottom: 4 }}>
                     <span>Milestones</span>
                     <span>{p.milestone_done}/{p.milestone_total}</span>
                   </div>
@@ -181,7 +181,7 @@ export default function IncubatorPrograms() {
                 </div>
 
                 {/* Footer */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#888' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#5c5c5c' }}>
                   {p.application_deadline ? (
                     <span><Calendar size={11} style={{ verticalAlign: -2, marginRight: 3 }} />Deadline: {new Date(p.application_deadline).toLocaleDateString()}</span>
                   ) : (
@@ -201,7 +201,7 @@ export default function IncubatorPrograms() {
           <div style={{ ...card, width: '100%', maxWidth: 600, maxHeight: '90vh', overflowY: 'auto', padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
               <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Incubation Program</h2>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => setShowCreate(false)} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowCreate(false)} />
             </div>
             <form onSubmit={handleCreate}>
               <div style={{ display: 'grid', gap: 12 }}>

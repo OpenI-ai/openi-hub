@@ -113,7 +113,7 @@ export default function StudentPortfolio() {
 
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading...</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
@@ -136,7 +136,7 @@ export default function StudentPortfolio() {
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)}
             style={{ padding: '8px 20px', border: 'none', borderBottom: tab === i ? `3px solid ${G}` : '3px solid transparent', background: 'none', fontWeight: tab === i ? 700 : 400, color: tab === i ? G : '#666', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {i === 0 ? <FolderKanban size={14}/> : <Award size={14}/>} {t} <span style={{ fontSize: 12, color: '#999' }}>({i === 0 ? projects.length : certifications.length})</span>
+            {i === 0 ? <FolderKanban size={14}/> : <Award size={14}/>} {t} <span style={{ fontSize: 12, color: '#666' }}>({i === 0 ? projects.length : certifications.length})</span>
           </button>
         ))}
       </div>
@@ -144,7 +144,7 @@ export default function StudentPortfolio() {
       {/* Projects Tab */}
       {tab === 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
-          {projects.length === 0 && <p style={{ color: '#888' }}>No projects yet. Showcase your research, hackathons, and side projects!</p>}
+          {projects.length === 0 && <p style={{ color: '#5c5c5c' }}>No projects yet. Showcase your research, hackathons, and side projects!</p>}
           {projects.map(p => (
             <div key={p.id} style={{ ...card, padding: 18, borderLeft: p.is_featured ? `4px solid ${G}` : undefined }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -153,7 +153,7 @@ export default function StudentPortfolio() {
                   {p.is_featured && <span style={{ fontSize: 11, color: G, fontWeight: 600 }}>★ Featured</span>}
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#888' }} onClick={() => openEdit('project', p)}/>
+                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => openEdit('project', p)}/>
                   <Trash2 size={15} style={{ cursor: 'pointer', color: '#ccc' }} onClick={() => handleDelete('project', p.id)}/>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export default function StudentPortfolio() {
                 </div>
               )}
               {p.awards_won && <div style={{ marginTop: 8, fontSize: 12, color: '#D0A848', fontWeight: 600 }}>🏆 {p.awards_won}</div>}
-              <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 12, color: '#888' }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 12, color: '#5c5c5c' }}>
                 {p.start_date && <span>{fmtDate(p.start_date)}{p.end_date ? ` — ${fmtDate(p.end_date)}` : ' — Present'}</span>}
               </div>
               <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
@@ -176,7 +176,7 @@ export default function StudentPortfolio() {
                 {p.demo_url && <a href={p.demo_url} target="_blank" rel="noopener noreferrer" style={{ color: G }}><ExternalLink size={15}/></a>}
                 {p.paper_url && <a href={p.paper_url} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', fontSize: 12 }}>📄 Paper</a>}
               </div>
-              {p.collaborators?.length > 0 && <div style={{ marginTop: 6, fontSize: 11, color: '#999' }}>with {p.collaborators.join(', ')}</div>}
+              {p.collaborators?.length > 0 && <div style={{ marginTop: 6, fontSize: 11, color: '#666' }}>with {p.collaborators.join(', ')}</div>}
             </div>
           ))}
         </div>
@@ -185,24 +185,24 @@ export default function StudentPortfolio() {
       {/* Certifications Tab */}
       {tab === 1 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
-          {certifications.length === 0 && <p style={{ color: '#888' }}>No certifications yet. Add your courses, awards, and competitions!</p>}
+          {certifications.length === 0 && <p style={{ color: '#5c5c5c' }}>No certifications yet. Add your courses, awards, and competitions!</p>}
           {certifications.map(c => (
             <div key={c.id} style={{ ...card, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{c.title}</h3>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#888' }} onClick={() => openEdit('certification', c)}/>
+                  <Edit3 size={15} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => openEdit('certification', c)}/>
                   <Trash2 size={15} style={{ cursor: 'pointer', color: '#ccc' }} onClick={() => handleDelete('certification', c.id)}/>
                 </div>
               </div>
-              {c.provider && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>{c.provider}</p>}
+              {c.provider && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5c5c5c' }}>{c.provider}</p>}
               <span style={{ display: 'inline-block', marginTop: 6, fontSize: 11, padding: '2px 8px', borderRadius: 20, background: (TYPE_COLORS[c.cert_type] || '#888') + '18', color: TYPE_COLORS[c.cert_type] || '#888', fontWeight: 600 }}>{c.cert_type}</span>
               {c.skills_gained?.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
                   {c.skills_gained.map((s, i) => <span key={i} style={{ fontSize: 11, padding: '1px 7px', borderRadius: 12, background: '#f0f0f0', color: '#555' }}>{s}</span>)}
                 </div>
               )}
-              <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 12, color: '#888' }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 12, color: '#5c5c5c' }}>
                 {c.completion_date && <span>Completed {fmtDate(c.completion_date)}</span>}
                 {c.expiry_date && <span style={{ color: new Date(c.expiry_date) < new Date() ? '#dc2626' : '#888' }}>Expires {fmtDate(c.expiry_date)}</span>}
               </div>
@@ -268,7 +268,7 @@ export default function StudentPortfolio() {
               <h2 style={{ margin: 0, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={18} color={G}/> Share My Portfolio</h2>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShareOpen(false)}/>
             </div>
-            <p style={{ margin: '0 0 16px', fontSize: 13, color: '#888', lineHeight: 1.5 }}>
+            <p style={{ margin: '0 0 16px', fontSize: 13, color: '#5c5c5c', lineHeight: 1.5 }}>
               Create a public link to your projects &amp; certifications. Anyone with the link can view it — no login required. Revoke any link at any time.
             </p>
 
@@ -290,8 +290,8 @@ export default function StudentPortfolio() {
 
             <div style={{ borderTop: '1px solid #eee', paddingTop: 14 }}>
               <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: '#555' }}>Active links</h3>
-              {shareLoading && shares.length === 0 && <p style={{ color: '#999', fontSize: 13 }}>Loading…</p>}
-              {!shareLoading && shares.length === 0 && <p style={{ color: '#999', fontSize: 13 }}>No active share links. Create one above.</p>}
+              {shareLoading && shares.length === 0 && <p style={{ color: '#666', fontSize: 13 }}>Loading…</p>}
+              {!shareLoading && shares.length === 0 && <p style={{ color: '#666', fontSize: 13 }}>No active share links. Create one above.</p>}
               {shares.map(s => {
                 const expired = s.expires_at && new Date(s.expires_at) < new Date();
                 return (

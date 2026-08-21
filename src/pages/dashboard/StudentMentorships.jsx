@@ -60,7 +60,7 @@ export default function StudentMentorships() {
 
   const FILTERS = ['', 'seeking', 'requested', 'active', 'completed', 'declined'];
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading...</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -77,13 +77,13 @@ export default function StudentMentorships() {
         {FILTERS.map(f => (
           <button key={f || 'all'} onClick={() => setFilter(f)}
             style={{ padding: '5px 14px', borderRadius: 20, border: filter === f ? `2px solid ${G}` : '1px solid #ddd', background: filter === f ? G + '12' : '#fff', color: filter === f ? G : '#666', fontSize: 13, fontWeight: filter === f ? 600 : 400, cursor: 'pointer' }}>
-            {f ? f.charAt(0).toUpperCase() + f.slice(1) : 'All'} {f && <span style={{ fontSize: 11, color: '#999' }}>({mentorships.filter(m => !f || m.status === f).length})</span>}
+            {f ? f.charAt(0).toUpperCase() + f.slice(1) : 'All'} {f && <span style={{ fontSize: 11, color: '#666' }}>({mentorships.filter(m => !f || m.status === f).length})</span>}
           </button>
         ))}
       </div>
 
       {/* Mentorship Cards */}
-      {mentorships.length === 0 && <p style={{ color: '#888' }}>No mentorships found. Track your mentor connections and learning journey!</p>}
+      {mentorships.length === 0 && <p style={{ color: '#5c5c5c' }}>No mentorships found. Track your mentor connections and learning journey!</p>}
       {mentorships.map(m => (
         <div key={m.id} style={{ ...card, padding: 18, marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -98,14 +98,14 @@ export default function StudentMentorships() {
               </p>
             </div>
             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-              <Edit3 size={15} style={{ cursor: 'pointer', color: '#888' }} onClick={() => openEdit(m)}/>
+              <Edit3 size={15} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => openEdit(m)}/>
               <Trash2 size={15} style={{ cursor: 'pointer', color: '#ccc' }} onClick={() => handleDelete(m.id)}/>
             </div>
           </div>
 
-          {m.message && <p style={{ margin: '8px 0 0', fontSize: 13, color: '#888', fontStyle: 'italic' }}>{m.message}</p>}
+          {m.message && <p style={{ margin: '8px 0 0', fontSize: 13, color: '#5c5c5c', fontStyle: 'italic' }}>{m.message}</p>}
 
-          <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: '#888', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: '#5c5c5c', flexWrap: 'wrap' }}>
             {m.meeting_count > 0 && <span>{m.meeting_count} session{m.meeting_count > 1 ? 's' : ''}</span>}
             {m.started_at && <span>Started {fmtDate(m.started_at)}</span>}
             {m.completed_at && <span>Completed {fmtDate(m.completed_at)}</span>}

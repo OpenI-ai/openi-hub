@@ -87,7 +87,7 @@ export default function AcceptInvite() {
               <strong>{invite.inviter_name}</strong>{invite.inviter_org ? ` (${invite.inviter_org})` : ''} invited you to collaborate on{' '}
               <strong>{invite.entity_type === 'challenge' ? 'an innovation challenge' : invite.entity_type === 'collaboration' ? 'a collaboration' : 'an OpenI Hub item'}</strong>.
             </p>
-            <p style={{ fontSize: 12, color: '#999', margin: 0 }}>
+            <p style={{ fontSize: 12, color: '#666', margin: 0 }}>
               {invite.has_account ? 'Redirecting you to login...' : 'Redirecting you to create your account...'}
             </p>
           </>

@@ -101,7 +101,7 @@ export default function SettingsAPIKeys() {
         </button>
       </div>
 
-      <p style={{ margin: '0 0 20px', fontSize: 12.5, color: '#888' }}>
+      <p style={{ margin: '0 0 20px', fontSize: 12.5, color: '#5c5c5c' }}>
         API keys grant full read/write access to your challenges and applications via the Partner API.
         Keep them secret — anyone with a key can act on your account.
       </p>
@@ -111,7 +111,7 @@ export default function SettingsAPIKeys() {
           <Loader2 size={24} className="animate-spin" style={{ color: G }} />
         </div>
       ) : keys.length === 0 ? (
-        <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>
+        <p style={{ fontSize: 13, color: '#666', textAlign: 'center', padding: '20px 0' }}>
           No API keys yet. Create one to start using the Partner API.
         </p>
       ) : (
@@ -136,7 +136,7 @@ export default function SettingsAPIKeys() {
                     Active
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: '#999', marginTop: 3, fontFamily: 'monospace' }}>
+                <div style={{ fontSize: 12, color: '#666', marginTop: 3, fontFamily: 'monospace' }}>
                   {k.key_prefix}…
                 </div>
                 <div style={{ fontSize: 11, color: '#bbb', marginTop: 2 }}>
@@ -178,7 +178,7 @@ export default function SettingsAPIKeys() {
               <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>
                 {createdKey ? 'API key created' : 'Create a new API key'}
               </h3>
-              <button onClick={closeCreate} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: 2 }}>
+              <button onClick={closeCreate} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666', padding: 2 }}>
                 <X size={16} />
               </button>
             </div>

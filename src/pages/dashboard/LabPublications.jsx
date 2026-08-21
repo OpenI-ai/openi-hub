@@ -42,7 +42,7 @@ export default function LabPublications() {
     catch { return d; }
   };
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -50,7 +50,7 @@ export default function LabPublications() {
         <div>
           <span id="tour-page-lab-publications-header" />
           <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Publications</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#888' }}>{pubs.length} publication{pubs.length !== 1 && 's'} on record</p>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5c5c5c' }}>{pubs.length} publication{pubs.length !== 1 && 's'} on record</p>
         </div>
         <button id="tour-page-lab-publications-add" onClick={() => setModal(true)}
           style={{ background: G, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
@@ -60,7 +60,7 @@ export default function LabPublications() {
 
       {/* Publications List */}
       {pubs.length === 0 && (
-        <div style={{ textAlign: 'center', marginTop: 60, color: '#888' }}>
+        <div style={{ textAlign: 'center', marginTop: 60, color: '#5c5c5c' }}>
           <BookOpen size={48} color="#ddd"/>
           <p style={{ marginTop: 12 }}>No publications yet. Add your first research paper or article.</p>
         </div>
@@ -71,7 +71,7 @@ export default function LabPublications() {
             <div style={{ flex: 1 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, lineHeight: 1.3 }}>{p.title}</h3>
               {p.authors && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#666' }}>{p.authors}</p>}
-              <div style={{ display: 'flex', gap: 12, marginTop: 6, fontSize: 13, color: '#888', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 6, fontSize: 13, color: '#5c5c5c', flexWrap: 'wrap' }}>
                 {p.journal && <span style={{ fontStyle: 'italic' }}>{p.journal}</span>}
                 {p.published_date && <span>{fmtDate(p.published_date)}</span>}
               </div>

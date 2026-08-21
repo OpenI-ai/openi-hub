@@ -257,7 +257,7 @@ export default function BillingAddressModal({ open, onClose, onSaved, initial = 
         {isIndia && (
           <div style={{ marginBottom: 14 }}>
             <label className={labelCls} style={{ color: '#374151' }}>
-              GSTIN <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional, for input tax credit)</span>
+              GSTIN <span style={{ color: '#6e6e6e', fontWeight: 400 }}>(optional, for input tax credit)</span>
             </label>
             <input
               type="text"

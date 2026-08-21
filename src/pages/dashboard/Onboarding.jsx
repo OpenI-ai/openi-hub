@@ -118,7 +118,7 @@ export default function Onboarding() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <Loader2 size={28} className="spin" style={{ color: '#aaa' }} />
+        <Loader2 size={28} className="spin" style={{ color: '#6e6e6e' }} />
       </div>
     );
   }
@@ -176,7 +176,7 @@ export default function Onboarding() {
         <p style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>
           Let's get your {persona.label} profile set up in a few quick steps.
         </p>
-        <p style={{ fontSize: 12, color: '#999' }}>
+        <p style={{ fontSize: 12, color: '#666' }}>
           {completed} of {total} steps complete
         </p>
       </div>
@@ -189,7 +189,7 @@ export default function Onboarding() {
             width: `${progressPct}%`, transition: 'width 0.5s ease',
           }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 11, color: '#999' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 11, color: '#666' }}>
           <span>Getting started</span>
           <span>{progressPct}%</span>
         </div>
@@ -261,7 +261,7 @@ export default function Onboarding() {
         <button onClick={handleSkip} disabled={skipping}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            fontSize: 13, color: '#999', background: 'none', border: 'none',
+            fontSize: 13, color: '#666', background: 'none', border: 'none',
             cursor: skipping ? 'wait' : 'pointer', textDecoration: 'underline',
           }}>
           <SkipForward size={14} /> {skipping ? 'Skipping...' : 'Skip onboarding for now'}

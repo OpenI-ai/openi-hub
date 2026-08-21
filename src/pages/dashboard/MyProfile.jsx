@@ -297,7 +297,7 @@ export default function MyProfile() {
           }} />
         </div>
         {completeness < 100 && (
-          <p className="text-xs mt-2" style={{ color: '#9ca3af' }}>
+          <p className="text-xs mt-2" style={{ color: '#6e6e6e' }}>
             Complete your profile to get discovered by the ecosystem.
           </p>
         )}

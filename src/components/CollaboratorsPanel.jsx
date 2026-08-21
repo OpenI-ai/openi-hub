@@ -123,7 +123,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
   if (loading) {
     return (
       <div style={card}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#888' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5c5c5c' }}>
           <Loader2 size={14} className="animate-spin" /> Loading team…
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Users size={16} style={{ color: G }} />
           <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-            {title} <span style={{ color: '#999', fontWeight: 400 }}>({collaborators.length})</span>
+            {title} <span style={{ color: '#666', fontWeight: 400 }}>({collaborators.length})</span>
           </h3>
         </div>
         {canManage && !inviteOpen && (
@@ -154,7 +154,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
       </div>
 
       {subtitle && (
-        <p style={{ fontSize: 11, color: '#888', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+        <p style={{ fontSize: 11, color: '#5c5c5c', margin: '0 0 12px 0', lineHeight: 1.4 }}>
           {subtitle}
         </p>
       )}
@@ -197,7 +197,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
             >
               Cancel
             </button>
-            <span style={{ fontSize: 10, color: '#888', marginLeft: 'auto' }}>
+            <span style={{ fontSize: 10, color: '#5c5c5c', marginLeft: 'auto' }}>
               {ROLE_META[inviteRole]?.desc}
             </span>
           </div>
@@ -223,7 +223,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {c.name}
                 </div>
-                <div style={{ fontSize: 10, color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: 10, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {c.email}
                 </div>
               </div>
@@ -262,7 +262,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
       </div>
 
       {!canManage && collaborators.length <= 1 && (
-        <p style={{ fontSize: 11, color: '#888', textAlign: 'center', margin: '8px 0 0 0' }}>
+        <p style={{ fontSize: 11, color: '#5c5c5c', textAlign: 'center', margin: '8px 0 0 0' }}>
           No collaborators yet. The owner can invite team members to help review.
         </p>
       )}

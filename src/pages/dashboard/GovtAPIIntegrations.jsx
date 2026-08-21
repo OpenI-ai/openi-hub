@@ -81,7 +81,7 @@ export default function GovtAPIIntegrations() {
       <div id="tour-page-govt-apis" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Government API Integrations</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Connect with central & state government databases for seamless startup verification</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Connect with central & state government databases for seamless startup verification</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', background: '#f5f5f5', color: '#555', border: '1px solid #eee', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
@@ -106,7 +106,7 @@ export default function GovtAPIIntegrations() {
               <Icon size={15} color={fg} />
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-            <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+            <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -138,7 +138,7 @@ export default function GovtAPIIntegrations() {
                   <div style={{ width: 44, height: 44, borderRadius: 11, background: integ.bg, color: integ.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15, border: `1.5px solid ${integ.color}22`, flexShrink: 0 }}>{integ.logo}</div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{integ.name}</div>
-                    <div style={{ fontSize: 11, color: '#888' }}>{integ.category}</div>
+                    <div style={{ fontSize: 11, color: '#5c5c5c' }}>{integ.category}</div>
                   </div>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 20, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
@@ -150,10 +150,10 @@ export default function GovtAPIIntegrations() {
 
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
                 {integ.dataPoints.slice(0, 3).map(dp => (
-                  <span key={dp} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f5f5f5', color: '#888', border: '1px solid #eee' }}>{dp}</span>
+                  <span key={dp} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f5f5f5', color: '#5c5c5c', border: '1px solid #eee' }}>{dp}</span>
                 ))}
                 {integ.dataPoints.length > 3 && (
-                  <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f5f5f5', color: '#aaa', border: '1px solid #eee' }}>+{integ.dataPoints.length - 3} more</span>
+                  <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#f5f5f5', color: '#6e6e6e', border: '1px solid #eee' }}>+{integ.dataPoints.length - 3} more</span>
                 )}
               </div>
 
@@ -161,14 +161,14 @@ export default function GovtAPIIntegrations() {
                 <div style={{ display: 'flex', gap: 14 }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{integ.callsToday}</div>
-                    <div style={{ fontSize: 10, color: '#aaa' }}>calls today</div>
+                    <div style={{ fontSize: 10, color: '#6e6e6e' }}>calls today</div>
                   </div>
                   <div>
                     <div style={{ fontSize: 12, color: '#555' }}>{integ.auth}</div>
-                    <div style={{ fontSize: 10, color: '#aaa' }}>auth method</div>
+                    <div style={{ fontSize: 10, color: '#6e6e6e' }}>auth method</div>
                   </div>
                 </div>
-                <div style={{ fontSize: 11, color: '#aaa', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 11, color: '#6e6e6e', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <RefreshCw size={10} /> {integ.lastSync}
                 </div>
               </div>
@@ -231,7 +231,7 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
                 <Icon size={12} color={G} />
               </div>
               <div>
-                <div style={{ fontSize: 10, color: '#aaa' }}>{label}</div>
+                <div style={{ fontSize: 10, color: '#6e6e6e' }}>{label}</div>
                 <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600 }}>{value}</div>
               </div>
             </div>
@@ -255,7 +255,7 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
           <div style={{ padding: '8px 12px', background: '#1a1a1a', borderRadius: 8, marginBottom: 14 }}>
             <code style={{ fontSize: 11, color: '#a3e635', wordBreak: 'break-all' }}>{integ.endpoint}</code>
           </div>
-          <div style={{ fontSize: 11, color: '#888', marginBottom: 14, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 14, lineHeight: 1.5 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               <Shield size={11} color={G} />
               <span>Compliant with GoI Data Exchange Standards</span>

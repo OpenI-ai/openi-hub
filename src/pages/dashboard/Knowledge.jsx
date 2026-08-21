@@ -441,7 +441,7 @@ export default function Knowledge() {
                 <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#111' }}>Suggest an Article</h3>
                 <p style={{ margin: '4px 0 0', fontSize: 12, color: '#666' }}>Send a suggestion to the OpenI Knowledge Hub team. We will review and add it if it fits.</p>
               </div>
-              <button onClick={() => setShowSuggest(false)} style={{ background: 'none', border: 'none', fontSize: 22, color: '#999', cursor: 'pointer', lineHeight: 1, padding: 0 }}>&times;</button>
+              <button onClick={() => setShowSuggest(false)} style={{ background: 'none', border: 'none', fontSize: 22, color: '#666', cursor: 'pointer', lineHeight: 1, padding: 0 }}>&times;</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>

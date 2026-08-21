@@ -44,7 +44,7 @@ export default function SPServices() {
   const avgRating = reviews.length ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1) : '—';
   const stars = (n) => '★'.repeat(Math.round(n || 0)) + '☆'.repeat(5 - Math.round(n || 0));
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
@@ -71,7 +71,7 @@ export default function SPServices() {
       {/* Services Tab */}
       {tab === 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
-          {services.length === 0 && <p style={{ color: '#888' }}>No services yet. Add your first service.</p>}
+          {services.length === 0 && <p style={{ color: '#5c5c5c' }}>No services yet. Add your first service.</p>}
           {services.map(s => (
             <div key={s.id} style={{ ...card, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -80,12 +80,12 @@ export default function SPServices() {
                   {s.is_active !== false ? <ToggleRight size={22} color={G}/> : <ToggleLeft size={22} color="#ccc"/>}
                 </span>
               </div>
-              <p style={{ margin: '6px 0 0', fontSize: 13, color: '#888' }}>{s.category || '—'}</p>
+              <p style={{ margin: '6px 0 0', fontSize: 13, color: '#5c5c5c' }}>{s.category || '—'}</p>
               <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 13, color: '#555' }}>
                 <span>💰 {s.pricing_type || '—'}</span>
                 {(s.price_min || s.price_max) && <span>₹{s.price_min || 0}–{s.price_max || '∞'}</span>}
               </div>
-              {s.delivery_time && <p style={{ margin: '6px 0 0', fontSize: 12, color: '#999' }}>⏱ {s.delivery_time}</p>}
+              {s.delivery_time && <p style={{ margin: '6px 0 0', fontSize: 12, color: '#666' }}>⏱ {s.delivery_time}</p>}
             </div>
           ))}
         </div>
@@ -94,11 +94,11 @@ export default function SPServices() {
       {/* Clients Tab */}
       {tab === 1 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
-          {clients.length === 0 && <p style={{ color: '#888' }}>No clients yet.</p>}
+          {clients.length === 0 && <p style={{ color: '#5c5c5c' }}>No clients yet.</p>}
           {clients.map(c => (
             <div key={c.id} style={{ ...card, padding: 18 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{c.client_name || c.name}</h3>
-              <p style={{ margin: '4px 0', fontSize: 13, color: '#888' }}>{c.client_type || c.type || '—'}</p>
+              <p style={{ margin: '4px 0', fontSize: 13, color: '#5c5c5c' }}>{c.client_type || c.type || '—'}</p>
               {c.engagement_summary && <p style={{ margin: '6px 0 0', fontSize: 13, color: '#555' }}>{c.engagement_summary}</p>}
             </div>
           ))}
@@ -112,17 +112,17 @@ export default function SPServices() {
             <Star size={28} color={G} fill={G}/>
             <div>
               <div style={{ fontSize: 22, fontWeight: 700 }}>{avgRating}</div>
-              <div style={{ fontSize: 13, color: '#888' }}>Average from {reviews.length} review{reviews.length !== 1 && 's'}</div>
+              <div style={{ fontSize: 13, color: '#5c5c5c' }}>Average from {reviews.length} review{reviews.length !== 1 && 's'}</div>
             </div>
           </div>
           {reviews.map(r => (
             <div key={r.id} style={{ ...card, padding: 16, marginBottom: 12 }}>
               <div style={{ color: G, letterSpacing: 2, fontSize: 16 }}>{stars(r.rating)}</div>
               <p style={{ margin: '6px 0 0', fontSize: 14 }}>{r.comment || r.review_text || '—'}</p>
-              <p style={{ margin: '4px 0 0', fontSize: 12, color: '#999' }}>— {r.reviewer_name || 'Anonymous'}</p>
+              <p style={{ margin: '4px 0 0', fontSize: 12, color: '#666' }}>— {r.reviewer_name || 'Anonymous'}</p>
             </div>
           ))}
-          {reviews.length === 0 && <p style={{ color: '#888' }}>No reviews yet.</p>}
+          {reviews.length === 0 && <p style={{ color: '#5c5c5c' }}>No reviews yet.</p>}
         </>
       )}
 

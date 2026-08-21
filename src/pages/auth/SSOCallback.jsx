@@ -77,7 +77,7 @@ export default function SSOCallback() {
           <>
             <Loader2 size={32} className="animate-spin" style={{ color: G, margin: '0 auto 16px' }} />
             <h1 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>Signing you in…</h1>
-            <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Completing your single sign-on request.</p>
+            <p style={{ fontSize: 13, color: '#5c5c5c', margin: 0 }}>Completing your single sign-on request.</p>
           </>
         )}
 

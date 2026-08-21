@@ -84,7 +84,7 @@ export default function ApplicationInvites() {
           <Loader2 size={28} className="spin" color="#999" />
         </div>
       ) : invites.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
+        <div style={{ textAlign: 'center', padding: 60, color: '#666' }}>
           <Inbox size={48} color="#ddd" style={{ margin: '0 auto 12px' }} />
           <p style={{ fontSize: 14, margin: 0 }}>No {filter} invites yet.</p>
         </div>

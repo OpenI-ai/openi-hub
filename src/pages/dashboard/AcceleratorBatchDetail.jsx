@@ -105,7 +105,7 @@ export default function AcceleratorBatchDetail() {
   };
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="animate-spin" style={{ color: G }} /></div>;
-  if (!batch) return <div style={{ padding: 24, textAlign: 'center', color: '#999' }}>Batch not found</div>;
+  if (!batch) return <div style={{ padding: 24, textAlign: 'center', color: '#666' }}>Batch not found</div>;
 
   const sc = STATUS_COLORS[batch.status] || STATUS_COLORS.draft;
   const milestoneDone = milestones.filter(m => m.status === 'completed').length;
@@ -126,7 +126,7 @@ export default function AcceleratorBatchDetail() {
               <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: sc.bg, color: sc.color }}>
                 {sc.label}
               </span>
-              {batch.batch_number && <span style={{ fontSize: 10, color: '#999', fontWeight: 600 }}>{batch.batch_number}</span>}
+              {batch.batch_number && <span style={{ fontSize: 10, color: '#666', fontWeight: 600 }}>{batch.batch_number}</span>}
             </div>
             <p style={{ fontSize: 13, color: '#666', margin: '0 0 10px' }}>{batch.description || 'No description'}</p>
             {(batch.focus_sectors || []).length > 0 && (
@@ -199,7 +199,7 @@ export default function AcceleratorBatchDetail() {
                         <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 3 }}>{s.startup_name}</div>
                         {s.pitch_order && <div style={{ fontSize: 9, color: G, fontWeight: 600, marginBottom: 3 }}>#{s.pitch_order} pitch</div>}
                         {s.evaluation_score && <div style={{ fontSize: 9, color: G, fontWeight: 600, marginBottom: 4 }}>★ {s.evaluation_score}/5</div>}
-                        {s.notes && <div style={{ fontSize: 10, color: '#888', marginBottom: 6, fontStyle: 'italic' }}>{s.notes.substring(0, 60)}{s.notes.length > 60 ? '...' : ''}</div>}
+                        {s.notes && <div style={{ fontSize: 10, color: '#5c5c5c', marginBottom: 6, fontStyle: 'italic' }}>{s.notes.substring(0, 60)}{s.notes.length > 60 ? '...' : ''}</div>}
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                           <select value={s.application_status} onChange={e => moveStartup(s.id, e.target.value)}
                             style={{ flex: 1, fontSize: 16, padding: '3px 5px', border: '1px solid #ddd', borderRadius: 4, background: '#fff' }}>
@@ -227,7 +227,7 @@ export default function AcceleratorBatchDetail() {
       {tab === 'milestones' && (
         <div style={{ ...card, padding: 18 }}>
           <div style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#5c5c5c', marginBottom: 6 }}>
               <span>Batch Progress</span>
               <span>{milestoneDone}/{milestones.length} ({milestonePct}%)</span>
             </div>
@@ -244,13 +244,13 @@ export default function AcceleratorBatchDetail() {
                 </button>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', textDecoration: m.status === 'completed' ? 'line-through' : 'none' }}>{m.title}</div>
-                  {m.description && <div style={{ fontSize: 11, color: '#888' }}>{m.description}</div>}
-                  {m.due_date && <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}><Clock size={10} style={{ verticalAlign: -1, marginRight: 3 }} />{new Date(m.due_date).toLocaleDateString()}</div>}
+                  {m.description && <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.description}</div>}
+                  {m.due_date && <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}><Clock size={10} style={{ verticalAlign: -1, marginRight: 3 }} />{new Date(m.due_date).toLocaleDateString()}</div>}
                 </div>
               </div>
             ))}
             {milestones.length === 0 && (
-              <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: '#999' }}>No milestones yet</div>
+              <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: '#666' }}>No milestones yet</div>
             )}
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function AcceleratorBatchDetail() {
           <div style={{ ...card, width: '100%', maxWidth: 500, padding: 22 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Add Startup to Batch</h2>
-              <X size={20} style={{ cursor: 'pointer', color: '#888' }} onClick={() => setShowAddStartup(false)} />
+              <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowAddStartup(false)} />
             </div>
             <form onSubmit={handleAddStartup} style={{ display: 'grid', gap: 12 }}>
               <div>
@@ -315,7 +315,7 @@ function Stat({ icon: Icon, label, value, color }) {
       </div>
       <div>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
-        <div style={{ fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+        <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
       </div>
     </div>
   );

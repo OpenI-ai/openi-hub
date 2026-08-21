@@ -341,7 +341,7 @@ export default function Marketplace() {
             <label style={{ fontSize: 12, fontWeight: 700, color: '#333', marginBottom: 8, display: 'block' }}>
               <Upload size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Supporting Documents
             </label>
-            <p style={{ fontSize: 11, color: '#888', marginBottom: 8, marginTop: 0 }}>Attach any supporting files — pitch deck, solution video, client testimonials, financials, certifications, etc. Upload a file or paste a URL. Add as many as you need.</p>
+            <p style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 8, marginTop: 0 }}>Attach any supporting files — pitch deck, solution video, client testimonials, financials, certifications, etc. Upload a file or paste a URL. Add as many as you need.</p>
               {applyForm.data_room.map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <select value={item.type} onChange={e => {
@@ -389,7 +389,7 @@ export default function Marketplace() {
     return (
       <div style={{ padding: '24px 16px', maxWidth: 900, margin: '0 auto' }}>
         <button onClick={() => navigate('/dashboard/marketplace')}
-          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Challenges
         </button>
 
@@ -399,13 +399,13 @@ export default function Marketplace() {
             {detail.corporate_logo ? (
               <img src={detail.corporate_logo} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'contain', background: '#fff', padding: 4 }} />
             ) : (
-              <div style={{ width: 48, height: 48, borderRadius: 10, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Building2 size={22} style={{ color: '#aaa' }} /></div>
+              <div style={{ width: 48, height: 48, borderRadius: 10, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Building2 size={22} style={{ color: '#6e6e6e' }} /></div>
             )}
             <div style={{ flex: 1 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px' }}>{detail.title}</h2>
               <div style={{ fontSize: 13, color: '#666' }}>
                 {detail.company_name || detail.corporate_name || detail.organization_name}
-                {detail.corporate_city && <span style={{ marginLeft: 8, color: '#999' }}><MapPin size={11} style={{ verticalAlign: -2 }} /> {detail.corporate_city}</span>}
+                {detail.corporate_city && <span style={{ marginLeft: 8, color: '#666' }}><MapPin size={11} style={{ verticalAlign: -2 }} /> {detail.corporate_city}</span>}
               </div>
             </div>
           </div>
@@ -479,7 +479,7 @@ export default function Marketplace() {
                     <Share2 size={18} style={{ color: G, marginTop: 2 }} />
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Share this challenge</div>
-                      <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 2 }}>
                         As an innovation seeker you can pass this on to startups and innovation providers in your network to create a reach-out.
                       </div>
                     </div>
@@ -507,7 +507,7 @@ export default function Marketplace() {
                 <CheckCircle size={18} style={{ color: '#16a34a' }} />
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: '#16a34a' }}>You have already applied</div>
-                  <div style={{ fontSize: 12, color: '#888' }}>
+                  <div style={{ fontSize: 12, color: '#5c5c5c' }}>
                     Status: {(STATUS_BADGE[detail.my_application?.status] || {}).label || detail.my_application?.status}
                     {' | '}Applied on {new Date(detail.my_application?.created_at).toLocaleDateString()}
                   </div>
@@ -521,7 +521,7 @@ export default function Marketplace() {
           ) : detail.has_applied ? (
             applyFormJsx
           ) : detail.status !== 'open' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#888' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#5c5c5c' }}>
               <AlertCircle size={18} />
               <span style={{ fontSize: 13 }}>This challenge is no longer accepting applications</span>
             </div>
@@ -530,7 +530,7 @@ export default function Marketplace() {
               <AlertCircle size={18} style={{ color: '#f59e0b' }} />
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#f59e0b' }}>Profile incomplete</div>
-                <div style={{ fontSize: 12, color: '#888' }}>Your profile is {profilePct}% complete. Minimum {minPct}% required to apply. Please update your profile first.</div>
+                <div style={{ fontSize: 12, color: '#5c5c5c' }}>Your profile is {profilePct}% complete. Minimum {minPct}% required to apply. Please update your profile first.</div>
               </div>
             </div>
           ) : !showApply ? (
@@ -555,7 +555,7 @@ export default function Marketplace() {
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
             <Target size={20} style={{ verticalAlign: -3, marginRight: 8, color: G }} />Opportunities
           </h1>
-          <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: '#5c5c5c', marginTop: 4 }}>
             {isSeeker
               ? 'Browse open calls — challenges, deal sourcing, cohorts and lab facilities — and share them with your network.'
               : 'Browse open calls across the ecosystem and apply to the ones that fit your venture.'}
@@ -575,8 +575,8 @@ export default function Marketplace() {
           ) : myApps.length === 0 ? (
             <div style={{ ...card, padding: 40, textAlign: 'center' }}>
               <FileText size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No applications yet</p>
-              <p style={{ fontSize: 12, color: '#aaa' }}>Browse challenges and apply to get started</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>No applications yet</p>
+              <p style={{ fontSize: 12, color: '#6e6e6e' }}>Browse challenges and apply to get started</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gap: 10 }}>
@@ -589,7 +589,7 @@ export default function Marketplace() {
                       <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>{app.challenge_title}</h3>
                       <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color }}>{st.label}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 14, fontSize: 11, color: '#888' }}>
+                    <div style={{ display: 'flex', gap: 14, fontSize: 11, color: '#5c5c5c' }}>
                       <span><Building2 size={11} style={{ verticalAlign: -2 }} /> {app.company_name || app.corporate_name || app.organization_name}</span>
                       {app.deadline && <span><Calendar size={11} style={{ verticalAlign: -2 }} /> {new Date(app.deadline).toLocaleDateString()}</span>}
                       <span>Applied: {new Date(app.created_at).toLocaleDateString()}</span>
@@ -610,7 +610,7 @@ export default function Marketplace() {
           {/* Search bar — Ship #12 follow-up tour anchor */}
           <div id="tour-page-marketplace-search" style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input placeholder="Search opportunities by title or description..." value={search}
                 onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 style={{ width: '100%', padding: '10px 14px 10px 36px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }} />
@@ -665,7 +665,7 @@ export default function Marketplace() {
           )}
 
           {/* Results count */}
-          <div style={{ fontSize: 12, color: '#888', marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: '#5c5c5c', marginBottom: 12 }}>
             {loading ? 'Loading...' : `${total} ${total !== 1 ? 'opportunities' : 'opportunity'} found`}
           </div>
 
@@ -675,8 +675,8 @@ export default function Marketplace() {
           ) : challenges.length === 0 ? (
             <div style={{ ...card, padding: 40, textAlign: 'center' }}>
               <Target size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No open opportunities found</p>
-              <p style={{ fontSize: 12, color: '#aaa' }}>Try adjusting your search or filters</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>No open opportunities found</p>
+              <p style={{ fontSize: 12, color: '#6e6e6e' }}>Try adjusting your search or filters</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gap: 12 }}>
@@ -720,7 +720,7 @@ export default function Marketplace() {
                         <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: tb.bg, color: tb.color }}>{tb.label}</span>
                         {ch.is_expired && <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 12, background: EXPIRED_BADGE.bg, color: EXPIRED_BADGE.color }}>{EXPIRED_BADGE.label}</span>}
                       </div>
-                      <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
+                      <div style={{ fontSize: 12, color: '#5c5c5c', marginBottom: 6 }}>
                         {ch.org_name}
                       </div>
                       {ch.description && (
@@ -728,7 +728,7 @@ export default function Marketplace() {
                           {ch.description}
                         </p>
                       )}
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, fontSize: 11, color: '#999', marginBottom: 6 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, fontSize: 11, color: '#666', marginBottom: 6 }}>
                         {ch.deadline && <span><Calendar size={11} style={{ verticalAlign: -2 }} /> {new Date(ch.deadline).toLocaleDateString()}</span>}
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
@@ -753,7 +753,7 @@ export default function Marketplace() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
               <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page <= 1 ? '#f9fafb' : '#fff', color: page <= 1 ? '#ccc' : '#555', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous</button>
-              <span style={{ padding: '7px 12px', fontSize: 12, color: '#888' }}>Page {page} of {Math.ceil(total / 20)}</span>
+              <span style={{ padding: '7px 12px', fontSize: 12, color: '#5c5c5c' }}>Page {page} of {Math.ceil(total / 20)}</span>
               <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / 20) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / 20) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / 20) ? 'default' : 'pointer' }}>Next</button>
             </div>
@@ -769,10 +769,10 @@ export default function Marketplace() {
           <div style={{ ...card, width: '100%', maxWidth: 440, padding: 24 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{dealEditMode ? 'Update Application' : 'Apply to Deal'}</h3>
-              <button onClick={() => !dealApplying && closeDealModal()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={18} /></button>
+              <button onClick={() => !dealApplying && closeDealModal()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={18} /></button>
             </div>
             {dealDetailLoading ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0', color: '#999', fontSize: 13 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0', color: '#666', fontSize: 13 }}>
                 <Loader2 size={16} className="animate-spin" style={{ marginRight: 8 }} /> Loading...
               </div>
             ) : (

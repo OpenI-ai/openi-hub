@@ -101,7 +101,7 @@ export default function ConnectButton({ userId, size = 'md', onStatusChange }) {
                 {t}
               </button>
             ))}
-            <button onClick={() => setShowRelType(false)} style={{ ...btnBase, background: '#eee', color: '#888' }}>
+            <button onClick={() => setShowRelType(false)} style={{ ...btnBase, background: '#eee', color: '#5c5c5c' }}>
               <X size={12} />
             </button>
           </div>

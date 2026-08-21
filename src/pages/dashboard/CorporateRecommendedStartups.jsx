@@ -69,12 +69,12 @@ export default function CorporateRecommendedStartups() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={22} style={{ color: G }} /> Recommended Startups
         </h1>
-        <p style={{ fontSize: 12, color: '#888', margin: '4px 0 0' }}>
+        <p style={{ fontSize: 12, color: '#5c5c5c', margin: '4px 0 0' }}>
           Startups matching your innovation areas, ranked by topical alignment and applied signal.
         </p>
         {basedOn.length > 0 && (
           <div id="tour-page-recs-basedon" style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            <span style={{ fontSize: 11, color: '#888' }}>Based on:</span>
+            <span style={{ fontSize: 11, color: '#5c5c5c' }}>Based on:</span>
             {basedOn.slice(0, 6).map((tag, i) => (
               <span
                 key={i}
@@ -155,7 +155,7 @@ export default function CorporateRecommendedStartups() {
                       {s.is_deeptech && <Cpu size={11} style={{ color: G, flexShrink: 0 }} />}
                     </div>
                     {location && (
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <div style={{ fontSize: 11, color: '#5c5c5c', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
                         <MapPin size={10} /> {location}
                       </div>
                     )}

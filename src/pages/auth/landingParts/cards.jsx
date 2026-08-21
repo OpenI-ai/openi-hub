@@ -38,7 +38,7 @@ function PartnerLogo({ name, slug }) {
 
   if (!src) {
     return (
-      <span className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#888' }}>
+      <span className="text-base md:text-lg font-bold tracking-wide" style={{ color: '#5c5c5c' }}>
         {name}
       </span>
     );

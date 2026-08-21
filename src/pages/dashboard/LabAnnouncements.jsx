@@ -90,7 +90,7 @@ export default function LabAnnouncements() {
     catch { return d; }
   };
 
-  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center', color: '#5c5c5c' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
@@ -103,12 +103,12 @@ export default function LabAnnouncements() {
           <Plus size={16}/> New Announcement
         </button>
       </div>
-      <p style={{ color: '#888', fontSize: 14, marginTop: 0, marginBottom: 20 }}>
+      <p style={{ color: '#5c5c5c', fontSize: 14, marginTop: 0, marginBottom: 20 }}>
         Invite startups to apply for your lab facilities. Mark as <strong>Open</strong> and <strong>Public</strong> to make visible across the ecosystem.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
-        {items.length === 0 && <p style={{ color: '#888' }}>No announcements yet. Create your first call for applications.</p>}
+        {items.length === 0 && <p style={{ color: '#5c5c5c' }}>No announcements yet. Create your first call for applications.</p>}
         {items.map(a => (
           <div key={a.id} style={{ ...card, padding: 18, display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
@@ -126,7 +126,7 @@ export default function LabAnnouncements() {
             )}
             {a.description && <p style={{ margin: '10px 0 0', fontSize: 13, color: '#666', lineHeight: 1.45 }}>{a.description.substring(0, 120)}{a.description.length > 120 ? '…' : ''}</p>}
             {a.deadline && (
-              <p style={{ margin: '8px 0 0', fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <p style={{ margin: '8px 0 0', fontSize: 12, color: '#5c5c5c', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Calendar size={12}/> Deadline: {fmtDate(a.deadline)}
               </p>
             )}

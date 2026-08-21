@@ -22,7 +22,7 @@ export default function AccountInfoCard({ user }) {
             { label: 'Platform', value: 'OpenI Hub v1.0' },
           ].map(({ label, value }) => (
             <div key={label} style={{ padding: '8px 0' }}>
-              <div style={{ fontSize: 10, color: '#aaa', marginBottom: 2 }}>{label}</div>
+              <div style={{ fontSize: 10, color: '#6e6e6e', marginBottom: 2 }}>{label}</div>
               <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 500, textTransform: label === 'Role' ? 'capitalize' : 'none' }}>{value}</div>
             </div>
           ))}

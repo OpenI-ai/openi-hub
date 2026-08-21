@@ -30,7 +30,7 @@ export default function SecurityTab({ changePassword, changingPw, confirmPw, cur
                 />
                 <button onClick={() => setShowCurrent(!showCurrent)} style={{
                   position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4,
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#6e6e6e', padding: 4,
                 }}>
                   {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -49,7 +49,7 @@ export default function SecurityTab({ changePassword, changingPw, confirmPw, cur
                 />
                 <button onClick={() => setShowNew(!showNew)} style={{
                   position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4,
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#6e6e6e', padding: 4,
                 }}>
                   {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>

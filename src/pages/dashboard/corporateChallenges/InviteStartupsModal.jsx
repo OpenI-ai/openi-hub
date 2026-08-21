@@ -110,14 +110,14 @@ export default function InviteStartupsModal({
                       onMouseDown={e => e.preventDefault()}
                       onMouseEnter={e => e.currentTarget.style.background = '#fef9e8'}
                       onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-                      <span><strong>{u.name}</strong>{u.organization_name && <span style={{ color: '#888' }}> · {u.organization_name}</span>}</span>
+                      <span><strong>{u.name}</strong>{u.organization_name && <span style={{ color: '#5c5c5c' }}> · {u.organization_name}</span>}</span>
                       <Plus size={14} color={G} />
                     </div>
                   ))}
                 </div>
               )}
               {inviteSearch.trim().length >= 2 && inviteResults.length === 0 && (
-                <p style={{ fontSize: 12, color: '#999', marginBottom: 12, fontStyle: 'italic' }}>No matching startups found.</p>
+                <p style={{ fontSize: 12, color: '#666', marginBottom: 12, fontStyle: 'italic' }}>No matching startups found.</p>
               )}
 
               {/* Selected chips */}
@@ -144,7 +144,7 @@ export default function InviteStartupsModal({
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>
                   Or invite by email
                 </label>
-                <p style={{ fontSize: 11, color: '#888', margin: '0 0 6px' }}>
+                <p style={{ fontSize: 11, color: '#5c5c5c', margin: '0 0 6px' }}>
                   Not yet on OpenI? Add an email — they'll get a signup invite. Press Enter or comma to add.
                 </p>
                 <input type="email" value={inviteEmailDraft}
@@ -250,7 +250,7 @@ export default function InviteStartupsModal({
               <div style={{ borderTop: '1px solid #eee', paddingTop: 14 }}>
                 <h4 style={{ fontSize: 13, fontWeight: 700, color: '#333', margin: '0 0 10px' }}>Invited ({inviteList.length})</h4>
                 {inviteList.length === 0 ? (
-                  <p style={{ fontSize: 12, color: '#999', fontStyle: 'italic', margin: 0 }}>No invites sent yet.</p>
+                  <p style={{ fontSize: 12, color: '#666', fontStyle: 'italic', margin: 0 }}>No invites sent yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {inviteList.map(inv => {
@@ -262,7 +262,7 @@ export default function InviteStartupsModal({
                         <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#fafafa', borderRadius: 8, fontSize: 12 }}>
                           <div>
                             <strong>{inv.invitee_name}</strong>
-                            {inv.invitee_org && <span style={{ color: '#888' }}> · {inv.invitee_org}</span>}
+                            {inv.invitee_org && <span style={{ color: '#5c5c5c' }}> · {inv.invitee_org}</span>}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ padding: '2px 8px', borderRadius: 12, background: colors.bg, color: colors.fg, fontSize: 11, fontWeight: 600 }}>{inv.status}</span>

@@ -123,7 +123,7 @@ export default function CityField({ value, onChange, country: rawCountry = 'IN',
           }}
         >
           {loading && (
-            <div style={{ padding: '10px 14px', fontSize: 13, color: '#9ca3af' }}>
+            <div style={{ padding: '10px 14px', fontSize: 13, color: '#6e6e6e' }}>
               Searching…
             </div>
           )}
@@ -141,11 +141,11 @@ export default function CityField({ value, onChange, country: rawCountry = 'IN',
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
               {c.name}
-              {c.state && <span style={{ color: '#9ca3af', fontSize: 11, marginLeft: 8 }}>{c.state}</span>}
+              {c.state && <span style={{ color: '#6e6e6e', fontSize: 11, marginLeft: 8 }}>{c.state}</span>}
             </button>
           ))}
           {!loading && suggestions.length === 0 && query.trim() && (
-            <div style={{ padding: '10px 14px', fontSize: 12, color: '#9ca3af' }}>
+            <div style={{ padding: '10px 14px', fontSize: 12, color: '#6e6e6e' }}>
               No matches. Your typed value will be saved as-is.
             </div>
           )}

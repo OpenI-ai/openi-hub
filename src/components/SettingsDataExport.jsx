@@ -80,7 +80,7 @@ export default function SettingsDataExport() {
         <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Data Export</h2>
       </div>
 
-      <p style={{ margin: '0 0 18px', fontSize: 12.5, color: '#888' }}>
+      <p style={{ margin: '0 0 18px', fontSize: 12.5, color: '#5c5c5c' }}>
         Bulk export your organization's own data — challenges, applications, and
         collaborations — as CSV or JSON. Scoped to your account only.
       </p>

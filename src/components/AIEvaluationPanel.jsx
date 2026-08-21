@@ -85,7 +85,7 @@ export function AIAdvisorPanel({ suggestions, onApply, onClose }) {
     <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: 14 }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Brain size={14} /> AI Suggestions
-        <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={12} /></button>
+        <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={12} /></button>
       </div>
       {suggestions.refined_description && (
         <div style={{ marginBottom: 10 }}>

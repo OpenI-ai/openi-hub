@@ -29,7 +29,7 @@ function StatCard({ icon: Icon, label, value, sub, color = G }) {
       </div>
       <div>
         <div style={{ fontSize: 22, fontWeight: 700, color: DARK }}>{value}</div>
-        <div style={{ fontSize: 12, color: '#888' }}>{label}</div>
+        <div style={{ fontSize: 12, color: '#5c5c5c' }}>{label}</div>
         {sub && <div style={{ fontSize: 10, color: '#16a34a', display: 'flex', alignItems: 'center', gap: 2 }}><ArrowUpRight size={10} /> {sub}</div>}
       </div>
     </div>
@@ -87,7 +87,7 @@ export default function AdminAnalytics() {
   }, [tsMetric, tsPeriod, loading]);
 
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="spin" style={{ color: '#aaa' }} /></div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Loader2 size={28} className="spin" style={{ color: '#6e6e6e' }} /></div>;
   }
 
   const ov = overview || {};
@@ -112,7 +112,7 @@ export default function AdminAnalytics() {
       <div id="tour-page-admin-analytics">
         <h1 style={{ fontSize: 22, fontWeight: 700, color: DARK, marginBottom: 4 }}>Platform Analytics</h1>
       </div>
-      <p style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>Admin dashboard — platform-wide metrics and trends</p>
+      <p style={{ fontSize: 13, color: '#5c5c5c', marginBottom: 24 }}>Admin dashboard — platform-wide metrics and trends</p>
 
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 24 }}>
@@ -212,12 +212,12 @@ export default function AdminAnalytics() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #eee' }}>
-                <th style={{ textAlign: 'left', padding: '8px 10px', color: '#999', fontWeight: 600 }}>Persona</th>
-                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#999', fontWeight: 600 }}>Users</th>
-                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#999', fontWeight: 600 }}>Onboarded</th>
-                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#999', fontWeight: 600 }}>Profile Done</th>
-                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#999', fontWeight: 600 }}>Pro</th>
-                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#999', fontWeight: 600 }}>Enterprise</th>
+                <th style={{ textAlign: 'left', padding: '8px 10px', color: '#666', fontWeight: 600 }}>Persona</th>
+                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#666', fontWeight: 600 }}>Users</th>
+                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#666', fontWeight: 600 }}>Onboarded</th>
+                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#666', fontWeight: 600 }}>Profile Done</th>
+                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#666', fontWeight: 600 }}>Pro</th>
+                <th style={{ textAlign: 'right', padding: '8px 10px', color: '#666', fontWeight: 600 }}>Enterprise</th>
               </tr>
             </thead>
             <tbody>
@@ -280,11 +280,11 @@ function ProfileAiPanel({ data }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
         <Sparkles size={16} style={{ color: G }} />
         <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Profile AI Quality</h3>
-        <span style={{ fontSize: 11, color: '#888', marginLeft: 'auto' }}>
+        <span style={{ fontSize: 11, color: '#5c5c5c', marginLeft: 'auto' }}>
           {totalAnalyzed} analyzed · mean {summary.overall_mean ?? '—'} · median {summary.overall_median ?? '—'}
         </span>
       </div>
-      <p style={{ fontSize: 11, color: '#888', marginTop: 0, marginBottom: 16 }}>
+      <p style={{ fontSize: 11, color: '#5c5c5c', marginTop: 0, marginBottom: 16 }}>
         Phase 7 GPT quality scores across all personas. Helps spot low-quality cohorts and individual outliers for coaching nudges.
       </p>
 
@@ -312,7 +312,7 @@ function ProfileAiPanel({ data }) {
               <div style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Last 30d activity</div>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #eee', color: '#999' }}>
+                  <tr style={{ borderBottom: '1px solid #eee', color: '#666' }}>
                     <th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: 600 }}>Trigger</th>
                     <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Calls</th>
                     <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Success</th>
@@ -327,7 +327,7 @@ function ProfileAiPanel({ data }) {
                       <td style={{ padding: '4px 6px', textTransform: 'capitalize', fontWeight: 600 }}>{r.intent}</td>
                       <td style={{ padding: '4px 6px', textAlign: 'right' }}>{r.n}</td>
                       <td style={{ padding: '4px 6px', textAlign: 'right', color: '#16a34a' }}>{r.success_n}</td>
-                      <td style={{ padding: '4px 6px', textAlign: 'right', color: '#888' }}>{r.avg_latency_ms ? `${Math.round(r.avg_latency_ms)}ms` : '—'}</td>
+                      <td style={{ padding: '4px 6px', textAlign: 'right', color: '#5c5c5c' }}>{r.avg_latency_ms ? `${Math.round(r.avg_latency_ms)}ms` : '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -341,7 +341,7 @@ function ProfileAiPanel({ data }) {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                  <tr style={{ borderBottom: '2px solid #eee', color: '#666' }}>
                     <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>Persona</th>
                     <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Total</th>
                     <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Analyzed</th>
@@ -363,7 +363,7 @@ function ProfileAiPanel({ data }) {
                         <td style={{ padding: '6px 8px', textAlign: 'right', color: cov >= 50 ? '#16a34a' : '#888' }}>{cov}%</td>
                         <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: meanColor }}>{p.mean ?? '—'}</td>
                         <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.median ?? '—'}</td>
-                        <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', color: '#5c5c5c' }}>
                           {p.min != null && p.max != null ? `${p.min}–${p.max}` : '—'}
                         </td>
                       </tr>
@@ -384,7 +384,7 @@ function ProfileAiPanel({ data }) {
               <div style={{ overflowX: 'auto', maxHeight: 320, overflowY: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid #eee', color: '#999', position: 'sticky', top: 0, background: '#fff' }}>
+                    <tr style={{ borderBottom: '2px solid #eee', color: '#666', position: 'sticky', top: 0, background: '#fff' }}>
                       <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>User</th>
                       <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 600 }}>Persona</th>
                       <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>AI Score</th>
@@ -397,11 +397,11 @@ function ProfileAiPanel({ data }) {
                       <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
                         <td style={{ padding: '6px 8px' }}>
                           <div style={{ fontWeight: 600 }}>{o.display_name || `User ${o.user_id}`}</div>
-                          <div style={{ fontSize: 10, color: '#999' }}>{o.email}</div>
+                          <div style={{ fontSize: 10, color: '#666' }}>{o.email}</div>
                         </td>
                         <td style={{ padding: '6px 8px', textTransform: 'capitalize', color: '#666' }}>{(o.persona_type || '—').replace(/_/g, ' ')}</td>
                         <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#ef4444' }}>{o.profile_score_ai}</td>
-                        <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>{o.profile_score ?? '—'}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'right', color: '#5c5c5c' }}>{o.profile_score ?? '—'}</td>
                         <td style={{ padding: '6px 8px' }}>
                           <a href={`/profile/${o.user_id}`} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: G, textDecoration: 'none', fontWeight: 600 }}>
                             View →
@@ -438,9 +438,9 @@ function BoostImpactPanel({ data }) {
     <div style={card}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: DARK }}>
-          Cluster Boost Impact <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>· last {windowDays}d</span>
+          Cluster Boost Impact <span style={{ fontSize: 11, fontWeight: 400, color: '#5c5c5c' }}>· last {windowDays}d</span>
         </h3>
-        <span style={{ fontSize: 10, color: '#aaa' }}>Stage B telemetry</span>
+        <span style={{ fontSize: 10, color: '#6e6e6e' }}>Stage B telemetry</span>
       </div>
 
       {/* Headline KPIs */}
@@ -459,7 +459,7 @@ function BoostImpactPanel({ data }) {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
               <thead>
-                <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                <tr style={{ borderBottom: '2px solid #eee', color: '#666' }}>
                   <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Persona</th>
                   <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Calls</th>
                   <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>% w/ lift</th>
@@ -488,7 +488,7 @@ function BoostImpactPanel({ data }) {
               </tbody>
             </table>
           </div>
-          <div style={{ fontSize: 10, color: '#aaa', marginTop: 8, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 10, color: '#6e6e6e', marginTop: 8, lineHeight: 1.5 }}>
             <b>Lift</b> = ranks a startup gained because of cluster boost. High max_lift on sparse-overlap personas (investor, academia) shows the bridge is doing real work.
           </div>
         </div>
@@ -499,7 +499,7 @@ function BoostImpactPanel({ data }) {
           <div style={{ overflowY: 'auto', maxHeight: 280 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
               <thead>
-                <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                <tr style={{ borderBottom: '2px solid #eee', color: '#666' }}>
                   <th style={{ textAlign: 'left',  padding: '4px 6px', fontWeight: 600 }}>Cluster</th>
                   <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Picks</th>
                   <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: 600 }}>Members</th>
@@ -512,10 +512,10 @@ function BoostImpactPanel({ data }) {
                   <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
                     <td style={{ padding: '4px 6px' }}>
                       <div style={{ fontWeight: 600, color: DARK }}>{c.cluster_label || `#${c.cluster_id}`}</div>
-                      <div style={{ fontSize: 9, color: '#aaa' }}>id {c.cluster_id}</div>
+                      <div style={{ fontSize: 9, color: '#6e6e6e' }}>id {c.cluster_id}</div>
                     </td>
                     <td style={{ padding: '4px 6px', textAlign: 'right', fontWeight: 700, color: G }}>{c.picks}</td>
-                    <td style={{ padding: '4px 6px', textAlign: 'right', color: '#888' }}>{c.member_count ?? '—'}</td>
+                    <td style={{ padding: '4px 6px', textAlign: 'right', color: '#5c5c5c' }}>{c.member_count ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -531,7 +531,7 @@ function BoostImpactPanel({ data }) {
 function Kpi({ label, value, color = '#1a1a1a', bold = false }) {
   return (
     <div style={{ background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 8, padding: '8px 10px' }}>
-      <div style={{ fontSize: 9, color: '#888', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: bold ? 800 : 600, color, marginTop: 2 }}>{value}</div>
     </div>
   );
@@ -568,9 +568,9 @@ function ClickImpactPanel({ data }) {
     <div style={card}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: DARK }}>
-          Click-Through Analytics <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>· last {windowDays}d</span>
+          Click-Through Analytics <span style={{ fontSize: 11, fontWeight: 400, color: '#5c5c5c' }}>· last {windowDays}d</span>
         </h3>
-        <span style={{ fontSize: 10, color: '#aaa' }}>s36 telemetry</span>
+        <span style={{ fontSize: 10, color: '#6e6e6e' }}>s36 telemetry</span>
       </div>
 
       {/* Headline KPIs */}
@@ -614,7 +614,7 @@ function ClickImpactPanel({ data }) {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
               <thead>
-                <tr style={{ borderBottom: '2px solid #eee', color: '#999' }}>
+                <tr style={{ borderBottom: '2px solid #eee', color: '#666' }}>
                   <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Persona</th>
                   <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Calls</th>
                   <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Impressions</th>
@@ -634,18 +634,18 @@ function ClickImpactPanel({ data }) {
                     <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
                       <td style={{ padding: '6px 8px', fontWeight: 600, textTransform: 'capitalize' }}>{p.persona_role}</td>
                       <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.n_calls}</td>
-                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>{p.n_impressions}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#5c5c5c' }}>{p.n_impressions}</td>
                       <td style={{ padding: '6px 8px', textAlign: 'right' }}>{p.n_clicks}</td>
                       <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: ctrColor }}>{p.ctr_pct ?? '—'}%</td>
                       <td style={{ padding: '6px 8px', textAlign: 'right', color: '#a06600' }}>{p.n_boosted_clicks}</td>
-                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#888' }}>{p.unique_clickers}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: '#5c5c5c' }}>{p.unique_clickers}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-          <div style={{ fontSize: 10, color: '#aaa', marginTop: 8, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 10, color: '#6e6e6e', marginTop: 8, lineHeight: 1.5 }}>
             <b>CTR</b> = clicks ÷ impressions. <b>Boosted</b> = clicks where the row had cluster_boost &gt; 0. Higher boosted-CTR than baseline means cluster bridge is converting, not just decorating.
           </div>
         </div>

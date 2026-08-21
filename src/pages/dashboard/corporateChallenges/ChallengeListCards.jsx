@@ -20,8 +20,8 @@ export default function ChallengeListCards({ challenges, navigate }) {
       {challenges.length === 0 ? (
         <div style={{ ...card, padding: 40, textAlign: 'center' }}>
           <Target size={32} style={{ color: '#ddd', marginBottom: 10 }} />
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#888' }}>No challenges yet</p>
-          <p style={{ fontSize: 12, color: '#aaa' }}>Launch your first innovation challenge</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#5c5c5c' }}>No challenges yet</p>
+          <p style={{ fontSize: 12, color: '#6e6e6e' }}>Launch your first innovation challenge</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 12 }}>
@@ -53,7 +53,7 @@ export default function ChallengeListCards({ challenges, navigate }) {
                     {ch.problem_statement}
                   </p>
                 )}
-                <div style={{ display: 'flex', gap: 14, fontSize: 11, color: '#888' }}>
+                <div style={{ display: 'flex', gap: 14, fontSize: 11, color: '#5c5c5c' }}>
                   <span><Users size={11} style={{ verticalAlign: -2 }} /> {parseInt(ch.application_count) || 0} applications</span>
                   {ch.budget_range && <span><DollarSign size={11} style={{ verticalAlign: -2 }} /> {ch.budget_range}</span>}
                   {ch.deadline && <span><Calendar size={11} style={{ verticalAlign: -2 }} /> {new Date(ch.deadline).toLocaleDateString()}</span>}

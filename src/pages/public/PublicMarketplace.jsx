@@ -538,7 +538,7 @@ function ChallengeCard({ challenge: c, onClick, typeBadge }) {
             {c.company_name || c.organization_name || 'Organization'}
           </div>
           {c.location && (
-            <div className="flex items-center gap-1 text-xs" style={{ color: '#aaa' }}>
+            <div className="flex items-center gap-1 text-xs" style={{ color: '#6e6e6e' }}>
               <MapPin size={10} /> {c.location}
             </div>
           )}

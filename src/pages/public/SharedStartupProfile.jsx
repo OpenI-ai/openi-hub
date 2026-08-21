@@ -192,12 +192,12 @@ export default function SharedStartupProfile() {
             </div>
             {(p.funding_rounds || []).length > 0 && (
               <div>
-                <h4 style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, margin: '14px 0 8px' }}>Rounds</h4>
+                <h4 style={{ fontSize: 11, fontWeight: 700, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, margin: '14px 0 8px' }}>Rounds</h4>
                 <div style={{ display: 'grid', gap: 8 }}>
                   {p.funding_rounds.map((r, i) => (
                     <div key={i} style={{ padding: 10, background: '#fff', border: '1px solid #eee', borderRadius: 8, fontSize: 12 }}>
                       <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{r.round_type || 'Round'}</span>
-                      {r.round_date && <span style={{ color: '#888' }}> · {new Date(r.round_date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short' })}</span>}
+                      {r.round_date && <span style={{ color: '#5c5c5c' }}> · {new Date(r.round_date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short' })}</span>}
                       {r.amount && <span style={{ color: '#1a1a1a', marginLeft: 8 }}>{r.amount}{r.amount_unit ? ' ' + r.amount_unit : ''}{r.amount_currency ? ' ' + r.amount_currency : ''}</span>}
                       {r.lead_investor && <span style={{ color: '#666' }}> — {r.lead_investor}</span>}
                     </div>
@@ -215,7 +215,7 @@ export default function SharedStartupProfile() {
               {p.team.map((m, i) => (
                 <div key={i} style={{ padding: 12, background: '#fafafa', borderRadius: 9 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{m.name}{m.is_founder && ' (Founder)'}</div>
-                  {m.role && <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>{m.role}</div>}
+                  {m.role && <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 4 }}>{m.role}</div>}
                   {m.bio && <div style={{ fontSize: 12, color: '#555', lineHeight: 1.5 }}>{m.bio}</div>}
                 </div>
               ))}
@@ -235,7 +235,7 @@ export default function SharedStartupProfile() {
               {p.patents.map((pt, i) => (
                 <div key={i} style={{ padding: 10, background: '#fafafa', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Award size={12} color={G} />
-                  <span>{pt.title}{pt.status && <span style={{ color: '#888', marginLeft: 6 }}>[{pt.status}]</span>}</span>
+                  <span>{pt.title}{pt.status && <span style={{ color: '#5c5c5c', marginLeft: 6 }}>[{pt.status}]</span>}</span>
                 </div>
               ))}
             </div>
@@ -254,7 +254,7 @@ export default function SharedStartupProfile() {
               {p.news.slice(0, 5).map((n, i) => (
                 <div key={i} style={{ padding: 12, background: '#fafafa', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{n.title}</div>
-                  {n.published_date && <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{new Date(n.published_date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</div>}
+                  {n.published_date && <div style={{ fontSize: 10, color: '#5c5c5c', marginTop: 2 }}>{new Date(n.published_date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</div>}
                 </div>
               ))}
             </div>
@@ -273,7 +273,7 @@ export default function SharedStartupProfile() {
 
         {/* Share meta footer */}
         {meta.created_at && (
-          <div style={{ marginTop: 20, fontSize: 11, color: '#aaa', textAlign: 'center' }}>
+          <div style={{ marginTop: 20, fontSize: 11, color: '#6e6e6e', textAlign: 'center' }}>
             Shared {new Date(meta.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
             {meta.expires_at && <> · Expires {new Date(meta.expires_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</>}
           </div>
@@ -307,7 +307,7 @@ function Section({ title, children }) {
 function Stat({ label, value }) {
   return (
     <div style={{ padding: 12, background: '#fafafa', borderRadius: 9 }}>
-      <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 10, color: '#5c5c5c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
     </div>
   );

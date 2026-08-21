@@ -58,7 +58,7 @@ export default function UpgradeCTA({ feature, plan = 'free', message, compact = 
       }}>
         View Plans & Upgrade <ArrowRight size={16} />
       </Link>
-      <p style={{ fontSize: 11, color: '#999', marginTop: 12 }}>
+      <p style={{ fontSize: 11, color: '#666', marginTop: 12 }}>
         Currently on: <strong>{PLAN_LABELS[plan] || plan}</strong> plan
       </p>
     </div>

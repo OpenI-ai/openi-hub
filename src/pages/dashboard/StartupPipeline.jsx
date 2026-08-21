@@ -120,11 +120,11 @@ export default function StartupPipeline() {
       <div id="tour-page-pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Startup Pipeline</h1>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Track each startup's journey from Application to Graduation</p>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Track each startup's journey from Application to Graduation</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <Search size={13} style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+            <Search size={13} style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
             <input placeholder="Search startups…" value={search} onChange={e => setSearch(e.target.value)}
               style={{ paddingLeft: 28, paddingRight: 12, paddingTop: 8, paddingBottom: 8, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a', width: 180 }}
             />
@@ -211,7 +211,7 @@ export default function StartupPipeline() {
                             )}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
-                              <div style={{ fontSize: 10, color: '#888' }}>{s.sector}</div>
+                              <div style={{ fontSize: 10, color: '#5c5c5c' }}>{s.sector}</div>
                             </div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -271,7 +271,7 @@ export default function StartupPipeline() {
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 600 }}>{s.name}</div>
-                    <div style={{ color: '#888', fontSize: 11 }}>{s.sector} · {s.program}</div>
+                    <div style={{ color: '#5c5c5c', fontSize: 11 }}>{s.sector} · {s.program}</div>
                   </div>
                   {/* Mini pipeline progress */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'nowrap' }}>
@@ -338,7 +338,7 @@ function StartupJourney({ startup: s, onBack }) {
               <div style={{ fontSize: 24, fontWeight: 700, color: G, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Star size={18} style={{ fill: G, color: G }} />{s.score}
               </div>
-              <div style={{ fontSize: 11, color: '#888' }}>OpenI Score</div>
+              <div style={{ fontSize: 11, color: '#5c5c5c' }}>OpenI Score</div>
             </div>
           )}
         </div>
@@ -414,7 +414,7 @@ function StartupJourney({ startup: s, onBack }) {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: item.done ? '#1a1a1a' : '#aaa' }}>{stage?.label}</span>
-                      <span style={{ fontSize: 11, color: '#888' }}>{item.date}</span>
+                      <span style={{ fontSize: 11, color: '#5c5c5c' }}>{item.date}</span>
                       {!item.done && <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 20, background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}>Upcoming</span>}
                     </div>
                     <p style={{ margin: 0, color: item.done ? '#555' : '#bbb', fontSize: 13, lineHeight: 1.5 }}>{item.note}</p>
@@ -433,7 +433,7 @@ function StartupJourney({ startup: s, onBack }) {
             <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>Key Milestones</h3>
           </div>
           {s.milestones.length === 0 ? (
-            <div style={{ padding: 28, textAlign: 'center', color: '#aaa', fontSize: 13 }}>No milestones defined yet</div>
+            <div style={{ padding: 28, textAlign: 'center', color: '#6e6e6e', fontSize: 13 }}>No milestones defined yet</div>
           ) : s.milestones.map((m, i) => (
             <div key={i} style={{ padding: '14px 22px', borderBottom: i < s.milestones.length - 1 ? '1px solid #f5f5f5' : 'none', display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{
@@ -446,7 +446,7 @@ function StartupJourney({ startup: s, onBack }) {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ color: '#1a1a1a', fontSize: 13, fontWeight: 500 }}>{m.name}</div>
-                <div style={{ color: '#888', fontSize: 11, marginTop: 2 }}>{m.date} · {m.note}</div>
+                <div style={{ color: '#5c5c5c', fontSize: 11, marginTop: 2 }}>{m.date} · {m.note}</div>
               </div>
               <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: m.done ? '#f0fdf4' : '#f8fafc', color: m.done ? '#16a34a' : '#64748b', border: `1px solid ${m.done ? '#bbf7d0' : '#e2e8f0'}` }}>
                 {m.done ? 'Completed' : 'Pending'}

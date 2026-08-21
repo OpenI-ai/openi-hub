@@ -56,7 +56,7 @@ const styles = {
     padding: '8px 16px', borderRadius: 7, fontFamily: 'inherit',
   },
   buttonBack: { color: '#666', fontSize: 12, fontWeight: 500, marginRight: 8 },
-  buttonSkip: { color: '#999', fontSize: 11, fontWeight: 500 },
+  buttonSkip: { color: '#666', fontSize: 11, fontWeight: 500 },
   buttonClose: { display: 'none' },
 };
 

@@ -349,7 +349,7 @@ const startEdit = () => {
 
     return (
       <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-        <button onClick={() => navigate('/dashboard/corporate/challenges')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#888', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
+        <button onClick={() => navigate('/dashboard/corporate/challenges')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Challenges
         </button>
 
@@ -474,7 +474,7 @@ const startEdit = () => {
             {detail.location && <span><MapPin size={12} style={{ verticalAlign: -2 }} /> {detail.location}</span>}
           </div>
           {/* Settings summary */}
-          <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#999', marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#666', marginBottom: 12 }}>
             <span>Min profile: {detail.min_profile_pct || 25}%</span>
             <span>Data room: {detail.data_room_required ? 'Required' : 'Optional'}</span>
             {detail.published_at && <span>Published: {new Date(detail.published_at).toLocaleDateString()}</span>}
@@ -519,7 +519,7 @@ const startEdit = () => {
                 <div key={q.id || i} style={{ border: '1px solid #f0f0f0', borderRadius: 10, padding: 12 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 4 }}>
                     {i + 1}. {q.question}
-                    <span style={{ fontSize: 10, color: '#999', marginLeft: 8, fontWeight: 400 }}>({q.type === 'mcq' ? 'Multiple Choice' : 'Text Answer'})</span>
+                    <span style={{ fontSize: 10, color: '#666', marginLeft: 8, fontWeight: 400 }}>({q.type === 'mcq' ? 'Multiple Choice' : 'Text Answer'})</span>
                   </div>
                   {q.type === 'mcq' && (q.options || []).length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>

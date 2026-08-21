@@ -66,14 +66,14 @@ export default function ChallengeForm({
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, fontWeight: 600, borderRadius: 8, background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', border: 'none', cursor: aiAdvisorLoading ? 'wait' : 'pointer', opacity: aiAdvisorLoading ? 0.7 : 1 }}>
                 {aiAdvisorLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} AI Advisor
               </button>
-              <span style={{ fontSize: 10, color: '#999' }}>Get AI suggestions for sectors, technologies, budget, and more</span>
+              <span style={{ fontSize: 10, color: '#666' }}>Get AI suggestions for sectors, technologies, budget, and more</span>
             </div>
 
             {aiSuggestions && (
               <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: 14 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Brain size={14} /> AI Suggestions
-                  <button onClick={() => setAiSuggestions(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}><X size={12} /></button>
+                  <button onClick={() => setAiSuggestions(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={12} /></button>
                 </div>
                 {aiSuggestions.refined_problem_statement && (
                   <div style={{ marginBottom: 10 }}>
