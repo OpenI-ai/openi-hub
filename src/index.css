@@ -6,6 +6,61 @@
 
 * { box-sizing: border-box; }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   FOCUS INDICATOR — WCAG 2.2 SC 2.4.7 (Focus Visible) and 2.4.11 (Focus
+   Appearance). s85, 21 Aug 2026.
+
+   Until now 173 form controls across 61 files carried `outline: 'none'` in
+   their inline style object -- the usual "the default ring is ugly on our
+   inputs" reflex. It is the single most damaging small thing you can do to a
+   keyboard user: tab through any form on the platform and there was NO visible
+   indication of where you were. Several of those inputs did recolour their
+   border to gold on focus, but #D0A848 on white is 2.24:1, well under the 3:1
+   SC 2.4.11 requires, so it did not substitute for a ring.
+
+   Those inline declarations are removed; this rule replaces them.
+
+   WHY TWO COLOURS. A single ring cannot clear 3:1 everywhere this app puts a
+   focusable control. Measured against every background in use:
+
+                        navy #0D2137    white #ffffff
+     page white            16.28              1.00
+     card grey             15.58              1.05
+     nav hover cream       14.72              1.11
+     brand gold CTA         7.27              2.24
+     navy surface           1.00             16.28
+     login dark             1.05             17.10
+
+   Navy fails on the dark login page; white fails on every light surface.
+   Together, at least one of them clears 3:1 on all eight -- so the ring is
+   navy with a white inner halo sitting in the outline-offset gap. On light
+   backgrounds you read the navy; on dark ones you read the white.
+
+   Brand gold is deliberately NOT the ring colour. It is 2.24:1 on white, so
+   the on-brand choice is the inaccessible one here.
+
+   :focus-visible, not :focus -- a mouse click on a button should not leave a
+   ring behind, and the browser's heuristic already gets that right.
+   ──────────────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #0D2137;
+  outline-offset: 2px;
+  /* Fills the 2px offset gap so the ring stays legible on dark surfaces.
+     Only 2 focusable elements in src/ set an inline boxShadow, so this is
+     effectively never overridden; the navy outline carries those two. */
+  box-shadow: 0 0 0 2px #ffffff;
+  border-radius: inherit;
+}
+
+/* Windows High Contrast / forced-colors: let the OS draw its own indicator
+   rather than fighting it with colours it will discard anyway. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText;
+    box-shadow: none;
+  }
+}
+
 body {
   font-family: 'Lexend', sans-serif;
   background-color: #FBFAF8;

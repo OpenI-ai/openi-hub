@@ -446,19 +446,19 @@ export default function Knowledge() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Title <span style={{ color: '#ef4444' }}>*</span></label>
-                <input value={suggestForm.title} onChange={e => setSuggestForm(p => ({ ...p, title: e.target.value }))} maxLength={500} style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={suggestForm.title} onChange={e => setSuggestForm(p => ({ ...p, title: e.target.value }))} maxLength={500} style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Summary</label>
-                <textarea value={suggestForm.summary} onChange={e => setSuggestForm(p => ({ ...p, summary: e.target.value }))} maxLength={5000} rows={4} style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+                <textarea value={suggestForm.summary} onChange={e => setSuggestForm(p => ({ ...p, summary: e.target.value }))} maxLength={5000} rows={4} style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box', resize: 'vertical' }} />
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Source URL (optional)</label>
-                <input value={suggestForm.suggested_url} onChange={e => setSuggestForm(p => ({ ...p, suggested_url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={suggestForm.suggested_url} onChange={e => setSuggestForm(p => ({ ...p, suggested_url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>Type</label>
-                <select value={suggestForm.suggested_type} onChange={e => setSuggestForm(p => ({ ...p, suggested_type: e.target.value }))} style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', boxSizing: 'border-box', background: '#fff' }}>
+                <select value={suggestForm.suggested_type} onChange={e => setSuggestForm(p => ({ ...p, suggested_type: e.target.value }))} style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, boxSizing: 'border-box', background: '#fff' }}>
                   <option value="article">Article</option>
                   <option value="report">Report</option>
                   <option value="sop">SOP / Guide</option>

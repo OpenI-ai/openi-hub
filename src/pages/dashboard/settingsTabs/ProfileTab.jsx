@@ -41,7 +41,7 @@ export default function ProfileTab({ name, preferredCurrency, saveProfile, savin
               <input value={name} onChange={e => setName(e.target.value)} style={{
                 width: '100%', boxSizing: 'border-box', padding: '10px 14px',
                 background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                fontSize: 16, outline: 'none', color: '#1a1a1a', transition: 'border-color 0.15s',
+                fontSize: 16, color: '#1a1a1a', transition: 'border-color 0.15s',
               }}
                 onFocus={e => e.target.style.borderColor = G}
                 onBlur={e => e.target.style.borderColor = '#e0e0e0'}
@@ -70,7 +70,7 @@ export default function ProfileTab({ name, preferredCurrency, saveProfile, savin
               <select value={preferredCurrency} onChange={e => setPreferredCurrency(e.target.value)} style={{
                 width: '100%', boxSizing: 'border-box', padding: '10px 14px',
                 background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                fontSize: 16, outline: 'none', color: '#1a1a1a', cursor: 'pointer',
+                fontSize: 16, color: '#1a1a1a', cursor: 'pointer',
               }}>
                 <option value="INR">₹ Indian Rupee (INR)</option>
                 <option value="USD">$ US Dollar (USD)</option>

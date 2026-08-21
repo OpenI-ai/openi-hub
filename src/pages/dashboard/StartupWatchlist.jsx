@@ -524,7 +524,7 @@ export default function StartupWatchlist() {
             <div style={{ position: 'relative' }}>
               <Search size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input placeholder="Search lists…" value={search} onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 26, paddingRight: 10, paddingTop: 7, paddingBottom: 7, background: '#f8f8f8', border: '1.5px solid #eee', borderRadius: 8, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 26, paddingRight: 10, paddingTop: 7, paddingBottom: 7, background: '#f8f8f8', border: '1.5px solid #eee', borderRadius: 8, fontSize: 16, color: '#1a1a1a' }}
               />
             </div>
           </div>

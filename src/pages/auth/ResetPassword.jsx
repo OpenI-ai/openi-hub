@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const inputStyle = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14, outline: 'none',
+  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14,
 };
 
 export default function ResetPassword() {

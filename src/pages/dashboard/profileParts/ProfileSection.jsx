@@ -116,10 +116,10 @@ function ProfileSection({ section, title, fields, displayCols }) {
                   <label className="block text-xs font-medium mb-1" style={{ color: '#555' }}>{f.label}</label>
                   {f.type === 'textarea' ? (
                     <textarea value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))} rows={2}
-                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none', resize: 'vertical' }} />
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, resize: 'vertical' }} />
                   ) : f.type === 'select' ? (
                     <select value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
-                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
                       <option value="">Select...</option>
                       {(f.options || []).map(o => {
                         const opt = normalizeOption(o);
@@ -146,7 +146,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
                       const displayVal = isValid ? currentVal : '';
                       return (
                         <select value={displayVal} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
-                          style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+                          style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
                           <option value="">{parentVal ? 'Select...' : `Pick ${f.dependsOn.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} first`}</option>
                           {opts.map(o => {
                             const opt = normalizeOption(o);
@@ -183,7 +183,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
                        Mirrors the top-level FormField country branch so users
                        picking a competitor's country get the canonical ISO list. */
                     <select value={form[f.name] || 'IN'} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
-                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
                       {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                     </select>
                   ) : f.type === 'url' ? (
@@ -191,7 +191,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
                        for better mobile keyboard + light validation. */
                     <input type="url" value={form[f.name] ?? ''} placeholder={f.placeholder || 'https://...'}
                       onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
-                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
                   ) : (
                     <input type={f.type || 'text'} value={form[f.name] ?? ''} min={f.min} max={f.max}
                       onChange={e => {
@@ -207,7 +207,7 @@ function ProfileSection({ section, title, fields, displayCols }) {
                         if (typeof f.max === 'number' && n > f.max) n = f.max;
                         setForm(p => ({ ...p, [f.name]: n }));
                       }}
-                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+                      style={{ width: '100%', padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
                   )}
                 </div>
               ))}

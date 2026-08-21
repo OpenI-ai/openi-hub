@@ -294,7 +294,7 @@ export default function Marketplace() {
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Your Pitch *</label>
             <textarea placeholder="Describe how your solution addresses the challenge..." rows={4} value={applyForm.pitch}
               onChange={e => setApplyForm(p => ({ ...p, pitch: e.target.value }))}
-              style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
             {!applyForm.pitch.trim() && (
               <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>Fill in your pitch to enable submission.</p>
             )}
@@ -303,7 +303,7 @@ export default function Marketplace() {
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Proposal / Pitch Deck URL</label>
             <input type="url" placeholder="https://..." value={applyForm.proposal_url}
               onChange={e => setApplyForm(p => ({ ...p, proposal_url: e.target.value }))}
-              style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', boxSizing: 'border-box' }} />
           </div>
 
           {/* RFI Questions */}
@@ -328,7 +328,7 @@ export default function Marketplace() {
                     ) : (
                       <textarea rows={2} placeholder="Your answer..." value={applyForm.rfi_answers[q.id] || ''}
                         onChange={e => setApplyForm(p => ({ ...p, rfi_answers: { ...p.rfi_answers, [q.id]: e.target.value } }))}
-                        style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
+                        style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb', resize: 'vertical', boxSizing: 'border-box' }} />
                     )}
                   </div>
                 ))}
@@ -613,7 +613,7 @@ export default function Marketplace() {
               <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input placeholder="Search opportunities by title or description..." value={search}
                 onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                style={{ width: '100%', padding: '10px 14px 10px 36px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px 14px 10px 36px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', boxSizing: 'border-box' }} />
             </div>
             <button onClick={handleSearch} style={{ padding: '10px 18px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Search</button>
             <button onClick={() => setShowFilters(!showFilters)} style={{ padding: '10px 14px', fontSize: 13, borderRadius: 10, background: showFilters ? '#fdf6e9' : '#f3f4f6', color: showFilters ? G : '#666', border: `1px solid ${showFilters ? G : '#e5e7eb'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>

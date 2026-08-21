@@ -645,7 +645,7 @@ export default function IPRDatabase() {
                   <input value={shareEmailDraft} onChange={e => setShareEmailDraft(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addShareEmail(); } }}
                     placeholder="recipient@example.com — press Enter"
-                    style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
+                    style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16 }} />
                   <button type="button" onClick={addShareEmail}
                     style={{ padding: '9px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#555', cursor: 'pointer' }}>
                     Add
@@ -668,7 +668,7 @@ export default function IPRDatabase() {
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
                 <textarea value={shareMessage} onChange={e => setShareMessage(e.target.value)} rows={2}
                   placeholder="Add a note - what excites you about this IPR record."
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, resize: 'vertical', marginBottom: 14 }} />
 
                 <button onClick={sendIprEmailInvite} disabled={shareBusy || shareEmails.length === 0}
                   style={{ width: '100%', padding: '10px 16px', background: (shareEmails.length === 0 || shareBusy) ? '#ccc' : '#D0A848', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: (shareEmails.length === 0 || shareBusy) ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>

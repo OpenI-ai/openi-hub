@@ -25,7 +25,7 @@ function normalizeOption(o) {
 // which doesn't auto-unzoom after blur — leaves users stuck at ~1.3x.
 const inputStyle = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-  width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 16, outline: 'none',
+  width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 16,
 };
 // ---- BODY END ----
 

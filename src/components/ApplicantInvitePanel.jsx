@@ -156,7 +156,7 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
           <input type="text" value={search} onChange={(e) => onSearch(e.target.value)}
             placeholder="Type at least 2 characters (name, email, or org)"
             style={{ width: '100%', padding: '10px 12px', fontSize: 15, border: '1.5px solid #e5e7eb',
-              borderRadius: 10, outline: 'none', background: '#f9fafb', marginBottom: 8 }} />
+              borderRadius: 10, background: '#f9fafb', marginBottom: 8 }} />
 
           {results.length > 0 && (
             <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, maxHeight: 180, overflow: 'auto', marginBottom: 12 }}>
@@ -201,7 +201,7 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); promoteEmailDraft(); } }}
               placeholder="name@example.com"
               style={{ flex: 1, padding: '10px 12px', fontSize: 15, border: '1.5px solid #e5e7eb',
-                borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                borderRadius: 10, background: '#f9fafb' }} />
             <button type="button" onClick={promoteEmailDraft} disabled={!EMAIL_RE.test(emailDraft.trim())}
               style={{ padding: '0 14px', fontSize: 13, fontWeight: 600, background: EMAIL_RE.test(emailDraft.trim()) ? '#fff' : '#f3f4f6',
                 color: '#444', border: '1.5px solid #ccc', borderRadius: 10,
@@ -225,7 +225,7 @@ export default function ApplicantInvitePanel({ entityType, entityId, entityLabel
           <textarea value={message} onChange={(e) => setMessage(e.target.value)}
             placeholder="Optional message to applicants…" rows={2}
             style={{ width: '100%', padding: '10px 12px', fontSize: 14, border: '1.5px solid #e5e7eb',
-              borderRadius: 10, outline: 'none', background: '#f9fafb', marginBottom: 12, resize: 'vertical' }} />
+              borderRadius: 10, background: '#f9fafb', marginBottom: 12, resize: 'vertical' }} />
 
           {/* Send */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 18 }}>

@@ -94,7 +94,7 @@ export default function AcceleratorBatches() {
         <div style={{ ...card, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 240px' }}>
           <Search size={15} style={{ color: '#5c5c5c' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search batches..."
-            style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
+            style={{ border: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
           style={{ padding: '10px 14px', border: '1px solid #eee', borderRadius: 10, fontSize: 16, background: '#fff', cursor: 'pointer' }}>
@@ -296,4 +296,4 @@ export default function AcceleratorBatches() {
 }
 
 const lbl = { display: 'block', fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 };
-const inp = { width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, outline: 'none', boxSizing: 'border-box' };
+const inp = { width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, boxSizing: 'border-box' };

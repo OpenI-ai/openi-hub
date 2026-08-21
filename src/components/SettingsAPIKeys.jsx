@@ -196,7 +196,7 @@ export default function SettingsAPIKeys() {
                   autoFocus
                   style={{
                     width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 8,
-                    fontSize: 13, outline: 'none', boxSizing: 'border-box',
+                    fontSize: 13, boxSizing: 'border-box',
                   }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>

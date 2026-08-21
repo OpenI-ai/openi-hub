@@ -17,7 +17,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const label = { display: 'block', fontSize: 12.5, fontWeight: 600, color: '#555', marginBottom: 6 };
 const input = {
   width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 8,
-  fontSize: 13, outline: 'none', boxSizing: 'border-box',
+  fontSize: 13, boxSizing: 'border-box',
 };
 
 // Enterprise OIDC SSO self-serve config — lives inside Settings' "SSO" tab

@@ -52,7 +52,7 @@ function TagDropdown({ label, options, selected, onChange, colorScheme = { bg: '
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           placeholder={selected.length === 0 ? `Search ${label.toLowerCase()}...` : ''}
-          style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontSize: 16, padding: '2px 0' }}
+          style={{ flex: 1, minWidth: 80, border: 'none', background: 'transparent', fontSize: 16, padding: '2px 0' }}
         />
         <ChevronDown size={13} style={{ color: '#6e6e6e', flexShrink: 0 }} />
       </div>

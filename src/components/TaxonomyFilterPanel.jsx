@@ -54,7 +54,7 @@ export default function TaxonomyFilterPanel({ taxonomy, filters, onChange, onCle
             placeholder="Search startups by name, description..."
             style={{
               width: '100%', padding: '8px 10px 8px 32px', fontSize: 16,
-              border: '1px solid #e5e7eb', borderRadius: 8, outline: 'none',
+              border: '1px solid #e5e7eb', borderRadius: 8,
               background: '#f9fafb', boxSizing: 'border-box',
             }}
             onFocus={e => e.target.style.borderColor = G}

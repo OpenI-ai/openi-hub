@@ -54,11 +54,11 @@ export default function ChallengeForm({
             </div>
             {/* Basic info */}
             <input placeholder="Challenge title *" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb' }} />
             <textarea placeholder="Short description" rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', resize: 'vertical' }} />
             <textarea placeholder="Detailed problem statement — describe what you need solved, constraints, and expectations..." rows={4} value={form.problem_statement} onChange={e => setForm(p => ({ ...p, problem_statement: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', resize: 'vertical' }} />
 
             {/* Phase 35: AI Advisor */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -141,16 +141,16 @@ export default function ChallengeForm({
             {/* Timeline & logistics */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
               <input placeholder="Budget range" value={form.budget_range} onChange={e => setForm(p => ({ ...p, budget_range: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb' }} />
               <input placeholder="Timeline" value={form.timeline} onChange={e => setForm(p => ({ ...p, timeline: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb' }} />
               <input type="date" placeholder="Deadline" value={form.deadline} onChange={e => setForm(p => ({ ...p, deadline: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb' }} />
               <input placeholder="Location / region" value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))}
-                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb' }} />
+                style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb' }} />
             </div>
             <textarea placeholder="Detailed requirements" rows={2} value={form.requirements} onChange={e => setForm(p => ({ ...p, requirements: e.target.value }))}
-              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical' }} />
+              style={{ padding: '10px 14px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', resize: 'vertical' }} />
 
             {/* Settings row */}
             <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -211,7 +211,7 @@ export default function ChallengeForm({
                   <input placeholder="Question" value={q.question} onChange={e => {
                     const upd = [...form.rfi_questions]; upd[i] = { ...upd[i], question: e.target.value };
                     setForm(p => ({ ...p, rfi_questions: upd }));
-                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb' }} />
                   {q.type === 'mcq' && (
                     // Ship #6 (21 May 2026) — per-option RFI input
                     // Previously this was a comma-separated text input. If the
@@ -227,7 +227,7 @@ export default function ChallengeForm({
                             newOpts[oi] = e.target.value;
                             upd[i] = { ...upd[i], options: newOpts };
                             setForm(p => ({ ...p, rfi_questions: upd }));
-                          }} style={{ flex: 1, padding: '5px 8px', fontSize: 16, borderRadius: 5, border: '1px solid #e5e7eb', outline: 'none' }} />
+                          }} style={{ flex: 1, padding: '5px 8px', fontSize: 16, borderRadius: 5, border: '1px solid #e5e7eb' }} />
                           <button type="button" onClick={() => {
                             const upd = [...form.rfi_questions];
                             upd[i] = { ...upd[i], options: (upd[i].options || []).filter((_, oj) => oj !== oi) };
@@ -260,11 +260,11 @@ export default function ChallengeForm({
                   <input placeholder="Question" value={faq.question} onChange={e => {
                     const upd = [...form.faqs]; upd[i] = { ...upd[i], question: e.target.value };
                     setForm(p => ({ ...p, faqs: upd }));
-                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb' }} />
                   <input placeholder="Answer" value={faq.answer} onChange={e => {
                     const upd = [...form.faqs]; upd[i] = { ...upd[i], answer: e.target.value };
                     setForm(p => ({ ...p, faqs: upd }));
-                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb', outline: 'none' }} />
+                  }} style={{ flex: 1, padding: '6px 10px', fontSize: 16, borderRadius: 6, border: '1px solid #e5e7eb' }} />
                   <button onClick={() => setForm(p => ({ ...p, faqs: p.faqs.filter((_, j) => j !== i) }))}
                     style={{ padding: '5px', borderRadius: 6, border: '1px solid #fecaca', background: '#fef2f2', color: '#b91c1c', cursor: 'pointer' }}><Trash2 size={12} /></button>
                 </div>

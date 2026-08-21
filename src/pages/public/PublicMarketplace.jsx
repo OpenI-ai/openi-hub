@@ -302,7 +302,7 @@ export default function PublicMarketplace({ initialData }) {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 rounded-xl text-sm"
-                style={{ border: `1px solid ${BORDER}`, outline: 'none', color: DARK }}
+                style={{ border: `1px solid ${BORDER}`, color: DARK }}
                 onFocus={e => e.target.style.borderColor = GOLD}
                 onBlur={e => e.target.style.borderColor = BORDER}
               />
@@ -325,7 +325,7 @@ export default function PublicMarketplace({ initialData }) {
             {/* Sector filter */}
             <select value={sector} onChange={e => { setSector(e.target.value); setPage(1); }}
                     aria-label="Filter challenges by sector"
-                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, outline: 'none', minWidth: 180 }}>
+                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, minWidth: 180 }}>
               <option value="">All Sectors</option>
               {filters.sectors.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -333,7 +333,7 @@ export default function PublicMarketplace({ initialData }) {
             {/* Technology filter */}
             <select value={technology} onChange={e => { setTechnology(e.target.value); setPage(1); }}
                     aria-label="Filter challenges by technology"
-                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, outline: 'none', minWidth: 180 }}>
+                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${BORDER}`, color: DARK, minWidth: 180 }}>
               <option value="">All Technologies</option>
               {filters.technologies.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -341,7 +341,7 @@ export default function PublicMarketplace({ initialData }) {
             {/* Challenge type filter */}
             <select value={challengeType} onChange={e => { setChallengeType(e.target.value); setPage(1); }}
                     aria-label="Filter challenges by type"
-                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${challengeType ? GOLD : BORDER}`, color: DARK, outline: 'none', minWidth: 140, background: challengeType ? GOLD_LIGHT : '#fff', fontWeight: challengeType ? 600 : 400 }}>
+                    className="px-4 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${challengeType ? GOLD : BORDER}`, color: DARK, minWidth: 140, background: challengeType ? GOLD_LIGHT : '#fff', fontWeight: challengeType ? 600 : 400 }}>
               {CHALLENGE_TYPES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
 
@@ -350,7 +350,7 @@ export default function PublicMarketplace({ initialData }) {
               <ArrowUpDown size={14} style={{ color: GRAY }} />
               <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
                       aria-label="Sort challenges"
-                      className="px-3 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${sort ? GOLD : BORDER}`, color: DARK, outline: 'none', background: sort ? GOLD_LIGHT : '#fff', fontWeight: sort ? 600 : 400 }}>
+                      className="px-3 py-2.5 rounded-xl text-sm" style={{ border: `1px solid ${sort ? GOLD : BORDER}`, color: DARK, background: sort ? GOLD_LIGHT : '#fff', fontWeight: sort ? 600 : 400 }}>
                 {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>

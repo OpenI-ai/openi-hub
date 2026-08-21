@@ -519,7 +519,7 @@ export default function ProjectManagement() {
                   width: '100%', boxSizing: 'border-box',
                   paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9,
                   background: '#fff', border: '1.5px solid #eee', borderRadius: 9,
-                  fontSize: 16, outline: 'none', color: '#1a1a1a',
+                  fontSize: 16, color: '#1a1a1a',
                 }}
               />
             </div>
@@ -582,7 +582,6 @@ const inputStyle = {
   background: '#fff',
   border: '1.5px solid #ddd',
   borderRadius: 8,
-  outline: 'none',
 };
 
 function Field({ label, children }) {

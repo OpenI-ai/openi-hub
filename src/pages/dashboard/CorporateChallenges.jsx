@@ -360,7 +360,7 @@ const startEdit = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               {canEdit ? (
                 <select value={detail.status} onChange={e => changeStatus(e.target.value)}
-                  style={{ fontSize: 16, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer', outline: 'none' }}>
+                  style={{ fontSize: 16, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: st.bg, color: st.color, border: `1px solid ${st.color}30`, cursor: 'pointer' }}>
                   {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                 </select>
               ) : (
@@ -623,20 +623,20 @@ const startEdit = () => {
         <div style={{ ...card, padding: 12, marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
           <div style={{ flex: '1 1 180px' }}>
             <input value={filters.search} onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-              placeholder="Search challenges..." style={{ width: '100%', padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }} />
+              placeholder="Search challenges..." style={{ width: '100%', padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
           </div>
           <select value={filters.status} onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
-            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
             <option value="all">All Status</option>
             {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
           <select value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
-            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
             <option value="">All Sectors</option>
             {(taxonomy.sectors || []).map(s => { const name = typeof s === 'string' ? s : s.name; return <option key={name} value={name}>{name}</option>; })}
           </select>
           <select value={filters.sort} onChange={e => setFilters(f => ({ ...f, sort: e.target.value }))}
-            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, outline: 'none' }}>
+            style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
             <option value="deadline">By Deadline</option>

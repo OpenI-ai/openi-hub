@@ -25,7 +25,7 @@ export default function SecurityTab({ changePassword, changingPw, confirmPw, cur
                   style={{
                     width: '100%', boxSizing: 'border-box', padding: '10px 40px 10px 14px',
                     background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                    fontSize: 16, outline: 'none', color: '#1a1a1a',
+                    fontSize: 16, color: '#1a1a1a',
                   }}
                 />
                 <button onClick={() => setShowCurrent(!showCurrent)} style={{
@@ -44,7 +44,7 @@ export default function SecurityTab({ changePassword, changingPw, confirmPw, cur
                   style={{
                     width: '100%', boxSizing: 'border-box', padding: '10px 40px 10px 14px',
                     background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                    fontSize: 16, outline: 'none', color: '#1a1a1a',
+                    fontSize: 16, color: '#1a1a1a',
                   }}
                 />
                 <button onClick={() => setShowNew(!showNew)} style={{
@@ -62,7 +62,7 @@ export default function SecurityTab({ changePassword, changingPw, confirmPw, cur
                 style={{
                   width: '100%', boxSizing: 'border-box', padding: '10px 14px',
                   background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9,
-                  fontSize: 16, outline: 'none', color: '#1a1a1a',
+                  fontSize: 16, color: '#1a1a1a',
                 }}
               />
               {confirmPw && newPw !== confirmPw && (

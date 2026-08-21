@@ -57,7 +57,7 @@ export default function StateField({ value, onChange, country: rawCountry = 'IN'
   const lblCls = labelClassName || 'block text-sm font-medium mb-1.5';
   const baseStyle = inputStyle || {
     backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-    width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14, outline: 'none',
+    width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14,
   };
 
   // No states for this country (or API failed) -> free-text fallback
