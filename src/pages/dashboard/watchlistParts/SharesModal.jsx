@@ -134,7 +134,7 @@ export default function SharesModal({
           <div style={{ position: 'relative', marginBottom: 8 }}>
             <input value={collabSearch} onChange={e => setCollabSearch(e.target.value)}
               placeholder="Start typing a name or email…"
-              style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
+              style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16 }} />
             {collabResults.length > 0 && (
               <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#fff', border: '1.5px solid #e0e0e0', borderRadius: 9, boxShadow: '0 4px 16px rgba(0,0,0,0.08)', zIndex: 50, maxHeight: 240, overflowY: 'auto' }}>
                 {collabResults.map(u => (
@@ -171,7 +171,7 @@ export default function SharesModal({
             <input value={collabEmailDraft} onChange={e => setCollabEmailDraft(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCollabEmail(); } }}
               placeholder="founder@startup.com — press Enter"
-              style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none' }} />
+              style={{ flex: 1, padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16 }} />
             <button type="button" onClick={addCollabEmail}
               style={{ padding: '9px 14px', background: '#f5f5f5', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#555', cursor: 'pointer' }}>
               Add
@@ -195,7 +195,7 @@ export default function SharesModal({
           <label style={{ fontSize: 12, fontWeight: 600, color: '#444', display: 'block', marginBottom: 4 }}>Personal message (optional)</label>
           <textarea value={collabMessage} onChange={e => setCollabMessage(e.target.value)} rows={2}
             placeholder="Add context — what excites you about sharing this watchlist?"
-            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, outline: 'none', resize: 'vertical', marginBottom: 14 }} />
+            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 16, resize: 'vertical', marginBottom: 14 }} />
 
           {/* Send button */}
           <button onClick={sendCollaboratorInvites}

@@ -359,7 +359,6 @@ export default function DeepTechQualification() {
                   border: `1.5px solid ${startupName.trim() ? '#e0e0e0' : '#d97706'}`,
                   borderRadius: 10,
                   fontSize: 16,
-                  outline: 'none',
                   color: '#1a1a1a',
                   transition: 'border-color 0.15s',
                   fontWeight: 500,

@@ -208,7 +208,7 @@ export default function StartupFeedback() {
             <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
               <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
               <input placeholder="Search feedback…" value={search} onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9, background: '#fff', border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a' }}
               />
             </div>
             {['All', 'Reviewed', 'Pending Action', 'Under Review'].map(s => (
@@ -404,7 +404,7 @@ function FormField({ label, children }) {
     <div>
       <label style={{ display: 'block', color: '#444', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{label}</label>
       {children.type === 'input' || children.type === 'select' || children.type === 'textarea'
-        ? <children.type {...children.props} style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, outline: 'none', color: '#1a1a1a', fontFamily: 'inherit', resize: children.type === 'textarea' ? 'vertical' : undefined, transition: 'border-color 0.15s', ...(children.props.style || {}) }}
+        ? <children.type {...children.props} style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: '#fafafa', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 13, color: '#1a1a1a', fontFamily: 'inherit', resize: children.type === 'textarea' ? 'vertical' : undefined, transition: 'border-color 0.15s', ...(children.props.style || {}) }}
           onFocus={e => e.target.style.borderColor = G}
           onBlur={e => e.target.style.borderColor = '#e0e0e0'}
         />

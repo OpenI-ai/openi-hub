@@ -108,7 +108,7 @@ export default function SearchBar({
           onFocus={() => suggestions.length && setShowDropdown(true)}
           placeholder={effectivePlaceholder}
           style={{
-            flex: 1, border: 'none', outline: 'none', background: 'transparent',
+            flex: 1, border: 'none', background: 'transparent',
             fontSize: compact ? 13 : 15,
             color: compact ? '#fff' : '#1a1a2e',
           }}

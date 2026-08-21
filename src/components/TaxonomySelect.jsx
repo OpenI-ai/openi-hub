@@ -19,7 +19,7 @@ export function useTaxonomy() {
 
 const DEFAULT_INPUT_STYLE = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-  width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 13, outline: 'none',
+  width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 13,
 };
 
 const DEFAULT_LABEL_CLASS = 'block text-xs font-medium mb-1';
@@ -83,7 +83,7 @@ export default function TaxonomySelect({
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', maxHeight: 260, overflowY: 'auto' }}>
           <div style={{ padding: '6px 10px', borderBottom: '1px solid #f3f4f6' }}>
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search..."
-              autoFocus style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, padding: '4px 0', background: 'transparent' }} />
+              autoFocus style={{ width: '100%', border: 'none', fontSize: 12, padding: '4px 0', background: 'transparent' }} />
           </div>
           {filtered.length === 0 ? (
             <div style={{ padding: '12px 14px', fontSize: 12, color: '#666', textAlign: 'center' }}>No matches</div>

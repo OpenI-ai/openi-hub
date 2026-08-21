@@ -45,7 +45,7 @@ export default function TeamModal({
                   <input type="email" value={addMemberEmail}
                     onChange={(e) => setAddMemberEmail(e.target.value)}
                     placeholder="member@example.com"
-                    style={{ flex: 1, padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#fff' }} />
+                    style={{ flex: 1, padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff' }} />
                   <select value={addMemberRole}
                     onChange={(e) => setAddMemberRole(e.target.value)}
                     style={{ padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>

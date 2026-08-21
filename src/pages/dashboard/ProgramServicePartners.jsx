@@ -317,7 +317,7 @@ export default function ProgramServicePartners() {
               <div style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8 }}>
                 <Search size={14} style={{ color: '#5c5c5c' }} />
                 <input value={directorySearch} onChange={e => setDirectorySearch(e.target.value)} placeholder="Search by name or tagline..."
-                  style={{ border: 'none', outline: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
+                  style={{ border: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
               </div>
               <select value={directoryCategory} onChange={e => setDirectoryCategory(e.target.value)}
                 style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, background: '#fff', cursor: 'pointer' }}>
@@ -502,4 +502,4 @@ export default function ProgramServicePartners() {
 }
 
 const lbl = { display: 'block', fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 };
-const inp = { width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, outline: 'none', boxSizing: 'border-box' };
+const inp = { width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 8, fontSize: 16, boxSizing: 'border-box' };

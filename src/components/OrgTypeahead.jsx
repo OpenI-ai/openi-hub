@@ -4,7 +4,7 @@ import { lookupAPI } from '../services/api';
 
 const DEFAULT_INPUT_STYLE = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-  width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 13, outline: 'none',
+  width: '100%', borderRadius: 10, padding: '10px 14px', fontSize: 13,
 };
 
 const DEFAULT_LABEL_CLASS = 'block text-xs font-medium mb-1';

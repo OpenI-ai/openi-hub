@@ -340,7 +340,7 @@ export default function Messaging() {
                   width: '100%', boxSizing: 'border-box',
                   paddingLeft: 28, paddingRight: 10, paddingTop: 8, paddingBottom: 8,
                   background: '#f8f8f8', border: '1.5px solid #eee', borderRadius: 8,
-                  fontSize: 16, outline: 'none', color: '#1a1a1a',
+                  fontSize: 16, color: '#1a1a1a',
                 }}
               />
             </div>
@@ -501,7 +501,7 @@ export default function Messaging() {
                     width: '100%', boxSizing: 'border-box',
                     padding: '9px 12px', background: '#f8f8f8',
                     border: '1.5px solid #eee', borderRadius: 10,
-                    fontSize: 16, outline: 'none', resize: 'none',
+                    fontSize: 16, resize: 'none',
                     color: '#1a1a1a', fontFamily: 'inherit',
                     transition: 'border-color 0.15s',
                   }}
@@ -591,7 +591,7 @@ export default function Messaging() {
                       width: '100%', boxSizing: 'border-box',
                       padding: '9px 12px', background: '#fff',
                       border: '1.5px solid #e0e0e0', borderRadius: 9,
-                      fontSize: 16, outline: 'none', color: '#1a1a1a',
+                      fontSize: 16, color: '#1a1a1a',
                     }}
                   />
                 </div>
@@ -630,7 +630,7 @@ export default function Messaging() {
                       width: '100%', boxSizing: 'border-box',
                       padding: '9px 12px 9px 32px', background: '#fff',
                       border: '1.5px solid #e0e0e0', borderRadius: 9,
-                      fontSize: 16, outline: 'none', color: '#1a1a1a',
+                      fontSize: 16, color: '#1a1a1a',
                     }}
                   />
                 </div>

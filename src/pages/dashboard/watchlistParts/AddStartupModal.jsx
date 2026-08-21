@@ -27,7 +27,6 @@ export default function AddStartupModal({
                 border: '1.5px solid #e0e0e0',
                 borderRadius: 10,
                 fontSize: 16,
-                outline: 'none',
                 color: '#1a1a1a',
               }}
             />

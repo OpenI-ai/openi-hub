@@ -167,7 +167,7 @@ export default function CollaboratorsPanel({ entityType, entityId, title = 'Coll
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
               placeholder="colleague@company.com"
-              style={{ flex: 1, padding: '6px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6, outline: 'none' }}
+              style={{ flex: 1, padding: '6px 8px', fontSize: 16, border: '1px solid #e5e7eb', borderRadius: 6 }}
               onKeyDown={e => e.key === 'Enter' && submitInvite()}
             />
             <select

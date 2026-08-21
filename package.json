@@ -9,6 +9,7 @@
     "postbuild": "node gen-version.js && node prerender.js && node indexnow-submit.js",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx --max-warnings=9999",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "lint:fix": "eslint . --ext .js,.jsx --fix",
     "lint:hooks": "eslint . --ext .js,.jsx --rule 'react-hooks/rules-of-hooks: error' --no-eslintrc --plugin react-hooks",
     "prepare": "husky"

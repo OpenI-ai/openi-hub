@@ -87,7 +87,7 @@ async function flushPendingOrgJoin() {
 
 const inputStyle = {
   backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', color: '#1a1a1a',
-  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14, outline: 'none',
+  width: '100%', borderRadius: 12, padding: '10px 14px', fontSize: 14,
 };
 
 export default function VerifyEmail() {

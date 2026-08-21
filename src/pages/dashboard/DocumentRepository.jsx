@@ -406,7 +406,7 @@ export default function DocumentRepository() {
                   width: '100%', boxSizing: 'border-box',
                   paddingLeft: 30, paddingRight: 12, paddingTop: 9, paddingBottom: 9,
                   background: '#fff', border: '1.5px solid #eee', borderRadius: 9,
-                  fontSize: 16, outline: 'none', color: '#1a1a1a',
+                  fontSize: 16, color: '#1a1a1a',
                 }}
               />
             </div>
@@ -651,7 +651,7 @@ export default function DocumentRepository() {
                 onChange={(e) => setUploadForm(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g. Q1 Financial Report"
                 maxLength={500}
-                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a' }}
               />
             </div>
 
@@ -661,7 +661,7 @@ export default function DocumentRepository() {
               <select
                 value={uploadForm.category}
                 onChange={(e) => setUploadForm(prev => ({ ...prev, category: e.target.value }))}
-                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a', background: '#fff' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a', background: '#fff' }}
               >
                 {CATEGORY_SUGGESTIONS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -702,7 +702,7 @@ export default function DocumentRepository() {
                 value={uploadForm.tags}
                 onChange={(e) => setUploadForm(prev => ({ ...prev, tags: e.target.value }))}
                 placeholder="e.g. quarterly, finance"
-                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a' }}
               />
             </div>
 
@@ -788,7 +788,7 @@ export default function DocumentRepository() {
                 onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g. Q1 Financial Report"
                 maxLength={500}
-                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a' }}
               />
             </div>
             <div style={{ marginBottom: 14 }}>
@@ -796,7 +796,7 @@ export default function DocumentRepository() {
               <select
                 value={editForm.category}
                 onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a', background: '#fff' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a', background: '#fff' }}
               >
                 {Array.from(new Set([...CATEGORY_SUGGESTIONS, ...dynamicFolders.map(f => f.name), editForm.category].filter(Boolean))).map(c => (
                   <option key={c} value={c}>{c}</option>
@@ -835,7 +835,7 @@ export default function DocumentRepository() {
                 value={editForm.tags}
                 onChange={(e) => setEditForm(prev => ({ ...prev, tags: e.target.value }))}
                 placeholder="e.g. quarterly, finance"
-                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, outline: 'none', color: '#1a1a1a' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: 10, border: '1.5px solid #eee', borderRadius: 9, fontSize: 16, color: '#1a1a1a' }}
               />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>

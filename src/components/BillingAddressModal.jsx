@@ -37,7 +37,6 @@ const inputStyle = {
   borderRadius: 12,
   padding: '10px 14px',
   fontSize: 14,
-  outline: 'none',
 };
 const labelCls = 'block text-sm font-medium mb-1.5';
 

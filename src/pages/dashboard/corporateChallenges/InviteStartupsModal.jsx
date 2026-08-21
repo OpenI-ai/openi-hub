@@ -95,7 +95,7 @@ export default function InviteStartupsModal({
                   } catch (err) { console.error('[invite-search]', err); }
                 }}
                 placeholder="Type at least 2 characters (name, email, or org)"
-                style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', marginBottom: 8 }} />
+                style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', marginBottom: 8 }} />
 
               {/* Results */}
               {inviteResults.length > 0 && (
@@ -170,7 +170,7 @@ export default function InviteStartupsModal({
                     }
                   }}
                   placeholder="vanessa@example.com"
-                  style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, outline: 'none', background: '#f9fafb' }} />
+                  style={{ width: '100%', padding: '8px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }} />
                 {inviteEmails.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                     {inviteEmails.map(em => (
@@ -193,7 +193,7 @@ export default function InviteStartupsModal({
                 onChange={(e) => setInviteMessage(e.target.value)}
                 placeholder="Add context for the invitee — what excites you about this challenge for them?"
                 rows={3}
-                style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 10, outline: 'none', background: '#f9fafb', resize: 'vertical', marginBottom: 16 }} />
+                style={{ width: '100%', padding: '10px 12px', fontSize: 16, border: '1.5px solid #e5e7eb', borderRadius: 10, background: '#f9fafb', resize: 'vertical', marginBottom: 16 }} />
 
               {/* Send + Cancel */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginBottom: 20 }}>
