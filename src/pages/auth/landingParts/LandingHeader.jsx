@@ -59,6 +59,7 @@ export default function LandingHeader({ mobileNavOpen, setMobileNavOpen, handleH
 
           <div className="flex items-center gap-3 shrink-0">
             <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
+               aria-label="OpenI on LinkedIn"
                className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
                style={{ color: GRAY }}
                onMouseEnter={e => e.currentTarget.style.color = GOLD}
@@ -66,6 +67,7 @@ export default function LandingHeader({ mobileNavOpen, setMobileNavOpen, handleH
               <LinkedInIcon size={18} />
             </a>
             <a href="https://x.com/OpenIPartners" target="_blank" rel="noopener noreferrer"
+               aria-label="OpenI on X"
                className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
                style={{ color: GRAY }}
                onMouseEnter={e => e.currentTarget.style.color = GOLD}
@@ -74,14 +76,14 @@ export default function LandingHeader({ mobileNavOpen, setMobileNavOpen, handleH
             </a>
             <Link
               to="/dashboard/login"
-              className="hidden sm:inline text-sm font-semibold px-4 py-2 transition-colors"
+              className="hidden sm:inline-flex items-center min-h-[44px] text-sm font-semibold px-4 py-2 transition-colors"
               style={{ color: DARK }}
             >
               Sign In
             </Link>
             <Link
               to="/register"
-              className="px-5 py-2 rounded-lg text-sm font-bold transition-all"
+              className="px-5 py-2 min-h-[44px] inline-flex items-center rounded-lg text-sm font-bold transition-all"
               style={{ background: GOLD, color: '#fff' }}
               onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
               onMouseLeave={e => e.currentTarget.style.background = GOLD}

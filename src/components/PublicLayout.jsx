@@ -38,8 +38,19 @@ export default function PublicLayout({ children }) {
   const navigate = useNavigate();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const isActive = (path) => location.pathname === path;
-  // Hide the inline header SearchBar on the /search page itself — it has its own hero bar
-  const showHeaderSearch = location.pathname !== '/search';
+  // Hide the inline header SearchBar on any route that owns a scoped search
+  // field of its own. Two search boxes on one screen, with nothing saying which
+  // searches what, is a coin flip the visitor loses: the header field is an AI
+  // question over 575k startups, the marketplace field is a keyword filter over
+  // the challenges on the page. Typing a challenge query into the header sends
+  // you to startup results and vice versa. One search per screen unless the
+  // scopes are visibly labelled. (UX audit, 21 Aug 2026.)
+  //   /search             — has its own hero bar
+  //   /marketplace[/:id]  — "Search challenges by title, technology, or keyword..."
+  const SCOPED_SEARCH_ROUTES = ['/search', '/marketplace'];
+  const showHeaderSearch = !SCOPED_SEARCH_ROUTES.some(
+    r => location.pathname === r || location.pathname.startsWith(r + '/')
+  );
   // "Tour this page" button is shown only when a page tour covers the current route.
   const pageTour = resolvePageTour(location.pathname);
 
@@ -99,23 +110,16 @@ export default function PublicLayout({ children }) {
             </div>
           )}
 
+          {/* Social links deliberately NOT in this bar (UX audit, 21 Aug 2026).
+              At 1440px — the most common laptop width — the header carried a
+              logo, 5 links, a max-w-md search field, 2 social icons, a help
+              icon and 2 buttons, and "How It Works" and "Sign In" both wrapped
+              onto two lines. The social icons were the cheapest thing to cut:
+              they already appear in the footer, and an outbound link to X has
+              no business competing for space with Get Started in a
+              conversion-critical bar. They also carried no aria-label here,
+              so they were 2 of the unnamed controls the audit counted. */}
           <div className="flex items-center gap-3">
-            <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
-               className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
-               style={{ color: GRAY }}
-               onMouseEnter={e => e.currentTarget.style.color = GOLD}
-               onMouseLeave={e => e.currentTarget.style.color = GRAY}
-            >
-              <LinkedInIcon size={18} />
-            </a>
-            <a href="https://x.com/OpenIPartners" target="_blank" rel="noopener noreferrer"
-               className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all"
-               style={{ color: GRAY }}
-               onMouseEnter={e => e.currentTarget.style.color = GOLD}
-               onMouseLeave={e => e.currentTarget.style.color = GRAY}
-            >
-              <XIcon size={18} />
-            </a>
             {pageTour && (
               <button
                 type="button"
@@ -132,14 +136,14 @@ export default function PublicLayout({ children }) {
             )}
             <Link
               to="/dashboard/login"
-              className="hidden sm:inline text-sm font-semibold px-4 py-2 transition-colors"
+              className="hidden sm:inline-flex items-center min-h-[44px] text-sm font-semibold px-4 py-2 transition-colors"
               style={{ color: DARK }}
             >
               Sign In
             </Link>
             <Link
               to="/register"
-              className="px-5 py-2 rounded-lg text-sm font-bold transition-all"
+              className="px-5 py-2 min-h-[44px] inline-flex items-center rounded-lg text-sm font-bold transition-all"
               style={{ background: GOLD, color: '#fff' }}
               onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
               onMouseLeave={e => e.currentTarget.style.background = GOLD}
@@ -280,6 +284,7 @@ export default function PublicLayout({ children }) {
               {/* Social Links */}
               <div className="flex items-center gap-4 mt-4">
                 <a href="https://www.linkedin.com/company/openi-partners/" target="_blank" rel="noopener noreferrer"
+                   aria-label="OpenI on LinkedIn"
                    className="transition-colors"
                    onMouseEnter={e => e.currentTarget.querySelector('svg').setAttribute('fill', GOLD)}
                    onMouseLeave={e => e.currentTarget.querySelector('svg').setAttribute('fill', '#9ca3af')}
@@ -287,6 +292,7 @@ export default function PublicLayout({ children }) {
                   <LinkedInIcon size={20} color="#9ca3af" />
                 </a>
                 <a href="https://x.com/OpenIPartners" target="_blank" rel="noopener noreferrer"
+                   aria-label="OpenI on X"
                    className="transition-colors"
                    onMouseEnter={e => e.currentTarget.querySelector('svg').setAttribute('fill', GOLD)}
                    onMouseLeave={e => e.currentTarget.querySelector('svg').setAttribute('fill', '#9ca3af')}
@@ -298,7 +304,8 @@ export default function PublicLayout({ children }) {
 
             {/* Product */}
             <div>
-              <h4 className="text-sm font-bold mb-4 text-white">Product</h4>
+              {/* h2, not h4: this sits under the page <h1>, and h1->h4 skipped two levels. Size unchanged. */}
+              <h2 className="text-sm font-bold mb-4 text-white">Product</h2>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/marketplace" className="hover:text-white transition-colors">Marketplace</Link></li>
                 <li><Link to="/reports" className="hover:text-white transition-colors">Startup Reports</Link></li>
@@ -312,7 +319,7 @@ export default function PublicLayout({ children }) {
 
             {/* Company */}
             <div>
-              <h4 className="text-sm font-bold mb-4 text-white">Company</h4>
+              <h2 className="text-sm font-bold mb-4 text-white">Company</h2>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/dashboard/login" className="hover:text-white transition-colors">Sign In</Link></li>
                 <li><a href="mailto:info@openi.ai" className="hover:text-white transition-colors">Contact</a></li>

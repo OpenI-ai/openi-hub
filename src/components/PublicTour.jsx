@@ -24,7 +24,10 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Joyride, STATUS } from 'react-joyride';
 import { resolvePageTour } from '../config/tours';
-import { hasSeenPageTour, markPageTourSeen } from '../services/tourService';
+// hasSeenPageTour is intentionally NOT imported: nothing on a public page reads
+// seen-state any more now that auto-start is gone (see the block below). The
+// writer is kept so the record survives for a future intent-triggered start.
+import { markPageTourSeen } from '../services/tourService';
 
 const G = '#D0A848';
 const NAVY = '#0D2137';
@@ -84,14 +87,35 @@ export default function PublicTour() {
     setRun(true);
   }, []);
 
-  // Auto-start once per pathname per browser. Re-runs on pathname change so
-  // navigating Marketplace → Reports each auto-starts its own tour once.
-  useEffect(() => {
-    if (!steps.length) return;
-    if (hasSeenPageTour(pathname)) return;
-    const t = setTimeout(startFresh, 600);
-    return () => clearTimeout(t);
-  }, [pathname, steps.length, startFresh]);
+  // NO AUTO-START ON PUBLIC PAGES (UX audit, 21 Aug 2026).
+  //
+  // This used to fire 600ms after mount for any pathname this browser had not
+  // seen — i.e. for EVERY first-time visitor, which is the entire audience the
+  // marketing pages exist for. Measured at 1440x900 and 390x844: the overlay
+  // dimmed the page, the spotlight cutout clipped the hero H1 mid-sentence, and
+  // the tooltip landed on top of BOTH calls to action. On mobile it hid the
+  // primary CTA outright, leaving the secondary button as the only reachable
+  // action. Its copy also restated the subheadline it was covering.
+  //
+  // A tour is an answer to "how does this work?", and a first-time visitor has
+  // not asked that yet — they are still reading what the product IS. Interrupting
+  // that to explain navigation costs the first impression and buys nothing.
+  //
+  // The tour itself is untouched and still fully reachable: PublicLayout renders
+  // a "Tour this page" button (desktop topbar + mobile menu) whenever
+  // resolvePageTour matches the route, which dispatches `openi-page-tour` and is
+  // handled by the replay effect below. That is opt-in, which is the correct
+  // trigger for an explainer.
+  //
+  // hasSeenPageTour / markPageTourSeen are deliberately kept: the FINISH/SKIP
+  // handler still records completion, so if auto-start is ever reintroduced
+  // (behind an intent trigger — scroll past the hero, or a click) it will not
+  // re-fire for someone who already finished it.
+  //
+  // Auto-start on the SIGNED-IN dashboard is a separate mechanism
+  // (TourWrapper.jsx, mounted in DashboardLayout) and is intentionally left on:
+  // 92 dashboard pages across 11 personas is a genuine orientation problem, and
+  // that user has already converted.
 
   // Manual replay from the topbar "Tour this page" button. Replays regardless
   // of seen state.

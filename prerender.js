@@ -36,6 +36,10 @@ function routeToOutputFile(route) {
 // SEO duplicate-canonical bug and a weaker signal for AI answer engines.
 // '/' is intentionally absent: it keeps the index.html meta as-is.
 const SITE = 'https://www.openi.ai';
+// KEEP IN SYNC WITH src/hooks/useDocumentTitle.js (ROUTE_TITLES).
+// The static HTML written here is what a crawler and the first paint see; the
+// hook sets the same string once React mounts. If the two disagree the tab
+// visibly flickers from one title to the other on every hard load. Edit both.
 const ROUTE_META = {
   '/marketplace': {
     title: 'Innovation Challenges Marketplace | OpenI Hub',
@@ -54,6 +58,22 @@ const ROUTE_META = {
     ogTitle: 'Startup Ecosystem Reports & Insights — OpenI Hub',
     ogDescription:
       'Curated startup ecosystem reports and insights for innovators, investors and corporates. Sector trends across 575,000+ startups.',
+  },
+  '/terms': {
+    title: 'Terms of Use | OpenI Hub',
+    description:
+      'The terms governing use of OpenI Hub — accounts, acceptable use, content ownership, subscriptions and liability for the open innovation marketplace.',
+    path: '/terms',
+    ogTitle: 'Terms of Use — OpenI Hub',
+    ogDescription: 'The terms governing use of the OpenI Hub open innovation marketplace.',
+  },
+  '/privacy': {
+    title: 'Privacy Policy | OpenI Hub',
+    description:
+      'How OpenI Hub collects, uses and protects personal data — what we store, who we share it with, your rights, and our ISO/IEC 27001:2022 security posture.',
+    path: '/privacy',
+    ogTitle: 'Privacy Policy — OpenI Hub',
+    ogDescription: 'How OpenI Hub collects, uses and protects your personal data.',
   },
   '/faq': {
     title: 'Frequently Asked Questions | OpenI Hub',

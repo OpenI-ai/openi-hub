@@ -22,6 +22,8 @@ import Landing from './pages/auth/Landing';
 import PublicMarketplace from './pages/public/PublicMarketplace';
 import PublicReports from './pages/public/PublicReports';
 import PublicFAQ from './pages/public/PublicFAQ';
+import Terms from './pages/auth/Terms';
+import Privacy from './pages/auth/Privacy';
 
 // Map a URL path to its public leaf component.
 const ROUTES = {
@@ -29,6 +31,13 @@ const ROUTES = {
   '/marketplace': PublicMarketplace,
   '/reports': PublicReports,
   '/faq': PublicFAQ,
+  // Added 21 Aug 2026 (UX audit). Both were serving the generic homepage
+  // <title> and description because nothing prerendered them and nothing set
+  // a title client-side. They are also the ideal prerender candidates: pure
+  // static markup, no data fetch, no auth, no loading state — the rendered
+  // HTML is the whole page rather than chrome around a spinner.
+  '/terms': Terms,
+  '/privacy': Privacy,
 };
 
 export const PRERENDER_ROUTES = Object.keys(ROUTES);

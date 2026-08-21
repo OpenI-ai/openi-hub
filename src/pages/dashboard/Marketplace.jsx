@@ -695,7 +695,25 @@ export default function Marketplace() {
                   onMouseEnter={e => e.currentTarget.style.borderColor = G}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Building2 size={18} style={{ color: '#bbb' }} /></div>
+                    {/* Reported 21 Aug 2026: Dentsu's logo never appeared on these
+                        cards. Two stacked causes, and this was one of them — the
+                        placeholder was rendered UNCONDITIONALLY here, so no logo
+                        could ever show even once the API sent one. (The other was
+                        the /opportunities UNION not selecting a logo column at
+                        all; opportunityController.js now returns org_logo.) The
+                        detail view at :399 always had the ternary — this is the
+                        same shape, at list size. onError falls back to the
+                        placeholder so a dead asset URL degrades to the old
+                        behaviour rather than a broken-image glyph. */}
+                    {ch.org_logo ? (
+                      <img
+                        src={ch.org_logo}
+                        alt={ch.org_name ? `${ch.org_name} logo` : ''}
+                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 3, border: '1px solid #eee', flexShrink: 0 }}
+                        onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex'; }}
+                      />
+                    ) : null}
+                    <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f3f4f6', display: ch.org_logo ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Building2 size={18} style={{ color: '#bbb' }} /></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
                         <h3 style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: 0, lineHeight: 1.3 }}>{ch.title}</h3>

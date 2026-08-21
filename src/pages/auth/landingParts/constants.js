@@ -43,10 +43,18 @@ const BORDER = '#E8E3D8';                     // default border
 // ── Default content (shown only if /api/public/landing-content fails) ─────────
 // Backend normally returns live DB-counted stats which override these defaults.
 // Match backend labels so visual layout doesn't shift on hydration.
+// Labels are written for the visitor, not for our data model (UX audit,
+// 21 Aug 2026). "Personas" is the internal name for the role a user signs up
+// as; a corporate innovation lead does not think of themselves as picking a
+// persona, and a stat tile is the worst place to teach someone a taxonomy.
+// "AI Clusters" stated a mechanism where a benefit belongs — the number only
+// means something once you know it is what makes search return peers rather
+// than keyword matches. The `Global Startups` label must stay exactly as-is:
+// Landing.jsx overlays the live DB count by matching on that string.
 const DEFAULT_STATS = [
   { value: '575K+', label: 'Global Startups' },
-  { value: '200', label: 'AI Clusters' },
-  { value: '11', label: 'Personas, One Account' },
+  { value: '200', label: 'Startup Clusters' },
+  { value: '11', label: 'Roles, One Account' },
   { value: 'ISO 27001', label: 'Certified & Secure' },
 ];
 

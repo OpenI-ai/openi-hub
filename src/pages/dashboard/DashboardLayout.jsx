@@ -497,6 +497,7 @@ export default function DashboardLayout() {
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}>
           <button
+            aria-label="Toggle navigation menu"
             onClick={() => setSidebarOpen(o => !o)}
             className="lg:hidden"
             style={{ padding:"6px", color: C.textMuted, background:"transparent", border:"none", cursor:"pointer", borderRadius:8 }}
@@ -573,6 +574,7 @@ export default function DashboardLayout() {
             {/* Notification bell */}
             <div style={{ position:"relative" }}>
               <button
+                aria-label="Notifications"
                 id="tour-topbar-bell"
                 onClick={() => setNotifOpen(o => !o)}
                 style={{
