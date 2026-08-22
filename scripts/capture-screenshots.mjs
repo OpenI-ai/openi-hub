@@ -48,7 +48,7 @@
  */
 import { mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Playwright is imported dynamically and is NOT a devDependency of this repo.
 // This repo's devDeps are build and lint tooling only (9 runtime deps total);
@@ -62,18 +62,34 @@ import { fileURLToPath } from 'node:url';
 // repo's node_modules; the path has to be explicit.
 let chromium;
 const PW_PATH = process.env.OPENI_PLAYWRIGHT;
+
+// A RELATIVE OPENI_PLAYWRIGHT has to be resolved against the cwd here, not left
+// to import(). Dynamic import resolves a relative specifier against the
+// importing MODULE — this file, in scripts/ — so the `../openi-hub-backend/...`
+// this script used to suggest looked for openi-hub/openi-hub-backend and never
+// resolved. Anyone following the hint got the same failure that sent them here.
+// A bare package specifier (no separator, no leading dot) is passed straight
+// through so `@playwright/test` still works.
+function playwrightSpecifier(raw) {
+  if (!raw) return '@playwright/test';
+  const looksLikePath = raw.startsWith('.') || raw.startsWith('/') || raw.includes('/node_modules/');
+  return looksLikePath ? pathToFileURL(resolve(process.cwd(), raw)).href : raw;
+}
+
 try {
-  ({ chromium } = await import(PW_PATH || '@playwright/test'));
-} catch {
+  ({ chromium } = await import(playwrightSpecifier(PW_PATH)));
+} catch (err) {
   console.error(
     'This script needs Playwright, which is deliberately not a dependency of\n' +
     'this repo (devDeps here are build and lint tooling only).\n\n' +
     'Either install it just for this run:\n' +
     '  npm i --no-save @playwright/test && npx playwright install chromium\n\n' +
-    'or reuse the copy in the backend repo:\n' +
+    'or point OPENI_PLAYWRIGHT at an existing install -- the package ENTRY FILE,\n' +
+    'not the directory. Relative to your shell\'s cwd is fine:\n' +
     '  OPENI_PLAYWRIGHT=../openi-hub-backend/node_modules/@playwright/test/index.mjs \\\n' +
-    '    node scripts/capture-screenshots.mjs'
+    '    npm run screenshots\n'
   );
+  if (PW_PATH) console.error(`OPENI_PLAYWRIGHT was ${PW_PATH}\n  -> resolved to ${playwrightSpecifier(PW_PATH)}\n  -> ${err.message}`);
   process.exit(1);
 }
 
