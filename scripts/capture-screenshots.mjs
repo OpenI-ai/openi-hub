@@ -100,6 +100,15 @@ const SHOTS = [
   { file: '05-marketplace.png',         email: 'corporate@demo.openi.ai', path: '/dashboard/marketplace' },
   { file: '07-directory.png',           email: 'investor@demo.openi.ai',  path: '/dashboard/directory' },
   { file: '08-academia-portfolio.png',  email: 'academia@demo.openi.ai',  path: '/dashboard' },
+  // 22 Aug 2026 — the three slides PlatformSlideshow.jsx still has commented
+  // out (its "TODO s51"). They were missing from this list, so running this
+  // script re-shot the eight that already existed and produced none of the
+  // three that were actually wanted. Route and persona for each were confirmed
+  // by loading them: "Recommended Startups", "8-Vector Startup Evaluation" and
+  // the investor dashboard all render for these personas with no upgrade gate.
+  { file: '09-recommended-startups.png', email: 'corporate@demo.openi.ai', path: '/dashboard/corporate/recommended-startups' },
+  { file: '10-ai-profile-score.png',     email: 'startup@demo.openi.ai',   path: '/dashboard/evaluate' },
+  { file: '11-investor-dashboard.png',   email: 'investor@demo.openi.ai',  path: '/dashboard' },
 ];
 
 const ROLES = ['startup','student','academia','corporate','govt','investor','lab',

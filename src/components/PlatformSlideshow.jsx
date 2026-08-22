@@ -11,7 +11,11 @@ const SLIDES = [
   { src: '/screenshots/05-marketplace.png', caption: 'Challenge Marketplace', desc: 'Browse open innovation challenges with AI-powered filters and semantic search' },
   { src: '/screenshots/07-directory.png', caption: 'Ecosystem Directory', desc: '583K+ startup profiles with persona filters, AI Ask, and faceted search' },
   { src: '/screenshots/08-academia-portfolio.png', caption: 'Academic Portfolio', desc: 'Research projects with funding, publications, grants, and AI matchmaking' },
-  // TODO s51 — capture screenshots and restore these 3 slides:
+  // TODO s51 — restore these 3 slides once their images exist.
+  // `npm run screenshots` now captures all three (they were missing from its
+  // SHOTS list until 22 Aug 2026, so earlier runs could never have produced
+  // them). Uncomment these lines in the SAME commit that adds the PNGs —
+  // uncommenting first points the slideshow at files that 404.
   // { src: '/screenshots/09-recommended-startups.png', caption: 'AI Recommended for You', desc: 'Personalized startup matches with cluster-bridge boost across 200 AI clusters' },
   // { src: '/screenshots/10-ai-profile-score.png', caption: '8-Vector AI Profile Score', desc: 'Radar chart with strengths, red flags, and AI-narrated improvement actions' },
   // { src: '/screenshots/11-investor-dashboard.png', caption: 'Investor Dashboard', desc: '7-stage deal pipeline, AI-evaluated startups, and 583K-startup sourcing engine' },
