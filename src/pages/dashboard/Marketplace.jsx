@@ -40,6 +40,12 @@ const TYPE_BADGE = {
 // reads as a clear, brand-consistent "Expired" flag instead of blending into grey text.
 const EXPIRED_BADGE = { bg: 'rgba(208,168,72,0.12)', color: G, label: 'Expired' };
 
+// Page size. Sent to the server AND used to derive the page count, which is the
+// whole point of it being one constant: the pager below used to hardcode 20 in
+// five places while the request sent no limit at all, so the arithmetic was
+// describing a page size the server had never agreed to.
+const PER_PAGE = 20;
+
 export default function Marketplace() {
   const { user, activeRole } = useAuth();
   // Innovation seekers (corporate, government, investor, mentor, lab,
@@ -170,13 +176,18 @@ export default function Marketplace() {
   const loadChallenges = async (p = 1, s = search, f = filters) => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { page: p, limit: PER_PAGE };
       if (s.trim()) params.search = s.trim();
       if (f.sector) params.sector = f.sector;
       const data = await opportunityAPI.listAll(params);
+      // The bare-array branch is the pre-22-Aug-2026 backend, kept only so a
+      // frontend deploy that lands before the backend one degrades to the old
+      // behaviour (one long list, cosmetic pager) instead of rendering empty.
+      // Once both are out, `data` is always {opportunities,total,page,limit}.
       const rows = Array.isArray(data) ? data : (data?.opportunities || []);
       setChallenges(rows);
-      setTotal(rows.length);
+      // total is the server's unpaged count, NOT rows.length — rows is one page.
+      setTotal(Array.isArray(data) ? rows.length : (data?.total ?? rows.length));
       setPage(p);
     } catch { toast.error('Failed to load opportunities'); }
     finally { setLoading(false); }
@@ -749,13 +760,13 @@ export default function Marketplace() {
           )}
 
           {/* Pagination */}
-          {total > 20 && (
+          {total > PER_PAGE && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
               <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page <= 1 ? '#f9fafb' : '#fff', color: page <= 1 ? '#ccc' : '#555', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous</button>
-              <span style={{ padding: '7px 12px', fontSize: 12, color: '#5c5c5c' }}>Page {page} of {Math.ceil(total / 20)}</span>
-              <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters)}
-                style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / 20) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / 20) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / 20) ? 'default' : 'pointer' }}>Next</button>
+              <span style={{ padding: '7px 12px', fontSize: 12, color: '#5c5c5c' }}>Page {page} of {Math.ceil(total / PER_PAGE)}</span>
+              <button disabled={page >= Math.ceil(total / PER_PAGE)} onClick={() => loadChallenges(page + 1, search, filters)}
+                style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / PER_PAGE) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / PER_PAGE) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / PER_PAGE) ? 'default' : 'pointer' }}>Next</button>
             </div>
           )}
         </div>
