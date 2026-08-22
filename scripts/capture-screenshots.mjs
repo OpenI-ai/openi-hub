@@ -98,7 +98,10 @@ const BASE = (process.env.OPENI_BASE || 'http://localhost:3000').replace(/\/$/, 
 const API  = (process.env.OPENI_API  || 'http://localhost:5000/api').replace(/\/$/, '');
 const OUT  = process.env.OPENI_OUT   || resolve(HERE, '..', 'public', 'screenshots');
 const PW   = process.env.OPENI_PASSWORD;
-const EXEC = process.env.OPENI_CHROMIUM || undefined;   // pin only if you must
+// Pin an existing browser instead of Playwright's downloaded one. The usual
+// reason is that `npx playwright install chromium` failed and you would
+// rather use the Chrome already on the machine than fight a proxy.
+const EXEC = process.env.OPENI_CHROMIUM || undefined;
 
 if (!PW) {
   console.error('OPENI_PASSWORD is required (the shared demo-account password).');
@@ -149,7 +152,27 @@ async function login(email) {
 mkdirSync(OUT, { recursive: true });
 console.log(`base ${BASE}\napi  ${API}\nout  ${OUT}\n`);
 
-const browser = await chromium.launch(EXEC ? { executablePath: EXEC } : {});
+let browser;
+try {
+  browser = await chromium.launch(EXEC ? { executablePath: EXEC } : {});
+} catch (err) {
+  // The failure people actually hit here is not a bug in this script: Playwright
+  // is installed but its browser BINARIES are not, and `npx playwright install
+  // chromium` can just fail — a proxy, a firewall, or a bad day for the CDN.
+  // OPENI_CHROMIUM has always been the way out of that and was documented only
+  // in a code comment, which is no use to someone reading a stack trace.
+  console.error(
+    `Could not launch Chromium: ${err.message.split('\n')[0]}\n\n` +
+    (EXEC
+      ? `OPENI_CHROMIUM was set to:\n  ${EXEC}\nCheck that path exists and is the executable itself.\n`
+      : 'If the browser download failed, you do not have to fix the download —\n' +
+        'point OPENI_CHROMIUM at a Chrome/Chromium you already have:\n\n' +
+        '  macOS:  OPENI_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"\n' +
+        '  Linux:  OPENI_CHROMIUM=/usr/bin/google-chrome\n\n' +
+        'or retry the download:  npx playwright install chromium\n')
+  );
+  process.exit(1);
+}
 let ok = 0, failed = 0;
 
 for (const s of SHOTS) {
