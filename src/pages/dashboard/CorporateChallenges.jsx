@@ -2,6 +2,7 @@
 // The extracted components hold no state; everything below still owns it.
 // See ./corporateChallenges/index.js for the layout and the verification gates.
 import { useState, useEffect, useRef } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { isUpgradeError } from '../../utils/upgradeError';
@@ -30,11 +31,18 @@ export default function CorporateChallenges() {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' });
   const [saving, setSaving] = useState(false);
   const [upgradeError, setUpgradeError] = useState(null);
   const [taxonomy, setTaxonomy] = useState({ sectors: [], functions: [], technologies: [], usecases: [] });
   const [editMode, setEditMode] = useState(false);
+  // Draft-backed: a challenge brief is a long write, and losing it to a
+  // route change was silent. Keyed per target so a new challenge and an
+  // in-progress edit of an existing one cannot overwrite each other.
+  const CHALLENGE_FORM_EMPTY = { title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' };
+  const [form, setForm, formDraft] = useDraftForm(
+    editMode && selected ? `corporate-challenge:${selected}` : 'corporate-challenge:new',
+    CHALLENGE_FORM_EMPTY,
+  );
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [expandedReviewApp, setExpandedReviewApp] = useState(null);
   // Phase 9: Templates, Filters, Recommendations
@@ -152,7 +160,7 @@ export default function CorporateChallenges() {
       toast.success('Challenge created');
       setShowCreate(false);
       // T32-99c-hotfix: post-create form reset keeps all fields including visibility + challenge_type
-      setForm({ title: '', description: '', budget_range: '', timeline: '', deadline: '', sectors: [], functions: [], technologies: [], usecases: [], requirements: '', problem_statement: '', location: '', min_profile_pct: 25, data_room_required: false, rfi_questions: [], faqs: [], status: 'open', visibility: 'public', challenge_type: 'partner' });
+      formDraft.submitted();   // resets the form AND drops the saved draft
       load();
     } catch (err) {
       toast.error(err.message);
@@ -271,7 +279,9 @@ const startEdit = () => {
     const rfi = (() => { try { return typeof detail.rfi_questions === 'string' ? JSON.parse(detail.rfi_questions) : (detail.rfi_questions || []); } catch { return []; } })();
     const fq = (() => { try { return typeof detail.faqs === 'string' ? JSON.parse(detail.faqs) : (detail.faqs || []); } catch { return []; } })();
     // T32-99c-hotfix: include visibility + challenge_type so Edit doesn't lose them
-    setForm({
+    // rebaseline, not setForm: seeding from the loaded row must not register
+    // as an unsaved change (see useFormDraft's header).
+    formDraft.rebaseline({
       title: detail.title || '', description: detail.description || '', budget_range: detail.budget_range || '',
       timeline: detail.timeline || '', deadline: detail.deadline ? detail.deadline.split('T')[0] : '',
       sectors: detail.sectors || [], functions: detail.functions || [], technologies: detail.technologies || [],
@@ -291,6 +301,7 @@ const startEdit = () => {
     try {
       await corporateAPI.updateChallenge(selected, form);
       toast.success('Challenge updated');
+      formDraft.clearDraft();
       setShowCreate(false);
       setEditMode(false);
       loadDetail(selected);
@@ -653,6 +664,7 @@ const startEdit = () => {
       {showCreate && <ChallengeForm
         aiAdvisorLoading={aiAdvisorLoading} aiSuggestions={aiSuggestions} create={create} editMode={editMode}
         form={form} runAiAdvisor={runAiAdvisor} saving={saving}
+        draft={formDraft}
         setAiSuggestions={setAiSuggestions} setEditMode={setEditMode} setForm={setForm}
         setShowCreate={setShowCreate} taxonomy={taxonomy} updateChallenge={updateChallenge}
         upgradeError={upgradeError}

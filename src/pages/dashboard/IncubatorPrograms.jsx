@@ -6,6 +6,8 @@ import {
   Loader2, Plus, X, Calendar, GraduationCap, Search, ArrowRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -27,7 +29,9 @@ export default function IncubatorPrograms() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({
+  // Draft-backed: these forms are long, and a route change used to take
+  // the whole thing with it.
+  const [form, setForm, formDraft] = useDraftForm('incubator-program:new', {
     name: '', description: '', focus_sectors: '', program_type: 'incubation',
     duration_months: 6, equity_taken: '', funding_offered_min: '', funding_offered_max: '', funding_currency: 'INR',
     application_deadline: '', start_date: '', end_date: '', total_seats: 10, status: 'draft',
@@ -65,11 +69,7 @@ export default function IncubatorPrograms() {
       await incubatorAPI.createProgram(payload);
       toast.success('Program created');
       setShowCreate(false);
-      setForm({
-        name: '', description: '', focus_sectors: '', program_type: 'incubation',
-        duration_months: 6, equity_taken: '', funding_offered_min: '', funding_offered_max: '', funding_currency: 'INR',
-        application_deadline: '', start_date: '', end_date: '', total_seats: 10, status: 'draft',
-      });
+      formDraft.submitted();   // clears the form AND the stored draft
       load();
     } catch (err) { toast.error(err.message || 'Failed to create'); }
   };
@@ -203,6 +203,7 @@ export default function IncubatorPrograms() {
               <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Incubation Program</h2>
               <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowCreate(false)} />
             </div>
+            <DraftRestoredNotice draft={formDraft} style={{ marginBottom: 16 }} />
             <form onSubmit={handleCreate}>
               <div style={{ display: 'grid', gap: 12 }}>
                 <div>

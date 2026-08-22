@@ -7,6 +7,8 @@ import {
   Search, ArrowRight, Zap, MapPin
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -27,7 +29,9 @@ export default function AcceleratorBatches() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({
+  // Draft-backed: these forms are long, and a route change used to take
+  // the whole thing with it.
+  const [form, setForm, formDraft] = useDraftForm('accelerator-batch:new', {
     name: '', description: '', focus_sectors: '', batch_number: '', duration_weeks: 12,
     equity_taken: '', investment_amount: '', investment_currency: 'INR', application_deadline: '', start_date: '',
     end_date: '', demo_day_date: '', total_seats: 10, status: 'draft', location: '', is_virtual: false,
@@ -65,11 +69,7 @@ export default function AcceleratorBatches() {
       await acceleratorAPI.createBatch(payload);
       toast.success('Batch created');
       setShowCreate(false);
-      setForm({
-        name: '', description: '', focus_sectors: '', batch_number: '', duration_weeks: 12,
-        equity_taken: '', investment_amount: '', investment_currency: 'INR', application_deadline: '', start_date: '',
-        end_date: '', demo_day_date: '', total_seats: 10, status: 'draft', location: '', is_virtual: false,
-      });
+      formDraft.submitted();   // clears the form AND the stored draft
       load();
     } catch (err) { toast.error(err.message || 'Failed to create'); }
   };
@@ -196,6 +196,7 @@ export default function AcceleratorBatches() {
               <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Accelerator Batch</h2>
               <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowCreate(false)} />
             </div>
+            <DraftRestoredNotice draft={formDraft} style={{ marginBottom: 16 }} />
             <form onSubmit={handleCreate}>
               <div style={{ display: 'grid', gap: 12 }}>
                 <div>

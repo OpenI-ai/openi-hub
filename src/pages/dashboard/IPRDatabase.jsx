@@ -4,6 +4,8 @@ import { iprAPI, startupAPI, iprShareAPI, getToken } from '../../services/api';
 import { useAuth } from '../../context/AuthContext'; // Phase 94
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { Shield, Plus, Search, FileText, Award, Share2, FileDown, Mail, X } from 'lucide-react'; // Phase 111 Ship 2b icons added
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 
 const TYPE_ICONS = { Patent: Shield, Trademark: Award, Copyright: FileText, Design: FileText };
 const STATUS_COLORS = {
@@ -42,7 +44,8 @@ export default function IPRDatabase() {
   // Phase 94 Ship 3 — startup_id + startup_name (display label) for the
   // typeahead picker. startup_id is what goes on the wire; startup_name is
   // the human-readable label we keep in the input box once picked.
-  const [form, setForm] = useState({
+  // Draft-backed so a part-filled IPR record survives leaving the page.
+  const [form, setForm, formDraft] = useDraftForm('ipr:new', {
     title: '',
     application_no: '',
     filing_date: '',
@@ -170,6 +173,7 @@ export default function IPRDatabase() {
       };
       await iprAPI.create(payload);
       toast.success('IPR record added');
+      formDraft.clearDraft();   // saved — stop offering it back
       // Optimistic refresh — prepend the created row to the list. Falls back
       // to a full re-fetch if the response shape is unexpected.
       try {
@@ -436,6 +440,7 @@ export default function IPRDatabase() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <h3 className="font-display font-bold text-gray-900 text-lg mb-5">Add IPR Record</h3>
+            <DraftRestoredNotice draft={formDraft} onStartOver={() => { formDraft.discardDraft(); resetForm(); }} style={{ marginBottom: 18 }} />
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1.5">
@@ -576,7 +581,7 @@ export default function IPRDatabase() {
             </div>
             <div className="flex gap-3 mt-5">
               <button
-                onClick={() => { resetForm(); setShowAdd(false); }}
+                onClick={() => setShowAdd(false)}
                 disabled={saving}
                 className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm disabled:opacity-50"
               >

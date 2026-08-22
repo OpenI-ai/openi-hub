@@ -43,8 +43,19 @@
  * localStorage and then throw on access (Sentry OPENI-HUB-FRONTEND-F). A
  * draft is a convenience, so every failure path here degrades to "no draft"
  * rather than surfacing an error.
+ *
+ * WHAT MUST NEVER BE DRAFTED
+ * --------------------------
+ * localStorage is readable by any script on the origin and survives logout.
+ * Do NOT attach this hook to a form carrying a password, a current/new
+ * credential pair, an SSO client secret, an API key, or card details. The
+ * convenience is not worth writing a secret to disk. Login, the password tab
+ * in Settings, the SSO configuration form and the registration password step
+ * are deliberately left alone for this reason; the rule matters more than any
+ * individual form, because the next person to add a form will copy a
+ * neighbour.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import safeStorage from '../utils/safeStorage';
 
@@ -152,4 +163,68 @@ export default function useFormDraft({
   }, [enabled, storageKey, pristine, value, fileHint]);
 
   return { restored, restoredFileName, clearDraft, discardDraft };
+}
+
+
+/**
+ * useDraftForm — useState plus a persisted draft, in one call.
+ *
+ * Exists so that adding this protection to an existing form is a one-line
+ * change rather than a bespoke edit: the app has roughly forty forms, and a
+ * pattern that has to be re-derived at each one gets applied inconsistently
+ * and then rots.
+ *
+ *   - const [form, setForm] = useState(EMPTY);
+ *   + const [form, setForm, draft] = useDraftForm('iprs:new', EMPTY);
+ *
+ * Two things the caller still owes:
+ *   1. draft.clearDraft() once the data reaches the server, or the form keeps
+ *      offering back something already submitted.
+ *   2. <DraftRestoredNotice /> somewhere visible, so a restored draft is not a
+ *      surprise — particularly on an edit form, where recovered values would
+ *      otherwise read as the saved ones.
+ *
+ * And one that only some callers owe: draft.rebaseline(next). Several pages in
+ * this app drive both "create" and "edit" through ONE piece of form state,
+ * re-seeding it from the loaded row when you hit Edit. Plain setForm() there
+ * would leave the baseline pointing at the empty-create shape, so the form
+ * would read as dirty the instant Edit opened and the untouched row would be
+ * written out as a draft. rebaseline() sets the values and moves the baseline
+ * with them, so the form is dirty only once a human changes something.
+ *
+ * @param {string} key      Form id, namespaced per user internally.
+ * @param {object} initial  Initial state. Doubles as the pristine baseline and
+ *                          as what resetForm() restores.
+ * @returns {[object, function, object]} [value, setValue, draft]
+ */
+export function useDraftForm(key, initial, { enabled = true, fileHint = null } = {}) {
+  const [value, setValue] = useState(initial);
+
+  // Captured once. `initial` is an object literal at most call sites, so
+  // comparing against the live prop would re-baseline on every render and the
+  // form would never look dirty.
+  const initialRef = useRef(initial);
+  const baseline = useRef(JSON.stringify(initial));
+
+  const pristine = useMemo(() => JSON.stringify(value) === baseline.current, [value]);
+
+  const draft = useFormDraft({ key, value, onRestore: setValue, enabled, pristine, fileHint });
+
+  const resetForm = useCallback(() => {
+    draft.discardDraft();
+    setValue(initialRef.current);
+  }, [draft]);
+
+  const submitted = useCallback(() => {
+    draft.clearDraft();
+    setValue(initialRef.current);
+  }, [draft]);
+
+  // Seed the form AND move the pristine baseline to match — see the header.
+  const rebaseline = useCallback((next) => {
+    baseline.current = JSON.stringify(next);
+    setValue(next);
+  }, []);
+
+  return [value, setValue, { ...draft, resetForm, submitted, rebaseline }];
 }
