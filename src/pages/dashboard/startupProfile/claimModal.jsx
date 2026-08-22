@@ -9,6 +9,8 @@
  */
 
 import { useState } from 'react';
+import { useDraftForm } from '../../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import { Flag, Loader2, Mail, X } from 'lucide-react';
 import { claimAPI } from '../../../services/api';
@@ -27,7 +29,13 @@ import { claimAPI } from '../../../services/api';
  *   audit trail on the domain_auto path.
  */
 function ClaimStartupModal({ open, onClose, startup, onSuccess }) {
-  const [evidence, setEvidence] = useState('');
+  // Draft-backed, keyed on the startup being claimed. The field demands at
+  // least 20 characters of written justification, which is exactly the kind
+  // of thing nobody wants to type twice.
+  const [claimForm, setClaimForm, claimDraft] = useDraftForm(
+    `startup-claim:${startup?.user_id ?? 'none'}`, { evidence: '' });
+  const evidence = claimForm.evidence;
+  const setEvidence = (v) => setClaimForm({ evidence: v });
   const [submitting, setSubmitting] = useState(false);
 
   if (!open) return null;
@@ -50,6 +58,7 @@ function ClaimStartupModal({ open, onClose, startup, onSuccess }) {
       } else {
         toast.success('Claim submitted — awaiting admin review');
       }
+      claimDraft.clearDraft();   // submitted
       onSuccess?.(res);
       onClose();
     } catch (err) {
@@ -99,6 +108,8 @@ function ClaimStartupModal({ open, onClose, startup, onSuccess }) {
             confirmation link. Otherwise, an admin will review your request manually.
           </div>
         </div>
+
+        <DraftRestoredNotice draft={claimDraft} style={{ marginBottom: 12 }} />
 
         {/* Evidence */}
         <label className="block text-xs font-semibold text-gray-700 mb-1.5">

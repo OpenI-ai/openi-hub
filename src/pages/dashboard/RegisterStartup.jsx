@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { startupAPI, publicAPI } from '../../services/api';
@@ -43,7 +45,10 @@ export default function RegisterStartup() {
   const [verifying, setVerifying] = useState({ gstin: false, dpiit: false, cin: false });
   const [verified, setVerified] = useState({ gstin: false, dpiit: false, cin: false });
 
-  const [form, setForm] = useState({
+  // Draft-backed, and this is the form that most needed it: six steps of
+  // company, founder, product, funding and compliance detail, all of it in
+  // one useState that a single navigation away discarded.
+  const [form, setForm, formDraft] = useDraftForm('register-startup:new', {
     // Step 1
     companyName: '', legalName: '', founded: '', website: '', email: '',
     mobile: '', location: '', city: '', state: '',
@@ -110,6 +115,7 @@ export default function RegisterStartup() {
     startupAPI.create(payload)
       .then(() => {
         toast.success('Startup registered successfully');
+        formDraft.clearDraft();   // submitted — stop offering it back
         setSubmitted(true);
         // Send newcomers to their profile with ?autofill=1 so the auto-fill CTA auto-opens
         setTimeout(() => navigate('/dashboard/profile?autofill=1'), 2000);
@@ -150,6 +156,8 @@ export default function RegisterStartup() {
           <h1 className="text-2xl font-display font-bold text-gray-900">Startup Registration</h1>
           <p className="text-gray-500 text-sm mt-1">Create your OpenI Hub profile · All fields marked * are mandatory</p>
         </div>
+
+        <DraftRestoredNotice draft={formDraft} style={{ marginBottom: 24 }} />
 
         {/* Step Indicator */}
         <div className="flex items-center mb-8 overflow-x-auto pb-2">

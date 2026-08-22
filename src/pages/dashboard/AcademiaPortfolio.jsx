@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { academiaEnhAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { FlaskConical, BookOpen, DollarSign, Plus, X, Edit3, Trash2, Star, ExternalLink } from 'lucide-react';
@@ -25,7 +27,11 @@ export default function AcademiaPortfolio() {
   const [grants, setGrants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
-  const [form, setForm] = useState({});
+  // Draft-backed. The key carries BOTH the entity kind and the row, because
+  // one piece of form state serves every kind here: `academia-portfolio:project:new`
+  // and a half-written publication cannot collide.
+  const [form, setForm, formDraft] = useDraftForm(
+    `academia-portfolio:${modal || 'none'}:${editId || 'new'}`, {});
   const [editId, setEditId] = useState(null);
 
   const load = async () => {
@@ -42,10 +48,10 @@ export default function AcademiaPortfolio() {
   };
   useEffect(() => { load(); }, []);
 
-  const openCreate = (type) => { setEditId(null); setForm({}); setModal(type); };
+  const openCreate = (type) => { setEditId(null); formDraft.rebaseline({}); setModal(type); };
   const openEdit = (type, item) => {
     setEditId(item.id);
-    setForm({ ...item,
+    formDraft.rebaseline({ ...item,
       domain: item.domain?.join(', ') || '',
       collaborators: item.collaborators?.join(', ') || '',
       authors: item.authors?.join(', ') || '',
@@ -74,7 +80,7 @@ export default function AcademiaPortfolio() {
         editId ? await academiaEnhAPI.updateGrant(editId, data) : await academiaEnhAPI.createGrant(data);
       }
       toast.success(editId ? 'Updated' : 'Created');
-      setModal(null); setForm({}); setEditId(null); load();
+      formDraft.clearDraft(); setModal(null); setForm({}); setEditId(null); load();
     } catch { toast.error('Save failed'); }
   };
 
@@ -222,6 +228,7 @@ export default function AcademiaPortfolio() {
               <h2 style={{ margin: 0, fontSize: 18 }}>{editId ? 'Edit' : 'New'} {modal === 'project' ? 'Research Project' : modal === 'publication' ? 'Publication' : 'Grant'}</h2>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => { setModal(null); setEditId(null); }}/>
             </div>
+            <DraftRestoredNotice draft={formDraft} editing={!!editId} style={{ marginBottom: 14 }} />
 
             {modal === 'project' && <>
               <Inp label="Title *" value={form.title || ''} onChange={v => setForm(f => ({ ...f, title: v }))}/>

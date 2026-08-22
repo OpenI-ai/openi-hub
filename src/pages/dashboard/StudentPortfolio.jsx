@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { studentEnhAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { FolderKanban, Award, Plus, X, Edit3, Trash2, Star, ExternalLink, Github, Share2, Copy, Link2 } from 'lucide-react';
@@ -19,7 +21,11 @@ export default function StudentPortfolio() {
   const [certifications, setCertifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); // 'project' | 'certification' | null
-  const [form, setForm] = useState({});
+  // Draft-backed. The key carries BOTH the entity kind and the row, because
+  // one piece of form state serves every kind here: `student-portfolio:project:new`
+  // and a half-written publication cannot collide.
+  const [form, setForm, formDraft] = useDraftForm(
+    `student-portfolio:${modal || 'none'}:${editId || 'new'}`, {});
   const [editId, setEditId] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shares, setShares] = useState([]);
@@ -37,8 +43,8 @@ export default function StudentPortfolio() {
   };
   useEffect(() => { load(); }, []);
 
-  const openCreate = (type) => { setEditId(null); setForm({}); setModal(type); };
-  const openEdit = (type, item) => { setEditId(item.id); setForm({ ...item, tech_stack: item.tech_stack?.join(', ') || '', collaborators: item.collaborators?.join(', ') || '', skills_gained: item.skills_gained?.join(', ') || '' }); setModal(type); };
+  const openCreate = (type) => { setEditId(null); formDraft.rebaseline({}); setModal(type); };
+  const openEdit = (type, item) => { setEditId(item.id); formDraft.rebaseline({ ...item, tech_stack: item.tech_stack?.join(', ') || '', collaborators: item.collaborators?.join(', ') || '', skills_gained: item.skills_gained?.join(', ') || '' }); setModal(type); };
 
   const handleSave = async () => {
     try {
@@ -55,7 +61,7 @@ export default function StudentPortfolio() {
         if (editId) { await studentEnhAPI.updateCertification(editId, data); toast.success('Certification updated'); }
         else { await studentEnhAPI.createCertification(data); toast.success('Certification added'); }
       }
-      setModal(null); setForm({}); setEditId(null); load();
+      formDraft.clearDraft(); setModal(null); setForm({}); setEditId(null); load();
     } catch { toast.error('Save failed'); }
   };
 
@@ -220,6 +226,7 @@ export default function StudentPortfolio() {
               <h2 style={{ margin: 0, fontSize: 18 }}>{editId ? 'Edit' : 'New'} {modal === 'project' ? 'Project' : 'Certification'}</h2>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => { setModal(null); setEditId(null); }}/>
             </div>
+            <DraftRestoredNotice draft={formDraft} editing={!!editId} style={{ marginBottom: 14 }} />
             {modal === 'project' && <>
               <Inp label="Title *" value={form.title || ''} onChange={v => setForm(f => ({ ...f, title: v }))}/>
               <Inp label="Description" value={form.description || ''} onChange={v => setForm(f => ({ ...f, description: v }))} multiline/>
