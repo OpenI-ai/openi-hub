@@ -127,7 +127,14 @@ const SHOTS = [
   // the investor dashboard all render for these personas with no upgrade gate.
   { file: '09-recommended-startups.png', email: 'corporate@demo.openi.ai', path: '/dashboard/corporate/recommended-startups' },
   { file: '10-ai-profile-score.png',     email: 'startup@demo.openi.ai',   path: '/dashboard/evaluate' },
-  { file: '11-investor-dashboard.png',   email: 'investor@demo.openi.ai',  path: '/dashboard' },
+  // /dashboard, not /dashboard/investor/deals, was the first guess here and it
+  // was wrong: the slide's caption is "7-stage deal pipeline, AI-evaluated
+  // startups, 583K-startup sourcing engine", and the investor landing page
+  // shows none of that — the production shot came back as the AI Profile
+  // Insights card. InvestorDeals.jsx:16-24 defines exactly seven stages
+  // (Sourced, Evaluating, LOI, Diligence, Term Sheet, Closed, Passed), which is
+  // the thing the caption is describing.
+  { file: '11-investor-dashboard.png',   email: 'investor@demo.openi.ai',  path: '/dashboard/investor/deals' },
 ];
 
 const ROLES = ['startup','student','academia','corporate','govt','investor','lab',
