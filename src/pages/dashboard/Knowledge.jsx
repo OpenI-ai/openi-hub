@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';  // Ship #5 (22 May 2026)
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import AddArticleModal from '../../components/knowledge/AddArticleModal'; // Phase 121
 import {
-  Search, Lock, Eye, EyeOff, Plus, ExternalLink, Download, Trash2,
+  Search, Lock, Eye, EyeOff, Plus, ExternalLink, Download, Trash2, Pencil,
 } from 'lucide-react';
 import { getSectorIcon, getSectorColor } from '../../constants/knowledgeIcons';
 import { openProxyFile } from '../../utils/fileAccess';
@@ -33,6 +33,10 @@ export default function Knowledge() {
   const [suggesting, setSuggesting] = useState(false);
   // Phase 121 — Add Article modal + contributor self-service request state
   const [showAddModal, setShowAddModal] = useState(false);
+  // 22 Aug 2026 — the article currently open in the edit modal. Reported: an
+  // uploaded report could only be taken down or deleted, so correcting a title
+  // meant destroying the row (and its view count) and uploading the file again.
+  const [editing, setEditing] = useState(null);
   const [contribInfo, setContribInfo] = useState(null);
   const [requesting, setRequesting] = useState(false);
   // Phase 130 — submitter-side status view for "Suggest an Article" submissions
@@ -99,6 +103,26 @@ export default function Knowledge() {
     } catch (err) {
       toast.error(err.message || 'Failed to update article');
     }
+  };
+
+  // Mirrors handleArticleCreated's mapping so an edited row keeps the display
+  // shape the list expects; `summary` and `type` are the list's names for the
+  // API's `content` and `category`.
+  const handleArticleUpdated = (updated) => {
+    const patch = {
+      title: updated.title || '',
+      type: updated.category || 'article',
+      summary: updated.content || '',
+      tags: updated.tags || [],
+      sector: updated.sector || null,
+      file_url: updated.file_url || null,
+      file_name: updated.file_name || null,
+      is_public: updated.is_public,
+      is_published: updated.is_published,
+    };
+    setArticles(prev => prev.map(a => (a.id === updated.id ? { ...a, ...patch } : a)));
+    setSelected(sel => (sel && sel.id === updated.id ? { ...sel, ...patch } : sel));
+    setEditing(null);
   };
 
   const deleteArticleHandler = async (article) => {
@@ -415,6 +439,16 @@ export default function Knowledge() {
             {/* Phase 121 — moderation: admin can take down/publish/delete ANY article; an author can take down/publish their own */}
             {(isTrueAdmin || (user?.id && selected.author_id === user.id)) && (
               <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                {/* 22 Aug 2026 — Edit. Gated exactly as PUT /api/knowledge/:id
+                    gates itself (author or admin, knowledgeController.js:117),
+                    minus Strapi-sourced rows: those ids are `strapi-report-N`
+                    strings, not knowledge_articles rows, so there is nothing
+                    for the endpoint to update. */}
+                {!String(selected.id).startsWith('strapi-report-') && (
+                  <button onClick={() => setEditing(selected)} className="flex-1 py-2 border border-gray-300 text-gray-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-gray-50">
+                    <Pencil size={13} /> Edit
+                  </button>
+                )}
                 <button onClick={() => toggleAdminPublish(selected)} className="flex-1 py-2 border border-gray-300 text-gray-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-gray-50">
                   {selected.is_published === false ? (<><Eye size={13} /> Publish</>) : (<><EyeOff size={13} /> Take down</>)}
                 </button>
@@ -431,6 +465,17 @@ export default function Knowledge() {
 
       {/* Phase 121 — Add Knowledge Hub content modal (admin/evaluator/approved contributor) */}
       <AddArticleModal open={showAddModal} onClose={() => setShowAddModal(false)} onCreated={handleArticleCreated} />
+
+      {/* 22 Aug 2026 — same modal in edit mode. Keyed by article id so switching
+          between two articles re-seeds the fields instead of showing the first
+          one's values against the second one's id. */}
+      <AddArticleModal
+        key={editing?.id || 'edit-none'}
+        open={!!editing}
+        article={editing}
+        onClose={() => setEditing(null)}
+        onUpdated={handleArticleUpdated}
+      />
 
       {/* Ship #5 (22 May 2026) — Suggest an Article modal (non-admin only) */}
       {showSuggest && (
