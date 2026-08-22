@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { incubatorAPI } from '../../services/api';
 import {
   Loader2, Plus, X, Users, Trash2, Edit3, Mail, Clock, ToggleLeft, ToggleRight
@@ -13,9 +15,9 @@ export default function IncubatorMentorPool() {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({
-    mentor_name: '', mentor_email: '', expertise: '', hours_per_month: '', notes: '', is_active: true
-  });
+  const [form, setForm, formDraft] = useDraftForm(
+    editingId ? `mentor-pool:${editingId}` : 'mentor-pool:new',
+    { mentor_name: '', mentor_email: '', expertise: '', hours_per_month: '', notes: '', is_active: true });
 
   useEffect(() => { load(); }, []);
 
@@ -33,7 +35,7 @@ export default function IncubatorMentorPool() {
   };
 
   const openEdit = (m) => {
-    setForm({
+    formDraft.rebaseline({
       mentor_name: m.mentor_name || '',
       mentor_email: m.mentor_email || '',
       expertise: (m.expertise || []).join(', '),
@@ -61,6 +63,7 @@ export default function IncubatorMentorPool() {
         await incubatorAPI.addMentorToPool(payload);
         toast.success('Mentor added to pool');
       }
+      formDraft.clearDraft();   // on the server now
       setShowAdd(false);
       resetForm();
       load();
@@ -148,6 +151,7 @@ export default function IncubatorMentorPool() {
               <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{editingId ? 'Edit Mentor' : 'Add Mentor to Pool'}</h2>
               <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => { setShowAdd(false); resetForm(); }} />
             </div>
+            <DraftRestoredNotice draft={formDraft} editing={!!editingId} style={{ marginBottom: 14 }} />
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div>
                 <label style={lbl}>Mentor Name *</label>

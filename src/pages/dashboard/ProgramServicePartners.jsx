@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { programPartnersAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { formatCurrency, CURRENCY_OPTIONS } from '../../utils/currency';
@@ -46,7 +48,10 @@ export default function ProgramServicePartners() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [upgradeError, setUpgradeError] = useState(null);
-  const [form, setForm] = useState({
+  // Draft-backed. Keyed per target so an in-progress edit of one partner and
+  // a half-filled new one cannot overwrite each other.
+  const [form, setForm, formDraft] = useDraftForm(
+    editingId ? `service-partner:${editingId}` : 'service-partner:new', {
     service_provider_user_id: '',
     service_category: '',
     perk_description: '',
@@ -124,7 +129,7 @@ export default function ProgramServicePartners() {
       logo_url: p.logo_url,
       tagline: p.tagline,
     });
-    setForm({
+    formDraft.rebaseline({
       service_provider_user_id: p.service_provider_user_id,
       service_category: p.service_category || '',
       perk_description: p.perk_description || '',
@@ -157,6 +162,7 @@ export default function ProgramServicePartners() {
         await programPartnersAPI.add(payload);
         toast.success('Service partner added');
       }
+      formDraft.clearDraft();   // on the server now
       setShowForm(false);
       setEditingId(null);
       setSelectedSp(null);
@@ -413,6 +419,7 @@ export default function ProgramServicePartners() {
               </div>
             )}
 
+            <DraftRestoredNotice draft={formDraft} editing={!!editingId} style={{ marginBottom: 14 }} />
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
               <div>
                 <label style={lbl}>Service Category *</label>

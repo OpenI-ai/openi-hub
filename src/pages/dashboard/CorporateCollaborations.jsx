@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { corporateAPI } from '../../services/api';
 import { Link2, Loader2, ChevronRight, ChevronLeft, Clock, Plus, Edit3, X, CheckCircle, Trash2, DollarSign, Target } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -27,8 +29,14 @@ export default function CorporateCollaborations() {
   const [tasks, setTasks] = useState([]);
   const [showAddMilestone, setShowAddMilestone] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
-  const [mForm, setMForm] = useState({ title: '', description: '', due_date: '' });
-  const [tForm, setTForm] = useState({ title: '', description: '', assignee_name: '', priority: 'medium', due_date: '' });
+  // Draft-backed, keyed on the collaboration these belong to — a milestone
+  // half-typed under one collab must not reappear under another.
+  const [mForm, setMForm, mDraft] = useDraftForm(
+    selectedCollab ? `collab-milestone:${selectedCollab.id}` : 'collab-milestone:none',
+    { title: '', description: '', due_date: '' });
+  const [tForm, setTForm, tDraft] = useDraftForm(
+    selectedCollab ? `collab-task:${selectedCollab.id}` : 'collab-task:none',
+    { title: '', description: '', assignee_name: '', priority: 'medium', due_date: '' });
   const [budgetEdit, setBudgetEdit] = useState(false);
   const [budgetForm, setBudgetForm] = useState({ budget_estimated: '', budget_spent: '', currency: 'INR' });
 
@@ -67,7 +75,7 @@ export default function CorporateCollaborations() {
 
   const addMilestone = async () => {
     if (!mForm.title) return;
-    try { await corporateAPI.createMilestone(selectedCollab.id, mForm); const ms = await corporateAPI.listMilestones(selectedCollab.id); setMilestones(ms); setMForm({ title: '', description: '', due_date: '' }); setShowAddMilestone(false); toast.success('Milestone added'); }
+    try { await corporateAPI.createMilestone(selectedCollab.id, mForm); const ms = await corporateAPI.listMilestones(selectedCollab.id); setMilestones(ms); mDraft.submitted(); setShowAddMilestone(false); toast.success('Milestone added'); }
     catch { toast.error('Failed to add milestone'); }
   };
 
@@ -79,7 +87,7 @@ export default function CorporateCollaborations() {
 
   const addTask = async () => {
     if (!tForm.title) return;
-    try { await corporateAPI.createTask(selectedCollab.id, tForm); const ts = await corporateAPI.listTasks(selectedCollab.id); setTasks(ts); setTForm({ title: '', description: '', assignee_name: '', priority: 'medium', due_date: '' }); setShowAddTask(false); toast.success('Task added'); }
+    try { await corporateAPI.createTask(selectedCollab.id, tForm); const ts = await corporateAPI.listTasks(selectedCollab.id); setTasks(ts); tDraft.submitted(); setShowAddTask(false); toast.success('Task added'); }
     catch { toast.error('Failed to add task'); }
   };
 
@@ -167,6 +175,8 @@ export default function CorporateCollaborations() {
           )}
           {/* Add form */}
           {showAddMilestone && (
+            <>
+            <DraftRestoredNotice draft={mDraft} style={{ marginBottom: 10 }} />
             <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
               <input placeholder="Milestone title" value={mForm.title} onChange={e => setMForm(f => ({ ...f, title: e.target.value }))}
                 style={{ flex: 2, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
@@ -175,6 +185,7 @@ export default function CorporateCollaborations() {
               <button onClick={addMilestone} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
               <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={14} /></button>
             </div>
+            </>
           )}
           {/* Milestone list */}
           {milestones.length === 0 ? (
@@ -215,6 +226,8 @@ export default function CorporateCollaborations() {
           </div>
           {/* Add form */}
           {showAddTask && (
+            <>
+            <DraftRestoredNotice draft={tDraft} style={{ marginBottom: 10 }} />
             <div style={{ display: 'grid', gap: 8, marginBottom: 10, padding: 12, background: '#f9fafb', borderRadius: 10 }}>
               <input placeholder="Task title" value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))}
                 style={{ padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
@@ -233,6 +246,7 @@ export default function CorporateCollaborations() {
                 <button onClick={() => setShowAddTask(false)} style={{ padding: '6px 10px', fontSize: 11, borderRadius: 8, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
+            </>
           )}
           {/* Task list */}
           {tasks.length === 0 ? (
