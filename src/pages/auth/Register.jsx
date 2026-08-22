@@ -350,7 +350,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
+    <main className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
       <div className="w-full max-w-lg">
         {/* Header — Phase 65c: OpenI brand mark (matches Login.jsx pattern). The
             persona-color chip below indicates which persona is being registered.
@@ -775,6 +775,6 @@ export default function Register() {
       </div>
       {/* Page tour */}
       <PublicTour />
-    </div>
+    </main>
   );
 }

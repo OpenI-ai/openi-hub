@@ -40,6 +40,11 @@ function visibleChips(all, selected, expanded, limit) {
   return head;
 }
 
+// The chip-row toggle's own colour. GOLD_DARK (#C9983F) is 2.61:1 on white —
+// this is 12px bold, so it needs 4.5:1, and axe caught it the first time this
+// button shipped. #8A6A1F is 5.05:1 and still reads as the brand gold.
+const GOLD_LINK = '#8A6A1F';
+
 /** "+58 more" / "Show fewer". Renders nothing when everything already fits. */
 function MoreChipsButton({ total, limit, expanded, onToggle }) {
   if (total <= limit) return null;
@@ -47,7 +52,7 @@ function MoreChipsButton({ total, limit, expanded, onToggle }) {
     <button
       onClick={onToggle}
       className="px-3 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold underline transition-all"
-      style={{ background: 'none', border: 'none', color: GOLD_DARK, cursor: 'pointer' }}
+      style={{ background: 'none', border: 'none', color: GOLD_LINK, cursor: 'pointer' }}
     >
       {expanded ? 'Show fewer' : `+${total - limit} more`}
     </button>

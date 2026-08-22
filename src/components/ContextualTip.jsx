@@ -69,7 +69,7 @@ export default function ContextualTip({ tipKey, children, position = 'bottom' })
         <div style={{ flex: 1, fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>
           {children}
         </div>
-        <button onClick={dismiss} style={{
+        <button onClick={dismiss} aria-label="Dismiss tip" style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 2, flexShrink: 0,
           color: '#b8860b', opacity: 0.6,
         }}>

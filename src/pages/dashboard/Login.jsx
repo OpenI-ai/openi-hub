@@ -111,7 +111,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f5f5f5' }}>
+    <main className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f5f5f5' }}>
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -207,6 +207,8 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setShowPwd(!showPwd)}
+                      aria-label={showPwd ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPwd}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
                       style={{ color: '#6e6e6e' }}
                     >
@@ -311,6 +313,6 @@ export default function Login() {
           &copy; {new Date().getFullYear()} OpenI Hub. All rights reserved.
         </p>
       </div>
-    </div>
+    </main>
   );
 }

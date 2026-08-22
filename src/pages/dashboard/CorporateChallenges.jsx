@@ -637,16 +637,19 @@ const startEdit = () => {
               placeholder="Search challenges..." style={{ width: '100%', padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
           </div>
           <select value={filters.status} onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
+            aria-label="Filter challenges by status"
             style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
             <option value="all">All Status</option>
             {Object.entries(STATUS_STYLE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
           <select value={filters.sector} onChange={e => setFilters(f => ({ ...f, sector: e.target.value }))}
+            aria-label="Filter challenges by sector"
             style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
             <option value="">All Sectors</option>
             {(taxonomy.sectors || []).map(s => { const name = typeof s === 'string' ? s : s.name; return <option key={name} value={name}>{name}</option>; })}
           </select>
           <select value={filters.sort} onChange={e => setFilters(f => ({ ...f, sort: e.target.value }))}
+            aria-label="Sort challenges"
             style={{ padding: '7px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }}>
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>

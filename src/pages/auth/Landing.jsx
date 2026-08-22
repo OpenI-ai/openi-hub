@@ -99,6 +99,8 @@ export default function Landing() {
         handleHeaderSearch={handleHeaderSearch}
       />
 
+      <main>
+
       {/* ═══════════════════════════════════════════════════════════
           HERO
           ═══════════════════════════════════════════════════════════ */}
@@ -792,6 +794,8 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      </main>
 
       {/* ═══════════════════════════════════════════════════════════
           FOOTER

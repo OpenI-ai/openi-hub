@@ -89,6 +89,10 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable =
           </div>
         </div>
         <button onClick={e => { e.stopPropagation(); onWatchlist(startup.id); }}
+          aria-label={watchlisted
+            ? `Remove ${startup.company_name || 'this startup'} from your watchlist`
+            : `Add ${startup.company_name || 'this startup'} to your watchlist`}
+          aria-pressed={!!watchlisted}
           className={`p-1 rounded transition-all flex-shrink-0 ${watchlisted ? 'text-primary-500 bg-primary-50' : 'text-gray-300 hover:text-primary-400'}`}>
           {watchlisted ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
         </button>

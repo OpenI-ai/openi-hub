@@ -59,7 +59,17 @@ export default function RoleTabs() {
 
   return (
     <div
-      role="tablist"
+      // 22 Aug 2026 — was role="tablist" with role="tab" children, which axe
+      // flags as aria-required-children on all 11 dashboard pages. Two things
+      // were wrong and only one of them was the rule: a tablist may contain
+      // nothing but tabs, and this one also holds a "Viewing as" label and an
+      // "Add role" button. Papering over that by giving those a tab role would
+      // have made it worse, because this was never a tab widget — activating a
+      // "tab" here NAVIGATES to /dashboard, and there is no tabpanel anywhere
+      // for aria-controls to point at. A screen reader was being told to expect
+      // a panel that does not exist. It is a group of buttons that change the
+      // active persona, so that is what it now says it is.
+      role="group"
       aria-label="Switch role"
       style={{
         display: 'flex',
@@ -83,8 +93,9 @@ export default function RoleTabs() {
         return (
           <button
             key={role}
-            role="tab"
-            aria-selected={active}
+            // aria-current, not aria-selected: the latter is only meaningful on
+            // a tab/option/row, and this is a plain button now.
+            aria-current={active ? 'true' : undefined}
             onClick={() => {
               if (active) return;
               const ok = switchRole(role);

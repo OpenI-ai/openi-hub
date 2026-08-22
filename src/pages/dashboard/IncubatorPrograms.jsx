@@ -99,6 +99,7 @@ export default function IncubatorPrograms() {
             style={{ border: 'none', fontSize: 16, flex: 1, background: 'transparent' }} />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          aria-label="Filter programs by status"
           style={{ padding: '10px 14px', border: '1px solid #eee', borderRadius: 10, fontSize: 16, background: '#fff', cursor: 'pointer' }}>
           <option value="all">All Statuses</option>
           <option value="draft">Draft</option>
