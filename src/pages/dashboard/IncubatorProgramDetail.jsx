@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { useParams, useNavigate } from 'react-router-dom';
 import { incubatorAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -45,10 +47,14 @@ export default function IncubatorProgramDetail() {
   const [tab, setTab] = useState('pipeline');
 
   const [showAddStartup, setShowAddStartup] = useState(false);
-  const [startupForm, setStartupForm] = useState({ startup_name: '', application_status: 'applied', cohort_label: '', notes: '' });
+  // Keyed on the program, so a half-typed pipeline entry belongs to the
+  // program it was typed under.
+  const [startupForm, setStartupForm, startupDraft] = useDraftForm(`program-startup:${id}`,
+    { startup_name: '', application_status: 'applied', cohort_label: '', notes: '' });
 
   const [showAddAssign, setShowAddAssign] = useState(false);
-  const [assignForm, setAssignForm] = useState({ program_startup_id: '', mentor_pool_id: '', notes: '' });
+  const [assignForm, setAssignForm, assignDraft] = useDraftForm(`program-mentor-assign:${id}`,
+    { program_startup_id: '', mentor_pool_id: '', notes: '' });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on id change; `load` is a stable inline closure
   useEffect(() => { load(); }, [id]);
@@ -86,7 +92,7 @@ export default function IncubatorProgramDetail() {
       await incubatorAPI.addProgramStartup(id, startupForm);
       toast.success('Startup added to pipeline');
       setShowAddStartup(false);
-      setStartupForm({ startup_name: '', application_status: 'applied', cohort_label: '', notes: '' });
+      startupDraft.submitted();
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -115,7 +121,7 @@ export default function IncubatorProgramDetail() {
       await incubatorAPI.createAssignment(id, assignForm);
       toast.success('Mentor assigned');
       setShowAddAssign(false);
-      setAssignForm({ program_startup_id: '', mentor_pool_id: '', notes: '' });
+      assignDraft.submitted();
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -326,6 +332,7 @@ export default function IncubatorProgramDetail() {
       {/* Add startup modal */}
       {showAddStartup && (
         <Modal title="Add Startup to Pipeline" onClose={() => setShowAddStartup(false)}>
+          <DraftRestoredNotice draft={startupDraft} style={{ marginBottom: 12 }} />
           <form onSubmit={handleAddStartup} style={{ display: 'grid', gap: 12 }}>
             <div>
               <label style={lbl}>Startup Name *</label>

@@ -11,6 +11,8 @@
  *   submitLabel?: string (default 'Save Evaluation')
  */
 import { useState } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 
 const G = '#D0A848';
 
@@ -29,8 +31,11 @@ const CHECKPOINT_OPTIONS = [
   'Entry', 'Mid-program', 'Demo Day', 'Graduation', 'Custom',
 ];
 
-export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabel = 'Save Evaluation' }) {
-  const [form, setForm] = useState(() => {
+export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabel = 'Save Evaluation', draftKey }) {
+  // The scores are quick, but notes / red flags / action items are written
+  // prose. `draftKey` is optional so an embedder that has no stable id for
+  // the subject can opt out rather than share one key across subjects.
+  const buildInitial = () => {
     const base = {
       checkpoint_label: 'Entry',
       evaluation_date: new Date().toISOString().slice(0, 10),
@@ -46,7 +51,9 @@ export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabe
         ? initial.evaluation_date.slice(0, 10)
         : base.evaluation_date,
     };
-  });
+  };
+  const [form, setForm, formDraft] = useDraftForm(
+    draftKey ? `evaluation:${draftKey}` : null, buildInitial());
   const [saving, setSaving] = useState(false);
 
   const setScore = (key, val) => setForm({ ...form, [key]: parseFloat(val) });
@@ -62,6 +69,7 @@ export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabe
     setSaving(true);
     try {
       await onSubmit(form);
+      formDraft.clearDraft();   // handed to the caller, which persists it
     } finally {
       setSaving(false);
     }
@@ -69,6 +77,7 @@ export default function EvaluationForm({ initial, onSubmit, onCancel, submitLabe
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }}>
+      <DraftRestoredNotice draft={formDraft} editing={!!initial} />
       {/* Checkpoint + date */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
         <div>

@@ -21,12 +21,59 @@ const GRAY = '#6b7280';
 const BORDER = '#e5e7eb';
 const LIGHT_GRAY = '#f5f5f5';
 
+// One row's worth at the widths these chips render at. Sectors get fewer
+// because their labels are longer ("Real Estate & Construction").
+const SECTOR_CHIP_LIMIT = 6;
+const TECH_CHIP_LIMIT = 8;
+
+/**
+ * The chips to actually render: the first `limit`, plus the selected one even
+ * when it sorts past the cut. Without that second part, filtering by a
+ * technology low in the alphabet would collapse the row and leave nothing
+ * showing as active — the user would see an "All Technologies" chip that is
+ * not highlighted and no indication of what is filtering their results.
+ */
+function visibleChips(all, selected, expanded, limit) {
+  if (expanded || all.length <= limit) return all;
+  const head = all.slice(0, limit);
+  if (selected && !head.includes(selected)) return [selected, ...head.slice(0, limit - 1)];
+  return head;
+}
+
+// The chip-row toggle's own colour. GOLD_DARK (#C9983F) is 2.61:1 on white —
+// this is 12px bold, so it needs 4.5:1, and axe caught it the first time this
+// button shipped. #8A6A1F is 5.05:1 and still reads as the brand gold.
+const GOLD_LINK = '#8A6A1F';
+
+/** "+58 more" / "Show fewer". Renders nothing when everything already fits. */
+function MoreChipsButton({ total, limit, expanded, onToggle }) {
+  if (total <= limit) return null;
+  return (
+    <button
+      onClick={onToggle}
+      className="px-3 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold underline transition-all"
+      style={{ background: 'none', border: 'none', color: GOLD_LINK, cursor: 'pointer' }}
+    >
+      {expanded ? 'Show fewer' : `+${total - limit} more`}
+    </button>
+  );
+}
+
 export default function PublicReports() {
   const [reports, setReports] = useState([]);
   const [sectors, setSectors] = useState([]);
   const [technologies, setTechnologies] = useState([]);
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedTechnology, setSelectedTechnology] = useState('');
+  // 22 Aug 2026 — both filter rows render one chip per value, unbounded. With
+  // the Knowledge Hub as the only source the vocabulary grew to ~13 sectors and
+  // ~70 technologies, so the filter bar ran eight rows deep and pushed all 14
+  // reports below the fold: the page opened on a wall of filters for content
+  // you could not see. Reported as "entire page is filled with sector and tech,
+  // reports are buried". Both rows now show one row's worth and expand on
+  // request.
+  const [showAllSectors, setShowAllSectors] = useState(false);
+  const [showAllTechnologies, setShowAllTechnologies] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchReports(); }, [selectedSector, selectedTechnology]);
@@ -86,7 +133,7 @@ export default function PublicReports() {
             >
               All Sectors
             </button>
-            {sectors.map(s => (
+            {visibleChips(sectors, selectedSector, showAllSectors, SECTOR_CHIP_LIMIT).map(s => (
               <button
                 key={s}
                 onClick={() => setSelectedSector(s)}
@@ -100,6 +147,12 @@ export default function PublicReports() {
                 {s}
               </button>
             ))}
+            <MoreChipsButton
+              total={sectors.length}
+              limit={SECTOR_CHIP_LIMIT}
+              expanded={showAllSectors}
+              onToggle={() => setShowAllSectors(v => !v)}
+            />
             <span className="ml-auto text-sm" style={{ color: GRAY }}>
               {reports.length} report{reports.length !== 1 ? 's' : ''}
             </span>
@@ -120,7 +173,7 @@ export default function PublicReports() {
               >
                 All Technologies
               </button>
-              {technologies.map(t => (
+              {visibleChips(technologies, selectedTechnology, showAllTechnologies, TECH_CHIP_LIMIT).map(t => (
                 <button
                   key={t}
                   onClick={() => setSelectedTechnology(t)}
@@ -134,6 +187,12 @@ export default function PublicReports() {
                   {t}
                 </button>
               ))}
+              <MoreChipsButton
+                total={technologies.length}
+                limit={TECH_CHIP_LIMIT}
+                expanded={showAllTechnologies}
+                onToggle={() => setShowAllTechnologies(v => !v)}
+              />
             </div>
           )}
         </div>

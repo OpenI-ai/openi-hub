@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import {
   Calendar, MapPin, Users, Plus, Search, Clock, ExternalLink, Download,
@@ -103,11 +105,14 @@ export default function EventsRepository() {
   const [search, setSearch]     = useState('');
   const [selected, setSelected] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm]         = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   // Testing-team fix (Jun 2026) — when set, the Create modal acts as an Edit modal
   // for this event (full edit; server-gated to creator + same-org + admin).
   const [editing, setEditing]   = useState(null);
+  // Draft-backed: an event write-up used to vanish on a stray backdrop click
+  // (closeModal resets the form) or on any route change.
+  const [form, setForm, formDraft] = useDraftForm(
+    editing ? `event:${editing.id}` : 'event:new', EMPTY_FORM);
 
   // Ship #10 follow-up (22 May 2026 late evening) — registered set is now
   // backend-backed via event_registrations table. Pre-follow-up was in-session
@@ -184,7 +189,7 @@ export default function EventsRepository() {
 
   const handleEdit = (ev) => {
     setEditing(ev);
-    setForm({
+    formDraft.rebaseline({
       title: ev.title || '',
       description: ev.description || '',
       type: ev.type || 'workshop',
@@ -198,10 +203,12 @@ export default function EventsRepository() {
     setShowCreate(true);
   };
 
+  // Dismissing is not discarding: this used to reset the form, and the backdrop
+  // click below routes straight through here. The draft survives; "Start over"
+  // on the restore notice is the explicit way to throw it away.
   const closeModal = () => {
     setShowCreate(false);
     setEditing(null);
-    setForm(EMPTY_FORM);
   };
 
   const handleCreate = async (e) => {
@@ -237,6 +244,7 @@ export default function EventsRepository() {
         setEvents(prev => [norm, ...prev]);
         toast.success('Event saved as draft — only you can see it until you publish');
       }
+      formDraft.submitted();   // saved — drop the draft and reset
       closeModal();
     } catch (err) {
       toast.error(err.message || (editing ? 'Failed to update event' : 'Failed to create event'));
@@ -393,6 +401,8 @@ export default function EventsRepository() {
               </div>
               <button type="button" onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5c5c5c', padding: 4 }}><X size={18} /></button>
             </div>
+
+            <DraftRestoredNotice draft={formDraft} editing={!!editing} style={{ marginBottom: 14 }} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
               <Field label="Event Title *">

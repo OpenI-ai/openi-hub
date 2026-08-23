@@ -1,5 +1,7 @@
 // Phase 104b — added useMemo for dynamic folder derivation, uploadAPI for Cloudinary uploads, ExternalLink + Loader2 for preview/upload UI
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import { documentAPI, uploadAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';  // Phase 112 — Edit modal permission gate
@@ -83,7 +85,12 @@ export default function DocumentRepository() {
 
   // Phase 104b — Upload Document modal state
   const [showUpload, setShowUpload] = useState(false);
-  const [uploadForm, setUploadForm] = useState({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+  // Draft-backed for the typed metadata only. The picked FILE is not drafted
+  // — a File handle cannot be serialized and would not survive a reload — so
+  // a restored draft brings back the name, category, access and tags, and the
+  // file has to be picked again.
+  const [uploadForm, setUploadForm, uploadDraft] = useDraftForm('document-upload:new',
+    { name: '', category: 'Program Documents', access: 'internal', tags: '' });
   const [uploadedUrl, setUploadedUrl] = useState('');
   const [uploadedMeta, setUploadedMeta] = useState(null); // {filename, size, type}
   const [uploading, setUploading] = useState(false);
@@ -96,7 +103,9 @@ export default function DocumentRepository() {
   // Phase 112 — Edit modal state + auth context for permission gate
   const { user } = useAuth();
   const [editingDoc, setEditingDoc] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+  const [editForm, setEditForm, editDraft] = useDraftForm(
+    editingDoc ? `document-edit:${editingDoc.id}` : 'document-edit:none',
+    { name: '', category: 'Program Documents', access: 'internal', tags: '' });
   const [editSaving, setEditSaving] = useState(false);
 
   // Phase 104c — hook order fix: dynamicFolders useMemo moved above early return
@@ -197,7 +206,7 @@ export default function DocumentRepository() {
       });
       toast.success('Document uploaded');
       setShowUpload(false);
-      setUploadForm({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
+      uploadDraft.submitted();
       setUploadedUrl('');
       setUploadedMeta(null);
       loadDocuments();
@@ -242,16 +251,16 @@ export default function DocumentRepository() {
   };
   const handleEdit = (f) => {
     setEditingDoc(f);
-    setEditForm({
+    editDraft.rebaseline({
       name: f.name || '',
       category: f.folder || 'Other',
       access: f.access || 'internal',
       tags: Array.isArray(f.tags) ? f.tags.join(', ') : '',
     });
   };
+  // Dismissing is not discarding — the draft survives; "Revert" drops it.
   const closeEditModal = () => {
     setEditingDoc(null);
-    setEditForm({ name: '', category: 'Program Documents', access: 'internal', tags: '' });
   };
   const handleSaveEdit = async () => {
     if (!editingDoc) return;
@@ -266,6 +275,7 @@ export default function DocumentRepository() {
         tags: editForm.tags ? editForm.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       });
       toast.success('Document updated');
+      editDraft.clearDraft();
       closeEditModal();
       loadDocuments();
     } catch (err) {
@@ -603,6 +613,8 @@ export default function DocumentRepository() {
               </button>
             </div>
 
+            <DraftRestoredNotice draft={uploadDraft} style={{ marginBottom: 16 }} />
+
             {/* File picker */}
             <div style={{ marginBottom: 14 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>File <span style={{ color: '#dc2626' }}>*</span></label>
@@ -780,6 +792,8 @@ export default function DocumentRepository() {
                 <X size={18} color="#666" />
               </button>
             </div>
+
+            <DraftRestoredNotice draft={editDraft} editing style={{ marginBottom: 16 }} />
             <div style={{ marginBottom: 14 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Document Name <span style={{ color: '#dc2626' }}>*</span></label>
               <input

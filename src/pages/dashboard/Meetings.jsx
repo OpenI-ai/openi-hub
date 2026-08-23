@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { meetingAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAS } from '../../config/personas';
@@ -68,7 +70,10 @@ export default function Meetings() {
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [upgradeError, setUpgradeError] = useState(null);
-  const [form, setForm] = useState({
+  // Draft-backed. Participants are picked separately and are not part of the
+  // draft — they are looked up live, so a stale id list could point at users
+  // who have since been removed.
+  const [form, setForm, formDraft] = useDraftForm('meeting:new', {
     title: '', description: '', meeting_type: 'one_on_one',
     start_time: '', end_time: '', location: '', meeting_link: '', notes: '',
   });
@@ -155,7 +160,7 @@ export default function Meetings() {
       });
       toast.success('Meeting scheduled!');
       setShowCreate(false);
-      setForm({ title: '', description: '', meeting_type: 'one_on_one', start_time: '', end_time: '', location: '', meeting_link: '', notes: '' });
+      formDraft.submitted();
       setParticipants([]);
       loadMeetings();
     } catch (err) {
@@ -418,6 +423,8 @@ export default function Meetings() {
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Schedule Meeting</h2>
               <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={20} /></button>
             </div>
+
+            <DraftRestoredNotice draft={formDraft} style={{ marginBottom: 16 }} />
 
             <div style={{ display: 'grid', gap: 14 }}>
               {/* Title */}

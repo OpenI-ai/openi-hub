@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { investorAPI } from '../../services/api';
 import {
   Loader2, ChevronLeft, ChevronRight, Clock, Plus, X, CheckCircle,
@@ -78,15 +80,22 @@ export default function InvestorDeals() {
 
   // Milestones
   const [showAddMilestone, setShowAddMilestone] = useState(false);
-  const [mForm, setMForm] = useState({ title: '', description: '', due_date: '' });
+  // Keyed on the deal these belong to — a milestone half-typed under one deal
+  // must not reappear under another.
+  const [mForm, setMForm, mDraft] = useDraftForm(
+    selectedDeal ? `deal-milestone:${selectedDeal.id}` : 'deal-milestone:none',
+    { title: '', description: '', due_date: '' });
 
   // Tasks
   const [showAddTask, setShowAddTask] = useState(false);
-  const [tForm, setTForm] = useState({ title: '', description: '', assignee_name: '', priority: 'medium', due_date: '' });
+  const [tForm, setTForm, tDraft] = useDraftForm(
+    selectedDeal ? `deal-task:${selectedDeal.id}` : 'deal-task:none',
+    { title: '', description: '', assignee_name: '', priority: 'medium', due_date: '' });
 
   // Create deal
   const [showCreate, setShowCreate] = useState(false);
-  const [createForm, setCreateForm] = useState({ startup_name: '', title: '', investment_type: '', notes: '' });
+  const [createForm, setCreateForm, createDraft] = useDraftForm('deal:new',
+    { startup_name: '', title: '', investment_type: '', notes: '' });
   const [upgradeError, setUpgradeError] = useState(null);
 
   useEffect(() => { load(); }, []);
@@ -173,7 +182,7 @@ export default function InvestorDeals() {
       await investorAPI.createDealMilestone(selectedDeal.id, mForm);
       const ms = await investorAPI.listDealMilestones(selectedDeal.id);
       setMilestones(Array.isArray(ms) ? ms : ms.milestones || []);
-      setMForm({ title: '', description: '', due_date: '' });
+      mDraft.submitted();
       setShowAddMilestone(false);
       toast.success('Milestone added');
     } catch { toast.error('Failed to add milestone'); }
@@ -195,7 +204,7 @@ export default function InvestorDeals() {
       await investorAPI.createDealTask(selectedDeal.id, tForm);
       const ts = await investorAPI.listDealTasks(selectedDeal.id);
       setTasks(Array.isArray(ts) ? ts : ts.tasks || []);
-      setTForm({ title: '', description: '', assignee_name: '', priority: 'medium', due_date: '' });
+      tDraft.submitted();
       setShowAddTask(false);
       toast.success('Task added');
     } catch { toast.error('Failed to add task'); }
@@ -217,7 +226,7 @@ export default function InvestorDeals() {
     try {
       await investorAPI.createDeal(createForm);
       toast.success('Deal created');
-      setCreateForm({ startup_name: '', title: '', investment_type: '', notes: '' });
+      createDraft.submitted();
       setShowCreate(false);
       load();
     } catch (err) {
@@ -419,6 +428,8 @@ export default function InvestorDeals() {
             </div>
           )}
           {showAddMilestone && (
+            <>
+            <DraftRestoredNotice draft={mDraft} style={{ marginBottom: 10 }} />
             <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
               <input placeholder="Milestone title" value={mForm.title} onChange={e => setMForm(f => ({ ...f, title: e.target.value }))}
                 style={{ flex: 2, padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
@@ -427,6 +438,7 @@ export default function InvestorDeals() {
               <button onClick={addMilestone} style={{ padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, background: G, color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
               <button onClick={() => setShowAddMilestone(false)} style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={14} /></button>
             </div>
+            </>
           )}
           {milestones.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 16, color: '#ccc', fontSize: 12 }}>No milestones yet</div>
@@ -465,6 +477,8 @@ export default function InvestorDeals() {
             </button>
           </div>
           {showAddTask && (
+            <>
+            <DraftRestoredNotice draft={tDraft} style={{ marginBottom: 10 }} />
             <div style={{ display: 'grid', gap: 8, marginBottom: 10, padding: 12, background: '#f9fafb', borderRadius: 10 }}>
               <input placeholder="Task title" value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))}
                 style={{ padding: '6px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8 }} />
@@ -483,6 +497,7 @@ export default function InvestorDeals() {
                 <button onClick={() => setShowAddTask(false)} style={{ padding: '6px 10px', fontSize: 11, borderRadius: 8, background: '#f3f4f6', color: '#666', border: 'none', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
+            </>
           )}
           {tasks.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 16, color: '#ccc', fontSize: 12 }}>No tasks yet</div>
@@ -553,6 +568,7 @@ export default function InvestorDeals() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>New Deal</h3>
             <button onClick={() => setShowCreate(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}><X size={16} /></button>
           </div>
+          <DraftRestoredNotice draft={createDraft} style={{ marginBottom: 12 }} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 10 }}>
             <div>
               <label style={{ fontSize: 10, color: '#5c5c5c', display: 'block', marginBottom: 2 }}>Startup Name *</label>

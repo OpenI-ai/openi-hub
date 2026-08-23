@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { acceleratorAPI } from '../../services/api';
 import { formatCurrency, formatCurrencyRange, CURRENCY_OPTIONS } from '../../utils/currency';
 import {
@@ -25,14 +27,14 @@ export default function AcceleratorPartners() {
   const [showAddInvestor, setShowAddInvestor] = useState(false);
   const [showAddDemoDay, setShowAddDemoDay] = useState(false);
 
-  const [partnerForm, setPartnerForm] = useState({
+  const [partnerForm, setPartnerForm, partnerDraft] = useDraftForm('accelerator-partner:new', {
     partner_name: '', partnership_type: 'sponsor', partnership_tier: '', contribution: '', website: '', started_at: '', notes: ''
   });
-  const [investorForm, setInvestorForm] = useState({
+  const [investorForm, setInvestorForm, investorDraft] = useDraftForm('accelerator-investor:new', {
     investor_name: '', investor_type: 'vc', firm_name: '', typical_ticket_min: '', typical_ticket_max: '', ticket_currency: 'INR',
     focus_sectors: '', stage_preference: '', contact_email: '', linkedin_url: '', notes: ''
   });
-  const [demoDayForm, setDemoDayForm] = useState({
+  const [demoDayForm, setDemoDayForm, demoDayDraft] = useDraftForm('accelerator-demoday:new', {
     title: '', description: '', event_date: '', venue: '', is_virtual: false, stream_url: '', rsvp_url: '', total_investors_invited: 0,
     total_funding_raised: '', total_funding_raised_currency: 'INR',
   });
@@ -63,7 +65,7 @@ export default function AcceleratorPartners() {
       });
       toast.success('Partner added');
       setShowAddPartner(false);
-      setPartnerForm({ partner_name: '', partnership_type: 'sponsor', partnership_tier: '', contribution: '', website: '', started_at: '', notes: '' });
+      partnerDraft.submitted();
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -81,7 +83,7 @@ export default function AcceleratorPartners() {
       });
       toast.success('Investor added');
       setShowAddInvestor(false);
-      setInvestorForm({ investor_name: '', investor_type: 'vc', firm_name: '', typical_ticket_min: '', typical_ticket_max: '', ticket_currency: 'INR', focus_sectors: '', stage_preference: '', contact_email: '', linkedin_url: '', notes: '' });
+      investorDraft.submitted();
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -93,7 +95,7 @@ export default function AcceleratorPartners() {
       await acceleratorAPI.createDemoDay(demoDayForm);
       toast.success('Demo day created');
       setShowAddDemoDay(false);
-      setDemoDayForm({ title: '', description: '', event_date: '', venue: '', is_virtual: false, stream_url: '', rsvp_url: '', total_investors_invited: 0, total_funding_raised: '', total_funding_raised_currency: 'INR' });
+      demoDayDraft.submitted();
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -282,6 +284,7 @@ export default function AcceleratorPartners() {
       {/* Add Partner Modal */}
       {showAddPartner && (
         <Modal title="Add Corporate Partner" onClose={() => setShowAddPartner(false)}>
+          <DraftRestoredNotice draft={partnerDraft} style={{ marginBottom: 14 }} />
           <form onSubmit={handleAddPartner} style={{ display: 'grid', gap: 12 }}>
             <div><label style={lbl}>Partner Name *</label><input required value={partnerForm.partner_name} onChange={e => setPartnerForm({ ...partnerForm, partner_name: e.target.value })} style={inp} /></div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
@@ -303,6 +306,7 @@ export default function AcceleratorPartners() {
       {/* Add Investor Modal */}
       {showAddInvestor && (
         <Modal title="Add Investor to Network" onClose={() => setShowAddInvestor(false)}>
+          <DraftRestoredNotice draft={investorDraft} style={{ marginBottom: 14 }} />
           <form onSubmit={handleAddInvestor} style={{ display: 'grid', gap: 12 }}>
             <div><label style={lbl}>Investor Name *</label><input required value={investorForm.investor_name} onChange={e => setInvestorForm({ ...investorForm, investor_name: e.target.value })} style={inp} /></div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10 }}>
@@ -337,6 +341,7 @@ export default function AcceleratorPartners() {
       {/* Add Demo Day Modal */}
       {showAddDemoDay && (
         <Modal title="Schedule Demo Day" onClose={() => setShowAddDemoDay(false)}>
+          <DraftRestoredNotice draft={demoDayDraft} style={{ marginBottom: 14 }} />
           <form onSubmit={handleAddDemoDay} style={{ display: 'grid', gap: 12 }}>
             <div><label style={lbl}>Title *</label><input required value={demoDayForm.title} onChange={e => setDemoDayForm({ ...demoDayForm, title: e.target.value })} style={inp} /></div>
             <div><label style={lbl}>Description</label><textarea rows={2} value={demoDayForm.description} onChange={e => setDemoDayForm({ ...demoDayForm, description: e.target.value })} style={{ ...inp, resize: 'vertical' }} /></div>

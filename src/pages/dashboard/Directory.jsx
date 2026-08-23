@@ -217,6 +217,7 @@ export default function Directory() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <ArrowUpDown size={14} style={{ color: '#5c5c5c' }} />
           <select value={sort} onChange={e => handleSort(e.target.value)}
+            aria-label="Sort profiles"
             style={{ padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>
             {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
@@ -252,8 +253,8 @@ export default function Directory() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             {/* Persona Type */}
             <div>
-              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Persona Type</label>
-              <select value={filters.persona_type} onChange={e => setFilters(f => ({ ...f, persona_type: e.target.value }))}
+              <label htmlFor="directory-persona-type" style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Persona Type</label>
+              <select id="directory-persona-type" value={filters.persona_type} onChange={e => setFilters(f => ({ ...f, persona_type: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                 <option value="">All Types</option>
                 {Object.entries(PERSONAS).map(([key, p]) => <option key={key} value={key}>{p.label}</option>)}
@@ -262,8 +263,8 @@ export default function Directory() {
 
             {/* Category */}
             <div>
-              <label style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Category</label>
-              <select value={filters.persona_category} onChange={e => setFilters(f => ({ ...f, persona_category: e.target.value }))}
+              <label htmlFor="directory-persona-category" style={{ fontSize: 11, color: '#5c5c5c', display: 'block', marginBottom: 4 }}>Category</label>
+              <select id="directory-persona-category" value={filters.persona_category} onChange={e => setFilters(f => ({ ...f, persona_category: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', fontSize: 16, border: '1px solid #ddd', borderRadius: 8, boxSizing: 'border-box' }}>
                 <option value="">All Categories</option>
                 {Object.entries(PERSONA_CATEGORIES).map(([key, c]) => <option key={key} value={key}>{c.label}</option>)}

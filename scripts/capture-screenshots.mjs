@@ -48,7 +48,7 @@
  */
 import { mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Playwright is imported dynamically and is NOT a devDependency of this repo.
 // This repo's devDeps are build and lint tooling only (9 runtime deps total);
@@ -62,18 +62,34 @@ import { fileURLToPath } from 'node:url';
 // repo's node_modules; the path has to be explicit.
 let chromium;
 const PW_PATH = process.env.OPENI_PLAYWRIGHT;
+
+// A RELATIVE OPENI_PLAYWRIGHT has to be resolved against the cwd here, not left
+// to import(). Dynamic import resolves a relative specifier against the
+// importing MODULE — this file, in scripts/ — so the `../openi-hub-backend/...`
+// this script used to suggest looked for openi-hub/openi-hub-backend and never
+// resolved. Anyone following the hint got the same failure that sent them here.
+// A bare package specifier (no separator, no leading dot) is passed straight
+// through so `@playwright/test` still works.
+function playwrightSpecifier(raw) {
+  if (!raw) return '@playwright/test';
+  const looksLikePath = raw.startsWith('.') || raw.startsWith('/') || raw.includes('/node_modules/');
+  return looksLikePath ? pathToFileURL(resolve(process.cwd(), raw)).href : raw;
+}
+
 try {
-  ({ chromium } = await import(PW_PATH || '@playwright/test'));
-} catch {
+  ({ chromium } = await import(playwrightSpecifier(PW_PATH)));
+} catch (err) {
   console.error(
     'This script needs Playwright, which is deliberately not a dependency of\n' +
     'this repo (devDeps here are build and lint tooling only).\n\n' +
     'Either install it just for this run:\n' +
     '  npm i --no-save @playwright/test && npx playwright install chromium\n\n' +
-    'or reuse the copy in the backend repo:\n' +
+    'or point OPENI_PLAYWRIGHT at an existing install -- the package ENTRY FILE,\n' +
+    'not the directory. Relative to your shell\'s cwd is fine:\n' +
     '  OPENI_PLAYWRIGHT=../openi-hub-backend/node_modules/@playwright/test/index.mjs \\\n' +
-    '    node scripts/capture-screenshots.mjs'
+    '    npm run screenshots\n'
   );
+  if (PW_PATH) console.error(`OPENI_PLAYWRIGHT was ${PW_PATH}\n  -> resolved to ${playwrightSpecifier(PW_PATH)}\n  -> ${err.message}`);
   process.exit(1);
 }
 
@@ -82,7 +98,10 @@ const BASE = (process.env.OPENI_BASE || 'http://localhost:3000').replace(/\/$/, 
 const API  = (process.env.OPENI_API  || 'http://localhost:5000/api').replace(/\/$/, '');
 const OUT  = process.env.OPENI_OUT   || resolve(HERE, '..', 'public', 'screenshots');
 const PW   = process.env.OPENI_PASSWORD;
-const EXEC = process.env.OPENI_CHROMIUM || undefined;   // pin only if you must
+// Pin an existing browser instead of Playwright's downloaded one. The usual
+// reason is that `npx playwright install chromium` failed and you would
+// rather use the Chrome already on the machine than fight a proxy.
+const EXEC = process.env.OPENI_CHROMIUM || undefined;
 
 if (!PW) {
   console.error('OPENI_PASSWORD is required (the shared demo-account password).');
@@ -100,6 +119,22 @@ const SHOTS = [
   { file: '05-marketplace.png',         email: 'corporate@demo.openi.ai', path: '/dashboard/marketplace' },
   { file: '07-directory.png',           email: 'investor@demo.openi.ai',  path: '/dashboard/directory' },
   { file: '08-academia-portfolio.png',  email: 'academia@demo.openi.ai',  path: '/dashboard' },
+  // 22 Aug 2026 — the three slides PlatformSlideshow.jsx still has commented
+  // out (its "TODO s51"). They were missing from this list, so running this
+  // script re-shot the eight that already existed and produced none of the
+  // three that were actually wanted. Route and persona for each were confirmed
+  // by loading them: "Recommended Startups", "8-Vector Startup Evaluation" and
+  // the investor dashboard all render for these personas with no upgrade gate.
+  { file: '09-recommended-startups.png', email: 'corporate@demo.openi.ai', path: '/dashboard/corporate/recommended-startups' },
+  { file: '10-ai-profile-score.png',     email: 'startup@demo.openi.ai',   path: '/dashboard/evaluate' },
+  // /dashboard, not /dashboard/investor/deals, was the first guess here and it
+  // was wrong: the slide's caption is "7-stage deal pipeline, AI-evaluated
+  // startups, 583K-startup sourcing engine", and the investor landing page
+  // shows none of that — the production shot came back as the AI Profile
+  // Insights card. InvestorDeals.jsx:16-24 defines exactly seven stages
+  // (Sourced, Evaluating, LOI, Diligence, Term Sheet, Closed, Passed), which is
+  // the thing the caption is describing.
+  { file: '11-investor-dashboard.png',   email: 'investor@demo.openi.ai',  path: '/dashboard/investor/deals' },
 ];
 
 const ROLES = ['startup','student','academia','corporate','govt','investor','lab',
@@ -124,7 +159,27 @@ async function login(email) {
 mkdirSync(OUT, { recursive: true });
 console.log(`base ${BASE}\napi  ${API}\nout  ${OUT}\n`);
 
-const browser = await chromium.launch(EXEC ? { executablePath: EXEC } : {});
+let browser;
+try {
+  browser = await chromium.launch(EXEC ? { executablePath: EXEC } : {});
+} catch (err) {
+  // The failure people actually hit here is not a bug in this script: Playwright
+  // is installed but its browser BINARIES are not, and `npx playwright install
+  // chromium` can just fail — a proxy, a firewall, or a bad day for the CDN.
+  // OPENI_CHROMIUM has always been the way out of that and was documented only
+  // in a code comment, which is no use to someone reading a stack trace.
+  console.error(
+    `Could not launch Chromium: ${err.message.split('\n')[0]}\n\n` +
+    (EXEC
+      ? `OPENI_CHROMIUM was set to:\n  ${EXEC}\nCheck that path exists and is the executable itself.\n`
+      : 'If the browser download failed, you do not have to fix the download —\n' +
+        'point OPENI_CHROMIUM at a Chrome/Chromium you already have:\n\n' +
+        '  macOS:  OPENI_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"\n' +
+        '  Linux:  OPENI_CHROMIUM=/usr/bin/google-chrome\n\n' +
+        'or retry the download:  npx playwright install chromium\n')
+  );
+  process.exit(1);
+}
 let ok = 0, failed = 0;
 
 for (const s of SHOTS) {

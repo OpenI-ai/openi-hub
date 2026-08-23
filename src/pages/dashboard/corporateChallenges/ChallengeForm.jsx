@@ -15,9 +15,10 @@ import { Loader2, FileText, HelpCircle, Trash2, X, Sparkles, Brain } from 'lucid
 import toast from 'react-hot-toast';
 import { G, card } from './constants';
 import TagDropdown from './TagDropdown';
+import DraftRestoredNotice from '../../../components/DraftRestoredNotice';
 
 export default function ChallengeForm({
-  aiAdvisorLoading, aiSuggestions, create, editMode, form, runAiAdvisor, saving,
+  aiAdvisorLoading, aiSuggestions, create, draft, editMode, form, runAiAdvisor, saving,
   setAiSuggestions, setEditMode, setForm, setShowCreate, taxonomy, updateChallenge,
   upgradeError,
 }) {
@@ -25,6 +26,7 @@ export default function ChallengeForm({
     // ---- BODY START (original lines 1393-1664) ----
         <div style={{ ...card, padding: 20, marginBottom: 20 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{editMode ? 'Edit Challenge' : 'Create Innovation Challenge'}</h3>
+          <DraftRestoredNotice draft={draft} editing={editMode} style={{ marginBottom: 14 }} />
           <div style={{ display: 'grid', gap: 12 }}>
             {/* Challenge Type + Visibility */}
             <div style={{ display: 'flex', gap: 10 }}>

@@ -11,9 +11,24 @@ const SLIDES = [
   { src: '/screenshots/05-marketplace.png', caption: 'Challenge Marketplace', desc: 'Browse open innovation challenges with AI-powered filters and semantic search' },
   { src: '/screenshots/07-directory.png', caption: 'Ecosystem Directory', desc: '583K+ startup profiles with persona filters, AI Ask, and faceted search' },
   { src: '/screenshots/08-academia-portfolio.png', caption: 'Academic Portfolio', desc: 'Research projects with funding, publications, grants, and AI matchmaking' },
-  // TODO s51 — capture screenshots and restore these 3 slides:
-  // { src: '/screenshots/09-recommended-startups.png', caption: 'AI Recommended for You', desc: 'Personalized startup matches with cluster-bridge boost across 200 AI clusters' },
+  { src: '/screenshots/09-recommended-startups.png', caption: 'AI Recommended for You', desc: 'Personalized startup matches with cluster-bridge boost across 200 AI clusters' },
+  // TODO s51 — these two are still held back, and not for want of a screenshot.
+  // Both were shot against production on 22 Aug 2026; the images do not match
+  // the captions, and a slideshow slide that undersells is worse than one
+  // fewer slide.
+  //
+  // 10-ai-profile-score: /dashboard/evaluate is a data-ENTRY form. The radar
+  // only draws once someone completes the assessment, and the demo startup
+  // account has not, so the shot is "0% complete", an em-dash where the score
+  // goes, and an empty VECTOR PROFILE box. Restore this when the production
+  // demo account has a completed 8-vector assessment to show.
   // { src: '/screenshots/10-ai-profile-score.png', caption: '8-Vector AI Profile Score', desc: 'Radar chart with strengths, red flags, and AI-narrated improvement actions' },
+  //
+  // 11-investor-dashboard: the capture route was wrong, now fixed in
+  // scripts/capture-screenshots.mjs — it pointed at /dashboard (which returned
+  // the AI Profile Insights card) rather than /dashboard/investor/deals, which
+  // is the seven-stage pipeline the caption actually describes. Re-shoot and
+  // restore, once the shot shows a pipeline with deals on it.
   // { src: '/screenshots/11-investor-dashboard.png', caption: 'Investor Dashboard', desc: '7-stage deal pipeline, AI-evaluated startups, and 583K-startup sourcing engine' },
 ];
 

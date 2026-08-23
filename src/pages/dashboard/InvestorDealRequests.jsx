@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { useSearchParams } from 'react-router-dom';
 import { investorAPI, publicAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -38,12 +40,16 @@ export default function InvestorDealRequests() {
   const [expandedApps, setExpandedApps] = useState({});
   const [expandedReviewApp, setExpandedReviewApp] = useState({});
 
-  const [form, setForm] = useState({
-    title: '', description: '', investment_thesis: '', status: 'open',
-    sectors: [], technologies: [], target_stage: '', ticket_size_min: '',
-    ticket_size_max: '', ticket_currency: 'INR', geographic_focus: [],
-    deadline: '', max_applicants: 50, is_public: true, requirements: '',
-  });
+  // Draft-backed: an investment thesis is a long write. Keyed per target so a
+  // new request and an in-progress edit of an existing one stay separate.
+  const [form, setForm, formDraft] = useDraftForm(
+    editId ? `deal-request:${editId}` : 'deal-request:new',
+    {
+      title: '', description: '', investment_thesis: '', status: 'open',
+      sectors: [], technologies: [], target_stage: '', ticket_size_min: '',
+      ticket_size_max: '', ticket_currency: 'INR', geographic_focus: [],
+      deadline: '', max_applicants: 50, is_public: true, requirements: '',
+    });
 
   useEffect(() => { loadRequests(); loadTaxonomy(); }, []);
 
@@ -89,6 +95,7 @@ export default function InvestorDealRequests() {
     try {
       if (editId) { await investorAPI.updateDealRequest(editId, payload); }
       else { await investorAPI.createDealRequest(payload); }
+      formDraft.clearDraft();   // on the server now
       setShowForm(false); setEditId(null); resetForm(); loadRequests();
     } catch (err) { alert(err.message || 'Error saving'); }
   }
@@ -98,7 +105,7 @@ export default function InvestorDealRequests() {
   }
 
   function editRequest(r) {
-    setForm({ ...r, ticket_size_min: r.ticket_size_min || '', ticket_size_max: r.ticket_size_max || '', max_applicants: r.max_applicants || 50, deadline: r.deadline ? r.deadline.split('T')[0] : '', sectors: r.sectors || [], technologies: r.technologies || [], geographic_focus: r.geographic_focus || [] });
+    formDraft.rebaseline({ ...r, ticket_size_min: r.ticket_size_min || '', ticket_size_max: r.ticket_size_max || '', max_applicants: r.max_applicants || 50, deadline: r.deadline ? r.deadline.split('T')[0] : '', sectors: r.sectors || [], technologies: r.technologies || [], geographic_focus: r.geographic_focus || [] });
     setEditId(r.id); setShowForm(true);
   }
 
@@ -314,9 +321,10 @@ export default function InvestorDealRequests() {
       <div className="max-w-3xl mx-auto p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-900">{editId ? 'Edit' : 'New'} Deal Sourcing Request</h1>
-          <button onClick={() => { setShowForm(false); setEditId(null); resetForm(); }} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+          <button onClick={() => { setShowForm(false); setEditId(null); }} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
         </div>
 
+        <DraftRestoredNotice draft={formDraft} editing={!!editId} style={{ marginBottom: 16 }} />
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border p-6 space-y-5">
           {/* Title */}
           <div>

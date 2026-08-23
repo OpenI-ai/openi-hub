@@ -498,6 +498,9 @@ export default function PortfolioHealthTab({ owner, parentId, pipelineStartups =
             )}
             <EvaluationForm
               initial={editingEval}
+              // Per evaluation when editing, per startup when creating, so a
+              // half-written evaluation belongs to its subject.
+              draftKey={editingEval ? `edit-${editingEval.id}` : `new-${targetStartupId ?? 'none'}`}
               onSubmit={handleSubmit}
               onCancel={() => { setShowForm(false); setEditingEval(null); setTargetStartupId(null); }}
               submitLabel={editingEval ? 'Save Changes' : 'Save Evaluation'}

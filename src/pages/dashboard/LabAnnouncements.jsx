@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { labAnnouncementAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import ApplicantInvitePanel from '../../components/ApplicantInvitePanel';
@@ -17,7 +19,10 @@ export default function LabAnnouncements() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({});
+  // Draft-backed. The empty baseline is {} to match how this form seeds
+  // itself; openCreate/openEdit rebaseline from there.
+  const [form, setForm, formDraft] = useDraftForm(
+    editing ? `lab-announcement:${editing.id}` : 'lab-announcement:new', {});
 
   const load = async () => {
     setLoading(true);
@@ -29,10 +34,10 @@ export default function LabAnnouncements() {
   };
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm({ status: 'draft', is_public: false }); setModal(true); };
+  const openCreate = () => { setEditing(null); formDraft.rebaseline({ status: 'draft', is_public: false }); setModal(true); };
   const openEdit = (a) => {
     setEditing(a);
-    setForm({
+    formDraft.rebaseline({
       title: a.title || '',
       description: a.description || '',
       facilities: Array.isArray(a.facilities) ? a.facilities.join(', ') : '',
@@ -69,7 +74,8 @@ export default function LabAnnouncements() {
         await labAnnouncementAPI.create(payload);
         toast.success('Announcement created');
       }
-      setModal(false); setForm({}); setEditing(null); load();
+      formDraft.clearDraft();   // on the server now
+      setModal(false); setEditing(null); load();
     } catch { toast.error('Save failed'); }
   };
 
@@ -154,6 +160,7 @@ export default function LabAnnouncements() {
               <h2 style={{ margin: 0, fontSize: 18 }}>{editing ? 'Edit Announcement' : 'New Announcement'}</h2>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => { setModal(false); setEditing(null); }}/>
             </div>
+            <DraftRestoredNotice draft={formDraft} editing={!!editing} style={{ marginBottom: 14 }} />
             <Inp label="Title *" value={form.title || ''} onChange={v => setForm(f => ({ ...f, title: v }))}/>
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>Description</label>

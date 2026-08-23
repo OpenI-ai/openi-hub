@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../hooks/useFormDraft';
+import DraftRestoredNotice from '../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import { startupAddAPI } from '../services/api';
 import { X, Plus } from 'lucide-react';
@@ -14,7 +16,7 @@ import { X, Plus } from 'lucide-react';
 // doesn't retype what they just searched.
 export default function AddStartupModal({ open, onClose, onAdded, initialName = '' }) {
   const empty = { company_name: '', website: '', sector: '', description: '' };
-  const [form, setForm] = useState(empty);
+  const [form, setForm, formDraft] = useDraftForm('add-startup:new', empty);
   const [saving, setSaving] = useState(false);
   const [dupInfo, setDupInfo] = useState(null); // { recourse, startup, error }
 
@@ -29,7 +31,9 @@ export default function AddStartupModal({ open, onClose, onAdded, initialName = 
   const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const reset = () => { setForm(empty); setDupInfo(null); setSaving(false); };
-  const close = () => { reset(); onClose?.(); };
+  // Dismissing is not discarding — the draft outlives the close, and the
+  // restore notice's "Start over" is the explicit way to drop it.
+  const close = () => { setDupInfo(null); setSaving(false); onClose?.(); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,6 +54,7 @@ export default function AddStartupModal({ open, onClose, onAdded, initialName = 
         description: form.description.trim() || undefined,
       });
       toast.success('Startup added to the database');
+      formDraft.clearDraft();
       onAdded?.(created);
       close();
     } catch (err) {
@@ -100,6 +105,7 @@ export default function AddStartupModal({ open, onClose, onAdded, initialName = 
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <DraftRestoredNotice draft={formDraft} onStartOver={() => { formDraft.discardDraft(); reset(); }} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Company name <span className="text-red-500">*</span>

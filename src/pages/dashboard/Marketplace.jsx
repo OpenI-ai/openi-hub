@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { challengeAPI, corporateAPI, opportunityAPI, publicAPI } from '../../services/api';
+import useFormDraft from '../../hooks/useFormDraft';
 import { useAuth } from '../../context/AuthContext';
 import { getPersonaCategory } from '../../config/personas';
 import FileUpload from '../../components/FileUpload';
@@ -39,6 +40,12 @@ const TYPE_BADGE = {
 // Deadline passed or listing manually closed — OpenI Gold on a light-gold tint so it
 // reads as a clear, brand-consistent "Expired" flag instead of blending into grey text.
 const EXPIRED_BADGE = { bg: 'rgba(208,168,72,0.12)', color: G, label: 'Expired' };
+
+// Page size. Sent to the server AND used to derive the page count, which is the
+// whole point of it being one constant: the pager below used to hardcode 20 in
+// five places while the request sent no limit at all, so the arithmetic was
+// describing a page size the server had never agreed to.
+const PER_PAGE = 20;
 
 export default function Marketplace() {
   const { user, activeRole } = useAuth();
@@ -110,7 +117,25 @@ export default function Marketplace() {
 
   const [profilePct, setProfilePct] = useState(null);
   const [applying, setApplying] = useState(false);
-  const [applyForm, setApplyForm] = useState({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });
+  const EMPTY_APPLICATION = { pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] };
+  const [applyForm, setApplyForm] = useState(EMPTY_APPLICATION);
+  // 22 Aug 2026 — what applyForm was seeded from, so the draft layer can tell a
+  // half-written pitch from an untouched form. On a new application that is the
+  // empty shape; when editing an existing one it is the submitted answers.
+  const [applyBaseline, setApplyBaseline] = useState(EMPTY_APPLICATION);
+
+  // Reported the same day as the Knowledge Hub report loss, and the same bug
+  // underneath: a pitch typed into this form lived only in useState, so closing
+  // the modal or leaving the route threw it away with no warning. A challenge
+  // application is the longest piece of free text a startup writes on the
+  // platform, which makes it the worst place in the product to lose work.
+  const applyDraft = useFormDraft({
+    key: selectedId ? `challenge-apply:${selectedId}` : null,
+    value: applyForm,
+    onRestore: setApplyForm,
+    enabled: showApply && !!selectedId,
+    pristine: JSON.stringify(applyForm) === JSON.stringify(applyBaseline),
+  });
   const [editMode, setEditMode] = useState(false); // Bug 4: edit an already-submitted application
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [upgradeError, setUpgradeError] = useState(null);
@@ -170,13 +195,18 @@ export default function Marketplace() {
   const loadChallenges = async (p = 1, s = search, f = filters) => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { page: p, limit: PER_PAGE };
       if (s.trim()) params.search = s.trim();
       if (f.sector) params.sector = f.sector;
       const data = await opportunityAPI.listAll(params);
+      // The bare-array branch is the pre-22-Aug-2026 backend, kept only so a
+      // frontend deploy that lands before the backend one degrades to the old
+      // behaviour (one long list, cosmetic pager) instead of rendering empty.
+      // Once both are out, `data` is always {opportunities,total,page,limit}.
       const rows = Array.isArray(data) ? data : (data?.opportunities || []);
       setChallenges(rows);
-      setTotal(rows.length);
+      // total is the server's unpaged count, NOT rows.length — rows is one page.
+      setTotal(Array.isArray(data) ? rows.length : (data?.total ?? rows.length));
       setPage(p);
     } catch { toast.error('Failed to load opportunities'); }
     finally { setLoading(false); }
@@ -233,7 +263,9 @@ export default function Marketplace() {
       }
       setShowApply(false);
       setEditMode(false);
-      setApplyForm({ pitch: '', proposal_url: '', rfi_answers: {}, data_room: [] });
+      applyDraft.clearDraft();   // it is on the server now; stop offering it back
+      setApplyForm(EMPTY_APPLICATION);
+      setApplyBaseline(EMPTY_APPLICATION);
       openDetail(selectedId); // refresh
     } catch (err) {
       toast.error(err.message);
@@ -266,12 +298,14 @@ export default function Marketplace() {
       if (typeof v === 'string') { try { return JSON.parse(v); } catch { return fallback; } }
       return v;
     };
-    setApplyForm({
+    const seeded = {
       pitch: a.pitch || '',
       proposal_url: a.proposal_url || '',
       rfi_answers: parse(a.rfi_answers, {}),
       data_room: parse(a.data_room, []),
-    });
+    };
+    setApplyForm(seeded);
+    setApplyBaseline(seeded);
     setEditMode(true);
     setShowApply(true);
   };
@@ -289,6 +323,19 @@ export default function Marketplace() {
     const applyFormJsx = (
       <div>
         <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{editMode ? 'Update Application' : 'Submit Application'}</h3>
+        {applyDraft.restored && (
+          <div role="status" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14, padding: '9px 12px', borderRadius: 10, border: `1px solid ${G}55`, background: 'rgba(208,168,72,0.10)' }}>
+            <p style={{ fontSize: 12, color: '#4b5563', margin: 0 }}>
+              <strong style={{ color: '#1a1a1a' }}>Unsaved draft restored.</strong>{' '}
+              This application has not been submitted yet.
+            </p>
+            <button type="button"
+              onClick={() => { applyDraft.discardDraft(); setApplyForm(applyBaseline); }}
+              style={{ flexShrink: 0, background: 'none', border: 'none', padding: 0, fontSize: 12, fontWeight: 600, color: '#6b7280', cursor: 'pointer' }}>
+              Start over
+            </button>
+          </div>
+        )}
         <div style={{ display: 'grid', gap: 14 }}>
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block' }}>Your Pitch *</label>
@@ -749,13 +796,13 @@ export default function Marketplace() {
           )}
 
           {/* Pagination */}
-          {total > 20 && (
+          {total > PER_PAGE && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
               <button disabled={page <= 1} onClick={() => loadChallenges(page - 1, search, filters)}
                 style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page <= 1 ? '#f9fafb' : '#fff', color: page <= 1 ? '#ccc' : '#555', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous</button>
-              <span style={{ padding: '7px 12px', fontSize: 12, color: '#5c5c5c' }}>Page {page} of {Math.ceil(total / 20)}</span>
-              <button disabled={page >= Math.ceil(total / 20)} onClick={() => loadChallenges(page + 1, search, filters)}
-                style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / 20) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / 20) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / 20) ? 'default' : 'pointer' }}>Next</button>
+              <span style={{ padding: '7px 12px', fontSize: 12, color: '#5c5c5c' }}>Page {page} of {Math.ceil(total / PER_PAGE)}</span>
+              <button disabled={page >= Math.ceil(total / PER_PAGE)} onClick={() => loadChallenges(page + 1, search, filters)}
+                style={{ padding: '7px 16px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: page >= Math.ceil(total / PER_PAGE) ? '#f9fafb' : '#fff', color: page >= Math.ceil(total / PER_PAGE) ? '#ccc' : '#555', cursor: page >= Math.ceil(total / PER_PAGE) ? 'default' : 'pointer' }}>Next</button>
             </div>
           )}
         </div>

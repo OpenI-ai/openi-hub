@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import {
   MessageSquare, Star, Send, ThumbsUp, ThumbsDown, Search, CheckCircle2, Clock, AlertCircle,
@@ -74,7 +76,8 @@ export default function StartupFeedback() {
   const [sentimentFilter, setSentimentFilter] = useState('All');
 
   // Form state
-  const [form, setForm] = useState({ startup: '', program: '', category: CATEGORIES[0], rating: 0, text: '' });
+  const [form, setForm, formDraft] = useDraftForm('startup-feedback:new',
+    { startup: '', program: '', category: CATEGORIES[0], rating: 0, text: '' });
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -124,6 +127,7 @@ export default function StartupFeedback() {
     })
       .then(data => {
         toast.success('Feedback submitted successfully');
+        formDraft.clearDraft();   // on the server now
         const newFb = {
           id: data.id || Date.now(),
           startup: form.startup || '—',
@@ -347,6 +351,7 @@ export default function StartupFeedback() {
         <div style={{ ...card, padding: 32, maxWidth: 640, margin: '0 auto' }}>
           <h2 style={{ margin: '0 0 6px', color: '#1a1a1a', fontSize: 18, fontWeight: 700 }}>Submit Feedback</h2>
           <p style={{ margin: '0 0 24px', color: '#5c5c5c', fontSize: 13 }}>Share your experience with OpenI programs, mentoring and support</p>
+          <DraftRestoredNotice draft={formDraft} style={{ marginBottom: 20 }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <FormField label="Startup Name">
               <input value={form.startup} onChange={e => setForm(p => ({ ...p, startup: e.target.value }))} placeholder="Your startup name" />

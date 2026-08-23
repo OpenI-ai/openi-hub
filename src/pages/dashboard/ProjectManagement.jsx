@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import toast from 'react-hot-toast';
 import { projectAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -82,7 +84,7 @@ export default function ProjectManagement() {
   const [search, setSearch]         = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating]     = useState(false);
-  const [form, setForm]             = useState(EMPTY_PROJECT);
+  const [form, setForm, formDraft]  = useDraftForm('project:new', EMPTY_PROJECT);
 
   useEffect(() => {
     projectAPI.list()
@@ -206,7 +208,7 @@ export default function ProjectManagement() {
       await projectAPI.create(payload);
       toast.success('Project created');
       setShowCreate(false);
-      setForm(EMPTY_PROJECT);
+      formDraft.submitted();
       await reloadProjects();
     } catch (err) {
       toast.error(err?.response?.data?.message || err?.message || 'Failed to create project');
@@ -302,6 +304,8 @@ export default function ProjectManagement() {
                 style={{ background: 'none', border: 'none', fontSize: 20, cursor: creating ? 'not-allowed' : 'pointer', color: '#5c5c5c', padding: 0, lineHeight: 1 }}
               >×</button>
             </div>
+
+            <DraftRestoredNotice draft={formDraft} style={{ marginBottom: 16 }} />
 
             <div style={{ display: 'grid', gap: 14 }}>
               <Field label="Title *">
@@ -606,7 +610,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
   const [tab, setTab] = useState('overview');
   const [showAddTask, setShowAddTask] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
-  const [taskForm, setTaskForm] = useState(EMPTY_TASK);
+  const [taskForm, setTaskForm, taskDraft] = useDraftForm(`project-task:${p.id}`, EMPTY_TASK);
   const [localTasks, setLocalTasks] = useState(null);
 
   async function handleCreateTask(e) {
@@ -628,7 +632,7 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
       const newTask = await projectAPI.createTask(p.id, payload);
       toast.success('Task added');
       setShowAddTask(false);
-      setTaskForm(EMPTY_TASK);
+      taskDraft.submitted();
       // Optimistic update — append to local task list so user sees it immediately
       setLocalTasks(prev => {
         const base = prev || projectTasks;
@@ -864,6 +868,8 @@ function ProjectDetail({ project: p, onBack, tasks: allTasks = [], onTaskCreated
                 style={{ background: 'none', border: 'none', fontSize: 20, cursor: creatingTask ? 'not-allowed' : 'pointer', color: '#5c5c5c', padding: 0, lineHeight: 1 }}
               >×</button>
             </div>
+
+            <DraftRestoredNotice draft={taskDraft} style={{ marginBottom: 16 }} />
 
             <div style={{ display: 'grid', gap: 14 }}>
               <Field label="Title *">

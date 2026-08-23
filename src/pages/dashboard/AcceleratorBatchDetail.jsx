@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDraftForm } from '../../hooks/useFormDraft';
+import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { useParams, useNavigate } from 'react-router-dom';
 import { acceleratorAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -45,7 +47,8 @@ export default function AcceleratorBatchDetail() {
   const [tab, setTab] = useState('pipeline');
 
   const [showAddStartup, setShowAddStartup] = useState(false);
-  const [startupForm, setStartupForm] = useState({ startup_name: '', application_status: 'applied', pitch_order: '', notes: '' });
+  const [startupForm, setStartupForm, startupDraft] = useDraftForm(`batch-startup:${id}`,
+    { startup_name: '', application_status: 'applied', pitch_order: '', notes: '' });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on id change; `load` is a stable inline closure
   useEffect(() => { load(); }, [id]);
@@ -82,7 +85,7 @@ export default function AcceleratorBatchDetail() {
       });
       toast.success('Startup added');
       setShowAddStartup(false);
-      setStartupForm({ startup_name: '', application_status: 'applied', pitch_order: '', notes: '' });
+      startupDraft.submitted();
       load();
     } catch (err) { toast.error(err.message || 'Failed'); }
   };
@@ -272,6 +275,7 @@ export default function AcceleratorBatchDetail() {
               <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Add Startup to Batch</h2>
               <X size={20} style={{ cursor: 'pointer', color: '#5c5c5c' }} onClick={() => setShowAddStartup(false)} />
             </div>
+            <DraftRestoredNotice draft={startupDraft} style={{ marginBottom: 12 }} />
             <form onSubmit={handleAddStartup} style={{ display: 'grid', gap: 12 }}>
               <div>
                 <label style={lbl}>Startup Name *</label>
