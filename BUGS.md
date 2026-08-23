@@ -657,6 +657,33 @@ claim/merge + dup guard, Claim-Profile flow, investor/student fixes. No new bugs
   FASHION"), which lost its content and was relabelled `article`. Both were restored by
   hand. A sweep of all 18 live reports found no other row with an empty description.
 
+### 🔴 Homepage "See It In Action" showed a blank first slide to every visitor
+- **Symptom (user-reported):** "there is blank page rendering on home page see it in
+  action" — the slideshow card rendered as an empty cream rectangle on load.
+- **Root cause:** `public/screenshots/01-login.png` was 2880x1800 of a single colour,
+  `rgb(251,250,248)`. The 22 Aug re-shoot (`6f8bab3`, shipped in FE #9) replaced a
+  working 44,644-byte capture with a 19,309-byte blank. Ten of the eleven captures in
+  that commit gained detail; only this one lost it. `/login` is the one entry in `SHOTS`
+  with no auth to inject, so it is a bare client-rendered route, and it had not painted
+  when the script's fixed 5-second settle elapsed. It is `SLIDES[0]`, so it is what every
+  visitor sees before the carousel first advances.
+- **Why nothing caught it:** `page.screenshot()` throws on a protocol error and on
+  nothing else — it does not care whether the page painted. The script's success test was
+  "no exception", so it printed `OK   01-login.png` and the blank was committed and
+  shipped.
+- **Fix:** (1) restored the last good capture from `657f86f`; (2) the capture script now
+  waits for the body to hold real text instead of trusting a fixed timeout, and measures
+  the share of pixels holding the most common colour, refusing to write the file at all
+  if it is ≥90% flat. A blank is not written, so the previous good file survives and
+  `git diff --stat` cannot show a clean re-shoot that silently isn't one.
+- **Threshold:** measured across all eleven slides — real captures run 33–48%, the
+  restored login page (a deliberately sparse dark page) is the flattest real image at
+  71%, and the blank was 100%. 90% clears every real case and catches the failure.
+- **Commit:** FE — see PR #11
+- **Status:** Fixed. Restored slide is the pre-retina 1280x720 asset, so it is visibly
+  softer than its 2880x1800 siblings until someone re-runs `npm run screenshots` — a real
+  slide at 1x beats a crisp blank one. Tracked below.
+
 ### Sector icons were generic, and identical across unrelated sectors
 - **Symptom (user-reported):** "Icons on the report page and inside knowledge hub still
   doesn't match", then "why FMCG and Banking has a same icon?"
@@ -749,7 +776,12 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
    (`scripts/capture-screenshots.mjs:137`); the committed image was shot at the wrong
    route and has not been re-taken. This one only needs the re-shoot — then uncomment.
    Slide 09 was already restored and is live.
-2. **Slideshow slide 10 — `10-ai-profile-score`** stays commented out
+2. **Slide 01 — `01-login.png`** is currently the restored pre-retina 1280x720 asset,
+   not the 2880x1800 re-shoot, because the re-shoot came back blank (see 23 Aug entry).
+   It is soft next to the other slides. Re-run `npm run screenshots` to replace it; the
+   blank-frame guard added alongside will now reject the capture rather than commit it if
+   `/login` again fails to paint.
+3. **Slideshow slide 10 — `10-ai-profile-score`** stays commented out
    (`PlatformSlideshow.jsx:25`) until the production demo startup account has a **completed
    8-vector assessment**. `/dashboard/evaluate` is a data-entry form: the radar chart
    only draws once the assessment exists, so the current capture shows "0% complete", an
