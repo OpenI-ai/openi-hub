@@ -47,6 +47,7 @@
  * does nothing; every role has to be listed.
  */
 import { mkdirSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -180,6 +181,63 @@ try {
   );
   process.exit(1);
 }
+// ── BLANK-FRAME GUARD ────────────────────────────────────────────────────────
+// page.screenshot() throws on a protocol error and on nothing else. It does not
+// care whether the page painted, so "no exception" was never evidence that the
+// shot is usable.
+//
+// On 22 Aug 2026 this script printed `OK   01-login.png` and committed 2880x1800
+// of a single colour, rgb(251,250,248). /login is a client-rendered route with no
+// auth to inject, so it had nothing on screen when the fixed settle window
+// elapsed. It shipped to production as the FIRST slide of the homepage
+// slideshow -- the one every visitor sees before the carousel advances -- and
+// was reported as "blank page rendering on home page see it in action".
+//
+// Two checks, because they catch different failures. Waiting for text catches a
+// page that has not rendered yet and costs nothing when it already has. The
+// pixel check catches the rest: painted chrome with an empty body, a splash
+// screen, a full-bleed overlay.
+const MIN_TEXT     = Number(process.env.OPENI_MIN_TEXT || 40);
+const BLANK_SHARE  = Number(process.env.OPENI_BLANK_SHARE || 0.90);
+
+/** Resolve once the body has real text, rather than trusting a fixed timeout. */
+async function waitForPaint(page) {
+  await page.waitForFunction(
+    (min) => (document.body?.innerText || '').trim().length >= min,
+    MIN_TEXT,
+    { timeout: 15000 },
+  );
+}
+
+/**
+ * Share of sampled pixels holding the single most common colour, 0..1.
+ *
+ * Measured on the eleven slides in this list: real captures sit between 0.33
+ * and 0.48, the blank one was 1.00. The 0.90 default sits well clear of both,
+ * so a legitimately flat-but-real screenshot is not going to trip it.
+ *
+ * Downscales to 160x100 first -- this only has to answer "is anything here",
+ * and sampling 16k pixels answers it as well as sampling 5.2M.
+ */
+async function dominantColourShare(page, buf) {
+  return page.evaluate(async (dataUrl) => {
+    const img = new Image();
+    await new Promise((ok, no) => { img.onload = ok; img.onerror = no; img.src = dataUrl; });
+    const w = 160, h = 100;
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    const d = ctx.getImageData(0, 0, w, h).data;
+    const counts = new Map();
+    for (let i = 0; i < d.length; i += 4) {
+      const k = (d[i] << 16) | (d[i + 1] << 8) | d[i + 2];
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+    return Math.max(...counts.values()) / (w * h);
+  }, `data:image/png;base64,${buf.toString('base64')}`);
+}
+
 let ok = 0, failed = 0;
 
 for (const s of SHOTS) {
@@ -203,8 +261,18 @@ for (const s of SHOTS) {
       const b = page.getByRole('button', { name });
       if (await b.count()) { await b.first().click().catch(() => {}); await page.waitForTimeout(400); }
     }
-    await page.screenshot({ path: `${OUT}/${s.file}` });
-    console.log(`OK   ${s.file.padEnd(28)} "${await page.title()}"`);
+    await waitForPaint(page);
+    const buf = await page.screenshot();
+    const share = await dominantColourShare(page, buf);
+    if (share >= BLANK_SHARE) {
+      // Deliberately not written. A blank file on disk looks like a successful
+      // capture to every later reader, including `git diff --stat`.
+      throw new Error(
+        `blank capture — ${(share * 100).toFixed(1)}% of pixels are one colour ` +
+        `(threshold ${(BLANK_SHARE * 100).toFixed(0)}%); previous file left untouched`);
+    }
+    await writeFile(`${OUT}/${s.file}`, buf);
+    console.log(`OK   ${s.file.padEnd(28)} "${await page.title()}"  (flat ${(share * 100).toFixed(0)}%)`);
     ok++;
   } catch (e) {
     console.log(`FAIL ${s.file.padEnd(28)} ${e.message.split('\n')[0].slice(0, 110)}`);

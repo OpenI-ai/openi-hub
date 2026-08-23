@@ -568,7 +568,7 @@ claim/merge + dup guard, Claim-Profile flow, investor/student fixes. No new bugs
 
 ---
 
-## Session 32 — 2 Jul 2026 (untracked session — this session)
+## Session 32 — 2 Jul 2026 (untracked session)
 
 ### `ReferenceError` on dashboard topbar — `DASHBOARD_HOME_ROUTES` used but never defined
 - **Symptom:** Screenshot showed both the "?" (Take a tour) icon button and the gold
@@ -602,6 +602,119 @@ claim/merge + dup guard, Claim-Profile flow, investor/student fixes. No new bugs
 
 ---
 
+## 23 Aug 2026
+
+> Log resumes here. Sessions between 2 Jul and 22 Aug are not recorded in this file;
+> code comments from that period use a separate `sNN` / `Phase NNN` numbering (latest
+> seen: `s83`, 20 Aug 2026). Entries below are dated rather than numbered because that
+> sequence cannot be reconstructed from this file alone.
+
+### Reported: "all the changes we did yesterday are still not visible on platform"
+- **Symptom:** The 22 Aug work — marketplace pagination, Knowledge Hub editing,
+  unsaved-work protection, the reports filter bar — was absent from production. The
+  `/reports` page in particular was unchanged, still burying every report under an
+  eight-row filter bar.
+- **Root cause:** Not a build, cache or deploy fault. The work was never merged. It sat
+  on `claude/openai-todos-8bvlha` as two open PRs (FE #9, BE #24), both `mergeable_state:
+  clean`, untouched since 22 Aug 16:34 UTC. Production was still serving `main` @
+  `bb45282` from 21 Aug; all thirteen of 22 Aug's Vercel deployments were **preview**
+  builds (`target: null`) attached to PR #9, never promoted. PRs #1–#8 had each been
+  merged within hours, so this was a break in habit, not in tooling.
+- **Fix:** Merged BE #24 first, then FE #9 — that order is required, since the FE pager
+  reads the new `{opportunities, total, page, limit}` envelope and the report icons need
+  the backend to carry `tags`/`category`.
+- **Commits:** BE `51a6312`, FE `5bbc339`
+- **Status:** Live and verified — `openi.ai/version.json` served the merge SHA and the
+  shipped bundle contained the new code. The backend (Railway) trailed the Vercel deploy
+  by a few minutes; `/api/public/reports` was briefly still missing `tags`/`category`.
+
+### 🔴 HIGH SEVERITY — editing a Knowledge Hub item blanked its content and reset its category
+- **Symptom (user-reported):** "while editing knowledge hub, content section is blank."
+  Title, Sector and Tags prefilled; Content did not. Reported within hours of the Edit
+  modal shipping in FE #9.
+- **Root cause:** A `knowledge_articles` row travels in two shapes. The API returns the
+  column names (`knowledgeController.list` is a plain `SELECT ka.*`, so `content` and
+  `category` are both on the wire), but `Knowledge.jsx` renames exactly those two when it
+  normalizes rows for display — `content` → `summary`, `category` → `type`
+  (`Knowledge.jsx:192,196`). Every other field keeps its name, which is why the form
+  looked almost right. The Edit button passes that display row straight to the modal
+  (`setEditing(selected)`), and `formFromArticle` read only the API names, so
+  `article.content` was `undefined` → `''` and `article.category` was `undefined` → the
+  `'article'` default.
+- **Why it was data loss, not a blank field:** an edit deliberately PUTs `''` rather than
+  `undefined`, because the UPDATE is built from `COALESCE($n, col)` and `undefined` means
+  "leave as was" — without that, clearing a field would never stick. So the two blanks
+  were written as real values. Opening a report, fixing a typo in the title and pressing
+  Save wiped its body text and relabelled it "Article".
+- **Fix:** `formFromArticle` now accepts either shape (`article.content ?? article.summary`,
+  `article.category || article.type`), the same both-names idiom `Knowledge.jsx` already
+  uses when reading a row. Fixed in the modal rather than at the call site so the next
+  caller cannot re-enter it. `??` for content so genuinely-cleared content stays `''`.
+- **Commit:** FE `90e0f67` (PR #10)
+- **Status:** Fixed and confirmed in production on a real edit — `kb-22` was re-saved
+  through the modal afterwards and its 200-character body survived.
+- **Data impact:** one live row was hit before the fix — `kb-22` ("THE FUTURE OF
+  FASHION"), which lost its content and was relabelled `article`. Both were restored by
+  hand. A sweep of all 18 live reports found no other row with an empty description.
+
+### 🔴 Homepage "See It In Action" showed a blank first slide to every visitor
+- **Symptom (user-reported):** "there is blank page rendering on home page see it in
+  action" — the slideshow card rendered as an empty cream rectangle on load.
+- **Root cause:** `public/screenshots/01-login.png` was 2880x1800 of a single colour,
+  `rgb(251,250,248)`. The 22 Aug re-shoot (`6f8bab3`, shipped in FE #9) replaced a
+  working 44,644-byte capture with a 19,309-byte blank. Ten of the eleven captures in
+  that commit gained detail; only this one lost it. `/login` is the one entry in `SHOTS`
+  with no auth to inject, so it is a bare client-rendered route, and it had not painted
+  when the script's fixed 5-second settle elapsed. It is `SLIDES[0]`, so it is what every
+  visitor sees before the carousel first advances.
+- **Why nothing caught it:** `page.screenshot()` throws on a protocol error and on
+  nothing else — it does not care whether the page painted. The script's success test was
+  "no exception", so it printed `OK   01-login.png` and the blank was committed and
+  shipped.
+- **Fix:** (1) restored the last good capture from `657f86f`; (2) the capture script now
+  waits for the body to hold real text instead of trusting a fixed timeout, and measures
+  the share of pixels holding the most common colour, refusing to write the file at all
+  if it is ≥90% flat. A blank is not written, so the previous good file survives and
+  `git diff --stat` cannot show a clean re-shoot that silently isn't one.
+- **Threshold:** measured across all eleven slides — real captures run 33–48%, the
+  restored login page (a deliberately sparse dark page) is the flattest real image at
+  71%, and the blank was 100%. 90% clears every real case and catches the failure.
+- **Commit:** FE — see PR #11
+- **Status:** Fixed. Restored slide is the pre-retina 1280x720 asset, so it is visibly
+  softer than its 2880x1800 siblings until someone re-runs `npm run screenshots` — a real
+  slide at 1x beats a crisp blank one. Tracked below.
+
+### Sector icons were generic, and identical across unrelated sectors
+- **Symptom (user-reported):** "Icons on the report page and inside knowledge hub still
+  doesn't match", then "why FMCG and Banking has a same icon?"
+- **Root cause:** Two separate faults. BE #24 fixed the genuine cross-surface half — the
+  public page was not being sent `tags` or `category`, so it resolved from `sector` alone
+  while the dashboard resolved from all three. After it, both surfaces agreed on all 18
+  reports; they agreed on the *generic* icon. `SECTOR_ICONS` is keyed by the startup
+  taxonomy (`seed-taxonomy-v2.js`), but Knowledge Hub content is filed against the
+  **industries tree**, whose names are worded for an industry rather than a startup
+  category — "Banking", not "FinTech"; "FMCG / CPG", not "CPG". None is a key, so those
+  reports missed the sector arm of `getSectorIcon()` and fell through to the tag arm,
+  which returns whichever tag happens to be a taxonomy key. "Social Enterprises" drew a
+  recycling symbol off a `GreenTech` tag; three of the four FMCG / CPG reports drew the
+  generic document while the fourth drew a shopping bag off a literal `CPG` tag. Banking
+  and FMCG / CPG missed everything and landed on the same last-resort `category: 'report'`
+  icon — which is why they looked identical. It was never a sector icon.
+- **Fix:** Seven aliases for the industries-tree sector names actually in use, so the
+  sector arm resolves before either fallback can guess; Banking and Payment Processing
+  both point at `BFSI`, where the existing BFSI reports already sit. Also folds case when
+  matching — free-text sector and tag values are not typed against the taxonomy, and the
+  Banking report's `Fintech` tag never matched the `FinTech` key. `getSectorColor()`
+  normalizes through the same function, so these sectors now take their taxonomy colour
+  instead of the default gold.
+- **Commit:** FE `8c7f81b` (PR #10, merged as `f395e5c`)
+- **Status:** Fixed and user-confirmed via screenshot. Verified by importing the real
+  module and running live `/api/public/reports` through both call sites: generic icons
+  6/18 → 0/18, cross-surface mismatches 0/18 before and after, and the twelve reports
+  that already resolved by sector or tag keep their icon.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -621,9 +734,56 @@ here for reference so they aren't re-investigated:
 
 ## Known open issues (not yet fixed)
 
-1. **Opportunities feed pagination** (flagged Session 24) — Previous/Next buttons don't
-   re-fetch server-side once results exceed 20; the full UNION result set is fetched in
-   one call and `total` is derived from the returned page size.
-2. **Org-merge historical data loss** (Session 19 → Session 31 window) — merges executed
-   in that window did not reassign rows to the target org, per the Session 31 fix
-   caveat above. No retroactive repair has been run; requires a manual audit if reported.
+1. **Org-merge historical data loss** (Session 19 → Session 31 window) — merges executed
+   in that window did not reassign rows to the target org, per the Session 31 fix caveat
+   above. No retroactive repair has been run.
+   - **23 Aug 2026 update:** an audit script now exists — `railway run node
+     src/scripts/audit-org-merges.js` (BE `51a6312`, PR #24). Read-only; writes and
+     deletes nothing, safe against production. It reads the live on-delete action of
+     every FK into `organizations` from `pg_constraint` rather than assuming them, then
+     reports org claims by status, rows pointing at a deleted `organizations` id,
+     approved claims whose placeholder org still exists, and — via `snapshot_before` —
+     whether any recorded completed merge left rows on its pre-merge org id.
+   - Reading the code against the schema argues these merges **could not have silently
+     succeeded**: step 4's reassignments all failed, so `users.org_id` still pointed at
+     the placeholder, and step 5's `DELETE FROM organizations` then hit
+     `users_org_id_fkey` (`NO ACTION`, so it raises rather than cascading) outside any
+     savepoint, aborting the transaction. Reproduced against a real Postgres carrying
+     this schema. That is good enough to doubt the caveat and **not** good enough to
+     close it — the original bug was an error nobody could see being swallowed, so the
+     answer should come from the data. **If the script comes back clean, this item can
+     be closed citing that run.**
+
+### Resolved since this list was last written
+
+- ~~**Opportunities feed pagination** (flagged Session 24)~~ — fixed 23 Aug 2026.
+  `GET /api/opportunities` had no `LIMIT`/`OFFSET` at all, so the frontend pager was
+  arithmetic over a set that had never been paginated. Now paginated server-side with
+  `COUNT(*) OVER()`; the client sends `page`/`limit` and derives the page count from one
+  `PER_PAGE` constant. BE `51a6312` (PR #24), FE `5bbc339` (PR #9).
+
+---
+
+## Outstanding non-bug work items
+
+Feature work, so out of this file's stated scope, but recorded here because there is no
+other todo surface in the repo. Rescued from a scheduled check-in that was retired on
+23 Aug once its PRs merged.
+
+1. **Slideshow slide 11 — `11-investor-dashboard`** is commented out in
+   `PlatformSlideshow.jsx:32`, pending one `npm run screenshots` run. The capture route
+   was already corrected to `/dashboard/investor/deals`
+   (`scripts/capture-screenshots.mjs:137`); the committed image was shot at the wrong
+   route and has not been re-taken. This one only needs the re-shoot — then uncomment.
+   Slide 09 was already restored and is live.
+2. **Slide 01 — `01-login.png`** is currently the restored pre-retina 1280x720 asset,
+   not the 2880x1800 re-shoot, because the re-shoot came back blank (see 23 Aug entry).
+   It is soft next to the other slides. Re-run `npm run screenshots` to replace it; the
+   blank-frame guard added alongside will now reject the capture rather than commit it if
+   `/login` again fails to paint.
+3. **Slideshow slide 10 — `10-ai-profile-score`** stays commented out
+   (`PlatformSlideshow.jsx:25`) until the production demo startup account has a **completed
+   8-vector assessment**. `/dashboard/evaluate` is a data-entry form: the radar chart
+   only draws once the assessment exists, so the current capture shows "0% complete", an
+   em-dash where the score belongs, and an empty VECTOR PROFILE box. No re-shoot or
+   camera angle fixes this — it needs the data.
