@@ -139,19 +139,52 @@ export const SECTOR_COLORS = {
 
 // Known non-canonical sector strings seen in existing data, normalized to the
 // canonical taxonomy key before lookup.
+//
+// SECTOR_ICONS is the startup taxonomy (seed-taxonomy-v2.js). Knowledge Hub
+// content is filed against the industries tree instead, whose sector names are
+// worded for an industry rather than a startup category -- "Banking", not
+// "FinTech". None of those names is a key here, so every such report missed the
+// sector arm of getSectorIcon() and fell through to the tag arm, which returns
+// whichever tag happens to be a taxonomy key: "Social Enterprises" drew a
+// recycling symbol off a GreenTech tag, and three of the four FMCG / CPG
+// reports drew the generic document while the fourth drew a shopping bag off a
+// literal 'CPG' tag. Same sector, different icons, side by side on /reports.
 export const SECTOR_ALIASES = {
   'Cyber Security': 'Cybersecurity',
   'AI': 'AI/ML',
   'Logistics & Supply Chain': 'SupplyChain/Logistics',
   'Enterprise Software': 'SaaS/Enterprise',
   'Real Estate & Construction': 'PropTech',
+  // Industries-tree sector names carried by current Knowledge Hub reports.
+  'Banking': 'BFSI',
+  'Payment Processing': 'BFSI',
+  'FMCG / CPG': 'CPG',
+  'Fashion & Apparel Retail': 'FashionTech',
+  'Jewellery & Watches': 'RetailTech',
+  'Social Enterprises': 'Social Impact',
+  'Electronics Manufacturing': 'Semiconductor',
 };
 
 const DEFAULT_COLOR = '#D0A848';
 
+// Case-folded indexes. Free-text sector and tag values are not typed against
+// the taxonomy, so they arrive in whatever case the author used: the Banking
+// report carries the tag 'Fintech', which never matched the 'FinTech' key and
+// so contributed nothing. Exact matches still win; this only stops casing from
+// deciding whether a sector resolves at all.
+const ALIAS_BY_LOWER = new Map(
+  Object.entries(SECTOR_ALIASES).map(([k, v]) => [k.toLowerCase(), v]),
+);
+const CANONICAL_BY_LOWER = new Map(
+  Object.keys(SECTOR_ICONS).map((k) => [k.toLowerCase(), k]),
+);
+
 function normalizeSector(sector) {
   if (!sector) return sector;
-  return SECTOR_ALIASES[sector] || sector;
+  if (SECTOR_ALIASES[sector]) return SECTOR_ALIASES[sector];
+  if (SECTOR_ICONS[sector]) return sector;
+  const lower = String(sector).trim().toLowerCase();
+  return ALIAS_BY_LOWER.get(lower) || CANONICAL_BY_LOWER.get(lower) || sector;
 }
 
 /**

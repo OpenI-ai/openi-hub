@@ -41,12 +41,27 @@ export const CATEGORY_VALUES = CATEGORIES.map((c) => c.value);
 
 const emptyForm = { title: '', content: '', category: 'article', tags: '', sector: '', is_public: false, file_url: '' };
 
-/** knowledge_articles row -> this form's shape. tags is text[] on the server. */
+/**
+ * knowledge_articles row -> this form's shape. tags is text[] on the server.
+ *
+ * Accepts EITHER shape a row travels in. The API returns `content`/`category`
+ * (knowledgeController.list is a plain `SELECT ka.*`), but Knowledge.jsx
+ * renames those to `summary`/`type` when it normalizes rows for display, and
+ * the Edit button hands that display row straight to this modal.
+ *
+ * Reading only the API names there was silent data loss, not just a blank
+ * field: Content rendered empty and Category fell back to 'article', and
+ * because an edit deliberately PUTs '' rather than undefined so that clearing
+ * a field sticks (see the payload below), saving a title fix then wrote both
+ * of those blanks over the stored row.
+ */
 function formFromArticle(article) {
   return {
     title: article.title || '',
-    content: article.content || '',
-    category: article.category || 'article',
+    // ?? not ||: content that the user genuinely cleared is '' and must stay
+    // '', rather than falling through to the other name for the same field.
+    content: article.content ?? article.summary ?? '',
+    category: article.category || article.type || 'article',
     tags: Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || ''),
     sector: article.sector || '',
     is_public: article.is_public === true,
