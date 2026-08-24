@@ -6,3 +6,8 @@ build
 *.config.js
 *.config.cjs
 public
+
+# A clone of the backend repo nested inside this one (it has happened) must
+# not be swept by the frontend's lint -- its files fail rules they were never
+# written against, and the husky pre-push full sweep then blocks every push.
+openi-hub-backend

@@ -17,3 +17,7 @@ dist/
 .env*
 
 .vercel
+
+# A nested clone of the backend repo (it has happened) must never be linted,
+# committed, or pushed from this repo.
+openi-hub-backend/
