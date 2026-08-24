@@ -715,6 +715,32 @@ claim/merge + dup guard, Claim-Profile flow, investor/student fixes. No new bugs
 
 ---
 
+## 24 Aug 2026 (session close)
+
+No new bugs reported. The day closed two long-running items and shipped the session
+tooling; details live in the sections they belong to, so this entry is the index:
+
+- **Org-merge audit run against production and CLOSED** — the Session 19 → 31 window
+  left no data to repair; no org claims exist at all. Full findings under "Known open
+  issues" → resolved. FE PR #14. Run mechanics worth remembering: Railway's injected
+  `DATABASE_URL` uses the internal hostname, which does not resolve from a laptop —
+  use the Postgres service's `DATABASE_PUBLIC_URL` instead.
+- **Slideshow slide 11 restored** with a visually verified Deal Pipeline capture; slide
+  01's blank now reproduces on a second machine and is an open rendering question; slide
+  10 still waits on demo-account data. All three under "Outstanding non-bug work items".
+  FE PR #15. Re-shoot mechanics worth remembering: pass the demo password via
+  `read -s OPENI_PASSWORD && export OPENI_PASSWORD` — quoting it on the command line
+  mangled it into eleven HTTP 401s; and `git pull` before `npm run screenshots`, because
+  a stale clone runs the pre-guard script and cheerfully reports blank frames as OK.
+- **Session tooling shipped** (FE PRs #12, #13): a SessionStart hook installs deps and
+  flags a missing backend clone, and the two-repo session bookmark is recorded in
+  `.claude/hooks/session-start.sh` —
+  `https://claude.ai/code?repositories=OpenI-ai/openi-hub,OpenI-ai/openi-hub-backend`.
+  `openi-hub-backend/` is now git- and eslint-ignored here, so a clone nested inside
+  this repo can no longer jam the pre-push lint sweep (PR #15).
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -791,7 +817,7 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
      second machine. The open question is now *why* — the page renders fine in a headed
      browser. Until that is understood, re-running the script cannot fix this slide.
 3. **Slideshow slide 10 — `10-ai-profile-score`** stays commented out
-   (`PlatformSlideshow.jsx:25`) until the production demo startup account has a **completed
+   (`PlatformSlideshow.jsx:22`) until the production demo startup account has a **completed
    8-vector assessment**. `/dashboard/evaluate` is a data-entry form: the radar chart
    only draws once the assessment exists, so the current capture shows "0% complete", an
    em-dash where the score belongs, and an empty VECTOR PROFILE box. No re-shoot or
