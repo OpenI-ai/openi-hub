@@ -774,17 +774,22 @@ Feature work, so out of this file's stated scope, but recorded here because ther
 other todo surface in the repo. Rescued from a scheduled check-in that was retired on
 23 Aug once its PRs merged.
 
-1. **Slideshow slide 11 — `11-investor-dashboard`** is commented out in
-   `PlatformSlideshow.jsx:32`, pending one `npm run screenshots` run. The capture route
-   was already corrected to `/dashboard/investor/deals`
-   (`scripts/capture-screenshots.mjs:137`); the committed image was shot at the wrong
-   route and has not been re-taken. This one only needs the re-shoot — then uncomment.
-   Slide 09 was already restored and is live.
+1. ~~**Slideshow slide 11 — `11-investor-dashboard`**~~ — **done 24 Aug 2026.** Rajeev
+   re-shot against production with the corrected route; the capture shows the real
+   seven-stage Deal Pipeline with six deals (verified visually before merging, flat 52%).
+   Slide restored in `PlatformSlideshow.jsx`. One trap from the re-shoot worth recording:
+   a stale local clone runs the pre-guard capture script, which happily writes blank
+   frames and shoots slide 11 at the old wrong route — `git pull` before `npm run
+   screenshots`.
 2. **Slide 01 — `01-login.png`** is currently the restored pre-retina 1280x720 asset,
    not the 2880x1800 re-shoot, because the re-shoot came back blank (see 23 Aug entry).
-   It is soft next to the other slides. Re-run `npm run screenshots` to replace it; the
-   blank-frame guard added alongside will now reject the capture rather than commit it if
-   `/login` again fails to paint.
+   It is soft next to the other slides.
+   - **24 Aug 2026 update:** the re-shoot was attempted from Rajeev's machine and the
+     guard did its job — `/login` failed the wait for painted body text (15s timeout)
+     and no file was written. So the 22 Aug blank was not a capture-environment fluke:
+     `/login` genuinely does not paint within 15s in headless Chromium, reproduced on a
+     second machine. The open question is now *why* — the page renders fine in a headed
+     browser. Until that is understood, re-running the script cannot fix this slide.
 3. **Slideshow slide 10 — `10-ai-profile-score`** stays commented out
    (`PlatformSlideshow.jsx:25`) until the production demo startup account has a **completed
    8-vector assessment**. `/dashboard/evaluate` is a data-entry form: the radar chart
