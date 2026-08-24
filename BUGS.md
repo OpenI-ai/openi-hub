@@ -741,6 +741,27 @@ tooling; details live in the sections they belong to, so this entry is the index
 
 ---
 
+## 24 Aug 2026 (evening) — Sentry: Academia Publications page crashed on every visit
+
+### TDZ crash in the drafts feature — two twin pages
+
+- **Reported:** Sentry issue `OPENI-HUB-FRONTEND-S`, first event 21:11 IST —
+  `ReferenceError: Cannot access 'S' before initialization` at
+  `/dashboard/academia/publications`, production, caught by the React ErrorBoundary.
+- **Root cause:** `AcademiaPortfolio.jsx` builds its `useDraftForm` key from `editId`
+  **one line before `const [editId, setEditId] = useState(null)` is declared** — a
+  temporal-dead-zone read (`'S'` is `editId`'s minified name). Shipped with the drafts
+  coverage in PR #9; the page has crashed on mount for every visitor since, and the
+  first academia visitor arrived 24 Aug evening. Same bug class as the 29 May Settings
+  crash.
+- **Sweep:** every `useDraftForm` call site was checked for key-variables declared after
+  the call. One more instance: `StudentPortfolio.jsx` — the same copied block, crashing
+  the student portfolio identically. The other 30 call sites are clean (their key
+  variables are props, params, or earlier state).
+- **Fix:** `editId` declared above the hook call in both files. FE PR #17.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept

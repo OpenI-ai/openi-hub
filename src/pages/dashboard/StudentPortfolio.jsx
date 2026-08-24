@@ -24,9 +24,9 @@ export default function StudentPortfolio() {
   // Draft-backed. The key carries BOTH the entity kind and the row, because
   // one piece of form state serves every kind here: `student-portfolio:project:new`
   // and a half-written publication cannot collide.
+  const [editId, setEditId] = useState(null);
   const [form, setForm, formDraft] = useDraftForm(
     `student-portfolio:${modal || 'none'}:${editId || 'new'}`, {});
-  const [editId, setEditId] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shares, setShares] = useState([]);
   const [shareLoading, setShareLoading] = useState(false);
