@@ -734,27 +734,31 @@ here for reference so they aren't re-investigated:
 
 ## Known open issues (not yet fixed)
 
-1. **Org-merge historical data loss** (Session 19 → Session 31 window) — merges executed
-   in that window did not reassign rows to the target org, per the Session 31 fix caveat
-   above. No retroactive repair has been run.
-   - **23 Aug 2026 update:** an audit script now exists — `railway run node
-     src/scripts/audit-org-merges.js` (BE `51a6312`, PR #24). Read-only; writes and
-     deletes nothing, safe against production. It reads the live on-delete action of
-     every FK into `organizations` from `pg_constraint` rather than assuming them, then
-     reports org claims by status, rows pointing at a deleted `organizations` id,
-     approved claims whose placeholder org still exists, and — via `snapshot_before` —
-     whether any recorded completed merge left rows on its pre-merge org id.
-   - Reading the code against the schema argues these merges **could not have silently
-     succeeded**: step 4's reassignments all failed, so `users.org_id` still pointed at
-     the placeholder, and step 5's `DELETE FROM organizations` then hit
-     `users_org_id_fkey` (`NO ACTION`, so it raises rather than cascading) outside any
-     savepoint, aborting the transaction. Reproduced against a real Postgres carrying
-     this schema. That is good enough to doubt the caveat and **not** good enough to
-     close it — the original bug was an error nobody could see being swallowed, so the
-     answer should come from the data. **If the script comes back clean, this item can
-     be closed citing that run.**
+None. The last item on this list closed 24 Aug 2026; see below.
 
 ### Resolved since this list was last written
+
+- ~~**Org-merge historical data loss** (Session 19 → Session 31 window)~~ — **closed
+  24 Aug 2026: the window left no data to repair.** The Session 31 caveat said merges
+  executed in that window "did not reassign rows to the target org" and flagged a
+  manual audit. The audit script (`src/scripts/audit-org-merges.js`, BE `51a6312`,
+  PR #24) was run against the production database on 24 Aug 2026, and every check came
+  back clean:
+  - **FK ground truth** — the live `pg_constraint` on-delete actions match the
+    schema reading: `users.org_id` is `NO ACTION`, so a merge whose reassignments
+    failed could not delete its placeholder org; the transaction aborted instead of
+    committing.
+  - **Org claims by status** — no org claims exist at all: the merge subsystem was
+    never driven to a completed merge in production during (or since) the window.
+  - **Dangling references** — 0 rows in all eight reassign tables point at a deleted
+    `organizations` id.
+  - **Approved claims with surviving placeholders** — none.
+  - **Rows left on a pre-merge placeholder id** — no completed merges recorded, so
+    none possible.
+
+  This confirms the code-reading from 23 Aug: every affected merge attempt failed
+  loudly and rolled back whole, so nothing inconsistent was ever committed. No
+  retroactive repair is needed, and none was run — the script is read-only.
 
 - ~~**Opportunities feed pagination** (flagged Session 24)~~ — fixed 23 Aug 2026.
   `GET /api/opportunities` had no `LIMIT`/`OFFSET` at all, so the frontend pager was
