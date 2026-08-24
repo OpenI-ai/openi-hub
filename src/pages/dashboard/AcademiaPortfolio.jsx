@@ -30,9 +30,9 @@ export default function AcademiaPortfolio() {
   // Draft-backed. The key carries BOTH the entity kind and the row, because
   // one piece of form state serves every kind here: `academia-portfolio:project:new`
   // and a half-written publication cannot collide.
+  const [editId, setEditId] = useState(null);
   const [form, setForm, formDraft] = useDraftForm(
     `academia-portfolio:${modal || 'none'}:${editId || 'new'}`, {});
-  const [editId, setEditId] = useState(null);
 
   const load = async () => {
     setLoading(true);
