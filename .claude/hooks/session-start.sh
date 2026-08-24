@@ -32,9 +32,15 @@ fi
 # session, and nothing is attached at SessionStart beyond the session's own
 # sources. Detect and instruct rather than fail.
 #
-# The durable fix is to add openi-hub-backend as a second SOURCE on the
-# environment, which makes it present before this hook ever runs. This block
-# is the fallback for when that has not been done.
+# The durable fix is to select BOTH repos in the repository selector when
+# starting the session -- a cloud session can carry more than one, and both are
+# then cloned before this hook runs. This bookmark pre-selects the pair:
+#
+#   https://claude.ai/code?repositories=OpenI-ai/openi-hub,OpenI-ai/openi-hub-backend
+#
+# It is not an environment setting: an environment configures network access,
+# variables and the setup script, and has no repository list. This block is the
+# fallback for a session that was started with this repo alone.
 BACKEND_DIR="${OPENI_BACKEND_DIR:-/home/user/openi-hub-backend}"
 
 if git -C "$BACKEND_DIR" rev-parse HEAD >/dev/null 2>&1; then
