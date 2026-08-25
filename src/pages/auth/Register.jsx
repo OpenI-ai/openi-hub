@@ -187,10 +187,13 @@ export default function Register() {
       setStep(3);
     } catch (err) {
       // Phase 117 — Surface backend FREE_EMAIL_BLOCKED with clear UI hint
+      // s88 — same for DISPOSABLE_EMAIL_BLOCKED (temp-mail block, all personas)
       const code = err?.response?.data?.code || err?.code;
       const msg  = err?.response?.data?.message || err?.message;
       if (code === 'FREE_EMAIL_BLOCKED') {
         setError(msg || 'Please use your work email to register as an organization.');
+      } else if (code === 'DISPOSABLE_EMAIL_BLOCKED') {
+        setError(msg || 'Disposable or temporary email addresses cannot be used to create an account. Please register with a lasting email address.');
       } else {
         setError(msg || 'Registration failed. Please try again.');
       }
