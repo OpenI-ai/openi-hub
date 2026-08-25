@@ -245,6 +245,13 @@ export default function App() {
           <Route path="/claims/verify/:token"    element={<ClaimVerify />} />
           <Route path="/search"                  element={<GlobalSearch />} />
           <Route path="/dashboard/login" element={<LoginRoute />} />
+          {/* s87 — /login is the most guessable URL on the site and it rendered
+              a BLANK PAGE: the only login route is /dashboard/login and there
+              was no catch-all, so React Router matched nothing and painted
+              nothing. This is what the 22 Aug "blank slide 01 capture" and the
+              24 Aug guard refusal were photographing — not a headless-rendering
+              bug, a URL that never existed. Alias it. */}
+          <Route path="/login" element={<Navigate to="/dashboard/login" replace />} />
 
           {/* Protected dashboard shell */}
           <Route
@@ -362,6 +369,12 @@ export default function App() {
             <Route path="clusters/:id"        element={<ClusterDetail />} />
             <Route path="settings"            element={<Settings />} />
           </Route>
+
+          {/* s87 — catch-all: an unmatched URL used to render literally
+              nothing (blank white page, no error, no redirect) because
+              <Routes> with no match paints no element. Send strays to the
+              homepage rather than a void. */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </Suspense>
       </BrowserRouter>

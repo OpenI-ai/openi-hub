@@ -831,12 +831,19 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 2. **Slide 01 — `01-login.png`** is currently the restored pre-retina 1280x720 asset,
    not the 2880x1800 re-shoot, because the re-shoot came back blank (see 23 Aug entry).
    It is soft next to the other slides.
-   - **24 Aug 2026 update:** the re-shoot was attempted from Rajeev's machine and the
-     guard did its job — `/login` failed the wait for painted body text (15s timeout)
-     and no file was written. So the 22 Aug blank was not a capture-environment fluke:
-     `/login` genuinely does not paint within 15s in headless Chromium, reproduced on a
-     second machine. The open question is now *why* — the page renders fine in a headed
-     browser. Until that is understood, re-running the script cannot fix this slide.
+   - ~~**24 Aug 2026 update:** … `/login` genuinely does not paint within 15s in
+     headless Chromium … the open question is now *why*.~~
+   - **25 Aug 2026 — SOLVED, and it was never a rendering bug: `/login` did not
+     exist.** The only login route was `/dashboard/login`, and the app had NO catch-all
+     route, so React Router matched nothing at `/login` and painted nothing — a blank
+     white page **in every browser, for humans too**. The 22 Aug blank capture and the
+     24 Aug guard refusal were the tooling correctly photographing that void. The
+     "renders fine in a headed browser" belief was tested against the wrong URL.
+     Fixed (FE PR #21): `/login` now redirects to `/dashboard/login`, a `path="*"`
+     catch-all sends any unmatched URL to the homepage instead of a blank page, and the
+     capture script points at the real route. **After this deploys, one
+     `npm run screenshots` run finally lands the 2880x1800 slide-01 capture** — the
+     guard will pass because there is now something to photograph.
 3. **Slideshow slide 10 — `10-ai-profile-score`** stays commented out
    (`PlatformSlideshow.jsx:22`) until the production demo startup account has a **completed
    8-vector assessment**. `/dashboard/evaluate` is a data-entry form: the radar chart

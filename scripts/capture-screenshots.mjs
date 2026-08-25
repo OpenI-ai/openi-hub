@@ -112,7 +112,7 @@ if (!PW) {
 // file -> which persona sees it, and where. Filenames must match
 // src/components/PlatformSlideshow.jsx exactly or the slideshow 404s.
 const SHOTS = [
-  { file: '01-login.png',               email: null,                      path: '/login' },
+  { file: '01-login.png',               email: null,                      path: '/dashboard/login' },  // s87: bare /login never existed — it was the blank
   { file: '02-startup-dashboard.png',   email: 'startup@demo.openi.ai',   path: '/dashboard' },
   { file: '03-student-portfolio.png',   email: 'student@demo.openi.ai',   path: '/dashboard' },
   { file: '04-incubator-programs.png',  email: 'incubator@demo.openi.ai', path: '/dashboard' },
