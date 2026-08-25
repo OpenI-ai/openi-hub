@@ -828,9 +828,12 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
    a stale local clone runs the pre-guard capture script, which happily writes blank
    frames and shoots slide 11 at the old wrong route — `git pull` before `npm run
    screenshots`.
-2. **Slide 01 — `01-login.png`** is currently the restored pre-retina 1280x720 asset,
-   not the 2880x1800 re-shoot, because the re-shoot came back blank (see 23 Aug entry).
-   It is soft next to the other slides.
+2. ~~**Slide 01 — `01-login.png`**~~ — **DONE 25 Aug 2026.** The 2880x1800 retina capture
+   landed on the first run after the `/login` route fix deployed (flat 87% — the flattest
+   legitimate capture on record, honestly so: a login page is one card on a clean
+   backdrop; verified by eye at full resolution before merging). Slides 05-corporate,
+   05-marketplace, 07, 09 and 11 refreshed in the same run — 11 now shows the fixed
+   deal board (stage badges, Advance-to buttons, rupee icons) in production.
    - ~~**24 Aug 2026 update:** … `/login` genuinely does not paint within 15s in
      headless Chromium … the open question is now *why*.~~
    - **25 Aug 2026 — SOLVED, and it was never a rendering bug: `/login` did not
