@@ -25,6 +25,7 @@ import {
   PricingCard, Step, PersonaListItem, FAQItem,
   LandingHeader, LandingFooter,
 } from './landingParts/index.js';
+import CardDeck from './landingParts/CardDeck.jsx';
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING PAGE
@@ -326,7 +327,7 @@ export default function Landing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardDeck gridClassName="md:grid-cols-2 md:gap-6" cardClassName="w-[86vw] max-w-[360px]">
           {/* Innovation Providers */}
           <div
             className="rounded-2xl p-8 transition-all"
@@ -400,7 +401,7 @@ export default function Landing() {
               Join as Seeker <ArrowRight size={16} />
             </a>
           </div>
-        </div>
+        </CardDeck>
 
         {/* ── Persona Picker Grid ──────────────────────────────────── */}
         <div id="choose-persona" className="mt-14 scroll-mt-20">
@@ -463,12 +464,12 @@ export default function Landing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-3">
           {(services || DEFAULT_SERVICES).map((s, i) => {
             const Icon = ICON_MAP[s.icon] || Layers;
             return <FeatureCard key={i} icon={Icon} title={s.title} description={s.description} />;
           })}
-        </div>
+        </CardDeck>
 
         <div className="text-center mt-14">
           <h3 className="text-xl font-bold mb-2" style={{ color: DARK }}>
@@ -503,7 +504,7 @@ export default function Landing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-4">
           {(features || [
             { icon: 'Award', title: '8-Vector AI Evaluation', description: 'Score startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment — with clear explanations, red flags, and recommended next steps.' },
             { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${startupCount} startups grouped into 200 AI clusters.` },
@@ -512,7 +513,7 @@ export default function Landing() {
           ]).map((f, i) => (
             <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
           ))}
-        </div>
+        </CardDeck>
 
         <div className="text-center mt-12">
           <Link
@@ -545,8 +546,8 @@ export default function Landing() {
             The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, multi-role accounts, and a 39× larger startup database.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-4">
+          <div className="p-6 rounded-xl h-full" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
             <div
               className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
               style={{ background: GOLD_LIGHT }}
@@ -595,7 +596,7 @@ export default function Landing() {
               Every recommendation surface tracks impressions, clicks, and per-cluster CTR. Admins can see which AI matches actually convert — closing the loop on recommendation quality.
             </p>
           </div>
-        </div>
+        </CardDeck>
       </Section>
 
       {/* TESTIMONIALS section removed s47 \u2014 no real testimonials yet, will restore once collected. */}
@@ -654,7 +655,7 @@ export default function Landing() {
         </div>
 
         {pricingTab === 'provider' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <CardDeck gridClassName="md:grid-cols-2 md:gap-6 md:max-w-3xl md:mx-auto" cardClassName="w-[84vw] max-w-[340px]">
             <PricingCard
               name="Free"
               price="₹0"
@@ -689,9 +690,9 @@ export default function Landing() {
               cta="Upgrade to Growth"
               ctaLink="/register"
             />
-          </div>
+          </CardDeck>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <CardDeck gridClassName="md:grid-cols-3 md:gap-6 md:max-w-5xl md:mx-auto" cardClassName="w-[84vw] max-w-[340px]">
             <PricingCard
               name="Free"
               price="₹0"
@@ -746,7 +747,7 @@ export default function Landing() {
               cta="Contact Sales"
               ctaLink="/register"
             />
-          </div>
+          </CardDeck>
         )}
 
         <p className="text-center text-sm mt-8" style={{ color: GRAY }}>
