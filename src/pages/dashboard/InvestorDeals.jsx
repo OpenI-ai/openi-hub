@@ -4,7 +4,7 @@ import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { investorAPI } from '../../services/api';
 import {
   Loader2, ChevronLeft, ChevronRight, Clock, Plus, X, CheckCircle,
-  Trash2, Star, DollarSign, Target, TrendingUp, Briefcase, FileText, BarChart3
+  Trash2, Star, DollarSign, IndianRupee, Target, TrendingUp, Briefcase, FileText, BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { isUpgradeError } from '../../utils/upgradeError';
@@ -617,9 +617,13 @@ export default function InvestorDeals() {
           <p style={{ fontSize: 12, color: '#6e6e6e' }}>Create your first deal to start tracking</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STAGES.length}, minmax(160px, 1fr))`, gap: 10, overflowX: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STAGES.length}, minmax(200px, 1fr))`, gap: 10, overflowX: 'auto', paddingBottom: 8 }}>
           {STAGES.map(stage => (
-            <div key={stage.key}>
+            // minWidth: 0 is load-bearing: a grid item's default min-width is
+            // min-content, so one card with wide unbreakable content silently
+            // inflates its whole track and every column to its right drifts
+            // out from under its header -- the misalignment the UX audit saw.
+            <div key={stage.key} style={{ minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, padding: '8px 12px', borderRadius: 10, background: stage.bg }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: stage.color }} />
                 <span style={{ fontSize: 11, fontWeight: 700, color: stage.color }}>{stage.label}</span>
@@ -631,7 +635,7 @@ export default function InvestorDeals() {
                   const msDone2 = parseInt(deal.milestone_done) || 0;
                   const msPct = msTotal > 0 ? Math.round(msDone2 / msTotal * 100) : 0;
                   return (
-                    <div key={deal.id} style={{ ...card, padding: 12, cursor: 'pointer' }}
+                    <div key={deal.id} style={{ ...card, padding: 12, cursor: 'pointer', minWidth: 0, overflow: 'hidden' }}
                       onClick={() => openDetail(deal)}
                       onMouseEnter={e => e.currentTarget.style.borderColor = stage.color}
                       onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}>
@@ -640,14 +644,20 @@ export default function InvestorDeals() {
                           {(deal.startup_name || '?')[0]}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.startup_name || 'Unknown'}</div>
-                          {deal.title && <div style={{ fontSize: 10, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.title}</div>}
+                          <div title={deal.startup_name || 'Unknown'} style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.startup_name || 'Unknown'}</div>
+                          {deal.title && <div title={deal.title} style={{ fontSize: 10, color: '#5c5c5c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{deal.title}</div>}
                         </div>
+                        {/* The card states its CURRENT stage itself. Position
+                            used to be the only signal, and position is exactly
+                            what a drifted or scrolled board misrepresents. */}
+                        <span title={`Current stage: ${stage.label}`} style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: stage.bg, color: stage.color, flexShrink: 0, whiteSpace: 'nowrap' }}>{stage.label}</span>
                       </div>
 
                       {deal.investment_amount && (
                         <div style={{ fontSize: 11, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>
-                          <DollarSign size={10} style={{ verticalAlign: -1 }} /> {deal.currency || 'INR'} {parseFloat(deal.investment_amount).toLocaleString()}
+                          {(deal.currency || 'INR') === 'INR'
+                            ? <IndianRupee size={10} style={{ verticalAlign: -1 }} />
+                            : <DollarSign size={10} style={{ verticalAlign: -1 }} />} {deal.currency || 'INR'} {parseFloat(deal.investment_amount).toLocaleString()}
                         </div>
                       )}
 
@@ -669,23 +679,26 @@ export default function InvestorDeals() {
                         <Clock size={10} style={{ verticalAlign: -1 }} /> {new Date(deal.updated_at || deal.created_at).toLocaleDateString()}
                       </div>
 
-                      {/* Stage advance button */}
-                      {stage.key !== 'closed' && stage.key !== 'passed' && (
-                        <div style={{ marginTop: 8 }}>
-                          <button onClick={(e) => {
-                            e.stopPropagation();
-                            const idx = STAGES.findIndex(s => s.key === stage.key);
-                            if (idx < STAGES.length - 2) moveToStage(deal.id, STAGES[idx + 1].key);
-                          }}
-                            style={{
-                              width: '100%', padding: '4px 8px', fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: 'pointer', border: 'none',
-                              background: STAGES[STAGES.findIndex(s => s.key === stage.key) + 1]?.bg || '#f3f4f6',
-                              color: STAGES[STAGES.findIndex(s => s.key === stage.key) + 1]?.color || '#666',
-                            }}>
-                            {STAGES[STAGES.findIndex(s => s.key === stage.key) + 1]?.label} <ChevronRight size={10} style={{ verticalAlign: -1 }} />
-                          </button>
-                        </div>
-                      )}
+                      {/* Stage advance button. The old label was the bare
+                          next-stage name ("Evaluating") on a card whose current
+                          stage appeared nowhere -- it read as a status, not an
+                          action. "Advance to X" is unambiguous either way. */}
+                      {stage.key !== 'closed' && stage.key !== 'passed' && (() => {
+                        const next = STAGES[STAGES.findIndex(s => s.key === stage.key) + 1];
+                        if (!next || next.key === 'passed') return null;
+                        return (
+                          <div style={{ marginTop: 8 }}>
+                            <button onClick={(e) => { e.stopPropagation(); moveToStage(deal.id, next.key); }}
+                              title={`Move this deal from ${stage.label} to ${next.label}`}
+                              style={{
+                                width: '100%', padding: '4px 8px', fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: 'pointer', border: 'none',
+                                background: next.bg, color: next.color,
+                              }}>
+                              Advance to {next.label} <ChevronRight size={10} style={{ verticalAlign: -1 }} />
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}
