@@ -128,3 +128,10 @@ export const adminAPI = {
   emailOutboxAckAlert:      (id)            => post(`/admin/email-outbox/alerts/${id}/ack`, {}),
 };
 // ---8<--- BODY END
+
+// s87 — liveness backfill worker controls. Post-sentinel addition: the body
+// above is a byte-verbatim slice covered by the re-concat check, so new
+// methods attach to the exported object here rather than editing it.
+crawlAPI.livenessWorkerStart  = () => post('/crawl/liveness/worker/start', {});
+crawlAPI.livenessWorkerStop   = () => post('/crawl/liveness/worker/stop', {});
+crawlAPI.livenessWorkerStatus = () => get('/crawl/liveness/worker/status');
