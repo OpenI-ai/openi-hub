@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Activity, RefreshCw, CheckCircle2, XCircle, AlertCircle,
   Zap, Loader2, Database, Server, Rss, Shield, Globe,
+  HeartPulse, Play, Square,
 } from 'lucide-react';
 import { crawlAPI } from '../services/api';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -115,6 +116,21 @@ export default function PipelineHealth() {
     return () => clearInterval(t);
   }, [autoRefresh, load]);
 
+  // s87: start/stop the liveness backfill worker from the panel.
+  const [lvBusy, setLvBusy] = useState(false);
+  const livenessAction = useCallback(async (kind) => {
+    setLvBusy(true);
+    try {
+      if (kind === 'start') await crawlAPI.livenessWorkerStart();
+      else await crawlAPI.livenessWorkerStop();
+      await load();
+    } catch (e) {
+      setErr(e.message || 'Liveness worker action failed');
+    } finally {
+      setLvBusy(false);
+    }
+  }, [load]);
+
   // Re-tick the relative-time labels every 5s so "12s ago" stays current
   const [, forceTick] = useState(0);
   useEffect(() => {
@@ -161,6 +177,21 @@ export default function PipelineHealth() {
   const rss = data.rss_auto_disable || {};
   const cr = data.crawler || {};
   const ep = data.enrichment_pool || {};
+  // s87: liveness census. Sibling keys — absent on a pre-s87 backend, in
+  // which case the whole section stays hidden rather than rendering dashes.
+  const lb = data.liveness_backfill;
+  const lc = data.liveness_corpus;
+  const lcron = data.liveness;
+  const lcTotal = Number(lc?.total_crawled || 0);
+  const lcNever = Number(lc?.never_checked || 0);
+  const lcChecked = Math.max(0, lcTotal - lcNever);
+  const lcPct = lcTotal > 0 ? (lcChecked / lcTotal) * 100 : 0;
+  // Drain rate + ETA from the worker's own run, when it is running.
+  const lvElapsedSec = lb?.running && lb?.started_at
+    ? Math.max(1, (Date.now() - Date.parse(lb.started_at)) / 1000) : null;
+  const lvRate = lvElapsedSec && lb?.stats?.processed > 0
+    ? lb.stats.processed / lvElapsedSec : null;
+  const lvEtaDays = lvRate && lcNever > 0 ? (lcNever / lvRate) / 86400 : null;
 
   return (
     <div className="py-5 space-y-5 min-w-0">
@@ -283,6 +314,80 @@ export default function PipelineHealth() {
           )}
         </HealthCard>
       </div>
+
+      {/* s87 — Liveness census: backfill worker + corpus progress + cron */}
+      {lb !== undefined && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <HeartPulse size={16} className="text-primary-500" />
+            <h3 className="font-display font-semibold text-gray-900 text-sm">Liveness Census</h3>
+            <span className={`text-xs px-2 py-0.5 rounded-full border ${lb?.running ? TONE_CLASS.green : TONE_CLASS.gray}`}>
+              {lb?.running ? 'backfill running' : 'backfill idle'}
+            </span>
+            <div className="ml-auto">
+              {lb?.running ? (
+                <button
+                  onClick={() => livenessAction('stop')}
+                  disabled={lvBusy}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {lvBusy ? <Loader2 size={14} className="animate-spin" /> : <Square size={14} />}
+                  Stop backfill
+                </button>
+              ) : (
+                <button
+                  onClick={() => livenessAction('start')}
+                  disabled={lvBusy || lcNever === 0}
+                  title={lcNever === 0 ? 'Pool is drained — nothing left to check' : undefined}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {lvBusy ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
+                  Start backfill
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* corpus progress */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+              <span>{fmtNum(lcChecked)} of {fmtNum(lcTotal)} crawled profiles checked</span>
+              <span>{lcPct.toFixed(1)}%</span>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-primary-500 rounded-full transition-all" style={{ width: `${lcPct}%` }} />
+            </div>
+            {lvRate != null && (
+              <div className="text-xs text-gray-400 mt-1">
+                ~{lvRate.toFixed(1)} rows/s this run{lvEtaDays != null ? ` · ~${lvEtaDays < 1 ? `${Math.ceil(lvEtaDays * 24)}h` : `${lvEtaDays.toFixed(1)}d`} to drain` : ''}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-4">
+            <div><div className="text-xs text-gray-400">Live</div><div className="text-lg font-semibold text-green-700">{fmtNum(lc?.live)}</div></div>
+            <div><div className="text-xs text-gray-400">Parked</div><div className="text-lg font-semibold text-amber-700">{fmtNum(lc?.parked)}</div></div>
+            <div><div className="text-xs text-gray-400">Mismatched</div><div className="text-lg font-semibold text-amber-700">{fmtNum(lc?.mismatched)}</div></div>
+            <div><div className="text-xs text-gray-400">Unreachable</div><div className="text-lg font-semibold text-red-600">{fmtNum(lc?.unreachable)}</div></div>
+            <div><div className="text-xs text-gray-400">Unknown</div><div className="text-lg font-semibold text-gray-900">{fmtNum(lc?.unknown)}</div></div>
+            <div><div className="text-xs text-gray-400">Never checked</div><div className="text-lg font-semibold text-gray-900">{fmtNum(lcNever)}</div></div>
+          </div>
+
+          <div className="pt-3 border-t border-gray-100 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+            <span>
+              Worker: inflight {lb?.inflight ?? 0}/{lb?.concurrency ?? '—'}
+              {lb?.started_at ? ` · started ${relTime(lb.started_at)}` : ''}
+              {lb?.stats ? ` · processed ${fmtNum(lb.stats.processed)} · errors ${fmtNum(lb.stats.errors)}` : ''}
+            </span>
+            <span>
+              Recheck cron: {lcron?.registered
+                ? `registered (${lcron.interval})`
+                : 'OFF — set LIVENESS_RECHECK_ENABLED=true'}
+              {lcron?.lastRun ? ` · last run ${relTime(lcron.lastRun)}` : ''}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Bottom strip — pool + crawler */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5">
