@@ -389,6 +389,10 @@ export default function PipelineHealth() {
               {lc?.fail_retry_days != null ? ` (2nd strike after ${lc.fail_retry_days}d` : ' ('}
               {lcRetryDue > 0 ? `, ${fmtNum(lcRetryDue)} due now)` : ', none due yet)'}
               {' · '}{fmtNum(Math.max(0, lcUnknownChecked - lcFailOnce))} ambiguous content (SPA/thin/non-english)
+              {/* s89: render-escalation queue, when the backend reports it */}
+              {lc?.render_pool != null && (
+                <> · render queue {fmtNum(lc.render_pool)}{Number(lc.rendered) > 0 ? ` (${fmtNum(lc.rendered)} rendered)` : ''}</>
+              )}
             </div>
           )}
 
@@ -404,6 +408,12 @@ export default function PipelineHealth() {
                 : 'OFF — set LIVENESS_RECHECK_ENABLED=true'}
               {lcron?.last_batch != null ? ` · batch ${fmtNum(lcron.last_batch)}` : ''}
               {lcron?.lastRun ? ` · last run ${relTime(lcron.lastRun)}` : ''}
+              {/* s89: render pass — show progress when running, the reason when skipped */}
+              {lcron?.render?.processed > 0
+                ? ` · renders ${fmtNum(lcron.render.processed)} (${fmtNum(lcron.render.live)} live)`
+                : lcron?.render?.skipped && !lcron.render.skipped.startsWith('LIVENESS_RENDER_BATCH=0')
+                  ? ` · renders skipped: ${lcron.render.skipped}`
+                  : ''}
             </span>
           </div>
         </div>
