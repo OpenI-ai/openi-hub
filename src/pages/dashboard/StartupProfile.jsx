@@ -18,6 +18,7 @@ import { openProxyFile } from '../../utils/fileAccess';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import SimilarStartupsPanel from '../../components/SimilarStartupsPanel';
+import LivenessBadge from '../../components/LivenessBadge';
 import {
   MapPin, Users, TrendingUp, Award, Shield,
   ExternalLink, Bookmark, BookmarkCheck, Share2, Globe,
@@ -402,6 +403,9 @@ export default function StartupProfile() {
               </button>
             </div>
           </div>
+          {/* s91: liveness advisory — the contact links live on this page, so
+              the warning does too. Renders only on adverse verdicts. */}
+          <LivenessBadge variant="banner" status={startup.liveness_status} checkedAt={startup.liveness_checked_at} />
         </div>
       </div>
 
