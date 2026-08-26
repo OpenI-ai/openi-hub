@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import toast from 'react-hot-toast';
-import { eightVectorSelfAPI, getToken } from '../../services/api';
+import { eightVectorSelfAPI, startupAPI, getToken } from '../../services/api';
 import {
   Users, Target, TrendingUp, Cpu, DollarSign,
   BarChart2, Shield, Zap, ChevronDown, ChevronUp,
   MessageSquare, Building2, Calendar, Download, Save,
   Share2, FileDown, Globe, X, ChevronRight,  // Phase 111 Ship 2c icons added
+  Sparkles, Link2,                            // s93: AI draft + startup link
 } from "lucide-react";
 
 // ─── 8 VECTOR DATA ─────────────────────────────────────────────────────────────
@@ -387,6 +388,62 @@ export default function StartupEvaluation() {
   const [pastLoading, setPastLoading] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
 
+  // s93: link to a platform startup + AI pre-assessment draft.
+  // linkedStartup: { user_id, company_name } | null. aiMeta is the draft's
+  // provenance blob, persisted with the assessment so any drafted score is
+  // auditable back to the model's raw output. sourceEdited flips the saved
+  // `source` from 'ai_draft' to 'ai_reviewed' the moment the analyst touches
+  // anything — a client must be able to tell whether a human stands behind it.
+  const [linkedStartup, setLinkedStartup] = useState(null);
+  const [startupResults, setStartupResults] = useState([]);
+  const [startupSearching, setStartupSearching] = useState(false);
+  const [aiDrafting, setAiDrafting] = useState(false);
+  const [aiMeta, setAiMeta] = useState(null);
+  const [sourceEdited, setSourceEdited] = useState(false);
+
+  // Debounced startup search against the platform directory whenever the
+  // name input changes without a linked startup selected.
+  useEffect(() => {
+    if (linkedStartup || startupName.trim().length < 2) { setStartupResults([]); return; }
+    const t = setTimeout(async () => {
+      setStartupSearching(true);
+      try {
+        const r = await startupAPI.list({ search: startupName.trim(), limit: 6 });
+        setStartupResults(Array.isArray(r?.startups) ? r.startups.filter(s => s.user_id) : []);
+      } catch {
+        setStartupResults([]);
+      } finally {
+        setStartupSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- startupAPI is a stable module import
+  }, [startupName, linkedStartup]);
+
+  const generateAiDraft = async () => {
+    if (!linkedStartup) return;
+    const hasScores = Object.values(scores).some(v => v != null);
+    if (hasScores && !confirm('Replace the current scores with a fresh AI draft?')) return;
+    setAiDrafting(true);
+    try {
+      const draft = await eightVectorSelfAPI.aiDraft({ startup_user_id: linkedStartup.user_id });
+      setScores(draft.criterion_scores || {});
+      setStatuses(draft.statuses || {});
+      setComments(draft.comments || {});
+      setAiMeta(draft.ai_meta || null);
+      setSourceEdited(false);
+      setSavedAssessmentId(null);
+      if (draft.startup_name) setStartupName(draft.startup_name);
+      const scored = draft.ai_meta?.scored ?? Object.keys(draft.criterion_scores || {}).length;
+      const total = draft.ai_meta?.total_criteria ?? 107;
+      toast.success(`AI draft ready — ${scored} of ${total} criteria scored from platform evidence`);
+    } catch (err) {
+      toast.error(err?.message || 'AI draft failed');
+    } finally {
+      setAiDrafting(false);
+    }
+  };
+
   const refreshPastAssessments = async () => {
     setPastLoading(true);
     try {
@@ -414,6 +471,11 @@ export default function StartupEvaluation() {
       setComments(a.comments || {});
       setNotes(a.notes || '');
       setSavedAssessmentId(a.id);
+      // s93: restore the startup link + AI provenance
+      setLinkedStartup(a.startup_user_id ? { user_id: a.startup_user_id, company_name: a.startup_name } : null);
+      setAiMeta(a.ai_meta || null);
+      setSourceEdited(a.source === 'ai_reviewed');
+      if (a.checkpoint_date) setEvalDate(String(a.checkpoint_date).slice(0, 10));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       toast.error(err?.message || 'Failed to load assessment');
@@ -438,6 +500,11 @@ export default function StartupEvaluation() {
         comments,
         overall_score: overallScore,
         notes: notes.trim() || null,
+        // s93: startup link + provenance
+        startup_user_id: linkedStartup?.user_id ?? null,
+        checkpoint_date: evalDate || null,
+        source: aiMeta ? (sourceEdited ? 'ai_reviewed' : 'ai_draft') : 'manual',
+        ai_meta: aiMeta,
       };
       const res = await eightVectorSelfAPI.create(payload);
       if (res?.id) {
@@ -524,12 +591,14 @@ export default function StartupEvaluation() {
   };
 
 
+  // s93: any manual touch after an AI draft marks the assessment reviewed.
+  const markEdited = () => { if (aiMeta) setSourceEdited(true); };
   const handleScore = (key, val) =>
-    setScores(prev => ({ ...prev, [key]: val }));
+    { markEdited(); setScores(prev => ({ ...prev, [key]: val })); };
   const handleStatus = (key, val) =>
-    setStatuses(prev => ({ ...prev, [key]: val }));
+    { markEdited(); setStatuses(prev => ({ ...prev, [key]: val })); };
   const handleComment = (key, val) =>
-    setComments(prev => ({ ...prev, [key]: val }));
+    { markEdited(); setComments(prev => ({ ...prev, [key]: val })); };
 
   const vectorScores = useMemo(() => {
     const result = {};
@@ -570,14 +639,63 @@ export default function StartupEvaluation() {
 
         <div style={{ flex:1, display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", justifyContent:"flex-end" }}>
           <div id="tour-page-8vector-name" style={{ position:"relative" }}>
-            <Building2 style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#bbb", width:14, height:14 }} />
-            <input type="text" value={startupName} onChange={e => setStartupName(e.target.value)}
-              placeholder="Startup name"
-              style={{ ...inputStyle, paddingLeft:30, width:160 }}
-              onFocus={e => e.target.style.borderColor="#D0A848"}
-              onBlur={e => e.target.style.borderColor="#e0e0e0"}
-            />
+            {linkedStartup ? (
+              /* s93: linked-startup chip — the assessment is now ABOUT this
+                 platform startup, not a free-text name */
+              <div style={{ ...inputStyle, display:"flex", alignItems:"center", gap:6, width:"auto", maxWidth:230, background:"#fff8ec", borderColor:"#D0A848" }}>
+                <Link2 style={{ width:13, height:13, color:"#D0A848", flexShrink:0 }} />
+                <span style={{ fontSize:13, fontWeight:600, color:"#8a6d2f", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{linkedStartup.company_name}</span>
+                <button onClick={() => { setLinkedStartup(null); }} title="Unlink startup"
+                  style={{ border:"none", background:"none", cursor:"pointer", padding:0, display:"flex" }}>
+                  <X style={{ width:13, height:13, color:"#bba26a" }} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Building2 style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#bbb", width:14, height:14 }} />
+                <input type="text" value={startupName} onChange={e => setStartupName(e.target.value)}
+                  placeholder="Startup name (search platform)"
+                  style={{ ...inputStyle, paddingLeft:30, width:190 }}
+                  onFocus={e => e.target.style.borderColor="#D0A848"}
+                  onBlur={e => e.target.style.borderColor="#e0e0e0"}
+                />
+                {/* s93: platform-startup suggestions — picking one links the assessment */}
+                {(startupResults.length > 0 || startupSearching) && startupName.trim().length >= 2 && (
+                  <div style={{ position:"absolute", top:"calc(100% + 4px)", left:0, right:0, zIndex:30, background:"#fff", border:"1px solid #e0e0e0", borderRadius:10, boxShadow:"0 8px 24px rgba(0,0,0,0.12)", overflow:"hidden" }}>
+                    {startupSearching && <div style={{ padding:"8px 12px", fontSize:12, color:"#999" }}>Searching…</div>}
+                    {startupResults.map(s => (
+                      <button key={s.user_id}
+                        onClick={() => { setLinkedStartup({ user_id: s.user_id, company_name: s.company_name }); setStartupName(s.company_name || ''); setStartupResults([]); }}
+                        style={{ display:"block", width:"100%", textAlign:"left", padding:"8px 12px", border:"none", background:"none", cursor:"pointer", fontSize:13, color:"#333" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#fff8ec"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}
+                      >
+                        <span style={{ fontWeight:600 }}>{s.company_name}</span>
+                        {s.sector && <span style={{ color:"#999", fontSize:11 }}> · {s.sector}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
+          {/* s93: AI pre-assessment draft — enabled once a platform startup is linked */}
+          <button
+            onClick={generateAiDraft}
+            disabled={!linkedStartup || aiDrafting}
+            title={linkedStartup ? 'Draft scores from platform evidence — review before saving' : 'Link a platform startup first'}
+            style={{
+              display:"inline-flex", alignItems:"center", gap:6, padding:"9px 14px",
+              background: (!linkedStartup || aiDrafting) ? "#f0f0f0" : "#fff8ec",
+              color: (!linkedStartup || aiDrafting) ? "#aaa" : "#D0A848",
+              border: `1.5px solid ${(!linkedStartup || aiDrafting) ? "#e0e0e0" : "#D0A848"}`,
+              borderRadius:9, fontSize:12, fontWeight:700,
+              cursor: (!linkedStartup || aiDrafting) ? "not-allowed" : "pointer",
+            }}
+          >
+            <Sparkles className="w-4 h-4" />
+            {aiDrafting ? "Drafting…" : "AI Draft"}
+          </button>
           <input type="text" value={evaluator} onChange={e => setEvaluator(e.target.value)}
             placeholder="Evaluator name"
             style={{ ...inputStyle, width:150 }}
@@ -667,6 +785,18 @@ export default function StartupEvaluation() {
               Rate each criterion from <strong style={{ color:"#555" }}>1</strong> (poor) to <strong style={{ color:"#555" }}>5</strong> (excellent). Click <MessageSquare style={{ width:13, height:13, display:"inline", verticalAlign:"middle", color:"#bbb" }} /> to add status & notes.
             </p>
           </div>
+
+          {/* s93: AI-draft provenance banner — visible until the draft is superseded */}
+          {aiMeta && (
+            <div style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"12px 16px", background:"#fff8ec", border:"1.5px solid #ecd9a8", borderRadius:12, fontSize:13, color:"#7a5f28" }}>
+              <Sparkles style={{ width:16, height:16, flexShrink:0, marginTop:2, color:"#D0A848" }} />
+              <div>
+                <strong>AI draft{sourceEdited ? ' (being reviewed)' : ' — not yet reviewed'}.</strong>{' '}
+                {aiMeta.scored ?? 0} of {aiMeta.total_criteria ?? 107} criteria scored from platform evidence; unscored criteria had no evidence and are honest gaps, not zeros.
+                Unevidenced claims are shrunk toward 2/5, never averaged up. Review every score before saving — your edits mark it analyst-reviewed.
+              </div>
+            </div>
+          )}
 
           {VECTORS.map(vector => (
             <VectorCard
@@ -767,11 +897,16 @@ export default function StartupEvaluation() {
                       onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f0f0f0"; }}
                     >
                       <div style={{ minWidth:0, flex:1 }}>
-                        <div style={{ fontSize:14, fontWeight:600, color:"#1a1a1a", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-                          {a.startup_name || "Untitled assessment"}
+                        <div style={{ fontSize:14, fontWeight:600, color:"#1a1a1a", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", display:"flex", alignItems:"center", gap:6 }}>
+                          {a.linked_company_name || a.startup_name || "Untitled assessment"}
+                          {/* s93: provenance + platform-link chips */}
+                          {a.startup_user_id && <Link2 style={{ width:12, height:12, color:"#D0A848", flexShrink:0 }} title="Linked to a platform startup" />}
+                          {a.source === 'ai_draft' && <span style={{ fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:8, background:"#fff8ec", border:"1px solid #ecd9a8", color:"#a8842f", flexShrink:0 }}>AI DRAFT</span>}
+                          {a.source === 'ai_reviewed' && <span style={{ fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:8, background:"#eef7ee", border:"1px solid #bfe0bf", color:"#3d7a3d", flexShrink:0 }}>AI + REVIEWED</span>}
                         </div>
                         <div style={{ fontSize:12, color:"#666", display:"flex", alignItems:"center", gap:5, marginTop:2 }}>
                           <Calendar style={{ width:12, height:12 }} />
+                          {a.checkpoint_date ? `Checkpoint ${String(a.checkpoint_date).slice(0, 10)} · ` : ''}
                           {created ? created.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }) : "—"}
                           {created && ` · ${created.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' })}`}
                         </div>
