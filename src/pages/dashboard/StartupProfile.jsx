@@ -403,9 +403,14 @@ export default function StartupProfile() {
               </button>
             </div>
           </div>
-          {/* s91: liveness advisory — the contact links live on this page, so
-              the warning does too. Renders only on adverse verdicts. */}
-          <LivenessBadge variant="banner" status={startup.liveness_status} checkedAt={startup.liveness_checked_at} />
+          {/* s91/s92: liveness/registry advisory — the contact links live on
+              this page, so the warning does too. Renders only on adverse
+              verdicts; a registry verdict (fact) outranks a homepage one. */}
+          <LivenessBadge
+            variant="banner"
+            status={startup.liveness_status} checkedAt={startup.liveness_checked_at}
+            registryStatus={startup.registry_status} registryCheckedAt={startup.registry_checked_at}
+          />
         </div>
       </div>
 
