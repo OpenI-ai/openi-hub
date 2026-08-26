@@ -86,6 +86,8 @@ export const deeptechShareAPI = {
 export const eightVectorSelfAPI = {
   listMine:      ()               => get('/eight-vector-self'),
   create:        (data)           => post('/eight-vector-self', data),
+  // s93: AI pre-assessment draft for a linked platform startup
+  aiDraft:       (data)           => post('/eight-vector-self/ai-draft', data),
   get:           (id)             => get(`/eight-vector-self/${id}`),
   pdfUrl:        (id)             => `${BASE_URL}/eight-vector-self/${id}/pdf`,
   createShare:   (id, opts = {})  => post(`/eight-vector-self/${id}/shares`, opts),
