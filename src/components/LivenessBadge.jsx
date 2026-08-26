@@ -76,7 +76,7 @@ const REGISTRY = {
   },
 };
 
-const REGISTRY_CAVEAT = 'Source: corporate registry records (MCA / Companies House), matched by company name.';
+const REGISTRY_CAVEAT = 'Source: official corporate registry records (MCA, Companies House, Annuaire des Entreprises), matched by company name.';
 
 function checkedLabel(iso) {
   if (!iso) return null;
