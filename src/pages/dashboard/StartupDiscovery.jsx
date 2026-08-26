@@ -7,6 +7,7 @@ import LoadingSkeleton from '../../components/LoadingSkeleton';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
 import AddStartupModal from '../../components/AddStartupModal';
 import BulkUploadModal from '../../components/BulkUploadModal';
+import LivenessBadge from '../../components/LivenessBadge';
 import {
   Search, Cpu, MapPin, Users, Wallet, Bookmark, BookmarkCheck,
   ChevronLeft, ChevronRight, Globe, Calendar, Plus, Upload,
@@ -110,6 +111,8 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable =
 
       {/* Primary chips: sector + stage */}
       <div className="flex gap-1 mb-2 flex-wrap">
+        {/* s91: adverse liveness verdicts only; renders nothing otherwise */}
+        <LivenessBadge status={startup.liveness_status} checkedAt={startup.liveness_checked_at} />
         {startup.sector && <span className="px-1.5 py-0.5 bg-primary-50 text-primary-700 border border-primary-100 text-[10px] rounded-full truncate max-w-[120px]">{startup.sector}</span>}
         {startup.stage && <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${startup.stage?.includes('Series') ? 'bg-accent-100 text-accent-700' : 'bg-gray-100 text-gray-600'}`}>{startup.stage}</span>}
         {startup.tech_readiness && <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded-full" title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness {startup.tech_readiness}</span>}
