@@ -192,6 +192,14 @@ export default function PipelineHealth() {
   const lvRate = lvElapsedSec && lb?.stats?.processed > 0
     ? lb.stats.processed / lvElapsedSec : null;
   const lvEtaDays = lvRate && lcNever > 0 ? (lcNever / lvRate) / 86400 : null;
+  // s88: the unknown bucket split the backend now reports. All optional —
+  // absent on a pre-s88 backend, in which case the breakdown line stays hidden.
+  const lcUnknownChecked = lc?.unknown_checked != null ? Number(lc.unknown_checked) : null;
+  const lcFailOnce = Number(lc?.unknown_fail_once || 0);
+  const lcRetryDue = Number(lc?.fail_retry_due || 0);
+  // s88: the pool is drained only when never-checked AND due second strikes
+  // are both empty — a fail-once row becomes startable again after its window.
+  const lvPoolEmpty = lcNever === 0 && lcRetryDue === 0;
 
   return (
     <div className="py-5 space-y-5 min-w-0">
@@ -337,8 +345,8 @@ export default function PipelineHealth() {
               ) : (
                 <button
                   onClick={() => livenessAction('start')}
-                  disabled={lvBusy || lcNever === 0}
-                  title={lcNever === 0 ? 'Pool is drained — nothing left to check' : undefined}
+                  disabled={lvBusy || lvPoolEmpty}
+                  title={lvPoolEmpty ? 'Pool is drained — nothing left to check' : undefined}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {lvBusy ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
@@ -373,6 +381,17 @@ export default function PipelineHealth() {
             <div><div className="text-xs text-gray-400">Never checked</div><div className="text-lg font-semibold text-gray-900">{fmtNum(lcNever)}</div></div>
           </div>
 
+          {/* s88: what Unknown actually holds, beyond the never-checked rows */}
+          {lcUnknownChecked != null && (
+            <div className="mb-4 text-xs text-gray-500">
+              Checked but still unknown: <span className="font-semibold text-gray-700">{fmtNum(lcUnknownChecked)}</span>
+              {' — '}{fmtNum(lcFailOnce)} failed one fetch
+              {lc?.fail_retry_days != null ? ` (2nd strike after ${lc.fail_retry_days}d` : ' ('}
+              {lcRetryDue > 0 ? `, ${fmtNum(lcRetryDue)} due now)` : ', none due yet)'}
+              {' · '}{fmtNum(Math.max(0, lcUnknownChecked - lcFailOnce))} ambiguous content (SPA/thin/non-english)
+            </div>
+          )}
+
           <div className="pt-3 border-t border-gray-100 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
             <span>
               Worker: inflight {lb?.inflight ?? 0}/{lb?.concurrency ?? '—'}
@@ -383,6 +402,7 @@ export default function PipelineHealth() {
               Recheck cron: {lcron?.registered
                 ? `registered (${lcron.interval})`
                 : 'OFF — set LIVENESS_RECHECK_ENABLED=true'}
+              {lcron?.last_batch != null ? ` · batch ${fmtNum(lcron.last_batch)}` : ''}
               {lcron?.lastRun ? ` · last run ${relTime(lcron.lastRun)}` : ''}
             </span>
           </div>
