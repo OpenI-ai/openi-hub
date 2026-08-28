@@ -79,10 +79,16 @@ function BookingModal({ resource, onClose }) {
         <div className="flex gap-3 mt-5">
           <button onClick={onClose} className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm">Cancel</button>
           <button onClick={() => {
-            infrastructureAPI.createBooking(resource.id, { hours, date, purpose: '' })
-              .then(() => toast.success('Booking requested successfully'))
+            // s97 wiring audit: the backend reads {start_time, end_time} — the old
+            // {hours, date} payload inserted NULL times on every booking. And
+            // setBooked(true) ran unconditionally, showing the "Booking Requested"
+            // success screen even when the request failed.
+            if (!date) { toast.error('Pick a start date first'); return; }
+            const start = new Date(`${date}T09:00:00`);
+            const end = new Date(start.getTime() + hours * 60 * 60 * 1000);
+            infrastructureAPI.createBooking(resource.id, { start_time: start.toISOString(), end_time: end.toISOString() })
+              .then(() => setBooked(true))
               .catch(err => toast.error(err.message || 'Failed to create booking'));
-            setBooked(true);
           }} className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold">Request Booking</button>
         </div>
       </div>

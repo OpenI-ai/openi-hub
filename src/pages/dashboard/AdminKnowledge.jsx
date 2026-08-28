@@ -180,7 +180,7 @@ export default function AdminKnowledge() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <Link to="/dashboard/admin" className="inline-flex items-center gap-1 text-sm mb-4" style={{ color: '#6B7280' }}>
+      <Link to="/dashboard/admin/console" className="inline-flex items-center gap-1 text-sm mb-4" style={{ color: '#6B7280' }}>
         <ArrowLeft size={14} /> Back to Admin Console
       </Link>
 

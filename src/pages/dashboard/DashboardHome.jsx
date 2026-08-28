@@ -99,18 +99,16 @@ export default function DashboardHome() {
             { label: "Needs Work",   pct: data.evaluationProgress.needsWork ?? 0,   color: "#ef4444" },
           ]);
         }
+        // s97: sector distribution folded into the same response — this used to
+        // be a second, identical dashboardAPI.stats() request on every mount.
+        if (data.sectorDistribution) {
+          const total = data.sectorDistribution.reduce((sum, s) => sum + parseInt(s.count), 0) || 1;
+          setSectorDist(data.sectorDistribution.slice(0, 8).map((s, i) => ({
+            label: s.sector, pct: Math.round((parseInt(s.count) / total) * 100), color: SECTOR_COLORS[i % SECTOR_COLORS.length],
+          })));
+        }
       })
       .catch(() => {}); // keep fallback values on error
-
-    // Fetch real sector distribution from startup_profiles
-    dashboardAPI.stats().then(data => {
-      if (data.sectorDistribution) {
-        const total = data.sectorDistribution.reduce((sum, s) => sum + parseInt(s.count), 0) || 1;
-        setSectorDist(data.sectorDistribution.slice(0, 8).map((s, i) => ({
-          label: s.sector, pct: Math.round((parseInt(s.count) / total) * 100), color: SECTOR_COLORS[i % SECTOR_COLORS.length],
-        })));
-      }
-    }).catch(() => {});
 
     // Fetch recent evaluations
     evaluationAPI.list({ limit: 5, sort: 'recent' })
@@ -311,8 +309,14 @@ export default function DashboardHome() {
           ))}
 
           <div style={{ borderTop:"1px solid #eeeeee", marginTop:20, paddingTop:18 }}>
-            <h3 style={{ margin:"0 0 14px", color:"#1a1a1a", fontSize:14, fontWeight:600 }}>
+            <h3 style={{ margin:"0 0 14px", color:"#1a1a1a", fontSize:14, fontWeight:600, display:"flex", alignItems:"center", gap:8 }}>
               Score Distribution
+              {/* s97 wiring audit: scoreDist is a hardcoded 25/25/25/25 split awaiting
+                  a real histogram endpoint. Until it is wired, say so on the chart
+                  instead of presenting fabricated numbers as live data. */}
+              <span style={{ fontSize:9, fontWeight:600, padding:"2px 7px", borderRadius:10, background:"#f3f4f6", color:"#6b7280", textTransform:"uppercase", letterSpacing:0.5 }}>
+                Sample
+              </span>
             </h3>
             {/* Donut chart using conic-gradient */}
             <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:14 }}>
