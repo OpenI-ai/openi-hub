@@ -403,7 +403,7 @@ function ProfileAiPanel({ data }) {
                         <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#ef4444' }}>{o.profile_score_ai}</td>
                         <td style={{ padding: '6px 8px', textAlign: 'right', color: '#5c5c5c' }}>{o.profile_score ?? '—'}</td>
                         <td style={{ padding: '6px 8px' }}>
-                          <a href={`/profile/${o.user_id}`} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: G, textDecoration: 'none', fontWeight: 600 }}>
+                          <a href={`/dashboard/profile/${o.user_id}`} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: G, textDecoration: 'none', fontWeight: 600 }}>
                             View →
                           </a>
                         </td>

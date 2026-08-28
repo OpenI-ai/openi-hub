@@ -686,8 +686,12 @@ export default function DashboardLayout() {
                     ))}
                     <div style={{ padding:"10px 16px", borderTop:"1px solid #eee" }}>
                       <button
-                        onClick={() => {
-                          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                        onClick={async () => {
+                          // s97: this button only mutated local state, so the unread
+                          // badge came back on the next 60s poll. Persist like the
+                          // header "Mark all read" link does.
+                          try { await notificationAPI.markAllRead(); } catch (e) { /* non-fatal */ }
+                          setNotifications(prev => prev.map(n => ({ ...n, read: true, read_at: n.read_at || new Date().toISOString() })));
                         }}
                         style={{
                           width:"100%", padding:"8px",

@@ -15,6 +15,9 @@ const SERVICE_LABEL = {
   cloudinary: 'Cloudinary',
   openai: 'OpenAI',
   vercel: 'Vercel',
+  resend: 'Resend',
+  cloudflare: 'Cloudflare',
+  other: 'Other',
 };
 
 export default function AdminCosts() {
@@ -30,6 +33,11 @@ export default function AdminCosts() {
   const [outbox, setOutbox] = useState({ status_counts: [], kind_counts: [], recent_emails: [], unacknowledged_exhausted: [] });
   const [loading, setLoading] = useState(true);
   const [showManual, setShowManual] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  // s97 wiring audit: a failed section fetch used to be swallowed into its empty
+  // state, so a 500 from Sentry rendered as a green "no unresolved errors" — a
+  // broken endpoint displayed as an all-clear. Track failures per section.
+  const [sectionFailed, setSectionFailed] = useState({});
   const [manualForm, setManualForm] = useState({ service: 'railway', month_label: '', cost_usd: '', note: '' });
 
   const load = async () => {
@@ -40,13 +48,14 @@ export default function AdminCosts() {
       const [s, a, u, e, d, o] = await Promise.all([
         adminAPI.costsSummary(),
         adminAPI.costsAlerts(),
-        adminAPI.uptimeSummary().catch(() => ({ monitors: [], stats: null })),
-        adminAPI.errorsSummary().catch(() => ({ issues: [], stats: null })),
+        adminAPI.uptimeSummary().catch(() => null),
+        adminAPI.errorsSummary().catch(() => null),
         adminAPI.drillHistory().catch(() => ({ workflows: {}, error: 'failed to load' })),
-        adminAPI.emailOutboxHealth().catch(() => ({ status_counts: [], kind_counts: [], recent_emails: [], unacknowledged_exhausted: [] })),
+        adminAPI.emailOutboxHealth().catch(() => null),
       ]);
       setSummary(s);
       setAlerts(a.alerts || []);
+      setSectionFailed({ uptime: !u, errors: !e, outbox: !o });
       setUptime(u || { monitors: [], stats: null });
       setErrors(e || { issues: [], stats: null });
       setDrill(d || { workflows: {}, error: null });
@@ -62,6 +71,8 @@ export default function AdminCosts() {
   useEffect(() => { load(); }, []);
 
   const submitManual = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     try {
       await adminAPI.costsManual(manualForm);
       toast.success(`Recorded ${manualForm.service} cost for ${manualForm.month_label}`);
@@ -70,7 +81,23 @@ export default function AdminCosts() {
       load();
     } catch (e) {
       toast.error(e?.message || 'Save failed');
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  // s97 wiring audit: the exhausted-email banner said "acknowledge below" but no
+  // acknowledge control existed anywhere — adminAPI.emailOutboxAckAlert had zero
+  // call sites. This is that control.
+  const ackExhausted = async (id) => {
+    try {
+      await adminAPI.emailOutboxAckAlert(id);
+      setOutbox(prev => ({
+        ...prev,
+        unacknowledged_exhausted: prev.unacknowledged_exhausted.filter(r => r.id !== id),
+      }));
+      toast.success('Alert acknowledged');
+    } catch (e) { toast.error(e?.message || 'Failed to acknowledge'); }
   };
 
   const clearAlert = async (id) => {
@@ -157,7 +184,11 @@ export default function AdminCosts() {
               </span>
             )}
           </h2>
-          {(!uptime.monitors || uptime.monitors.length === 0) ? (
+          {sectionFailed.uptime ? (
+            <div style={{ padding: 24, color: '#dc2626', fontSize: 13, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, marginBottom: 28 }}>
+              Failed to load uptime data — the /admin/uptime/summary request errored. Check Sentry / server logs.
+            </div>
+          ) : (!uptime.monitors || uptime.monitors.length === 0) ? (
             <div style={{ padding: 24, color: '#666', fontSize: 13, fontStyle: 'italic', background: '#fafafa', borderRadius: 8, marginBottom: 28 }}>
               No uptime data yet. Hourly poll runs at the top of each hour; BetterStack token must be set in Railway env (BETTERSTACK_API_TOKEN).
             </div>
@@ -200,7 +231,11 @@ export default function AdminCosts() {
               </span>
             )}
           </h2>
-          {(!errors.issues || errors.issues.length === 0) ? (
+          {sectionFailed.errors ? (
+            <div style={{ padding: 24, color: '#dc2626', fontSize: 13, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, marginBottom: 28 }}>
+              Failed to load Sentry error summary — the /admin/errors/summary request errored. This is NOT an all-clear.
+            </div>
+          ) : (!errors.issues || errors.issues.length === 0) ? (
             <div style={{ padding: 24, color: '#15803d', fontSize: 13, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 28 }}>
               ✓ No unresolved errors in the last 24h.
             </div>
@@ -277,8 +312,20 @@ export default function AdminCosts() {
           </h2>
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
             {outbox.unacknowledged_exhausted.length > 0 && (
-              <div style={{ padding: 12, background: '#fef2f2', borderBottom: '1px solid #fecaca', color: '#991b1b', fontSize: 12, fontWeight: 600 }}>
-                ⚠ {outbox.unacknowledged_exhausted.length} email(s) exhausted all retries (triple-fallback fired). Investigate and acknowledge below.
+              <div style={{ padding: 12, background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+                <div style={{ color: '#991b1b', fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
+                  ⚠ {outbox.unacknowledged_exhausted.length} email(s) exhausted all retries (triple-fallback fired).
+                </div>
+                {outbox.unacknowledged_exhausted.map(r => (
+                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#7f1d1d', padding: '4px 0' }}>
+                    <span style={{ fontFamily: 'monospace' }}>{r.to_email}</span>
+                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.subject}</span>
+                    <button onClick={() => ackExhausted(r.id)}
+                      style={{ padding: '3px 10px', fontSize: 11, fontWeight: 600, background: '#fff', color: '#991b1b', border: '1px solid #fecaca', borderRadius: 6, cursor: 'pointer', flexShrink: 0 }}>
+                      Acknowledge
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
             {/* Screenshot item #6 — per-kind breakdown. status_counts alone hides WHICH
@@ -309,7 +356,11 @@ export default function AdminCosts() {
                 </div>
               </div>
             )}
-            {(!outbox.recent_emails || outbox.recent_emails.length === 0) ? (
+            {sectionFailed.outbox ? (
+              <div style={{ padding: 24, color: '#dc2626', fontSize: 13, textAlign: 'center' }}>
+                Failed to load outbox health — the /admin/email-outbox request errored.
+              </div>
+            ) : (!outbox.recent_emails || outbox.recent_emails.length === 0) ? (
               <div style={{ padding: 24, color: '#666', fontSize: 13, textAlign: 'center' }}>
                 No emails in outbox yet.
               </div>
@@ -425,7 +476,9 @@ export default function AdminCosts() {
               })}
               {Object.keys(drill.workflows || {}).length === 0 && !drill.error && (
                 <div style={{ padding: 16, color: '#6e6e6e', fontSize: 12, gridColumn: 'span 2' }}>
-                  Loading workflow history...
+                  {/* s97: this renders after load() resolved — it is an empty state,
+                      not a loading state; it used to say "Loading…" forever. */}
+                  {drill.note || 'No workflow runs recorded yet (GITHUB_TOKEN may not be configured).'}
                 </div>
               )}
             </div>
@@ -585,9 +638,9 @@ export default function AdminCosts() {
                     Cancel
                   </button>
                   <button onClick={submitManual}
-                    disabled={!manualForm.month_label || manualForm.cost_usd === ''}
-                    style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: G, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-                    Save
+                    disabled={submitting || !manualForm.month_label || manualForm.cost_usd === ''}
+                    style={{ padding: '8px 18px', fontSize: 13, fontWeight: 700, background: G, color: '#fff', border: 'none', borderRadius: 8, cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.7 : 1 }}>
+                    {submitting ? 'Saving…' : 'Save'}
                   </button>
                 </div>
               </div>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Shield, Users, Megaphone, Building2, CreditCard, BarChart3, Globe, Database, TrendingUp, BadgeCheck, BookOpen
+  Shield, Users, Megaphone, Building2, CreditCard, BarChart3, Globe, Database, TrendingUp, BadgeCheck, BookOpen, DollarSign, Activity
 } from 'lucide-react';
-import { adminAPI, analyticsAPI } from '../../services/api';
+import { adminAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
 function StatCard({ label, value, sub, icon: Icon, color, to }) {
@@ -24,13 +24,16 @@ function StatCard({ label, value, sub, icon: Icon, color, to }) {
 
 export default function AdminConsole() {
   const [health, setHealth] = useState(null);
-  const [, setOverview] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // s97 wiring audit: analyticsAPI.overview() was fetched on every mount and
+  // never rendered (its setter was discarded) — dropped. And a swallowed
+  // failure used to render every StatCard as a confident 0; surface it instead.
   useEffect(() => {
-    Promise.all([adminAPI.systemHealth(), analyticsAPI.overview()])
-      .then(([h, o]) => { setHealth(h); setOverview(o); })
-      .catch(() => {})
+    adminAPI.systemHealth()
+      .then(h => setHealth(h))
+      .catch(e => setLoadError(e?.message || 'Failed to load system health'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -44,9 +47,11 @@ export default function AdminConsole() {
     { to: '/dashboard/admin/startups', label: 'Startup Data', desc: 'Manage startup profiles. Find and merge duplicates.', icon: Building2, color: 'bg-green-500' },
     { to: '/dashboard/admin/licenses', label: 'Licenses & Plans', desc: 'Override subscription plans. Reset usage quotas.', icon: CreditCard, color: 'bg-purple-500' },
     { to: '/dashboard/admin/claims', label: 'Profile Claims', desc: 'Review founder claims on imported startup profiles.', icon: BadgeCheck, color: 'bg-amber-500' },
-    { to: '/dashboard/admin/analytics', label: 'Analytics', desc: 'Platform metrics, funnel, feature adoption, AI telemetry.', icon: BarChart3, color: 'bg-primary-500' },
-    { to: '/dashboard/crawling', label: 'Crawling & Imports', desc: 'Manage crawl sources, review imported startups.', icon: Globe, color: 'bg-indigo-500' },
+    { to: '/dashboard/admin/analytics', label: 'Analytics', desc: 'Platform metrics, funnel, feature adoption.', icon: BarChart3, color: 'bg-primary-500' },
+    { to: '/dashboard/crawling', label: 'Crawling & Imports', desc: 'Review imported startups and directory crawl runs.', icon: Globe, color: 'bg-indigo-500' },
     { to: '/dashboard/admin/knowledge', label: 'Knowledge Hub', desc: 'Manage articles, reports, and contributor access.', icon: BookOpen, color: 'bg-teal-500' },
+    { to: '/dashboard/admin/costs', label: 'Service Costs', desc: 'Provider spend, uptime, Sentry errors, email outbox.', icon: DollarSign, color: 'bg-yellow-500' },
+    { to: '/dashboard/admin/platform-health', label: 'Platform Health', desc: 'Revenue, signups, churn, embeddings and clusters.', icon: Activity, color: 'bg-rose-500' },
   ];
 
   return (
@@ -60,6 +65,11 @@ export default function AdminConsole() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
+        {loadError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            Failed to load system health: {loadError}. The counts below are not real zeros.
+          </div>
+        )}
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard label="Total Users" value={tc.users || 0} sub={`${health?.active_organic_users || 0} active organic`} icon={Users} color="bg-blue-500" to="/dashboard/admin/users" />

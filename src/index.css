@@ -163,3 +163,10 @@ body {
     width: 100% !important;
   }
 }
+
+/* s97 wiring audit — ten pages use className="spin" for loading spinners
+   (AdminCosts, AdminAnalytics, OrgAdmin, MyNetwork, Onboarding, UserProfile,
+   ChallengeInvites, ApplicationInvites, AcceptInvite) but the class was never
+   defined anywhere, so every one of those spinners rendered frozen. */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
