@@ -26,6 +26,14 @@
 - **Migrations are idempotent but ORDER-DEPENDENT and run with no surrounding transaction** — a mid-way failure leaves earlier steps applied. A new migration APPENDS a `0NN-*.js` module at the end of `src/migrations/` plus an entry at the end of the `steps` array; never edit `startup.js` and never insert into the middle of `steps`.
 - **Seed Data:** 10 startups, 5 projects, 10 tasks, 6 evaluations, 7 messages, 5 feedback, 7 IPR records, 6 infrastructure, 10 documents, 3 watchlists, 4 assessments, 4 knowledge articles, 8 crawl sources, 8 crawled startups, 5 crawl jobs
 
+### GitHub credentials (verified 29 Aug 2026)
+
+- **Rajeev's Mac authenticates git via the GitHub CLI's OAuth login**, not a PAT: `~/.gitconfig` has `credential "https://github.com".helper = !/usr/local/bin/gh auth git-credential` (URL-scoped, so it overrides the system osxkeychain helper; `git config --get-all credential.helper` does NOT show it — use `--get-regexp '^credential'`). The `gho_…` OAuth token has `repo` scope and no fixed expiry.
+- **The `openi-git-rw` fine-grained PAT** (created 31 May 2026 as the backend git credential — see DOCUMENTATION_ARCHIVE_part1.md, now superseded) **was deleted on 29 Aug 2026** along with its keychain entry. It had been dormant since the `gh` helper took over. Archive references to it as "the backend git credential" are stale.
+- **The only remaining custom PAT is `openi-hub-whats-new-sync`** — read-only (`Contents` + `Actions: Read`), set as `GITHUB_TOKEN` on Railway for the What's New sync and AdminCosts workflow data. 1-year expiry from 12 May 2026.
+- Neither repo's CI uses any custom PAT (frontend CI has no secrets by design; backend CI uses only the built-in Actions token + B2/Resend/DB secrets).
+- Local backend clone lives at `~/Downloads/OpenI Hub/openi-hub-backend` (path has a space — quote it).
+
 ---
 
 ## 13. Test Accounts
