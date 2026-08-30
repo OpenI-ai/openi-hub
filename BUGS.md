@@ -759,6 +759,50 @@ tooling; details live in the sections they belong to, so this entry is the index
   the student portfolio identically. The other 30 call sites are clean (their key
   variables are props, params, or earlier state).
 - **Fix:** `editId` declared above the hook call in both files. FE PR #17.
+- **Closed 30 Aug 2026:** six days with zero recurrence after the fix deployed (the
+  issue's only event remains the original one). Marked resolved in Sentry manually —
+  the commit's `Fixes OPENI-HUB-FRONTEND-S` reference never auto-closed it, which is
+  why the issue still showed as "New" on the weekly Sentry digest a week later.
+
+---
+
+## 30 Aug 2026 (session close) — the Service Costs dashboard looked broken; mostly it was lying
+
+Rajeev reported the admin Service Costs dashboard as "fixed but nothing is updated".
+Investigation found the s83/s97 backend fixes WERE deployed and working — the page was
+misreporting healthy systems, plus two real defects. All fixed in FE PR #30 + BE PR #40
+(both merged 30 Aug); details:
+
+- **"No data" headlines over cards full of data** — the status card showed italic
+  "No data" for every service without a percentage metric, directly above a message
+  line carrying the collected data ("$0.58 · 1,166,647 tokens (yesterday)"). Cards with
+  a `last_date` now say "✓ Collecting". FE PR #30.
+- **Fresh fetches rendered as stale** — `fetched_at` was formatted with server-local
+  `toLocaleString()` (UTC on Railway), so the 02:00 IST watchdog run displayed as
+  "8:30 PM" the *previous day*. This alone accounts for most of the "nothing is
+  updated" impression. Now pinned to Asia/Kolkata. BE PR #40.
+- **strapi ghost chart** — `/admin/costs/summary` returned every `service_costs_daily`
+  row in the 30-day window, so the CMS retired at s83 (20 Aug) kept an empty trend
+  chart until its rows aged out (~19 Sep). Both summary queries now filter to
+  `KNOWN_SERVICES` (BE), and the chart builder keys to `summary.status` (FE), so
+  either deploy removes it. Rows stay in the table.
+- **Railway storage charted at 26 TB** — Railway's `usage` GraphQL sums per-minute
+  samples, so the `DISK_USAGE_GB` gauge returns GB-minutes (~26,546 ≈ a steady
+  18.4 GB volume over 24h). `fetchRailway` now divides by the window's minutes;
+  BE migration 027 repairs the stored rows (idempotent, guarded by
+  `storage_gb > 1000`). **Migration not yet run in production** — see todo below.
+- **DR Backup Health "HTTP 404" while backups were green** — root cause was the
+  `GITHUB_TOKEN` on Railway: the `openi-hub-whats-new-sync` fine-grained PAT was
+  owned by Rajeev's *personal* account, and the RajeevBanduni → OpenI-ai repo
+  transfer silently dropped its grant, degrading it to public-repos-only (a
+  fine-grained PAT answers 404, not 403, for a private repo it can't see). The
+  workflows themselves were fine: `db-backup.yml` at 137 runs / 100% success.
+  Same breakage silently stopped the What's New backend-commit sync. Fixed by a new
+  **org-owned** token (`openi-hub-ops-readonly`: resource owner OpenI-ai, repo
+  `openi-hub-backend` only, Contents + Actions read-only) swapped into Railway
+  30 Aug. Lesson recorded in docs §12: a personal fine-grained PAT does not survive
+  a repo transfer to an org — the token must be re-created with the org as resource
+  owner. The 404 error message now names this fix (BE PR #40).
 
 ---
 
@@ -853,3 +897,30 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
    only draws once the assessment exists, so the current capture shows "0% complete", an
    em-dash where the score belongs, and an empty VECTOR PROFILE box. No re-shoot or
    camera angle fixes this — it needs the data.
+
+### Added 30 Aug 2026 (session close)
+
+4. **Run migration 027 in production** — `railway ssh` → `npm run migrate:bootstrap`.
+   Auto-migration is OFF on Railway (`RUN_MIGRATIONS_ON_BOOT` unset, by design), so
+   merging BE PR #40 deployed the code but did NOT repair the stored Railway
+   storage_gb rows — the 27–29 Aug rows still chart at TB scale until this runs (new
+   rows from the fixed fetcher are correct either way, and the bad rows age out of
+   the 30-day window by late Sep, so this is cosmetic-urgent only).
+5. **Verify the dashboard after deploys + token swap** — one Refresh on
+   `/dashboard/admin/costs` should show: no strapi chart, "✓ Collecting" headlines,
+   IST timestamps, DR Backup Health populated (~137 runs, 100% success). Also glance
+   at What's New — its backend-commit sync was silently dead since the org move and
+   should resume on its next scheduled run.
+6. **Delete the old `openi-hub-whats-new-sync` PAT** (personal-owner, public-only,
+   superseded 30 Aug by `openi-hub-ops-readonly`) so it can't be mistaken for a live
+   credential. Also confirm the new token's saved name and expiry and correct docs
+   §12 if they differ (recommended at creation: 1 year).
+7. **Delete two merged remote branches** (needs the GitHub UI — session credentials
+   can push but not delete): FE `claude/sentry-error-6621pv` (PR #30),
+   BE `claude/service-costs-dashboard-6621pv` (PR #40).
+8. **Sentry backend triage** — the weekly digest that started this session showed
+   22 unresolved errors on `openi-hub-backend` (frontend is now at zero). Untouched
+   this session; worth a pass.
+9. **Vercel cost auto-collect still unconfigured** (pre-existing) — the Vercel status
+   card legitimately says "Not configured yet"; set the env vars if that card should
+   go live.
