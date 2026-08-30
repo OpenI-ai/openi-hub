@@ -72,5 +72,10 @@ a clean `##` boundary and add a row here. This index stays small — that is its
 |---|---|
 | `docs/TESTING-GUIDE-v2.md` | Manual QA walkthrough |
 | `docs/INVESTOR_E2E_TESTING_GUIDE.md` | Investor-persona E2E script |
-| `/Users/rajeevbanduni/CoPilot/CLAUDE.md` | Invariants, infra IDs, schema gotchas |
-| `/Users/rajeevbanduni/CoPilot/SESSIONS.md` | Append-only session log (use `bin/resume.sh`) |
+| `BUGS.md` | Bug-fix log, session-close entries, and the repo's only todo surface |
+
+> **The Mac-local memory files are retired (30 Aug 2026).** The two former companions
+> `/Users/rajeevbanduni/CoPilot/CLAUDE.md` and `…/SESSIONS.md` (with `bin/resume.sh`)
+> are no longer updated — sessions run in Claude Code cloud, so nothing on the Mac is
+> maintained as memory. What they held now lives in-repo: invariants and gotchas in
+> `docs/reference/`, session closes and open items in `BUGS.md`.
