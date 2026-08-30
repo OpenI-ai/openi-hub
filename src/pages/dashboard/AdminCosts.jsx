@@ -109,9 +109,14 @@ export default function AdminCosts() {
     } catch (e) { toast.error(e?.message || 'Failed'); }
   };
 
-  // Build per-service daily series for the line charts
+  // Build per-service daily series for the line charts. Keyed to the services
+  // the backend still tracks (summary.status): retired services (strapi) keep
+  // their historical rows in the DB, and until those age past the 30-day
+  // window they'd otherwise render as ghost charts with no data.
+  const trackedServices = new Set((summary.status || []).map(s => s.service));
   const seriesByService = {};
   (summary.daily || []).forEach(row => {
+    if (!trackedServices.has(row.service)) return;
     if (!seriesByService[row.service]) seriesByService[row.service] = [];
     seriesByService[row.service].push({
       date: row.date.slice(0, 10),
@@ -130,7 +135,7 @@ export default function AdminCosts() {
             Service Costs
           </h1>
           <p style={{ color: '#666', fontSize: 13, margin: '4px 0 0' }}>
-            Daily watchdog runs at 02:00 IST. Manual entry for Railway. Alerts email rajeev@openi.ai.
+            Daily watchdog runs at 02:00 IST. Railway usage auto-collects; its dollar cost stays manual. Alerts email rajeev@openi.ai.
           </p>
         </div>
         <button onClick={load} disabled={loading}
@@ -163,9 +168,16 @@ export default function AdminCosts() {
                     <div style={{ fontSize: 28, fontWeight: 700, color: overBudget ? '#dc2626' : warn ? '#92400e' : '#111', marginBottom: 4 }}>
                       {pct.toFixed(1)}%
                     </div>
+                  ) : s.last_date ? (
+                    // Collected but no percentage metric (Railway usage, OpenAI
+                    // tokens, Cloudflare/Resend counts). This used to say
+                    // "No data" over a message full of data.
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#15803d', marginBottom: 4 }}>
+                      ✓ Collecting
+                    </div>
                   ) : (
                     <div style={{ fontSize: 13, fontStyle: 'italic', color: '#5c5c5c', marginBottom: 4 }}>
-                      {s.service === 'railway' ? 'Manual tracking' : 'No data'}
+                      No data
                     </div>
                   )}
                   <div style={{ fontSize: 11, color: '#666', lineHeight: 1.4 }}>{s.message}</div>
