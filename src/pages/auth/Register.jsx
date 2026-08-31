@@ -8,6 +8,7 @@ import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, Building2,
 } from 'lucide-react';
 import PublicTour from '../../components/PublicTour';
+import TurnstileWidget from '../../components/TurnstileWidget';
 import PageTourButton from '../../components/PageTourButton';
 import { inputStyle, FormField, coerceForField } from './registerParts/index.js';
 
@@ -43,6 +44,9 @@ export default function Register() {
   const [profileData, setProfileData] = useState({});
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
+  // s101 — Turnstile token; '' until the widget solves (or when disabled).
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const captchaRequired = !!import.meta.env.VITE_TURNSTILE_SITE_KEY;
   // Phase 53: claim detection state
   const [claimCandidates, setClaimCandidates] = useState([]);
   const [claimSubmitting, setClaimSubmitting] = useState(false);
@@ -143,7 +147,7 @@ export default function Register() {
       // as Step 1 "Organization Name"). Pass it through to backend as
       // organization_name for backward-compatible bootstrap.
       const orgFromProfile = orgField ? (profileData[orgField] || '').trim() : '';
-      const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined, termsAccepted);
+      const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined, termsAccepted, turnstileToken || undefined);
 
       // s49e + s50: most users get verification_required:true and NO session
       // token. We can't PUT /profile/me without a token, so stash profileData
@@ -194,6 +198,8 @@ export default function Register() {
         setError(msg || 'Please use your work email to register as an organization.');
       } else if (code === 'DISPOSABLE_EMAIL_BLOCKED') {
         setError(msg || 'Disposable or temporary email addresses cannot be used to create an account. Please register with a lasting email address.');
+      } else if (code === 'CAPTCHA_FAILED') {
+        setError(msg || 'We could not verify that you are human. Please retry the check and try again.');
       } else {
         setError(msg || 'Registration failed. Please try again.');
       }
@@ -643,13 +649,17 @@ export default function Register() {
                     onChange={val => updateField(field.name, val)} />
                 );
               })}
+              {/* s101 — bot check sits on the submitting step: tokens expire in
+                  ~5 min, so rendering it earlier would hand handleRegister a
+                  dead token. Invisible for most humans (managed mode). */}
+              <TurnstileWidget onToken={setTurnstileToken} />
               <div className="flex gap-3 mt-4">
                 <button onClick={() => setStep(1)}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all"
                   style={{ background: '#f3f4f6', color: '#374151' }}>
                   <ArrowLeft size={14} className="inline mr-1" /> Back
                 </button>
-                <button onClick={handleRegister} disabled={loading}
+                <button onClick={handleRegister} disabled={loading || (captchaRequired && !turnstileToken)}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
                   style={{ background: '#D0A848', color: '#0D2137' }}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
@@ -658,7 +668,7 @@ export default function Register() {
               </div>
               {/* Phase 65: promote skip to a real secondary action so people
                   who just want an account can get one in <10s. */}
-              <button onClick={handleRegister} disabled={loading}
+              <button onClick={handleRegister} disabled={loading || (captchaRequired && !turnstileToken)}
                 className="w-full py-2.5 rounded-xl text-sm font-medium border transition-all"
                 style={{ background: '#fff', color: '#6b7280', borderColor: '#e5e7eb' }}>
                 Skip for now — finish profile after signup
