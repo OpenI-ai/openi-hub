@@ -142,8 +142,13 @@ export default function AdminStartups() {
                       <button
                         onClick={async () => {
                           if (!d.entries?.length || d.entries.length < 2) return;
-                          // Auto-select entry with most fields as primary
-                          const primary = d.entries.reduce((best, e) => (e.fields_filled || 0) > (best.fields_filled || 0) ? e : best, d.entries[0]);
+                          // Auto-select primary: an ORGANIC (registered) entry always
+                          // outranks an imported one — merging the other way would
+                          // delete a real founder's account row (the imported twin is
+                          // usually the richer profile, so most-fields alone would
+                          // systematically pick it). Most-fields breaks ties.
+                          const rank = e => ((e.imported ? 0 : 100) + (e.fields_filled || 0));
+                          const primary = d.entries.reduce((best, e) => rank(e) > rank(best) ? e : best, d.entries[0]);
                           const secondaryIds = d.entries.filter(e => e.user_id !== primary.user_id).map(e => e.user_id);
                           const warn = d.review ? 'NAME-ONLY MATCH — these may be different companies with the same name. Confirm they are the same before merging.\n\n' : '';
                           if (!confirm(`${warn}Merge ${secondaryIds.length} entries into "${primary.company_name}" (user_id: ${primary.user_id})? Others will be deleted.`)) return;
