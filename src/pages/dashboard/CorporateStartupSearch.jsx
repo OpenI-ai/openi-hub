@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { corporateAPI } from '../../services/api';
 import {
-  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu, Plus, Upload,
+  Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu, Plus, Upload, Globe, CheckCircle2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import TaxonomyFilterPanel from '../../components/TaxonomyFilterPanel';
@@ -26,10 +26,14 @@ export default function CorporateStartupSearch() {
   // isn't in the Hub yet (same claimable stub the crawler/CSV path makes).
   const [showAdd, setShowAdd] = useState(false);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
+  // s102 — client-reported gap: nothing distinguished a registered/claimed
+  // startup (messaging reaches a person) from an imported directory profile
+  // (it does not). Backend now returns on_platform per row + honors this filter.
+  const [onPlatformOnly, setOnPlatformOnly] = useState(false);
 
   useEffect(() => { loadTaxonomy(); }, []);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on page/filters change; `loadStartups` is a stable inline closure
-  useEffect(() => { loadStartups(); }, [page, filters]);
+  useEffect(() => { loadStartups(); }, [page, filters, onPlatformOnly]);
 
   const loadTaxonomy = async () => {
     try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); }
@@ -47,6 +51,7 @@ export default function CorporateStartupSearch() {
       if (filters.technology) params.technology = filters.technology;
       if (filters.usecase) params.usecase = filters.usecase;
       if (filters.stage) params.stage = filters.stage;
+      if (onPlatformOnly) params.on_platform = 'true';
       const d = await corporateAPI.searchStartups(params);
       setStartups(d.startups || []);
       setTotal(d.total || 0);
@@ -96,6 +101,13 @@ export default function CorporateStartupSearch() {
         facets={{}}
         showDeeptech={false}
       />
+
+      {/* s102 — provenance filter */}
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555', margin: '0 0 12px', cursor: 'pointer', userSelect: 'none' }}
+        title="Show only startups with a registered or claimed account — messaging and collaboration reach a real person">
+        <input type="checkbox" checked={onPlatformOnly} onChange={e => { setOnPlatformOnly(e.target.checked); setPage(1); }} />
+        On OpenI only <span style={{ color: '#999' }}>(hide unclaimed directory profiles)</span>
+      </label>
 
       <div>
         {loading ? (
@@ -151,19 +163,47 @@ export default function CorporateStartupSearch() {
 
                   {/* Primary chips */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 8 }}>
+                    {s.on_platform ? (
+                      <span title="Registered on OpenI — messaging and collaboration reach a real person"
+                        style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', fontWeight: 600 }}>
+                        <CheckCircle2 size={8} style={{ verticalAlign: -1, marginRight: 2 }} />On OpenI
+                      </span>
+                    ) : (
+                      <span title="Imported from public sources — nobody has claimed this profile yet, so in-platform messages won't be read. Reach out via their website instead."
+                        style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#f3f4f6', color: '#6b7280', border: '1px solid #e5e7eb' }}>
+                        Directory
+                      </span>
+                    )}
                     {s.sector && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb', maxWidth: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.sector}</span>}
                     {s.stage && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#f3f4f6', color: '#555' }}>{s.stage}</span>}
                     {s.tech_readiness && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: '#eff6ff', color: '#2563eb' }} title="Tech Readiness Level (1=concept · 9=proven in production)">Tech Readiness {s.tech_readiness}</span>}
                   </div>
 
-                  {/* Actions */}
+                  {/* Actions — s102: Collab/Message only reach a real person on
+                      registered/claimed startups; directory profiles get the
+                      honest alternative (their website) instead of a dead inbox. */}
                   <div style={{ display: 'flex', gap: 4, paddingTop: 6, borderTop: '1px solid #f5f5f5' }} onClick={e => e.stopPropagation()}>
-                    <button onClick={() => startCollab(s)} style={{ flex: 1, padding: '5px', fontSize: 10, fontWeight: 600, borderRadius: 6, background: `${G}12`, color: G, border: `1px solid ${G}30`, cursor: 'pointer' }}>
-                      <Link2 size={10} style={{ verticalAlign: -1, marginRight: 2 }} /> Collab
-                    </button>
-                    <button onClick={() => navigate('/dashboard/messaging')} style={{ padding: '5px 8px', fontSize: 10, borderRadius: 6, background: '#f9fafb', color: '#666', border: '1px solid #e5e7eb', cursor: 'pointer' }}>
-                      <MessageSquare size={10} style={{ verticalAlign: -1 }} />
-                    </button>
+                    {s.on_platform ? (
+                      <>
+                        <button onClick={() => startCollab(s)} style={{ flex: 1, padding: '5px', fontSize: 10, fontWeight: 600, borderRadius: 6, background: `${G}12`, color: G, border: `1px solid ${G}30`, cursor: 'pointer' }}>
+                          <Link2 size={10} style={{ verticalAlign: -1, marginRight: 2 }} /> Collab
+                        </button>
+                        <button onClick={() => navigate('/dashboard/messaging')} style={{ padding: '5px 8px', fontSize: 10, borderRadius: 6, background: '#f9fafb', color: '#666', border: '1px solid #e5e7eb', cursor: 'pointer' }}>
+                          <MessageSquare size={10} style={{ verticalAlign: -1 }} />
+                        </button>
+                      </>
+                    ) : s.website ? (
+                      <a href={s.website.startsWith('http') ? s.website : `https://${s.website}`} target="_blank" rel="noreferrer"
+                        title="Not on OpenI yet — reach out via their website"
+                        style={{ flex: 1, padding: '5px', fontSize: 10, fontWeight: 600, borderRadius: 6, background: '#f9fafb', color: '#555', border: '1px solid #e5e7eb', textAlign: 'center', textDecoration: 'none' }}>
+                        <Globe size={10} style={{ verticalAlign: -1, marginRight: 2 }} /> Visit website
+                      </a>
+                    ) : (
+                      <span style={{ flex: 1, padding: '5px', fontSize: 10, color: '#999', textAlign: 'center' }}
+                        title="Imported directory profile with no website on record">
+                        Not on OpenI yet
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}

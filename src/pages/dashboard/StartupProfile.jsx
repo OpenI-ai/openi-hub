@@ -339,6 +339,20 @@ export default function StartupProfile() {
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-white text-2xl font-display font-bold">{name}</h1>
+                  {/* s102 — provenance badge, visible to every viewer (the Claim
+                      CTA only shows for claim-eligible roles, so corporates had
+                      no way to tell a member from an imported directory row). */}
+                  {(!startup.is_imported || startup.claimed_at) ? (
+                    <span title="Registered on OpenI — messaging and collaboration reach a real person"
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-green-500/20 text-green-400 text-xs font-semibold rounded-full border border-green-500/30">
+                      <CheckCircle2 size={11} /> On OpenI
+                    </span>
+                  ) : (
+                    <span title="Imported from public sources — nobody has claimed this profile yet, so in-platform messages won't be read. Use the website/contact links below to reach out."
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-dark-800 text-dark-400 text-xs font-semibold rounded-full border border-dark-700">
+                      Directory profile
+                    </span>
+                  )}
                   {startup.is_deeptech && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-primary-500/20 text-primary-400 text-xs font-semibold rounded-full border border-primary-500/30">
                       <Cpu size={11} /> DeepTech
