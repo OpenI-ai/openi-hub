@@ -77,8 +77,13 @@ export default function AdminStartups() {
     setDupsLoading(true);
     try {
       const data = await adminAPI.findDuplicates();
-      setDuplicates(data.duplicates);
-      toast.success(`Found ${data.total} duplicate groups`);
+      // s103 — needs_review groups are name-only matches (one side missing a
+      // website); tagged so the UI warns before merging.
+      setDuplicates([
+        ...(data.duplicates || []),
+        ...(data.needs_review || []).map(g => ({ ...g, review: true })),
+      ]);
+      toast.success(`Found ${data.duplicates?.length || 0} confirmed + ${data.needs_review?.length || 0} needs-review groups`);
     } catch (err) { toast.error(err.message); }
     finally { setDupsLoading(false); }
   };
@@ -125,14 +130,23 @@ export default function AdminStartups() {
                 {duplicates.slice(0, 30).map((d, i) => (
                   <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-semibold text-gray-700 text-sm">"{d.norm_name}" <span className="text-gray-400 font-normal">({d.count} entries)</span></p>
+                      <p className="font-semibold text-gray-700 text-sm">
+                        "{d.norm_name}" <span className="text-gray-400 font-normal">({d.count} entries)</span>
+                        {d.review && (
+                          <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200"
+                            title="Matched by name only — at least one entry has no website, so the domain check could not confirm. Verify these are the same company before merging.">
+                            ⚠ name-only — verify first
+                          </span>
+                        )}
+                      </p>
                       <button
                         onClick={async () => {
                           if (!d.entries?.length || d.entries.length < 2) return;
                           // Auto-select entry with most fields as primary
                           const primary = d.entries.reduce((best, e) => (e.fields_filled || 0) > (best.fields_filled || 0) ? e : best, d.entries[0]);
                           const secondaryIds = d.entries.filter(e => e.user_id !== primary.user_id).map(e => e.user_id);
-                          if (!confirm(`Merge ${secondaryIds.length} entries into "${primary.company_name}" (user_id: ${primary.user_id})? Others will be deleted.`)) return;
+                          const warn = d.review ? 'NAME-ONLY MATCH — these may be different companies with the same name. Confirm they are the same before merging.\n\n' : '';
+                          if (!confirm(`${warn}Merge ${secondaryIds.length} entries into "${primary.company_name}" (user_id: ${primary.user_id})? Others will be deleted.`)) return;
                           try {
                             await adminAPI.mergeStartups(primary.user_id, secondaryIds);
                             toast.success('Merged successfully');

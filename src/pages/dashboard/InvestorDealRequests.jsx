@@ -249,7 +249,7 @@ export default function InvestorDealRequests() {
                 <div key={app.id} className="p-4 border rounded-lg hover:bg-gray-50">
                   <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {app.logo_url ? <img src={app.logo_url} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">{(app.company_name || app.applicant_name || '?')[0]}</div>}
+                    {app.logo_url ? <img src={app.logo_url} alt="" className="w-10 h-10 rounded-lg object-contain bg-white border border-gray-100" /> : <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">{(app.company_name || app.applicant_name || '?')[0]}</div>}
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{app.company_name || app.applicant_name}</p>
                       <p className="text-xs text-gray-500">{app.sector} {app.stage ? `| ${app.stage}` : ''} {app.city ? `| ${app.city}` : ''}</p>

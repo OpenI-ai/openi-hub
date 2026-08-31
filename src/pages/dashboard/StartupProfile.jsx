@@ -330,7 +330,7 @@ export default function StartupProfile() {
           <div className="flex items-start justify-between gap-6">
             <div className="flex items-center gap-5">
               {startup.logo_url ? (
-                <img src={startup.logo_url} alt="" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
+                <img src={startup.logo_url} alt="" className="w-16 h-16 rounded-2xl object-contain flex-shrink-0 bg-white" />
               ) : (
                 <div className="w-16 h-16 rounded-2xl bg-primary-500 flex items-center justify-center text-dark-950 text-xl font-display font-bold flex-shrink-0">
                   {initials}
