@@ -806,6 +806,35 @@ misreporting healthy systems, plus two real defects. All fixed in FE PR #30 + BE
 
 ---
 
+## 31 Aug 2026 — 30-Day Trend charts plotted columns three of five services never write
+
+Rajeev re-reported the Service Costs page as "nothing is coming up". The status cards
+were fine post-PR #30/#40 (IST timestamps, "✓ Collecting") — the remaining blank was
+the 30-Day Trend section, and it was blank by construction, not by missing data:
+
+- **Charts only ever drew `credits_used` / `bandwidth_gb` / `storage_gb`** — but the
+  OpenAI fetcher writes only `cost_usd` (+ tokens in `raw_payload._summary`), Resend
+  writes only `_summary.yesterday_count`, and Cloudflare's requests live in
+  `_summary.requests_24h`. Their panels rendered as bare axes over real rows. Fixed
+  both sides: BE `/admin/costs/summary` daily query now surfaces `tokens`, `emails`,
+  `requests` from `_summary`; FE maps each service to its actual metric(s)
+  (OpenAI: cost + tokens; Resend: emails; Cloudflare: requests + bandwidth), with a
+  right-hand axis where scales differ.
+- **All-zero lines were suppressed** (`data.some(d => d.bandwidth)` gating), so
+  Cloudflare's legitimate 0-requests days drew nothing at all. Lines now render
+  unconditionally — a flat zero line reads "nothing happened", a blank panel reads
+  "broken fetcher".
+- **Railway still charted the TB-scale 27–29 Aug rows** because migration 027 has
+  not run in production (todo #4 below, still open). The summary query now mirrors
+  027's guarded repair read-side (`storage_gb > 1000` → ÷1440), so the chart is
+  correct whether or not the migration has run. Running 027 remains the durable fix.
+- Not defects, for the record: Cloudflare/Railway axes start 27 Aug because those
+  fetchers only began collecting then (Phase 107 / s97) — the window fills by late
+  Sep; Cloudflare's 0 requests is worth checking in the zone dashboard (DNS-only
+  vs proxied), not in this codebase.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
