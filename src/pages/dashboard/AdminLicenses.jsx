@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
-  CreditCard, ArrowLeft, ChevronLeft, ChevronRight, RotateCcw, Building2, Users
+  CreditCard, ArrowLeft, ChevronLeft, ChevronRight, RotateCcw, Building2, Users, Trash2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
@@ -36,6 +36,16 @@ export default function AdminLicenses() {
       }));
       toast.success(`Plan updated to ${plan}`);
     } catch (err) { toast.error(err.message); }
+  };
+
+  // s100 — spam orgs (the TL-bonus incident) had no removal path from the UI.
+  const handleDeleteOrg = async (org) => {
+    if (!window.confirm(`Delete organization "${org.name}"? Members are detached, not deleted. This cannot be undone.`)) return;
+    try {
+      const r = await adminAPI.deleteOrganization(org.id);
+      setData(prev => ({ ...prev, organizations: prev.organizations.filter(o => o.id !== org.id) }));
+      toast.success(`Deleted "${r.name}" (${r.detached_users} member${r.detached_users === 1 ? '' : 's'} detached)`);
+    } catch (err) { toast.error(err.message || 'Delete failed'); }
   };
 
   const handleResetUsage = async (userId, feature) => {
@@ -80,9 +90,15 @@ export default function AdminLicenses() {
                     <div key={o.id} className="bg-white rounded-2xl border border-gray-200 p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold text-gray-900">{o.name}</h3>
-                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${planColor(o.plan_name?.toLowerCase())}`}>
-                          {o.plan_name || 'free'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${planColor(o.plan_name?.toLowerCase())}`}>
+                            {o.plan_name || 'free'}
+                          </span>
+                          <button onClick={() => handleDeleteOrg(o)} title="Delete organization"
+                            className="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
                       <div className="flex gap-4 text-xs text-gray-500">
                         <span><span className="font-semibold text-gray-700">{o.member_count}</span> / {o.seat_limit} seats</span>
