@@ -47,6 +47,10 @@ export default function Register() {
   // s101 — Turnstile token; '' until the widget solves (or when disabled).
   const [turnstileToken, setTurnstileToken] = useState('');
   const captchaRequired = !!import.meta.env.VITE_TURNSTILE_SITE_KEY;
+  // The widget solving is what enables submit; until then the buttons are
+  // disabled and must LOOK disabled — on first ship they kept full styling,
+  // so a blocked widget read as "button ignores my clicks" (31 Aug test).
+  const captchaPending = captchaRequired && !turnstileToken;
   // Phase 53: claim detection state
   const [claimCandidates, setClaimCandidates] = useState([]);
   const [claimSubmitting, setClaimSubmitting] = useState(false);
@@ -653,24 +657,29 @@ export default function Register() {
                   ~5 min, so rendering it earlier would hand handleRegister a
                   dead token. Invisible for most humans (managed mode). */}
               <TurnstileWidget onToken={setTurnstileToken} />
+              {captchaPending && (
+                <div style={{ fontSize: 12, color: '#6b7280' }}>
+                  Waiting for the security check above to finish…
+                </div>
+              )}
               <div className="flex gap-3 mt-4">
                 <button onClick={() => setStep(1)}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all"
                   style={{ background: '#f3f4f6', color: '#374151' }}>
                   <ArrowLeft size={14} className="inline mr-1" /> Back
                 </button>
-                <button onClick={handleRegister} disabled={loading || (captchaRequired && !turnstileToken)}
+                <button onClick={handleRegister} disabled={loading || captchaPending}
                   className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-                  style={{ background: '#D0A848', color: '#0D2137' }}>
+                  style={{ background: '#D0A848', color: '#0D2137', opacity: (loading || captchaPending) ? 0.5 : 1, cursor: (loading || captchaPending) ? 'not-allowed' : 'pointer' }}>
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Creating...' : 'Create Account'}
                 </button>
               </div>
               {/* Phase 65: promote skip to a real secondary action so people
                   who just want an account can get one in <10s. */}
-              <button onClick={handleRegister} disabled={loading || (captchaRequired && !turnstileToken)}
+              <button onClick={handleRegister} disabled={loading || captchaPending}
                 className="w-full py-2.5 rounded-xl text-sm font-medium border transition-all"
-                style={{ background: '#fff', color: '#6b7280', borderColor: '#e5e7eb' }}>
+                style={{ background: '#fff', color: '#6b7280', borderColor: '#e5e7eb', opacity: (loading || captchaPending) ? 0.5 : 1, cursor: (loading || captchaPending) ? 'not-allowed' : 'pointer' }}>
                 Skip for now — finish profile after signup
               </button>
             </div>
