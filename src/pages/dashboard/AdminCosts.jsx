@@ -19,6 +19,24 @@ const SERVICE_LABEL = {
   cloudflare: 'Cloudflare',
   other: 'Other',
 };
+// Which daily metric(s) each service's trend chart plots. OpenAI, Resend and
+// Cloudflare collect cost/tokens/emails/requests — none of which the charts
+// used to draw, so their panels rendered as bare axes over real data. Metrics
+// on wildly different scales (cost vs tokens) go on a right-hand axis. Lines
+// render even when every value is zero: a flat zero line is a reading
+// ("nothing happened"), a blank panel looks like a broken fetcher.
+const SERVICE_CHART_METRICS = {
+  railway:    [{ key: 'bandwidth', name: 'Bandwidth GB', color: '#2563eb' }, { key: 'storage', name: 'Storage GB', color: '#16a34a' }],
+  cloudinary: [{ key: 'credits', name: 'Credits', color: G }, { key: 'storage', name: 'Storage GB', color: '#16a34a' }],
+  openai:     [{ key: 'cost', name: 'Cost USD', color: G }, { key: 'tokens', name: 'Tokens', color: '#2563eb', axis: 'right' }],
+  resend:     [{ key: 'emails', name: 'Emails sent', color: G }],
+  cloudflare: [{ key: 'requests', name: 'Requests (24h)', color: G }, { key: 'bandwidth', name: 'Bandwidth GB', color: '#2563eb', axis: 'right' }],
+  vercel:     [{ key: 'cost', name: 'Cost USD', color: G }],
+};
+const DEFAULT_CHART_METRICS = [
+  { key: 'bandwidth', name: 'Bandwidth GB', color: '#2563eb' },
+  { key: 'storage', name: 'Storage GB', color: '#16a34a' },
+];
 
 export default function AdminCosts() {
   const [summary, setSummary] = useState({ daily: [], status: [], manual: [] });
@@ -123,6 +141,10 @@ export default function AdminCosts() {
       credits: Number(row.credits_used || 0),
       bandwidth: Number(row.bandwidth_gb || 0),
       storage: Number(row.storage_gb || 0),
+      cost: Number(row.cost_usd || 0),
+      tokens: Number(row.tokens || 0),
+      emails: Number(row.emails || 0),
+      requests: Number(row.requests || 0),
     });
   });
 
@@ -503,30 +525,30 @@ export default function AdminCosts() {
             </div>
           ) : (
             <div style={{ display: 'grid', gap: 16, marginBottom: 28 }}>
-              {Object.entries(seriesByService).map(([service, data]) => (
-                <div key={service} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#333' }}>
-                    {SERVICE_LABEL[service] || service}
+              {Object.entries(seriesByService).map(([service, data]) => {
+                const metrics = SERVICE_CHART_METRICS[service] || DEFAULT_CHART_METRICS;
+                const hasRightAxis = metrics.some(m => m.axis === 'right');
+                return (
+                  <div key={service} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#333' }}>
+                      {SERVICE_LABEL[service] || service}
+                    </div>
+                    <ResponsiveContainer width="100%" height={140}>
+                      <LineChart data={data}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                        <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                        <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
+                        {hasRightAxis && <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />}
+                        <Tooltip />
+                        {metrics.map(m => (
+                          <Line key={m.key} yAxisId={m.axis === 'right' ? 'right' : 'left'}
+                            type="monotone" dataKey={m.key} stroke={m.color} strokeWidth={2} dot={false} name={m.name} />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
-                  <ResponsiveContainer width="100%" height={140}>
-                    <LineChart data={data}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                      <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} />
-                      <Tooltip />
-                      {service === 'cloudinary' && (
-                        <Line type="monotone" dataKey="credits" stroke={G} strokeWidth={2} dot={false} name="Credits" />
-                      )}
-                      {service !== 'cloudinary' && data.some(d => d.bandwidth) && (
-                        <Line type="monotone" dataKey="bandwidth" stroke="#2563eb" strokeWidth={2} dot={false} name="Bandwidth GB" />
-                      )}
-                      {data.some(d => d.storage) && (
-                        <Line type="monotone" dataKey="storage" stroke="#16a34a" strokeWidth={2} dot={false} name="Storage GB" />
-                      )}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
