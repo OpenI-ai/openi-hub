@@ -467,7 +467,7 @@ export default function VerifyEmail() {
                   >
                     <div className="flex items-center gap-3">
                       {c.logo_url ? (
-                        <img src={c.logo_url} alt="" className="w-8 h-8 rounded object-cover" />
+                        <img src={c.logo_url} alt="" className="w-8 h-8 rounded object-contain bg-white" />
                       ) : (
                         <div className="w-8 h-8 rounded" style={{ background: '#f3f4f6' }} />
                       )}

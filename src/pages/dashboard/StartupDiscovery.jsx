@@ -77,7 +77,7 @@ function StartupCard({ startup, onWatchlist, watchlisted, onClick, isClaimable =
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-start gap-2 min-w-0 flex-1">
           {startup.logo_url ? (
-            <img src={startup.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 bg-gray-50" />
+            <img src={startup.logo_url} alt="" className="w-9 h-9 rounded-lg object-contain flex-shrink-0 bg-white border border-gray-100" />
           ) : (
             <div className="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center text-dark-950 font-bold text-xs flex-shrink-0">{initials}</div>
           )}

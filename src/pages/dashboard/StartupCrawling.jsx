@@ -547,7 +547,7 @@ export default function StartupCrawling() {
                         <tr key={s.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              {s.logo_url ? <img src={s.logo_url} alt="" className="w-7 h-7 rounded-lg object-cover" /> :
+                              {s.logo_url ? <img src={s.logo_url} alt="" className="w-7 h-7 rounded-lg object-contain bg-white" /> :
                                 <div className="w-7 h-7 bg-primary-100 rounded-lg flex items-center justify-center text-primary-700 text-xs font-bold">
                                   {(s.company_name || '').charAt(0)}
                                 </div>}
