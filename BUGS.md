@@ -1065,3 +1065,28 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Pick the founder's real account as primary and merge, or have the founder
     claim; the organic-first primary rule protects the registered rows either
     way.
+
+### Added 31 Aug 2026 (evening) — Innovation Map
+
+14. **PRIORITY — Innovation Map by sector, function AND use-case** (Rajeev,
+    31 Aug: "this is important for corporate clients"). Today the map fans
+    out by `sector` only; function/use-case exist merely as a sparse
+    `focus_areas` proxy on imported data, so they can't be map axes yet.
+    The build: classify the directory's EXISTING embeddings against a
+    curated function taxonomy and a use-case taxonomy (offline job, same
+    shape as the cluster/subcluster scripts), store both on
+    `import_metadata`, then add a dimension switcher to the map endpoints
+    (`/clusters/:id/representatives?dimension=sector|function|usecase`) and
+    to `ClusterHubAndSpoke`. Spec it at the start of the next session —
+    this is the "art of the possible" pitch surface for enterprise
+    accounts (the 31 Aug cluster-#70 incident was seen from the Tata
+    Advanced Systems login).
+15. **Run the two Innovation-Map data-repair scripts after BE PR #48
+    merges** (`railway ssh`, in this order):
+    `node src/scripts/scrub-crawl-junk-descriptions.js` (report) then
+    `--apply`; `node src/scripts/relabel-clusters-composition.js --dry-run`
+    (eyeball the proposed labels) then live (~$0.08 gpt-4o-mini, needs
+    `OPENAI_API_KEY` on Railway). Optional third: re-run
+    `subcluster-top50.js` so all top-50 clusters get full subgroup
+    coverage — until then the new ≥50%-coverage guard simply hides stale
+    subgroup tiers, which is safe.
