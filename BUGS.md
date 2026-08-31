@@ -888,6 +888,46 @@ BE #41–44), all E2E-verified against production. In order:
 
 ---
 
+## 31 Aug 2026 (afternoon) — startup provenance for clients; the walkthroughs kept paying
+
+A client asked how to tell a registered startup from a database/crawled profile
+before messaging. That question exposed a chain of real gaps, each fixed and
+production-verified the same afternoon (FE #39/#41 + BE #45/#46/#47):
+
+- **Provenance was invisible** (FE #39 + BE #45): 576,347 startups in the
+  directory, only **79** registered-or-claimed — and nothing distinguished them.
+  /corporate/startups now returns is_imported/claimed_at/on_platform (+ an
+  on_platform=true filter); Discover cards show "✓ On OpenI" vs "Directory"
+  chips; directory profiles swap Message/Collab for an honest "Visit website"
+  link; the profile header carries the badge for every viewer. E2E: API probes,
+  headless-browser walkthrough with the corporate demo account, and Rajeev's
+  own eyes (the Scrunch profile).
+- **Wordmark logos cropped to gibberish** ("scrunch" → "cru"): five surfaces
+  used object-cover on small squares; all now object-contain on white (FE #41).
+  Browser-verified on the live Scrunch profile.
+- **The duplicate finder couldn't see the Scrunch pair** (FE #41 + BE #46): it
+  requires name+domain on BOTH rows, and the registered Scrunch has no website.
+  New needs_review bucket (name-exact, ≥1 row missing a domain) renders with an
+  amber "name-only — verify first" badge; the Session-8 Scout lesson stands —
+  suggestions only, never auto-confirmed. Bonus find while building it: the
+  auto-merge primary heuristic (most fields) would have picked the imported
+  twin and DELETED the real founder's row; organic entries now always outrank
+  imported ones.
+- **The merge itself 500'd on first real use** (BE #47, Sentry
+  OPENI-HUB-BACKEND-Q, resolved): mergeStartups copied the loser's domain_name
+  into the winner BEFORE deleting the loser, violating
+  startup_profiles_domain_name_uidx. Reordered (delete-then-update, same
+  transaction). Verified by Rajeev: the mFilterIt trio merged clean into one row.
+- For the record: Scrunch is a THREE-way group — the directory row plus two
+  registered accounts (founder signed up twice); it sits in the needs-review
+  bucket awaiting Rajeev's judgment.
+- **Stale credential noticed:** docs §13's legacy admin login
+  (admin@drdo.gov.in / Admin@123) is rejected by the live API — marked as
+  rotated in §13 so nobody trusts it again. The *@demo.openi.ai accounts work
+  and now double as E2E credentials.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -1012,11 +1052,16 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     "Spam suspects (link in name)" filter and deactivate/delete what it finds
     (the two org admins plus any members). New registrations with link-bearing
     names are already blocked, so this list cannot grow.
-11. **Eyeball the three admin panels external probes can't reach** (each ~10s):
-    30-Day Trend charts showing lines (OpenAI cost/tokens, Resend emails, Railway
-    ~18 GB storage), Recent Errors showing "✓ No unresolved errors", and the
-    register page (incognito) showing the Turnstile check and letting a human
-    through.
+11. **Eyeball the three admin panels external probes can't reach** — register
+    page **done 31 Aug** (Turnstile green-check confirmed by Rajeev); still
+    open: 30-Day Trend charts showing lines, and Recent Errors showing
+    "✓ No unresolved errors".
 12. **Glance at the Cloudflare card after tonight's 02:00 IST run** — with the
     proxy on since 31 Aug it should show real request counts; cache-hit starts
     near 0% and climbs over days as the CDN warms.
+
+13. **Decide the Scrunch three-way** (added 31 Aug pm) — Find Duplicates →
+    needs-review shows the directory Scrunch plus TWO registered accounts.
+    Pick the founder's real account as primary and merge, or have the founder
+    claim; the organic-first primary rule protects the registered rows either
+    way.
