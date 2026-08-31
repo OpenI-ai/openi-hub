@@ -24,6 +24,9 @@ export default function AdminUsers() {
   const [planFilter, setPlanFilter] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [importedFilter, setImportedFilter] = useState('');
+  // s100 — flag=spam_name surfaces accounts whose display name contains a
+  // link (bot registrations, the TL-bonus incident).
+  const [flagFilter, setFlagFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -38,12 +41,13 @@ export default function AdminUsers() {
       if (planFilter) params.plan = planFilter;
       if (activeFilter) params.active = activeFilter;
       if (importedFilter) params.imported = importedFilter;
+      if (flagFilter) params.flag = flagFilter;
       const data = await adminAPI.listUsers(params);
       setUsers(data.users);
       setTotal(data.total);
     } catch (err) { toast.error(err.message || 'Failed to load users'); }
     finally { setLoading(false); }
-  }, [page, search, roleFilter, planFilter, activeFilter, importedFilter]);
+  }, [page, search, roleFilter, planFilter, activeFilter, importedFilter, flagFilter]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
@@ -144,6 +148,11 @@ export default function AdminUsers() {
             <option value="">All Sources</option>
             <option value="false">Organic</option>
             <option value="true">Imported</option>
+          </select>
+          <select value={flagFilter} onChange={e => { setFlagFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white">
+            <option value="">No Flag Filter</option>
+            <option value="spam_name">Spam suspects (link in name)</option>
           </select>
         </div>
 
