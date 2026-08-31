@@ -874,6 +874,17 @@ BE #41–44), all E2E-verified against production. In order:
   Alerts (strapi 23–24 Aug, resend 8 Aug) are resolved history, not live problems —
   strapi staleness was silenced by s87's RETIRED_SERVICES exclusion (no firings
   since 24 Aug), resend recovered 9 Aug. They age out or can be trash-iconed.
+- **Post-close addendum (FE #36)** — Rajeev's incognito walkthrough caught the
+  Turnstile widget not rendering: vercel.json's CSP script-src (self/Sentry/
+  Razorpay only) silently blocked challenges.cloudflare.com, and the disabled
+  submit buttons looked enabled, reading as "button ignores my clicks". Fixed
+  same hour: CSP now allows challenges.cloudflare.com in script-src AND
+  frame-src (the widget is an iframe), and captcha-pending buttons dim with a
+  "waiting for the security check" hint. Walkthrough then passed (green
+  "Success!" box, buttons enable). **Lesson: every new third-party script needs
+  a CSP entry, or it fails silently — and API-probe E2E cannot catch it, only a
+  browser can.** Backend enforcement was never off during the gap; only humans
+  were blocked, which is exactly why the human test mattered.
 
 ---
 
