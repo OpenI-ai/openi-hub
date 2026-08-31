@@ -11,6 +11,10 @@
 - **Build Command:** `npm run build`
 - **Output:** `dist/`
 - **Deploy manually:** `cd openi-hub && npx vercel --prod --yes`
+- **`VITE_TURNSTILE_SITE_KEY`** (added 31 Aug 2026, type Config, Production): the public
+  Turnstile sitekey (`0x4AAAAAAEiucx13YNmwrA4F`) for the registration CAPTCHA. `VITE_*`
+  values are baked at build time — changing it needs a redeploy. Unset = no widget,
+  no CAPTCHA (matches the backend flag's off state).
 
 ### Backend (Railway)
 
@@ -18,6 +22,24 @@
 - **GitHub:** RajeevBanduni/openi-hub-backend (private)
 - **Auto-deploy:** On push to `main` branch
 - **Entry Point:** `src/startup.js` (82-line re-export shim; the migration steps live in `src/migrations/` — 14 ordered modules + an `index.js` registry — and the demo seed in `src/seed/index.js`)
+- **`TURNSTILE_SECRET_KEY`** (added 31 Aug 2026): secret half of the registration
+  CAPTCHA key pair (Cloudflare dashboard → Turnstile → widget "openi.ai"). Unset =
+  every check passes (feature off). Verification fails OPEN on Cloudflare outages by
+  design — see `src/utils/turnstile.js`.
+
+### Cloudflare (proxied since 31 Aug 2026)
+
+- **DNS proxying ON** (orange cloud) for the four web-facing records: `openi.ai`
+  (apex), `www`, `app`, `api`. Everything else — MX/TXT/DKIM, `cpanel`,
+  `webdisk` — stays DNS-only on purpose (mail breaks behind the proxy; cPanel's
+  ports are blocked by it). SSL mode: **Full** (set ~Apr 2026; do NOT use
+  Flexible — redirect loops against Vercel/Railway, both of which force HTTPS).
+  Before 31 Aug all records were DNS-only, which is why the Service Costs
+  Cloudflare card read 0 requests since collection began.
+- **Turnstile widget** "openi.ai" (Managed mode, pre-clearance off) guards
+  registration only — chosen over zone-wide Bot Fight Mode, which would also
+  challenge partner-API server-to-server callers and BetterStack uptime probes.
+  Sitekey is public (in the FE bundle by design); the secret lives only on Railway.
 
 ### Database (Railway PostgreSQL)
 

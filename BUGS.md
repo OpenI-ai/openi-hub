@@ -835,6 +835,48 @@ the 30-Day Trend section, and it was blank by construction, not by missing data:
 
 ---
 
+## 31 Aug 2026 (session close) — trend charts shipped, spam incident, Cloudflare armed
+
+Continuation of the entry above, same session. Seven PRs merged (FE #32–34,
+BE #41–44), all E2E-verified against production. In order:
+
+- **Trend charts** (FE #32 + BE #41, above) merged; migration 027 run in prod via
+  `railway ssh` → `npm run migrate:bootstrap` (`✓ complete in 35.6s`) — todos #4/#5
+  closed. Branch hygiene done too (todo #7): auto-delete-head-branches was already
+  ON in both repos, and the five older stragglers were verified fully merged and
+  deleted — including BE `claude/disposable-email-block`, whose one "parked" WIP
+  commit turned out to be byte-identical to what PR #27 later shipped with tests.
+- **Sentry panel showed 11 unresolved after Rajeev resolved everything in Sentry**
+  (BE #42). The hourly poll fetches only `is:unresolved`, so a resolved issue just
+  stopped appearing — nothing re-marked the stored rows, and the dashboard showed
+  them for up to two days. Fix: after each successful per-project fetch, rows the
+  fetch didn't return are marked resolved (guarded so a failed poll can't
+  mass-resolve). Dashboard now tracks Sentry within the hour.
+- **Spam incident** — two orgs ("Go2345679", "Google") on the License page, created
+  by bot accounts whose *display name* is a Turkish gambling advert with a bit.ly
+  link. Three-part fix (FE #33 + BE #43): registration AND profile-rename reject
+  link-bearing names (`utils/nameSpamGuard.js` — person names also reject bare
+  domains; org names only explicit URLs so "Booking.com"-style names stay legal);
+  new `DELETE /admin/organizations/:id` (no org-removal path existed at all —
+  detaches members, 409 if the org owns content); new "Spam suspects (link in
+  name)" filter on the admin users list (`flag=spam_name`, SQL twin of the guard).
+  E2E-verified live: the actual spam string → 400 `LINK_IN_NAME`; clean names pass.
+- **Turnstile CAPTCHA on registration** (FE #34 + BE #44), chosen over Bot Fight
+  Mode to avoid challenging partner-API callers and uptime probes. Feature-flagged
+  both sides (`VITE_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY`, set 31 Aug);
+  fails open on Cloudflare outages. E2E-verified: token-less and forged-token
+  registrations → 400 `CAPTCHA_FAILED`; sitekey confirmed in the shipped bundle.
+- **Cloudflare proxy flipped ON** for `openi.ai`/`www`/`app`/`api` (was DNS-only
+  since setup — the answer to this morning's "0 requests" card). SSL mode Full,
+  mail/cpanel rows left DNS-only. All four hosts verified serving 200 via
+  `server: cloudflare`. The Cloudflare cost card starts counting from tonight's run.
+- Non-bug, for the record: the three "Cost watchdog stale data" rows in Recent
+  Alerts (strapi 23–24 Aug, resend 8 Aug) are resolved history, not live problems —
+  strapi staleness was silenced by s87's RETIRED_SERVICES exclusion (no firings
+  since 24 Aug), resend recovered 9 Aug. They age out or can be trash-iconed.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -929,27 +971,41 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 
 ### Added 30 Aug 2026 (session close)
 
-4. **Run migration 027 in production** — `railway ssh` → `npm run migrate:bootstrap`.
-   Auto-migration is OFF on Railway (`RUN_MIGRATIONS_ON_BOOT` unset, by design), so
-   merging BE PR #40 deployed the code but did NOT repair the stored Railway
-   storage_gb rows — the 27–29 Aug rows still chart at TB scale until this runs (new
-   rows from the fixed fetcher are correct either way, and the bad rows age out of
-   the 30-day window by late Sep, so this is cosmetic-urgent only).
-5. **Verify the dashboard after deploys + token swap** — one Refresh on
-   `/dashboard/admin/costs` should show: no strapi chart, "✓ Collecting" headlines,
-   IST timestamps, DR Backup Health populated (~137 runs, 100% success). Also glance
-   at What's New — its backend-commit sync was silently dead since the org move and
-   should resume on its next scheduled run.
+4. ~~**Run migration 027 in production**~~ — **Done 31 Aug** (`railway ssh` →
+   `npm run migrate:bootstrap`, `✓ complete in 35.6s`; the read-side mirror in BE
+   PR #41 had already made the chart correct either way).
+5. ~~**Verify the dashboard after deploys + token swap**~~ — **Done 31 Aug**:
+   "✓ Collecting" headlines, IST timestamps, uptime 4/4 confirmed by screenshot;
+   the trend-chart blanks that remained turned out to be a separate defect, fixed
+   and shipped same day (see the 31 Aug entries above).
 6. **Delete the old `openi-hub-whats-new-sync` PAT** (personal-owner, public-only,
    superseded 30 Aug by `openi-hub-ops-readonly`) so it can't be mistaken for a live
    credential. Also confirm the new token's saved name and expiry and correct docs
    §12 if they differ (recommended at creation: 1 year).
-7. **Delete two merged remote branches** (needs the GitHub UI — session credentials
-   can push but not delete): FE `claude/sentry-error-6621pv` (PR #30),
-   BE `claude/service-costs-dashboard-6621pv` (PR #40).
+7. ~~**Delete two merged remote branches**~~ — **Done 31 Aug**, and then some: those
+   two were already auto-deleted on merge (auto-delete-head-branches is ON in both
+   repos), and five older stragglers were verified fully merged and removed via the
+   GitHub UI. Both repos are down to `main` only.
 8. **Sentry backend triage** — the weekly digest that started this session showed
    22 unresolved errors on `openi-hub-backend` (frontend is now at zero). Untouched
-   this session; worth a pass.
+   this session; worth a pass. (31 Aug note: Rajeev resolved the visible batch in
+   Sentry; the dashboard panel now tracks that within the hour, BE PR #42.)
 9. **Vercel cost auto-collect still unconfigured** (pre-existing) — the Vercel status
    card legitimately says "Not configured yet"; set the env vars if that card should
    go live.
+
+### Added 31 Aug 2026 (session close)
+
+10. **Purge the spam accounts and orgs** — on `/dashboard/admin/licenses`, trash-icon
+    the "Go2345679" and "Google" orgs; on `/dashboard/admin/users`, run the
+    "Spam suspects (link in name)" filter and deactivate/delete what it finds
+    (the two org admins plus any members). New registrations with link-bearing
+    names are already blocked, so this list cannot grow.
+11. **Eyeball the three admin panels external probes can't reach** (each ~10s):
+    30-Day Trend charts showing lines (OpenAI cost/tokens, Resend emails, Railway
+    ~18 GB storage), Recent Errors showing "✓ No unresolved errors", and the
+    register page (incognito) showing the Turnstile check and letting a human
+    through.
+12. **Glance at the Cloudflare card after tonight's 02:00 IST run** — with the
+    proxy on since 31 Aug it should show real request counts; cache-hit starts
+    near 0% and climbs over days as the CDN warms.
