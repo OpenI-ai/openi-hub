@@ -63,6 +63,12 @@
 
 ### Legacy Accounts (MFA OTP: 123456)
 
+> **31 Aug 2026:** the live API rejects `admin@drdo.gov.in / Admin@123`
+> ("Invalid credentials") — the password has evidently been rotated since this
+> table was written. Treat the legacy rows below as historical. The
+> `*@demo.openi.ai` accounts below remain live and are the working credentials
+> for API/browser E2E (used successfully 31 Aug).
+
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@drdo.gov.in | Admin@123 |
