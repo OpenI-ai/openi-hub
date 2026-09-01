@@ -1037,6 +1037,54 @@ Traps recorded for next time:
 
 ---
 
+## 1 Sep 2026 (later) — search speaks the taxonomy (todo #16 → done)
+
+Both halves of todo #16 shipped and E2E-verified the same day the maps went
+live. PRs: BE #53 (semantic `/api/maps/suggest` + taxonomy-backed corporate
+search filters), FE #50 (top-bar map suggestions + results-page map chips +
+Find Startups filters fed from the live taxonomy), FE #51 (follow-up race
+fix, below).
+
+What a buyer gets now:
+- **Top search bar** (desktop + mobile, keyword and semantic modes): typing
+  "secur" surfaces gold-tinted map rows above the regular suggestions —
+  Cybersecurity (8,543 startups · Sector map), Security Operations (1,129 ·
+  Function map) — click jumps straight to the map. The 118 terms + counts
+  are one lazy `/api/maps` fetch, matched client-side, so no per-keystroke
+  API traffic.
+- **Semantic map discovery** — `GET /api/maps/suggest?q=` embeds the query
+  and ranks it against the term DEFINITIONS (cosine, floor 0.25, top 5,
+  zero-member maps filtered). Quality is the headline: "automating
+  warehouse picking" → Warehouse Automation 0.761; "ransomware protection
+  for banks" → 5 sensible maps spanning three dimensions. The results page
+  (`/search?q=…`) shows these as an "Innovation Maps:" chip row above the
+  hits (auth-gated; skipped in AI mode).
+- **Find Startups filters are taxonomy-true** — the Sector / Function /
+  Technology / Use-case dropdowns now list the 118 curated terms with live
+  members-only counts, and the backend resolves them to `startup_taxonomy`
+  EXISTS filters at the same ≥ 0.40 display threshold. Proof of one source
+  of truth: filter `sector=Cybersecurity` returns **exactly 8,543** — the
+  map count and the search count are the same number, and the corrupted
+  import sector tags are out of the query path (unresolved values still
+  fall through to the legacy ILIKE branches, so old links don't break).
+
+**Bug found BY the E2E and fixed same hour (FE #51):** a stale-response
+race in `CorporateStartupSearch.loadStartups` — apply a filter within
+seconds of page load and the slow unfiltered request (576,104 rows) could
+resolve AFTER the fast filtered one (8,543) and overwrite it. Classic
+last-writer-wins fetch race, pre-existing, just never caught because nobody
+filtered that fast. Fix: `loadSeqRef` sequence counter, only the newest
+request's response may touch state. Reproduced in the browser before the
+fix, verified "8,543 startups found" stays put after it.
+
+Verification (per the FE CLAUDE.md convention): deploy discriminator polled
+until the suggest endpoint went 200; four semantic probe queries via API;
+Playwright browser passes for the top-bar dropdown, the chip row, and the
+corporate filter; screenshots delivered to Rajeev. Notification echoes of
+my own PR comments were the only PR events — skipped.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -1241,7 +1289,12 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 
 ### Added 1 Sep 2026 (session close) — after the maps shipped
 
-16. **PRIORITY — search speaks the taxonomy** (Rajeev: "now that we've
+16. ~~**PRIORITY — search speaks the taxonomy**~~ — **SHIPPED 1 Sep 2026**
+    (BE #53, FE #50, race-fix FE #51; see the second 1 Sep session entry).
+    Top-bar map suggestions, semantic /api/maps/suggest with results-page
+    chips, and Find Startups filters resolving to `startup_taxonomy` at
+    ≥ 0.40 — map count and search count agree exactly (Cybersecurity
+    8,543 both ways). Original spec kept below. (Rajeev: "now that we've
     innovation map by sector, function, tech and use case. should our
     search bar reflect that?" → "pls add this to todos for next session").
     Two parts, ~half a session:
@@ -1254,7 +1307,8 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Function / Use-case chips backed by `startup_taxonomy` (score ≥ 0.40),
     REPLACING the corrupted `sector` facets (Known open issues) so search
     and maps agree on one source of truth.
-17. **Taxonomy curation round 2** — the 118 terms are still my top-down
+17. **NEXT SESSION'S OPENER — taxonomy curation round 2 (Rajeev's
+    red-pen)** — the 118 terms are still my top-down
     draft, now validated by counts but never red-penned. (a) Rajeev
     reviews the term list (taxonomy-review doc, 1 Sep) with live counts
     beside it; (b) mine the unmatched residue (startups matching nothing
