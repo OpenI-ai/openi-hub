@@ -116,6 +116,9 @@ import StudentMentorships  from './pages/dashboard/StudentMentorships';
 import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
 import Clusters            from './pages/dashboard/Clusters';
 import ClusterDetail       from './pages/dashboard/ClusterDetail';
+// s106 — standalone Innovation Maps (one micro-focused map per curated term)
+import InnovationMaps      from './pages/dashboard/InnovationMaps';
+import MapDetail           from './pages/dashboard/MapDetail';
 // s32 P1.4 — Discovery surfaces consuming cluster-bridge endpoints
 import StudentRecommendedStartups    from './pages/dashboard/StudentRecommendedStartups';
 import AcademiaRecommendedStartups   from './pages/dashboard/AcademiaRecommendedStartups';
@@ -367,6 +370,8 @@ export default function App() {
             <Route path="roles/add"           element={<AddRole />} />     {/* Phase 60.4b (s50) */}
             <Route path="clusters"            element={<Clusters />} />
             <Route path="clusters/:id"        element={<ClusterDetail />} />
+            <Route path="maps"                element={<InnovationMaps />} />   {/* s106 */}
+            <Route path="maps/:dimension/:slug" element={<MapDetail />} />      {/* s106 */}
             <Route path="settings"            element={<Settings />} />
           </Route>
 
