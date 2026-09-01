@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { corporateAPI } from '../../services/api';
 import { mapsAPI } from '../../services/clusterAPI';
@@ -31,6 +31,8 @@ export default function CorporateStartupSearch() {
   // startup (messaging reaches a person) from an imported directory profile
   // (it does not). Backend now returns on_platform per row + honors this filter.
   const [onPlatformOnly, setOnPlatformOnly] = useState(false);
+  // s107 — monotonically increasing fetch id; see loadStartups.
+  const loadSeqRef = useRef(0);
 
   useEffect(() => { loadTaxonomy(); }, []);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional refetch on page/filters change; `loadStartups` is a stable inline closure
@@ -65,6 +67,12 @@ export default function CorporateStartupSearch() {
 
   const loadStartups = async () => {
     setLoading(true);
+    // s107 — stale-response guard: on a 576k-row directory the unfiltered
+    // COUNT can take seconds, so a user who filters immediately after page
+    // load could have the slow unfiltered response land LAST and overwrite
+    // the filtered result (seen in the 1 Sep browser E2E). Only the newest
+    // request may write state.
+    const seq = ++loadSeqRef.current;
     try {
       const params = { page, limit: 12 };
       if (filters.search) params.search = filters.search;
@@ -75,10 +83,11 @@ export default function CorporateStartupSearch() {
       if (filters.stage) params.stage = filters.stage;
       if (onPlatformOnly) params.on_platform = 'true';
       const d = await corporateAPI.searchStartups(params);
+      if (seq !== loadSeqRef.current) return;
       setStartups(d.startups || []);
       setTotal(d.total || 0);
-    } catch { toast.error('Failed to load startups'); }
-    finally { setLoading(false); }
+    } catch { if (seq === loadSeqRef.current) toast.error('Failed to load startups'); }
+    finally { if (seq === loadSeqRef.current) setLoading(false); }
   };
 
   const setFilter = (key, val) => { setFilters(p => ({ ...p, [key]: val })); setPage(1); };
