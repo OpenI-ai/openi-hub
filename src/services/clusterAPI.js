@@ -42,4 +42,6 @@ export const mapsAPI = {
   getOne: (dimension, slug) => get(`/maps/${dimension}/${slug}`),
   listStartups: (dimension, slug, params) => get(`/maps/${dimension}/${slug}/startups${qs(params)}`),
   representatives: (dimension, slug, params) => get(`/maps/${dimension}/${slug}/representatives${qs(params)}`),
+  // s107 — semantic map discovery (query embedded vs term definitions).
+  suggest: (q) => get(`/maps/suggest${qs({ q })}`),
 };

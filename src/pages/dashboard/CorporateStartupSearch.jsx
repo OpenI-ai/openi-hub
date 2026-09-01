@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { corporateAPI } from '../../services/api';
+import { mapsAPI } from '../../services/clusterAPI';
 import {
   Rocket, Link2, MessageSquare, Loader2, MapPin, Cpu, Plus, Upload, Globe, CheckCircle2,
 } from 'lucide-react';
@@ -36,9 +37,30 @@ export default function CorporateStartupSearch() {
   useEffect(() => { loadStartups(); }, [page, filters, onPlatformOnly]);
 
   const loadTaxonomy = async () => {
-    try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); }
-    catch { toast.error('Failed to load filters'); }
-    finally { setTaxLoading(false); }
+    // s107 — filters speak the curated Innovation Maps taxonomy (118 terms,
+    // same source of truth as /dashboard/maps), not the legacy
+    // /api/public/taxonomy vocabulary: the backend resolves these labels
+    // against taxonomy_terms and filters via startup_taxonomy at the
+    // calibrated threshold. Falls back to the legacy vocabulary only if
+    // the maps API is unavailable.
+    try {
+      const d = await mapsAPI.list();
+      const byDim = Object.fromEntries(
+        (d.dimensions || []).map(dim => [
+          dim.dimension,
+          dim.terms.filter(t => t.member_count > 0).map(t => ({ id: t.slug, name: t.label })),
+        ])
+      );
+      setTaxonomy({
+        sectors: byDim.sector || [],
+        functions: byDim.function || [],
+        technologies: byDim.technology || [],
+        usecases: byDim.usecase || [],
+      });
+    } catch {
+      try { const d = await corporateAPI.getTaxonomy(); setTaxonomy(d); }
+      catch { toast.error('Failed to load filters'); }
+    } finally { setTaxLoading(false); }
   };
 
   const loadStartups = async () => {
