@@ -1137,19 +1137,36 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 
 ### Added 31 Aug 2026 (evening) — Innovation Map
 
-14. **PRIORITY — Innovation Map by sector, function AND use-case** (Rajeev,
-    31 Aug: "this is important for corporate clients"). Today the map fans
-    out by `sector` only; function/use-case exist merely as a sparse
-    `focus_areas` proxy on imported data, so they can't be map axes yet.
-    The build: classify the directory's EXISTING embeddings against a
-    curated function taxonomy and a use-case taxonomy (offline job, same
-    shape as the cluster/subcluster scripts), store both on
-    `import_metadata`, then add a dimension switcher to the map endpoints
-    (`/clusters/:id/representatives?dimension=sector|function|usecase`) and
-    to `ClusterHubAndSpoke`. Spec it at the start of the next session —
-    this is the "art of the possible" pitch surface for enterprise
-    accounts (the 31 Aug cluster-#70 incident was seen from the Tata
-    Advanced Systems login).
+14. **PRIORITY — micro-focused standalone Innovation Maps per curated term**
+    (Rajeev, 31 Aug–1 Sep; superseded the earlier "dimension switcher"
+    framing on 1 Sep). His spec, near-verbatim: a 4K-startup cluster "is
+    too big… we want micro focused sector, function, tech and use case.
+    **Security should be a standalone map. Financial Services should be a
+    standalone map, Retail Banking should be a standalone map. Agentic AI
+    should be a standalone map. Pharma or Oncology should be a standalone
+    map.** Our buyers are corporate C-suite executives. Their lens is
+    sector, tech, use case or Function specific."
+    Agreed architecture (1 Sep):
+    - **Four curated taxonomies** — Sector, Technology, Function, Use case
+      — ~40-80 terms each, every term with a one-line definition. Curation
+      is the product; Rajeev reviews the term lists.
+    - **Embedding classification, not LLM calls:** embed the term
+      DEFINITIONS (a few hundred embedding calls, pennies — must use the
+      same embedding model as `startup_profiles.embedding`), then assign
+      startups to terms by cosine similarity + threshold. **Multi-label**:
+      a fraud-detection startup belongs in both the Security map and the
+      Financial Services map. Store in a `startup_taxonomy(user_id,
+      dimension, term, score)` table (new migration, appended per the
+      migration rules).
+    - **One standalone map per term**: hub = term, ring = its sub-themes,
+      leaves = quality-ranked members (crawlJunkGuard + content-first
+      ranking from BE #48 reused as-is). Landing page becomes a directory
+      of maps grouped by dimension, replacing the anonymous cluster grid.
+    - **This is also the sector-tag repair** (see Known open issues): the
+      taxonomy assignments become the source of truth; corrupted import
+      sector tags stop being user-facing. K-means clusters retire to
+      similar-startup recommendations only — "Cluster #N" disappears as a
+      browsing unit, and with it the mega-cluster labeling problem.
 15. ~~**Run the two Innovation-Map data-repair scripts after BE PR #48
     merges**~~ — **closed 1 Sep 2026, half done / half held on purpose.**
     Scrub ran report-first (which caught 4 false positives → BE #50), then
