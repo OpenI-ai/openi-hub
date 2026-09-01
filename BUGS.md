@@ -928,6 +928,64 @@ production-verified the same afternoon (FE #39/#41 + BE #45/#46/#47):
 
 ---
 
+## 31 Aug (evening) – 1 Sep 2026 — Innovation Map trust repair (FE #43 · BE #48/#49/#50)
+
+Rajeev, logged in as the **Tata Advanced Systems Enterprise account**, opened
+cluster #70 "Cybersecurity Solutions" (4,687 members) and found the map nearly
+empty and full of lies: 4 leaves total with five bare theme boxes; "Endpoint
+Security" showcasing an arts platform (Acceptd) and a marketing agency
+(Attachedapps); the cluster list headlined by a profile whose "description"
+was a scraped Google sign-in page (Connect Now). His framing set the bar for
+the whole repair: *the Innovation Map is the art-of-the-possible pitch surface;
+corporate clients rely on it.*
+
+**Four root causes, four fixes (BE #48, plus #49/#50 below):**
+
+1. **Two populations.** Hub/theme counts included all members; the list and
+   leaf queries filtered `users.is_active = true`. Bulk-imported directory
+   users are inactive BY DESIGN (FK dummy rows), so only **156 of 4,687**
+   members were browsable — an import-path accident. Both endpoints now join
+   `(is_active OR is_imported)`; the list total matches the hub.
+2. **Sparse map.** With `include_subgroups=1`, any subgroup rows made the API
+   return ONLY subgroup-tagged leaves. Now hybrid: subgroup partition where a
+   sector has subgroups, per-sector top-N elsewhere. (`ClusterHubAndSpoke`
+   already rendered the mix — backend-only fix.)
+3. **Stale subgroup tier.** #70 had 88 of 4,687 members matching its two
+   stored subgroups, from an old partial run. Coverage guard drops the tier
+   under 50% coverage. **BE #49 (found by live E2E):** the first guard counted
+   any `subcluster_id` key — members carry stale tags, so it passed at ≥50%
+   when true coverage was 1.9%. Coverage now counts only (sector,
+   subcluster_id) pairs that exist in `cluster_subgroups` for the cluster.
+4. **Crawl junk.** New `utils/crawlJunkGuard.js` (page-chrome phrases, JS +
+   POSIX-SQL twins, vitest-pinned): cluster surfaces blank junk descriptions
+   in-query and rank real content above junk/empty rows. **BE #50 (found by
+   the production report run):** the phrase list flagged the domain industry's
+   own vocabulary — Bodis/NameDrive/RevenueDirect genuinely sell
+   "domain parking" — so patterns were narrowed to parking-page chrome and the
+   false positives pinned as negative test fixtures. Lesson: **run scrub
+   scripts report-first, always** — 4 of 22 flags were real companies.
+
+**Data repair (railway ssh, 1 Sep):** `scrub-crawl-junk-descriptions.js
+--apply` scrubbed **18 profiles** (originals in `import_metadata.scrubbed_*`).
+Cluster #70's surgical rename to **"Enterprise Software & Security"**
+(`cluster_label_prev` saved) was handed to Rajeev as a one-liner — confirm on
+the map hub that it ran.
+
+**E2E:** API before/after (list 156→4,687; leaves 4→12 across all six
+sectors; `subgroups: []` on #70) plus headless-browser pass per the CLAUDE.md
+convention — UI login as corporate demo, react-flow node counts asserted
+(1 hub / 6 sectors / 12 leaves / 0 subgroup pills), screenshot delivered.
+
+**The relabel that deliberately did NOT run:** the new composition-aware
+`relabel-clusters-composition.js` dry-ran clean over all 200 clusters
+(~$0.08, zero writes) — and its proposals exposed that **bulk-import sector
+tags are corrupted** (see Known open issues). Applying would have renamed a
+mobile-gaming cluster "Education Technology". Held for the taxonomy rebuild
+(todo #14). The dry-run's job was to be checked before applying; it was, and
+it failed the check — working exactly as intended.
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -947,7 +1005,18 @@ here for reference so they aren't re-investigated:
 
 ## Known open issues (not yet fixed)
 
-None. The last item on this list closed 24 Aug 2026; see below.
+- **Bulk-import sector tags are corrupted (discovered 1 Sep 2026, via the
+  relabel dry-run).** Two failure shapes, proven against production: (a)
+  systematically WRONG — cluster #195, whose members are Chartboost,
+  BlueStacks, Gamewheel, Clay.io (mobile gaming), carries 2,831 members
+  tagged "EdTech"; (b) mostly MISSING — cluster #193 has 6,233 members with
+  only ~200 sector-tagged. Blast radius is wider than the Innovation Map:
+  sector facets and filters in corporate search, cluster theme boxes, and
+  any sector-driven analytics count the same tags. Fix = re-derive
+  sector/function/use-case from the existing embeddings against a curated
+  taxonomy — folded into todo #14, which this finding upgrades from
+  "feature" to "feature + data repair". Until then, treat sector counts on
+  imported rows as decorative, not data.
 
 ### Resolved since this list was last written
 
@@ -1081,12 +1150,13 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     this is the "art of the possible" pitch surface for enterprise
     accounts (the 31 Aug cluster-#70 incident was seen from the Tata
     Advanced Systems login).
-15. **Run the two Innovation-Map data-repair scripts after BE PR #48
-    merges** (`railway ssh`, in this order):
-    `node src/scripts/scrub-crawl-junk-descriptions.js` (report) then
-    `--apply`; `node src/scripts/relabel-clusters-composition.js --dry-run`
-    (eyeball the proposed labels) then live (~$0.08 gpt-4o-mini, needs
-    `OPENAI_API_KEY` on Railway). Optional third: re-run
-    `subcluster-top50.js` so all top-50 clusters get full subgroup
-    coverage — until then the new ≥50%-coverage guard simply hides stale
-    subgroup tiers, which is safe.
+15. ~~**Run the two Innovation-Map data-repair scripts after BE PR #48
+    merges**~~ — **closed 1 Sep 2026, half done / half held on purpose.**
+    Scrub ran report-first (which caught 4 false positives → BE #50), then
+    `--apply` scrubbed 18 profiles. The relabel dry-ran clean over all 200
+    clusters but was **deliberately NOT applied**: its proposals exposed the
+    bulk-import sector-tag corruption (see Known open issues), so
+    composition-based labels would relabel a gaming cluster "EdTech".
+    Global relabel now belongs inside todo #14's taxonomy rebuild. #70 was
+    renamed surgically instead. `subcluster-top50.js` re-run also waits for
+    #14 — same poisoned sector input.
