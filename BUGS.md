@@ -986,6 +986,57 @@ it failed the check — working exactly as intended.
 
 ---
 
+## 1 Sep 2026 — standalone Innovation Maps shipped in a day (todo #14 → done)
+
+Spec (Rajeev, morning): a 4,702-startup cluster "is too big… we want micro
+focused sector, function, tech and use case… Our buyers are corporate C-suite
+executives." By evening the whole thing was live: **118 standalone maps**
+(30 sectors, 24 technologies, 24 functions, 40 use cases) at /dashboard/maps,
+sidebar flipped, every count calibrated. PRs: BE #51 (taxonomies + migration
+028 + pgvector classifier + /api/maps), BE #52 (calibrated display
+threshold), FE #47 (landing + term-map pages), FE #48 (nav flip).
+
+How it works: curated terms with one-line definitions
+(`src/data/innovationTaxonomies.js` — THE PRODUCT, edit there); definitions
+embedded once with text-embedding-3-small (same space as startup embeddings,
+~$0.01); assignment is pure in-database pgvector cosine similarity over
+573,455 embedded startups — multi-label, top-3 per dimension, scores stored.
+A term map's ring = its top co-assigned terms from the other dimensions, and
+they came out expert-grade: Retail Banking → Lending Ops / Credit Scoring /
+KYC / Treasury; Oncology → Biotech / Drug Discovery / Medical Imaging /
+Clinical Trials. Frontend reuses ClusterHubAndSpoke unchanged (ring rides
+the top_sectors contract). K-means clusters retired to similar-startup recs;
+the corrupted import sector tags are no longer any surface's source of truth.
+
+**The inflation catch (the day's most important call):** the first live
+counts were absurd — Capital Markets 132k, Travel 144k ("numbers are highly
+inflated, we need to fix it. Remember large corporate rely on this").
+Because scores are STORED, the fix was a display threshold, not a re-scan:
+sampled real startups across score bands (8 maps × 8 depths through the
+API), found ≥0.40 reads on-topic / 0.36-0.39 degrades / ≤0.35 is noise,
+shipped `MIN_SCORE = 0.40` (BE #52, `MAPS_MIN_SCORE` env override). Capital
+Markets 99,612 → 15,399; Retail Banking 1,701; Oncology 981; Agentic AI
+2,727; Anti-counterfeiting 237; all 118 maps non-zero. Verified: API counts,
+browser E2E (118 cards; term maps render hub/ring/leaves), screenshots
+delivered. The report-first → eyeball → apply loop earned its keep twice in
+two days (yesterday it caught the scrub false positives, today the
+inflation).
+
+Traps recorded for next time:
+- **`.gitignore` bare `data/` matched `src/data/`** and silently dropped the
+  taxonomy file from the commit — 13 CI suites red with MODULE_NOT_FOUND.
+  Anchored to `/data/`. Lesson: when CI can't find a file you can see,
+  check `git check-ignore -v` before anything else.
+- **`railway ssh` dies on long silent jobs** — three drops in one morning.
+  Pattern that works: `nohup <cmd> > /tmp/x.txt 2>&1 &`, reconnect and
+  `cat` later; and paste commands only AFTER the container prompt appears
+  (pasted-while-connecting lines echo but never run, then re-run in the
+  local shell as garbage).
+- A 576k×118 pgvector CROSS JOIN would sort ~68M rows and spill; 118
+  per-term scans + a top-K prune is the tractable shape (~15 min).
+
+---
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -1137,7 +1188,10 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 
 ### Added 31 Aug 2026 (evening) — Innovation Map
 
-14. **PRIORITY — micro-focused standalone Innovation Maps per curated term**
+14. ~~**PRIORITY — micro-focused standalone Innovation Maps per curated term**~~
+    — **SHIPPED 1 Sep 2026** (BE #51/#52, FE #47/#48; see the 1 Sep session
+    entry). 118 maps live at /dashboard/maps, sidebar flipped, counts
+    calibrated (score ≥ 0.40). Original spec kept below for the record.
     (Rajeev, 31 Aug–1 Sep; superseded the earlier "dimension switcher"
     framing on 1 Sep). His spec, near-verbatim: a 4K-startup cluster "is
     too big… we want micro focused sector, function, tech and use case.
@@ -1184,3 +1238,28 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Global relabel now belongs inside todo #14's taxonomy rebuild. #70 was
     renamed surgically instead. `subcluster-top50.js` re-run also waits for
     #14 — same poisoned sector input.
+
+### Added 1 Sep 2026 (session close) — after the maps shipped
+
+16. **PRIORITY — search speaks the taxonomy** (Rajeev: "now that we've
+    innovation map by sector, function, tech and use case. should our
+    search bar reflect that?" → "pls add this to todos for next session").
+    Two parts, ~half a session:
+    (a) **Taxonomy-aware suggestions in the top search bar** — typing
+    "secur…" suggests the Cybersecurity map, the Security Operations
+    function map, Threat Detection, each with member counts; enter jumps
+    to the map. The 118 terms + counts are one `/api/maps` call, matched
+    client-side.
+    (b) **Dimension filters in Find Startups** — Sector / Technology /
+    Function / Use-case chips backed by `startup_taxonomy` (score ≥ 0.40),
+    REPLACING the corrupted `sector` facets (Known open issues) so search
+    and maps agree on one source of truth.
+17. **Taxonomy curation round 2** — the 118 terms are still my top-down
+    draft, now validated by counts but never red-penned. (a) Rajeev
+    reviews the term list (taxonomy-review doc, 1 Sep) with live counts
+    beside it; (b) mine the unmatched residue (startups matching nothing
+    ≥ 0.40 in a dimension) for missing terms, bottom-up from the
+    database; (c) after edits, `railway ssh` →
+    `node src/scripts/classify-taxonomy.js` re-embeds changed terms and
+    re-assigns idempotently. Display threshold tunes live via
+    `MAPS_MIN_SCORE` on Railway — never re-scan just to retune.
