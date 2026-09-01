@@ -94,7 +94,8 @@ function HubNode({ data }) {
     >
       <Handle type="source" position={Position.Top} style={{ visibility: 'hidden' }} />
       <div style={{ fontSize: 11, color: '#D4A843', fontFamily: 'monospace', marginBottom: 4 }}>
-        Cluster #{data.cluster_id}
+        {/* s106: term maps pass a kicker ("Sector map"); clusters keep #id */}
+        {data.kicker || `Cluster #${data.cluster_id}`}
       </div>
       <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2, marginBottom: 4 }}>
         {data.label}
@@ -286,6 +287,7 @@ function buildGraph(cluster, startups, subgroups = []) {
     position: { x: HUB_X - HUB_W / 2, y: HUB_Y - HUB_H / 2 },
     data: {
       cluster_id: cluster.cluster_id,
+      kicker: cluster.kicker,
       label: cluster.cluster_label || `Theme ${cluster.cluster_id}`,
       member_count: cluster.member_count,
     },

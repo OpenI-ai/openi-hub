@@ -34,3 +34,12 @@ export const clusterAPI = {
   // Phase 68: top-N startups per sector for the hub-and-spoke diagram.
   representatives: (id, params) => get(`/clusters/${id}/representatives${qs(params)}`),
 };
+
+// s106 — standalone Innovation Maps: one micro-focused map per curated
+// term across four dimensions (sector / technology / function / usecase).
+export const mapsAPI = {
+  list: () => get('/maps'),
+  getOne: (dimension, slug) => get(`/maps/${dimension}/${slug}`),
+  listStartups: (dimension, slug, params) => get(`/maps/${dimension}/${slug}/startups${qs(params)}`),
+  representatives: (dimension, slug, params) => get(`/maps/${dimension}/${slug}/representatives${qs(params)}`),
+};
