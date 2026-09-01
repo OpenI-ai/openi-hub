@@ -967,9 +967,9 @@ corporate clients rely on it.*
 
 **Data repair (railway ssh, 1 Sep):** `scrub-crawl-junk-descriptions.js
 --apply` scrubbed **18 profiles** (originals in `import_metadata.scrubbed_*`).
-Cluster #70's surgical rename to **"Enterprise Software & Security"**
-(`cluster_label_prev` saved) was handed to Rajeev as a one-liner — confirm on
-the map hub that it ran.
+Cluster #70 surgically renamed **"Enterprise Software & Security"**
+(`cluster_label_prev` saved; 4,702 rows) — Rajeev ran the one-liner, and the
+renamed hub was browser-verified with a screenshot.
 
 **E2E:** API before/after (list 156→4,687; leaves 4→12 across all six
 sectors; `subgroups: []` on #70) plus headless-browser pass per the CLAUDE.md
