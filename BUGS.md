@@ -1150,6 +1150,13 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     - **Four curated taxonomies** — Sector, Technology, Function, Use case
       — ~40-80 terms each, every term with a one-line definition. Curation
       is the product; Rajeev reviews the term lists.
+    - **Dimension semantics (Rajeev, 1 Sep):** *Function* = the BUYER'S
+      REMIT, the department a functional leader owns — "Retail banking
+      head, supply chain head, Packing head etc" — so terms are phrased as
+      remits ("Supply Chain & Logistics operations"). *Use case* = the
+      specific problem being solved — "Defect monitoring, Counterfeiting
+      etc" — phrased as problems ("detecting counterfeit goods"). This
+      phrasing is what makes the embedding match precise.
     - **Embedding classification, not LLM calls:** embed the term
       DEFINITIONS (a few hundred embedding calls, pennies — must use the
       same embedding model as `startup_profiles.embedding`), then assign
