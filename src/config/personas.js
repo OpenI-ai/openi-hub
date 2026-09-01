@@ -78,7 +78,10 @@ const discoverGroup = (role) => [
   // navigate back without bouncing through Dashboard.
   { to: '/dashboard/mentors',                               label: 'Find Mentors',   icon: 'Users' },
   { to: '/dashboard/directory',                             label: 'Directory',      icon: 'Search' },
-  { to: '/dashboard/clusters',                              label: 'Innovation Map', icon: 'Layers' },
+  // s106 — Innovation Map now points at the standalone per-term maps
+  // (118 curated sector/technology/function/use-case maps); the legacy
+  // K-means theme grid stays reachable at /dashboard/clusters.
+  { to: '/dashboard/maps',                                  label: 'Innovation Maps', icon: 'Layers' },
   // Phase C — cross-org lab facility announcements. Auth-gated, universal across
   // all personas (browse self-excludes own rows; drafts hidden).
   { to: '/dashboard/browse-facilities',                     label: 'Lab Facility Calls', icon: 'FlaskConical' },
