@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brain, MapPin, Calendar, Tag, Info, BookOpen } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
 import SearchBar from '../../components/SearchBar';
+import { mapsAPI } from '../../services/clusterAPI';
 import UpgradeCTA from '../../components/UpgradeCTA';
 import { publicAPI, crawlAPI, getToken } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -36,6 +37,21 @@ export default function GlobalSearch() {
   const [upgradeNeeded, setUpgradeNeeded] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(type);
+  // s107 — semantic map discovery: the query embedded against the 118
+  // curated term definitions ("ransomware protection for banks" surfaces
+  // the Cybersecurity + Financial Services maps). Auth-gated endpoint, so
+  // only fetched when a session exists; one call per submitted search.
+  const [relatedMaps, setRelatedMaps] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRelatedMaps([]);
+    if (!q || mode === 'ai' || !getToken()) return undefined;
+    mapsAPI.suggest(q)
+      .then(d => { if (!cancelled) setRelatedMaps(d.maps || []); })
+      .catch(() => { /* non-fatal — search results stand on their own */ });
+    return () => { cancelled = true; };
+  }, [q, mode]);
 
   useEffect(() => {
     if (q) doSearch(q);
@@ -169,6 +185,19 @@ export default function GlobalSearch() {
             <div style={{ textAlign: 'center', padding: 80, color: '#666' }}>
               <Search size={48} style={{ color: '#ddd', marginBottom: 16 }} />
               <p>Enter a search term to find challenges, startups, and people</p>
+            </div>
+          )}
+
+          {/* s107 — Related Innovation Maps (semantic match on the curated taxonomy) */}
+          {q && !loading && relatedMaps.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 20 }}>
+              <span style={{ fontSize: 12, color: '#666', fontWeight: 600 }}>Innovation Maps:</span>
+              {relatedMaps.map(m => (
+                <Link key={`${m.dimension}-${m.slug}`} to={`/dashboard/maps/${m.dimension}/${m.slug}`}
+                  style={{ background: '#fffdf6', border: `1px solid ${G}55`, borderRadius: 16, padding: '4px 12px', fontSize: 12, color: NAVY, textDecoration: 'none', fontWeight: 600 }}>
+                  {'\uD83D\uDDFA\uFE0F'} {m.label} <span style={{ color: '#8a7430', fontWeight: 400 }}>{m.member_count.toLocaleString()}</span>
+                </Link>
+              ))}
             </div>
           )}
 

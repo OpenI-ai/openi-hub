@@ -525,6 +525,7 @@ export default function DashboardLayout() {
                 navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
               }}
               showAiToggle
+              showMapSuggestions
               placeholder="Ask or search..."
             />
           </div>
@@ -750,6 +751,7 @@ export default function DashboardLayout() {
                 navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
               }}
               showAiToggle
+              showMapSuggestions
               placeholder="Ask or search..."
             />
           </div>

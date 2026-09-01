@@ -21,16 +21,49 @@ export default function SearchBar({
   placeholder = 'Search challenges, startups, people...',
   showSemanticToggle = false,
   showAiToggle = false,
+  showMapSuggestions = false,
   initialMode = 'keyword',
 }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  // s107 — Innovation Map term matches shown above the regular suggestions
+  // (auth-gated surfaces only; the maps API needs a session).
+  const [mapMatches, setMapMatches] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mode, setMode] = useState(initialMode); // 'keyword' | 'semantic' | 'ai'
   const [, setLoading] = useState(false);
   const navigate = useNavigate();
   const ref = useRef(null);
   const timer = useRef(null);
+  // Lazily fetched once per mount, then matched client-side — 118 terms.
+  const mapTermsRef = useRef(null);
+
+  const DIM_LABEL = { sector: 'Sector', technology: 'Technology', function: 'Function', usecase: 'Use case' };
+
+  useEffect(() => {
+    if (!showMapSuggestions || mode === 'ai') { setMapMatches([]); return; }
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) { setMapMatches([]); return; }
+    let cancelled = false;
+    const match = (terms) => {
+      const hits = terms
+        .filter(t => t.label.toLowerCase().includes(q))
+        .sort((a, b) => b.member_count - a.member_count)
+        .slice(0, 4);
+      if (!cancelled) {
+        setMapMatches(hits);
+        if (hits.length) setShowDropdown(true);
+      }
+    };
+    if (mapTermsRef.current) { match(mapTermsRef.current); return; }
+    import('../services/clusterAPI').then(({ mapsAPI }) => mapsAPI.list()).then(d => {
+      mapTermsRef.current = (d.dimensions || []).flatMap(dim =>
+        dim.terms.filter(t => t.member_count > 0).map(t => ({ ...t, dimension: dim.dimension }))
+      );
+      match(mapTermsRef.current);
+    }).catch(() => { /* unauthenticated surface or API down — no map rows */ });
+    return () => { cancelled = true; };
+  }, [query, mode, showMapSuggestions]);
 
   // Sync mode with prop (e.g. when URL changes)
   useEffect(() => { setMode(initialMode); }, [initialMode]);
@@ -105,7 +138,7 @@ export default function SearchBar({
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length && setShowDropdown(true)}
+          onFocus={() => (suggestions.length || mapMatches.length) && setShowDropdown(true)}
           placeholder={effectivePlaceholder}
           style={{
             flex: 1, border: 'none', background: 'transparent',
@@ -162,13 +195,34 @@ export default function SearchBar({
       </div>
 
       {/* Autocomplete dropdown (keyword mode only) */}
-      {showDropdown && mode !== 'ai' && suggestions.length > 0 && (
+      {showDropdown && mode !== 'ai' && (suggestions.length > 0 || mapMatches.length > 0) && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
           background: '#fff', border: '1px solid #eee', borderRadius: 10,
           boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 1000,
           overflow: 'hidden',
         }}>
+          {/* s107 — Innovation Map matches first: a buyer typing "secur"
+              jumps straight to the curated Cybersecurity map. */}
+          {mapMatches.map((m) => (
+            <div
+              key={`map-${m.dimension}-${m.slug}`}
+              onClick={() => { setShowDropdown(false); setQuery(''); navigate(`/dashboard/maps/${m.dimension}/${m.slug}`); }}
+              style={{
+                padding: '10px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+                borderBottom: '1px solid #f5f5f5', background: '#fffdf6',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#faf3df'}
+              onMouseLeave={e => e.currentTarget.style.background = '#fffdf6'}
+            >
+              <span style={{ fontSize: 14 }}>{'🗺️'}</span>
+              <span style={{ fontSize: 14, color: '#1a1a2e', fontWeight: 600 }}>{m.label}</span>
+              <span style={{ fontSize: 11, color: '#8a7430', marginLeft: 'auto' }}>
+                {m.member_count.toLocaleString()} startups · {DIM_LABEL[m.dimension]} map
+              </span>
+            </div>
+          ))}
           {suggestions.map((s, i) => (
             <div
               key={i}
