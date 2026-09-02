@@ -78,10 +78,10 @@ const discoverGroup = (role) => [
   // navigate back without bouncing through Dashboard.
   { to: '/dashboard/mentors',                               label: 'Find Mentors',   icon: 'Users' },
   { to: '/dashboard/directory',                             label: 'Directory',      icon: 'Search' },
-  // s106 — Innovation Map now points at the standalone per-term maps
-  // (118 curated sector/technology/function/use-case maps); the legacy
-  // K-means theme grid stays reachable at /dashboard/clusters.
-  { to: '/dashboard/maps',                                  label: 'Innovation Maps', icon: 'Layers' },
+  // s106 — standalone per-term maps; s108b — lives under the Art of
+  // Possible umbrella (?tab=maps deep-links straight to the maps tab; the
+  // legacy K-means theme grid stays reachable at /dashboard/clusters).
+  { to: '/dashboard/art-of-possible?tab=maps',              label: 'Innovation Maps', icon: 'Layers' },
   // Phase C — cross-org lab facility announcements. Auth-gated, universal across
   // all personas (browse self-excludes own rows; drafts hidden).
   { to: '/dashboard/browse-facilities',                     label: 'Lab Facility Calls', icon: 'FlaskConical' },
@@ -143,11 +143,17 @@ function buildPersonaNav(role, { recommended = null, actions = [], workspace = n
     ],
   });
 
-  // GROUP 2 — Recommended (right under My Profile per Phase 71d decision)
+  // GROUP 2 — Art of Possible (right under My Profile per Phase 71d decision).
+  // s108b (Rajeev, 2 Sep): the per-persona "Recommended for You" entry and
+  // the Innovation Maps merged into ONE umbrella page with two tabs —
+  // "Recommendations of you and Innovation map based on your persona…
+  // that way it'll serve based on their needs." The per-persona
+  // `recommended` cfg still marks WHICH roles have a recommendations tab
+  // (its route stays deep-linkable), but the sidebar entry is the umbrella.
   if (recommended) {
     groups.push({
       key: 'recommended',
-      items: [recommended],
+      items: [{ to: '/dashboard/art-of-possible', label: 'Art of Possible', icon: 'Sparkles' }],
     });
   }
 
