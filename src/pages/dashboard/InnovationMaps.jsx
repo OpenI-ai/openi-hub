@@ -14,11 +14,36 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Map as MapIcon } from 'lucide-react';
 import { mapsAPI } from '../../services/clusterAPI';
 
+/* s108 — hierarchy. /api/maps terms now carry `parent` (slug within the
+ * same dimension) and a parent's member_count is its family rollup. The
+ * landing page shows TOP-LEVEL terms as cards with their direct children
+ * as chips; grandchildren (e.g. Retail Banking under Banking) appear on
+ * the parent map's own page. A card whose family matches the filter stays
+ * visible even when only a child's label matched. */
+function buildFamilies(terms) {
+  const bySlug = Object.fromEntries(terms.map((t) => [t.slug, t]));
+  const childrenOf = {};
+  for (const t of terms) {
+    if (t.parent && bySlug[t.parent]) {
+      (childrenOf[t.parent] = childrenOf[t.parent] || []).push(t);
+    }
+  }
+  const topLevel = terms.filter((t) => !t.parent || !bySlug[t.parent]);
+  return { topLevel, childrenOf };
+}
+
+function familyMatches(term, childrenOf, needle) {
+  if (!needle) return true;
+  if (term.label.toLowerCase().includes(needle)) return true;
+  return (childrenOf[term.slug] || []).some((c) => familyMatches(c, childrenOf, needle));
+}
+
 export default function InnovationMaps() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -50,12 +75,15 @@ export default function InnovationMaps() {
   }
 
   const needle = filter.trim().toLowerCase();
-  const dimensions = (data?.dimensions || []).map((d) => ({
-    ...d,
-    terms: d.terms.filter(
-      (t) => t.member_count > 0 && (!needle || t.label.toLowerCase().includes(needle))
-    ),
-  }));
+  const dimensions = (data?.dimensions || []).map((d) => {
+    const withMembers = d.terms.filter((t) => t.member_count > 0);
+    const { topLevel, childrenOf } = buildFamilies(withMembers);
+    return {
+      ...d,
+      childrenOf,
+      terms: topLevel.filter((t) => familyMatches(t, childrenOf, needle)),
+    };
+  });
   const anyContent = dimensions.some((d) => d.terms.length > 0);
 
   return (
@@ -105,18 +133,54 @@ export default function InnovationMaps() {
               </span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {d.terms.map((t) => (
-                <Link
-                  key={t.slug}
-                  to={`/dashboard/maps/${d.dimension}/${t.slug}`}
-                  className="bg-white border border-gray-200 rounded-lg p-4 hover:border-[#D4A843] hover:shadow-sm transition-all"
-                >
-                  <div className="font-semibold text-sm text-[#0D2137]">{t.label}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {t.member_count.toLocaleString()} startups
+              {d.terms.map((t) => {
+                const kids = d.childrenOf[t.slug] || [];
+                if (kids.length === 0) {
+                  return (
+                    <Link
+                      key={t.slug}
+                      to={`/dashboard/maps/${d.dimension}/${t.slug}`}
+                      className="bg-white border border-gray-200 rounded-lg p-4 hover:border-[#D4A843] hover:shadow-sm transition-all"
+                    >
+                      <div className="font-semibold text-sm text-[#0D2137]">{t.label}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {t.member_count.toLocaleString()} startups
+                      </div>
+                    </Link>
+                  );
+                }
+                // Family card: whole card opens the parent map; child chips
+                // are real links (stopPropagation keeps them independent).
+                return (
+                  <div
+                    key={t.slug}
+                    role="link"
+                    tabIndex={0}
+                    onClick={() => navigate(`/dashboard/maps/${d.dimension}/${t.slug}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') navigate(`/dashboard/maps/${d.dimension}/${t.slug}`);
+                    }}
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-[#D4A843] hover:shadow-sm transition-all cursor-pointer focus:outline-none focus:border-[#D4A843]"
+                  >
+                    <div className="font-semibold text-sm text-[#0D2137]">{t.label}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {t.member_count.toLocaleString()} startups
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {kids.map((c) => (
+                        <Link
+                          key={c.slug}
+                          to={`/dashboard/maps/${d.dimension}/${c.slug}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[11px] px-1.5 py-0.5 bg-[#D4A843]/10 text-[#0D2137] rounded hover:bg-[#D4A843]/25"
+                        >
+                          {c.label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
         )
