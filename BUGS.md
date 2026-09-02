@@ -1085,6 +1085,61 @@ my own PR comments were the only PR events — skipped.
 
 ---
 
+## 2 Sep 2026 — the Innovation Map became the Art of the Possible (todo #17 → done, and far beyond)
+
+One continuous day-session (s108), all Rajeev-driven, everything merged and
+prod-verified by evening. The 118 flat maps became a 212-term, four-lens,
+hierarchical, persona-aware, accuracy-calibrated product.
+
+**Shipped (backend #55/#56/#57/#58, frontend #53/#54):**
+- **Hierarchy** — terms carry an optional parent (data-file only, no schema
+  change); parent maps are portals whose counts roll up the family,
+  deduplicated. Verified live: FS ≥ Banking ≥ Retail Banking; Banking map
+  count == corporate search count to the digit (5,635).
+- **Depth parity + cross-lens consistency** (Rajeev: "this is where we fail
+  with corporate customers") — every sector family got children; functions
+  got matching remits (Merchandising, Clinical Ops, Regulatory Affairs…);
+  technology became 5 families (AI umbrella, Deep Tech Hardware…); use
+  cases grew to 50 (Copilots, Enterprise Search, Code Automation…).
+  Cybersecurity got 9 children incl. Hardware & AI Accelerator Security.
+- **Art of Possible** (Rajeev's IA) — one sidebar tab, two sub-tabs:
+  Recommended for You + Innovation Maps; maps landing redesigned with lens
+  tabs and a "Start with your world" strip personalized from the user's
+  profile via /api/maps/suggest (quick-picks fallback; never fabricates).
+- **Residue report analyzed** — the unclassified mass is non-innovation SMEs,
+  not missing themes; two sink sectors (IT Services, Professional Services)
+  give them a home and pull them off the innovation maps.
+- **Accuracy calibration (BE #57)** — depth-sampling proved four new terms
+  inflated (AdTech 57.8k was ad agencies at 0.40-0.47). Per-term display
+  floors: env MAPS_MIN_SCORE_OVERRIDES > data-file minScore > global 0.40,
+  everywhere subject-side via jsonb (slug,min) — display-time only,
+  retuning never re-scans. Results: AdTech →9,965, PropTech →5,339, Quick
+  Commerce →1,539, AI Infra →3,148; parity exact. CI test pins it against
+  ephemeral Postgres. AdTech then honestly renamed "Advertising &
+  Marketing" (BE #58), and map labels now render FILE-FIRST so renames show
+  on deploy without waiting for a classify run.
+- **Moment-of-truth E2E (Rajeev's credibility gate): FULL PASS** — rendered
+  browser test on live prod asserting RENDERED counts == API counts on
+  Banking and calibrated AdTech, zero app console errors, screenshots
+  delivered.
+
+**Traps recorded:**
+- **The container egress reset ALL headless-Chromium tunnels** (curl fine).
+  Workaround that made the E2E possible: route('**/*') + fulfill via
+  Playwright's Node-side context.request.fetch with
+  NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt — browser executes the real
+  bundle/DOM/console, transport relayed. Two false-positive traps inside
+  that: waitForURL('**/dashboard**') matches /dashboard/login (use a
+  pathname predicate), and egress-allowlist 403s (razorpay checkout.js,
+  sentry ingest) are container noise — filter before judging console clean.
+- **GitHub merges: "closed" is not "merged", and a user's merge click can
+  silently not land** (three times today — likely the second Confirm-merge
+  button). Verify merged:true via API before any branch restart; an
+  un-verified restart force-push auto-closed un-merged PR #54(BE) and cost
+  a wasted prod run.
+- **Classify runs must target the NEW deploy** — a container replaced
+  mid-session invalidates an open railway ssh, and /tmp files die with it.
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -1307,7 +1362,7 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Function / Use-case chips backed by `startup_taxonomy` (score ≥ 0.40),
     REPLACING the corrupted `sector` facets (Known open issues) so search
     and maps agree on one source of truth.
-17. **IN FLIGHT 2 Sep 2026 (s108)** — (a) review doc rebuilt as the
+17. ~~**taxonomy curation round 2**~~ — **DONE 2 Sep 2026 (s108)**; superseded by the full day record above. Historical status: — (a) review doc rebuilt as the
     "Taxonomy Red-Pen" artifact with live ≥ 0.40 counts, over-broad/thin
     flags and 14 review notes — awaiting Rajeev's
     KEEP/RENAME/SHARPEN/SPLIT/DROP; (b) `residue-report.js` shipped as
