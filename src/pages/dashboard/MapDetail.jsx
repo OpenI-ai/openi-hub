@@ -91,7 +91,7 @@ export default function MapDetail() {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <button
-          onClick={() => navigate('/dashboard/maps')}
+          onClick={() => navigate('/dashboard/art-of-possible?tab=maps')}
           className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#D4A843] mb-4"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Innovation Maps
@@ -106,7 +106,7 @@ export default function MapDetail() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <button
-        onClick={() => navigate('/dashboard/maps')}
+        onClick={() => navigate('/dashboard/art-of-possible?tab=maps')}
         className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#D4A843] mb-4"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Innovation Maps

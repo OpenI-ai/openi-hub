@@ -118,6 +118,8 @@ import Clusters            from './pages/dashboard/Clusters';
 import ClusterDetail       from './pages/dashboard/ClusterDetail';
 // s106 — standalone Innovation Maps (one micro-focused map per curated term)
 import InnovationMaps      from './pages/dashboard/InnovationMaps';
+// s108b — Art of Possible umbrella: Recommended-for-You + Innovation Maps as tabs
+import ArtOfPossible       from './pages/dashboard/ArtOfPossible';
 import MapDetail           from './pages/dashboard/MapDetail';
 // s32 P1.4 — Discovery surfaces consuming cluster-bridge endpoints
 import StudentRecommendedStartups    from './pages/dashboard/StudentRecommendedStartups';
@@ -370,6 +372,7 @@ export default function App() {
             <Route path="roles/add"           element={<AddRole />} />     {/* Phase 60.4b (s50) */}
             <Route path="clusters"            element={<Clusters />} />
             <Route path="clusters/:id"        element={<ClusterDetail />} />
+            <Route path="art-of-possible"     element={<ArtOfPossible />} />    {/* s108b */}
             <Route path="maps"                element={<InnovationMaps />} />   {/* s106 */}
             <Route path="maps/:dimension/:slug" element={<MapDetail />} />      {/* s106 */}
             <Route path="settings"            element={<Settings />} />
