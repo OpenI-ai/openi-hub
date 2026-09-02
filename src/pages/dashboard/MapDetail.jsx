@@ -70,6 +70,13 @@ export default function MapDetail() {
     load();
   }, [load]);
 
+  // s108 — navigating between maps in-place (parent breadcrumb, drill-down
+  // or ring chips) must not carry the old map's page offset along.
+  useEffect(() => {
+    setPage(1);
+    setSort('score_desc');
+  }, [dimension, slug]);
+
   const totalPages = Math.max(1, Math.ceil((startups.total || 0) / PAGE_SIZE));
 
   if (loading && !term) {
@@ -115,6 +122,17 @@ export default function MapDetail() {
             <div className="flex-1 min-w-0">
               <div className="text-[11px] font-mono text-gray-400 mb-1">
                 {DIMENSION_KICKER[dimension] || 'Innovation map'}
+                {term.parent && (
+                  <>
+                    {' · part of '}
+                    <Link
+                      to={`/dashboard/maps/${dimension}/${term.parent.slug}`}
+                      className="text-[#D4A843] hover:underline"
+                    >
+                      {term.parent.label}
+                    </Link>
+                  </>
+                )}
               </div>
               <h1 id="tour-page-map-detail-header" className="text-2xl font-semibold text-[#0D2137] mb-1">
                 {term.label}
@@ -129,6 +147,28 @@ export default function MapDetail() {
                   startups
                 </span>
               </div>
+              {/* s108 — drill-down: this map's child maps (family rollup
+                  counts). Children still at 0 (not yet classified) hidden. */}
+              {term.children && term.children.some((c) => c.member_count > 0) && (
+                <div className="mt-3">
+                  <span className="text-[11px] uppercase tracking-wide text-gray-400 mr-2">
+                    Drill down
+                  </span>
+                  <span className="inline-flex flex-wrap gap-2 align-middle">
+                    {term.children
+                      .filter((c) => c.member_count > 0)
+                      .map((c) => (
+                        <Link
+                          key={c.slug}
+                          to={`/dashboard/maps/${dimension}/${c.slug}`}
+                          className="text-xs px-2 py-1 bg-[#D4A843]/10 text-[#0D2137] rounded hover:bg-[#D4A843]/25 font-medium"
+                        >
+                          {c.label} <span className="text-gray-500 font-normal">· {c.member_count.toLocaleString()}</span>
+                        </Link>
+                      ))}
+                  </span>
+                </div>
+              )}
               {term.ring && term.ring.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {term.ring.map((r) => (

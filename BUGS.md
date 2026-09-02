@@ -1307,8 +1307,17 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Function / Use-case chips backed by `startup_taxonomy` (score ≥ 0.40),
     REPLACING the corrupted `sector` facets (Known open issues) so search
     and maps agree on one source of truth.
-17. **NEXT SESSION'S OPENER — taxonomy curation round 2 (Rajeev's
-    red-pen)** — the 118 terms are still my top-down
+17. **IN FLIGHT 2 Sep 2026 (s108)** — (a) review doc rebuilt as the
+    "Taxonomy Red-Pen" artifact with live ≥ 0.40 counts, over-broad/thin
+    flags and 14 review notes — awaiting Rajeev's
+    KEEP/RENAME/SHARPEN/SPLIT/DROP; (b) `residue-report.js` shipped as
+    backend PR #54 (draft, read-only) — run pending after merge
+    (`railway ssh` + nohup); (c) unchanged. Product framing recorded
+    (Rajeev, 2 Sep): the Innovation Map is the **"art of the possible"**
+    for large corporates — where disruption/innovation can help their
+    business by sector, functional role and use case; accuracy is the
+    product. Handoff detail → memory repo `NEXT_SESSION_TODOS.md` s108.
+    Original spec: the 118 terms are still my top-down
     draft, now validated by counts but never red-penned. (a) Rajeev
     reviews the term list (taxonomy-review doc, 1 Sep) with live counts
     beside it; (b) mine the unmatched residue (startups matching nothing
