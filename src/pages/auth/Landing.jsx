@@ -80,7 +80,6 @@ export default function Landing() {
       : s
   );
   const faqs = cms?.faqs || DEFAULT_FAQS;
-  const features = null;                     // Inline 12-card grid (not CMS-managed)
   const pricing = cms?.pricing || null;      // CMS pricing or inline fallback
   const hero = null;                         // Inline hero (not CMS-managed)
   const partners = cms?.partners || DEFAULT_PARTNERS;
@@ -105,27 +104,21 @@ export default function Landing() {
       {/* ═══════════════════════════════════════════════════════════
           HERO
           ═══════════════════════════════════════════════════════════ */}
-      <section
-        className="relative px-6 pt-20 pb-24 overflow-hidden"
-        style={{
-          background: `linear-gradient(180deg, ${LIGHT_GRAY} 0%, #fff 100%)`,
-        }}
-      >
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
-          style={{
-            background: `radial-gradient(circle, ${GOLD} 0%, transparent 70%)`,
-            filter: 'blur(80px)',
-          }}
-        />
+      {/* s110 landing redesign (3 Sep 2026) — story-first around the Art of the
+          Possible. Direction "C + B combined", picked by Rajeev on the design
+          canvas: split command-center hero (narrative rail + living map tree),
+          then the story in chapters directly below. */}
+      <section className="relative px-6 pt-14 pb-16 overflow-hidden" style={{ background: LIGHT_GRAY }}>
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12 items-start">
 
-        <div className="relative max-w-5xl mx-auto text-center">
+          {/* ── Left: narrative rail ── */}
+          <div className="lg:col-span-2 text-center lg:text-left">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-bold tracking-wide"
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            {hero?.badge_text || 'THE OPEN INNOVATION MARKETPLACE'}
+            {hero?.badge_text || 'ART OF THE POSSIBLE'}
           </div>
 
           <h1
@@ -133,19 +126,21 @@ export default function Landing() {
             className="font-bold tracking-tight mb-6"
             style={{
               color: DARK,
-              fontSize: 'clamp(2.5rem, 6vw, 5rem)',
-              lineHeight: 1.05,
+              fontSize: 'clamp(2.3rem, 4.5vw, 3.4rem)',
+              lineHeight: 1.08,
               fontFamily: 'Lexend, sans-serif',
             }}
           >
-            Find your next innovation partner <span style={{ color: GOLD }}>—</span> in one open ecosystem.
+            The map of everything startups can do for you.
           </h1>
 
           <p
-            className="max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
+            className="mb-8 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            Search {startupCount} startups, post a challenge, and connect directly. Free to start, no credit card.
+            Search {startupCount} startups organized into a living family tree of 230+ innovation
+            maps. Open a branch, follow it down, and land on the companies that solve your exact
+            problem.
           </p>
 
           {/* Hero search — shown BELOW xl only (UX audit, 21 Aug 2026).
@@ -171,7 +166,7 @@ export default function Landing() {
             <SearchBar showAiToggle placeholder={`Ask or search ${startupCount} startups...`} />
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8">
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg text-base font-bold transition-all shadow-lg"
@@ -199,20 +194,27 @@ export default function Landing() {
             </Link>
           </div>
 
-          <div className="flex justify-center mb-8">
-            <PageTourButton />
+          {/* s110 — the s51 stats strip lives in the hero rail now; same `stats`
+              binding, so the live CMS "Global Startups" overlay still applies. */}
+          <div className="grid grid-cols-2 gap-3 mb-8 max-w-md mx-auto lg:mx-0">
+            {stats.map((stat, i) => (
+              <div key={i} className="p-4 rounded-xl text-left" style={{ background: '#fff' }}>
+                <div className="text-2xl font-bold" style={{ color: GOLD_DEEP }}>{stat.value}</div>
+                <div className="text-xs font-medium mt-0.5" style={{ color: GRAY }}>{stat.label}</div>
+              </div>
+            ))}
           </div>
 
-          <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: GRAY }}>
-            {hero?.sectors_text || `AI-powered search · ${startupCount} startups · ISO/IEC 27001 certified`}
-          </p>
+          <div className="flex justify-center lg:justify-start mb-6">
+            <PageTourButton />
+          </div>
 
           {/* Phase 60.7 (s50) — ISO 27001 trust badge */}
           <a
             href="/openi-iso-27001.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-6 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all"
             style={{
               background: '#fff',
               border: `1px solid ${BORDER}`,
@@ -228,28 +230,173 @@ export default function Landing() {
             <span style={{ color: BORDER }}>&middot;</span>
             <span style={{ color: GOLD }}>View Certificate</span>
           </a>
+          </div>
+
+          {/* ── Right: the living map tree ──
+              Startup counts here are FLOOR claims (43K+, 5.3K+…), verified live
+              on 3 Sep 2026 — NEVER write exact live counts into this panel (the
+              hero-number rule; see the DEFAULT_STATS comment in constants.js).
+              Sub-map counts are structural: they change only when a curated
+              taxonomy round ships, so update them alongside that ship. */}
+          <div
+            className="lg:col-span-3 rounded-2xl p-6 md:p-7"
+            style={{ background: '#fff', border: `1px solid ${BORDER}`, boxShadow: '0 28px 70px rgba(46,46,52,0.12)' }}
+          >
+            <div className="flex items-center justify-between pb-4 mb-5" style={{ borderBottom: `1px solid ${BORDER}` }}>
+              <div className="text-lg font-bold" style={{ color: DARK }}>Innovation Maps</div>
+              <div className="text-sm" style={{ color: GRAY }}>230+ maps · 4 lenses · live counts</div>
+            </div>
+
+            {/* Financial Services branch — expanded */}
+            <div
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-5 py-4 mb-3"
+              style={{ background: GOLD_LIGHT, border: `1px solid ${GOLD}` }}
+            >
+              <span className="font-bold" style={{ color: DARK }}>Financial Services</span>
+              <span className="text-sm font-bold" style={{ color: GOLD_DEEP }}>43K+ startups · 5 sub-maps</span>
+            </div>
+            <div className="flex flex-col gap-2 pl-5 ml-3 mb-5" style={{ borderLeft: `2px solid ${BORDER}` }}>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
+                <span className="font-semibold" style={{ color: DARK }}>Banking</span>
+                <span style={{ color: GRAY }}>5.3K+</span>
+              </div>
+              <div className="flex flex-wrap gap-2 pl-5">
+                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>↳ Retail Banking · 1.3K+</span>
+                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>↳ Neo Banking · 2.1K+</span>
+                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>↳ Commercial Banking · 2.2K+</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
+                <span className="font-semibold" style={{ color: DARK }}>Capital Markets &amp; Wealth</span>
+                <span style={{ color: GRAY }}>26K+</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
+                <span className="font-semibold" style={{ color: DARK }}>Payments</span>
+                <span style={{ color: GRAY }}>5.7K+</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
+                <span className="font-semibold" style={{ color: DARK }}>NBFC &amp; Alternative Lending</span>
+                <span style={{ color: GRAY }}>4.3K+</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
+                <span className="font-semibold" style={{ color: DARK }}>Insurance</span>
+                <span style={{ color: GRAY }}>2.7K+</span>
+              </div>
+            </div>
+
+            {/* Media & Entertainment branch — collapsed */}
+            <div
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-5 py-4 mb-3"
+              style={{ border: `1px solid ${BORDER}` }}
+            >
+              <span className="font-bold" style={{ color: DARK }}>Media &amp; Entertainment</span>
+              <span className="text-sm" style={{ color: GRAY }}>38K+ startups · 7 sub-maps</span>
+            </div>
+            <div className="flex flex-wrap gap-2 pl-8 mb-5">
+              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>Streaming &amp; Content</span>
+              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>Advertising &amp; Marketing</span>
+              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>Music &amp; Audio</span>
+              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>News &amp; Publishing</span>
+              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: GRAY }}>+ 3 more</span>
+            </div>
+
+            <Link
+              to="/register"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-5 py-3.5 text-sm transition-all"
+              style={{ border: `1px dashed ${BORDER}`, color: GRAY, textDecoration: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = GOLD}
+              onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
+            >
+              <span>HealthTech · AgriTech · Energy · Logistics · 120+ more sectors…</span>
+              <span className="font-bold" style={{ color: GOLD_DEEP }}>Browse all →</span>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          STATS / SOCIAL PROOF
+          CHAPTERS 01-03 (s110 redesign) — the Art of the Possible story.
+          Replaces the s51 stats strip (its four tiles moved into the hero
+          rail) and the old 4-card features grid (Art of the Possible is
+          the hero now; the other three cards became Chapter 03 rows).
+          Everything below the chapters — personas, services, pricing —
+          is intentionally unchanged.
           ═══════════════════════════════════════════════════════════ */}
       <Section bg="#fff">
-        <div className="text-center mb-10">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD_DEEP }}>Chapter 01</p>
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Trusted by the Global Innovation Ecosystem
+            Pick the lens that matches how you buy.
           </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            A growing network of startups, corporates, and institutions building the open innovation ecosystem together.
+          <p className="text-base" style={{ color: GRAY }}>
+            The same {startupCount} startups, organized four different ways — so a CISO, a CFO and
+            an innovation head each start from their own question.
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {stats.map((stat, i) => (
-            <div key={i} className="p-6 rounded-xl" style={{ background: LIGHT_GRAY }}>
-              <div className="text-3xl md:text-4xl font-bold mb-1" style={{ color: GOLD }}>{stat.value}</div>
-              <div className="text-sm font-medium" style={{ color: GRAY }}>{stat.label}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { n: '01', title: 'By Sector', desc: '“Who is disrupting my industry?” — 130 sector maps from FinTech to LegalTech.' },
+            { n: '02', title: 'By Technology', desc: '“Who has the GenAI / robotics / IoT capability we lack?”' },
+            { n: '03', title: 'By Function', desc: '“What can my finance / HR / security team use today?”' },
+            { n: '04', title: 'By Use Case', desc: '“Who solves fraud detection / churn / forecasting — regardless of sector?”' },
+          ].map((lens) => (
+            <div key={lens.n} className="rounded-xl p-6" style={{ background: LIGHT_GRAY, borderTop: `4px solid ${GOLD}` }}>
+              <div className="text-2xl font-extrabold mb-2" style={{ color: GOLD_DEEP }}>{lens.n}</div>
+              <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>{lens.title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color: GRAY }}>{lens.desc}</p>
             </div>
           ))}
+        </div>
+      </Section>
+
+      <Section bg={DARK}>
+        <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD }}>Chapter 02</p>
+        <h2 className="text-3xl md:text-4xl font-bold mb-10 text-white">
+          Not a demo dataset. The real map.
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { value: startupCount, label: 'startups, embedded and searchable' },
+            { value: '230+', label: 'curated, hierarchical innovation maps' },
+            { value: '4', label: 'lenses: sector, technology, function, use case' },
+            { value: 'Live', label: 'counts on every map — updated as the database grows' },
+          ].map((s, i) => (
+            <div key={i} className="pl-5" style={{ borderLeft: `2px solid ${GOLD}` }}>
+              <div className="text-4xl font-extrabold mb-1" style={{ color: GOLD }}>{s.value}</div>
+              <div className="text-sm" style={{ color: LIGHT_GRAY }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section bg="#fff" id="features">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD_DEEP }}>Chapter 03</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
+            From map to deal, without leaving the platform.
+          </h2>
+        </div>
+        <div className="flex flex-col gap-4">
+          {[
+            { title: 'Semantic AI Search', desc: `Ask in plain English — “Series A deeptech healthcare in Bangalore” — and get matched across ${startupCount} startups.` },
+            { title: '8-Vector AI Evaluation', desc: 'Score fit, maturity, team, cost and more — with clear explanations, red flags, and recommended next steps.' },
+            { title: 'Challenge Marketplace', desc: 'Post partner, source, or invest challenges with RFI forms and data rooms. AI evaluates and ranks applicants automatically.' },
+          ].map((f, i) => (
+            <div key={i} className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 rounded-xl px-6 py-5" style={{ border: `1px solid ${BORDER}` }}>
+              <ArrowRight size={18} style={{ color: GOLD, flexShrink: 0 }} className="hidden md:block" />
+              <h3 className="text-base font-bold md:w-64 shrink-0" style={{ color: DARK }}>{f.title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color: GRAY }}>{f.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="text-center mt-12">
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+            style={{ color: GOLD_DEEP }}
+          >
+            Explore all platform capabilities
+            <ArrowRight size={16} />
+          </Link>
         </div>
       </Section>
 
@@ -491,41 +638,9 @@ export default function Landing() {
         </div>
       </Section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          FEATURES
-          ═══════════════════════════════════════════════════════════ */}
-      <Section bg="#fff" id="features">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            AI-Native Innovation Intelligence
-          </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            From startup discovery to AI-powered evaluation and deal closure — native intelligence for every stage of the innovation lifecycle.
-          </p>
-        </div>
-
-        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-4">
-          {(features || [
-            { icon: 'Sparkles', title: 'Art of the Possible', description: 'See where disruption can help your business: curated, hierarchical innovation maps across sectors, technologies, functional roles and use cases — drill from Financial Services down to Retail Banking, every map backed by live startup counts.' },
-            { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${startupCount} startups organized into curated innovation maps.` },
-            { icon: 'Award', title: '8-Vector AI Evaluation', description: 'Score startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment — with clear explanations, red flags, and recommended next steps.' },
-            { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, and public share links. AI evaluates and ranks applicants automatically.' },
-          ]).map((f, i) => (
-            <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
-          ))}
-        </CardDeck>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
-            style={{ color: GOLD_DEEP }}
-          >
-            Explore all platform capabilities
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-      </Section>
+      {/* FEATURES grid removed s110 — Art of the Possible is the hero, and the
+          other three cards live on as Chapter 03 rows near the top (which also
+          carries the #features anchor the footer links to). */}
 
       {/* ═══════════════════════════════════════════════════════════
           WHAT'S NEW (s47) — recently shipped capabilities
