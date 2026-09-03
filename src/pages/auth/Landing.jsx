@@ -506,10 +506,10 @@ export default function Landing() {
 
         <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-4">
           {(features || [
+            { icon: 'Sparkles', title: 'Art of the Possible', description: 'See where disruption can help your business: curated, hierarchical innovation maps across sectors, technologies, functional roles and use cases — drill from Financial Services down to Retail Banking, every map backed by live startup counts.' },
+            { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${startupCount} startups organized into curated innovation maps.` },
             { icon: 'Award', title: '8-Vector AI Evaluation', description: 'Score startups across Solution Fit, Tech Maturity, Scalability, Integration, Team, Cost, Innovation, and Strategic Alignment — with clear explanations, red flags, and recommended next steps.' },
-            { icon: 'Search', title: 'Semantic AI Search', description: `Search in plain English — "Series A deeptech healthcare in Bangalore" — and get matched across ${startupCount} startups grouped into 200 AI clusters.` },
             { icon: 'Briefcase', title: 'Challenge Marketplace', description: 'Post partner, source, or invest challenges with RFI forms, data rooms, and public share links. AI evaluates and ranks applicants automatically.' },
-            { icon: 'Rocket', title: 'Global Startup Database', description: `${startupCount} enriched startup profiles, kept current by AI — sectors classified, funding detected, and location and DeepTech flags added automatically.` },
           ]).map((f, i) => (
             <FeatureCard key={i} icon={ICON_MAP[f.icon] || Zap} title={f.title} description={f.description} />
           ))}
@@ -556,7 +556,7 @@ export default function Landing() {
             </div>
             <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>{liveStartupsValue || '500K+'} Startup Database</h3>
             <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Bulk-imported and AI-clustered into 200 semantic groups. Every profile has a 1536-dim embedding for cosine-similarity search across the full corpus.
+              Bulk-imported and organized into 230+ curated, hierarchical innovation maps. Every profile has a 1536-dim embedding for cosine-similarity search across the full corpus.
             </p>
           </div>
           {/* Phase 60.6 (s50) — multi-role feature card */}
