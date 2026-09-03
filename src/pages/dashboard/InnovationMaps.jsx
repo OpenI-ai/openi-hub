@@ -298,6 +298,15 @@ export default function InnovationMaps({ embedded = false }) {
             }
             // Family card: whole card opens the parent (portal) map; child
             // chips are real links (stopPropagation keeps them independent).
+            // Grandchildren render nested under their parent chip (Rajeev,
+            // 3 Sep: "pls show as a part of family tree" — e.g. Retail
+            // Banking visible on the Financial Services card). Families
+            // without grandchildren keep the compact wrapped-chip row.
+            const hasGrandkids = kids.some((c) => (active.childrenOf[c.slug] || []).length > 0);
+            const familySize = kids.reduce(
+              (n, c) => n + 1 + (active.childrenOf[c.slug] || []).length,
+              0
+            );
             return (
               <div
                 key={t.slug}
@@ -311,20 +320,56 @@ export default function InnovationMaps({ embedded = false }) {
               >
                 <div className="font-semibold text-sm text-[#0D2137]">{t.label}</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {t.member_count.toLocaleString()} startups · {kids.length} sub-maps
+                  {t.member_count.toLocaleString()} startups · {familySize} sub-maps
                 </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {kids.map((c) => (
-                    <Link
-                      key={c.slug}
-                      to={`/dashboard/maps/${active.dimension}/${c.slug}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-[11px] px-1.5 py-0.5 bg-[#D4A843]/10 text-[#0D2137] rounded hover:bg-[#D4A843]/25"
-                    >
-                      {c.label}
-                    </Link>
-                  ))}
-                </div>
+                {hasGrandkids ? (
+                  <div className="mt-2 space-y-1">
+                    {kids.map((c) => {
+                      const grandkids = active.childrenOf[c.slug] || [];
+                      return (
+                        <div key={c.slug}>
+                          <Link
+                            to={`/dashboard/maps/${active.dimension}/${c.slug}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[11px] px-1.5 py-0.5 bg-[#D4A843]/10 text-[#0D2137] rounded hover:bg-[#D4A843]/25"
+                          >
+                            {c.label}
+                          </Link>
+                          {grandkids.length > 0 && (
+                            <div className="mt-1 ml-3 flex flex-wrap items-center gap-1">
+                              <span className="text-[10px] text-gray-400" aria-hidden="true">
+                                ↳
+                              </span>
+                              {grandkids.map((g) => (
+                                <Link
+                                  key={g.slug}
+                                  to={`/dashboard/maps/${active.dimension}/${g.slug}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-[#0D2137] rounded hover:bg-[#D4A843]/25"
+                                >
+                                  {g.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {kids.map((c) => (
+                      <Link
+                        key={c.slug}
+                        to={`/dashboard/maps/${active.dimension}/${c.slug}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[11px] px-1.5 py-0.5 bg-[#D4A843]/10 text-[#0D2137] rounded hover:bg-[#D4A843]/25"
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
