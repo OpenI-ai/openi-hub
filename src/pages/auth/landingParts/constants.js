@@ -53,7 +53,10 @@ const BORDER = '#E8E3D8';                     // default border
 // Landing.jsx overlays the live DB count by matching on that string.
 const DEFAULT_STATS = [
   { value: '575K+', label: 'Global Startups' },
-  { value: '200', label: 'Startup Clusters' },
+  // '230+' is a floor claim on purpose: the curated taxonomy grows (239 at
+  // s109) and a hardcoded exact count drifts stale — the hero-number
+  // incident above is the precedent. Raise the floor only in big jumps.
+  { value: '230+', label: 'Innovation Maps' },
   { value: '11', label: 'Roles, One Account' },
   { value: 'ISO 27001', label: 'Certified & Secure' },
 ];
