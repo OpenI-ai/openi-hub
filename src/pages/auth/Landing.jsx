@@ -537,13 +537,16 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            WHAT&apos;S NEW
+            UNDER THE HOOD
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Recently Shipped
+            What Powers OpenI
           </h2>
+          {/* s109: dateless on purpose — the previous copy said "shipped major
+              upgrades in April-May 2026" and read four months stale by
+              September. Never put a date or a "recently" claim here. */}
           <p className="text-base max-w-2xl mx-auto" style={{ color: GRAY }}>
-            The platform shipped major upgrades in April-May 2026. Live numbers, AI-curated recommendations, multi-role accounts, and a 39× larger startup database.
+            Live numbers, curated innovation maps, AI-tuned recommendations, and multi-role accounts — on a platform that ships every week.
           </p>
         </div>
         <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-4">
@@ -579,9 +582,9 @@ export default function Landing() {
             >
               <Network size={22} style={{ color: GOLD }} />
             </div>
-            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Multi-Space Cluster Bridge</h3>
+            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Persona-Tuned Recommendations</h3>
             <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Students and academics get personalized startup matches by bridging their persona-space cluster (e.g. Robotics, Hypersonics) to relevant startup clusters — with measurable boost lift on every recommendation.
+              Students, academics, corporates and investors get startup matches tuned to their own world — a robotics researcher sees robotics startups first — with measurable lift on every recommendation.
             </p>
           </div>
           <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
@@ -593,7 +596,7 @@ export default function Landing() {
             </div>
             <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Click-Impact Analytics</h3>
             <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Every recommendation surface tracks impressions, clicks, and per-cluster CTR. Admins can see which AI matches actually convert — closing the loop on recommendation quality.
+              Every recommendation surface tracks impressions, clicks, and conversions. We measure which AI matches actually convert — closing the loop on recommendation quality.
             </p>
           </div>
         </CardDeck>
