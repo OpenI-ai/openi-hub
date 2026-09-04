@@ -24,6 +24,10 @@ export default function AdminStartups() {
   const [editForm, setEditForm] = useState({});
   const [duplicates, setDuplicates] = useState(null);
   const [dupsLoading, setDupsLoading] = useState(false);
+  // s110 — true group totals from the backend (the panel list is capped at 50
+  // per scan; these are the real counts) + Merge All progress.
+  const [dupTotals, setDupTotals] = useState(null);
+  const [mergeAll, setMergeAll] = useState(null);
 
   const fetchStartups = useCallback(async () => {
     setLoading(true);
@@ -83,9 +87,49 @@ export default function AdminStartups() {
         ...(data.duplicates || []),
         ...(data.needs_review || []).map(g => ({ ...g, review: true })),
       ]);
-      toast.success(`Found ${data.duplicates?.length || 0} confirmed + ${data.needs_review?.length || 0} needs-review groups`);
+      setDupTotals({
+        confirmed: data.total_confirmed_groups ?? data.duplicates?.length ?? 0,
+        review: data.total_review_groups ?? data.needs_review?.length ?? 0,
+      });
+      toast.success(`${(data.total_confirmed_groups ?? 0).toLocaleString()} confirmed + ${(data.total_review_groups ?? 0).toLocaleString()} needs-review duplicate groups in total`);
     } catch (err) { toast.error(err.message); }
     finally { setDupsLoading(false); }
+  };
+
+  // s110 — merge EVERY domain-confirmed group server-side, in batches, instead
+  // of 50 hand-clicked merges per scan. The backend applies the same winner
+  // rule as the per-group Merge button (organic/claimed beats imported, most
+  // complete profile breaks ties) and refuses groups with 2+ real accounts —
+  // those stay in the panel for human judgment, as do all name-only matches.
+  const handleMergeAll = async () => {
+    const confirmed = dupTotals?.confirmed ?? 0;
+    if (!confirm(
+      `Automatically merge ALL ${confirmed.toLocaleString()} confirmed duplicate groups?\n\n` +
+      `Safe rules applied to every group:\n` +
+      `• Only groups where name AND website domain match (never name-only ones)\n` +
+      `• A registered/claimed account always wins over an imported CSV row\n` +
+      `• The winner keeps its data and fills gaps from the duplicates\n` +
+      `• Groups with two real accounts are skipped for manual review\n\n` +
+      `This runs in batches and may take a few minutes.`
+    )) return;
+    setMergeAll({ running: true, groups: 0, entries: 0, remaining: null, ambiguous: 0 });
+    let groups = 0, entries = 0, last = null;
+    try {
+      // Loop until a round merges nothing; whatever remains needs a human.
+      for (let round = 0; round < 500; round++) {
+        const r = await adminAPI.mergeAllDuplicates(100);
+        groups += r.merged_groups; entries += r.merged_entries; last = r;
+        setMergeAll({ running: true, groups, entries, remaining: r.remaining_auto_groups, ambiguous: r.ambiguous_groups });
+        if (!r.merged_groups) break;
+      }
+      setMergeAll({ running: false, groups, entries, remaining: last?.remaining_auto_groups ?? 0, ambiguous: last?.ambiguous_groups ?? 0 });
+      toast.success(`Merged ${groups.toLocaleString()} duplicate groups (${entries.toLocaleString()} entries removed)`);
+      await handleFindDuplicates();
+      fetchStartups();
+    } catch (err) {
+      setMergeAll(prev => prev ? { ...prev, running: false } : null);
+      toast.error(err.message);
+    }
   };
 
   const openEdit = (s) => {
@@ -119,10 +163,38 @@ export default function AdminStartups() {
         {/* Duplicates panel with merge/delete */}
         {duplicates && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-yellow-800">{duplicates.length} Duplicate Groups Found</h3>
-              <button onClick={() => setDuplicates(null)} className="text-yellow-600 hover:text-yellow-800"><XCircle size={16} /></button>
+            <div className="flex items-center justify-between mb-3 gap-3">
+              <h3 className="text-sm font-semibold text-yellow-800">
+                {dupTotals
+                  ? `${dupTotals.confirmed.toLocaleString()} confirmed + ${dupTotals.review.toLocaleString()} needs-review duplicate groups`
+                  : `${duplicates.length} Duplicate Groups Found`}
+                {dupTotals && dupTotals.confirmed + dupTotals.review > duplicates.length && (
+                  <span className="ml-2 font-normal text-yellow-600">(showing first {Math.min(duplicates.length, 30)})</span>
+                )}
+              </h3>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {(dupTotals?.confirmed ?? 0) > 0 && (
+                  <button onClick={handleMergeAll} disabled={mergeAll?.running}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-semibold hover:bg-primary-700 disabled:opacity-50">
+                    <GitMerge size={12} /> {mergeAll?.running ? 'Merging…' : 'Merge All Confirmed'}
+                  </button>
+                )}
+                <button onClick={() => setDuplicates(null)} className="text-yellow-600 hover:text-yellow-800"><XCircle size={16} /></button>
+              </div>
             </div>
+            {mergeAll && (
+              <div className="mb-3 px-3 py-2 bg-white border border-yellow-200 rounded-lg text-xs text-gray-700">
+                {mergeAll.running ? (
+                  <>Merging in batches… <b>{mergeAll.groups.toLocaleString()}</b> groups merged
+                    ({mergeAll.entries.toLocaleString()} entries removed)
+                    {mergeAll.remaining != null && <> · {mergeAll.remaining.toLocaleString()} to go</>}</>
+                ) : (
+                  <>Done: <b>{mergeAll.groups.toLocaleString()}</b> groups merged
+                    ({mergeAll.entries.toLocaleString()} entries removed).
+                    {mergeAll.ambiguous > 0 && <> {mergeAll.ambiguous.toLocaleString()} group(s) have two real accounts and were left for manual review.</>}</>
+                )}
+              </div>
+            )}
             {duplicates.length === 0 ? (
               <p className="text-xs text-yellow-600">No duplicates detected.</p>
             ) : (
