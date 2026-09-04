@@ -1140,6 +1140,54 @@ hierarchical, persona-aware, accuracy-calibrated product.
 - **Classify runs must target the NEW deploy** — a container replaced
   mid-session invalidates an open railway ssh, and /tmp files die with it.
 
+## 3 Sep 2026 (backfilled at 4 Sep close) — tree cards, slow-map cache, landing redesign shipped
+
+FE day record for s109/s110 (queued as docs debt at the 3 Sep close; written next day).
+
+- **FE #56 — family-tree cards on Innovation Maps**: grandchildren nested under parent
+  chips with ↳ and a family-wide sub-map count. Merged and rendered-E2E-verified live —
+  after the **3rd recurrence of the Vercel lost-push** (merge built only the PR preview;
+  prod stayed on the old commit). Caught by `version.json`; the Deploy Hook curl for main
+  is now banked in the memory repo — one command, never dashboard "Redeploy".
+- **"Loading map takes very long?"** → backend TTL cache on the 5 maps read endpoints
+  (BE #60, `MAPS_CACHE_TTL_MS` 15 min). Fixed repeats; the cold path remained and came
+  back on 4 Sep (see next entry).
+- **FE #57/#58 — landing page told the truth again**: Art of the Possible leads the
+  features grid; "200 AI Clusters" → "230+ Innovation Maps" (floor claim); dated
+  "Recently Shipped" → evergreen "What Powers OpenI" (guard comment: never a date there).
+- **FE #59 — full landing REDESIGN** (Rajeev-picked direction "C + B combined" from a
+  design canvas): story-first around the Art of the Possible with a visual drill-down
+  section. Rendered E2E 34/34 across five widths, no lost-push this time.
+
+## 4 Sep 2026 (session close) — 802 duplicate groups merged for real; Art of the Possible made fast
+
+Two user-reported problems, both root-caused and fixed end-to-end in one day.
+
+- **"Every scan finds 50 more duplicates" (8 manual rounds)** — the scan endpoint has
+  `LIMIT 50` and reported no total, so the panel said "50 found" forever while the real
+  well held **802 confirmed groups**. FE #60 + BE #61: the panel header now shows true
+  totals, and a **Merge All Confirmed** button walks every domain-confirmed group
+  server-side in batches — same winner rule as the manual button (registered/claimed
+  account beats CSV import; most-complete profile breaks ties), groups with two real
+  accounts skipped for human judgment, name-only matches never auto-merged. Rajeev ran
+  it on prod the same morning: 802 confirmed + 0 needs-review, progress line to zero,
+  Sentry clean. **Admin-eyeball E2E: done by Rajeev live** (page is admin-gated; his
+  screenshots are the rendered verification).
+- **"Art of the Possible is still slow… we need to fix it"** — measured on prod:
+  Recommended-for-You **2.2-2.6s on every load** because the handler ran its 575K-row
+  scoring scan BEFORE checking its own 24h AI cache (the cache never saved anyone
+  anything), plus a blocking OpenAI call on cache expiry; map pages up to ~9-13s cold
+  because the 3 Sep TTL cache only helped repeats. BE #62: cache-first ordering +
+  background AI enhancement, and the maps cache upgraded to stale-while-revalidate
+  (stale served instantly, one background refresh). **Deploy-verified same day:
+  recommendations 0.40s; maps 0.4-0.6s warm.** Known remainder: the first visitor per
+  map URL after a deploy still pays the compute (13.1s worst on representatives) —
+  queued follow-up.
+- Ops notes: Railway sat "Waiting for CI" ~9 min behind the main-branch e2e workflow on
+  each merge (normal, not a stall). No Vercel lost-push today. Cloud containers can run
+  the full backend suite via the preinstalled Postgres 16 (`pg_ctlcluster 16 main start`)
+  — the "no Postgres on this machine" note was Mac-era.
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
