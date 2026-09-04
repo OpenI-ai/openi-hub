@@ -101,6 +101,7 @@ export const adminAPI = {
   deleteStartup:      (id)          => del(`/admin/startups/${id}`),
   findDuplicates:     ()            => get('/admin/startups/duplicates'),
   mergeStartups:     (primary_id, secondary_ids) => post('/admin/startups/merge', { primary_id, secondary_ids }),
+  mergeAllDuplicates: (batch = 100)  => post('/admin/startups/merge-all', { batch }),
   // Licenses
   listLicenses:       (params = {}) => get(`/admin/licenses?${new URLSearchParams(params)}`),
   resetUsage:         (id, feature) => put(`/admin/licenses/${id}/reset-usage`, { feature }),
