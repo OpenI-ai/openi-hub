@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
+  Loader2,
 } from 'lucide-react';
 import { clusterAPI } from '../../services/clusterAPI';
 import ClusterHubAndSpoke from '../../components/ClusterHubAndSpoke';
@@ -94,7 +95,22 @@ export default function ClusterDetail() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto" aria-busy={loading}>
+      {/* s113e (Rajeev, 7 Sep): same fix as MapDetail — navigating between
+          clusters in place keeps the OLD cluster rendered (the first-load
+          guard needs `!cluster`), so the user got no intimation a new map
+          was being built. Overlay while any load is in flight. */}
+      {loading && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
+          <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg shadow-lg px-5 py-4">
+            <Loader2 className="w-5 h-5 text-[#D4A843] animate-spin" />
+            <div>
+              <div className="text-sm font-semibold text-gray-800">Building your Innovation Map…</div>
+              <div className="text-xs text-gray-500">Gathering representative startups for this theme</div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Back nav */}
       <button
         onClick={() => navigate('/dashboard/clusters')}
