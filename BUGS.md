@@ -1537,3 +1537,10 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Sources" shows a "(direct)" row with the historical total; then click
     the LinkedIn button, register a test user, and the `linkedin /
     company_page / signup_button` row appears with 1.
+    **Merge-order caution (Rajeev asked, 7 Sep):** merging ANY backend PR
+    redeploys Railway and kills whatever nohup job is running on the
+    container (BE #66's scrub → classify chain). FE #67 is Vercel-only and
+    safe any time. Merge BE #67 only after `railway ssh` →
+    `tail -3 /tmp/scrub-run.txt` shows its `DONE:` line and, if started,
+    `tail -3 /tmp/taxonomy-run4.txt` is finished too. Both scripts are
+    resumable/idempotent, so a kill costs a re-run, not data.
