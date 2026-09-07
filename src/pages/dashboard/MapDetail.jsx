@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Map as MapIcon,
+  Loader2,
 } from 'lucide-react';
 import { mapsAPI } from '../../services/clusterAPI';
 import ClusterHubAndSpoke from '../../components/ClusterHubAndSpoke';
@@ -75,6 +76,9 @@ export default function MapDetail() {
   useEffect(() => {
     setPage(1);
     setSort('score_desc');
+    // A node click deep in the diagram lands the new map at the old scroll
+    // offset — bring the header into view so the change is visible.
+    window.scrollTo({ top: 0 });
   }, [dimension, slug]);
 
   const totalPages = Math.max(1, Math.ceil((startups.total || 0) / PAGE_SIZE));
@@ -104,7 +108,23 @@ export default function MapDetail() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto" aria-busy={loading}>
+      {/* s113e (Rajeev, 7 Sep): clicking a node rebuilds the map in place, but
+          `term` still holds the OLD map, so the first-load guard above never
+          fires — the stale map sat there for seconds with no intimation the
+          platform was working. Overlay the stale content while the new map's
+          data is in flight. */}
+      {loading && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
+          <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg shadow-lg px-5 py-4">
+            <Loader2 className="w-5 h-5 text-[#D4A843] animate-spin" />
+            <div>
+              <div className="text-sm font-semibold text-gray-800">Building your Innovation Map…</div>
+              <div className="text-xs text-gray-500">Gathering representative startups for this theme</div>
+            </div>
+          </div>
+        </div>
+      )}
       <button
         onClick={() => navigate('/dashboard/art-of-possible?tab=maps')}
         className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#D4A843] mb-4"
