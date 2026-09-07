@@ -1519,11 +1519,19 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     and (if #19 done) `gtag/js` loads. Then read
     `mcp__Vercel__get_web_analytics` by `utm_source` to confirm the linkedin
     row exists.
-21. **Backend follow-up (needs openi-hub-backend attached):** persist the
-    signup source on the user record — accept `utm_source/medium/campaign`
-    in `POST /auth/register`, store on `users` (or a `signup_attribution`
-    jsonb), and surface it in Admin → Users so "how many LinkedIn signups"
-    is answerable from the database, not only from analytics dashboards
-    (which drop events an ad-blocker swallows). FE side is one extra arg in
-    `Register.jsx#handleRegister` reading `getUtm()` from
-    `src/utils/analytics.js`.
+21. ~~**Backend follow-up — persist the signup source**~~ — **DONE 7 Sep 2026,
+    same session** (Rajeev: "we've an Analytics page on openi admin, can we
+    wire these details"). Backend migration 029 adds
+    `users.signup_utm_source/medium/campaign`; `POST /auth/register` accepts
+    `utm {source, medium, campaign}` (sanitised in
+    `utils/signupAttribution.js`, unit-tested); new admin endpoint
+    `GET /admin/analytics/signup-sources?window_days=30`. FE: `Register.jsx`
+    forwards `getUtm()`, `AdminAnalytics.jsx` gains a **Signup Sources**
+    panel (KPIs incl. LinkedIn all-time / last-30d, per source-medium-campaign
+    table with verified / profile-done / paid). Counts come from the users
+    table, so ad-blockers cannot hide them. Both PRs must merge (BE first —
+    the FE panel tolerates a 404 until then). **Human eyeball for Rajeev
+    after both deploy:** Admin → Analytics → scroll to the bottom → "Signup
+    Sources" shows a "(direct)" row with the historical total; then click
+    the LinkedIn button, register a test user, and the `linkedin /
+    company_page / signup_button` row appears with 1.
