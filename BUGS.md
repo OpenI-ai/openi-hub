@@ -1188,6 +1188,45 @@ Two user-reported problems, both root-caused and fixed end-to-end in one day.
   the full backend suite via the preinstalled Postgres 16 (`pg_ctlcluster 16 main start`)
   — the "no Postgres on this machine" note was Mac-era.
 
+## 6 Sep 2026 (session close) — every map leaf gets a face; two readability rounds
+
+Rajeev's screenshot review of the Innovation Map diagrams: most leaves rendered as initials
+("Most of the startup does not even have logo?") and labels were too small. Shipped across
+FE #62/#63/#64 (all rendered-E2E'd and eyeball-confirmed live):
+
+- **Leaf logo fallback chain** (`ClusterHubAndSpoke.jsx`): stored `logo_url` → website-derived
+  Clearbit logo → initial. Fixed a latent bug where a dead `logo_url` left an EMPTY disc (the
+  old onError only hid the img; the initial now always sits underneath). Backend `enrich-logos`
+  runs then filled stored logos for ~4.6k of ~13k map representatives.
+- **Fonts up a tier, twice** (Rajeev: "how about we increase the font"): hub 16px, sector/theme
+  pills 14px bold, leaf labels 14px on solider plates; pills and boxes resized to fit.
+- **Post-logo polish (Rajeev's eyeball, "go ahead with both fixes"):** the same startup no
+  longer appears under two themes in one diagram (highest-ranked theme keeps it; later themes
+  take their next candidate), and the leaf disc background went light slate `#F1F5F9` so
+  white/transparent logos stop reading as empty circles.
+- **Pricing copy (option A):** Art of the Possible stays fully Free as the acquisition hook;
+  bullets modernized; every map-count claim unified on the "240+" floor (exact counts drift —
+  the hero-number lesson).
+
+## 7 Sep 2026 (session close) — "Building your Innovation Map…" overlay; junk never renders again
+
+Two user-visible fixes born from the same session's backend data-quality work:
+
+- **In-place map navigation showed the STALE map silently** (Rajeev: "user gets no intimation
+  that platform is working"). Both `MapDetail.jsx` and `ClusterDetail.jsx` guarded their loading
+  screen with `loading && !term`/`!cluster`, which only fires on first visit — a node click,
+  ring chip, or breadcrumb (same route, new params) left the old map fully rendered for the
+  seconds the new data was in flight. FE #65: any in-flight load now overlays a centered
+  "Building your Innovation Map…" card (spinner, backdrop blur, clicks blocked, `aria-busy`),
+  and MapDetail scrolls to top on map change. Verified by rendered-browser E2E against the
+  merged bundle (the container's live-page path was proxy-blocked that day; fixtures were real
+  prod API responses).
+- **Junk descriptions rendered on map surfaces** — a startup whose crawled description was just
+  a bare email/date/number/funding-round label showed that string as its description, because
+  the display guard only covered crawler page-chrome. Fixed backend-side (openi-hub-backend #66,
+  `DISPLAY_JUNK_SQL_RE` at all five map/cluster bind sites); the companion scrub re-embedded the
+  87k affected rows so they also stop mis-classifying onto wrong maps.
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
