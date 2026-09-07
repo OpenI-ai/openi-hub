@@ -1512,6 +1512,27 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 ### Added 7 Sep 2026 (session close) — LinkedIn analytics (Rajeev is a coding
 ### beginner: #18 and #19 are click-only, no code)
 
+**Handoff snapshot (written 7 Sep ~09:30 UTC, session close):**
+- SHIPPED + LIVE: FE #67 (analytics module, Vercel Web Analytics, UTM capture,
+  `sign_up` event, Signup Sources admin panel) and FE #68 (docs). Vercel Web
+  Analytics is ENABLED and recording. Live E2E done (todo #20).
+- WAITING: BE #67 (`users.signup_utm_*` + `/admin/analytics/signup-sources`),
+  green + mergeable, kept in DRAFT on purpose until the BE #66 scrub finishes —
+  at 09:25 UTC it was at 41,000 / ~87,100 rows, ~140 rows/min, so `DONE:` lands
+  ~15:00 UTC, then `classify-taxonomy.js` (todo #21 caution). **Next session,
+  first thing:** `railway ssh` → `tail -3 /tmp/scrub-run.txt` and
+  `tail -3 /tmp/taxonomy-run4.txt`; when both are finished, un-draft BE #67
+  (GitHub API `draft:false`) and ask Rajeev to click Merge → Confirm merge
+  (drafts hide the Merge button — this tripped him twice today). Railway
+  auto-deploys main and runs migration 029 on boot.
+- THEN eyeball (Rajeev): Admin → Analytics → bottom → "Signup Sources" shows a
+  "(direct)" row = historical total; click the LinkedIn button, register a
+  test user, expect a `linkedin / company_page / signup_button` row.
+- OPTIONAL: todo #19 (GA4). Vercel UTM page-view filter is paywalled on Pro;
+  use Events → sign_up → utm_source, or the admin panel.
+- Railway CLI on Rajeev's Mac is now linked (project "OpenI Hub BackEnd",
+  service OpenI-hub) — `railway ssh` works from any folder.
+
 18. ~~**Rajeev — enable Vercel Web Analytics (5 min, no code).**~~ — **DONE 7 Sep 2026**
     (Rajeev clicked Enable; Vercel API now returns counts instead of
     `web_analytics_not_enabled`. Reports start after FE #67 deploys.)
