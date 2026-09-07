@@ -185,7 +185,7 @@ function LeafLogo({ data }) {
             width: '78%',
             height: '78%',
             objectFit: 'contain',
-            background: '#FFFFFF',
+            background: 'transparent',
           }}
           onError={() => setIdx((i) => i + 1)}
         />
@@ -234,7 +234,9 @@ function LeafNode({ data }) {
           width: LEAF_DISC,
           height: LEAF_DISC,
           borderRadius: '50%',
-          background: '#FFFFFF',
+          // s113d — light slate, not white: a white or transparent logo on
+          // a white disc renders invisible (seen live: an "empty" circle).
+          background: '#F1F5F9',
           border: '1.5px solid #E2E8F0',
           boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
           display: 'flex',
@@ -321,6 +323,22 @@ const rad = (deg) => (deg * Math.PI) / 180;
  * Returns { nodes, edges } with absolute pixel positions.
  */
 function buildGraph(cluster, startups, subgroups = []) {
+  // s113d — one leaf per COMPANY across the whole diagram (Rajeev, 7 Sep:
+  // with real logos, the same startup topping two themes reads as a
+  // duplicate). First (highest-ranked) theme keeps it; later themes take
+  // their next-ranked candidates instead.
+  const seenLeafIds = new Set();
+  const takeUnseen = (arr, n) => {
+    const picked = [];
+    for (const l of arr) {
+      const id = l.user_id || l.id;
+      if (seenLeafIds.has(id)) continue;
+      seenLeafIds.add(id);
+      picked.push(l);
+      if (picked.length >= n) break;
+    }
+    return picked;
+  };
   const nodes = [];
   const edges = [];
 
@@ -443,7 +461,7 @@ function buildGraph(cluster, startups, subgroups = []) {
           style: HUB_TO_SECTOR_EDGE,
         });
 
-        const leaves = (leavesBySectorAndSub[`${sec.sector}::${sg.subgroup_id}`] || []).slice(0, 2);
+        const leaves = takeUnseen(leavesBySectorAndSub[`${sec.sector}::${sg.subgroup_id}`] || [], 2);
         if (leaves.length === 0) return;
         // Leaves get a wider angular gap so the two cards under one
         // subgroup never overlap. 6° at radius 660 = ~69px arc — clear
@@ -482,7 +500,7 @@ function buildGraph(cluster, startups, subgroups = []) {
     }
 
     // ── Phase 68 two-tier fallback (unchanged behaviour) ────────────────
-    const leaves = leavesBySector[sec.sector] || [];
+    const leaves = takeUnseen(leavesBySector[sec.sector] || [], (leavesBySector[sec.sector] || []).length);
     if (leaves.length === 0) return;
 
     const MIN_LEAF_GAP_DEG = 16;  // ≈ 130px arc gap at radius 520
