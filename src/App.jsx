@@ -1,7 +1,9 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './context/AuthContext';
 import useDocumentTitle from './hooks/useDocumentTitle';
+import { trackPageView } from './utils/analytics';
 import { AuthProvider } from './context/AuthContext';
 
 // Pages — Auth
@@ -211,6 +213,18 @@ function DocumentTitle() {
   return null;
 }
 
+// Analytics (7 Sep 2026) — one GA4 page_view per location change. Mounted
+// AFTER <DocumentTitle /> so its effect runs after the title is updated and
+// the page_view carries the right page_title. Vercel Web Analytics does its
+// own page views via <Analytics /> below. See src/utils/analytics.js.
+function PageViewTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+  return null;
+}
+
 // ── App ───────────────────────────────────────────────────────
 export default function App() {
   return (
@@ -218,6 +232,10 @@ export default function App() {
       <BrowserRouter>
         <EmailVerifyBridge />
         <DocumentTitle />
+        <PageViewTracker />
+        {/* Vercel Web Analytics — inert until enabled on the Vercel project
+            (openi-hub → Analytics → Enable). Same-origin script, no CSP change. */}
+        <Analytics mode={import.meta.env.PROD ? 'production' : 'development'} />
         {/* s48 — Suspense boundary for lazy-loaded routes (recharts surfaces) */}
         <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
         <Routes>

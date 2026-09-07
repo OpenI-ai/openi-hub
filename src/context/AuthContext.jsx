@@ -177,11 +177,14 @@ export function AuthProvider({ children }) {
     return true;
   };
 
-  const register = async (name, email, password, role, organization_name, terms_accepted = false, turnstile_token = undefined) => {
+  // 7 Sep 2026 — `utm` ({ source, medium, campaign }) is the landing-page
+  // attribution captured by src/utils/analytics.js; the backend stores it on
+  // the users row (migration 029) for Admin → Analytics → Signup sources.
+  const register = async (name, email, password, role, organization_name, terms_accepted = false, turnstile_token = undefined, utm = undefined) => {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email: email.trim().toLowerCase(), password, role, organization_name, terms_accepted, turnstile_token }),
+      body: JSON.stringify({ name, email: email.trim().toLowerCase(), password, role, organization_name, terms_accepted, turnstile_token, utm }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Registration failed');

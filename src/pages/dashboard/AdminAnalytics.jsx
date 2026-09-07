@@ -53,6 +53,9 @@ export default function AdminAnalytics() {
   const [boostImpact, setBoostImpact] = useState(null);
   // s38: click-through analytics (s36 backend endpoint). null = older backend.
   const [clickImpact, setClickImpact] = useState(null);
+  // 7 Sep 2026: signup attribution (utm_* stored at register, migration 029).
+  // null = older backend, skip panel.
+  const [signupSources, setSignupSources] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -64,7 +67,8 @@ export default function AdminAnalytics() {
       adminAPI.profileScoreDistribution().catch(() => null),  // tolerate 404 on older backends
       adminAPI.clusterBoostImpact(30).catch(() => null),      // s34: tolerate 404
       adminAPI.clusterClickImpact(30).catch(() => null),      // s38: tolerate 404
-    ]).then(([ov, fn, ps, fa, ts, dist, boost, click]) => {
+      analyticsAPI.signupSources(30).catch(() => null),       // 7 Sep 2026: tolerate 404
+    ]).then(([ov, fn, ps, fa, ts, dist, boost, click, sources]) => {
       setOverview(ov);
       setFunnel(fn.funnel || []);
       setPersonas(ps.personas || []);
@@ -73,6 +77,7 @@ export default function AdminAnalytics() {
       setAiDist(dist);
       setBoostImpact(boost);
       setClickImpact(click);
+      setSignupSources(sources);
     }).catch(err => toast.error(err.message)).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initial load; the metric/period reload is handled by the dedicated effect below
   }, []);
@@ -244,6 +249,90 @@ export default function AdminAnalytics() {
 
       {/* s38 — Click-through analytics (s36 telemetry surfaced) */}
       {clickImpact && <ClickImpactPanel data={clickImpact} />}
+
+      {/* 7 Sep 2026 — Signup sources (utm_* stored at register) */}
+      {signupSources && <SignupSourcesPanel data={signupSources} />}
+    </div>
+  );
+}
+
+// ── Signup sources panel (7 Sep 2026) ────────────────────────
+// Answers "where do our signups come from?" from the users table itself:
+// utm_source / utm_medium / utm_campaign captured on the landing page and
+// stored at POST /auth/register (backend migration 029). The first tagged
+// link is the LinkedIn company-page Sign-up button
+// (linkedin / company_page / signup_button). Untagged registrations are the
+// single "(direct)" row so the totals always reconcile with the persona table.
+// Backend endpoint: GET /admin/analytics/signup-sources.
+function SignupSourcesPanel({ data }) {
+  const sources = data.sources || [];
+  const windowDays = data.window_days || 30;
+  const total = data.total || 0;
+  const tracked = data.tracked || 0;
+  const trackedPct = total > 0 ? ((tracked * 100) / total).toFixed(1) : '0.0';
+  const linkedin = sources.filter(r => r.source === 'linkedin');
+  const linkedinSignups = linkedin.reduce((s, r) => s + (r.signups || 0), 0);
+  const linkedinWindow = linkedin.reduce((s, r) => s + (r.signups_window || 0), 0);
+  const fmtDate = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—');
+
+  return (
+    <div style={card}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: DARK }}>
+          Signup Sources <span style={{ fontSize: 11, fontWeight: 400, color: '#5c5c5c' }}>· all-time, with last {windowDays}d</span>
+        </h3>
+        <span style={{ fontSize: 10, color: '#6e6e6e' }}>utm_* at register</span>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 16 }}>
+        <Kpi label="Signups (all)" value={total.toLocaleString()} />
+        <Kpi label={`Signups (${windowDays}d)`} value={(data.total_window || 0).toLocaleString()} />
+        <Kpi label="From tagged links" value={`${tracked.toLocaleString()} (${trackedPct}%)`} color={tracked > 0 ? '#16a34a' : '#888'} bold />
+        <Kpi label="LinkedIn (all)" value={linkedinSignups.toLocaleString()} color={linkedinSignups > 0 ? '#0a66c2' : '#888'} bold />
+        <Kpi label={`LinkedIn (${windowDays}d)`} value={linkedinWindow.toLocaleString()} color={linkedinWindow > 0 ? '#0a66c2' : '#888'} />
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid #eee', color: '#666' }}>
+              <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Source</th>
+              <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Medium</th>
+              <th style={{ textAlign: 'left',  padding: '6px 8px', fontWeight: 600 }}>Campaign</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Signups</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Last {windowDays}d</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Verified</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Profile done</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Paid</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', fontWeight: 600 }}>Last signup</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sources.length === 0 ? (
+              <tr><td colSpan={9} style={{ padding: 16, textAlign: 'center', color: '#ccc' }}>No signups yet</td></tr>
+            ) : sources.map((r, i) => {
+              const verifiedPct = r.signups > 0 ? Math.round((r.verified * 100) / r.signups) : 0;
+              return (
+                <tr key={i} style={{ borderBottom: '1px solid #f5f5f5', color: r.tracked ? '#1a1a1a' : '#888' }}>
+                  <td style={{ padding: '6px 8px', fontWeight: 600 }}>{r.source}</td>
+                  <td style={{ padding: '6px 8px' }}>{r.medium || '—'}</td>
+                  <td style={{ padding: '6px 8px' }}>{r.campaign || '—'}</td>
+                  <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700 }}>{r.signups}</td>
+                  <td style={{ padding: '6px 8px', textAlign: 'right' }}>{r.signups_window}</td>
+                  <td style={{ padding: '6px 8px', textAlign: 'right', color: verifiedPct >= 50 ? '#16a34a' : undefined }}>{r.verified} <span style={{ color: '#aaa' }}>({verifiedPct}%)</span></td>
+                  <td style={{ padding: '6px 8px', textAlign: 'right' }}>{r.profile_done}</td>
+                  <td style={{ padding: '6px 8px', textAlign: 'right', color: G }}>{r.paid}</td>
+                  <td style={{ padding: '6px 8px', textAlign: 'right', color: '#5c5c5c' }}>{fmtDate(r.last_signup_at)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ fontSize: 10, color: '#888', marginTop: 8 }}>
+        Counts come from the users table (not an analytics script), so ad-blockers cannot hide them.
+        Imported startup stubs are excluded. "(direct)" = no tagged link, e.g. typed URL or search.
+      </div>
     </div>
   );
 }

@@ -15,6 +15,15 @@
   Turnstile sitekey (`0x4AAAAAAEiucx13YNmwrA4F`) for the registration CAPTCHA. `VITE_*`
   values are baked at build time — changing it needs a redeploy. Unset = no widget,
   no CAPTCHA (matches the backend flag's off state).
+- **`VITE_GA_MEASUREMENT_ID`** (added 7 Sep 2026, optional): the Google Analytics 4
+  Measurement ID (`G-XXXXXXXXXX`) from GA → Admin → Data Streams → web stream. Set on
+  Vercel (Production) and redeploy; `src/utils/analytics.js` loads gtag.js only when it
+  is present. Unset = no Google script, no GA traffic. The CSP in `vercel.json` already
+  allow-lists `googletagmanager.com` + `google-analytics.com` for it.
+- **Vercel Web Analytics** (wired 7 Sep 2026, NOT yet enabled): `<Analytics />` in
+  `src/App.jsx` is inert until someone clicks **Enable** under Vercel → openi-hub →
+  Analytics tab. Once on, page views + `sign_up` events (with utm_source/medium/campaign
+  filters) appear there with no further code change. Free tier: 2,500 events/month.
 
 ### Backend (Railway)
 

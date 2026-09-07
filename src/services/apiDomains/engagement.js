@@ -27,6 +27,7 @@ export const analyticsAPI = {
   funnel:          ()            => get('/admin/analytics/funnel'),
   featureAdoption: ()            => get('/admin/analytics/feature-adoption'),
   aiTelemetry:     (params = {}) => get(`/admin/analytics/ai-telemetry?${new URLSearchParams(params)}`),
+  signupSources:   (windowDays = 30) => get(`/admin/analytics/signup-sources?window_days=${windowDays}`), // 7 Sep 2026 — utm attribution
 };
 
 // ── Connections (Phase 18) ──────────────────────────────────

@@ -41,6 +41,7 @@ at the end of the `steps` array in `src/migrations/index.js` — never insert in
 
 **Core & Identity:**
 - `users` - Platform users (admin, evaluator, startup, mentor)
+  - `signup_utm_source` / `signup_utm_medium` / `signup_utm_campaign` (migration 029, 7 Sep 2026): utm_* captured on the landing page at registration, e.g. `linkedin / company_page / signup_button`. NULL = untagged visit. Read by `GET /admin/analytics/signup-sources` (Admin → Analytics → Signup Sources).
 - `user_roles` - Per-user role grants (`ON DELETE CASCADE` on `user_id`)
 - `organizations` - Organization records
 - `org_members` - Organization membership
