@@ -1249,9 +1249,23 @@ Vercel's API confirmed `web_analytics_not_enabled` for the project.
   no CSP change needed.
 - **Verification:** `npm run build` (lint + vite) green; rendered-browser smoke test
   against the built bundle at the LinkedIn URL: page renders, no console errors,
-  `openi_utm` sessionStorage holds the three UTM fields. **Live E2E on openi.ai is
-  still pending** — nothing reports anywhere until Rajeev does todo #18 / #19 below;
-  re-run the browser check after merge + enable (see the CSP lesson, 31 Aug).
+  `openi_utm` sessionStorage holds the three UTM fields. **Live E2E on openi.ai
+  done after merge (FE #67 → prod `f60498f`):** production HTML + production CSP
+  header rendered in Chromium — `/_vercel/insights/script.js` 200, `window.va`
+  live, utm captured and surviving a hop to /marketplace, zero CSP violations,
+  `googletagmanager.com` present in the served CSP. Vercel Web Analytics then
+  showed the visit (`/register`, 1 visitor). **Container gotcha (new):** curl
+  reaches openi.ai but Chromium gets `ERR_CONNECTION_RESET` on EVERY host via the
+  agent proxy (HTTP/2, QUIC and post-quantum TLS flags make no difference). Work-
+  around that keeps the check honest: a 20-line local relay
+  (`http://localhost:8088/* → https://openi.ai/*` via undici `ProxyAgent` with the
+  CA bundle, headers passed through untouched) and point Playwright at localhost.
+  Same bundle, same CSP header, real Vercel beacon.
+- **Vercel plan limit (found 7 Sep):** page-view breakdown by `utmSource` is
+  behind Enterprise / the Web Analytics Plus add-on (API returns 402 on Pro).
+  Custom-event data is NOT gated: `sign_up` carries `utm_source/medium/campaign`
+  and `eventData/utm_source` grouping works on the current plan. The definitive
+  count lives in Admin → Analytics → Signup Sources once BE #67 lands.
 
 ## Non-bugs — investigated and closed as working-as-designed
 
@@ -1500,7 +1514,11 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 
 18. ~~**Rajeev — enable Vercel Web Analytics (5 min, no code).**~~ — **DONE 7 Sep 2026**
     (Rajeev clicked Enable; Vercel API now returns counts instead of
-    `web_analytics_not_enabled`. Reports start after FE #67 deploys.) Vercel dashboard →
+    `web_analytics_not_enabled`. Reports start after FE #67 deploys.)
+    **Plan caveat:** the "filter by UTM Source" step below needs Enterprise or
+    the Web Analytics Plus add-on (Pro gets a 402). On Pro, use Events →
+    `sign_up` and group by `utm_source` instead, or the Admin → Analytics
+    Signup Sources panel (BE #67), which is the authoritative count anyway. Vercel dashboard →
     project **openi-hub** → **Analytics** tab → **Enable**. The `<Analytics />`
     component is already deployed and starts reporting on the next page load.
     Then, after a few LinkedIn clicks: Analytics → filter **UTM Source =
@@ -1515,12 +1533,11 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     acquisition then shows a `linkedin / company_page` row, and the
     `sign_up` event under Engagement → Events. Note GA sets cookies; the
     privacy page may need a line about it (Vercel Analytics does not).
-20. **Claude — live E2E after #18 (mandatory per CLAUDE.md).** Playwright
-    against `https://openi.ai/register?utm_source=linkedin&utm_medium=company_page&utm_campaign=signup_button`:
-    assert `/_vercel/insights/script.js` loads 200, no CSP errors in console,
-    and (if #19 done) `gtag/js` loads. Then read
-    `mcp__Vercel__get_web_analytics` by `utm_source` to confirm the linkedin
-    row exists.
+20. ~~**Claude — live E2E after #18 (mandatory per CLAUDE.md).**~~ — **DONE 7 Sep
+    2026** after FE #67 merged: see the session entry for the exact assertions
+    and the localhost-relay technique (Chromium is reset by the container proxy;
+    curl is not). Vercel Analytics recorded the visit. GA4 half (#19) untested —
+    not configured.
 21. ~~**Backend follow-up — persist the signup source**~~ — **DONE 7 Sep 2026,
     same session** (Rajeev: "we've an Analytics page on openi admin, can we
     wire these details"). Backend migration 029 adds

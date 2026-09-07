@@ -28,6 +28,15 @@ real browser against the deployed page before it is reported as verified:
   entry in `vercel.json` — `script-src`, plus `frame-src` if it renders an
   iframe (Turnstile needs both). Grep the CSP line before shipping.
 
+- **Container gotcha (7 Sep 2026):** `curl` reaches openi.ai through the agent
+  proxy but headless Chromium gets `ERR_CONNECTION_RESET` on every external host
+  (proxy flags, HTTP/2 / QUIC / post-quantum toggles do not help). Do not give up
+  on the rendered check: run a tiny local relay (`http://localhost:8088/*` →
+  `https://openi.ai/*` via undici `ProxyAgent` with `SSL_CERT_FILE`, response
+  headers passed through untouched) and point Playwright at localhost. The
+  browser then executes the production bundle under the production CSP header
+  and the same-origin Vercel beacon works. Recipe in `BUGS.md`, 7 Sep (later).
+
 Admin-gated pages that unauthenticated probes cannot reach still need a human
 eyeball pass — when closing a session, list those checks explicitly for Rajeev
 instead of implying they were covered.

@@ -24,6 +24,10 @@
   `src/App.jsx` is inert until someone clicks **Enable** under Vercel → openi-hub →
   Analytics tab. Once on, page views + `sign_up` events (with utm_source/medium/campaign
   filters) appear there with no further code change. Free tier: 2,500 events/month.
+  **Enabled 7 Sep 2026.** Caveat: UTM breakdowns of page views (`utmSource` etc.)
+  need Enterprise or the Web Analytics Plus add-on — the API returns 402 on Pro.
+  Custom-event data is not gated: the `sign_up` event carries `utm_source/medium/
+  campaign`, so Events → sign_up → group by `utm_source` works on Pro.
 
 ### Backend (Railway)
 
