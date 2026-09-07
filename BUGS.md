@@ -1227,6 +1227,32 @@ Two user-visible fixes born from the same session's backend data-quality work:
   `DISPLAY_JUNK_SQL_RE` at all five map/cluster bind sites); the companion scrub re-embedded the
   87k affected rows so they also stop mis-classifying onto wrong maps.
 
+## 7 Sep 2026 (later) — the LinkedIn "Sign up" button finally has something to report to
+
+Rajeev added a Sign-up button to the OpenI LinkedIn company page pointing at
+`/register?utm_source=linkedin&utm_medium=company_page&utm_campaign=signup_button`
+and asked whether the site had Google Analytics. It had nothing: a repo-wide grep
+found no GA, no Vercel Web Analytics, and `Register.jsx` ignored `utm_*` entirely.
+Vercel's API confirmed `web_analytics_not_enabled` for the project.
+
+- **Fix (FE, this PR):** new `src/utils/analytics.js` — one `trackEvent()` /
+  `trackPageView()` front door with two optional backends: **Vercel Web Analytics**
+  (`<Analytics />` in `App.jsx`, inert until enabled on the Vercel project) and
+  **GA4** (gtag.js loaded only when `VITE_GA_MEASUREMENT_ID` is set at build time).
+  `utm_*` is captured from the landing URL into sessionStorage and merged into every
+  custom event, so a visitor who wanders before signing up is still attributed.
+  `Register.jsx` fires `sign_up { method, persona, utm_* }` the moment the account
+  exists (before the verify-email / bypass fork). CSP in `vercel.json` gained
+  `googletagmanager.com` (script-src) and `google-analytics.com` /
+  `analytics.google.com` / `googletagmanager.com` (connect-src) per the CLAUDE.md
+  third-party-script rule. Vercel's own script is same-origin (`/_vercel/insights/`),
+  no CSP change needed.
+- **Verification:** `npm run build` (lint + vite) green; rendered-browser smoke test
+  against the built bundle at the LinkedIn URL: page renders, no console errors,
+  `openi_utm` sessionStorage holds the three UTM fields. **Live E2E on openi.ai is
+  still pending** — nothing reports anywhere until Rajeev does todo #18 / #19 below;
+  re-run the browser check after merge + enable (see the CSP lesson, 31 Aug).
+
 ## Non-bugs — investigated and closed as working-as-designed
 
 These were reported as bugs but, on investigation, were found not to be defects. Kept
@@ -1468,3 +1494,36 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     `node src/scripts/classify-taxonomy.js` re-embeds changed terms and
     re-assigns idempotently. Display threshold tunes live via
     `MAPS_MIN_SCORE` on Railway — never re-scan just to retune.
+
+### Added 7 Sep 2026 (session close) — LinkedIn analytics (Rajeev is a coding
+### beginner: #18 and #19 are click-only, no code)
+
+18. **Rajeev — enable Vercel Web Analytics (5 min, no code).** Vercel dashboard →
+    project **openi-hub** → **Analytics** tab → **Enable**. The `<Analytics />`
+    component is already deployed and starts reporting on the next page load.
+    Then, after a few LinkedIn clicks: Analytics → filter **UTM Source =
+    linkedin** to see visitors, and the **Events** view → `sign_up` to see how
+    many of them registered. Free tier is 2,500 events/month — fine for now.
+19. **Rajeev — (optional) Google Analytics 4.** Only if a GA report is wanted
+    on top of Vercel's. Create a GA4 property at analytics.google.com → Admin
+    → Data Streams → Web (`https://openi.ai`) → copy the **Measurement ID**
+    (`G-…`). Vercel → openi-hub → Settings → Environment Variables → add
+    `VITE_GA_MEASUREMENT_ID` = that id (Production) → **Redeploy** (VITE_*
+    values bake at build time). GA → Reports → Acquisition → Traffic
+    acquisition then shows a `linkedin / company_page` row, and the
+    `sign_up` event under Engagement → Events. Note GA sets cookies; the
+    privacy page may need a line about it (Vercel Analytics does not).
+20. **Claude — live E2E after #18 (mandatory per CLAUDE.md).** Playwright
+    against `https://openi.ai/register?utm_source=linkedin&utm_medium=company_page&utm_campaign=signup_button`:
+    assert `/_vercel/insights/script.js` loads 200, no CSP errors in console,
+    and (if #19 done) `gtag/js` loads. Then read
+    `mcp__Vercel__get_web_analytics` by `utm_source` to confirm the linkedin
+    row exists.
+21. **Backend follow-up (needs openi-hub-backend attached):** persist the
+    signup source on the user record — accept `utm_source/medium/campaign`
+    in `POST /auth/register`, store on `users` (or a `signup_attribution`
+    jsonb), and surface it in Admin → Users so "how many LinkedIn signups"
+    is answerable from the database, not only from analytics dashboards
+    (which drop events an ad-blocker swallows). FE side is one extra arg in
+    `Register.jsx#handleRegister` reading `getUtm()` from
+    `src/utils/analytics.js`.

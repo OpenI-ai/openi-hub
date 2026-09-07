@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
 import useVersionCheck from './hooks/useVersionCheck';
+import { initAnalytics } from './utils/analytics';
 import './index.css';
 
 // Cache-busting P2 — headless component so the version-poll hook can run inside
@@ -12,6 +13,10 @@ function VersionWatcher() {
   useVersionCheck();
   return null;
 }
+
+// Analytics (7 Sep 2026) — capture utm_* from the landing URL and load GA4 if
+// VITE_GA_MEASUREMENT_ID is set. No-op otherwise. See src/utils/analytics.js.
+initAnalytics();
 
 // Sentry — must init before React renders so route + error capture work.
 if (import.meta.env.VITE_SENTRY_DSN) {

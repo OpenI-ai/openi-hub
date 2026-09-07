@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { PERSONAS, PROFILE_FIELDS, REGISTER_FIELDS, ORG_NAME_FIELD, PERSONA_INDUSTRY_FIELD, PERSONA_DESCRIPTION_FIELD, PERSONA_HAS_INDUSTRY, PERSONA_HAS_DESCRIPTION } from '../../config/personas';
 import { claimAPI, profileAPI, orgAPI } from '../../services/api';
 import safeStorage from '../../utils/safeStorage';
+import { trackEvent } from '../../utils/analytics';
 import {
   Shield, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check, Building2,
 } from 'lucide-react';
@@ -152,6 +153,11 @@ export default function Register() {
       // organization_name for backward-compatible bootstrap.
       const orgFromProfile = orgField ? (profileData[orgField] || '').trim() : '';
       const registerResult = await register(name.trim(), email.trim(), password, personaType, orgFromProfile || undefined, termsAccepted, turnstileToken || undefined);
+
+      // Analytics (7 Sep 2026) — the account exists from here on, whichever
+      // path follows (verify-email or bypass-list). utm_* captured at landing
+      // (e.g. the LinkedIn company-page button) ride along automatically.
+      trackEvent('sign_up', { method: 'email', persona: personaType });
 
       // s49e + s50: most users get verification_required:true and NO session
       // token. We can't PUT /profile/me without a token, so stash profileData

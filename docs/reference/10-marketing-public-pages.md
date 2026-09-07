@@ -85,7 +85,7 @@ Ideas captured here for when they're needed:
 - Customer case studies for each persona type
 - Video/animation in the hero showing the product in action
 - SEO meta tags, Open Graph tags, and a sitemap
-- Analytics integration (Google Analytics, Plausible, PostHog)
+- ~~Analytics integration (Google Analytics, Plausible, PostHog)~~ ✅ 7 Sep 2026 — `src/utils/analytics.js`: Vercel Web Analytics + optional GA4 (`VITE_GA_MEASUREMENT_ID`), UTM capture, `sign_up` event
 - A/B testing of hero headlines and CTA copy
 
 ---
