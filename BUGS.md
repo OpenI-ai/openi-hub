@@ -1498,7 +1498,9 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
 ### Added 7 Sep 2026 (session close) — LinkedIn analytics (Rajeev is a coding
 ### beginner: #18 and #19 are click-only, no code)
 
-18. **Rajeev — enable Vercel Web Analytics (5 min, no code).** Vercel dashboard →
+18. ~~**Rajeev — enable Vercel Web Analytics (5 min, no code).**~~ — **DONE 7 Sep 2026**
+    (Rajeev clicked Enable; Vercel API now returns counts instead of
+    `web_analytics_not_enabled`. Reports start after FE #67 deploys.) Vercel dashboard →
     project **openi-hub** → **Analytics** tab → **Enable**. The `<Analytics />`
     component is already deployed and starts reporting on the next page load.
     Then, after a few LinkedIn clicks: Analytics → filter **UTM Source =
