@@ -1545,7 +1545,11 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Then, after a few LinkedIn clicks: Analytics → filter **UTM Source =
     linkedin** to see visitors, and the **Events** view → `sign_up` to see how
     many of them registered. Free tier is 2,500 events/month — fine for now.
-19. **Rajeev — (optional) Google Analytics 4.** Only if a GA report is wanted
+19. ~~**Rajeev — (optional) Google Analytics 4.**~~ — **DONE 8 Sep 2026 (FE #71):**
+    property "OpenI Hub" (G-HB8W74H9GN) wired as the code default behind a new
+    Accept/Decline `CookieConsent` banner; live-checked on openi.ai (gtag loads
+    after Accept, CSP clean). Rajeev's GA Realtime check after clicking Accept
+    is the one proof still outstanding. Original steps kept below for reference. Only if a GA report is wanted
     on top of Vercel's. Create a GA4 property at analytics.google.com → Admin
     → Data Streams → Web (`https://openi.ai`) → copy the **Measurement ID**
     (`G-…`). Vercel → openi-hub → Settings → Environment Variables → add
@@ -1598,3 +1602,13 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     `tail -3 /tmp/scrub-run.txt` shows its `DONE:` line and, if started,
     `tail -3 /tmp/taxonomy-run4.txt` is finished too. Both scripts are
     resumable/idempotent, so a kill costs a re-run, not data.
+
+### Session close 8 Sep 2026 ~05:40 UTC — status of every item above
+- SHIPPED + LIVE: #18 (Vercel Web Analytics), #19 (GA4 behind consent), #20 (live
+  E2E), #21 (backend attribution + Signup Sources panel, incident closed).
+- OPEN for Rajeev (no code): GA → Reports → Realtime after clicking Accept on
+  openi.ai; one LinkedIn-button test registration to see the first tagged row.
+- OPTIONAL next backend session: Sentry capture in `authController.register`'s
+  catch (the 8 Sep outage was invisible to monitoring); soften the integrity
+  cron email's "structurally impossible" wording. Detail → memory repo
+  `NEXT_SESSION_TODOS.md` s114 items 4–5.
