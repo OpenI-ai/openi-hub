@@ -19,7 +19,10 @@
   Measurement ID (`G-XXXXXXXXXX`) from GA → Admin → Data Streams → web stream. Set on
   Vercel (Production) and redeploy; `src/utils/analytics.js` loads gtag.js only when it
   is present. Unset = no Google script, no GA traffic. The CSP in `vercel.json` already
-  allow-lists `googletagmanager.com` + `google-analytics.com` for it.
+  allow-lists `googletagmanager.com` + `google-analytics.com` for it. **Consent-gated
+  (8 Sep 2026):** with the id set, `<CookieConsent />` (src/components) shows an
+  Accept/Decline banner once per browser; gtag.js loads only after Accept
+  (`localStorage.openi_cookie_consent`). This is the banner /privacy §6 promises.
 - **Vercel Web Analytics** (wired 7 Sep 2026, NOT yet enabled): `<Analytics />` in
   `src/App.jsx` is inert until someone clicks **Enable** under Vercel → openi-hub →
   Analytics tab. Once on, page views + `sign_up` events (with utm_source/medium/campaign

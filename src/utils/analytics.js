@@ -29,6 +29,15 @@
  * to /marketplace and comes back still counts as LinkedIn-sourced when they
  * finish signing up, even though the querystring is long gone.
  *
+ * COOKIE CONSENT (8 Sep 2026)
+ * ---------------------------
+ * GA4 sets cookies (_ga, _ga_*). /privacy §6 promises "optional analytics cookies
+ * are set only after you opt in via the cookie banner", so gtag.js is loaded ONLY
+ * after the visitor accepts in <CookieConsent /> (src/components/CookieConsent.jsx).
+ * The choice lives in localStorage under CONSENT_KEY ('accepted' | 'declined');
+ * no choice yet = banner shows (only when GA is configured at all). Vercel Web
+ * Analytics is cookieless and needs no consent, so it runs regardless.
+ *
  * WHAT TO TRACK
  * -------------
  * Keep custom events few and named in snake_case. Today:
@@ -40,6 +49,7 @@ import { track } from '@vercel/analytics';
 const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || '';
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 const UTM_STORAGE_KEY = 'openi_utm';
+const CONSENT_KEY = 'openi_cookie_consent';
 
 /** Boolean the rest of the app can use to know whether GA is live. */
 export const GA_ENABLED = Boolean(GA_ID);
@@ -101,10 +111,42 @@ function loadGtag() {
   document.head.appendChild(script);
 }
 
+/** 'accepted' | 'declined' | null (no choice yet, or storage blocked). */
+export function getConsent() {
+  try {
+    const v = localStorage.getItem(CONSENT_KEY);
+    return v === 'accepted' || v === 'declined' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** True when the banner should show: GA is configured and nobody has chosen yet. */
+export function needsConsentPrompt() {
+  return GA_ENABLED && getConsent() === null;
+}
+
+/**
+ * Record the visitor's choice. Accepting mid-session loads gtag.js right away
+ * and sends the page they are on, since the router's page_view already fired
+ * before GA existed.
+ */
+export function setConsent(choice) {
+  try {
+    localStorage.setItem(CONSENT_KEY, choice);
+  } catch {
+    /* storage blocked — GA simply loads for this page view only, never persists */
+  }
+  if (choice === 'accepted' && GA_ENABLED) {
+    loadGtag();
+    trackPageView(window.location.pathname + window.location.search);
+  }
+}
+
 /** Call once before React renders (src/main.jsx). Safe to call twice. */
 export function initAnalytics() {
   captureUtm();
-  if (GA_ENABLED) loadGtag();
+  if (GA_ENABLED && getConsent() === 'accepted') loadGtag();
 }
 
 /**
