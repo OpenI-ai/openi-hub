@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import App from './App';
 import useVersionCheck from './hooks/useVersionCheck';
 import { initAnalytics } from './utils/analytics';
+import CookieConsent from './components/CookieConsent';
 import './index.css';
 
 // Cache-busting P2 — headless component so the version-poll hook can run inside
@@ -87,6 +88,9 @@ const tree = (
       }}
     />
     <VersionWatcher />
+    {/* 8 Sep 2026 — analytics-cookie opt-in (renders nothing unless GA is configured
+        and the visitor hasn't chosen yet). See src/utils/analytics.js. */}
+    <CookieConsent />
   </React.StrictMode>
 );
 

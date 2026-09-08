@@ -15,11 +15,15 @@
   Turnstile sitekey (`0x4AAAAAAEiucx13YNmwrA4F`) for the registration CAPTCHA. `VITE_*`
   values are baked at build time — changing it needs a redeploy. Unset = no widget,
   no CAPTCHA (matches the backend flag's off state).
-- **`VITE_GA_MEASUREMENT_ID`** (added 7 Sep 2026, optional): the Google Analytics 4
-  Measurement ID (`G-XXXXXXXXXX`) from GA → Admin → Data Streams → web stream. Set on
-  Vercel (Production) and redeploy; `src/utils/analytics.js` loads gtag.js only when it
-  is present. Unset = no Google script, no GA traffic. The CSP in `vercel.json` already
-  allow-lists `googletagmanager.com` + `google-analytics.com` for it.
+- **`VITE_GA_MEASUREMENT_ID`** (added 7 Sep 2026): the Google Analytics 4 Measurement
+  ID. **Since 8 Sep 2026 the production id `G-HB8W74H9GN` (property "OpenI Hub", stream
+  openi.ai, Rajeev's Google account) is the code default in `src/utils/analytics.js`**, so
+  nothing needs setting on Vercel. Set the variable to an empty string on a preview/staging
+  deploy to keep test traffic out of GA; set a different id to override. The CSP in `vercel.json` already
+  allow-lists `googletagmanager.com` + `google-analytics.com` for it. **Consent-gated
+  (8 Sep 2026):** with the id set, `<CookieConsent />` (src/components) shows an
+  Accept/Decline banner once per browser; gtag.js loads only after Accept
+  (`localStorage.openi_cookie_consent`). This is the banner /privacy §6 promises.
 - **Vercel Web Analytics** (wired 7 Sep 2026, NOT yet enabled): `<Analytics />` in
   `src/App.jsx` is inert until someone clicks **Enable** under Vercel → openi-hub →
   Analytics tab. Once on, page views + `sign_up` events (with utm_source/medium/campaign

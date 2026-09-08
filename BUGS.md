@@ -1577,9 +1577,20 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     company_page / signup_button` row appears with 1.
     **BE #67 MERGED + DEPLOYED 8 Sep 2026 04:55 UTC** (after the BE #66 scrub
     DONE 87,099/87,099 → scrub re-run 0 pending → classify run4 `Done.`).
-    `/api/admin/analytics/signup-sources` answers 401 on prod (exists, auth
-    required); public API healthy. Human eyeball of the panel + a LinkedIn test
-    registration still Rajeev's.
+    **INCIDENT, same morning (my error):** Railway does NOT run migrations on
+    boot (`RUN_MIGRATIONS_ON_BOOT=false`, s42 rule; memory `CLAUDE.md`:158 and
+    LESSONS "schema-forward is safe, code-forward is not"). I merged the code
+    first, so from ~04:55 to 05:29 UTC `POST /auth/register` INSERTed into
+    columns that did not exist → every new registration 500'd, and the admin
+    endpoint 500'd (panel hidden — Rajeev's "no change"). Diagnosed by a
+    DB-backed test (BE #68, green on a fresh Postgres) proving the query was
+    fine and the schema was the difference. Fixed 05:29 UTC: Rajeev ran the
+    single migration module via `railway ssh` (`node -e` requiring
+    `src/migrations/029-signup-attribution`) — `✅ 029` printed. Registrations
+    attempted in that ~34-min window failed at the user's end; count unknown
+    (check Railway logs for "register" 500s if it matters). Rule re-learned:
+    **apply an additive migration to prod BEFORE merging the code that reads
+    it; the deploy will not do it for you.**
     **Merge-order caution (Rajeev asked, 7 Sep):** merging ANY backend PR
     redeploys Railway and kills whatever nohup job is running on the
     container (BE #66's scrub → classify chain). FE #67 is Vercel-only and
