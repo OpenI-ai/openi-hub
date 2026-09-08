@@ -1575,6 +1575,11 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
     Sources" shows a "(direct)" row with the historical total; then click
     the LinkedIn button, register a test user, and the `linkedin /
     company_page / signup_button` row appears with 1.
+    **BE #67 MERGED + DEPLOYED 8 Sep 2026 04:55 UTC** (after the BE #66 scrub
+    DONE 87,099/87,099 → scrub re-run 0 pending → classify run4 `Done.`).
+    `/api/admin/analytics/signup-sources` answers 401 on prod (exists, auth
+    required); public API healthy. Human eyeball of the panel + a LinkedIn test
+    registration still Rajeev's.
     **Merge-order caution (Rajeev asked, 7 Sep):** merging ANY backend PR
     redeploys Railway and kills whatever nohup job is running on the
     container (BE #66's scrub → classify chain). FE #67 is Vercel-only and
