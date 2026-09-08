@@ -46,7 +46,12 @@
  */
 import { track } from '@vercel/analytics';
 
-const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || '';
+// GA4 property "OpenI Hub", web stream openi.ai — created by Rajeev 8 Sep 2026.
+// A Measurement ID is public by nature (it ships in every page's HTML), so the
+// production default lives here; VITE_GA_MEASUREMENT_ID still overrides it
+// (set it to '' on a preview/staging deploy to keep test traffic out of GA).
+const DEFAULT_GA_ID = 'G-HB8W74H9GN';
+const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID ?? DEFAULT_GA_ID;
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 const UTM_STORAGE_KEY = 'openi_utm';
 const CONSENT_KEY = 'openi_cookie_consent';
