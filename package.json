@@ -33,6 +33,9 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@sentry/vite-plugin": "^2.22.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.57.0",
