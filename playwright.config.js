@@ -26,8 +26,26 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.E2E_BASE_URL || 'https://openi.ai';
 
+// Vercel deployment protection. This project runs SSO protection with
+// deploymentType "all_except_custom_domains", so every PREVIEW deployment
+// demands a login and only production (a custom domain) is reachable. Vercel's
+// supported way through for automation is a per-project bypass secret sent as a
+// header; without it the suite cannot test a preview at all, which is what
+// tests/e2e/global-setup.js explains when it fails.
+const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+const extraHTTPHeaders = bypass
+  ? {
+      'x-vercel-protection-bypass': bypass,
+      // Stops the bypass from being recorded as a real visit in analytics.
+      'x-vercel-set-bypass-cookie': 'samesitenone',
+    }
+  : undefined;
+
 export default defineConfig({
   testDir: './tests/e2e',
+  // One request up front, so a protected or dead target fails in seconds with
+  // an explanation instead of twelve identical timeouts.
+  globalSetup: './tests/e2e/global-setup.js',
   // Every spec talks to a deployed site, so a slow cold start is normal and a
   // hung page must still fail rather than stall the job.
   timeout: 45_000,
@@ -44,6 +62,7 @@ export default defineConfig({
 
   use: {
     baseURL,
+    ...(extraHTTPHeaders ? { extraHTTPHeaders } : {}),
     // A failure against a deployed site is often unreproducible later, so keep
     // the evidence from the first attempt.
     trace: 'retain-on-failure',
