@@ -171,15 +171,38 @@ test.describe('register page', () => {
     await expect(page.locator('input[type="password"]').first()).toBeVisible();
   });
 
-  test('requests the Turnstile script and logs no CSP violation', async ({ page }) => {
+  test('requests the Turnstile script and logs no CSP violation', async ({ page, request }) => {
     // THE FE #36 REGRESSION, checked the only way that actually sees it. The
-    // sitekey being present in the bundle proves nothing; what matters is
-    // whether the browser was ALLOWED to fetch the script.
+    // sitekey being present in the bundle proves nothing on its own; what
+    // matters is whether the browser was ALLOWED to fetch the script.
     //
-    // Skipped when relayed: the container cannot reach Cloudflare at all, so a
-    // missing request there is indistinguishable from a CSP block and the
-    // assertion would prove nothing. The header check above still runs.
-    test.skip(RELAYED, 'relayed container cannot reach challenges.cloudflare.com; CSP header test covers it');
+    // But "no request was made" has THREE possible causes, and they must not be
+    // conflated:
+    //   1. CSP blocked it            → the bug this test exists for.
+    //   2. The network cannot reach Cloudflare → a relayed container.
+    //   3. Turnstile is switched OFF in this build → not a bug at all.
+    // TurnstileWidget.jsx is feature-flagged on VITE_TURNSTILE_SITE_KEY: with
+    // the key unset it renders nothing and injects no script, deliberately, so
+    // both halves deploy as a no-op. Vercel PREVIEW builds do not carry the
+    // key (production does), so on a preview this test would fail for reason 3
+    // while reading exactly like reason 1 — the worst kind of false alarm.
+    //
+    // So: rule out 2 and 3 explicitly before asserting anything.
+    test.skip(RELAYED, 'relayed container cannot reach challenges.cloudflare.com; the CSP header test covers it');
+
+    // Reason 3: read the served bundle and look for a Turnstile sitekey. Vite
+    // inlines it at build time, so its absence means the flag is off.
+    const registerHtml = await (await request.get('/register')).text();
+    const bundlePath = (registerHtml.match(/\/assets\/index-[A-Za-z0-9_-]+\.js/) || [])[0];
+    const bundle = bundlePath ? await (await request.get(bundlePath)).text() : '';
+    const turnstileEnabled = /0x4[A-Za-z0-9]{20,}/.test(bundle);
+    test.skip(
+      !turnstileEnabled,
+      'VITE_TURNSTILE_SITE_KEY is not set in this build, so TurnstileWidget renders nothing by ' +
+      'design. Set it for the Vercel Preview environment to exercise this check on PRs — note ' +
+      'Cloudflare sitekeys are domain-scoped, so previews need one that allows *.vercel.app ' +
+      '(or the always-passing test key).'
+    );
 
     const turnstileRequests = [];
     const cspViolations = [];
