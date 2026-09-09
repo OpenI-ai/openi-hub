@@ -34,7 +34,7 @@ const FAQ_SECTIONS = [
       },
       {
         q: 'How does the AI evaluation framework work?',
-        a: 'OpenI Hub evaluates startups using an 8-vector AI framework that scores each company across multiple dimensions of innovation, traction and fit. This lets you compare and shortlist startups objectively instead of relying on keyword matching alone.',
+        a: 'The 8-Vector framework is a structured scoring rubric covering over 100 criteria across eight dimensions, including people, strategic direction, revenue management and technology readiness. Each criterion is scored one to five, and AI can draft a first pass for you to review and adjust. Because every startup is assessed against the same rubric, you get comparable shortlists rather than impressions.',
       },
     ],
   },
@@ -43,7 +43,7 @@ const FAQ_SECTIONS = [
     items: [
       {
         q: 'How do I search 570,000+ startups in plain English?',
-        a: 'You describe what you are looking for in natural language — for example "deep-tech climate startups in India with corporate pilots" — and OpenI Hub returns ranked, AI-evaluated matches. There is no need to learn filters or boolean syntax; the AI interprets your intent.',
+        a: 'You describe what you are looking for in natural language — for example "deep-tech climate startups in India with corporate pilots" — and an AI layer translates that into structured filters: sector, technology, stage, location. Results are then ranked by full-text and semantic similarity. There is no need to learn filters or boolean syntax, and you can refine the filters the AI chose.',
       },
       {
         q: 'Can I find deep-tech startups in a specific sector?',
@@ -68,7 +68,7 @@ const FAQ_SECTIONS = [
       },
       {
         q: 'How are challenge applicants evaluated?',
-        a: 'Applicants are scored with the same AI evaluation framework used across OpenI Hub, and you can add your own reviewers to assess each submission. This gives you a consistent, comparable shortlist rather than a pile of unstructured pitches.',
+        a: 'You can run an AI evaluation on any application, scoring it against your challenge on solution fit, technical maturity, scalability, integration feasibility, team capability, cost effectiveness, innovation and strategic alignment, with a written explanation and any red flags. You can also add your own reviewers to assess submissions alongside it. The result is a consistent, comparable shortlist rather than a pile of unstructured pitches.',
       },
     ],
   },
@@ -81,7 +81,7 @@ const FAQ_SECTIONS = [
       },
       {
         q: 'What do the paid plans cost?',
-        a: 'OpenI Hub offers three tiers: Free at \u20B90, Pro at \u20B92,499, and Enterprise at \u20B99,999. The Free plan lets you get started, while Pro and Enterprise unlock higher limits and advanced capabilities for active sourcing and challenge teams.',
+        a: 'Pricing depends on which side of the marketplace you are on. Startups, students and academia use the provider plans: Free, or Growth at \u20B9499 per month. Corporates, investors, government bodies and other seekers use Free, Pro at \u20B92,499 per month, or Enterprise at \u20B99,999 per month. Annual billing is available on the paid plans at roughly ten months for twelve.',
       },
     ],
   },
