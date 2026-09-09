@@ -2,7 +2,7 @@
  * OpenI Hub — Currency formatting helper (Phase 16B.2)
  *
  * Supports INR + USD with two display formats:
- *   - 'compact': "₹5L", "₹2Cr", "$60K", "$1.5M"    (for cards, dashboards, chips)
+ *   - 'compact': "₹5.0L", "₹2.0Cr", "$60K", "$1.5M"  (for cards, dashboards, chips)
  *   - 'full':    "₹5,00,000", "$60,000"            (for detail views, forms, invoices)
  *
  * NO FX conversion — truth stays with the currency the amount was entered in.
@@ -26,8 +26,14 @@ export const CURRENCY_OPTIONS = [
  * @param {string} format — 'compact' (default) or 'full'
  * @returns {string} Formatted string, or '—' for null/undefined
  *
+ * Examples (verified against tests/utils/currency.test.js — s116 found two of
+ * these were WRONG, both claiming "₹5L"/"₹2Cr" where the code has always
+ * produced "₹5.0L"/"₹2.0Cr". Below 10 units the compact form keeps one decimal
+ * on purpose; at or above 10 it drops it. Whether that trailing .0 is wanted on
+ * cards is a product question, NOT a doc bug — do not "fix" it in code without
+ * deciding deliberately, it changes money display on every surface.)
  * Examples:
- *   formatCurrency(500000, 'INR', 'compact')    → "₹5L"
+ *   formatCurrency(500000, 'INR', 'compact')    → "₹5.0L"
  *   formatCurrency(25000000, 'INR', 'compact')  → "₹2.5Cr"
  *   formatCurrency(500000, 'INR', 'full')       → "₹5,00,000"
  *   formatCurrency(60000, 'USD', 'compact')     → "$60K"
