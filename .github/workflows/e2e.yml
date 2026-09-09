@@ -1,0 +1,90 @@
+# Rendered smoke tests against the Vercel preview deployment.
+#
+# WHY A SEPARATE WORKFLOW ON `deployment_status`, NOT A JOB IN ci.yml.
+# The first attempt (s116) put this in ci.yml and used a third-party action to
+# POLL for the preview URL. It never found one: on PR #73 the preview was Ready
+# 13 seconds after the job started, and the action still sat there until its
+# 600-second timeout, burning ten minutes of runner time per PR and reporting
+# nothing. Polling for a thing GitHub already tells you about is the wrong
+# shape.
+#
+# `deployment_status` fires exactly when Vercel reports the deployment live,
+# and carries the URL in the payload. No polling, no third-party action, no
+# wasted minutes, and no timing coupling to the build job.
+#
+# CORRECTED 9 Sep 2026, by watching it actually run: I first wrote here that
+# `deployment_status` workflows always use the DEFAULT BRANCH copy of the file
+# and do not appear in a PR's check list. Both halves are wrong for this setup.
+# Run 34320104870 used THIS file from the PR branch (head_sha 615b2ab), was
+# triggered by vercel[bot] two seconds after the deploy reported Ready, and
+# showed up as a check on PR #73. The default-branch rule applies to some event
+# types; this is not one of them. Left in as a correction rather than deleted,
+# because the wrong version is the intuitive one and someone will re-derive it.
+#
+# WHAT THIS CATCHES THAT NOTHING ELSE DOES. A CSP regression. FE #36 shipped
+# "fully verified" by API probes plus bundle inspection and never rendered,
+# because vercel.json blocked challenges.cloudflare.com. Only a rendering
+# browser sees that. See tests/e2e/public-smoke.spec.js for the rules about
+# what may and may not be tolerated.
+
+name: E2E
+
+on:
+  deployment_status:
+
+jobs:
+  smoke:
+    # Vercel posts pending/failure states too; only a live deployment is testable.
+    if: github.event.deployment_status.state == 'success'
+    name: smoke (rendered)
+    runs-on: ubuntu-latest
+    # A third-party deploy hiccup should not read as "this code is broken".
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Playwright's own download IS wanted here — unlike a cloud agent
+      # container, a GitHub runner ships no browser. --with-deps adds the
+      # system libraries Chromium needs on ubuntu-latest.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Vercel deployment protection (ssoProtection, all_except_custom_domains)
+      # makes every PREVIEW demand a login. Without the bypass secret the suite
+      # cannot reach the app at all — the first CI run burned ten minutes of
+      # identical timeouts proving it. Skip loudly rather than pretend.
+      - name: Check for the protection-bypass secret
+        id: bypass
+        env:
+          SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -n "$SECRET" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Smoke tests skipped — previews are behind Vercel SSO and VERCEL_AUTOMATION_BYPASS_SECRET is not set. Enable Protection Bypass for Automation on the Vercel project and add the secret to this repo."
+          fi
+
+      - name: Run smoke tests
+        if: steps.bypass.outputs.available == 'true'
+        env:
+          # The deployment URL, straight from the event. No polling.
+          E2E_BASE_URL: ${{ github.event.deployment_status.target_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure() && steps.bypass.outputs.available == 'true'
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

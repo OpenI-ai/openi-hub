@@ -21,3 +21,8 @@ dist/
 # A nested clone of the backend repo (it has happened) must never be linted,
 # committed, or pushed from this repo.
 openi-hub-backend/
+
+# s116 — Playwright artifacts. Traces and screenshots are captured on failure
+# only and are debugging aids for one run, not repo content.
+test-results/
+playwright-report/

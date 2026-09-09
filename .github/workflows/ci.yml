@@ -5,8 +5,19 @@
 # This repo had no .github/ at all. Nothing gated main: a direct push went
 # straight to Vercel, and a PR showed zero checks, so the first signal that
 # something was broken was a failed production deploy. This workflow is the
-# missing signal. It is a gate, not a test suite — the repo has no test
-# framework, so "does it lint and does it build" is the whole contract.
+# missing signal.
+#
+# s116 (9 Sep 2026): the contract is no longer just "does it lint and does it
+# build". The repo now has vitest and a unit layer over the pure utils, so the
+# gate runs those too. The header used to say "the repo has no test framework"
+# — that is no longer true.
+#
+# The RENDERED smoke tests are deliberately NOT here. They live in e2e.yml,
+# triggered by `deployment_status`, because they need a deployed URL and this
+# workflow has none. The first attempt did put them here behind a polling
+# action; it timed out for ten minutes on every PR without ever finding the
+# preview. That file's header has the detail. Layer 3 (React Testing Library)
+# is still to come and WILL belong here, since it needs no deployment.
 #
 # WHY `npx vite build` AND NOT `npm run build`
 # --------------------------------------------
@@ -88,6 +99,14 @@ jobs:
       # errors — if this goes red, something new genuinely broke.
       - name: Lint
         run: npm run lint
+
+      # s116 (9 Sep 2026) — the repo's first automated tests. Layer 2 of the
+      # three-layer plan: pure-JS units, no coverage-% target. `vitest run`
+      # (not bare `vitest`) so it exits instead of entering watch mode and
+      # hanging the job. Placed BEFORE the build because it is ~1s and a
+      # failing unit test makes the 40s build irrelevant.
+      - name: Unit tests
+        run: npm test
 
       # See header: vite binary directly, NOT `npm run build`.
       - name: Build
