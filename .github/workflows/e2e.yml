@@ -1,0 +1,68 @@
+# Rendered smoke tests against the Vercel preview deployment.
+#
+# WHY A SEPARATE WORKFLOW ON `deployment_status`, NOT A JOB IN ci.yml.
+# The first attempt (s116) put this in ci.yml and used a third-party action to
+# POLL for the preview URL. It never found one: on PR #73 the preview was Ready
+# 13 seconds after the job started, and the action still sat there until its
+# 600-second timeout, burning ten minutes of runner time per PR and reporting
+# nothing. Polling for a thing GitHub already tells you about is the wrong
+# shape.
+#
+# `deployment_status` fires exactly when Vercel reports the deployment live,
+# and carries the URL in the payload. No polling, no third-party action, no
+# wasted minutes, and no timing coupling to the build job.
+#
+# CAVEAT, worth knowing before you debug this: workflows triggered by
+# `deployment_status` always run the file as it exists on the DEFAULT BRANCH.
+# So a change to this file does not take effect until it is merged, and it does
+# not appear in a PR's own check list — look under Actions, not on the PR.
+#
+# WHAT THIS CATCHES THAT NOTHING ELSE DOES. A CSP regression. FE #36 shipped
+# "fully verified" by API probes plus bundle inspection and never rendered,
+# because vercel.json blocked challenges.cloudflare.com. Only a rendering
+# browser sees that. See tests/e2e/public-smoke.spec.js for the rules about
+# what may and may not be tolerated.
+
+name: E2E
+
+on:
+  deployment_status:
+
+jobs:
+  smoke:
+    # Vercel posts pending/failure states too; only a live deployment is testable.
+    if: github.event.deployment_status.state == 'success'
+    name: smoke (rendered)
+    runs-on: ubuntu-latest
+    # A third-party deploy hiccup should not read as "this code is broken".
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Playwright's own download IS wanted here — unlike a cloud agent
+      # container, a GitHub runner ships no browser. --with-deps adds the
+      # system libraries Chromium needs on ubuntu-latest.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        env:
+          # The deployment URL, straight from the event. No polling.
+          E2E_BASE_URL: ${{ github.event.deployment_status.target_url }}
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

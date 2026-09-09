@@ -10,8 +10,14 @@
 # s116 (9 Sep 2026): the contract is no longer just "does it lint and does it
 # build". The repo now has vitest and a unit layer over the pure utils, so the
 # gate runs those too. The header used to say "the repo has no test framework"
-# — that is no longer true, and layers 1 (Playwright smoke) and 3 (React
-# Testing Library) are still to come.
+# — that is no longer true.
+#
+# The RENDERED smoke tests are deliberately NOT here. They live in e2e.yml,
+# triggered by `deployment_status`, because they need a deployed URL and this
+# workflow has none. The first attempt did put them here behind a polling
+# action; it timed out for ten minutes on every PR without ever finding the
+# preview. That file's header has the detail. Layer 3 (React Testing Library)
+# is still to come and WILL belong here, since it needs no deployment.
 #
 # WHY `npx vite build` AND NOT `npm run build`
 # --------------------------------------------
@@ -105,67 +111,3 @@ jobs:
       # See header: vite binary directly, NOT `npm run build`.
       - name: Build
         run: npx vite build
-
-  # ── s116 (9 Sep 2026) — layer 1: rendered smoke tests ────────────────────
-  #
-  # Runs against the Vercel PREVIEW deployment for this PR, not production: a
-  # PR should be gated on the code it proposes, and hammering prod on every
-  # push is both slower and rude.
-  #
-  # WHY THIS IS A SEPARATE JOB. It needs a deployment to exist, so it waits on
-  # Vercel rather than on the build above. If the preview URL never appears the
-  # job SKIPS rather than fails — a missing preview means Vercel is having a
-  # day, and a gate that goes red for that trains people to ignore red (the
-  # same reasoning the header gives for avoiding `npm run build`).
-  #
-  # This is the only layer that can catch a CSP regression. See FE #36 and the
-  # spec file's own header before weakening anything here.
-  e2e:
-    name: smoke (rendered)
-    runs-on: ubuntu-latest
-    # Don't block the merge queue on a third-party deploy; report separately.
-    continue-on-error: true
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      # Playwright's own browser download IS wanted here — unlike a cloud agent
-      # container, a GitHub runner ships none. --with-deps installs the system
-      # libraries Chromium needs on ubuntu-latest.
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Wait for the Vercel preview
-        id: preview
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
-        continue-on-error: true
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 600
-          check_interval: 10
-
-      # No preview URL → nothing to smoke. Skip loudly rather than fail.
-      - name: Run smoke tests
-        if: steps.preview.outputs.url != ''
-        env:
-          E2E_BASE_URL: ${{ steps.preview.outputs.url }}
-        run: npm run test:e2e
-
-      - name: Report a missing preview
-        if: steps.preview.outputs.url == ''
-        run: echo "No Vercel preview URL for this PR — smoke tests skipped, not failed."
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
