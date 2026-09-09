@@ -209,7 +209,7 @@ export const pagesAdminPublic = {
       {
         target: '#tour-page-search',
         title: 'Search the Ecosystem',
-        content: 'Search 575,000+ startups and the wider ecosystem. Toggle AI Ask for natural-language queries.',
+        content: 'Search 570,000+ startups and the wider ecosystem. Toggle AI Ask for natural-language queries.',
         placement: 'bottom',
         skipBeacon: true,
       },

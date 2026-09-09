@@ -52,7 +52,19 @@ const BORDER = '#E8E3D8';                     // default border
 // than keyword matches. The `Global Startups` label must stay exactly as-is:
 // Landing.jsx overlays the live DB count by matching on that string.
 const DEFAULT_STATS = [
-  { value: '575K+', label: 'Global Startups' },
+  // s116k — 575K+ → 570K+. This is the PRE-HYDRATION fallback: Landing.jsx
+  // overlays the live DB count as soon as /landing-content answers, so this
+  // string is what a visitor sees for the first moment of the page (and what a
+  // prerendered snapshot bakes in). It had drifted FALSE — the backend counts
+  // 574K+ today, and 574,xxx is not "575K+". On the primary proof-of-scale
+  // claim that is worth being exactly right about.
+  //
+  // Fixed as a FLOOR rather than by writing 574K+, for the same reason the
+  // Innovation Maps row below is a floor: an exact count in the bundle drifts
+  // stale the moment the number moves, and it moves in BOTH directions —
+  // dedup (802 groups merged at s111) pushes it DOWN, which is how an exact
+  // fallback becomes an overclaim rather than merely an old one.
+  { value: '570K+', label: 'Global Startups' },
   // '240+' is a floor claim on purpose: the curated taxonomy grows (241 at
   // s113) and a hardcoded exact count drifts stale — the hero-number
   // incident above is the precedent. Raise the floor only in big jumps.

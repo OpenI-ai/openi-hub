@@ -26,7 +26,7 @@ const FAQ_SECTIONS = [
     items: [
       {
         q: 'What is OpenI Hub?',
-        a: 'OpenI Hub is an AI-powered open innovation marketplace. It lets corporates, investors, government bodies and academia search 575,000+ startups in plain English, post innovation challenges, and connect directly with founders and partners. It is ISO/IEC 27001:2022 certified and free to start.',
+        a: 'OpenI Hub is an AI-powered open innovation marketplace. It lets corporates, investors, government bodies and academia search 570,000+ startups in plain English, post innovation challenges, and connect directly with founders and partners. It is ISO/IEC 27001:2022 certified and free to start.',
       },
       {
         q: 'Who is OpenI Hub for?',
@@ -42,7 +42,7 @@ const FAQ_SECTIONS = [
     heading: 'Searching and sourcing startups',
     items: [
       {
-        q: 'How do I search 575,000+ startups in plain English?',
+        q: 'How do I search 570,000+ startups in plain English?',
         a: 'You describe what you are looking for in natural language — for example "deep-tech climate startups in India with corporate pilots" — and OpenI Hub returns ranked, AI-evaluated matches. There is no need to learn filters or boolean syntax; the AI interprets your intent.',
       },
       {
@@ -175,7 +175,7 @@ export default function PublicFAQ() {
           </h1>
           <p className="text-base md:text-lg leading-relaxed" style={{ color: GRAY }}>
             How OpenI Hub helps corporates, investors, government and academia search
-            575,000+ startups, run innovation challenges, and connect with India&apos;s
+            570,000+ startups, run innovation challenges, and connect with India&apos;s
             deep-tech ecosystem.
           </p>
         </div>
