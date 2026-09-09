@@ -229,12 +229,33 @@ test.describe('register page', () => {
     });
 
     await page.goto('/register', { waitUntil: 'domcontentloaded' });
+
+    // TurnstileWidget lives on STEP 2 of the wizard (Register.jsx:671), not on
+    // the landing step — s101 deliberately put the bot check on the submitting
+    // step because tokens expire. So the widget never mounts and the script is
+    // never injected until the form is driven there. Loading /register and
+    // waiting, as this spec first did, proves nothing.
+    //
+    // Nothing here submits: step 2 is the profile step, and the account is only
+    // created by the button beyond it. These values never reach the database.
+    await page.getByRole('button', { name: /^Startup/ }).click();
+    await page.locator('input[placeholder="Your full name"]').fill('E2E Smoke');
+    await page.locator('input[type="email"]').first().fill(`e2e-smoke-${Date.now()}@openi-e2e.invalid`);
+    const pwd = page.locator('input[type="password"]');
+    // Register.jsx:145 — step1Valid needs password === confirmPwd, both >= 6.
+    await pwd.first().fill('E2eSmokePassw0rd');
+    await pwd.nth(1).fill('E2eSmokePassw0rd');
+    await page.locator('input[type="checkbox"]').first().check();
+    await page.getByRole('button', { name: /Continue/ }).click();
+
+    // Prove we actually got there before asserting on what step 2 loads.
+    await expect(page.getByText(/Profile/i).first()).toBeVisible({ timeout: 15_000 });
     await page.waitForTimeout(4_000);
 
     expect(cspViolations, `CSP violations on /register: ${cspViolations.join(' | ')}`).toEqual([]);
     expect(
       turnstileRequests.length,
-      'Turnstile script was never requested — check script-src AND frame-src in vercel.json'
+      'Turnstile script was never requested on the step that renders it — check script-src AND frame-src in vercel.json'
     ).toBeGreaterThan(0);
   });
 
