@@ -195,7 +195,13 @@ test.describe('register page', () => {
     const registerHtml = await (await request.get('/register')).text();
     const bundlePath = (registerHtml.match(/\/assets\/index-[A-Za-z0-9_-]+\.js/) || [])[0];
     const bundle = bundlePath ? await (await request.get(bundlePath)).text() : '';
-    const turnstileEnabled = /0x4[A-Za-z0-9]{20,}/.test(bundle);
+    // Cloudflare sitekeys are 24 chars and Vite inlines the value as a quoted
+    // string literal. The leading digit varies by key TYPE — 0x… is a real
+    // key, 1x/2x/3x… are the documented test keys (always-passes,
+    // always-blocks, forces-interactive). Matching only `0x4` missed the
+    // always-passes key configured for previews, so this check would have gone
+    // on skipping while reporting itself satisfied.
+    const turnstileEnabled = /["'][0-3]x[A-Za-z0-9]{22}["']/.test(bundle);
     test.skip(
       !turnstileEnabled,
       'VITE_TURNSTILE_SITE_KEY is not set in this build, so TurnstileWidget renders nothing by ' +
