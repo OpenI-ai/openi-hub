@@ -216,9 +216,16 @@ test.describe('register page', () => {
       if (r.url().includes('challenges.cloudflare.com')) turnstileRequests.push(r.url());
     });
     page.on('console', (msg) => {
-      if (/Content Security Policy|Refused to (load|execute|frame)/i.test(msg.text())) {
-        cspViolations.push(msg.text());
-      }
+      const t = msg.text();
+      if (!/Content Security Policy|Refused to (load|execute|frame)/i.test(t)) return;
+      // vercel.live is Vercel's own preview feedback toolbar, injected into
+      // PREVIEW deployments only and never present in production. Allowing it
+      // would mean carrying vercel.live in the production CSP for a script
+      // production never loads, so the right move is to ignore it here.
+      // Scoped to that one host on purpose: every other violation is the app's
+      // and must fail, which is the entire point of this spec.
+      if (t.includes('vercel.live')) return;
+      cspViolations.push(t);
     });
 
     await page.goto('/register', { waitUntil: 'domcontentloaded' });
