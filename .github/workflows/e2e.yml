@@ -12,10 +12,14 @@
 # and carries the URL in the payload. No polling, no third-party action, no
 # wasted minutes, and no timing coupling to the build job.
 #
-# CAVEAT, worth knowing before you debug this: workflows triggered by
-# `deployment_status` always run the file as it exists on the DEFAULT BRANCH.
-# So a change to this file does not take effect until it is merged, and it does
-# not appear in a PR's own check list — look under Actions, not on the PR.
+# CORRECTED 9 Sep 2026, by watching it actually run: I first wrote here that
+# `deployment_status` workflows always use the DEFAULT BRANCH copy of the file
+# and do not appear in a PR's check list. Both halves are wrong for this setup.
+# Run 34320104870 used THIS file from the PR branch (head_sha 615b2ab), was
+# triggered by vercel[bot] two seconds after the deploy reported Ready, and
+# showed up as a check on PR #73. The default-branch rule applies to some event
+# types; this is not one of them. Left in as a correction rather than deleted,
+# because the wrong version is the intuitive one and someone will re-derive it.
 #
 # WHAT THIS CATCHES THAT NOTHING ELSE DOES. A CSP regression. FE #36 shipped
 # "fully verified" by API probes plus bundle inspection and never rendered,
