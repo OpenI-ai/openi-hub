@@ -83,9 +83,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # s116k — 20 → 22. NOT a routine bump: jsdom, which layer 3's page specs
+      # need, CANNOT RUN ON NODE 20. jsdom@30.0.1 declares
+      # `engines: ^22.22.2 || ^24.15.0 || >=26.0.0` and depends on undici@8,
+      # which itself requires >=22.19.0. npm only WARNS about an engines
+      # mismatch, so Node 20 installed it happily and then died at import with
+      # `TypeError: webidl.util.markAsUncloneable is not a function` — a
+      # message that names neither jsdom nor the Node version and reads like a
+      # broken dependency.
+      #
+      # The tell: the 104 node-environment specs still passed and only the 3
+      # jsdom ones errored. A partial failure like that is an ENVIRONMENT
+      # problem, not a test problem.
+      #
+      # jsdom ^30 was already in package.json before those specs existed, so
+      # the incompatibility was latent — layer 3 is simply the first thing to
+      # import it. Downgrading jsdom would reverse a dependency choice already
+      # made here; Node 20 is also deprecated on GitHub runners, and local
+      # development is on 22. Reproduced on Node 20 and confirmed fixed on 22
+      # before this change was pushed.
+      #
+      # ⚠️ e2e.yml still pins 20. It runs Playwright against a deployed URL and
+      # never loads jsdom, so it is unaffected — but if a vitest step is ever
+      # added there, it needs this same bump.
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       # `npm ci` (not `npm install`) — it honours package-lock.json exactly and
