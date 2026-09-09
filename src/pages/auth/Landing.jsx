@@ -69,7 +69,14 @@ export default function Landing() {
   // as carelessness rather than as a counter ticking up. Every surface here now
   // reads this one binding, so the hero and the tile cannot drift apart again:
   // when the live count moves, all of them move together.
-  const startupCount = liveStartupsValue || '575K+';
+  // s116k — the fallback is now DERIVED from DEFAULT_STATS rather than written
+  // out a second time. It was a literal '575K+' here and a literal '575K+' in
+  // constants.js, which is two copies of one fact: correcting either alone
+  // recreates the exact drift the 21 Aug audit fixed (hero said 575,000+ while
+  // the tile 900px below rendered 576K+). The comment above already promised
+  // "every surface here now reads this one binding" — two literals did not
+  // deliver that, one binding does.
+  const startupCount = liveStartupsValue || statValue(DEFAULT_STATS, 'Global Startups', '');
   // s51 homepage redesign — the stats strip shows a curated 4-stat set
   // (Global Startups / AI Clusters / Personas / ISO 27001) from DEFAULT_STATS,
   // so it stays on-brief regardless of what the CMS stats array contains.
