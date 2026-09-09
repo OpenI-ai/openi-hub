@@ -28,18 +28,13 @@ const baseURL = process.env.E2E_BASE_URL || 'https://openi.ai';
 
 // Vercel deployment protection. This project runs SSO protection with
 // deploymentType "all_except_custom_domains", so every PREVIEW deployment
-// demands a login and only production (a custom domain) is reachable. Vercel's
-// supported way through for automation is a per-project bypass secret sent as a
-// header; without it the suite cannot test a preview at all, which is what
-// tests/e2e/global-setup.js explains when it fails.
-const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-const extraHTTPHeaders = bypass
-  ? {
-      'x-vercel-protection-bypass': bypass,
-      // Stops the bypass from being recorded as a real visit in analytics.
-      'x-vercel-set-bypass-cookie': 'samesitenone',
-    }
-  : undefined;
+// demands a login and only production (a custom domain) is reachable.
+//
+// The bypass is carried by a COOKIE that global-setup.js obtains once, NOT by
+// `extraHTTPHeaders`. Playwright applies extraHTTPHeaders to every request
+// including cross-origin ones, which promotes simple requests to CORS
+// preflights that third parties reject — it broke four specs on Google Fonts
+// alone. See the global-setup header. Do not reintroduce header-based bypass.
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -62,7 +57,9 @@ export default defineConfig({
 
   use: {
     baseURL,
-    ...(extraHTTPHeaders ? { extraHTTPHeaders } : {}),
+    // Written by global-setup.js; carries the Vercel bypass cookie when a
+    // secret is configured, and is otherwise simply empty.
+    storageState: './test-results/.vercel-bypass.json',
     // A failure against a deployed site is often unreproducible later, so keep
     // the evidence from the first attempt.
     trace: 'retain-on-failure',

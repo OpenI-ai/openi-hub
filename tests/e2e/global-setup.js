@@ -1,27 +1,47 @@
 /**
- * Fail fast when the target URL is not actually the app.
+ * Two jobs, both learned the hard way on 9 Sep 2026.
  *
- * WHY THIS EXISTS. On 9 Sep 2026 the first real CI run of this suite sat for
- * over ten minutes and reported nothing. Cause: the Vercel project has SSO
- * protection enabled with deploymentType "all_except_custom_domains", so every
- * PREVIEW deployment answers with Vercel's login page instead of the app. Each
- * of the twelve specs then burned its full 45-second timeout, twice over with
- * the CI retry.
+ * 1. FAIL FAST WHEN THE TARGET IS NOT THE APP. The Vercel project runs SSO
+ *    protection with deploymentType "all_except_custom_domains", so every
+ *    PREVIEW deployment answers with a login page. The first real CI run spent
+ *    4.5 minutes producing eleven identical timeouts and one VACUOUS pass — the
+ *    "no analytics before consent" spec held because a login page has no
+ *    analytics either. One probe up front turns that into a named error.
  *
- * A wall of identical timeouts is the worst possible failure report: it looks
- * like the app is broken when the truth is that the runner was never allowed
- * in. One request up front turns ten minutes of noise into a ten-second error
- * that names the real problem and the fix.
+ * 2. UNLOCK THE PREVIEW WITH A COOKIE, NOT A HEADER. The obvious way to send
+ *    Vercel's bypass secret is Playwright's `extraHTTPHeaders`. Do not: those
+ *    headers go on EVERY request, including cross-origin ones, which promotes
+ *    simple requests to CORS preflights that third parties reject. It broke
+ *    four specs with
+ *        Access to font at 'https://fonts.gstatic.com/...' blocked by CORS
+ *        policy: Request header field x-vercel-set-bypass-cookie is not
+ *        allowed by Access-Control-Allow-Headers in preflight response
+ *    — a failure entirely manufactured by the test setup. Vercel also accepts
+ *    the bypass as QUERY PARAMETERS, which sets a cookie scoped to the
+ *    deployment host. One request here, saved as storageState, and every later
+ *    request is a plain same-origin one with no custom headers anywhere.
  */
 import { request } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+
+export const STORAGE_STATE = path.join(process.cwd(), 'test-results', '.vercel-bypass.json');
 
 export default async function globalSetup(config) {
-  const { baseURL, extraHTTPHeaders } = config.projects[0].use;
-  const ctx = await request.newContext({ extraHTTPHeaders });
+  const baseURL = config.projects[0].use.baseURL;
+  const secret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
+  const ctx = await request.newContext();
+
+  // With a secret, ask for the bypass cookie in the same request that probes
+  // the target — one round trip does both jobs.
+  const probeUrl = secret
+    ? `${baseURL}?x-vercel-protection-bypass=${encodeURIComponent(secret)}&x-vercel-set-bypass-cookie=true`
+    : baseURL;
 
   let res;
   try {
-    res = await ctx.get(baseURL, { maxRedirects: 0, timeout: 20_000 });
+    res = await ctx.get(probeUrl, { timeout: 20_000 });
   } catch (err) {
     await ctx.dispose();
     throw new Error(`E2E target ${baseURL} is unreachable: ${err.message}`);
@@ -29,29 +49,34 @@ export default async function globalSetup(config) {
 
   const status = res.status();
   const body = await res.text().catch(() => '');
-  await ctx.dispose();
 
-  // Vercel SSO answers 401/403, or redirects to vercel.com/sso-api.
+  // Vercel SSO answers 401/403, or serves its own login page.
   const looksLikeVercelAuth =
     status === 401 ||
     status === 403 ||
     /vercel\.com\/sso-api|Authentication Required|_vercel\/sso/i.test(body);
 
   if (looksLikeVercelAuth) {
+    await ctx.dispose();
     throw new Error(
       `E2E target ${baseURL} is behind Vercel deployment protection (HTTP ${status}).\n` +
-      `The suite cannot log in, so every spec would time out.\n` +
-      `Fix, in order of preference:\n` +
-      `  1. Enable Protection Bypass for Automation on the Vercel project, then add the\n` +
-      `     generated secret to this repo as the VERCEL_AUTOMATION_BYPASS_SECRET Actions\n` +
-      `     secret. e2e.yml already passes it through when present.\n` +
-      `  2. Set ssoProtection to "only_preview_deployments: false" if previews should be\n` +
-      `     public.\n` +
-      `Production (openi.ai) is on a custom domain and is NOT affected by this.`
+      (secret
+        ? `VERCEL_AUTOMATION_BYPASS_SECRET is set but was rejected — check the value matches the\n` +
+          `one shown under Protection Bypass for Automation on the Vercel project.`
+        : `Set the VERCEL_AUTOMATION_BYPASS_SECRET Actions secret from the Vercel project's\n` +
+          `Protection Bypass for Automation setting. e2e.yml passes it through when present.`) +
+      `\nProduction (openi.ai) is on a custom domain and is NOT affected by this.`
     );
   }
 
   if (status >= 400) {
+    await ctx.dispose();
     throw new Error(`E2E target ${baseURL} answered HTTP ${status} — nothing to smoke test.`);
   }
+
+  // Hand the bypass cookie to the browser contexts. Written even without a
+  // secret so `storageState` always has a file to point at.
+  fs.mkdirSync(path.dirname(STORAGE_STATE), { recursive: true });
+  await ctx.storageState({ path: STORAGE_STATE });
+  await ctx.dispose();
 }
