@@ -41,19 +41,23 @@ const SLIDES = [
   // page is we can add Innovation map screen shot". It is the platform's most
   // distinctive surface and the slideshow had no shot of it.
   //
-  // ⚠️ THE PNG DOES NOT EXIST YET. It cannot be captured from a dev container:
-  // /dashboard/maps is behind auth, and the capture script must run against
-  // PRODUCTION rather than a local seed (a seeded database yields "11 profiles
-  // found" against a caption claiming hundreds of thousands — see the capture
-  // script header). So this entry ships ahead of its asset, and the onError
-  // guard below is what makes that safe: a slide whose image 404s is dropped
-  // rather than rendered as a broken image. The slide appears on its own, with
-  // no further code change, the moment the PNG is committed.
+  // CAPTURED 11 Sep from production, from a cloud container, via the new
+  // OPENI_VIA_PROXY mode in scripts/capture-screenshots.mjs. It is the
+  // /dashboard/maps/sector/financial-services drill-down, so what the image
+  // shows is the hub-and-spoke diagram: a sector hub of 45,947 startups, theme
+  // nodes around it, and representative startups as the outer spokes.
   //
-  // To produce it, from the frontend repo root with a demo password to hand:
-  //   OPENI_BASE=https://app.openi.ai OPENI_PASSWORD='...' \
-  //     node scripts/capture-screenshots.mjs
-  { src: '/screenshots/12-innovation-map.png', caption: 'AI Innovation Map', desc: 'Explore 200 AI clusters as an interactive map, with sector hubs and startup spokes' },
+  // ⚠️ THE CAPTION IS WRITTEN AGAINST WHAT THE IMAGE ACTUALLY SHOWS, and my
+  // first draft of it was not. It said "Explore 200 AI clusters", which is a
+  // DIFFERENT dimension — the page renders SECTOR maps (26 of them, alongside
+  // 11 technologies, 30 functions and 50 use cases), and the word "cluster"
+  // appears nowhere on it. That would have been the third false public claim of
+  // the same day, in the same file I was fixing two others in. A caption is a
+  // claim; check it against the pixels, not against what you expected to shoot.
+  //
+  // Deliberately states no count: sector and theme totals move with the
+  // directory, and a number here would age into an overclaim exactly as 583K did.
+  { src: '/screenshots/12-innovation-map.png', caption: 'Innovation Map', desc: 'Hub-and-spoke maps across sectors, technologies, functions and use cases, with representative startups as the spokes' },
 ];
 
 export default function PlatformSlideshow() {

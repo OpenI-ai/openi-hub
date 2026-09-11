@@ -66,12 +66,6 @@ function CohortDetail({ cohort, onClose }) {
                         <div className="text-xs text-gray-400">Score</div>
                       </div>
                     </div>
-                    <div className="mt-4">
-                      <div className="text-xs text-gray-500 mb-1">Cohort Progress</div>
-                      <div className="bg-gray-100 rounded-full h-2">
-                        <div className="bg-primary-500 h-2 rounded-full" style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }} />
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -142,7 +136,6 @@ function CohortDetail({ cohort, onClose }) {
             <div className="grid grid-cols-3 gap-4 mb-6">
               {[
                 { label: 'Enrolled', value: members.length, icon: Users, color: 'text-primary-600' },
-                { label: 'On Track', value: members.length, icon: CheckCircle2, color: 'text-accent-600' },
                 { label: 'Graduated', value: cohort.graduated, icon: Award, color: 'text-yellow-600' },
               ].map(s => (
                 <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-5 text-center">
@@ -154,16 +147,37 @@ function CohortDetail({ cohort, onClose }) {
             </div>
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h3 className="font-semibold text-gray-800 mb-4">Individual Startup Progress</h3>
-              {members.map(startup => (
-                <div key={startup.id} className="flex items-center gap-4 mb-3">
-                  <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center text-dark-950 text-xs font-bold">{startup.logo}</div>
-                  <span className="text-sm font-medium text-gray-700 w-36 truncate">{startup.name}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-2.5">
-                    <div className="bg-primary-500 h-2.5 rounded-full" style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }} />
-                  </div>
-                  <span className="text-xs font-semibold text-gray-600 w-8 text-right">{Math.floor(Math.random() * 40) + 40}%</span>
+              {/* s117 — THE PROGRESS BARS HERE WERE Math.random(), and the worst
+                  part was not that they were fake. The bar WIDTH and the
+                  percentage LABEL were two separate random draws, so the number
+                  never matched the bar it labelled. On a page an admin uses to
+                  judge a cohort, that is fabricated evidence, not placeholder
+                  styling.
+
+                  They are not replaced with a real figure because there is no
+                  real figure to show: cohortController returns `SELECT s.*` for
+                  cohort members and computes no progress, and `cohorts` carries
+                  no completion column. So the honest state is to say so. An
+                  empty panel would read as "all at zero"; this reads as "not
+                  measured yet", which is what is true.
+
+                  To make this real, progress needs a definition first (milestones
+                  completed over milestones assigned is the obvious one, since the
+                  milestones tab already exists) and then a backend field. That is
+                  a feature, not a styling fix. */}
+              {members.length === 0 ? (
+                <p className="text-sm text-gray-500">No startups enrolled in this cohort yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {members.map(startup => (
+                    <div key={startup.id} className="flex items-center gap-4">
+                      <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center text-dark-950 text-xs font-bold">{startup.logo}</div>
+                      <span className="text-sm font-medium text-gray-700 w-36 truncate">{startup.name}</span>
+                      <span className="text-xs text-gray-400">Progress not tracked yet</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
