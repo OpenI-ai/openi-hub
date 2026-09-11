@@ -136,6 +136,33 @@ const SHOTS = [
   // (Sourced, Evaluating, LOI, Diligence, Term Sheet, Closed, Passed), which is
   // the thing the caption is describing.
   { file: '11-investor-dashboard.png',   email: 'investor@demo.openi.ai',  path: '/dashboard/investor/deals' },
+  // s117 — Innovation Map, for the new slideshow slide. Rajeev: "one thing
+  // missing on landing page is we can add Innovation map screen shot".
+  //
+  // academia@demo.openi.ai because that is the persona whose sidebar Rajeev's
+  // own screenshot shows carrying "Innovation Map"; any persona with the item
+  // would do, and this one is already used by shot 08 so it is known to log in.
+  //
+  // ⚠️ THE MAP IS THE ONE SHOT WHOSE CONTENT DEPENDS ON WORK OUTSIDE THIS REPO.
+  // It renders cluster nodes with startup logos, and logo coverage is actively
+  // being filled in (3,305 stored as of 11 Sep, more slices pending). A capture
+  // taken today shows more initials-fallback circles than one taken after the
+  // remaining slices and the no-icon re-mine land. Not a blocker — but if the
+  // shot looks sparse, that is the reason, and re-shooting later is cheap.
+  //
+  // ⚠️ It is also the slowest surface on the platform: the map compute is
+  // 13.1s worst-case for the first visitor per URL per deploy. If this shot
+  // comes out half-drawn, the settle wait is what needs raising, not the
+  // selector.
+  // ⚠️ waitFor IS LOAD-BEARING HERE, not a nicety. The first attempt at this
+  // shot came back as a full-page "Loading map…" spinner and the blank-frame
+  // guard PASSED IT at 72% flat, because the sidebar and header are real
+  // content. A guard that asks "did anything render" cannot answer "did the
+  // THING render" — this is the 22 Aug blank-frame incident one level up, and
+  // it would have shipped a picture of a spinner as the platform's flagship
+  // slide. Waiting on a react-flow node is what proves the diagram drew.
+  { file: '12-innovation-map.png',       email: 'academia@demo.openi.ai',  path: '/dashboard/maps/sector/financial-services',
+    waitFor: '.react-flow__node', waitForMs: 90000 },
 ];
 
 const ROLES = ['startup','student','academia','corporate','govt','investor','lab',
@@ -238,11 +265,88 @@ async function dominantColourShare(page, buf) {
   }, `data:image/png;base64,${buf.toString('base64')}`);
 }
 
+// ── CONTAINER MODE (s117) ────────────────────────────────────────────────────
+// Set OPENI_VIA_PROXY=1 to run this from a cloud agent container.
+//
+// THE PROBLEM, banked in CLAUDE.md on 7 Sep: in an agent container `curl`
+// reaches production through the agent proxy but headless Chromium gets
+// ERR_CONNECTION_RESET on EVERY external host, and the proxy / HTTP2 / QUIC /
+// post-quantum toggles make no difference. So without this the script launches
+// fine, logs in fine — `login()` runs in NODE, which has proxy access — and
+// then every page.goto times out.
+//
+// WHY NOT scripts/e2e-relay.mjs. That relay fronts ONE origin, and the smoke
+// suite only needs the public site. This script needs TWO: the app, and the API
+// that the app's own bundle calls. VITE_API_URL is baked in at build time and
+// there is no same-origin /api rewrite in vercel.json (the only rewrite there is
+// the SPA fallback), so a relayed page would load the shell and then fail every
+// data fetch — producing exactly the empty-dashboard screenshots this script's
+// header warns about, but from the browser side instead of a bad seed.
+//
+// WHY NOT chromium.launch({ proxy }). Already tried and recorded as not working
+// in this container. That is the whole reason the relay technique exists.
+//
+// SO: intercept in Playwright and fulfil from Node. One route handler covers
+// both origins and needs no relay process at all.
+//
+// ⚠️ RESPONSE HEADERS PASS THROUGH UNTOUCHED, for the same reason the relay
+// says so: rewriting them would disable the CSP the real bundle runs under, and
+// a rendered check that silently drops CSP is worse than no check (FE #36).
+// Only the hop-by-hop headers that would corrupt an already-decoded body are
+// dropped.
+const VIA_PROXY = process.env.OPENI_VIA_PROXY === '1';
+let dispatcher;
+if (VIA_PROXY) {
+  const { ProxyAgent, Agent } = await import('undici');
+  const P = process.env.HTTPS_PROXY || process.env.https_proxy;
+  dispatcher = P ? new ProxyAgent(P) : new Agent();
+  console.log(`container mode: fulfilling requests through ${P || 'direct undici'}\n`);
+}
+
+const DROP_RESPONSE = new Set(['content-encoding', 'content-length', 'transfer-encoding', 'connection']);
+
+async function installProxyRoute(ctx) {
+  const { fetch: undiciFetch } = await import('undici');
+  await ctx.route('**/*', async (route) => {
+    const req = route.request();
+    const url = req.url();
+    // data: and blob: never leave the page; let Playwright handle them.
+    if (!/^https?:/i.test(url)) return route.continue();
+    try {
+      const upstream = await undiciFetch(url, {
+        method: req.method(),
+        headers: { ...req.headers(), host: undefined, connection: undefined, 'accept-encoding': undefined },
+        body: ['GET', 'HEAD'].includes(req.method()) ? undefined : req.postDataBuffer() || undefined,
+        dispatcher,
+        redirect: 'follow',
+      });
+      const headers = {};
+      for (const [k, v] of upstream.headers) {
+        if (!DROP_RESPONSE.has(k.toLowerCase())) headers[k] = v;
+      }
+      route.fulfill({
+        status: upstream.status,
+        headers,
+        body: Buffer.from(await upstream.arrayBuffer()),
+      });
+    } catch (err) {
+      // Abort rather than fulfil an error page: a 5xx body rendered into the
+      // shot would pass the blank-frame guard and ship a screenshot of a
+      // failure, which is the exact class of silent-bad-output this script's
+      // guard exists to prevent.
+      route.abort().catch(() => {});
+      if (process.env.OPENI_VERBOSE) console.error(`  route fail ${url} — ${err.message}`);
+    }
+  });
+}
+
 let ok = 0, failed = 0;
 
-for (const s of SHOTS) {
+const ONLY = process.env.OPENI_ONLY;
+for (const s of (ONLY ? SHOTS.filter((x) => x.file.startsWith(ONLY)) : SHOTS)) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   try {
+    if (VIA_PROXY) await installProxyRoute(ctx);
     if (s.email) {
       const { token, user } = await login(s.email);
       await ctx.addInitScript(([t, u, role, roles]) => {
@@ -257,11 +361,34 @@ for (const s of SHOTS) {
     // domcontentloaded, NOT networkidle: the dashboards poll and never idle.
     await page.goto(`${BASE}${s.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(Number(process.env.OPENI_SETTLE_MS || 5000));
-    for (const name of [/skip tour/i, /^close$/i]) {
+    // s117 — the COOKIE BANNER now has to be dismissed too, and it is not a
+    // tour. GA4 shipped behind an Accept/Decline CookieConsent banner on 8 Sep
+    // (FE #71), and it is a dark full-width bar pinned to the bottom of EVERY
+    // page. The first Innovation Map capture came back with it covering the
+    // bottom fifth of the image — the blank-frame guard passed it happily at
+    // 28% flat, because a banner is content. A guard that proves "something
+    // rendered" cannot prove "nothing unwanted rendered", which is why the
+    // repo's own rule is to eyeball the shot as well.
+    //
+    // DECLINE, not Accept: a marketing screenshot must not be the thing that
+    // opts a capture run into analytics, and Decline dismisses the banner just
+    // as well. Ordered before the tour buttons because the banner overlays them.
+    for (const name of [/^decline$/i, /skip tour/i, /^close$/i]) {
       const b = page.getByRole('button', { name });
       if (await b.count()) { await b.first().click().catch(() => {}); await page.waitForTimeout(400); }
     }
     await waitForPaint(page);
+    // s117 — a shot may name the ONE element that proves its subject rendered.
+    // waitForPaint only proves the page has text, which a spinner also has. The
+    // generous default reflects the map: it is the slowest surface on the
+    // platform and the first visitor per URL per deploy pays the whole compute
+    // (13.1s worst case measured, and observably longer on a cold URL).
+    if (s.waitFor) {
+      await page.waitForSelector(s.waitFor, { timeout: s.waitForMs || 30000 });
+      // One short beat after the first node appears, so the layout settles
+      // rather than being caught mid-animation.
+      await page.waitForTimeout(1500);
+    }
     const buf = await page.screenshot();
     const share = await dominantColourShare(page, buf);
     if (share >= BLANK_SHARE) {

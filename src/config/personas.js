@@ -193,6 +193,39 @@ export const SECONDARY_NAV = [
   { to: '/dashboard/whats-new',    label: "What's New",   icon: 'Sparkles' },
 ];
 
+// ── s117 (11 Sep 2026): PROGRAMS AND COHORTS ARE NOT PERSONA NAV ─────────────
+//
+// Ten entries were removed here: `/dashboard/evaluations` ("Programs") from all
+// ten persona navs, and `/dashboard/cohorts` from government. They looked like
+// unbuilt features and were reported as "unwired mockups". They are neither.
+//
+// BOTH PAGES ARE FULLY BUILT, FRONT AND BACK. Evaluations.jsx calls
+// evaluationAPI.list + startupAPI.list, Cohorts.jsx calls cohortAPI.list, and
+// the backend has GET/POST/PUT /evaluations plus GET/POST /cohorts and
+// /cohorts/:id/startups. What was broken was AUTHORIZATION vs NAV EXPOSURE:
+//
+//   POST/PUT /evaluations        requireRole('admin','evaluator')
+//   POST /cohorts, addStartup    requireRole('admin')
+//
+// users.role is a single column, so a corporate is role='corporate' and can
+// never satisfy those gates. Wiring up the Submit Score / Approve / Finalise
+// buttons would therefore have produced a 403 for every persona that could see
+// the page — not a feature.
+//
+// ⚠️ NOTHING IS LOST BY REMOVING THEM. The legacy nav in DashboardLayout.jsx
+// already carries both, gated to EXACTLY the roles the backend requires
+// (evaluations → admin+evaluator, cohorts → admin), and admin/evaluator take
+// that path instead of PERSONA_NAV entirely (`isLegacyRole`). So the intended
+// design was always admin/evaluator-only and was already correctly implemented
+// one file over. These ten were duplication, added by the Phase 103 sweep whose
+// real subject was `/dashboard/evaluate` (8-Vector Eval) — that one stays.
+//
+// DO NOT "FIX" THIS BY WIDENING THE ROLE GATES. That means deciding who may run
+// an evaluation program AND adding per-org scoping, which is the cross-tenant
+// leak shape the Partner API invariants exist to prevent. Seekers are already
+// served: `/dashboard/evaluate` for scoring, and My Challenges for the
+// application funnel (updateApplication, app notes, app docs, ai-analyze are
+// all live there).
 export const PERSONA_NAV = {
   startup: buildPersonaNav('startup', {
     // Enhancement (testing-team) — a startup's two highest-value surfaces are
@@ -213,7 +246,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/deeptech',        label: 'DeepTech Qual.', icon: 'Zap' },
       { to: '/dashboard/feedback',        label: 'Feedback',       icon: 'ThumbsUp' },
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',     label: 'Programs',       icon: 'FileText' },
       { to: '/dashboard/evaluate',        label: '8-Vector Eval',  icon: 'BarChart3' },
     ],
   }),
@@ -261,7 +293,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/corporate/collabs',    label: 'Collaborations',  icon: 'Link2' },
       { to: '/dashboard/ipr',                  label: 'IPR Portfolio',  icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',          label: 'Programs',       icon: 'FileText' },
       { to: '/dashboard/evaluate',             label: '8-Vector Eval',  icon: 'BarChart3' },
     ],
   }),
@@ -270,11 +301,9 @@ export const PERSONA_NAV = {
       { to: '/dashboard/corporate/challenges', label: 'My Challenges',    icon: 'Target' },
       { to: '/dashboard/government/grants',     label: 'Disburse Grants',  icon: 'DollarSign' },
       { to: '/dashboard/marketplace',          label: 'View Marketplace', icon: 'Globe' },
-      { to: '/dashboard/evaluations',          label: 'Programs',        icon: 'FileText' },
-      { to: '/dashboard/cohorts',              label: 'Cohorts',         icon: 'GraduationCap' },
       { to: '/dashboard/govt-apis',            label: 'Govt. APIs',      icon: 'Link2' },
       { to: '/dashboard/ipr',                  label: 'IPR Portfolio',   icon: 'Shield' }, // Phase 94
-      // Phase 103 — Universal 8-Vector Evaluation (Programs already above)
+      // Phase 103 — Universal 8-Vector Evaluation
       { to: '/dashboard/evaluate',             label: '8-Vector Eval',   icon: 'BarChart3' },
     ],
   }),
@@ -288,7 +317,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/deeptech',               label: 'DeepTech',      icon: 'Zap' },
       { to: '/dashboard/ipr',                    label: 'IPR Portfolio', icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',            label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',               label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
@@ -299,7 +327,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/feedback',            label: 'Feedback',     icon: 'ThumbsUp' },
       { to: '/dashboard/marketplace',         label: 'View Marketplace', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',         label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',            label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
@@ -312,7 +339,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/marketplace',      label: 'View Marketplace', icon: 'Target' },
       // Phase 89.2 — IPR Database removed from lab nav (admin-only feature).
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',      label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',         label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
@@ -325,7 +351,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/marketplace',              label: 'View Marketplace', icon: 'Target' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',    icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',              label: 'Programs',         icon: 'FileText' },
       { to: '/dashboard/evaluate',                 label: '8-Vector Eval',    icon: 'BarChart3' },
     ],
   }),
@@ -338,7 +363,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/marketplace',              label: 'View Marketplace',   icon: 'Target' },
       { to: '/dashboard/ipr',                      label: 'IPR Portfolio',      icon: 'Shield' }, // Phase 94
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations',              label: 'Programs',           icon: 'FileText' },
       { to: '/dashboard/evaluate',                 label: '8-Vector Eval',      icon: 'BarChart3' },
     ],
   }),
@@ -349,7 +373,6 @@ export const PERSONA_NAV = {
       { to: '/dashboard/sp/reviews',  label: 'Reviews',     icon: 'Star' },
       { to: '/dashboard/marketplace', label: 'View Marketplace', icon: 'Target' },
       // Phase 103 — Universal 8-Vector Evaluation
-      { to: '/dashboard/evaluations', label: 'Programs',      icon: 'FileText' },
       { to: '/dashboard/evaluate',    label: '8-Vector Eval', icon: 'BarChart3' },
     ],
   }),
