@@ -136,6 +136,25 @@ const SHOTS = [
   // (Sourced, Evaluating, LOI, Diligence, Term Sheet, Closed, Passed), which is
   // the thing the caption is describing.
   { file: '11-investor-dashboard.png',   email: 'investor@demo.openi.ai',  path: '/dashboard/investor/deals' },
+  // s117 — Innovation Map, for the new slideshow slide. Rajeev: "one thing
+  // missing on landing page is we can add Innovation map screen shot".
+  //
+  // academia@demo.openi.ai because that is the persona whose sidebar Rajeev's
+  // own screenshot shows carrying "Innovation Map"; any persona with the item
+  // would do, and this one is already used by shot 08 so it is known to log in.
+  //
+  // ⚠️ THE MAP IS THE ONE SHOT WHOSE CONTENT DEPENDS ON WORK OUTSIDE THIS REPO.
+  // It renders cluster nodes with startup logos, and logo coverage is actively
+  // being filled in (3,305 stored as of 11 Sep, more slices pending). A capture
+  // taken today shows more initials-fallback circles than one taken after the
+  // remaining slices and the no-icon re-mine land. Not a blocker — but if the
+  // shot looks sparse, that is the reason, and re-shooting later is cheap.
+  //
+  // ⚠️ It is also the slowest surface on the platform: the map compute is
+  // 13.1s worst-case for the first visitor per URL per deploy. If this shot
+  // comes out half-drawn, the settle wait is what needs raising, not the
+  // selector.
+  { file: '12-innovation-map.png',       email: 'academia@demo.openi.ai',  path: '/dashboard/maps' },
 ];
 
 const ROLES = ['startup','student','academia','corporate','govt','investor','lab',
