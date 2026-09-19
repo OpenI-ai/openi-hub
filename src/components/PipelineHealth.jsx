@@ -185,13 +185,38 @@ export default function PipelineHealth() {
   const lcTotal = Number(lc?.total_crawled || 0);
   const lcNever = Number(lc?.never_checked || 0);
   const lcChecked = Math.max(0, lcTotal - lcNever);
-  const lcPct = lcTotal > 0 ? (lcChecked / lcTotal) * 100 : 0;
+  // s118 — COUNT AGAINST WHAT A WORKER CAN ACTUALLY SELECT, NOT THE RAW TOTAL.
+  //
+  // `never_checked` counts rows the backfill worker and the recheck cron can
+  // never pick up: their shared selector also needs is_imported, an unclaimed
+  // account, and a website or domain_name. On 19 Sep production held 296 such
+  // rows and every one of them had NO website and NO domain — nothing to
+  // fetch, ever.
+  //
+  // Dividing by lcTotal therefore pinned this bar at 99.9% permanently, and the
+  // "Never checked: 296" tile read as a backlog. It cost a week of restarting a
+  // worker that was logging `processed 0, errors 0` and going idle — which is
+  // what a HEALTHY worker facing an empty selection looks like. Denominator is
+  // now the CHECKABLE set, so 100% means genuinely done and a future stall is
+  // visible instead of hidden under permanent residue.
+  //
+  // Both fields are optional: a pre-s118 backend omits them and every number
+  // below falls back to the old behaviour rather than rendering NaN.
+  const lcUncheckable = lc?.uncheckable_never_checked != null
+    ? Number(lc.uncheckable_never_checked) : null;
+  const lcEligibleNever = lc?.eligible_never_checked != null
+    ? Number(lc.eligible_never_checked) : lcNever;
+  const lcCheckable = lcUncheckable != null ? Math.max(0, lcTotal - lcUncheckable) : lcTotal;
+  const lcPct = lcCheckable > 0 ? (lcChecked / lcCheckable) * 100 : 0;
   // Drain rate + ETA from the worker's own run, when it is running.
   const lvElapsedSec = lb?.running && lb?.started_at
     ? Math.max(1, (Date.now() - Date.parse(lb.started_at)) / 1000) : null;
   const lvRate = lvElapsedSec && lb?.stats?.processed > 0
     ? lb.stats.processed / lvElapsedSec : null;
-  const lvEtaDays = lvRate && lcNever > 0 ? (lcNever / lvRate) / 86400 : null;
+  // s118 — ETA over the ELIGIBLE backlog. Dividing lcNever by the drain rate
+  // projected a finish for rows the worker cannot select, so the estimate never
+  // reached zero however long the worker ran.
+  const lvEtaDays = lvRate && lcEligibleNever > 0 ? (lcEligibleNever / lvRate) / 86400 : null;
   // s88: the unknown bucket split the backend now reports. All optional —
   // absent on a pre-s88 backend, in which case the breakdown line stays hidden.
   const lcUnknownChecked = lc?.unknown_checked != null ? Number(lc.unknown_checked) : null;
@@ -359,7 +384,7 @@ export default function PipelineHealth() {
           {/* corpus progress */}
           <div className="mb-4">
             <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-              <span>{fmtNum(lcChecked)} of {fmtNum(lcTotal)} crawled profiles checked</span>
+              <span>{fmtNum(lcChecked)} of {fmtNum(lcCheckable)} checkable profiles checked</span>
               <span>{lcPct.toFixed(1)}%</span>
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -370,6 +395,15 @@ export default function PipelineHealth() {
                 ~{lvRate.toFixed(1)} rows/s this run{lvEtaDays != null ? ` · ~${lvEtaDays < 1 ? `${Math.ceil(lvEtaDays * 24)}h` : `${lvEtaDays.toFixed(1)}d`} to drain` : ''}
               </div>
             )}
+            {/* s118 — excluded rows are SHOWN, not silently dropped from the
+                denominator. Hiding them would swap one misleading number for
+                another: the count is real, it is simply not work. */}
+            {lcUncheckable != null && lcUncheckable > 0 && (
+              <div className="text-xs text-gray-400 mt-1">
+                {fmtNum(lcUncheckable)} excluded from this total — no website or domain to fetch,
+                or the account is claimed or not imported. No worker can select them.
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-4">
@@ -378,7 +412,7 @@ export default function PipelineHealth() {
             <div><div className="text-xs text-gray-400">Mismatched</div><div className="text-lg font-semibold text-amber-700">{fmtNum(lc?.mismatched)}</div></div>
             <div><div className="text-xs text-gray-400">Unreachable</div><div className="text-lg font-semibold text-red-600">{fmtNum(lc?.unreachable)}</div></div>
             <div><div className="text-xs text-gray-400">Unknown</div><div className="text-lg font-semibold text-gray-900">{fmtNum(lc?.unknown)}</div></div>
-            <div><div className="text-xs text-gray-400">Never checked</div><div className="text-lg font-semibold text-gray-900">{fmtNum(lcNever)}</div></div>
+            <div><div className="text-xs text-gray-400">Never checked</div><div className="text-lg font-semibold text-gray-900">{fmtNum(lcEligibleNever)}</div></div>
           </div>
 
           {/* s88: what Unknown actually holds, beyond the never-checked rows */}
