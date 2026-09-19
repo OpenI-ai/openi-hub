@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { crawlAPI } from '../services/api';
 import LoadingSkeleton from './LoadingSkeleton';
+import { completionPct } from '../utils/completionPct';
 
 const POLL_MS = 30_000;
 
@@ -207,7 +208,10 @@ export default function PipelineHealth() {
   const lcEligibleNever = lc?.eligible_never_checked != null
     ? Number(lc.eligible_never_checked) : lcNever;
   const lcCheckable = lcUncheckable != null ? Math.max(0, lcTotal - lcUncheckable) : lcTotal;
-  const lcPct = lcCheckable > 0 ? (lcChecked / lcCheckable) * 100 : 0;
+  // s118b — floors, and reserves 100 for genuinely finished. `toFixed(1)` on
+  // the raw ratio displayed 573,240-of-573,241 as "100.0%", which is the same
+  // camouflage the denominator above exists to remove. See utils/completionPct.
+  const lcPct = completionPct(lcChecked, lcCheckable);
   // Drain rate + ETA from the worker's own run, when it is running.
   const lvElapsedSec = lb?.running && lb?.started_at
     ? Math.max(1, (Date.now() - Date.parse(lb.started_at)) / 1000) : null;
