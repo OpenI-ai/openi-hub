@@ -8,7 +8,7 @@ import { orgAPI, subscriptionAPI, claimAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   Building2, UserPlus, Trash2, Loader2,
-  Crown, X, Pencil, Clock,
+  Crown, X, Pencil, Clock, Check,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -28,7 +28,7 @@ function Avatar({ name, size = 36 }) {
 // actions appear depends on what the row IS: only an active member can be
 // promoted or demoted, and a pending row's trash button revokes/dismisses
 // rather than removing a person (see handleRemove).
-function MemberRow({ m, isAdmin, currentUserId, onToggleRole, onRemove }) {
+function MemberRow({ m, isAdmin, currentUserId, onToggleRole, onRemove, onAccept, accepting }) {
   const pill = m.status === 'active'
     ? { label: 'active', bg: '#f0fdf4', fg: '#16a34a' }
     : m.source === 'request'
@@ -54,6 +54,12 @@ function MemberRow({ m, isAdmin, currentUserId, onToggleRole, onRemove }) {
       </span>
       {isAdmin && !isSelf && (
         <div style={{ display: 'flex', gap: 4 }}>
+          {onAccept && (
+            <button onClick={() => onAccept(m)} disabled={accepting === m.id} title="Accept into the organization"
+              style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: G, color: '#fff', border: 'none', borderRadius: 6, cursor: accepting === m.id ? 'wait' : 'pointer', fontSize: 11, fontWeight: 600, opacity: accepting === m.id ? 0.6 : 1 }}>
+              <Check size={11} /> {accepting === m.id ? 'Adding...' : 'Accept'}
+            </button>
+          )}
           {m.status === 'active' && (
             <button onClick={() => onToggleRole(m.id, m.role)} title={`Make ${m.role === 'admin' ? 'member' : 'admin'}`}
               style={{ padding: '4px 8px', background: '#f5f5f5', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#666' }}>
@@ -86,6 +92,7 @@ export default function OrgAdmin() {
   const [editingSeats, setEditingSeats] = useState(false);
   const [seatDraft, setSeatDraft] = useState(5);
   const [savingSeats, setSavingSeats] = useState(false);
+  const [accepting, setAccepting] = useState(null);
 
   // Invite form
   const [showInvite, setShowInvite] = useState(false);
@@ -166,6 +173,22 @@ export default function OrgAdmin() {
       loadOrg();
     } catch (err) { toast.error(err.message); }
     finally { setSavingSeats(false); }
+  };
+
+  // Accepting is the other half of a request. Until s119f only Dismiss
+  // existed, so an admin could refuse one but never approve it — the card was
+  // a dead end and requestJoin's own email promised an approve that did not
+  // exist. The backend seat-checks this, so a full org comes back 400 and the
+  // toast carries its message rather than a generic failure.
+  const handleAccept = async (m) => {
+    const who = m.display_name || m.name || m.email;
+    setAccepting(m.id);
+    try {
+      const res = await orgAPI.acceptRequest(m.id);
+      toast.success(res?.message || `${who} added to the organization`);
+      loadOrg();
+    } catch (err) { toast.error(err.message); }
+    finally { setAccepting(null); }
   };
 
   const handleToggleRole = async (memberId, currentRole) => {
@@ -433,13 +456,15 @@ export default function OrgAdmin() {
             <Clock size={14} style={{ color: '#1d4ed8' }} /> Requests to join ({joinRequests.length})
           </h3>
           <p style={{ fontSize: 11, color: '#6e6e6e', marginTop: 0, marginBottom: 12 }}>
-            People who asked to join {org.name}. These do not use a seat. Dismissing a request does not
-            affect that person&rsquo;s own account.
+            People who asked to join {org.name}. These do not use a seat until you accept.
+            Accepting takes a seat and gives them the org plan; dismissing does not affect
+            that person&rsquo;s own account.
           </p>
           <div style={{ display: 'grid', gap: 8 }}>
             {joinRequests.map(m => (
               <MemberRow key={m.id} m={m} isAdmin={isAdmin} currentUserId={user.id}
-                onToggleRole={handleToggleRole} onRemove={handleRemove} />
+                onToggleRole={handleToggleRole} onRemove={handleRemove}
+                onAccept={handleAccept} accepting={accepting} />
             ))}
           </div>
         </div>
