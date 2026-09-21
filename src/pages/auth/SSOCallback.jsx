@@ -13,6 +13,7 @@ const ERROR_MESSAGES = {
   domain_not_allowed: 'Your email domain is not authorized to sign in via SSO for this organization.',
   account_belongs_to_another_organization: 'This account is already associated with a different organization.',
   account_not_found_contact_admin: 'No account was found for your email. Please contact your organization admin.',
+  organization_seat_limit_reached: 'Your organization has used all of its seats, so a new one could not be assigned to you. Please ask your organization admin to free up a seat or raise the seat limit.',
   no_email_in_claims: "Your identity provider didn't return an email address. Please contact your admin.",
   sso_login_failed: 'Something went wrong completing SSO sign-in. Please try again.',
 };
