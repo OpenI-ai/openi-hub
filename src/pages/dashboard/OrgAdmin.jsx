@@ -8,7 +8,7 @@ import { orgAPI, subscriptionAPI, claimAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   Building2, UserPlus, Trash2, Loader2,
-  Crown, X,
+  Crown, X, Pencil, Clock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -24,6 +24,53 @@ function Avatar({ name, size = 36 }) {
   );
 }
 
+// One row, shared by the seat-holder list and the join-request list. Which
+// actions appear depends on what the row IS: only an active member can be
+// promoted or demoted, and a pending row's trash button revokes/dismisses
+// rather than removing a person (see handleRemove).
+function MemberRow({ m, isAdmin, currentUserId, onToggleRole, onRemove }) {
+  const pill = m.status === 'active'
+    ? { label: 'active', bg: '#f0fdf4', fg: '#16a34a' }
+    : m.source === 'request'
+      ? { label: 'requested', bg: '#eff6ff', fg: '#1d4ed8' }
+      : { label: 'invited', bg: '#fef3c7', fg: '#92400e' };
+  const isSelf = m.user_id === currentUserId;
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #f5f5f5' }}>
+      <Avatar name={m.display_name || m.name || m.email} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>
+          {m.display_name || m.name || m.email}
+          {m.role === 'admin' && <Crown size={12} style={{ color: G, marginLeft: 6, verticalAlign: 'middle' }} />}
+        </div>
+        <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.email} &middot; {m.persona_type || 'pending'}</div>
+      </div>
+      <span style={{
+        fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10,
+        background: pill.bg, color: pill.fg,
+      }}>
+        {pill.label}
+      </span>
+      {isAdmin && !isSelf && (
+        <div style={{ display: 'flex', gap: 4 }}>
+          {m.status === 'active' && (
+            <button onClick={() => onToggleRole(m.id, m.role)} title={`Make ${m.role === 'admin' ? 'member' : 'admin'}`}
+              style={{ padding: '4px 8px', background: '#f5f5f5', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#666' }}>
+              {m.role === 'admin' ? 'Demote' : 'Promote'}
+            </button>
+          )}
+          <button onClick={() => onRemove(m)}
+            title={m.status === 'active' ? 'Remove' : m.source === 'request' ? 'Dismiss request' : 'Revoke invitation'}
+            style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#b91c1c' }}>
+            <Trash2 size={12} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function OrgAdmin() {
   const { user } = useAuth();
   const [org, setOrg] = useState(null);
@@ -31,6 +78,14 @@ export default function OrgAdmin() {
   const [myRole, setMyRole] = useState('member');
   const [seatsUsed, setSeatsUsed] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // Seat limit editor. The PUT /api/org endpoint has existed since Phase 21;
+  // until s119 nothing in the frontend called it, so an admin who hit the seat
+  // limit had no way to raise it short of curl. Max mirrors the backend's
+  // SEAT_LIMIT_MAX (orgController).
+  const [editingSeats, setEditingSeats] = useState(false);
+  const [seatDraft, setSeatDraft] = useState(5);
+  const [savingSeats, setSavingSeats] = useState(false);
 
   // Invite form
   const [showInvite, setShowInvite] = useState(false);
@@ -78,13 +133,39 @@ export default function OrgAdmin() {
     finally { setInviting(false); }
   };
 
-  const handleRemove = async (memberId, name) => {
-    if (!confirm(`Remove ${name} from the organization? They will lose access to the org plan.`)) return;
+  // One endpoint (DELETE /api/org/members/:id) covers three different acts, so
+  // the confirm text has to say which one is about to happen. Only removing an
+  // ACTIVE member touches that person's account (org link + plan); revoking an
+  // invite or dismissing a request does not — see removeMember's s119 guard.
+  const handleRemove = async (m) => {
+    const who = m.display_name || m.name || m.email;
+    const prompt = m.status === 'active'
+      ? `Remove ${who} from the organization? They will lose access to the org plan.`
+      : m.source === 'request'
+        ? `Dismiss ${who}'s request to join? Their own account is not affected.`
+        : `Revoke the invitation sent to ${who}? This frees up their seat.`;
+    if (!confirm(prompt)) return;
     try {
-      await orgAPI.removeMember(memberId);
-      toast.success('Member removed');
+      const res = await orgAPI.removeMember(m.id);
+      toast.success(res?.message || 'Removed');
       loadOrg();
     } catch (err) { toast.error(err.message); }
+  };
+
+  const handleSaveSeats = async () => {
+    const wanted = parseInt(seatDraft, 10);
+    if (!Number.isInteger(wanted) || wanted < 1 || wanted > 100) {
+      toast.error('Seat limit must be a whole number between 1 and 100.');
+      return;
+    }
+    setSavingSeats(true);
+    try {
+      await orgAPI.update({ seat_limit: wanted });
+      toast.success(`Seat limit set to ${wanted}`);
+      setEditingSeats(false);
+      loadOrg();
+    } catch (err) { toast.error(err.message); }
+    finally { setSavingSeats(false); }
   };
 
   const handleToggleRole = async (memberId, currentRole) => {
@@ -232,7 +313,13 @@ export default function OrgAdmin() {
     );
   }
 
-  // Has org — show admin panel
+  // Has org — show admin panel.
+  // Seat holders and join requests are DIFFERENT lists: a request is an
+  // outsider asking, holds no seat, and must not be mixed into the roster
+  // the seat count is about. `source` comes from getMyOrg (migration 031).
+  const joinRequests = members.filter(m => m.status === 'invited' && m.source === 'request');
+  const seatMembers = members.filter(m => !(m.status === 'invited' && m.source === 'request'));
+
   return (
     <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
       {/* Header */}
@@ -254,9 +341,35 @@ export default function OrgAdmin() {
 
       {/* Seats bar */}
       <div style={{ ...card, marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#555', marginBottom: 6 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#555', marginBottom: 6 }}>
           <span>Seats Used</span>
-          <span style={{ fontWeight: 600 }}>{seatsUsed} / {org.seat_limit}</span>
+          {editingSeats ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>{seatsUsed} /</span>
+              <input type="number" min={1} max={100} value={seatDraft} autoFocus
+                onChange={e => setSeatDraft(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSaveSeats(); if (e.key === 'Escape') setEditingSeats(false); }}
+                style={{ width: 70, padding: '4px 8px', border: '1px solid #ddd', borderRadius: 6, fontSize: 16 }} />
+              <button onClick={handleSaveSeats} disabled={savingSeats}
+                style={{ padding: '4px 12px', background: G, color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, fontSize: 12, cursor: savingSeats ? 'wait' : 'pointer' }}>
+                {savingSeats ? 'Saving...' : 'Save'}
+              </button>
+              <button onClick={() => setEditingSeats(false)}
+                style={{ padding: '4px 8px', background: '#eee', color: '#666', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontWeight: 600 }}>{seatsUsed} / {org.seat_limit}</span>
+              {isAdmin && (
+                <button onClick={() => { setSeatDraft(org.seat_limit); setEditingSeats(true); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', background: '#f5f5f5', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#666' }}>
+                  <Pencil size={11} /> Change
+                </button>
+              )}
+            </div>
+          )}
         </div>
         <div style={{ height: 8, borderRadius: 4, background: '#f3f4f6' }}>
           <div style={{
@@ -265,6 +378,10 @@ export default function OrgAdmin() {
             background: seatsUsed >= org.seat_limit ? '#dc2626' : seatsUsed >= org.seat_limit * 0.8 ? '#f59e0b' : '#16a34a',
           }} />
         </div>
+        <p style={{ fontSize: 11, color: '#6e6e6e', marginTop: 8, marginBottom: 0 }}>
+          A seat is used by an active member, or by an invitation you have sent that is still pending.
+          Requests to join do not use a seat until you accept them.
+        </p>
       </div>
 
       {/* Invite form */}
@@ -296,44 +413,37 @@ export default function OrgAdmin() {
 
       {/* Members list */}
       <div style={card}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Members ({members.length})</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Members ({seatMembers.length})</h3>
         <div style={{ display: 'grid', gap: 8 }}>
-          {members.map(m => (
-            <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #f5f5f5' }}>
-              <Avatar name={m.display_name || m.name || m.email} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>
-                  {m.display_name || m.name || m.email}
-                  {m.role === 'admin' && <Crown size={12} style={{ color: G, marginLeft: 6, verticalAlign: 'middle' }} />}
-                </div>
-                <div style={{ fontSize: 11, color: '#5c5c5c' }}>{m.email} &middot; {m.persona_type || 'pending'}</div>
-              </div>
-              <span style={{
-                fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10,
-                background: m.status === 'active' ? '#f0fdf4' : '#fef3c7',
-                color: m.status === 'active' ? '#16a34a' : '#92400e',
-              }}>
-                {m.status}
-              </span>
-              {isAdmin && m.user_id !== user.id && m.status === 'active' && (
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <button onClick={() => handleToggleRole(m.id, m.role)} title={`Make ${m.role === 'admin' ? 'member' : 'admin'}`}
-                    style={{ padding: '4px 8px', background: '#f5f5f5', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, color: '#666' }}>
-                    {m.role === 'admin' ? 'Demote' : 'Promote'}
-                  </button>
-                  <button onClick={() => handleRemove(m.id, m.display_name || m.email)} title="Remove"
-                    style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#b91c1c' }}>
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              )}
-            </div>
+          {seatMembers.map(m => (
+            <MemberRow key={m.id} m={m} isAdmin={isAdmin} currentUserId={user.id}
+              onToggleRole={handleToggleRole} onRemove={handleRemove} />
           ))}
-          {members.length === 0 && (
+          {seatMembers.length === 0 && (
             <div style={{ textAlign: 'center', padding: 20, color: '#6e6e6e', fontSize: 13 }}>No members yet</div>
           )}
         </div>
       </div>
+
+      {/* Requests to join — listed separately because they hold no seat.
+          Only the admin can act on them, so hide the card entirely otherwise. */}
+      {isAdmin && joinRequests.length > 0 && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Clock size={14} style={{ color: '#1d4ed8' }} /> Requests to join ({joinRequests.length})
+          </h3>
+          <p style={{ fontSize: 11, color: '#6e6e6e', marginTop: 0, marginBottom: 12 }}>
+            People who asked to join {org.name}. These do not use a seat. Dismissing a request does not
+            affect that person&rsquo;s own account.
+          </p>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {joinRequests.map(m => (
+              <MemberRow key={m.id} m={m} isAdmin={isAdmin} currentUserId={user.id}
+                onToggleRole={handleToggleRole} onRemove={handleRemove} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
