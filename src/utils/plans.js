@@ -48,6 +48,33 @@ export function planColor(plan) {
 }
 
 /**
+ * The DISPLAY tier a plan belongs to: 'free' | 'pro' | 'enterprise'.
+ *
+ * Substring-keyed for the same reason planColor is, and answering the same
+ * failure: on 17 Aug 2026 three files compared a plan against the literals
+ * 'pro' and 'enterprise', names migration 010 had already retired, so no
+ * comparison could match and every paying user was rendered as free. Two were
+ * fixed that day; FeatureMap.jsx and BillingTab.jsx were missed and kept the
+ * defect until 21 Sep (FeatureMap invited Enterprise customers to "Upgrade to
+ * Pro"; BillingTab showed no Crown or Zap icon for anyone).
+ *
+ * ⚠️ USE THIS FOR DISPLAY ONLY — a badge, an icon, a filter chip. Never for
+ * entitlement. What a user may actually DO is read from
+ * subscription_plans.features via GET /subscription/feature-access, the map the
+ * backend itself enforces with; deriving that from a tier name here would put a
+ * second, drifting answer next to the real one.
+ *
+ * An unrecognised paid plan resolves to 'pro', never 'free': the safe direction
+ * is to over- rather than under-state what someone has paid for.
+ */
+export function planTier(plan) {
+  const p = String(plan || '');
+  if (!p || p === 'free') return 'free';
+  if (p.includes('enterprise')) return 'enterprise';
+  return 'pro';
+}
+
+/**
  * Assignable plan names from subscription_plans WHERE is_active = true.
  * One fetch per mount; the set changes only when pricing does.
  */

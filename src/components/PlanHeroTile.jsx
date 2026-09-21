@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { Crown, Zap, ArrowRight, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PLAN_LABELS, getPersonaCategory } from '../config/personas';
+import { planTier } from '../utils/plans';
 
 const G = '#D4A843';
 const NAVY = '#0D2137';
@@ -38,7 +39,7 @@ export default function PlanHeroTile() {
   const planKey = user.current_plan || 'free';
   const planLabel = PLAN_LABELS[planKey] || 'Free';
   const isFree = planKey === 'free';
-  const isEnterprise = planKey === 'seeker_enterprise' || planKey === 'enterprise';
+  const isEnterprise = planTier(planKey) === 'enterprise';
   const Icon = isEnterprise ? Crown : isFree ? Sparkles : Zap;
 
   if (isFree) {
