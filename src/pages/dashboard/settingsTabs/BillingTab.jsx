@@ -10,6 +10,7 @@
 import { G, card, FEATURE_LABELS, BOOLEAN_FEATURES, USAGE_FEATURES } from './constants';
 import { Loader2, Check, Crown, Zap, X, Download } from 'lucide-react';
 import { subscriptionAPI } from '../../../services/api';
+import { planTier } from '../../../utils/plans';
 import toast from 'react-hot-toast';
 
 export default function BillingTab({ autoRenewSelected, billingAddress, billingCycleSelected, billingLoading, buyingPackId, creditBalance, creditPacks, creditPurchases, displayCurrency, handleBuyCredits, handleCancel, handleToggleAutoRenew, handleUpgrade, loadBilling, myPlan, plans, plansAnchorRef, setAutoRenewSelected, setBillingCycleSelected, setBillingModalOpen, togglingAutoRenew, upgrading, user }) {
@@ -31,7 +32,7 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                     <div>
                       <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>Current Plan</div>
                       <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {currentPlan === 'enterprise' ? <Crown size={20} style={{ color: '#f59e0b' }} /> : currentPlan === 'pro' ? <Zap size={20} style={{ color: G }} /> : null}
+                        {planTier(currentPlan) === 'enterprise' ? <Crown size={20} style={{ color: '#f59e0b' }} /> : planTier(currentPlan) === 'pro' ? <Zap size={20} style={{ color: G }} /> : null}
                         {myPlan?.plan?.display_name || 'Free Plan'}
                       </div>
                     </div>
