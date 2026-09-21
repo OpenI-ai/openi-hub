@@ -26,6 +26,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 const getMyOrgMock = vi.fn();
 const updateMock = vi.fn();
 const removeMemberMock = vi.fn();
+const acceptRequestMock = vi.fn();
 let currentUser = { id: 1, role: 'corporate' };
 
 vi.mock('../../src/services/api', () => ({
@@ -33,6 +34,7 @@ vi.mock('../../src/services/api', () => ({
     getMyOrg: (...a) => getMyOrgMock(...a),
     update: (...a) => updateMock(...a),
     removeMember: (...a) => removeMemberMock(...a),
+    acceptRequest: (...a) => acceptRequestMock(...a),
     inviteMember: vi.fn(),
     updateMember: vi.fn(),
     create: vi.fn(),
@@ -74,6 +76,7 @@ beforeEach(() => {
   getMyOrgMock.mockResolvedValue(PAYLOAD);
   updateMock.mockResolvedValue({ message: 'Organization updated' });
   removeMemberMock.mockResolvedValue({ message: 'Join request dismissed' });
+  acceptRequestMock.mockResolvedValue({ message: 'A Stranger is now a member of Openi' });
 });
 
 describe('OrgAdmin — the seat count is the server’s, not a recount', () => {
@@ -164,6 +167,42 @@ describe('OrgAdmin — pending rows are actionable', () => {
     fireEvent.click(screen.getByTitle('Revoke invitation'));
     expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/frees up their seat/i));
     await waitFor(() => expect(removeMemberMock).toHaveBeenCalledWith(4));
+  });
+
+  it('lets the admin ACCEPT a request, which is the other half of the card', async () => {
+    // Until s119f only Dismiss existed: requestJoin's own email told admins to
+    // "approve or reject from your Organization page", and approve was not
+    // there. A request could only ever be refused.
+    render(<OrgAdmin />);
+    await waitFor(() => expect(screen.getByText('A Stranger')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: /accept/i }));
+    await waitFor(() => expect(acceptRequestMock).toHaveBeenCalledWith(5));
+    // Only real once the page re-reads the org — the seat count changes.
+    await waitFor(() => expect(getMyOrgMock).toHaveBeenCalledTimes(2));
+  });
+
+  it('offers Accept ONLY on a request, never on a seat holder', async () => {
+    render(<OrgAdmin />);
+    await waitFor(() => expect(screen.getByText('Members (4)')).toBeInTheDocument());
+    // One request in the payload, so exactly one Accept control on the page —
+    // the pending INVITE in the roster must not get one, because it has no
+    // account to activate.
+    expect(screen.getAllByRole('button', { name: /accept/i })).toHaveLength(1);
+  });
+
+  it('surfaces a seat-full refusal instead of a generic failure', async () => {
+    acceptRequestMock.mockRejectedValue(
+      new Error('Seat limit (5) reached. Remove a member, or raise the seat limit in Organization settings.')
+    );
+    const toast = (await import('react-hot-toast')).default;
+    render(<OrgAdmin />);
+    await waitFor(() => expect(screen.getByText('A Stranger')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: /accept/i }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith(
+      expect.stringContaining('Seat limit (5)')
+    ));
   });
 
   it('offers no role toggle on a row that is not active', async () => {
