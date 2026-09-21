@@ -5,7 +5,7 @@
  * Do not reformat the body between the sentinels — the re-concat check
  * documented in ./index.js diffs it byte-for-byte against the original.
  */
-import { BASE_URL, get, post, put, del } from './core';
+import { BASE_URL, get, post, put, patch, del } from './core';
 
 // ---8<--- BODY START  (pre-split api.js lines 263-403, VERBATIM)
 export const startupAPI = {
@@ -153,3 +153,18 @@ export const knowledgeAdminAPI = {
 
 // ── Documents ─────────────────────────────────────────────────
 // ---8<--- BODY END
+
+// ── POST-SPLIT ADDITIONS ──────────────────────────────────────
+// Deliberately BELOW the BODY END sentinel: everything above is a byte-for-byte
+// slice of the pre-split api.js that ./index.js's re-concat check diffs, so new
+// endpoints append here rather than editing the slice.
+
+// What's New admin review surface (21 Sep 2026). The sync stages entries that
+// were already stale when first ingested as drafts; these are how an admin
+// clears that queue. Admin-gated server-side — calling them as a normal user
+// returns 403.
+export const whatsNewAdminAPI = {
+  listDrafts:  ()                 => get('/whats-new?status=draft'),
+  setPublished: (id, isPublished) => patch(`/admin/whats-new/${id}`, { is_published: isPublished }),
+  bulkPublish: (ids, isPublished) => post('/admin/whats-new/bulk-publish', { ids, is_published: isPublished }),
+};
