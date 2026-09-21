@@ -51,7 +51,7 @@ const FEATURES = [
   {
     category: 'Startup Tools',
     items: [
-      { icon: Rocket, title: 'Rich Startup Profile', featureKey: 'rich_profile_sections_unlocked', desc: '15-section comprehensive profile with funding rounds, team, patents, clients, and metrics.', tier: 'pro', link: '/dashboard/profile' },
+      { icon: Rocket, title: 'Rich Startup Profile', desc: '15-section comprehensive profile with funding rounds, team, patents, clients, and metrics.', tier: 'pro', link: '/dashboard/profile' },
       { icon: Target, title: 'Challenge Marketplace', desc: 'Browse and apply to open innovation challenges from corporates, investors, and government.', tier: 'free', link: '/dashboard/marketplace' },
       { icon: Shield, title: 'DeepTech Assessment', desc: 'Tech-Readiness-based qualification framework for defence, quantum, biotech, and advanced materials.', tier: 'free', link: '/dashboard/deeptech' },
     ],
@@ -61,13 +61,13 @@ const FEATURES = [
     items: [
       { icon: TrendingUp, title: 'Deal Pipeline', featureKey: 'can_access_deal_pipeline', desc: '7-stage workflow from sourcing to close with milestones, tasks, and evaluation tracking.', tier: 'pro', link: '/dashboard/investor/deals' },
       { icon: Award, title: '8-Vector Evaluation', featureKey: 'eight_vector_evaluation', desc: 'Score startups across Market, Team, Tech, Traction, Financials, IP, Scalability, Strategic Fit.', tier: 'pro', link: '/dashboard/investor/deals' },
-      { icon: BarChart3, title: 'Portfolio Management', featureKey: 'can_access_deal_pipeline', desc: 'Track portfolio companies with entry/exit valuations, equity stakes, and performance.', tier: 'pro', link: '/dashboard/investor/portfolio' },
+      { icon: BarChart3, title: 'Portfolio Management', desc: 'Track portfolio companies with entry/exit valuations, equity stakes, and performance.', tier: 'pro', link: '/dashboard/investor/portfolio' },
     ],
   },
   {
     category: 'Incubator & Accelerator',
     items: [
-      { icon: GraduationCap, title: 'Program Management', featureKey: 'can_create_programs_batches', desc: 'Create programs/batches with startup pipeline kanban, milestones, and mentor assignments.', tier: 'pro', link: '/dashboard/incubator/programs' },
+      { icon: GraduationCap, title: 'Program Management', desc: 'Create programs/batches with startup pipeline kanban, milestones, and mentor assignments.', tier: 'pro', link: '/dashboard/incubator/programs' },
       { icon: BarChart3, title: 'Portfolio Health', featureKey: 'can_access_portfolio_health', desc: '8-vector radar charts, at-risk detection, and checkpoint progression tracking.', tier: 'pro', link: '/dashboard/incubator/programs' },
       { icon: Link2, title: 'Service Partner Network', featureKey: 'can_access_service_partners', desc: 'Link Service Providers to programs for portfolio startup perks and credits.', tier: 'enterprise', link: '/dashboard/program/service-partners' },
     ],
@@ -99,8 +99,8 @@ const FEATURES = [
   {
     category: 'Platform & Admin',
     items: [
-      { icon: DollarSign, title: 'Multi-Currency', featureKey: 'multi_currency_enabled', desc: 'Native INR + USD support across all monetary fields with compact formatting.', tier: 'enterprise', link: '/dashboard/settings' },
-      { icon: Building2, title: 'Organization Admin', featureKey: 'multi_seat_org_admin', desc: 'Create organizations, manage team members, bulk licensing with seat management.', tier: 'free', link: '/dashboard/organization' },
+      { icon: DollarSign, title: 'Multi-Currency', desc: 'Native INR + USD support across all monetary fields with compact formatting.', tier: 'enterprise', link: '/dashboard/settings' },
+      { icon: Building2, title: 'Organization Admin', desc: 'Create organizations, manage team members, bulk licensing with seat management.', tier: 'free', link: '/dashboard/organization' },
       { icon: FileText, title: 'PDF Export', desc: 'Branded PDF invoices, challenge summaries, and sector reports with OpenI styling.', tier: 'free', link: '/dashboard/settings' },
       { icon: User, title: 'Onboarding Wizard', desc: 'Persona-specific guided setup with progress tracking and skippable steps.', tier: 'free', link: '/dashboard/onboarding' },
     ],

@@ -98,27 +98,58 @@ describe('Feature Map — every plan-gated backend feature is on the page', () =
     expect(missing, `add a FEATURES entry with featureKey for: ${missing.join(', ')}`).toEqual([]);
   });
 
-  it('declares no featureKey the backend does not define', () => {
-    // Keys beyond the checkFeatureAccess() set are legitimate — they live in
-    // subscription_plans.features and are read directly by the page (e.g.
-    // rich_profile_sections_unlocked). What must never appear is an invented one.
-    const KNOWN_PLAN_KEYS = [
+  it('declares only keys a backend gate actually ENFORCES', () => {
+    // ⚠️ THE STANDARD IS "ENFORCED", NOT "DECLARED", and the difference bit
+    // during this very change. subscription_plans.features carries several
+    // flags that no middleware reads — multi_seat_org_admin,
+    // can_create_programs_batches, rich_profile_sections_unlocked and
+    // multi_currency_enabled each have ZERO enforcement sites outside the
+    // migrations that seed them. Gating a card on one of those would show a
+    // feature as locked that every user can in fact open: the original bug
+    // inverted, and just as wrong. A key earns a place here only when
+    // something server-side refuses the request without it.
+    const ENFORCED_KEYS = [
       ...BACKEND_GATED_KEYS,
-      'ai_search_daily_cap', 'can_create_programs_batches', 'multi_currency_enabled',
-      'multi_seat_org_admin', 'rich_profile_sections_unlocked',
+      // Not a checkFeatureAccess gate but genuinely enforced: checkAiSearchQuota
+      // (middleware/subscription.js) reads it, where 0 blocks outright.
+      'ai_search_daily_cap',
     ];
-    const unknown = declared.filter((k) => !KNOWN_PLAN_KEYS.includes(k));
-    expect(unknown, `not a subscription_plans.features key: ${unknown.join(', ')}`).toEqual([]);
+    const unenforced = declared.filter((k) => !ENFORCED_KEYS.includes(k));
+    expect(unenforced, `declared but enforced nowhere: ${unenforced.join(', ')}`).toEqual([]);
   });
 
-  it('gates every entry it labels Pro or Enterprise on a real key', () => {
-    // An entry claiming a paid tier with no featureKey is an UNCHECKABLE claim:
-    // nothing can tell whether it is still true. Free entries need no key.
+  it('every paid-tier entry is either gated or a known ungated claim', () => {
+    // An entry badged Pro/Enterprise with no featureKey is an UNCHECKABLE
+    // claim — nothing can tell whether it is still true. Most should carry a
+    // key. The exceptions are listed, not waved through, because each one is a
+    // real finding: the page advertises it as paid while the backend lets
+    // anyone use it. That is a product decision to confirm (gate it, or
+    // relabel it free), and the allow-list is where it stays visible until
+    // someone makes it. Same shape as the allow-list in the backend's
+    // challenge-soft-delete guard.
+    const UNGATED_PAID_CLAIMS = [
+      'Rich Startup Profile',     // rich_profile_sections_unlocked — unenforced
+      'Portfolio Management',     // /investor/portfolio carries no plan gate
+      'Program Management',       // can_create_programs_batches — unenforced
+      'Multi-Currency',           // multi_currency_enabled — unenforced
+    ];
     const entries = [...src.matchAll(/\{\s*icon:[^}]*?\}/g)].map((m) => m[0]);
-    const paidWithoutKey = entries
+    const unexplained = entries
       .filter((e) => /tier:\s*'(pro|enterprise)'/.test(e) && !/featureKey:/.test(e))
+      .map((e) => (e.match(/title:\s*'([^']+)'/) || [])[1])
+      .filter((t) => !UNGATED_PAID_CLAIMS.includes(t));
+    expect(unexplained, `paid tier, no gate, not on the allow-list: ${unexplained.join(', ')}`).toEqual([]);
+  });
+
+  it('no free-tier entry is gated on a key that would lock it', () => {
+    // A 'free' badge on a gated entry renders the card locked under the prompt
+    // "Upgrade to Free →". Caught in review of this change: Organization Admin
+    // was briefly given multi_seat_org_admin, an Enterprise-only flag.
+    const entries = [...src.matchAll(/\{\s*icon:[^}]*?\}/g)].map((m) => m[0]);
+    const freeButGated = entries
+      .filter((e) => /tier:\s*'free'/.test(e) && /featureKey:/.test(e))
       .map((e) => (e.match(/title:\s*'([^']+)'/) || [])[1]);
-    expect(paidWithoutKey).toEqual([]);
+    expect(freeButGated).toEqual([]);
   });
 
   it('does not read entitlement from user.current_plan', () => {
