@@ -560,14 +560,29 @@ export default function Marketplace() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => startEditApplication()}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
-                <FileText size={14} /> Update application
-              </button>
+              {/* s120 — the edit door needs the same gate as the apply door.
+                  updateMyApplication has refused a closed or expired challenge
+                  since s117, so offering this button on one opened a form whose
+                  submit could only 409. The applied/status line above stays
+                  visible either way: "you applied, here is where it stands" is
+                  still true after closure, and is the part worth keeping. */}
+              {detail.is_expired ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, maxWidth: 340 }}>
+                  <AlertCircle size={16} style={{ color: '#5c5c5c', flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: '#5c5c5c' }}>
+                    This challenge is closed, so your submission is locked. You can still reach the organisation through Messages.
+                  </span>
+                </div>
+              ) : (
+                <button onClick={() => startEditApplication()}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 8, background: '#fff', color: G, border: `1px solid ${G}`, cursor: 'pointer' }}>
+                  <FileText size={14} /> Update application
+                </button>
+              )}
             </div>
           ) : detail.has_applied ? (
             applyFormJsx
-          ) : detail.status !== 'open' ? (
+          ) : detail.is_expired ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#5c5c5c' }}>
               <AlertCircle size={18} />
               <span style={{ fontSize: 13 }}>This challenge is no longer accepting applications</span>
