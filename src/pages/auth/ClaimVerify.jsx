@@ -1,7 +1,15 @@
 /**
  * Phase 53 — ClaimVerify
  * Public landing page for /claims/verify/:token
- * Calls the API, shows result, and redirects to dashboard on success.
+ *
+ * Opening the link only PREVIEWS the claim (GET); the founder must press
+ * Confirm (POST) to complete it. Mail security scanners open every link in an
+ * email, so a page that completed the claim on load let a scanner approve a
+ * claim nobody confirmed (s121, 26 Sep 2026).
+ *
+ * A GET answer WITHOUT `requires_confirmation` comes from a backend that still
+ * merged on GET (before OpenI-ai/openi-hub-backend#92 deployed) — the claim is
+ * already done, so show success. Remove that branch once #92 is live.
  */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -13,24 +21,46 @@ const G = '#D0A848';
 export default function ClaimVerify() {
   const { token } = useParams();
   const navigate = useNavigate();
-  const [state, setState] = useState('loading'); // loading | success | error
+  const [state, setState] = useState('loading'); // loading | confirm | submitting | success | error
   const [message, setMessage] = useState('');
   const [mergedFields, setMergedFields] = useState([]);
+  const [preview, setPreview] = useState(null);
+
+  const showSuccess = (res) => {
+    setState('success');
+    setMessage(res.message || 'Claim approved.');
+    setMergedFields(res.merged_fields || []);
+  };
+  const showError = (err) => {
+    setState('error');
+    setMessage(err.message || 'Could not verify claim. The link may have expired.');
+  };
 
   useEffect(() => {
     (async () => {
       if (!token) { setState('error'); setMessage('No token provided.'); return; }
       try {
         const res = await claimAPI.verify(token);
-        setState('success');
-        setMessage(res.message || 'Claim approved.');
-        setMergedFields(res.merged_fields || []);
+        if (res.requires_confirmation) {
+          setPreview(res);
+          setState('confirm');
+        } else {
+          showSuccess(res);
+        }
       } catch (err) {
-        setState('error');
-        setMessage(err.message || 'Could not verify claim. The link may have expired.');
+        showError(err);
       }
     })();
   }, [token]);
+
+  const handleConfirm = async () => {
+    setState('submitting');
+    try {
+      showSuccess(await claimAPI.confirm(token));
+    } catch (err) {
+      showError(err);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#f5f5f5' }}>
@@ -51,8 +81,32 @@ export default function ClaimVerify() {
         {state === 'loading' && (
           <div className="text-center py-6">
             <Loader2 size={40} className="mx-auto mb-4 animate-spin" style={{ color: G }} />
-            <h1 className="text-lg font-bold mb-2" style={{ color: '#1a1a1a' }}>Verifying your claim…</h1>
+            <h1 className="text-lg font-bold mb-2" style={{ color: '#1a1a1a' }}>Checking your link…</h1>
             <p className="text-sm" style={{ color: '#6B7280' }}>This should only take a moment.</p>
+          </div>
+        )}
+        {(state === 'confirm' || state === 'submitting') && (
+          <div className="text-center py-6" data-testid="claim-confirm">
+            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: '#FDF8EC' }}>
+              <CheckCircle2 size={32} style={{ color: G }} />
+            </div>
+            <h1 className="text-lg font-bold mb-2" style={{ color: '#1a1a1a' }}>
+              Confirm your claim{preview?.target_company_name ? ` for ${preview.target_company_name}` : ''}
+            </h1>
+            <p className="text-sm mb-6" style={{ color: '#6B7280' }}>
+              Your email address is verified. Press Confirm to take ownership of this{' '}
+              {preview?.claim_type === 'organization' ? 'organization' : 'startup'} profile on OpenI.
+            </p>
+            <button onClick={handleConfirm} disabled={state === 'submitting'}
+              className="w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+              style={{ background: G, color: '#fff' }}>
+              {state === 'submitting'
+                ? (<><Loader2 size={14} className="animate-spin" /> Confirming…</>)
+                : (<>Confirm claim <ArrowRight size={14} /></>)}
+            </button>
+            <p className="text-xs mt-4" style={{ color: '#9CA3AF' }}>
+              Didn&apos;t request this? Just close this page — nothing changes unless you press Confirm.
+            </p>
           </div>
         )}
         {state === 'success' && (
