@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { ssoAPI, orgAPI } from '../services/api';
-import { Shield, Copy, Loader2, Trash2, ShieldAlert } from 'lucide-react';
+import { Shield, Copy, Loader2, Trash2, ShieldAlert, CheckCircle2, XCircle } from 'lucide-react';
 
 const G = '#D0A848';
 
@@ -36,6 +36,24 @@ export default function SettingsSSO() {
   const [clientSecret, setClientSecret] = useState('');
   const [allowedDomains, setAllowedDomains] = useState('');
   const [autoProvision, setAutoProvision] = useState(true);
+  // s121: domain ownership — every allowed domain needs a DNS TXT record.
+  const [records, setRecords] = useState([]);
+  const [checking, setChecking] = useState(false);
+  const domainList = () => allowedDomains.split(',').map((d) => d.trim().toLowerCase()).filter(Boolean);
+
+  const checkRecords = async () => {
+    const domains = domainList();
+    if (!domains.length) { toast.error('Enter at least one email domain first'); return; }
+    setChecking(true);
+    try {
+      const r = await ssoAPI.domainRecords(domains);
+      setRecords(r.records || []);
+    } catch (err) {
+      toast.error(err.message || 'Could not check DNS records');
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -76,13 +94,15 @@ export default function SettingsSSO() {
         issuer_url: issuerUrl.trim(),
         client_id: clientId.trim(),
         client_secret: clientSecret.trim(),
-        allowed_domains: allowedDomains.split(',').map((d) => d.trim()).filter(Boolean),
+        allowed_domains: domainList(),
         auto_provision: autoProvision,
       });
       toast.success('SSO configuration saved');
       await load();
     } catch (err) {
       toast.error(err.message || 'Failed to save SSO configuration');
+      // Show which domain still needs its DNS record.
+      if (domainList().length) checkRecords();
     } finally {
       setSaving(false);
     }
@@ -214,8 +234,41 @@ export default function SettingsSSO() {
             style={input}
           />
           <p style={{ margin: '6px 0 0', fontSize: 11, color: '#666' }}>
-            Comma-separated. Leave blank to allow any email domain.
+            Comma-separated, at least one. Only people with these email domains can sign in via SSO,
+            and you must prove you own each domain with a DNS record.
           </p>
+          <button type="button" onClick={checkRecords} disabled={checking}
+            style={{
+              marginTop: 8, padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600,
+              border: '1px solid #ddd', cursor: 'pointer', background: '#fff', opacity: checking ? 0.6 : 1,
+            }}>
+            {checking ? 'Checking…' : 'Check DNS records'}
+          </button>
+          {records.length > 0 && (
+            <div data-testid="sso-domain-records" style={{ marginTop: 10, border: '1px solid #eee', borderRadius: 8, padding: 10 }}>
+              <p style={{ margin: '0 0 8px', fontSize: 11.5, color: '#555' }}>
+                Add a <strong>TXT</strong> record at your DNS provider for each domain, then check again:
+              </p>
+              {records.map((r) => (
+                <div key={r.domain} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '6px 0', borderTop: '1px solid #f3f3f3' }}>
+                  {r.verified
+                    ? <CheckCircle2 size={15} style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }} />
+                    : <XCircle size={15} style={{ color: '#EF4444', flexShrink: 0, marginTop: 2 }} />}
+                  <div style={{ flex: 1, minWidth: 0, fontSize: 11.5 }}>
+                    <div style={{ fontWeight: 600, color: '#1a1a1a' }}>
+                      {r.domain} — {r.verified ? 'verified' : 'not verified yet'}
+                    </div>
+                    {!r.verified && (
+                      <>
+                        <div style={{ color: '#666' }}>Name: <code style={{ wordBreak: 'break-all' }}>{r.name}</code></div>
+                        <div style={{ color: '#666' }}>Value: <code style={{ wordBreak: 'break-all' }}>{r.value}</code></div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, cursor: 'pointer' }}>
