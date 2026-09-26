@@ -68,6 +68,8 @@ const NAV = [
   { to: "/dashboard/admin/costs",     label: "Service Costs",  Icon: DollarSign,      roles: ["admin"] },
   /* A: Admin Platform-Health dashboard nav entry */
   { to: "/dashboard/admin/platform-health", label: "Platform Health", Icon: TrendingUp,      roles: ["admin"] },
+  /* s121g: admin read-only Innovation Brief preview (a user's, or a prospect's) */
+  { to: "/dashboard/admin/brief-preview", label: "Brief Preview", Icon: Search,         roles: ["admin"] },
   // ── Legacy admin + shared items ──
   { to: "/dashboard/evaluate",       label: "8-Vector Eval",    Icon: ClipboardCheck,  roles: ["admin","evaluator"] },
   { to: "/dashboard/startups",       label: "Startups",         Icon: Rocket },

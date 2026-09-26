@@ -50,7 +50,8 @@ function Initials({ name, logo }) {
     alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{initials}</div>;
 }
 
-function BriefCard({ item, onShortlist, onDismiss, highlight }) {
+// Exported for the admin preview page (read-only: no Shortlist / Not relevant).
+export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false }) {
   const isStartup = item.type === 'startup';
   const to = isStartup ? `/dashboard/startups/${item.user_id}` : `/dashboard/marketplace/${item.id}`;
   const rel = REL_STYLE[item.relationship];
@@ -75,7 +76,7 @@ function BriefCard({ item, onShortlist, onDismiss, highlight }) {
       <p style={{ fontSize: 12.5, margin: 0, color: '#1a1a1a', borderTop: '1px dashed #eee', paddingTop: 8 }}>
         <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
-      {isStartup && (
+      {isStartup && !readOnly && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 'auto' }}>
           <button type="button" style={{ ...btn, ...(item.shortlisted ? { background: G, borderColor: G, color: NAVY, fontWeight: 600 } : {}) }}
             aria-pressed={item.shortlisted ? 'true' : 'false'} onClick={() => onShortlist(item)}>

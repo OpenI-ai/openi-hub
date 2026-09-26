@@ -52,6 +52,7 @@ export default function AdminConsole() {
     { to: '/dashboard/admin/knowledge', label: 'Knowledge Hub', desc: 'Manage articles, reports, and contributor access.', icon: BookOpen, color: 'bg-teal-500' },
     { to: '/dashboard/admin/costs', label: 'Service Costs', desc: 'Provider spend, uptime, Sentry errors, email outbox.', icon: DollarSign, color: 'bg-yellow-500' },
     { to: '/dashboard/admin/platform-health', label: 'Platform Health', desc: 'Revenue, signups, churn, embeddings and clusters.', icon: Activity, color: 'bg-rose-500' },
+    { to: '/dashboard/admin/brief-preview', label: 'Brief Preview', desc: "See any account's Innovation Brief, or build one for a prospect.", icon: BarChart3, color: 'bg-slate-600' },
   ];
 
   return (
