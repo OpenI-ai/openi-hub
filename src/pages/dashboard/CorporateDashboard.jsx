@@ -9,6 +9,7 @@ import {
   CheckCircle, Sparkles, RefreshCw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import BriefTeaser from '../../components/BriefTeaser';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -78,6 +79,7 @@ export default function CorporateDashboard() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+      <BriefTeaser />  {/* s121e */}
       {/* Welcome */}
       <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: '#16a34a15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

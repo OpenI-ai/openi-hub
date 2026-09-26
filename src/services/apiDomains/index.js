@@ -74,3 +74,5 @@ export * from './invites';
 export * from './personas';
 export * from './engagement';
 export * from './admin';
+// s121e — NOT part of the verbatim split: Innovation Brief.
+export * from './brief';

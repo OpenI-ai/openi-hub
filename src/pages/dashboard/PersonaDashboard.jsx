@@ -14,6 +14,7 @@ import {
   FileText, ThumbsUp, MapPin, BarChart2, Briefcase, Eye, DollarSign, Award, Link2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import BriefTeaser from '../../components/BriefTeaser';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -240,6 +241,8 @@ export default function PersonaDashboard() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       {/* Phase 54: MFA enrollment nudge (hidden for demo/admin + already-enrolled users) */}
       <MfaBanner />
+
+      <BriefTeaser />  {/* s121e */}
 
       {/* Welcome Card */}
       <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
