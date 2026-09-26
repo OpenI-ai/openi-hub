@@ -10,7 +10,7 @@
  * popular searches, so the brief changes between visits too.
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp } from 'lucide-react';
 import { briefAPI } from '../../services/api';
@@ -53,12 +53,17 @@ function Initials({ name, logo }) {
 // Exported for the admin preview page (read-only: no Shortlist / Not relevant).
 export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false }) {
   const isStartup = item.type === 'startup';
-  const to = isStartup ? `/dashboard/startups/${item.user_id}` : `/dashboard/marketplace/${item.id}`;
+  // ?by=user_id: the brief carries the startup's user_id, and StartupProfile otherwise reads :id as a
+  // startup_profiles.id (independent sequence), opening the WRONG startup or none (s121j).
+  const to = isStartup ? `/dashboard/startups/${item.user_id}?by=user_id` : `/dashboard/marketplace/${item.id}`;
+  const navigate = useNavigate();
+  // The whole tile opens the profile; clicks on its own buttons/links keep their own behaviour.
+  const open = (e) => { if (!e.target.closest('button, a')) navigate(to); };
   const rel = REL_STYLE[item.relationship];
   const meta = isStartup ? [item.city, item.country, item.stage].filter(Boolean).join(' · ')
     : [item.corporate_name, item.deadline ? `closes ${new Date(item.deadline).toLocaleDateString()}` : null].filter(Boolean).join(' · ');
   return (
-    <div style={{ ...card, borderColor: highlight ? G : '#eee' }} data-testid="brief-card">
+    <div style={{ ...card, borderColor: highlight ? G : '#eee', cursor: 'pointer' }} data-testid="brief-card" onClick={open}>
       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         <Initials name={item.name} logo={item.logo_url} />
         <div style={{ minWidth: 0, flex: 1 }}>
@@ -76,6 +81,11 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       <p style={{ fontSize: 12.5, margin: 0, color: '#1a1a1a', borderTop: '1px dashed #eee', paddingTop: 8 }}>
         <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
+      {isStartup && readOnly && (
+        <div style={{ display: 'flex', gap: 6, marginTop: 'auto' }}>
+          <Link to={to} style={{ ...btn, textDecoration: 'none' }}>View profile</Link>
+        </div>
+      )}
       {isStartup && !readOnly && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 'auto' }}>
           <button type="button" style={{ ...btn, ...(item.shortlisted ? { background: G, borderColor: G, color: NAVY, fontWeight: 600 } : {}) }}

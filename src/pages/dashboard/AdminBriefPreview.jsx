@@ -49,7 +49,7 @@ function BriefResult({ brief, onAdd, onRemove, busy }) {
         <strong style={{ color: '#fff', fontWeight: 600 }}>
           {brief.preview === 'prospect' ? `Preview: ${brief.company || 'Prospect'}` : `Preview: ${brief.user?.name || 'User'}`}
         </strong>
-        <span style={{ fontSize: 13, color: '#C9D3DB' }}>{brief.role} · {items.length} matches · read-only, nothing is saved</span>
+        <span style={{ fontSize: 13, color: '#C9D3DB' }}>{brief.role} · {items.length} matches · viewing saves nothing{brief.preview === 'user' ? '; added focus areas are saved to their brief' : ''}</span>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
         {brief.priorities.map((p, i) => (
@@ -143,7 +143,7 @@ export default function AdminBriefPreview() {
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '8px 4px 40px' }} data-testid="brief-preview">
       <h1 style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Brief Preview</h1>
       <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '75ch' }}>
-        See the Innovation Brief any account sees, or build one for a prospect from their priorities. Read-only: nothing is saved to anyone's account.
+        See the Innovation Brief any account sees, or build one for a prospect from their priorities. Viewing saves nothing to anyone's account. Only "Add for client" and × on a focus area change a client's brief (audited).
       </p>
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         {tab('user', 'An existing account')}
