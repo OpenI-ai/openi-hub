@@ -19,4 +19,6 @@ export const briefPreviewAPI = {
   prospect:  (payload) => post('/admin/brief-preview/prospect', payload),
   editPriorities: (id, payload) => put(`/admin/brief-preview/${id}/priorities`, payload),  // s121i
   suggestions: (id) => get(`/admin/brief-preview/${id}/suggestions`),  // s121j
+  label: (id, payload) => put(`/admin/brief-preview/${id}/labels`, payload),  // s121k
+  quality: () => get('/admin/brief-quality'),
 };

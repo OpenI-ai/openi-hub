@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
-import { BriefCard } from './InnovationBrief';
+import { BriefCard, VerifiedNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
 
 const G = '#D0A848';
@@ -40,7 +40,40 @@ const SAP_INDIA = {
   ],
 };
 
-function BriefResult({ brief, onAdd, onRemove, busy }) {
+// s121k — accuracy of a section against the admin's labels.
+function SectionScore({ q }) {
+  if (!q.labeled) return <span style={{ fontSize: 12, color: '#999', marginLeft: 'auto' }}>Not labelled yet: mark each startup 👍 or 👎</span>;
+  const pct = Math.round((q.good / q.labeled) * 100);
+  return <span data-testid="section-score" style={{ fontSize: 12.5, marginLeft: 'auto', color: pct >= 80 ? '#2E7D4F' : pct >= 50 ? '#8A6A1C' : '#A33', fontWeight: 600 }}>
+    {pct}% accurate <span style={{ fontWeight: 400, color: '#777' }}>({q.good} good · {q.bad} bad of {q.labeled} labelled)</span></span>;
+}
+
+// s121k — accuracy across every client an admin has labelled.
+function QualityPanel({ refreshKey }) {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    let live = true;
+    briefPreviewAPI.quality().then(d => { if (live) setData(d); }).catch(() => {});
+    return () => { live = false; };
+  }, [refreshKey]);
+  if (!data || !data.clients?.length) return null;
+  return (
+    <div data-testid="quality-panel" style={{ border: '1px solid #eee', borderRadius: 12, padding: '12px 16px', margin: '12px 0 4px', background: '#fff' }}>
+      <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600, marginBottom: 6 }}>Brief accuracy (your labels)</div>
+      {data.clients.map(c => (
+        <div key={c.id} style={{ display: 'flex', gap: 12, fontSize: 13, padding: '3px 0', flexWrap: 'wrap' }}>
+          <strong style={{ fontWeight: 600, minWidth: 160 }}>{c.company}</strong>
+          <span>{c.accuracy == null ? 'no labelled startups shown' : `${c.accuracy}% accurate`}</span>
+          <span style={{ color: '#777' }}>{c.good} good of {c.labeled} labelled · {c.shown} shown</span>
+        </div>
+      ))}
+      <div style={{ fontSize: 12, color: '#777', marginTop: 6 }}>
+        Clients' own clicks, last 30 days: {data.clicks_30d.shortlist} shortlisted · {data.clicks_30d.intro} intros · {data.clicks_30d.dismiss} marked not relevant</div>
+    </div>
+  );
+}
+
+function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
   const [label, setLabel] = useState('');
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
@@ -101,9 +134,13 @@ function BriefResult({ brief, onAdd, onRemove, busy }) {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
+            {s.verified && <VerifiedNote />}
+            {s.quality && <SectionScore q={s.quality} />}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
-            {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} readOnly />)}
+            {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} readOnly
+              adminLabel={onLabel && it.type === 'startup' && s.priority_key
+                ? { value: it.eval_label || null, onLabel: (label) => onLabel({ priority_key: s.priority_key, startup_user_id: it.user_id, label }) } : null} />)}
           </div>
         </section>
       ))}
@@ -160,6 +197,12 @@ export default function AdminBriefPreview() {
     catch (err) { toast.error(err.message || 'Could not save that'); }
     finally { setBusy(false); }
   };
+  // s121k — accuracy labels; the response is the rebuilt preview.
+  const [labelled, setLabelled] = useState(0);
+  const labelStartup = async (payload) => {
+    try { setBrief(await briefPreviewAPI.label(brief.user.id, payload)); setLabelled(n => n + 1); }
+    catch (err) { toast.error(err.message || 'Could not save that label'); }
+  };
   const setChallenge = (i, field, value) => setProspect(p => ({ ...p, challenges: p.challenges.map((c, j) => j === i ? { ...c, [field]: value } : c) }));
 
   const tab = (id, text) => (
@@ -172,7 +215,9 @@ export default function AdminBriefPreview() {
       <h1 style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Brief Preview</h1>
       <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '75ch' }}>
         See the Innovation Brief any account sees, or build one for a prospect from their priorities. Viewing saves nothing to anyone's account. Only "Add for client" and × on a focus area change a client's brief (audited).
+        Mark startups 👍 good fit or 👎 bad fit to measure accuracy; a 👎 also hides that startup from the client.
       </p>
+      <QualityPanel refreshKey={labelled} />
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         {tab('user', 'An existing account')}
         {tab('prospect', 'A prospect (no account)')}
@@ -231,7 +276,8 @@ export default function AdminBriefPreview() {
       {busy && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 20, color: '#666' }}><Loader2 className="animate-spin" size={16} /> Building the brief…</div>}
       <BriefResult brief={brief} busy={busy}
         onAdd={brief?.preview === 'user' ? (label) => editUser({ add: [label] }) : null}
-        onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null} />
+        onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null}
+        onLabel={brief?.preview === 'user' ? labelStartup : null} />
     </div>
   );
 }

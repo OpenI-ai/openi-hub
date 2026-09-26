@@ -12,7 +12,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles } from 'lucide-react';
+import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck } from 'lucide-react';
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 
@@ -52,7 +52,8 @@ function Initials({ name, logo }) {
 }
 
 // Exported for the admin preview page (read-only: no Shortlist / Not relevant).
-export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false }) {
+// adminLabel (s121k, Brief Preview only): { value: 'good'|'bad'|null, onLabel(next) } — an admin's accuracy label.
+export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null }) {
   const isStartup = item.type === 'startup';
   // ?by=user_id: the brief carries the startup's user_id, and StartupProfile otherwise reads :id as a
   // startup_profiles.id (independent sequence), opening the WRONG startup or none (s121j).
@@ -83,8 +84,17 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
         <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
       {isStartup && readOnly && (
-        <div style={{ display: 'flex', gap: 6, marginTop: 'auto' }}>
+        <div style={{ display: 'flex', gap: 6, marginTop: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link to={to} style={{ ...btn, textDecoration: 'none' }}>View profile</Link>
+          {adminLabel && (<>
+            <span style={{ fontSize: 11.5, color: '#888', marginLeft: 'auto' }}>Fit?</span>
+            {[['good', ThumbsUp, 'Good fit', '#2E7D4F', '#DFF2E6'], ['bad', ThumbsDown, 'Bad fit', '#A33', '#FBE3E3']].map(([v, Icon, name, fg, bg]) => {
+              const on = adminLabel.value === v;
+              return <button key={v} type="button" aria-pressed={on ? 'true' : 'false'} aria-label={name} title={v === 'bad' ? 'Bad fit (also hides it from this client)' : 'Good fit'}
+                onClick={() => adminLabel.onLabel(on ? null : v)}
+                style={{ ...btn, padding: '4px 8px', ...(on ? { background: bg, borderColor: fg, color: fg } : {}) }}><Icon size={13} /></button>;
+            })}
+          </>)}
         </div>
       )}
       {isStartup && !readOnly && (
@@ -99,6 +109,12 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       )}
     </div>
   );
+}
+
+// s121k — the section's candidates were checked by OpenI's analyst agent.
+export function VerifiedNote() {
+  return <span title="OpenI's analyst agent read each startup and kept only the ones whose product serves this priority"
+    style={{ fontSize: 11.5, color: '#2E7D4F', display: 'inline-flex', alignItems: 'center', gap: 3 }}><ShieldCheck size={12} /> Checked by OpenI's analyst</span>;
 }
 
 export default function InnovationBrief() {
@@ -329,6 +345,7 @@ export default function InnovationBrief() {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
+            {s.verified && <VerifiedNote />}
           </div>
           {s.items.length === 0
             ? <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>
