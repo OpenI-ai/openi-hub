@@ -64,7 +64,8 @@ export const claimAPI = {
   detect:       ()                            => post('/claims/detect', {}),
   request:      (data)                        => post('/claims/request', data),
   mine:         ()                            => get('/claims/mine'),
-  verify:       (token)                       => get(`/claims/verify/${token}`),
+  verify:       (token)                       => get(`/claims/verify/${token}`),   // read-only preview
+  confirm:      (token)                       => post(`/claims/verify/${token}`, {}), // completes the claim
   // Admin endpoints
   list:         (params = {})                 => get(`/claims?${new URLSearchParams(params)}`),
   detail:       (id)                          => get(`/claims/${id}`),
