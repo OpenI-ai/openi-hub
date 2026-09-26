@@ -13,7 +13,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
-import { BriefCard, VerifiedNote } from './InnovationBrief';
+import { BriefCard, VerifiedNote, ApplicantsBlock, GapNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 
@@ -79,12 +79,14 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
   const userId = brief?.preview === 'user' ? brief.user?.id : null;
+  // Refresh suggestions only when the client's priorities change, not on every 👍/👎 (s121l).
+  const priorityKeys = (brief?.priorities || []).map(p => p.key).join('|');
   useEffect(() => {
     let live = true;
     setSuggestions([]);
     if (userId) briefPreviewAPI.suggestions(userId).then(r => { if (live) setSuggestions(r.suggestions || []); }).catch(() => {});
     return () => { live = false; };
-  }, [userId, brief]);
+  }, [userId, priorityKeys]);
   if (!brief) return null;
   const submit = (e) => {
     e.preventDefault();
@@ -130,7 +132,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
           ))}
         </div>
       )}
-      {brief.sections.filter(s => s.items.length).map(s => (
+      {brief.sections.filter(s => s.items.length || s.applicants?.length || s.gap).map(s => (
         <section key={s.id} style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{s.title}</h2>
@@ -138,18 +140,20 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
             {s.verified && <VerifiedNote />}
             {s.quality && <SectionScore q={s.quality} />}
           </div>
+          <ApplicantsBlock s={s} renderCard={it => <BriefCard key={`app:${it.user_id}`} item={it} readOnly />} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
             {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} readOnly
               adminLabel={onLabel && it.type === 'startup' && s.priority_key
                 ? { value: it.eval_label || null, onLabel: (label) => onLabel({ priority_key: s.priority_key, startup_user_id: it.user_id, label }) } : null} />)}
           </div>
+          <GapNote s={s} />
         </section>
       ))}
       {brief.sections.every(s => !s.items.length) && (
         <p style={{ marginTop: 20, color: '#666' }}>No matches yet for these priorities.</p>
       )}
       {(() => {
-        const empty = brief.sections.filter(s => !s.items.length);
+        const empty = brief.sections.filter(s => !s.items.length && !s.gap && !s.applicants?.length);
         return empty.length > 0 && !brief.sections.every(s => !s.items.length)
           ? <p style={{ marginTop: 20, fontSize: 13, color: '#777' }}>No strong matches yet for {empty.map(s => s.title).join(', ')}.</p> : null;
       })()}
