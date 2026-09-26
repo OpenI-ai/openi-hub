@@ -9,12 +9,13 @@
  *     brief from OpenI's real startup data, with no account created. Built for
  *     sales demos (SAP India first).
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
 import { BriefCard, VerifiedNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
+import { applyLabel } from '../../utils/briefLabels';
 
 const G = '#D0A848';
 const btn = { fontSize: 13, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
@@ -199,9 +200,23 @@ export default function AdminBriefPreview() {
   };
   // s121k — accuracy labels; the response is the rebuilt preview.
   const [labelled, setLabelled] = useState(0);
+  // Optimistic (Rajeev, 26 Sep: "it takes 2-3 seconds to turn green"): the
+  // button and score update on click; the server's rebuilt preview (which may
+  // backfill a 👎 slot) replaces it when it arrives, unless a newer click is
+  // in flight. On failure the click is undone.
+  const labelSeq = useRef(0);
   const labelStartup = async (payload) => {
-    try { setBrief(await briefPreviewAPI.label(brief.user.id, payload)); setLabelled(n => n + 1); }
-    catch (err) { toast.error(err.message || 'Could not save that label'); }
+    const before = brief;
+    const seq = ++labelSeq.current;
+    setBrief(b => applyLabel(b, payload));
+    try {
+      const fresh = await briefPreviewAPI.label(before.user.id, payload);
+      if (seq === labelSeq.current) setBrief(fresh);
+      setLabelled(n => n + 1);
+    } catch (err) {
+      if (seq === labelSeq.current) setBrief(before);
+      toast.error(err.message || 'Could not save that label');
+    }
   };
   const setChallenge = (i, field, value) => setProspect(p => ({ ...p, challenges: p.challenges.map((c, j) => j === i ? { ...c, [field]: value } : c) }));
 
