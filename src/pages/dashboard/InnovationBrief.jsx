@@ -156,7 +156,7 @@ export default function InnovationBrief() {
     setBusy(true);
     try {
       const b = await briefAPI.preferences({
-        priorities: priorities.map(p => ({ key: p.key, on: p.on })),
+        priorities: priorities.map(p => ({ key: p.key, label: p.label, on: p.on })),
         ...(relationships ? { relationships } : {}),
       });
       prevIds.current = idsOf(b);
@@ -168,6 +168,16 @@ export default function InnovationBrief() {
   };
 
   const togglePriority = (key) => savePrefs(brief.priorities.map(p => p.key === key ? { ...p, on: !p.on } : p));
+  // s121i — the user's own focus areas, beyond what their profile and challenges say.
+  const [newPriority, setNewPriority] = useState('');
+  const addPriority = async (e) => {
+    e.preventDefault();
+    const label = newPriority.trim();
+    if (label.length < 3) return;
+    await savePrefs([...brief.priorities, { key: 'custom', label, on: true }]);
+    setNewPriority('');
+  };
+  const removePriority = (key) => savePrefs(brief.priorities.filter(p => p.key !== key));
   const raisePriority = (key) => {
     const list = [...brief.priorities];
     const i = list.findIndex(p => p.key === key);
@@ -221,7 +231,7 @@ export default function InnovationBrief() {
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>
       </div>
 
-      {brief.priorities.length > 0 && (
+      {(  // always shown: the add-a-focus-area box lives here too
         <div style={{ marginTop: 16 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>Your priorities</span>
@@ -237,8 +247,16 @@ export default function InnovationBrief() {
                 </button>
                 {i > 0 && <button type="button" disabled={busy} onClick={() => raisePriority(p.key)} aria-label={`Rank ${p.label} higher`}
                   style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 2, color: '#888' }}><ArrowUp size={12} /></button>}
+                {p.source === 'custom' && <button type="button" disabled={busy} onClick={() => removePriority(p.key)} aria-label={`Remove ${p.label}`}
+                  style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 2, color: '#888' }}><X size={12} /></button>}
               </span>
             ))}
+            <form onSubmit={addPriority} style={{ display: 'inline-flex', gap: 4 }}>
+              <input id="brief-add-priority" value={newPriority} onChange={e => setNewPriority(e.target.value)} maxLength={120}
+                placeholder="Add a focus area…" aria-label="Add a focus area"
+                style={{ border: '1px dashed #ccc', borderRadius: 999, padding: '4px 10px', fontSize: 12.5, width: 190, fontFamily: 'inherit' }} />
+              {newPriority.trim().length >= 3 && <button type="submit" disabled={busy} style={{ ...btn, padding: '3px 10px', borderRadius: 999 }}>Add</button>}
+            </form>
           </div>
           {isCorporate && (
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>

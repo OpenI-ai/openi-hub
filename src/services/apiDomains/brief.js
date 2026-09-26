@@ -15,4 +15,5 @@ export const briefPreviewAPI = {
   findUsers: (q)       => get(`/admin/brief-preview/users?q=${encodeURIComponent(q)}`),
   user:      (id)      => get(`/admin/brief-preview/${id}`),
   prospect:  (payload) => post('/admin/brief-preview/prospect', payload),
+  editPriorities: (id, payload) => put(`/admin/brief-preview/${id}/priorities`, payload),  // s121i
 };
