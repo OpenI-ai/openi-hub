@@ -97,7 +97,7 @@ export default function Onboarding() {
       if (data.all_done) {
         toast.success('Onboarding complete! Welcome to OpenI Hub.');
         updateUser({ onboarding_completed: true });
-        setTimeout(() => navigate('/dashboard', { replace: true }), 1000);
+        setTimeout(() => navigate('/dashboard/brief', { replace: true }), 1000);  // s121e: land on the brief built for them
       } else {
         toast.success('Step completed!');
       }
@@ -110,7 +110,7 @@ export default function Onboarding() {
       await onboardingAPI.skip();
       updateUser({ onboarding_completed: true });
       toast.success('Onboarding skipped. You can always come back from Settings.');
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard/brief', { replace: true });  // s121e
     } catch (err) { toast.error(err.message); }
     finally { setSkipping(false); }
   };

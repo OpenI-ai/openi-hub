@@ -69,6 +69,7 @@ import StartupWatchlist     from './pages/dashboard/StartupWatchlist';
 import DeepTechQualification from './pages/dashboard/DeepTechQualification';
 import EventsRepository     from './pages/dashboard/EventsRepository';
 import CorporateRecommendedStartups from './pages/dashboard/CorporateRecommendedStartups';
+import InnovationBrief from './pages/dashboard/InnovationBrief';  // s121e
 import StartupFeedback      from './pages/dashboard/StartupFeedback';
 import GovtAPIIntegrations  from './pages/dashboard/GovtAPIIntegrations';
 import Marketplace          from './pages/dashboard/Marketplace';
@@ -337,6 +338,7 @@ export default function App() {
             <Route path="directory"           element={<Directory />} />
             <Route path="meetings"            element={<Meetings />} />
             <Route path="home"                element={<PersonaDashboard />} />
+            <Route path="brief"               element={<InnovationBrief />} />  {/* s121e — every persona */}
             <Route path="network"             element={<MyNetwork />} />
             <Route path="profile/:id"        element={<UserProfile />} />
             <Route path="organization"       element={<OrgAdmin />} />
