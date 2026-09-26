@@ -81,7 +81,7 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       </div>
       {item.tagline && <p style={{ fontSize: 13, color: '#444', margin: 0, lineHeight: 1.45 }}>{item.tagline}</p>}
       <p style={{ fontSize: 12.5, margin: 0, color: '#1a1a1a', borderTop: '1px dashed #eee', paddingTop: 8 }}>
-        <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
+        <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.applied ? 'Applicant.' : item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
       {isStartup && readOnly && (
         <div style={{ display: 'flex', gap: 6, marginTop: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -108,6 +108,30 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
         </div>
       )}
     </div>
+  );
+}
+
+// s121l — startups that applied to the client's challenge, shown above the matches.
+export function ApplicantsBlock({ s, renderCard }) {
+  if (!s.applicants?.length) return null;
+  return (
+    <div data-testid="brief-applicants" style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', margin: '0 0 8px' }}>Applied to your challenge ({s.applicants.length})</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
+        {s.applicants.map(renderCard)}
+      </div>
+      {s.items.length > 0 && <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', margin: '16px 0 0' }}>More startups that fit</div>}
+    </div>
+  );
+}
+
+// s121l — too few good matches: say so plainly, and that OpenI is searching.
+export function GapNote({ s }) {
+  if (!s.gap) return null;
+  return (
+    <p data-testid="brief-gap" style={{ fontSize: 13, color: '#6B5A24', background: '#FBF6EA', border: '1px dashed #C9A84C', borderRadius: 10, padding: '10px 14px', margin: '10px 0 0' }}>
+      OpenI has few strong matches for this yet. Scout searches for "{s.title}" first in tonight's crawl, and new finds appear here.
+    </p>
   );
 }
 
@@ -340,24 +364,26 @@ export default function InnovationBrief() {
           <p style={{ margin: 0, fontSize: 13, color: '#555' }}>Add your sectors, focus areas or use cases to your profile{isCorporate ? ', or post a challenge' : ''}, and your brief fills in.</p>
           <Link to="/dashboard/profile" style={{ ...btn, textDecoration: 'none' }}>Complete your profile</Link>
         </div>
-      ) : brief.sections.filter(s => s.items.length > 0 || s.id.startsWith('challenge:')).map(s => (
+      ) : brief.sections.filter(s => s.items.length > 0 || s.applicants?.length || s.gap || s.id.startsWith('challenge:')).map(s => (
         <section key={s.id} style={{ marginTop: 28 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
             {s.verified && <VerifiedNote />}
           </div>
+          <ApplicantsBlock s={s} renderCard={it => <BriefCard key={`app:${it.user_id}`} item={it} onShortlist={onShortlist} onDismiss={onDismiss} />} />
           {s.items.length === 0
-            ? <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>
+            ? (s.gap || s.applicants?.length ? null : <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>)
             : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
                 {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} onShortlist={onShortlist} onDismiss={onDismiss}
                   highlight={fresh.has(`${it.type}:${it.user_id || it.id}`)} />)}
               </div>}
+          <GapNote s={s} />
         </section>
       ))}
 
       {(() => {
-        const empty = brief.sections.filter(s => s.items.length === 0 && !s.id.startsWith('challenge:'));
+        const empty = brief.sections.filter(s => s.items.length === 0 && !s.gap && !s.applicants?.length && !s.id.startsWith('challenge:'));
         return empty.length > 0 && !brief.sections.every(s => s.items.length === 0) ? (
           <p style={{ fontSize: 13, color: '#777', marginTop: 24 }}>
             No strong matches yet for {empty.map(s => s.title).join(', ')}. OpenI's crawler is looking.
