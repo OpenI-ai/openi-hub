@@ -8,6 +8,8 @@ export const briefAPI = {
   get:         ()                                => get('/brief'),
   feedback:    (startup_user_id, action, undo)   => post('/brief/feedback', { startup_user_id, action, undo: undo === true }),
   preferences: (payload)                         => put('/brief/preferences', payload),
+  suggestions: ()                                => get('/brief/suggestions'),                 // s121j
+  dismissSuggestion: (label)                     => post('/brief/suggestions/dismiss', { label }),
 };
 
 // s121g — admin, read-only previews.
@@ -16,4 +18,5 @@ export const briefPreviewAPI = {
   user:      (id)      => get(`/admin/brief-preview/${id}`),
   prospect:  (payload) => post('/admin/brief-preview/prospect', payload),
   editPriorities: (id, payload) => put(`/admin/brief-preview/${id}/priorities`, payload),  // s121i
+  suggestions: (id) => get(`/admin/brief-preview/${id}/suggestions`),  // s121j
 };

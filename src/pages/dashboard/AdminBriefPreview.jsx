@@ -9,11 +9,12 @@
  *     brief from OpenI's real startup data, with no account created. Built for
  *     sales demos (SAP India first).
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Loader2, Search, Plus, X } from 'lucide-react';
+import { Loader2, Search, Plus, X, Sparkles } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
 import { BriefCard } from './InnovationBrief';
+import { focusLabel } from '../../utils/focusLabel';
 
 const G = '#D0A848';
 const btn = { fontSize: 13, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
@@ -41,7 +42,22 @@ const SAP_INDIA = {
 
 function BriefResult({ brief, onAdd, onRemove, busy }) {
   const [label, setLabel] = useState('');
+  // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
+  const [suggestions, setSuggestions] = useState([]);
+  const userId = brief?.preview === 'user' ? brief.user?.id : null;
+  useEffect(() => {
+    let live = true;
+    setSuggestions([]);
+    if (userId) briefPreviewAPI.suggestions(userId).then(r => { if (live) setSuggestions(r.suggestions || []); }).catch(() => {});
+    return () => { live = false; };
+  }, [userId, brief]);
   if (!brief) return null;
+  const submit = (e) => {
+    e.preventDefault();
+    const { label: clean, error } = focusLabel(label);
+    if (error) { toast.error(error); return; }
+    onAdd(clean); setLabel('');
+  };
   const items = brief.sections.flatMap(s => s.items);
   return (
     <div style={{ marginTop: 24 }} data-testid="preview-result">
@@ -61,12 +77,24 @@ function BriefResult({ brief, onAdd, onRemove, busy }) {
         ))}
       </div>
       {onAdd && (
-        <form onSubmit={(e) => { e.preventDefault(); if (label.trim().length >= 3) { onAdd(label.trim()); setLabel(''); } }}
+        <form onSubmit={submit}
           style={{ display: 'flex', gap: 6, marginTop: 10, maxWidth: 560, alignItems: 'center', flexWrap: 'wrap' }}>
-          <input id="pv-add-priority" value={label} onChange={e => setLabel(e.target.value)} maxLength={120}
+          <input id="pv-add-priority" value={label} onChange={e => setLabel(e.target.value)} maxLength={80}
             placeholder="Add a focus area for this client (they will see it too)" style={{ ...input, flex: 1, minWidth: 240 }} />
           <button type="submit" disabled={busy || label.trim().length < 3} style={btn}><Plus size={14} /> Add for client</button>
         </form>
+      )}
+      {onAdd && suggestions.length > 0 && (
+        <div data-testid="pv-suggestions" style={{ marginTop: 10, maxWidth: 900 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+            <Sparkles size={11} /> Suggested by OpenI for this client</div>
+          {suggestions.map(sg => (
+            <div key={sg.label} style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap', fontSize: 13, marginBottom: 4 }}>
+              <button type="button" disabled={busy} onClick={() => onAdd(sg.label)} style={{ ...btn, padding: '2px 10px' }}><Plus size={12} /> {sg.label}</button>
+              {sg.why && <span style={{ color: '#666' }}>{sg.why}</span>}
+            </div>
+          ))}
+        </div>
       )}
       {brief.sections.filter(s => s.items.length).map(s => (
         <section key={s.id} style={{ marginTop: 24 }}>

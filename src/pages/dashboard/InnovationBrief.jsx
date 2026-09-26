@@ -12,8 +12,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp } from 'lucide-react';
+import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles } from 'lucide-react';
 import { briefAPI } from '../../services/api';
+import { focusLabel } from '../../utils/focusLabel';
 
 const G = '#D0A848';
 const NAVY = '#152838';
@@ -135,6 +136,14 @@ export default function InnovationBrief() {
 
   useEffect(() => { load(); }, [load]);
 
+  // s121j — focus areas an agent drafted from the profile; one click to accept.
+  const [suggestions, setSuggestions] = useState([]);
+  const loadSuggestions = useCallback(async () => {
+    try { setSuggestions((await briefAPI.suggestions()).suggestions || []); }
+    catch { setSuggestions([]); } // optional extra: the brief works without it
+  }, []);
+  useEffect(() => { loadSuggestions(); }, [loadSuggestions]);
+
   const onShortlist = async (item) => {
     setBusy(true);
     try {
@@ -173,7 +182,9 @@ export default function InnovationBrief() {
       setBrief(b);
       setNotice('Brief rebuilt around your priorities.');
       setFresh(new Set());
-    } catch (err) { toast.error(err.message || 'Could not save your priorities'); }
+      loadSuggestions();
+      return true;
+    } catch (err) { toast.error(err.message || 'Could not save your priorities'); return false; }
     finally { setBusy(false); }
   };
 
@@ -182,10 +193,14 @@ export default function InnovationBrief() {
   const [newPriority, setNewPriority] = useState('');
   const addPriority = async (e) => {
     e.preventDefault();
-    const label = newPriority.trim();
-    if (label.length < 3) return;
-    await savePrefs([...brief.priorities, { key: 'custom', label, on: true }]);
-    setNewPriority('');
+    const { label, error } = focusLabel(newPriority);
+    if (error) { toast.error(error); return; }
+    if (await savePrefs([...brief.priorities, { key: 'custom', label, on: true }])) setNewPriority('');
+  };
+  const acceptSuggestion = (s) => savePrefs([...brief.priorities, { key: 'custom', label: s.label, on: true }]);
+  const dismissSuggestion = async (s) => {
+    setSuggestions(list => list.filter(x => x.label !== s.label));
+    try { await briefAPI.dismissSuggestion(s.label); } catch { /* hidden locally; returns next visit */ }
   };
   const removePriority = (key) => savePrefs(brief.priorities.filter(p => p.key !== key));
   const raisePriority = (key) => {
@@ -262,12 +277,27 @@ export default function InnovationBrief() {
               </span>
             ))}
             <form onSubmit={addPriority} style={{ display: 'inline-flex', gap: 4 }}>
-              <input id="brief-add-priority" value={newPriority} onChange={e => setNewPriority(e.target.value)} maxLength={120}
+              <input id="brief-add-priority" value={newPriority} onChange={e => setNewPriority(e.target.value)} maxLength={80}
                 placeholder="Add a focus area…" aria-label="Add a focus area"
                 style={{ border: '1px dashed #ccc', borderRadius: 999, padding: '4px 10px', fontSize: 12.5, width: 190, fontFamily: 'inherit' }} />
               {newPriority.trim().length >= 3 && <button type="submit" disabled={busy} style={{ ...btn, padding: '3px 10px', borderRadius: 999 }}>Add</button>}
             </form>
           </div>
+          {suggestions.length > 0 && (
+            <div data-testid="brief-suggestions" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', marginTop: 8 }}>
+              <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Sparkles size={11} /> Suggested for you</span>
+              {suggestions.map(sg => (
+                <span key={sg.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 2, border: '1px dashed #C9A84C', borderRadius: 999, padding: '2px 4px 2px 8px', background: '#fff' }}>
+                  <button type="button" disabled={busy} onClick={() => acceptSuggestion(sg)} title={sg.why ? `${sg.why} Click to add.` : 'Click to add'}
+                    style={{ border: 0, background: 'transparent', cursor: 'pointer', fontSize: 12.5, color: '#1a1a1a', padding: 0, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                    <Plus size={11} color="#8A6A1C" />{sg.label}</button>
+                  <button type="button" disabled={busy} onClick={() => dismissSuggestion(sg)} aria-label={`Not for me: ${sg.label}`}
+                    style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 2, color: '#aaa' }}><X size={11} /></button>
+                </span>
+              ))}
+            </div>
+          )}
           {isCorporate && (
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12.5, color: '#555' }}>Show startups to</span>
