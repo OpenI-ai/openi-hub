@@ -241,7 +241,7 @@ export default function OrgAdmin() {
       if (createRecourse.recourse === 'claim') {
         await claimAPI.request({
           target_org_id: createRecourse.org.id,
-          evidence: `Requesting to claim ${createRecourse.org.name} — I created this org record while registering my organization.`,
+          verification_evidence: `Requesting to claim ${createRecourse.org.name} — I created this org record while registering my organization.`,
         });
         toast.success('Claim submitted. Check your email or your claims dashboard for next steps.');
       } else {
