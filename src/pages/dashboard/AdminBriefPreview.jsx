@@ -39,7 +39,8 @@ const SAP_INDIA = {
   ],
 };
 
-function BriefResult({ brief }) {
+function BriefResult({ brief, onAdd, onRemove, busy }) {
+  const [label, setLabel] = useState('');
   if (!brief) return null;
   const items = brief.sections.flatMap(s => s.items);
   return (
@@ -52,11 +53,21 @@ function BriefResult({ brief }) {
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
         {brief.priorities.map((p, i) => (
-          <span key={p.key} style={{ fontSize: 12.5, border: `1px solid ${p.on ? G : '#ddd'}`, background: p.on ? '#FBF6EA' : '#fff', borderRadius: 999, padding: '3px 10px', opacity: p.on ? 1 : 0.55 }}>
-            <span style={{ color: '#8A6A1C', fontSize: 11, marginRight: 4 }}>#{i + 1}</span>{p.label}
+          <span key={p.key} style={{ fontSize: 12.5, border: `1px solid ${p.on ? G : '#ddd'}`, background: p.on ? '#FBF6EA' : '#fff', borderRadius: 999, padding: '3px 10px', opacity: p.on ? 1 : 0.55, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#8A6A1C', fontSize: 11 }}>#{i + 1}</span>{p.label}
+            {onRemove && p.source === 'custom' && <button type="button" disabled={busy} onClick={() => onRemove(p.key)} aria-label={`Remove ${p.label}`}
+              style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 0, color: '#888', display: 'inline-flex' }}><X size={12} /></button>}
           </span>
         ))}
       </div>
+      {onAdd && (
+        <form onSubmit={(e) => { e.preventDefault(); if (label.trim().length >= 3) { onAdd(label.trim()); setLabel(''); } }}
+          style={{ display: 'flex', gap: 6, marginTop: 10, maxWidth: 560, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input id="pv-add-priority" value={label} onChange={e => setLabel(e.target.value)} maxLength={120}
+            placeholder="Add a focus area for this client (they will see it too)" style={{ ...input, flex: 1, minWidth: 240 }} />
+          <button type="submit" disabled={busy || label.trim().length < 3} style={btn}><Plus size={14} /> Add for client</button>
+        </form>
+      )}
       {brief.sections.filter(s => s.items.length).map(s => (
         <section key={s.id} style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
@@ -113,6 +124,12 @@ export default function AdminBriefPreview() {
         challenges: prospect.challenges.filter(c => c.title.trim()),
       }));
     } catch (err) { toast.error(err.message || 'Could not build that brief'); }
+    finally { setBusy(false); }
+  };
+  const editUser = async (payload) => {
+    setBusy(true);
+    try { setBrief(await briefPreviewAPI.editPriorities(brief.user.id, payload)); toast.success('Saved to the client\'s brief.'); }
+    catch (err) { toast.error(err.message || 'Could not save that'); }
     finally { setBusy(false); }
   };
   const setChallenge = (i, field, value) => setProspect(p => ({ ...p, challenges: p.challenges.map((c, j) => j === i ? { ...c, [field]: value } : c) }));
@@ -184,7 +201,9 @@ export default function AdminBriefPreview() {
       )}
 
       {busy && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 20, color: '#666' }}><Loader2 className="animate-spin" size={16} /> Building the brief…</div>}
-      <BriefResult brief={brief} />
+      <BriefResult brief={brief} busy={busy}
+        onAdd={brief?.preview === 'user' ? (label) => editUser({ add: [label] }) : null}
+        onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null} />
     </div>
   );
 }
