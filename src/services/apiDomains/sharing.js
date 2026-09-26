@@ -57,14 +57,12 @@ export const startupProfileShareAPI = {
   revokeShare:   (shareId)            => del(`/startup-profile/shares/${shareId}`),
 };
 
-// PUBLIC unauthed read by share token. Hits /api/public/startup-profile/share/:token.
+// Read by share token. Hits /api/public/startup-profile/share/:token WITH the
+// session token: the link is login-gated (5 Jun 2026) and since 26 Sep 2026 the
+// SERVER enforces that too — before, only this page checked, so the API served
+// any startup's full profile (founder email included) to anyone with the link.
 export const publicStartupProfileShare = {
-  read: (token) => fetch(`${BASE_URL}/public/startup-profile/share/${encodeURIComponent(token)}`)
-    .then(async r => {
-      const body = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(body.message || `HTTP ${r.status}`);
-      return body;
-    }),
+  read: (token) => get(`/public/startup-profile/share/${encodeURIComponent(token)}`),
 };
 
 // ── DeepTech Assessments ──────────────────────────────────────

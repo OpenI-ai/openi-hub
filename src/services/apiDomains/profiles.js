@@ -108,6 +108,8 @@ export const ssoAPI = {
   getConfig:    ()     => get('/corporate/sso/config'),
   upsertConfig: (data) => post('/corporate/sso/config', data),
   deleteConfig: ()     => del('/corporate/sso/config'),
+  // s121: the DNS TXT record each domain must publish to prove ownership, and whether it is live.
+  domainRecords: (domains) => get(`/corporate/sso/domain-records?domains=${encodeURIComponent(domains.join(','))}`),
 };
 
 // ── Audit log self-serve export (Enterprise) ───────────────────

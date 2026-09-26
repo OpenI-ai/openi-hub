@@ -6,10 +6,6 @@
  * Confirm (POST) to complete it. Mail security scanners open every link in an
  * email, so a page that completed the claim on load let a scanner approve a
  * claim nobody confirmed (s121, 26 Sep 2026).
- *
- * A GET answer WITHOUT `requires_confirmation` comes from a backend that still
- * merged on GET (before OpenI-ai/openi-hub-backend#92 deployed) — the claim is
- * already done, so show success. Remove that branch once #92 is live.
  */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -40,13 +36,8 @@ export default function ClaimVerify() {
     (async () => {
       if (!token) { setState('error'); setMessage('No token provided.'); return; }
       try {
-        const res = await claimAPI.verify(token);
-        if (res.requires_confirmation) {
-          setPreview(res);
-          setState('confirm');
-        } else {
-          showSuccess(res);
-        }
+        setPreview(await claimAPI.verify(token));
+        setState('confirm');
       } catch (err) {
         showError(err);
       }
