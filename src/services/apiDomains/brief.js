@@ -22,6 +22,7 @@ export const briefPreviewAPI = {
   label: (id, payload) => put(`/admin/brief-preview/${id}/labels`, payload),  // s121k
   quality: () => get('/admin/brief-quality'),
   painBrief: (payload) => post('/admin/brief-preview/prospect/pain-brief', payload),  // s122
+  lens: (payload) => post('/admin/brief-preview/lens', payload),  // s122 — Grow / Cut / Venture lens
 };
 
 // s122 — the agent runtime's run log (admin, read-only).
