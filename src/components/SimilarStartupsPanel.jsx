@@ -72,7 +72,9 @@ export default function SimilarStartupsPanel({ startupId, limit = 8 }) {
         {data.similar.map(s => (
           <button
             key={s.user_id}
-            onClick={() => navigate(`/dashboard/startups/${s.user_id}`)}
+            // s122: s.user_id is a users.id; without ?by=user_id the profile page reads it as a
+            // startup_profiles.id and opens a different startup when the numbers collide.
+            onClick={() => navigate(`/dashboard/startups/${s.user_id}?by=user_id`)}
             className="text-left group bg-gray-50 hover:bg-white hover:border-primary-200 hover:shadow-sm border border-transparent rounded-xl p-3 transition-all"
           >
             <div className="flex items-start gap-3">
