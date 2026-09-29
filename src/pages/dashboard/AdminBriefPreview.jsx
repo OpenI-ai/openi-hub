@@ -11,7 +11,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { Loader2, Search, Plus, X, Sparkles } from 'lucide-react';
+import { Loader2, Search, Plus, X, Sparkles, Download } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
 import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
@@ -93,7 +93,7 @@ function QualityPanel({ refreshKey }) {
   );
 }
 
-function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, busy }) {
+function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
   const [label, setLabel] = useState('');
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
@@ -127,6 +127,22 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, busy }) {
     catch (err) { toast.error(err.message || 'Could not read this brief through the lens'); }
     finally { setLensLoading(false); }
   };
+  // s122 action A2 — the brief (with the Strategy map) as a branded PDF for a client meeting.
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const downloadPdf = async () => {
+    setPdfBusy(true);
+    try {
+      const { blob, name } = await onPdf();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success('PDF downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Could not build the PDF');
+    } finally { setPdfBusy(false); }
+  };
   if (!brief) return null;
   const submit = (e) => {
     e.preventDefault();
@@ -153,6 +169,12 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, busy }) {
           {brief.preview === 'prospect' ? `Preview: ${brief.company || 'Prospect'}` : `Preview: ${brief.user?.name || 'User'}`}
         </strong>
         <span style={{ fontSize: 13, color: '#C9D3DB' }}>{brief.role} · {items.length} matches · viewing saves nothing{brief.preview === 'user' ? '; added focus areas are saved to their brief' : ''}</span>
+        {onPdf && (
+          <button type="button" data-testid="brief-pdf" onClick={downloadPdf} disabled={pdfBusy}
+            style={{ ...btn, marginLeft: 'auto', background: '#D0A848', borderColor: '#D0A848', color: '#152838', fontWeight: 600 }}>
+            {pdfBusy ? <Loader2 className="animate-spin" size={14} /> : <Download size={14} />} {pdfBusy ? 'Preparing PDF…' : 'Download PDF'}
+          </button>
+        )}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
         {brief.priorities.map((p, i) => (
@@ -380,7 +402,8 @@ export default function AdminBriefPreview() {
         onAdd={brief?.preview === 'user' ? (label) => editUser({ add: [label] }) : null}
         onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null}
         onLabel={brief?.preview === 'user' ? labelStartup : null}
-        onLens={() => briefPreviewAPI.lens(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })} />
+        onLens={() => briefPreviewAPI.lens(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })}
+        onPdf={() => briefPreviewAPI.pdf(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })} />
     </div>
   );
 }
