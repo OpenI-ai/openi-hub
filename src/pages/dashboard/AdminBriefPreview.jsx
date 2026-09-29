@@ -207,7 +207,9 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
     <div style={{ marginTop: 24 }} data-testid="preview-result">
       <div style={{ background: '#152838', color: '#EEF2F5', borderRadius: 12, padding: '12px 16px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
         <strong style={{ color: '#fff', fontWeight: 600 }}>
-          {brief.preview === 'prospect' ? `Preview: ${brief.company || 'Prospect'}` : `Preview: ${brief.user?.name || 'User'}`}
+          {/* s122: the client's company first (Rajeev's Dentsu screenshot read "Preview: Karuna Dagur"). */}
+          {brief.preview === 'prospect' ? `Preview: ${brief.company || 'Prospect'}`
+            : `Preview: ${[brief.user?.organization, brief.user?.name].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(' · ') || 'User'}`}
         </strong>
         <span style={{ fontSize: 13, color: '#C9D3DB' }}>{brief.role} · {items.length} matches · viewing saves nothing{brief.preview === 'user' ? '; added focus areas are saved to their brief' : ''}</span>
         {onPdf && (
@@ -275,7 +277,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
       {client && (
         <BriefShortlists refreshKey={savedKey} tag="brief-preview" namePrefix={`${client} — `} title={`Saved for ${client}`}
           id="pv-saved" testId="pv-saved"
-          emptyText={`Press "Save" on a startup to add it to a watchlist named after its priority, e.g. "${client} — ${brief.sections.find(x => x.priority_key)?.title || 'Retail media'}". Then copy a read-only link to share with ${client}.`} />
+          emptyText={`Press "Save" on a startup to add it to a watchlist named after its priority, e.g. "${client} — ${brief.sections.filter(x => x.priority_key).map(x => x.title).sort((a, b) => a.length - b.length)[0] || 'Retail media'}". Then copy a read-only link to share with ${client}.`} />
       )}
       {onLens && items.some(it => it.type === 'startup') && (
         <LensBar lens={lens} loading={lensLoading} onRun={runLens} view={view} setView={setView}
