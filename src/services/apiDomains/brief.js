@@ -21,4 +21,5 @@ export const briefPreviewAPI = {
   suggestions: (id) => get(`/admin/brief-preview/${id}/suggestions`),  // s121j
   label: (id, payload) => put(`/admin/brief-preview/${id}/labels`, payload),  // s121k
   quality: () => get('/admin/brief-quality'),
+  painBrief: (payload) => post('/admin/brief-preview/prospect/pain-brief', payload),  // s122
 };
