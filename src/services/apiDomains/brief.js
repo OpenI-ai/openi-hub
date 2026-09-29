@@ -2,7 +2,23 @@
  * OpenI Hub — Innovation Brief API (s121e, 26 Sep 2026).
  * NOT part of the W5-1 verbatim split (see ./index.js) — a later addition.
  */
-import { get, post, put } from './core';
+import { get, post, put, BASE_URL, getToken, getActiveRole } from './core';
+
+// s122 action A2 — POST that returns a file (core's blobRequest sends no body).
+async function blobPost(path, body) {
+  const headers = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  const role = getActiveRole();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (role) headers['X-Active-Role'] = role;
+  const res = await fetch(`${BASE_URL}${path}`, { method: 'POST', headers, body: JSON.stringify(body) });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '')?.[1] || 'OpenI-Innovation-Brief.pdf';
+  return { blob: await res.blob(), name };
+}
 
 export const briefAPI = {
   get:         ()                                => get('/brief'),
@@ -27,6 +43,7 @@ export const briefPreviewAPI = {
   quality: () => get('/admin/brief-quality'),
   painBrief: (payload) => post('/admin/brief-preview/prospect/pain-brief', payload),  // s122
   lens: (payload) => post('/admin/brief-preview/lens', payload),  // s122 — Grow / Cut / Venture lens
+  pdf: (payload) => blobPost('/admin/brief-preview/pdf', payload),  // s122 action A2 — brief PDF for presentations
   taste: (id) => get(`/admin/brief-preview/${id}/taste`),  // s122 — what the brief learned about a client
 };
 
