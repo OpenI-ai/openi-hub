@@ -319,8 +319,12 @@ export default function StartupProfile() {
     <div id="tour-page-startup-profile" className="bg-gray-50 min-h-screen">
       {/* Back nav */}
       <div className="bg-dark-950 border-b border-dark-800 px-6 py-2">
-        <button onClick={() => navigate('/dashboard/startups')} className="text-dark-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
-          ← Back to Startups
+        {/* s122: Back returns to where you came from (e.g. a client's brief in Brief Preview) — it
+            always opened the Startups directory (Rajeev, 29 Sep: "back button is still not working").
+            React Router's history idx > 0 means an in-app page came before this one. */}
+        <button onClick={() => (window.history.state?.idx > 0 ? navigate(-1) : navigate('/dashboard/startups'))}
+          data-testid="startup-back" className="text-dark-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
+          {window.history.state?.idx > 0 ? '← Back' : '← Back to Startups'}
         </button>
       </div>
 
