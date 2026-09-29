@@ -61,7 +61,7 @@ export default function PainBriefPanel({ company, website, onUse }) {
           </div>
           {draft.pains.map(p => (
             <label key={p.problem} data-testid="pain-point" style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: 8, borderTop: '1px solid #f2f2f2', paddingTop: 8, cursor: 'pointer' }}>
-              <input type="checkbox" checked={Boolean(picked[p.problem])} onChange={e => setPicked(s => ({ ...s, [p.problem]: e.target.checked }))} style={{ marginTop: 3 }} />
+              <input type="checkbox" checked={Boolean(picked[p.problem])} onChange={e => setPicked(s => ({ ...s, [p.problem]: e.target.checked }))} style={{ marginTop: 3, alignSelf: 'start' }} />
               <span style={{ display: 'grid', gap: 3 }}>
                 <span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <strong style={{ fontWeight: 600, fontSize: 14 }}>{p.problem}</strong>
@@ -71,10 +71,11 @@ export default function PainBriefPanel({ company, website, onUse }) {
                 {p.why && <span style={{ fontSize: 13, color: '#444' }}>{p.why}</span>}
                 <span style={{ fontSize: 12, color: '#777', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   Sources:
-                  {p.evidence.map(e => safeHref(e.url)
+                  {p.evidence.slice(0, 3).map(e => safeHref(e.url)
                     ? <a key={e.id} href={safeHref(e.url)} target="_blank" rel="noopener noreferrer" onClick={ev => ev.stopPropagation()}
                         style={{ color: '#555', display: 'inline-flex', alignItems: 'center', gap: 2 }}>{e.title.slice(0, 70)}{e.title.length > 70 ? '…' : ''} <ExternalLink size={10} /></a>
                     : <span key={e.id}>{e.title.slice(0, 70)}</span>)}
+                  {p.evidence.length > 3 && <span>+{p.evidence.length - 3} more</span>}
                 </span>
                 {p.startup_categories?.length > 0 && <span style={{ fontSize: 12, color: '#777' }}>Startups that could help: {p.startup_categories.join(' · ')}</span>}
               </span>

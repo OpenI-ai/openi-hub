@@ -50,6 +50,21 @@ function SectionScore({ q }) {
     {pct}% accurate <span style={{ fontWeight: 400, color: '#777' }}>({q.good} good · {q.bad} bad of {q.labeled} labelled)</span></span>;
 }
 
+// s122 — the nightly accuracy snapshots (brief_quality_daily), last 7 days.
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const dayLabel = (d) => { const [, m, day] = String(d).split('-').map(Number); return m ? `${day} ${MONTHS[m - 1]}` : d; };
+function AccuracyTrend({ history }) {
+  const pts = (history || []).filter(h => h.accuracy != null).slice(-7);
+  if (!pts.length) return null;
+  return (
+    <span data-testid="accuracy-trend" style={{ color: '#777', fontSize: 12.5 }}>
+      Trend: {pts.map((h, i) => (
+        <span key={h.day}>{i > 0 && ' → '}{dayLabel(h.day)} <strong style={{ fontWeight: 600, color: '#555' }}>{h.accuracy}%</strong></span>
+      ))}
+    </span>
+  );
+}
+
 // s121k — accuracy across every client an admin has labelled.
 function QualityPanel({ refreshKey }) {
   const [data, setData] = useState(null);
@@ -67,6 +82,7 @@ function QualityPanel({ refreshKey }) {
           <strong style={{ fontWeight: 600, minWidth: 160 }}>{c.company}</strong>
           <span>{c.accuracy == null ? 'no labelled startups shown' : `${c.accuracy}% accurate`}</span>
           <span style={{ color: '#777' }}>{c.good} good of {c.labeled} labelled · {c.shown} shown</span>
+          <AccuracyTrend history={c.history} />
         </div>
       ))}
       <div style={{ fontSize: 12, color: '#777', marginTop: 6 }}>
