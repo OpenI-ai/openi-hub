@@ -185,8 +185,17 @@ export default function InnovationBrief() {
   const onShortlist = async (item) => {
     setBusy(true);
     try {
-      await briefAPI.feedback(item.user_id, 'shortlist', item.shortlisted);
+      const r = await briefAPI.feedback(item.user_id, 'shortlist', item.shortlisted, item.priority_label);
       await load({ after: item.shortlisted ? `removed ${item.name} from your shortlist` : `shortlisted ${item.name}` });
+      // s122 action A1: the shortlist also lands in a named watchlist — say where, with a way there.
+      if (r?.watchlist) {
+        toast.success((t) => (
+          <span data-testid="watchlist-toast">
+            Added to <b>{r.watchlist.name}</b>.{' '}
+            <a href={`/dashboard/watchlist?list=${r.watchlist.id}`} onClick={() => toast.dismiss(t.id)} style={{ color: '#8A6A1C', fontWeight: 600 }}>Open</a>
+          </span>
+        ), { duration: 6000 });
+      }
     } catch (err) { toast.error(err.message || 'Could not save that'); }
     finally { setBusy(false); }
   };

@@ -227,6 +227,16 @@ export default function StartupWatchlist() {
   // wrong after refresh. getOne() returns the full startup rows; we merge them
   // into allStartups (independent of the small startupAPI.list slice) and set
   // the real startupIds. Idempotent: skips the fetch once a list is hydrated.
+  // s122 action A1: /dashboard/watchlist?list=<id> opens that list (the brief's
+  // "Added to Innovation Brief — …" toast links here).
+  const wantedList = useRef(Number(new URLSearchParams(window.location.search).get('list')) || null);
+  useEffect(() => {
+    if (!wantedList.current || !lists.some(l => l.id === wantedList.current)) return;
+    const id = wantedList.current;
+    wantedList.current = null;
+    selectList(id);
+  }, [lists]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const selectList = (id) => {
     setSelected(id);
     const target = lists.find(l => l.id === id);
