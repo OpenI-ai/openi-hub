@@ -18,6 +18,7 @@ import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
+import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
 
 const G = '#D0A848';
@@ -144,6 +145,43 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
       toast.error(err.message || 'Could not build the PDF');
     } finally { setPdfBusy(false); }
   };
+  // s122 — "Save to watchlist" (Rajeev: "I can't find watchlist function from Innovation brief"):
+  // the admin's own "<Client> — <priority>" lists, shared with the client as a read-only link.
+  const client = ((brief?.preview === 'prospect' ? brief.company : (brief?.user?.organization || brief?.user?.name)) || '').trim();
+  const [saved, setSaved] = useState({});   // list name -> Set(startup user ids)
+  const [savedKey, setSavedKey] = useState(0);
+  useEffect(() => {
+    let live = true;
+    setSaved({});
+    if (client) briefPreviewAPI.watchlists(client).then(r => {
+      if (live) setSaved(Object.fromEntries((r.lists || []).map(l => [l.name, new Set(l.startup_user_ids)])));
+    }).catch(() => {});
+    return () => { live = false; };
+  }, [client, savedKey]);
+  const listFor = (label) => `${client} — ${label || 'Shortlist'}`;
+  const toggleSave = async (it, label) => {
+    const on = saved[listFor(label)]?.has(it.user_id);
+    try {
+      const r = await briefPreviewAPI.saveWatchlist({ client, priority_label: label, startup_user_id: it.user_id, remove: on });
+      setSavedKey(k => k + 1);
+      if (on) { toast.success(`Removed ${it.name} from ${r.watchlist.name}`); return; }
+      toast.success((t) => (
+        <span data-testid="pv-save-toast">
+          Saved to <b>{r.watchlist.name}</b>.{' '}
+          <a href={`/dashboard/watchlist?list=${r.watchlist.id}`} onClick={() => toast.dismiss(t.id)} style={{ color: '#8A6A1C', fontWeight: 600 }}>Open</a>
+          {' · '}
+          <a href="#share" data-testid="pv-save-toast-share" style={{ color: '#8A6A1C', fontWeight: 600 }} onClick={async (e) => {
+            e.preventDefault(); toast.dismiss(t.id);
+            try {
+              const url = shareUrl(await activeShareToken(r.watchlist.id));
+              if (await copyText(url)) toast.success(`Share link copied — send it to ${client}`);
+              else toast.success(`Share link: ${url}`, { duration: 10000 });
+            } catch (err) { toast.error(err.message || 'Could not create a share link'); }
+          }}>Share</a>
+        </span>
+      ), { duration: 6000 });
+    } catch (err) { toast.error(err.message || 'Could not update the watchlist'); }
+  };
   if (!brief) return null;
   const submit = (e) => {
     e.preventDefault();
@@ -156,7 +194,9 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
     const tag = lens && it.type === 'startup' ? lens.lens[it.user_id] : null;
     // The lens's action replaces the stage-based badge, so the card never contradicts its tag.
     const shown = tag ? { ...it, relationship: LENS_BADGE[tag.action] } : it;
+    const saveLabel = it.priority_label || s.title;
     const card = <BriefCard item={shown} readOnly
+      adminSave={client && it.type === 'startup' ? { saved: Boolean(saved[listFor(saveLabel)]?.has(it.user_id)), onToggle: () => toggleSave(it, saveLabel) } : null}
       adminLabel={onLabel && it.type === 'startup' && s.priority_key
         ? { value: it.eval_label || null, onLabel: (label) => onLabel({ priority_key: s.priority_key, startup_user_id: it.user_id, label }) } : null} />;
     return tag
@@ -223,6 +263,11 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
             return <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>Last 30 days: {m.shortlists} shortlisted, {m.dismisses} passed{m.dismiss_rate != null ? ` (${Math.round(m.dismiss_rate * 100)}% passed)` : ''}.</div>;
           })()}
         </div>
+      )}
+      {client && (
+        <BriefShortlists refreshKey={savedKey} tag="brief-preview" namePrefix={`${client} — `} title={`Saved for ${client}`}
+          id="pv-saved" testId="pv-saved"
+          emptyText={`Press "Save" on a startup to add it to a watchlist named after its priority, e.g. "${client} — ${brief.sections.find(x => x.priority_key)?.title || 'Retail media'}". Then copy a read-only link to share with ${client}.`} />
       )}
       {onLens && items.some(it => it.type === 'startup') && (
         <LensBar lens={lens} loading={lensLoading} onRun={runLens} view={view} setView={setView}

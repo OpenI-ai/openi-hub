@@ -66,7 +66,7 @@ export const pagesS122 = {
       {
         target: '#tour-brief-preview-modes',
         title: 'A client or a prospect',
-        content: 'Pick an existing account, or type a prospect\'s priorities (or draft them from public news with "Pain points"). Once the brief is built, "Show the strategy map" places every startup as Grow revenue, Cut cost / improve efficiency or Venture into adjacent markets, and says whether to partner with, source from or invest in it. "Download PDF" gives you the brief and the map, branded, for a client meeting.',
+        content: 'Pick an existing account, or type a prospect\'s priorities (or draft them from public news with "Pain points"). Once the brief is built, "Show the strategy map" places every startup as Grow revenue, Cut cost / improve efficiency or Venture into adjacent markets, and says whether to partner with, source from or invest in it. "Download PDF" gives you the brief and the map, branded, for a client meeting. "Save" on a card adds the startup to your own watchlist named after the client and priority (e.g. "Dentsu — GEO Optimization"); "Saved for …" then copies a read-only link to share with the client.',
         placement: 'bottom',
         skipBeacon: true,
       },

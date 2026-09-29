@@ -36,7 +36,11 @@ export async function copyText(text) {
   try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
 }
 
-export default function BriefShortlists({ refreshKey }) {
+// s122 — also used by Brief Preview for the admin's "<Client> — <priority>" lists
+// (tag 'brief-preview', namePrefix "<Client> — ", its own title / empty text / id).
+export default function BriefShortlists({ refreshKey, tag = TAG, namePrefix = 'Innovation Brief — ', title = 'Your shortlists',
+  emptyText = 'Shortlist a startup below and it is saved to a watchlist named after that priority. You can then share the list with your team as a read-only link.',
+  id = 'tour-brief-shortlists', testId = 'brief-shortlists' }) {
   const [lists, setLists] = useState(null);
   const [busy, setBusy] = useState(null);
   const [links, setLinks] = useState({});
@@ -44,10 +48,10 @@ export default function BriefShortlists({ refreshKey }) {
   useEffect(() => {
     let live = true;
     watchlistAPI.list()
-      .then(rows => { if (live) setLists((rows || []).filter(w => (w.tags || []).includes(TAG) && w.my_role === 'owner')); })
+      .then(rows => { if (live) setLists((rows || []).filter(w => (w.tags || []).includes(tag) && w.my_role === 'owner' && w.name.startsWith(namePrefix))); })
       .catch(() => { if (live) setLists([]); });
     return () => { live = false; };
-  }, [refreshKey]);
+  }, [refreshKey, tag, namePrefix]);
 
   const share = async (wl) => {
     setBusy(wl.id);
@@ -60,20 +64,20 @@ export default function BriefShortlists({ refreshKey }) {
   };
 
   return (
-    <div id="tour-brief-shortlists" data-testid="brief-shortlists" style={{ marginTop: 16, background: '#fff', border: '1px solid #eee', borderRadius: 14, padding: '12px 16px' }}>
+    <div id={id} data-testid={testId} style={{ marginTop: 16, background: '#fff', border: '1px solid #eee', borderRadius: 14, padding: '12px 16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 14, color: '#1a1a1a' }}>
-        <Share2 size={15} color="#8A6A1C" /> Your shortlists
+        <Share2 size={15} color="#8A6A1C" /> {title}
       </div>
       {lists === null ? null : lists.length === 0 ? (
         <p style={{ fontSize: 13, color: '#666', margin: '6px 0 0' }}>
-          Shortlist a startup below and it is saved to a watchlist named after that priority. You can then share the list with your team as a read-only link.
+          {emptyText}
         </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
           {lists.map(wl => (
             <div key={wl.id} data-testid="brief-shortlist-row" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 13.5, flex: '1 1 220px' }}>
-                <b>{wl.name.replace(/^Innovation Brief — /, '')}</b>{' '}
+                <b>{wl.name.slice(namePrefix.length)}</b>{' '}
                 <span style={{ color: '#888' }}>· {wl.startup_count} startup{wl.startup_count === 1 ? '' : 's'}</span>
               </span>
               <a href={`/dashboard/watchlist?list=${wl.id}`} style={btn}><FolderOpen size={13} /> Open</a>

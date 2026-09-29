@@ -12,7 +12,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck } from 'lucide-react';
+import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck, Bookmark } from 'lucide-react';
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 import TastePanel from './TastePanel';
@@ -55,7 +55,7 @@ function Initials({ name, logo }) {
 
 // Exported for the admin preview page (read-only: no Shortlist / Not relevant).
 // adminLabel (s121k, Brief Preview only): { value: 'good'|'bad'|null, onLabel(next) } — an admin's accuracy label.
-export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null, onOpen = null }) {
+export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null, adminSave = null, onOpen = null }) {
   const isStartup = item.type === 'startup';
   // ?by=user_id: the brief carries the startup's user_id, and StartupProfile otherwise reads :id as a
   // startup_profiles.id (independent sequence), opening the WRONG startup or none (s121j).
@@ -95,6 +95,14 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       {isStartup && readOnly && (
         <div style={{ display: 'flex', gap: 6, marginTop: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link to={to} style={{ ...btn, textDecoration: 'none' }}>View profile</Link>
+          {/* s122 — Brief Preview: save to the admin's "<Client> — <priority>" watchlist, to share with the client. */}
+          {adminSave && (
+            <button type="button" data-testid="pv-save" aria-pressed={adminSave.saved ? 'true' : 'false'} onClick={adminSave.onToggle}
+              title={adminSave.saved ? 'Remove from this client\'s watchlist' : 'Save to a watchlist you can share with this client'}
+              style={{ ...btn, ...(adminSave.saved ? { background: G, borderColor: G, color: NAVY, fontWeight: 600 } : {}) }}>
+              <Bookmark size={12} /> {adminSave.saved ? 'Saved' : 'Save'}
+            </button>
+          )}
           {adminLabel && (<>
             <span style={{ fontSize: 11.5, color: '#888', marginLeft: 'auto' }}>Fit?</span>
             {[['good', ThumbsUp, 'Good fit', '#2E7D4F', '#DFF2E6'], ['bad', ThumbsDown, 'Bad fit', '#A33', '#FBE3E3']].map(([v, Icon, name, fg, bg]) => {

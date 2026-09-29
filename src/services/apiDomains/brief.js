@@ -45,6 +45,9 @@ export const briefPreviewAPI = {
   lens: (payload) => post('/admin/brief-preview/lens', payload),  // s122 — Grow / Cut / Venture lens
   pdf: (payload) => blobPost('/admin/brief-preview/pdf', payload),  // s122 action A2 — brief PDF for presentations
   taste: (id) => get(`/admin/brief-preview/${id}/taste`),  // s122 — what the brief learned about a client
+  // s122 — "Save to watchlist": the admin's own "<Client> — <priority>" lists, shareable with the client.
+  watchlists: (client) => get(`/admin/brief-preview/watchlist?client=${encodeURIComponent(client)}`),
+  saveWatchlist: (payload) => post('/admin/brief-preview/watchlist', payload),
 };
 
 // s122 — the agent runtime's run log (admin, read-only).
