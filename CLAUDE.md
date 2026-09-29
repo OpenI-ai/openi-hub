@@ -37,6 +37,18 @@ real browser against the deployed page before it is reported as verified:
   browser then executes the production bundle under the production CSP header
   and the same-origin Vercel beacon works. Recipe in `BUGS.md`, 7 Sep (later).
 
+## Every new feature ships with its product tour (react-joyride)
+
+Rajeev, 29 Sep 2026: "add joyride function for all new features. Our users are
+using joyride from day one." A new page or a new section on a page needs a
+`PAGE_TOURS` entry — add it to a NEW module in `src/config/tourData/` (e.g.
+`pagesS122.js`), spread LAST in `tourData/index.js`, never inside the six split
+modules (they must stay verbatim). Point every step at an element that is always
+rendered once the page loads (a step whose target appears later stalls the tour);
+describe later-appearing parts in the nearest always-present step. Use
+`skipBeacon: true`. Walk the tour in a browser: backend `e2e/new-feature-tours.spec.mjs`
+clicks "Take a tour" and steps to Finish — add the new page there.
+
 Admin-gated pages that unauthenticated probes cannot reach still need a human
 eyeball pass — when closing a session, list those checks explicitly for Rajeev
 instead of implying they were covered.

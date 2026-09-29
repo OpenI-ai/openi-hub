@@ -13,6 +13,8 @@
  *   pagesSeeker.js       original 1317-1652  batches 7-8
  *   pagesAdminPublic.js  original 1653-2003  batch 9 + every-page coverage
  *   index.js (this file) original 2007-2022  resolvePageTour, verbatim
+ *   pagesS122.js         NEW 29 Sep 2026     Innovation Brief, Brief Preview, Agent Runs
+ *                        (not from the pre-split file — excluded from the recipe)
  *
  * The six modules together own original lines 31-299, 324-2003 and 2007-2022.
  * The three uncovered regions were structural, not logic, and are reconstructed
@@ -63,6 +65,7 @@ import { pagesUniversal } from './pagesUniversal.js';
 import { pagesActions } from './pagesActions.js';
 import { pagesSeeker } from './pagesSeeker.js';
 import { pagesAdminPublic } from './pagesAdminPublic.js';
+import { pagesS122 } from './pagesS122.js';
 
 export { TOURS };
 export default TOURS;
@@ -74,6 +77,7 @@ export const PAGE_TOURS = {
   ...pagesActions,
   ...pagesSeeker,
   ...pagesAdminPublic,
+  ...pagesS122,  // 29 Sep 2026 — new module, not part of the verbatim split; see its header.
 };
 
 // Resolve the PAGE_TOURS entry for a given pathname.

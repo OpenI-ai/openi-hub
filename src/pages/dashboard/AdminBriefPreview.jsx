@@ -17,11 +17,13 @@ import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
+import { LensBar, LensTag, OutcomeView } from './BriefLens';
 
 const G = '#D0A848';
 const btn = { fontSize: 13, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
 const input = { width: '100%', border: '1px solid #ddd', borderRadius: 8, padding: '8px 10px', fontSize: 13.5, fontFamily: 'inherit' };
 const label = { fontSize: 12, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4 };
+const LENS_BADGE = { partner: 'Partner', source: 'Source', invest: 'Invest' };
 const PERSONAS = ['corporate', 'investor', 'incubator', 'accelerator', 'government', 'academia', 'student', 'mentor', 'startup'];
 
 // Drafted from public information for the SAP India demo (see the prototype brief).
@@ -91,7 +93,7 @@ function QualityPanel({ refreshKey }) {
   );
 }
 
-function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
+function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, busy }) {
   const [label, setLabel] = useState('');
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
@@ -104,6 +106,19 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
     if (userId) briefPreviewAPI.suggestions(userId).then(r => { if (live) setSuggestions(r.suggestions || []); }).catch(() => {});
     return () => { live = false; };
   }, [userId, priorityKeys]);
+  // s122 — the Grow / Cut / Venture lens; cleared when the brief's subject or priorities change.
+  const [lens, setLens] = useState(null);
+  const [lensLoading, setLensLoading] = useState(false);
+  const [view, setView] = useState('priority');
+  const [lensFilter, setLensFilter] = useState(null);
+  const subjectKey = `${userId || brief?.company || ''}|${priorityKeys}`;
+  useEffect(() => { setLens(null); setView('priority'); setLensFilter(null); }, [subjectKey]);
+  const runLens = async () => {
+    setLensLoading(true);
+    try { setLens(await onLens()); setView('outcome'); }
+    catch (err) { toast.error(err.message || 'Could not read this brief through the lens'); }
+    finally { setLensLoading(false); }
+  };
   if (!brief) return null;
   const submit = (e) => {
     e.preventDefault();
@@ -112,6 +127,17 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
     onAdd(clean); setLabel('');
   };
   const items = brief.sections.flatMap(s => s.items);
+  const renderCard = (it, s) => {
+    const tag = lens && it.type === 'startup' ? lens.lens[it.user_id] : null;
+    // The lens's action replaces the stage-based badge, so the card never contradicts its tag.
+    const shown = tag ? { ...it, relationship: LENS_BADGE[tag.action] } : it;
+    const card = <BriefCard item={shown} readOnly
+      adminLabel={onLabel && it.type === 'startup' && s.priority_key
+        ? { value: it.eval_label || null, onLabel: (label) => onLabel({ priority_key: s.priority_key, startup_user_id: it.user_id, label }) } : null} />;
+    return tag
+      ? <div key={`${it.type}:${it.user_id || it.id}`} style={{ display: 'flex', flexDirection: 'column' }}>{card}<LensTag tag={tag} lens={lens} /></div>
+      : <div key={`${it.type}:${it.user_id || it.id}`} style={{ display: 'flex', flexDirection: 'column' }}>{card}</div>;
+  };
   return (
     <div style={{ marginTop: 24 }} data-testid="preview-result">
       <div style={{ background: '#152838', color: '#EEF2F5', borderRadius: 12, padding: '12px 16px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
@@ -149,7 +175,11 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
           ))}
         </div>
       )}
-      {brief.sections.filter(s => s.items.length || s.gap).map(s => (
+      {onLens && items.some(it => it.type === 'startup') && (
+        <LensBar lens={lens} loading={lensLoading} onRun={runLens} view={view} setView={setView}
+          client={(brief.preview === 'prospect' ? brief.company : (brief.user?.organization || brief.user?.name)) || 'this client'} filter={lensFilter} setFilter={setLensFilter} />
+      )}
+      {lens && view === 'outcome' ? <OutcomeView brief={brief} lens={lens} renderCard={renderCard} filter={lensFilter} clearFilter={() => setLensFilter(null)} /> : brief.sections.filter(s => s.items.length || s.gap).map(s => (
         <section key={s.id} style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{s.title}</h2>
@@ -158,9 +188,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
             {s.quality && <SectionScore q={s.quality} />}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
-            {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} readOnly
-              adminLabel={onLabel && it.type === 'startup' && s.priority_key
-                ? { value: it.eval_label || null, onLabel: (label) => onLabel({ priority_key: s.priority_key, startup_user_id: it.user_id, label }) } : null} />)}
+            {s.items.map(it => renderCard(it, s))}
           </div>
           <GapNote s={s} />
         </section>
@@ -199,16 +227,20 @@ export default function AdminBriefPreview() {
     catch (err) { toast.error(err.message || 'Could not build that brief'); }
     finally { setBusy(false); }
   };
+  // The payload the shown prospect brief was built from, so the lens reads the same brief.
+  const prospectPayload = useRef(null);
   const buildProspect = async (e) => {
     e.preventDefault();
     setBusy(true); setBrief(null);
     try {
-      setBrief(await briefPreviewAPI.prospect({
+      const payload = {
         company: prospect.company,
         role: prospect.role,
         priorities: prospect.priorities.split('\n').map(s => s.trim()).filter(Boolean),
         challenges: prospect.challenges.filter(c => c.title.trim()),
-      }));
+      };
+      prospectPayload.current = payload;
+      setBrief(await briefPreviewAPI.prospect(payload));
     } catch (err) { toast.error(err.message || 'Could not build that brief'); }
     finally { setBusy(false); }
   };
@@ -247,13 +279,13 @@ export default function AdminBriefPreview() {
 
   return (
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '8px 4px 40px' }} data-testid="brief-preview">
-      <h1 style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Brief Preview</h1>
+      <h1 id="tour-page-admin-brief-preview" style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Brief Preview</h1>
       <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '75ch' }}>
         See the Innovation Brief any account sees, or build one for a prospect from their priorities. Viewing saves nothing to anyone's account. Only "Add for client" and × on a focus area change a client's brief (audited).
         Mark startups 👍 good fit or 👎 bad fit to measure accuracy; a 👎 also hides that startup from the client.
       </p>
       <QualityPanel refreshKey={labelled} />
-      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+      <div id="tour-brief-preview-modes" style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         {tab('user', 'An existing account')}
         {tab('prospect', 'A prospect (no account)')}
       </div>
@@ -321,7 +353,8 @@ export default function AdminBriefPreview() {
       <BriefResult brief={brief} busy={busy}
         onAdd={brief?.preview === 'user' ? (label) => editUser({ add: [label] }) : null}
         onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null}
-        onLabel={brief?.preview === 'user' ? labelStartup : null} />
+        onLabel={brief?.preview === 'user' ? labelStartup : null}
+        onLens={() => briefPreviewAPI.lens(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })} />
     </div>
   );
 }
