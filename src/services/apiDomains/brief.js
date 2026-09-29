@@ -23,3 +23,16 @@ export const briefPreviewAPI = {
   quality: () => get('/admin/brief-quality'),
   painBrief: (payload) => post('/admin/brief-preview/prospect/pain-brief', payload),  // s122
 };
+
+// s122 — the agent runtime's run log (admin, read-only).
+export const agentRunsAPI = {
+  list: ({ graph, status, limit } = {}) => {
+    const q = new URLSearchParams();
+    if (graph) q.set('graph', graph);
+    if (status) q.set('status', status);
+    if (limit) q.set('limit', String(limit));
+    const qs = q.toString();
+    return get(`/admin/agent-runs${qs ? `?${qs}` : ''}`);
+  },
+  get: (id) => get(`/admin/agent-runs/${id}`),
+};

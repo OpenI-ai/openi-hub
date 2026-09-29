@@ -71,6 +71,7 @@ import EventsRepository     from './pages/dashboard/EventsRepository';
 import CorporateRecommendedStartups from './pages/dashboard/CorporateRecommendedStartups';
 import InnovationBrief from './pages/dashboard/InnovationBrief';  // s121e
 import AdminBriefPreview from './pages/dashboard/AdminBriefPreview';  // s121g
+import AdminAgentRuns from './pages/dashboard/AdminAgentRuns';  // s122
 import StartupFeedback      from './pages/dashboard/StartupFeedback';
 import GovtAPIIntegrations  from './pages/dashboard/GovtAPIIntegrations';
 import Marketplace          from './pages/dashboard/Marketplace';
@@ -383,6 +384,7 @@ export default function App() {
             {/* A: Admin Platform-Health route */}
             <Route path="admin/platform-health" element={<AdminRoute><AdminPlatformHealth /></AdminRoute>} />
             <Route path="admin/brief-preview" element={<AdminRoute><AdminBriefPreview /></AdminRoute>} />  {/* s121g */}
+            <Route path="admin/agent-runs" element={<AdminRoute><AdminAgentRuns /></AdminRoute>} />  {/* s122 */}
             <Route path="admin/console"      element={<AdminRoute><AdminConsole /></AdminRoute>} />
             <Route path="admin/users"        element={<AdminRoute><AdminUsers /></AdminRoute>} />
             <Route path="admin/challenges"   element={<AdminRoute><AdminChallenges /></AdminRoute>} />
