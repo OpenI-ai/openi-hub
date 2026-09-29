@@ -265,7 +265,7 @@ export default function InnovationBrief() {
           <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>
             <TrendingUp size={12} style={{ display: 'inline-block', verticalAlign: '-2px', marginRight: 4 }} />Innovation Brief
           </div>
-          <h1 style={{ fontSize: 26, fontWeight: 600, color: '#1a1a1a', margin: '4px 0 6px' }}>Built for you, updated as you use it</h1>
+          <h1 id="tour-page-brief" style={{ fontSize: 26, fontWeight: 600, color: '#1a1a1a', margin: '4px 0 6px' }}>Built for you, updated as you use it</h1>
           <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '70ch' }}>
             Ranked against your profile{challengeCount ? ` and your ${challengeCount} open challenge${challengeCount === 1 ? '' : 's'}` : ''}.
             Shortlist or dismiss startups and it re-ranks straight away; OpenI's crawler adds new matches every night.
@@ -274,7 +274,7 @@ export default function InnovationBrief() {
         <Link to="/search" style={{ ...btn, textDecoration: 'none', padding: '8px 12px' }}><Search size={13} /> Ask OpenI</Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
+      <div id="tour-brief-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
         background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '12px 16px' }}>
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>matches in this brief</div></div>
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.since.new_count}</div>
@@ -283,7 +283,7 @@ export default function InnovationBrief() {
       </div>
 
       {(  // always shown: the add-a-focus-area box lives here too
-        <div style={{ marginTop: 16 }}>
+        <div id="tour-brief-priorities" style={{ marginTop: 16 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>Your priorities</span>
             {brief.priorities.map((p, i) => (

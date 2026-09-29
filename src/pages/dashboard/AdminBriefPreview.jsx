@@ -279,13 +279,13 @@ export default function AdminBriefPreview() {
 
   return (
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '8px 4px 40px' }} data-testid="brief-preview">
-      <h1 style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Brief Preview</h1>
+      <h1 id="tour-page-admin-brief-preview" style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Brief Preview</h1>
       <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '75ch' }}>
         See the Innovation Brief any account sees, or build one for a prospect from their priorities. Viewing saves nothing to anyone's account. Only "Add for client" and × on a focus area change a client's brief (audited).
         Mark startups 👍 good fit or 👎 bad fit to measure accuracy; a 👎 also hides that startup from the client.
       </p>
       <QualityPanel refreshKey={labelled} />
-      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+      <div id="tour-brief-preview-modes" style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         {tab('user', 'An existing account')}
         {tab('prospect', 'A prospect (no account)')}
       </div>

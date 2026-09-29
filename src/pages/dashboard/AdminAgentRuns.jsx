@@ -100,11 +100,11 @@ export default function AdminAgentRuns() {
 
   return (
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '8px 4px 40px' }} data-testid="agent-runs">
-      <h1 style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Agent Runs</h1>
+      <h1 id="tour-page-admin-agent-runs" style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Agent Runs</h1>
       <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '75ch' }}>
         Every run of OpenI's agents, step by step: which agent or tool ran, the model, tokens, cost, time and any error. Open a run to see what each step received and returned.
       </p>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', margin: '14px 0', fontSize: 13 }} data-testid="runs-summary">
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', margin: '14px 0', fontSize: 13 }} data-testid="runs-summary" id="tour-agent-runs-summary">
         <span><strong style={{ fontWeight: 600 }}>{runs ? runs.length : '…'}</strong> runs shown</span>
         <span><strong style={{ fontWeight: 600 }}>{done.length ? `${Math.round((ok / done.length) * 100)}%` : '—'}</strong> finished OK</span>
         <span><strong style={{ fontWeight: 600 }}>{usd(cost)}</strong> model cost</span>
