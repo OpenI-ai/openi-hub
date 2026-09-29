@@ -10,6 +10,7 @@
  *     sales demos (SAP India first).
  */
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles, Download } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
@@ -269,12 +270,21 @@ export default function AdminBriefPreview() {
     catch (err) { toast.error(err.message || 'Search failed'); }
     finally { setBusy(false); }
   };
-  const openUser = async (u) => {
+  // s122: the open account lives in the URL (?user=<id>), so Back from a
+  // startup profile returns to that client's brief instead of an empty search
+  // (Rajeev, 29 Sep: "back button takes you here instead of Dentsu Innovation brief").
+  const [params, setParams] = useSearchParams();
+  const loadUser = async (id) => {
     setBusy(true); setBrief(null);
-    try { setBrief(await briefPreviewAPI.user(u.id)); }
+    try { setBrief(await briefPreviewAPI.user(id)); }
     catch (err) { toast.error(err.message || 'Could not build that brief'); }
     finally { setBusy(false); }
   };
+  const urlUser = params.get('user');
+  const openUser = (u) => (String(u.id) === urlUser ? loadUser(u.id) : setParams({ user: String(u.id) }));
+  useEffect(() => {
+    if (urlUser && /^\d+$/.test(urlUser)) { setMode('user'); loadUser(Number(urlUser)); }
+  }, [urlUser]); // eslint-disable-line react-hooks/exhaustive-deps
   // The payload the shown prospect brief was built from, so the lens reads the same brief.
   const prospectPayload = useRef(null);
   const buildProspect = async (e) => {
@@ -321,7 +331,7 @@ export default function AdminBriefPreview() {
   const setChallenge = (i, field, value) => setProspect(p => ({ ...p, challenges: p.challenges.map((c, j) => j === i ? { ...c, [field]: value } : c) }));
 
   const tab = (id, text) => (
-    <button type="button" onClick={() => { setMode(id); setBrief(null); }} aria-pressed={mode === id ? 'true' : 'false'}
+    <button type="button" onClick={() => { setMode(id); setBrief(null); if (params.get('user')) setParams({}); }} aria-pressed={mode === id ? 'true' : 'false'}
       style={{ ...btn, ...(mode === id ? { background: '#152838', color: '#fff', borderColor: '#152838' } : {}) }}>{text}</button>
   );
 
