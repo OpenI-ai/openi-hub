@@ -16,6 +16,7 @@ import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingU
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 import TastePanel from './TastePanel';
+import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
 const G = '#D0A848';
 const NAVY = '#152838';
@@ -141,6 +142,7 @@ export default function InnovationBrief() {
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [shortlistKey, setShortlistKey] = useState(0);
   const [fresh, setFresh] = useState(new Set());
   const prevIds = useRef(new Set());
 
@@ -187,12 +189,23 @@ export default function InnovationBrief() {
     try {
       const r = await briefAPI.feedback(item.user_id, 'shortlist', item.shortlisted, item.priority_label);
       await load({ after: item.shortlisted ? `removed ${item.name} from your shortlist` : `shortlisted ${item.name}` });
+      setShortlistKey(k => k + 1);
       // s122 action A1: the shortlist also lands in a named watchlist — say where, with a way there.
       if (r?.watchlist) {
         toast.success((t) => (
           <span data-testid="watchlist-toast">
             Added to <b>{r.watchlist.name}</b>.{' '}
             <a href={`/dashboard/watchlist?list=${r.watchlist.id}`} onClick={() => toast.dismiss(t.id)} style={{ color: '#8A6A1C', fontWeight: 600 }}>Open</a>
+            {' · '}
+            <a href="#share" data-testid="watchlist-toast-share" style={{ color: '#8A6A1C', fontWeight: 600 }} onClick={async (e) => {
+              // s122 action A3: share the shortlist straight from the toast.
+              e.preventDefault(); toast.dismiss(t.id);
+              try {
+                const url = shareUrl(await activeShareToken(r.watchlist.id));
+                if (await copyText(url)) toast.success('Share link copied — anyone with it can view this shortlist');
+                else toast.success(`Share link: ${url}`, { duration: 10000 });
+              } catch (err) { toast.error(err.message || 'Could not create a share link'); }
+            }}>Share</a>
           </span>
         ), { duration: 6000 });
       }
@@ -361,6 +374,9 @@ export default function InnovationBrief() {
 
       {/* s122 — the personalisation loop's "show" step; a Keep / Not me re-ranks the brief. */}
       <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />
+
+      {/* s122 action A3 — the brief's watchlists, each with a read-only share link. */}
+      <BriefShortlists refreshKey={shortlistKey} />
 
       {notice && (
         <div role="status" data-testid="brief-notice" style={{ marginTop: 14, background: '#FBF6EA', border: `1px solid ${G}`, borderRadius: 10, padding: '10px 14px', fontSize: 13.5 }}>
