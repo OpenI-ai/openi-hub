@@ -106,6 +106,14 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, busy }) {
     if (userId) briefPreviewAPI.suggestions(userId).then(r => { if (live) setSuggestions(r.suggestions || []); }).catch(() => {});
     return () => { live = false; };
   }, [userId, priorityKeys]);
+  // s122 — what the personalisation loop has learned about this client (read-only).
+  const [taste, setTaste] = useState(null);
+  useEffect(() => {
+    let live = true;
+    setTaste(null);
+    if (userId) briefPreviewAPI.taste(userId).then(t => { if (live) setTaste(t); }).catch(() => {});
+    return () => { live = false; };
+  }, [userId]);
   // s122 — the Grow / Cut / Venture lens; cleared when the brief's subject or priorities change.
   const [lens, setLens] = useState(null);
   const [lensLoading, setLensLoading] = useState(false);
@@ -173,6 +181,24 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, busy }) {
               {sg.why && <span style={{ color: '#666' }}>{sg.why}</span>}
             </div>
           ))}
+        </div>
+      )}
+      {taste && (
+        <div data-testid="pv-taste" style={{ marginTop: 12, fontSize: 13, color: '#444', maxWidth: 900 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600, marginBottom: 4 }}>
+            Learned from this client's behaviour {taste.learned_at ? `· ${new Date(taste.learned_at).toLocaleDateString()}` : ''}</div>
+          {taste.insights.length === 0 ? <span style={{ color: '#888' }}>Nothing yet: too few shortlists / passes to say anything.</span>
+            : taste.insights.map(i => (
+              <div key={i.key} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                <span style={{ textDecoration: i.status === 'reject' ? 'line-through' : 'none', color: i.status === 'reject' ? '#999' : '#333' }}>{i.text}</span>
+                <span style={{ fontSize: 11.5, color: i.status === 'keep' ? '#2E7D4F' : i.status === 'reject' ? '#A33' : '#888' }}>
+                  {i.status === 'keep' ? 'kept by client' : i.status === 'reject' ? '"Not me"' : 'in use, not yet confirmed'}</span>
+              </div>
+            ))}
+          {taste.metrics?.length > 0 && (() => {
+            const m = taste.metrics[taste.metrics.length - 1];
+            return <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>Last 30 days: {m.shortlists} shortlisted, {m.dismisses} passed{m.dismiss_rate != null ? ` (${Math.round(m.dismiss_rate * 100)}% passed)` : ''}.</div>;
+          })()}
         </div>
       )}
       {onLens && items.some(it => it.type === 'startup') && (
