@@ -44,6 +44,13 @@ export const pagesS122 = {
         placement: 'bottom',
         skipBeacon: true,
       },
+      {
+        target: '#tour-brief-shortlists',
+        title: 'Share your shortlist',
+        content: 'Each priority you shortlist from gets its own watchlist. Open it, or press "Copy share link" to send your team a read-only page of those startups. Links expire after 30 days and can be revoked from the watchlist page.',
+        placement: 'top',
+        skipBeacon: true,
+      },
     ],
   },
   '/dashboard/admin/brief-preview': {
