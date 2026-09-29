@@ -45,6 +45,12 @@ export default function TastePanel({ onChanged }) {
         <strong style={{ fontSize: 14, fontWeight: 600 }}>What OpenI has learned from you</strong>
         <span style={{ fontSize: 12, color: '#888' }}>From your shortlists, passes and the profiles you open. Your own priorities are never changed.</span>
       </div>
+      {/* s122 behaviour loop — CORRECT: the learner paused itself because it was not helping. */}
+      {taste?.paused && (
+        <p data-testid="taste-paused" role="status" style={{ fontSize: 13, color: '#8A6A1C', background: '#FBF6EA', borderRadius: 8, padding: '6px 10px', margin: '8px 0 0' }}>
+          Paused: {taste.pause_reason || 'what OpenI learned was not helping, so it has stopped using it.'} It will try again as it learns more.
+        </p>
+      )}
       {taste === null ? null : insights.length === 0 ? (
         <p data-testid="taste-empty" style={{ fontSize: 13, color: '#666', margin: '8px 0 0' }}>
           Nothing yet. As you shortlist startups and mark others "Not relevant", OpenI learns what you prefer and shows it here — you decide what it keeps.
