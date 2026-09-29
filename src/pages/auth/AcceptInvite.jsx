@@ -13,7 +13,11 @@
  *      redirect to /register?invite_token=<token>&email=<email>
  *      (Register page reads these params, pre-fills email, locks it.
  *       After signup + email verification the consume hook fires.)
- *   4. If invite is consumed/revoked/expired/not-found -> show error state.
+ *   4. If invite is revoked/expired/not-found -> show error state.
+ *   5. s122 — if it is CONSUMED (they already signed up from it), it lives on
+ *      their dashboard now: say so and send them there (`next` from the API).
+ *      Dentsu, 28 Sep: a startup re-clicked the email link after signing up,
+ *      saw "Invitation unavailable" and took the invite for broken.
  *
  * Public route — no auth required.
  */
@@ -29,7 +33,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://api.openi.ai/api';
 export default function AcceptInvite() {
   const { token } = useParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState('loading'); // loading | redirecting | error
+  const [status, setStatus] = useState('loading'); // loading | redirecting | accepted | error
   const [error, setError] = useState(null);
   const [invite, setInvite] = useState(null);
 
@@ -43,6 +47,11 @@ export default function AcceptInvite() {
       try {
         const res = await fetch(`${API_URL}/public/invite/accept/${token}`);
         const data = await res.json();
+        if (res.status === 410 && data?.status === 'consumed') {
+          setInvite(data);
+          setStatus('accepted');
+          return;
+        }
         if (!res.ok) {
           setStatus('error');
           setError(data?.message || `Invitation ${data?.status || 'invalid'}.`);
@@ -90,6 +99,22 @@ export default function AcceptInvite() {
             <p style={{ fontSize: 12, color: '#666', margin: 0 }}>
               {invite.has_account ? 'Redirecting you to login...' : 'Redirecting you to create your account...'}
             </p>
+          </>
+        )}
+
+        {status === 'accepted' && (
+          <>
+            <CheckCircle size={36} color={G} style={{ marginBottom: 16 }} />
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: '0 0 8px' }}>You've already accepted this invitation</h2>
+            <p style={{ fontSize: 13, color: '#666', margin: '0 0 20px' }}>
+              {invite?.entity_type === 'challenge'
+                ? 'The challenge is waiting in your OpenI Hub dashboard, under Challenge Invites. Open it there to apply.'
+                : 'It is waiting in your OpenI Hub dashboard.'}
+            </p>
+            <button data-testid="invite-go-dashboard" onClick={() => navigate(invite?.next || '/dashboard')}
+              style={{ padding: '10px 22px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              {invite?.entity_type === 'challenge' ? 'Go to my challenge invites' : 'Go to my dashboard'}
+            </button>
           </>
         )}
 
