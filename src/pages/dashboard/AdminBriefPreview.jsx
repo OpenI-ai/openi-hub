@@ -13,9 +13,10 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
-import { BriefCard, VerifiedNote, ApplicantsBlock, GapNote } from './InnovationBrief';
+import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
+import PainBriefPanel from './PainBriefPanel';
 
 const G = '#D0A848';
 const btn = { fontSize: 13, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
@@ -132,7 +133,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
           ))}
         </div>
       )}
-      {brief.sections.filter(s => s.items.length || s.applicants?.length || s.gap).map(s => (
+      {brief.sections.filter(s => s.items.length || s.gap).map(s => (
         <section key={s.id} style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{s.title}</h2>
@@ -140,7 +141,6 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
             {s.verified && <VerifiedNote />}
             {s.quality && <SectionScore q={s.quality} />}
           </div>
-          <ApplicantsBlock s={s} renderCard={it => <BriefCard key={`app:${it.user_id}`} item={it} readOnly />} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
             {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} readOnly
               adminLabel={onLabel && it.type === 'startup' && s.priority_key
@@ -153,7 +153,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, busy }) {
         <p style={{ marginTop: 20, color: '#666' }}>No matches yet for these priorities.</p>
       )}
       {(() => {
-        const empty = brief.sections.filter(s => !s.items.length && !s.gap && !s.applicants?.length);
+        const empty = brief.sections.filter(s => !s.items.length && !s.gap);
         return empty.length > 0 && !brief.sections.every(s => !s.items.length)
           ? <p style={{ marginTop: 20, fontSize: 13, color: '#777' }}>No strong matches yet for {empty.map(s => s.title).join(', ')}.</p> : null;
       })()}
@@ -165,7 +165,7 @@ export default function AdminBriefPreview() {
   const [mode, setMode] = useState('user');
   const [q, setQ] = useState('');
   const [users, setUsers] = useState([]);
-  const [prospect, setProspect] = useState({ company: '', role: 'corporate', priorities: '', challenges: [{ title: '', text: '' }] });
+  const [prospect, setProspect] = useState({ company: '', website: '', role: 'corporate', priorities: '', challenges: [{ title: '', text: '' }] });
   const [brief, setBrief] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -262,7 +262,7 @@ export default function AdminBriefPreview() {
       ) : (
         <form onSubmit={buildProspect} style={{ marginTop: 16, display: 'grid', gap: 12, maxWidth: 760 }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button type="button" style={btn} onClick={() => setProspect({ ...SAP_INDIA, challenges: SAP_INDIA.challenges.map(c => ({ ...c })) })}>Load SAP India example</button>
+            <button type="button" style={btn} onClick={() => setProspect({ website: '', ...SAP_INDIA, challenges: SAP_INDIA.challenges.map(c => ({ ...c })) })}>Load SAP India example</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,2fr) minmax(0,1fr)', gap: 12 }}>
             <div><label htmlFor="pv-company" style={label}>Company</label>
@@ -272,6 +272,15 @@ export default function AdminBriefPreview() {
                 {PERSONAS.map(r => <option key={r} value={r}>{r}</option>)}
               </select></div>
           </div>
+          <div><label htmlFor="pv-website" style={label}>Website (optional, used for the pain points)</label>
+            <input id="pv-website" style={input} placeholder="e.g. dentsu.com" value={prospect.website} onChange={e => setProspect(p => ({ ...p, website: e.target.value }))} /></div>
+          {/* s122 — Dentsu's "pain brief": draft priorities from public signals. */}
+          <PainBriefPanel company={prospect.company} website={prospect.website}
+            onUse={(labels) => setProspect(p => {
+              const have = p.priorities.split('\n').map(s => s.trim()).filter(Boolean);
+              const add = labels.filter(l => !have.some(h => h.toLowerCase() === l.toLowerCase()));
+              return { ...p, priorities: [...add, ...have].join('\n') };
+            })} />
           <div><label htmlFor="pv-priorities" style={label}>Priorities: sectors, functions or use cases, one per line, most important first</label>
             <textarea id="pv-priorities" rows={6} style={input} value={prospect.priorities} onChange={e => setProspect(p => ({ ...p, priorities: e.target.value }))} /></div>
           <div>
