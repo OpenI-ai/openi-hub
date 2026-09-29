@@ -260,8 +260,16 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
             ))}
           {taste.metrics?.length > 0 && (() => {
             const m = taste.metrics[taste.metrics.length - 1];
-            return <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>Last 30 days: {m.shortlists} shortlisted, {m.dismisses} passed{m.dismiss_rate != null ? ` (${Math.round(m.dismiss_rate * 100)}% passed)` : ''}.</div>;
+            // s122 behaviour loop — MEASURE: the trend of the "passed" share over the recent learns.
+            const trend = taste.metrics.slice(-8).map(x => x.dismiss_rate).filter(x => x != null).map(x => `${Math.round(x * 100)}%`);
+            return <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>Last 30 days: {m.shortlists} shortlisted, {m.dismisses} passed{m.dismiss_rate != null ? ` (${Math.round(m.dismiss_rate * 100)}% passed)` : ''}.
+              {trend.length > 1 && <span data-testid="pv-taste-trend"> Passed, recent nights: {trend.join(' → ')}.</span>}</div>;
           })()}
+          {taste.paused ? (
+            <div data-testid="pv-taste-paused" style={{ fontSize: 12.5, color: '#8A6A1C', marginTop: 4 }}>Paused automatically: {taste.pause_reason}</div>
+          ) : taste.applied_since ? (
+            <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>In use since {new Date(taste.applied_since).toLocaleDateString()}; paused by itself if "Not relevant" rises.</div>
+          ) : null}
         </div>
       )}
       {client && (

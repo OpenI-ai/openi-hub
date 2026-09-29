@@ -40,7 +40,7 @@ export const pagesS122 = {
       {
         target: '#tour-brief-taste',
         title: 'It learns from you',
-        content: 'OpenI learns what you prefer from your shortlists and passes, and says so here in plain words. Keep what is right, press "Not me" on what is not. Your own priorities are never changed.',
+        content: 'OpenI learns what you prefer from your shortlists and passes, and says so here in plain words. Keep what is right, press "Not me" on what is not. Your shortlists also tell OpenI\'s crawler what to look for, and if what it learned stops helping, it pauses itself. Your own priorities are never changed.',
         placement: 'bottom',
         skipBeacon: true,
       },
