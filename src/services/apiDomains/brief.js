@@ -10,6 +10,10 @@ export const briefAPI = {
   preferences: (payload)                         => put('/brief/preferences', payload),
   suggestions: ()                                => get('/brief/suggestions'),                 // s121j
   dismissSuggestion: (label)                     => post('/brief/suggestions/dismiss', { label }),
+  // s122 — personalisation loop
+  events:      (events)                          => post('/brief/events', { events }),
+  taste:       ()                                => get('/brief/taste'),
+  decideTaste: (key, decision)                   => put('/brief/taste', { key, decision }),
 };
 
 // s121g — admin, read-only previews.
@@ -23,6 +27,7 @@ export const briefPreviewAPI = {
   quality: () => get('/admin/brief-quality'),
   painBrief: (payload) => post('/admin/brief-preview/prospect/pain-brief', payload),  // s122
   lens: (payload) => post('/admin/brief-preview/lens', payload),  // s122 — Grow / Cut / Venture lens
+  taste: (id) => get(`/admin/brief-preview/${id}/taste`),  // s122 — what the brief learned about a client
 };
 
 // s122 — the agent runtime's run log (admin, read-only).

@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck } from 'lucide-react';
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
+import TastePanel from './TastePanel';
 
 const G = '#D0A848';
 const NAVY = '#152838';
@@ -53,14 +54,17 @@ function Initials({ name, logo }) {
 
 // Exported for the admin preview page (read-only: no Shortlist / Not relevant).
 // adminLabel (s121k, Brief Preview only): { value: 'good'|'bad'|null, onLabel(next) } — an admin's accuracy label.
-export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null }) {
+export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null, onOpen = null }) {
   const isStartup = item.type === 'startup';
   // ?by=user_id: the brief carries the startup's user_id, and StartupProfile otherwise reads :id as a
   // startup_profiles.id (independent sequence), opening the WRONG startup or none (s121j).
   const to = isStartup ? `/dashboard/startups/${item.user_id}?by=user_id` : `/dashboard/marketplace/${item.id}`;
   const navigate = useNavigate();
   // The whole tile opens the profile; clicks on its own buttons/links keep their own behaviour.
-  const open = (e) => { if (!e.target.closest('button, a')) navigate(to); };
+  const open = (e) => {
+    if (e.target.closest('a')) { onOpen?.(item); return; } // the name link navigates itself
+    if (!e.target.closest('button')) { onOpen?.(item); navigate(to); }
+  };
   const rel = REL_STYLE[item.relationship];
   const meta = isStartup ? [item.city, item.country, item.stage].filter(Boolean).join(' · ')
     : [item.corporate_name, item.deadline ? `closes ${new Date(item.deadline).toLocaleDateString()}` : null].filter(Boolean).join(' · ');
@@ -83,6 +87,10 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       <p style={{ fontSize: 12.5, margin: 0, color: '#1a1a1a', borderTop: '1px dashed #eee', paddingTop: 8 }}>
         <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.applied ? 'Applicant.' : item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
+      {item.taste_note && (
+        <p data-testid="taste-note" style={{ fontSize: 12, margin: 0, color: '#8A6A1C', display: 'flex', gap: 4, alignItems: 'center' }}>
+          <Sparkles size={11} /> {item.taste_note}</p>
+      )}
       {isStartup && readOnly && (
         <div style={{ display: 'flex', gap: 6, marginTop: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link to={to} style={{ ...btn, textDecoration: 'none' }}>View profile</Link>
@@ -170,6 +178,10 @@ export default function InnovationBrief() {
   }, []);
   useEffect(() => { loadSuggestions(); }, [loadSuggestions]);
 
+  // s122 — opening a card is a signal the brief learns from (fire and forget).
+  const onOpenCard = (item) => {
+    if (item.type === 'startup') briefAPI.events([{ event: 'open', startup_user_id: item.user_id }]).catch(() => {});
+  };
   const onShortlist = async (item) => {
     setBusy(true);
     try {
@@ -338,6 +350,9 @@ export default function InnovationBrief() {
         </div>
       )}
 
+      {/* s122 — the personalisation loop's "show" step; a Keep / Not me re-ranks the brief. */}
+      <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />
+
       {notice && (
         <div role="status" data-testid="brief-notice" style={{ marginTop: 14, background: '#FBF6EA', border: `1px solid ${G}`, borderRadius: 10, padding: '10px 14px', fontSize: 13.5 }}>
           {notice}
@@ -361,7 +376,7 @@ export default function InnovationBrief() {
             ? (s.gap ? null : <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>)
             : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
                 {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} onShortlist={onShortlist} onDismiss={onDismiss}
-                  highlight={fresh.has(`${it.type}:${it.user_id || it.id}`)} />)}
+                  highlight={fresh.has(`${it.type}:${it.user_id || it.id}`)} onOpen={onOpenCard} />)}
               </div>}
           <GapNote s={s} />
         </section>
