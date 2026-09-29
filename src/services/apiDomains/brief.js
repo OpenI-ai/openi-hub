@@ -6,7 +6,7 @@ import { get, post, put } from './core';
 
 export const briefAPI = {
   get:         ()                                => get('/brief'),
-  feedback:    (startup_user_id, action, undo)   => post('/brief/feedback', { startup_user_id, action, undo: undo === true }),
+  feedback:    (startup_user_id, action, undo, priority_label) => post('/brief/feedback', { startup_user_id, action, undo: undo === true, priority_label }),
   preferences: (payload)                         => put('/brief/preferences', payload),
   suggestions: ()                                => get('/brief/suggestions'),                 // s121j
   dismissSuggestion: (label)                     => post('/brief/suggestions/dismiss', { label }),

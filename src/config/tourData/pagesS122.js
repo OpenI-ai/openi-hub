@@ -33,7 +33,7 @@ export const pagesS122 = {
       {
         target: '#tour-brief-priorities',
         title: 'Your priorities drive it',
-        content: 'Switch a priority off, move it up, or add your own focus area. Shortlist or mark "Not relevant" on any card and the brief re-ranks straight away.',
+        content: 'Switch a priority off, move it up, or add your own focus area. Shortlist or mark "Not relevant" on any card and the brief re-ranks straight away. A shortlisted startup is also saved to a watchlist named after the priority, e.g. "Innovation Brief — Retail media", ready to share.',
         placement: 'bottom',
         skipBeacon: true,
       },
