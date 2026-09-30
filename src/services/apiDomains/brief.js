@@ -40,6 +40,11 @@ export const briefAPI = {
   undoCoach:   (changeId)                        => post(`/brief/coach/${changeId}/undo`, {}),  // s123 the Coach
   asks:        ()                                => get('/brief/ask'),              // s123 Ask OpenI
   ask:         (question)                        => post('/brief/ask', { question }),
+  // s123 action agents (Wave 2): offers, the agent's editable draft, do it, "Not now".
+  actions:       ()                              => get('/brief/actions'),
+  previewAction: (key, subject)                  => post(`/brief/actions/${key}/preview`, { subject }),
+  executeAction: (id, draft)                     => post(`/brief/actions/${id}/execute`, { draft }),
+  dismissAction: (id)                            => post(`/brief/actions/${id}/dismiss`, {}),
 };
 
 // s121g — admin, read-only previews.

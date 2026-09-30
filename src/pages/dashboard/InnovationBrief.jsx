@@ -20,6 +20,7 @@ import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
 import AskPanel from './AskPanel';
+import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
@@ -157,6 +158,16 @@ export function VerifiedNote() {
 
 export default function InnovationBrief() {
   const [brief, setBrief] = useState(null);
+  // s123 action agents: what OpenI offers to do on each section (A4 launch a challenge, A4b invite shortlisted).
+  const [actionOffers, setActionOffers] = useState(() => new Map());
+  const [launching, setLaunching] = useState(null);
+  const [inviting, setInviting] = useState(null);
+  const loadOffers = useCallback(() => briefAPI.actions()
+    .then(r => setActionOffers(new Map((r.offers || []).map(o => [`${o.key}|${o.subject}`, o]))))
+    .catch(() => {}), []);
+  useEffect(() => { loadOffers(); }, [loadOffers]);
+  const previewLaunch = useCallback(subject => briefAPI.previewAction('launch_challenge', subject), []);
+  const previewInvite = useCallback(subject => briefAPI.previewAction('invite_shortlisted', subject), []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -404,6 +415,16 @@ export default function InnovationBrief() {
         </div>
       )}
 
+      {launching && (
+        <LaunchChallengeSheet offer={launching} preview={previewLaunch} execute={briefAPI.executeAction} dismiss={briefAPI.dismissAction}
+          onClose={() => { setLaunching(null); loadOffers(); }} onDone={() => { setLaunching(null); loadOffers(); }} />
+      )}
+
+      {inviting && (
+        <InviteShortlistedSheet offer={inviting} preview={previewInvite} execute={briefAPI.executeAction} dismiss={briefAPI.dismissAction}
+          onClose={() => { setInviting(null); loadOffers(); }} onDone={() => { setInviting(null); loadOffers(); }} />
+      )}
+
       {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
       <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} undo={briefAPI.undoCoach}
         onFound={() => load({ after: 'ran Scout' })} onChanged={() => load({ after: 'undid a Coach change' })} />
@@ -452,6 +473,8 @@ export default function InnovationBrief() {
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
             {s.verified && <VerifiedNote />}
+            {isCorporate && actionOffers.get(`launch_challenge|${s.id}`) && <LaunchChallengeChip offer={actionOffers.get(`launch_challenge|${s.id}`)} onOpen={setLaunching} />}
+            {isCorporate && actionOffers.get(`invite_shortlisted|${s.id}`) && <InviteShortlistedChip offer={actionOffers.get(`invite_shortlisted|${s.id}`)} onOpen={setInviting} />}
           </div>
           {s.items.length === 0
             ? (s.gap ? null : <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>)

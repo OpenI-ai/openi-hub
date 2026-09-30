@@ -50,7 +50,10 @@ const preview = pagesS122['/dashboard/admin/brief-preview'];
 // so it is described in the always-present first step rather than targeted.
 const withMap = brief.steps.map(s => (s.target === '#tour-page-brief'
   ? { ...s, content: `${s.content} Once OpenI has read your startups, a strategy map shows what each would do for you (grow revenue, cut cost, or open a new market) and whether to partner with, source from or invest in it.` }
-  : s));
+  // s123 action agents: the "Launch a challenge on this" chip sits in each priority's section (corporate only).
+  : s.target === '#tour-brief-priorities'
+    ? { ...s, content: `${s.content} For a company, each priority's section also offers "Launch a challenge on this": OpenI drafts a challenge from the priority, your business and what you shortlisted; you edit it and save it as a draft for free (publishing it later uses one of your monthly challenges). Each of your open challenges offers "Invite the startups you shortlisted": tick who to invite, edit the note, and each gets an email and a notification.` }
+    : s));
 
 export const pagesS123 = {
   '/dashboard/brief': { ...brief, steps: [...withMap.slice(0, at), agentsStep, askStep, landscapeStep, knowsStep, ...withMap.slice(at)] },
