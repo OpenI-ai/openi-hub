@@ -35,6 +35,8 @@ export const briefAPI = {
   scout:       ()                                => post('/brief/scout', {}),
   landscape:   ()                                => get('/brief/landscape'),       // s123 innovation landscape
   buildMaps:   ()                                => post('/brief/maps/build', {}),  // s123 map-builder agent
+  knows:       ()                                => get('/brief/knows'),            // s123 What OpenI knows
+  refreshKnows: ()                               => post('/brief/knows/refresh', {}),
 };
 
 // s121g — admin, read-only previews.
@@ -58,6 +60,8 @@ export const briefPreviewAPI = {
   scout: (id) => post(`/admin/brief-preview/${id}/scout`, {}),  // s123
   landscape: (id) => get(`/admin/brief-preview/${id}/landscape`),  // s123
   buildMaps: (id) => post(`/admin/brief-preview/${id}/maps/build`, {}),  // s123
+  knows: (id) => get(`/admin/brief-preview/${id}/knows`),  // s123
+  refreshKnows: (id) => post(`/admin/brief-preview/${id}/knows/refresh`, {}),  // s123
 };
 
 // s122 — the agent runtime's run log (admin, read-only).
