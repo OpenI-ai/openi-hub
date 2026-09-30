@@ -28,6 +28,13 @@ const landscapeStep = {
   placement: 'bottom',
   skipBeacon: true,
 };
+const knowsStep = {
+  target: '#tour-brief-knows',
+  title: 'What OpenI knows about you',
+  content: 'What your brief is built on, and where each part came from: your profile, the priorities and challenges you gave us, what OpenI\'s researcher read on your website and in recent news (every line links to its source), and what it learned from what you shortlist and pass on. Not right? Update your profile, or press "Read again".',
+  placement: 'top',
+  skipBeacon: true,
+};
 const at = brief.steps.findIndex(s => s.target === '#tour-brief-priorities') + 1;
 
 const preview = pagesS122['/dashboard/admin/brief-preview'];
@@ -39,11 +46,11 @@ const withMap = brief.steps.map(s => (s.target === '#tour-page-brief'
   : s));
 
 export const pagesS123 = {
-  '/dashboard/brief': { ...brief, steps: [...withMap.slice(0, at), agentsStep, landscapeStep, ...withMap.slice(at)] },
+  '/dashboard/brief': { ...brief, steps: [...withMap.slice(0, at), agentsStep, landscapeStep, knowsStep, ...withMap.slice(at)] },
   '/dashboard/admin/brief-preview': {
     ...preview,
     steps: preview.steps.map(s => (s.target === '#tour-brief-preview-modes'
-      ? { ...s, content: `${s.content} For a client, "Agents working for …" shows what OpenI's agents did for them, and "Run Scout now" searches for more startups for their priorities; the innovation landscape shows the Innovation Maps around their priorities. On the strategy map, "Change" under a card moves a startup to the right outcome and action; the client's own brief shows it, and OpenI learns from it.` }
+      ? { ...s, content: `${s.content} For a client, "Agents working for …" shows what OpenI's agents did for them, and "Run Scout now" searches for more startups for their priorities; the innovation landscape shows the Innovation Maps around their priorities; "What OpenI knows" shows what their brief is built on. On the strategy map, "Change" under a card moves a startup to the right outcome and action; the client's own brief shows it, and OpenI learns from it.` }
       : s)),
   },
 };

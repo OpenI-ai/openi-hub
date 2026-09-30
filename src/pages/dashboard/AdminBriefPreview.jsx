@@ -17,6 +17,7 @@ import { briefPreviewAPI } from '../../services/api';
 import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
 import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
+import KnowsPanel from './KnowsPanel';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
@@ -272,6 +273,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload,
           load={() => briefPreviewAPI.agents(userId)} scout={() => briefPreviewAPI.scout(userId)} onFound={onReload} />
       )}
       {userId && <LandscapePanel key={`land-${userId}`} id="pv-landscape" client={client || 'this client'} load={() => briefPreviewAPI.landscape(userId)} build={() => briefPreviewAPI.buildMaps(userId)} />}
+      {userId && <KnowsPanel key={`knows-${userId}`} id="pv-knows" client={client || 'this client'} load={() => briefPreviewAPI.knows(userId)} refresh={() => briefPreviewAPI.refreshKnows(userId)} />}
       {taste && (
         <div data-testid="pv-taste" style={{ marginTop: 12, fontSize: 13, color: '#444', maxWidth: 900 }}>
           <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600, marginBottom: 4 }}>
