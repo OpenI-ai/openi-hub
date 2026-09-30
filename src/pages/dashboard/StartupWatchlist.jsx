@@ -11,6 +11,7 @@ import {
   MessageCircle, ChevronLeft, Loader2,
 } from 'lucide-react';
 import { G, GH, card, VIS_STYLE, STATUS_STYLE } from './watchlistParts/styles';
+import { metaLine } from './watchlistParts/metaLine';
 import CreateListModal from './watchlistParts/CreateListModal';
 import AddStartupModal from './watchlistParts/AddStartupModal';
 import SharesModal from './watchlistParts/SharesModal';
@@ -713,7 +714,7 @@ export default function StartupWatchlist() {
                           <span style={{ color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>{s.name}</span>
                           {s.deeptech && <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 20, background: '#fdf4ff', color: '#9333ea', border: '1px solid #e9d5ff' }}>DeepTech</span>}
                         </div>
-                        <div style={{ color: '#5c5c5c', fontSize: 12 }}>{s.sector} · Stage: {s.stage}</div>
+                        <div style={{ color: '#5c5c5c', fontSize: 12 }}>{metaLine(s)}</div>
                       </div>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}` }}>{s.status}</span>
                       {s.score && <span style={{ fontSize: 13, color: G, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}><Star size={11} style={{ fill: G, color: G }} />{s.score}</span>}

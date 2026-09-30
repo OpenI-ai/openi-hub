@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles, Download } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
 import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
+import AgentsPanel from './AgentsPanel';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
@@ -95,7 +96,7 @@ function QualityPanel({ refreshKey }) {
   );
 }
 
-function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
+function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload, busy }) {
   const [label, setLabel] = useState('');
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
@@ -134,7 +135,8 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
   const downloadPdf = async () => {
     setPdfBusy(true);
     try {
-      const { blob, name } = await onPdf();
+      // s123 (Rajeev, 30 Sep): on "By outcome" the PDF is grouped by outcome too.
+      const { blob, name } = await onPdf(lens && view === 'outcome' ? 'outcome' : 'priority');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = name;
@@ -215,7 +217,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
         {onPdf && (
           <button type="button" data-testid="brief-pdf" onClick={downloadPdf} disabled={pdfBusy}
             style={{ ...btn, marginLeft: 'auto', background: '#D0A848', borderColor: '#D0A848', color: '#152838', fontWeight: 600 }}>
-            {pdfBusy ? <Loader2 className="animate-spin" size={14} /> : <Download size={14} />} {pdfBusy ? 'Preparing PDF…' : 'Download PDF'}
+            {pdfBusy ? <Loader2 className="animate-spin" size={14} /> : <Download size={14} />} {pdfBusy ? 'Preparing PDF…' : lens && view === 'outcome' ? 'Download PDF (by outcome)' : 'Download PDF'}
           </button>
         )}
       </div>
@@ -247,6 +249,11 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
             </div>
           ))}
         </div>
+      )}
+      {/* s123 — Agents working for this client + Run Scout now. */}
+      {userId && (
+        <AgentsPanel key={userId} id="pv-agents" client={client || 'this client'}
+          load={() => briefPreviewAPI.agents(userId)} scout={() => briefPreviewAPI.scout(userId)} onFound={onReload} />
       )}
       {taste && (
         <div data-testid="pv-taste" style={{ marginTop: 12, fontSize: 13, color: '#444', maxWidth: 900 }}>
@@ -289,7 +296,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
             {s.verified && <VerifiedNote />}
-            {s.quality && <SectionScore q={s.quality} />}
+            {s.quality && s.items.length > 0 && <SectionScore q={s.quality} />}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
             {s.items.map(it => renderCard(it, s))}
@@ -468,7 +475,8 @@ export default function AdminBriefPreview() {
         onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null}
         onLabel={brief?.preview === 'user' ? labelStartup : null}
         onLens={() => briefPreviewAPI.lens(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })}
-        onPdf={() => briefPreviewAPI.pdf(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })} />
+        onPdf={(view) => briefPreviewAPI.pdf({ ...(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current }), view })}
+        onReload={brief?.preview === 'user' ? () => briefPreviewAPI.user(brief.user.id).then(setBrief).catch(() => {}) : null} />
     </div>
   );
 }
