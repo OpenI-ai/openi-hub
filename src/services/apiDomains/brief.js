@@ -48,6 +48,11 @@ export const briefAPI = {
   // s123 A5: AI-evaluate a startup from the brief (5 AI credits; refunded if the evaluator is down).
   evaluate:      (startupUserId, priorityKey)    => post(`/brief/evaluate/${startupUserId}`, { priority_key: priorityKey || null }),
   evaluations:   ()                              => get('/brief/evaluations'),
+  // s123 the Innovation Agent (Phase 1): my next moves, "Not now", run it now.
+  inbox:         ()                              => get('/brief/inbox'),
+  snoozeInbox:   (id)                            => post(`/brief/inbox/${encodeURIComponent(id)}/snooze`, {}),
+  runAgent:      ()                              => post('/brief/agent/run', {}),
+  agentSettings: (settings)                      => put('/brief/agent/settings', settings),  // Phase 1c weekly email on/off
 };
 
 // s121g — admin, read-only previews.

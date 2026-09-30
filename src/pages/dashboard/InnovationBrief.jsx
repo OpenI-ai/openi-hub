@@ -19,6 +19,7 @@ import TastePanel from './TastePanel';
 import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
+import AgentInbox from './AgentInbox';
 import AskPanel from './AskPanel';
 import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
@@ -170,6 +171,7 @@ export default function InnovationBrief() {
   const [actionOffers, setActionOffers] = useState(() => new Map());
   const [launching, setLaunching] = useState(null);
   const [inviting, setInviting] = useState(null);
+  const [inboxKey, setInboxKey] = useState(0);  // s123 — reload the agent's inbox after a sheet closes
   const loadOffers = useCallback(() => briefAPI.actions()
     .then(r => setActionOffers(new Map((r.offers || []).map(o => [`${o.key}|${o.subject}`, o]))))
     .catch(() => {}), []);
@@ -389,6 +391,12 @@ export default function InnovationBrief() {
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>
       </div>
 
+      {/* s123 — the Innovation Agent's next moves (company accounts). */}
+      {isCorporate && (
+        <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} saveSettings={briefAPI.agentSettings} refreshKey={`${inboxKey}|${brief.generated_at}`}
+          onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} />
+      )}
+
       {(  // always shown: the add-a-focus-area box lives here too
         <div id="tour-brief-priorities" style={{ marginTop: 16 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
@@ -447,12 +455,12 @@ export default function InnovationBrief() {
 
       {launching && (
         <LaunchChallengeSheet offer={launching} preview={previewLaunch} execute={briefAPI.executeAction} dismiss={briefAPI.dismissAction}
-          onClose={() => { setLaunching(null); loadOffers(); }} onDone={() => { setLaunching(null); loadOffers(); }} />
+          onClose={() => { setLaunching(null); loadOffers(); setInboxKey(k => k + 1); }} onDone={() => { setLaunching(null); loadOffers(); setInboxKey(k => k + 1); }} />
       )}
 
       {inviting && (
         <InviteShortlistedSheet offer={inviting} preview={previewInvite} execute={briefAPI.executeAction} dismiss={briefAPI.dismissAction}
-          onClose={() => { setInviting(null); loadOffers(); }} onDone={() => { setInviting(null); loadOffers(); }} />
+          onClose={() => { setInviting(null); loadOffers(); setInboxKey(k => k + 1); }} onDone={() => { setInviting(null); loadOffers(); setInboxKey(k => k + 1); }} />
       )}
 
       {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
