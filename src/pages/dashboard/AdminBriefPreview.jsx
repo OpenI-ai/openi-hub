@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { Loader2, Search, Plus, X, Sparkles, Download } from 'lucide-react';
 import { briefPreviewAPI } from '../../services/api';
 import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
+import AgentsPanel from './AgentsPanel';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
@@ -95,7 +96,7 @@ function QualityPanel({ refreshKey }) {
   );
 }
 
-function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
+function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload, busy }) {
   const [label, setLabel] = useState('');
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
@@ -247,6 +248,11 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
             </div>
           ))}
         </div>
+      )}
+      {/* s123 — Agents working for this client + Run Scout now. */}
+      {userId && (
+        <AgentsPanel key={userId} id="pv-agents" client={client || 'this client'}
+          load={() => briefPreviewAPI.agents(userId)} scout={() => briefPreviewAPI.scout(userId)} onFound={onReload} />
       )}
       {taste && (
         <div data-testid="pv-taste" style={{ marginTop: 12, fontSize: 13, color: '#444', maxWidth: 900 }}>
@@ -468,7 +474,8 @@ export default function AdminBriefPreview() {
         onRemove={brief?.preview === 'user' ? (key) => editUser({ remove: [key] }) : null}
         onLabel={brief?.preview === 'user' ? labelStartup : null}
         onLens={() => briefPreviewAPI.lens(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })}
-        onPdf={() => briefPreviewAPI.pdf(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })} />
+        onPdf={() => briefPreviewAPI.pdf(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })}
+        onReload={brief?.preview === 'user' ? () => briefPreviewAPI.user(brief.user.id).then(setBrief).catch(() => {}) : null} />
     </div>
   );
 }

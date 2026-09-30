@@ -16,6 +16,7 @@ import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingU
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 import TastePanel from './TastePanel';
+import AgentsPanel from './AgentsPanel';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
 const G = '#D0A848';
@@ -79,6 +80,7 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
             {meta && <span style={{ fontSize: 11.5, color: '#666', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
               {isStartup && (item.city || item.country) ? <MapPin size={10} /> : null}{meta}</span>}
             {item.is_new && <span style={pill('#DFF2E6', '#2E7D4F')}>New</span>}
+            {item.scout && <span data-testid="scout-pill" style={pill('#EAF0FB', '#2B4C8C')} title={item.scout.query ? `Scout searched "${item.scout.query}"` : 'Found by Scout'}>Found by Scout</span>}
             {item.is_imported && <span style={pill('#f1f1f1', '#666')} title="Profile built from public sources; not yet claimed by the startup">Imported profile</span>}
           </div>
         </div>
@@ -86,7 +88,7 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       </div>
       {item.tagline && <p style={{ fontSize: 13, color: '#444', margin: 0, lineHeight: 1.45 }}>{item.tagline}</p>}
       <p style={{ fontSize: 12.5, margin: 0, color: '#1a1a1a', borderTop: '1px dashed #eee', paddingTop: 8 }}>
-        <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.applied ? 'Applicant.' : item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
+        <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.applied ? 'Applicant.' : item.scout ? 'Found by Scout.' : item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
       {item.taste_note && (
         <p data-testid="taste-note" style={{ fontSize: 12, margin: 0, color: '#8A6A1C', display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -384,6 +386,9 @@ export default function InnovationBrief() {
           )}
         </div>
       )}
+
+      {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
+      <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} onFound={() => load({ after: 'ran Scout' })} />
 
       {/* s122 — the personalisation loop's "show" step; a Keep / Not me re-ranks the brief. */}
       <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />

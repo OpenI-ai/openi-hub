@@ -14,6 +14,7 @@
  *   pagesAdminPublic.js  original 1653-2003  batch 9 + every-page coverage
  *   index.js (this file) original 2007-2022  resolvePageTour, verbatim
  *   pagesS122.js         NEW 29 Sep 2026     Innovation Brief, Brief Preview, Agent Runs
+ *   pagesS123.js         NEW 30 Sep 2026     Agents working for you (brief + preview)
  *                        (not from the pre-split file — excluded from the recipe)
  *
  * The six modules together own original lines 31-299, 324-2003 and 2007-2022.
@@ -66,6 +67,7 @@ import { pagesActions } from './pagesActions.js';
 import { pagesSeeker } from './pagesSeeker.js';
 import { pagesAdminPublic } from './pagesAdminPublic.js';
 import { pagesS122 } from './pagesS122.js';
+import { pagesS123 } from './pagesS123.js';
 
 export { TOURS };
 export default TOURS;
@@ -78,6 +80,7 @@ export const PAGE_TOURS = {
   ...pagesSeeker,
   ...pagesAdminPublic,
   ...pagesS122,  // 29 Sep 2026 — new module, not part of the verbatim split; see its header.
+  ...pagesS123,  // 30 Sep 2026 — replaces two pagesS122 keys (adds the Agents panel); see its header.
 };
 
 // Resolve the PAGE_TOURS entry for a given pathname.

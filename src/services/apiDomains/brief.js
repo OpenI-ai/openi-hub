@@ -30,6 +30,9 @@ export const briefAPI = {
   events:      (events)                          => post('/brief/events', { events }),
   taste:       ()                                => get('/brief/taste'),
   decideTaste: (key, decision)                   => put('/brief/taste', { key, decision }),
+  // s123 — Agents working for you + Run Scout now
+  agents:      ()                                => get('/brief/agents'),
+  scout:       ()                                => post('/brief/scout', {}),
 };
 
 // s121g — admin, read-only previews.
@@ -48,6 +51,8 @@ export const briefPreviewAPI = {
   // s122 — "Save to watchlist": the admin's own "<Client> — <priority>" lists, shareable with the client.
   watchlists: (client) => get(`/admin/brief-preview/watchlist?client=${encodeURIComponent(client)}`),
   saveWatchlist: (payload) => post('/admin/brief-preview/watchlist', payload),
+  agents: (id) => get(`/admin/brief-preview/${id}/agents`),  // s123
+  scout: (id) => post(`/admin/brief-preview/${id}/scout`, {}),  // s123
 };
 
 // s122 — the agent runtime's run log (admin, read-only).
