@@ -20,7 +20,7 @@ import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
 import AskPanel from './AskPanel';
-import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet } from './ActionAgents';
+import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
@@ -61,7 +61,7 @@ function Initials({ name, logo }) {
 
 // Exported for the admin preview page (read-only: no Shortlist / Not relevant).
 // adminLabel (s121k, Brief Preview only): { value: 'good'|'bad'|null, onLabel(next) } — an admin's accuracy label.
-export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null, adminSave = null, onOpen = null }) {
+export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null, adminSave = null, onOpen = null, evaluation = null, onEvaluate = null, evaluating = false }) {
   const isStartup = item.type === 'startup';
   // ?by=user_id: the brief carries the startup's user_id, and StartupProfile otherwise reads :id as a
   // startup_profiles.id (independent sequence), opening the WRONG startup or none (s121j).
@@ -95,6 +95,8 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
       <p style={{ fontSize: 12.5, margin: 0, color: '#1a1a1a', borderTop: '1px dashed #eee', paddingTop: 8 }}>
         <span style={{ color: '#8A6A1C', fontWeight: 600 }}>{item.applied ? 'Applicant.' : item.scout ? 'Found by Scout.' : item.match == null ? 'Keyword match.' : `${item.match}% fit.`}</span> {item.why}
       </p>
+      {/* s123 action A5 — this client's AI evaluation of the startup, if they ran one. */}
+      <EvaluationNote evaluation={evaluation} />
       {item.taste_note && (
         <p data-testid="taste-note" style={{ fontSize: 12, margin: 0, color: '#8A6A1C', display: 'flex', gap: 4, alignItems: 'center' }}>
           <Sparkles size={11} /> {item.taste_note}</p>
@@ -129,6 +131,12 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
           </button>
           <button type="button" style={btn} onClick={() => onDismiss(item)}><X size={12} /> Not relevant</button>
           <Link to={to} style={{ ...btn, textDecoration: 'none' }}>View profile</Link>
+          {onEvaluate && (
+            <button type="button" data-testid="ai-evaluate" style={btn} disabled={evaluating} onClick={() => onEvaluate(item)}
+              title="OpenI's evaluator scores this startup on 8 dimensions for this priority, with the evidence it found">
+              <Sparkles size={12} /> {evaluating ? 'Evaluating…' : `${evaluation ? 'Evaluate again' : 'Evaluate with AI'} · 5 credits`}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -168,6 +176,26 @@ export default function InnovationBrief() {
   useEffect(() => { loadOffers(); }, [loadOffers]);
   const previewLaunch = useCallback(subject => briefAPI.previewAction('launch_challenge', subject), []);
   const previewInvite = useCallback(subject => briefAPI.previewAction('invite_shortlisted', subject), []);
+  // s123 action A5: this client's AI evaluations, by startup.
+  const [evaluations, setEvaluations] = useState(() => new Map());
+  const [evaluating, setEvaluating] = useState(() => new Set());
+  const loadEvaluations = useCallback(() => briefAPI.evaluations()
+    .then(r => setEvaluations(new Map((r.evaluations || []).map(e => [e.startup_user_id, e]))))
+    .catch(() => {}), []);
+  useEffect(() => { loadEvaluations(); }, [loadEvaluations]);
+  const onEvaluate = async (item) => {
+    setEvaluating(s => new Set(s).add(item.user_id));
+    try {
+      const r = await briefAPI.evaluate(item.user_id, item.priority_key);
+      if (r?.ai_available === false) { toast.error(r.message || 'The evaluator is not available just now. Your credits were not used.'); return; }
+      setEvaluations(m => new Map(m).set(item.user_id, r.evaluation));
+      toast.success(`Evaluated ${item.name}.`);
+    } catch (err) {
+      toast.error(err.message || 'The evaluation could not run');
+    } finally {
+      setEvaluating((s) => { const n = new Set(s); n.delete(item.user_id); return n; });
+    }
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -222,7 +250,9 @@ export default function InnovationBrief() {
     const key = `${it.type}:${it.user_id || it.id}`;
     const tag = brief?.lens && it.type === 'startup' ? brief.lens.lens[it.user_id] : null;
     const shown = tag ? { ...it, relationship: { partner: 'Partner', source: 'Source', invest: 'Invest' }[tag.action] } : it;
-    const c = <BriefCard item={shown} onShortlist={onShortlist} onDismiss={onDismiss} highlight={fresh.has(key)} onOpen={onOpenCard} />;
+    const corp = brief?.role === 'corporate' && it.type === 'startup';
+    const c = <BriefCard item={shown} onShortlist={onShortlist} onDismiss={onDismiss} highlight={fresh.has(key)} onOpen={onOpenCard}
+      evaluation={corp ? evaluations.get(it.user_id) || null : null} onEvaluate={corp ? onEvaluate : null} evaluating={evaluating.has(it.user_id)} />;
     return tag
       ? <div key={key} style={{ display: 'flex', flexDirection: 'column' }}>{c}<LensTag tag={tag} lens={brief.lens} /></div>
       : <div key={key} style={{ display: 'flex', flexDirection: 'column' }}>{c}</div>;

@@ -45,6 +45,9 @@ export const briefAPI = {
   previewAction: (key, subject)                  => post(`/brief/actions/${key}/preview`, { subject }),
   executeAction: (id, draft)                     => post(`/brief/actions/${id}/execute`, { draft }),
   dismissAction: (id)                            => post(`/brief/actions/${id}/dismiss`, {}),
+  // s123 A5: AI-evaluate a startup from the brief (5 AI credits; refunded if the evaluator is down).
+  evaluate:      (startupUserId, priorityKey)    => post(`/brief/evaluate/${startupUserId}`, { priority_key: priorityKey || null }),
+  evaluations:   ()                              => get('/brief/evaluations'),
 };
 
 // s121g — admin, read-only previews.
