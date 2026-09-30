@@ -17,7 +17,7 @@ const brief = pagesS122['/dashboard/brief'];
 const agentsStep = {
   target: '#tour-brief-agents',
   title: 'Agents working for you',
-  content: 'What OpenI\'s agents did for your brief, most recent first: the analyst checking each startup against your business, last night\'s news crawl for your priorities, the strategy map. Press "Run Scout now" and Scout turns each priority into short searches, searches OpenI\'s startups and adds the ones the analyst approves to that priority\'s section, marked "Found by Scout".',
+  content: 'What OpenI\'s agents did for your brief, most recent first: the analyst checking each startup against your business, last night\'s news crawl for your priorities, the strategy map. Press "Run Scout now" and Scout turns each priority into short searches, searches OpenI\'s startups and adds the ones the analyst approves to that priority\'s section, marked "Found by Scout". Below them, the Coach lists any change it made to your brief, for example showing only stronger matches for a priority where you kept passing on weaker ones. Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.',
   placement: 'bottom',
   skipBeacon: true,
 };
@@ -50,7 +50,7 @@ export const pagesS123 = {
   '/dashboard/admin/brief-preview': {
     ...preview,
     steps: preview.steps.map(s => (s.target === '#tour-brief-preview-modes'
-      ? { ...s, content: `${s.content} For a client, "Agents working for …" shows what OpenI's agents did for them, and "Run Scout now" searches for more startups for their priorities; the innovation landscape shows the Innovation Maps around their priorities; "What OpenI knows" shows what their brief is built on. On the strategy map, "Change" under a card moves a startup to the right outcome and action; the client's own brief shows it, and OpenI learns from it.` }
+      ? { ...s, content: `${s.content} For a client, "Agents working for …" shows what OpenI's agents did for them, and "Run Scout now" searches for more startups for their priorities; "Run the Coach" checks their decisions now and may test one change (each with an Undo); the innovation landscape shows the Innovation Maps around their priorities; "What OpenI knows" shows what their brief is built on. On the strategy map, "Change" under a card moves a startup to the right outcome and action; the client's own brief shows it, and OpenI learns from it.` }
       : s)),
   },
 };

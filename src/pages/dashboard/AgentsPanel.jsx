@@ -9,10 +9,15 @@
  * Used on the client's brief and in Brief Preview (admin, for a client):
  * `load` and `scout` are the two API calls for whichever it is.
  * Always rendered (empty state included) so the page tour can point at it.
+ *
+ * s123 — the Coach: under the lines, the changes the Coach made to this brief
+ * (one setting per priority, tested on the client's own decisions and kept only
+ * if "Not relevant" went down), each with an Undo while it is in use. `undo`
+ * (changeId) and, in Brief Preview only, `coach` (run it now) are API calls.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Bot, Search } from 'lucide-react';
+import { Bot, Search, Sparkles } from 'lucide-react';
 
 const G = '#C9A84C';
 const NAVY = '#0B1E3F';
@@ -36,7 +41,46 @@ export function scoutResultText(r) {
   return `Scout searched ${qs.slice(0, 3).map(q => `"${q}"`).join(', ')}${qs.length > 3 ? ' and more' : ''}: nothing new that fits yet. The nightly crawl keeps looking.`;
 }
 
-export default function AgentsPanel({ load, scout, onFound, client = null, id = 'tour-brief-agents' }) {
+export const COACH_STATUS = {
+  trial: { label: 'Testing', color: '#8A6A1C', bg: '#FBF6EA' },
+  kept: { label: 'Kept', color: '#1F6B3A', bg: '#EAF6EE' },
+  undone: { label: 'Put back', color: '#666', bg: '#F2F2F2' },
+  user_undone: { label: 'Undone', color: '#666', bg: '#F2F2F2' },
+};
+
+export function CoachChanges({ changes, onUndo, client = null, busy = null }) {
+  if (!changes?.length) return null;
+  return (
+    <div data-testid="coach-changes" style={{ marginTop: 10, borderTop: '1px solid #f0f0f0', paddingTop: 8 }}>
+      <div style={{ fontSize: 12.5, color: '#555', display: 'flex', alignItems: 'center', gap: 5 }}>
+        <Sparkles size={13} color="#8A6A1C" /> <b style={{ fontWeight: 600 }}>Changes the Coach made</b>
+        <span style={{ color: '#888' }}>Each one is tested on {client ? 'this client\'s' : 'your'} decisions and kept only if it helps.</span>
+      </div>
+      <ul style={{ listStyle: 'none', margin: '6px 0 0', padding: 0, display: 'grid', gap: 6 }}>
+        {changes.map((c) => {
+          const st = COACH_STATUS[c.status] || COACH_STATUS.trial;
+          return (
+            <li key={c.id} data-testid="coach-change" style={{ fontSize: 13, display: 'flex', gap: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: st.color, background: st.bg, borderRadius: 6, padding: '1px 7px', whiteSpace: 'nowrap' }}>{st.label}</span>
+              <span style={{ flex: '1 1 320px', minWidth: 0, color: '#1a1a1a' }}>
+                {c.text}
+                {c.verdict && <span style={{ display: 'block', fontSize: 12.5, color: '#666' }}>{c.verdict}</span>}
+              </span>
+              {c.undoable && onUndo && (
+                <button type="button" data-testid="coach-undo" onClick={() => onUndo(c)} disabled={busy === c.id}
+                  style={{ fontSize: 12, padding: '3px 10px', borderRadius: 7, border: '1px solid #ccc', background: '#fff', cursor: busy === c.id ? 'default' : 'pointer' }}>
+                  {busy === c.id ? 'Undoing…' : 'Undo'}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default function AgentsPanel({ load, scout, undo = null, coach = null, onFound, onChanged = onFound, client = null, id = 'tour-brief-agents' }) {
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
@@ -65,6 +109,35 @@ export default function AgentsPanel({ load, scout, onFound, client = null, id = 
     }
   };
 
+  const [undoing, setUndoing] = useState(null);
+  const onUndo = undo ? async (c) => {
+    setUndoing(c.id);
+    try {
+      await undo(c.id);
+      toast.success(`Undone. "${c.priority}" shows as it did before.`);
+      onChanged?.();
+    } catch (err) {
+      toast.error(err.message || 'Could not undo that change');
+    } finally {
+      setUndoing(null);
+      refresh();
+    }
+  } : null;
+  const [coaching, setCoaching] = useState(false);
+  const runCoach = coach ? async () => {
+    setCoaching(true);
+    try {
+      const r = await coach();
+      toast.success(r.change ? 'The Coach is testing one change.' : r.verdicts?.length ? 'The Coach judged its change.' : `The Coach found nothing to change (${r.note || 'not enough decisions yet'}).`);
+      if (r.change || r.verdicts?.length) onChanged?.();
+    } catch (err) {
+      toast.error(err.message || 'The Coach could not run');
+    } finally {
+      setCoaching(false);
+      refresh();
+    }
+  } : null;
+
   const items = data?.items || [];
   const waitUntil = data?.scout?.next_at ? new Date(data.scout.next_at) : null;
   const resting = waitUntil && waitUntil > new Date();
@@ -80,6 +153,14 @@ export default function AgentsPanel({ load, scout, onFound, client = null, id = 
             color: NAVY, fontWeight: 600, cursor: running || resting ? 'default' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
           <Search size={13} /> {running ? 'Scout is searching…' : 'Run Scout now'}
         </button>
+        {runCoach && (
+          <button type="button" data-testid="run-coach" onClick={runCoach} disabled={coaching}
+            title="Measure this client's decisions, judge the change on trial, and maybe try one new change (no model call)"
+            style={{ fontSize: 12.5, padding: '6px 12px', borderRadius: 8, border: `1px solid ${G}`, background: '#fff', color: NAVY, fontWeight: 600,
+              cursor: coaching ? 'default' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <Sparkles size={13} /> {coaching ? 'Coach is checking…' : 'Run the Coach'}
+          </button>
+        )}
       </div>
       {running && <p role="status" style={{ fontSize: 12.5, color: '#666', margin: '8px 0 0' }}>Planning short searches for each priority, searching OpenI's startups and checking each one. This takes up to a minute.</p>}
       {result && <p role="status" data-testid="scout-result" style={{ fontSize: 13, color: '#6B5A24', background: '#FBF6EA', borderRadius: 8, padding: '6px 10px', margin: '8px 0 0' }}>{result}</p>}
@@ -97,6 +178,7 @@ export default function AgentsPanel({ load, scout, onFound, client = null, id = 
           ))}
         </ul>
       )}
+      <CoachChanges changes={data?.coach} onUndo={onUndo} client={client} busy={undoing} />
     </section>
   );
 }
