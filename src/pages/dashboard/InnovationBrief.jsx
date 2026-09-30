@@ -404,7 +404,8 @@ export default function InnovationBrief() {
       )}
 
       {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
-      <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} onFound={() => load({ after: 'ran Scout' })} />
+      <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} undo={briefAPI.undoCoach}
+        onFound={() => load({ after: 'ran Scout' })} onChanged={() => load({ after: 'undid a Coach change' })} />
 
       {/* s123 — the Innovation Maps around the client's own priorities. */}
       <LandscapePanel load={briefAPI.landscape} build={briefAPI.buildMaps} />

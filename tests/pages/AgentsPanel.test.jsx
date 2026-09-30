@@ -8,7 +8,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import AgentsPanel, { scoutResultText, ago } from '../../src/pages/dashboard/AgentsPanel';
+import AgentsPanel, { scoutResultText, ago, CoachChanges } from '../../src/pages/dashboard/AgentsPanel';
 
 const line = (agent, text, at = new Date().toISOString()) => ({ agent, text, at, status: 'ok' });
 
@@ -60,5 +60,43 @@ describe('AgentsPanel', () => {
     const now = Date.parse('2026-09-30T12:00:00Z');
     expect(ago('2026-09-30T10:00:00Z', now)).toBe('2h ago');
     expect(ago('2026-09-29T08:00:00Z', now)).toBe('yesterday');
+  });
+
+  // s123 — the Coach
+  const change = (id, status, extra = {}) => ({ id, status, priority: 'AI creative', undoable: ['trial', 'kept'].includes(status),
+    text: 'In "AI creative" you passed on 5 of the 5 weaker matches (below 38%) and kept the stronger ones, so OpenI now shows only matches of 38% or more for it.', ...extra });
+
+  it('shows the Coach\'s changes with their status; Undo only on changes still in use', () => {
+    render(<CoachChanges onUndo={vi.fn()} changes={[change(1, 'trial'), change(2, 'kept', { verdict: 'Kept: "Not relevant" went from 67% to 20%.' }),
+      change(3, 'undone', { verdict: 'Put back: too few decisions.' }), change(4, 'user_undone', { verdict: 'Undone by you.' })]} />);
+    const rows = screen.getAllByTestId('coach-change');
+    expect(rows.map(r => r.textContent.slice(0, 8))).toEqual(['TestingI', 'KeptIn "', 'Put back', 'UndoneIn']);
+    expect(rows[1].textContent).toContain('Kept: "Not relevant" went from 67% to 20%.');
+    expect(screen.getAllByTestId('coach-undo')).toHaveLength(2);
+  });
+
+  it('nothing to show: no Coach block at all', () => {
+    const { container } = render(<CoachChanges changes={[]} onUndo={vi.fn()} />);
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('Undo calls the API with the change id, reloads the brief and the panel', async () => {
+    const load = vi.fn()
+      .mockResolvedValueOnce({ items: [], coach: [change(7, 'trial')], scout: {} })
+      .mockResolvedValue({ items: [], coach: [change(7, 'user_undone', { verdict: 'Undone by you.' })], scout: {} });
+    const undo = vi.fn().mockResolvedValue({ ok: true });
+    const onChanged = vi.fn();
+    render(<AgentsPanel load={load} scout={vi.fn()} undo={undo} onChanged={onChanged} />);
+    fireEvent.click(await screen.findByTestId('coach-undo'));
+    await waitFor(() => expect(undo).toHaveBeenCalledWith(7));
+    await waitFor(() => expect(onChanged).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getByTestId('coach-change').textContent).toContain('Undone by you.'));
+    expect(screen.queryByTestId('coach-undo')).toBeNull();
+  });
+
+  it('"Run the Coach" appears only where the caller can run it (Brief Preview)', async () => {
+    render(<AgentsPanel load={vi.fn().mockResolvedValue({ items: [], scout: {} })} scout={vi.fn()} />);
+    await screen.findByTestId('agents-empty');
+    expect(screen.queryByTestId('run-coach')).toBeNull();
   });
 });
