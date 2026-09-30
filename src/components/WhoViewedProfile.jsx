@@ -41,7 +41,11 @@ export default function WhoViewedProfile() {
         if (!alive) return;
         setStats(s);
 
-        // Try to fetch viewers — backend returns 402 for free plan with message:
+        // s124: stats say whether the plan shows WHO viewed. Don't ask for the
+        // list when it doesn't: the 402 it gets is logged as a console error.
+        if (s?.can_see_viewers === false) { setUpgradeRequired(true); return; }
+
+        // Older API (no flag): backend returns 402 for free plan with message:
         // "See who viewed your profile with the Growth plan."
         try {
           const v = await profileViewAPI.whoViewedMe();
