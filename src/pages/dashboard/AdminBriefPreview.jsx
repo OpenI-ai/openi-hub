@@ -18,6 +18,7 @@ import { BriefCard, VerifiedNote, GapNote } from './InnovationBrief';
 import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
+import AskPanel from './AskPanel';
 import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
@@ -273,6 +274,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload,
           load={() => briefPreviewAPI.agents(userId)} scout={() => briefPreviewAPI.scout(userId)}
           undo={changeId => briefPreviewAPI.undoCoach(userId, changeId)} coach={() => briefPreviewAPI.coach(userId)} onFound={onReload} />
       )}
+      {userId && <AskPanel key={`ask-${userId}`} id="pv-ask" client={client || 'this client'} load={() => briefPreviewAPI.asks(userId)} ask={q => briefPreviewAPI.ask(userId, q)} />}
       {userId && <LandscapePanel key={`land-${userId}`} id="pv-landscape" client={client || 'this client'} load={() => briefPreviewAPI.landscape(userId)} build={() => briefPreviewAPI.buildMaps(userId)} />}
       {userId && <KnowsPanel key={`knows-${userId}`} id="pv-knows" client={client || 'this client'} load={() => briefPreviewAPI.knows(userId)} refresh={() => briefPreviewAPI.refreshKnows(userId)} />}
       {taste && (
