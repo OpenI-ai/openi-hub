@@ -46,6 +46,7 @@ export const briefPreviewAPI = {
   quality: () => get('/admin/brief-quality'),
   painBrief: (payload) => post('/admin/brief-preview/prospect/pain-brief', payload),  // s122
   lens: (payload) => post('/admin/brief-preview/lens', payload),  // s122 — Grow / Cut / Venture lens
+  correctLens: (payload) => put('/admin/brief-preview/lens/tag', payload),  // s123 — one-click map correction
   pdf: (payload) => blobPost('/admin/brief-preview/pdf', payload),  // s122 action A2 — brief PDF for presentations
   taste: (id) => get(`/admin/brief-preview/${id}/taste`),  // s122 — what the brief learned about a client
   // s122 — "Save to watchlist": the admin's own "<Client> — <priority>" lists, shareable with the client.

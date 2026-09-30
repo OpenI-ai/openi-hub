@@ -25,12 +25,18 @@ const at = brief.steps.findIndex(s => s.target === '#tour-brief-priorities') + 1
 
 const preview = pagesS122['/dashboard/admin/brief-preview'];
 
+// The client's strategy map appears only once OpenI has placed the brief's startups,
+// so it is described in the always-present first step rather than targeted.
+const withMap = brief.steps.map(s => (s.target === '#tour-page-brief'
+  ? { ...s, content: `${s.content} Once OpenI has read your startups, a strategy map shows what each would do for you (grow revenue, cut cost, or open a new market) and whether to partner with, source from or invest in it.` }
+  : s));
+
 export const pagesS123 = {
-  '/dashboard/brief': { ...brief, steps: [...brief.steps.slice(0, at), agentsStep, ...brief.steps.slice(at)] },
+  '/dashboard/brief': { ...brief, steps: [...withMap.slice(0, at), agentsStep, ...withMap.slice(at)] },
   '/dashboard/admin/brief-preview': {
     ...preview,
     steps: preview.steps.map(s => (s.target === '#tour-brief-preview-modes'
-      ? { ...s, content: `${s.content} For a client, "Agents working for …" shows what OpenI's agents did for them, and "Run Scout now" searches for more startups for their priorities.` }
+      ? { ...s, content: `${s.content} For a client, "Agents working for …" shows what OpenI's agents did for them, and "Run Scout now" searches for more startups for their priorities. On the strategy map, "Change" under a card moves a startup to the right outcome and action; the client's own brief shows it, and OpenI learns from it.` }
       : s)),
   },
 };
