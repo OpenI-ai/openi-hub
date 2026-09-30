@@ -9,7 +9,8 @@
  * why and what it costs. Autonomy is "Suggest only": nothing happens without the
  * client's click. "Not now" hides one for 30 days. "Run my agent now" starts a
  * full run (research, priorities, Scout, Strategy map); the list refreshes when
- * it finishes.
+ * it finishes. "Weekly email" turns the Monday "Your next moves" email on or off
+ * (Phase 1c; on by default).
  *
  * The page passes the actions it already has (shortlist, the Launch and Invite
  * sheets, add a priority), so the inbox does exactly what the brief does.
@@ -34,7 +35,7 @@ export function agentStatusText(agent) {
   return `Last run ${ago(agent.ran_at)}${TRIGGER[agent.trigger] ? ` (${TRIGGER[agent.trigger]})` : ''}. It runs again every Monday and whenever you change your priorities.`;
 }
 
-export default function AgentInbox({ load, snooze, run, refreshKey = 0, onShortlist, onLaunch, onInvite, onAddPriority }) {
+export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey = 0, onShortlist, onLaunch, onInvite, onAddPriority }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(null);
@@ -83,6 +84,18 @@ export default function AgentInbox({ load, snooze, run, refreshKey = 0, onShortl
     }
   };
 
+  // Phase 1c: the weekly "Your next moves" email (on by default; the client turns it off here).
+  const weekly = data?.agent?.settings?.weekly_email !== false;
+  const toggleEmail = async () => {
+    try {
+      const r = await saveSettings({ weekly_email: !weekly });
+      setData(d => ({ ...d, agent: { ...d.agent, settings: r.settings } }));
+      toast.success(r.settings.weekly_email ? 'Weekly email on: your agent writes on Mondays when it has something for you.' : 'Weekly email off.');
+    } catch (err) {
+      toast.error(err.message || 'Could not save.');
+    }
+  };
+
   const items = data?.items || [];
   const agent = data?.agent;
   return (
@@ -99,6 +112,14 @@ export default function AgentInbox({ load, snooze, run, refreshKey = 0, onShortl
       </div>
       <p data-testid="agent-status" style={{ fontSize: 12.5, color: '#666', margin: '6px 0 10px', display: 'flex', gap: 6, alignItems: 'center' }}>
         <Clock size={12} /> {error ? 'Could not load your next moves just now.' : agentStatusText(agent)}
+        {saveSettings && agent && (
+          <span style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+            Weekly email: <strong data-testid="agent-email-state">{weekly ? 'On' : 'Off'}</strong>{' '}
+            <button type="button" data-testid="agent-email-toggle" onClick={toggleEmail}
+              style={{ border: 0, background: 'transparent', color: '#8A6A1C', cursor: 'pointer', fontWeight: 600, padding: 0, fontSize: 12.5 }}>
+              {weekly ? 'Turn off' : 'Turn on'}</button>
+          </span>
+        )}
       </p>
       {data && !items.length && (
         <p data-testid="inbox-empty" style={{ fontSize: 13.5, color: '#555', margin: 0 }}>

@@ -393,7 +393,7 @@ export default function InnovationBrief() {
 
       {/* s123 — the Innovation Agent's next moves (company accounts). */}
       {isCorporate && (
-        <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} refreshKey={`${inboxKey}|${brief.generated_at}`}
+        <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} saveSettings={briefAPI.agentSettings} refreshKey={`${inboxKey}|${brief.generated_at}`}
           onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} />
       )}
 

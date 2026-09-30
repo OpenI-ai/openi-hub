@@ -70,4 +70,13 @@ describe('AgentInbox', () => {
     expect(agentStatusText({ ran_at: null })).toBe('Your agent runs every Monday and whenever you change your priorities.');
     expect(agentStatusText({ ran_at: new Date().toISOString(), trigger: 'priorities' })).toMatch(/\(after you changed your priorities\)/);
   });
+
+  it('Weekly email: shows On by default and turns it off', async () => {
+    const saveSettings = vi.fn().mockResolvedValue({ settings: { weekly_email: false } });
+    render(<AgentInbox {...props({ saveSettings })} />);
+    expect((await screen.findByTestId('agent-email-state')).textContent).toBe('On');
+    fireEvent.click(screen.getByTestId('agent-email-toggle'));
+    await waitFor(() => expect(screen.getByTestId('agent-email-state').textContent).toBe('Off'));
+    expect(saveSettings).toHaveBeenCalledWith({ weekly_email: false });
+  });
 });
