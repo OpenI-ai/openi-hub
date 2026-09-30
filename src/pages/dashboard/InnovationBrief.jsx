@@ -129,11 +129,16 @@ export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = 
 }
 
 // s121l — too few good matches: say so plainly, and that OpenI is searching.
+// s123 (Rajeev, 30 Sep): an EMPTY section must say "not yet", never "few".
+export function gapText(n) {
+  const lead = n > 0 ? `Only ${n} strong match${n === 1 ? '' : 'es'} so far.` : 'No startup for this yet.';
+  return `${lead} Scout searches for ${n > 0 ? 'more' : 'it'} first in tonight's crawl, and new finds appear here.`;
+}
 export function GapNote({ s }) {
   if (!s.gap) return null;
   return (
     <p data-testid="brief-gap" style={{ fontSize: 13, color: '#6B5A24', background: '#FBF6EA', border: '1px dashed #C9A84C', borderRadius: 10, padding: '10px 14px', margin: '10px 0 0' }}>
-      OpenI has few strong matches for this yet. Scout searches for "{s.title}" first in tonight's crawl, and new finds appear here.
+      {gapText(s.items?.length || 0)}
     </p>
   );
 }

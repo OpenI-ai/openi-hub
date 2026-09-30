@@ -289,7 +289,7 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, busy }) {
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0 }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
             {s.verified && <VerifiedNote />}
-            {s.quality && <SectionScore q={s.quality} />}
+            {s.quality && s.items.length > 0 && <SectionScore q={s.quality} />}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
             {s.items.map(it => renderCard(it, s))}
