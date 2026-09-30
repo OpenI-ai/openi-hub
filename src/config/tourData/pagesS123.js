@@ -55,7 +55,18 @@ const withMap = brief.steps.map(s => (s.target === '#tour-page-brief'
     ? { ...s, content: `${s.content} For a company, each priority's section also offers "Launch a challenge on this": OpenI fills in the whole challenge (the problem, what you look for, sectors, questions for applicants, FAQs and a deadline) from the priority, your business and what you shortlisted; review it and press "Launch challenge" (it uses one of your monthly challenges), or edit it or save it as a draft first. Each of your open challenges offers "Invite the startups you shortlisted": tick who to invite, edit the note, and each gets an email and a notification. Any startup card can be scored by OpenI's evaluator with "Evaluate with AI" (5 AI credits, returned if the evaluator is not available); the result stays on the card.` }
     : s));
 
+// s123 — Innovation Map pages had no tour; the new "Download PDF" gets one (Rajeev:
+// maps should be downloadable for internal use). Both targets render once the map loads.
+const mapDetail = {
+  title: 'An Innovation Map',
+  steps: [
+    { target: '#tour-page-map-detail-header', title: 'One map, one area of innovation', content: 'What this map covers, how many startups on OpenI build in it, and the related themes around it. Below: the map of representative startups (click any to open it) and every member, ranked by how well each fits.', placement: 'bottom', skipBeacon: true },
+    { target: '#tour-map-download', title: 'Download it', content: 'Download the map as a PDF for internal use: the map itself, its related themes, the representative startups (each linked to its OpenI profile) and the top 30 on the map.', placement: 'left', skipBeacon: true },
+  ],
+};
+
 export const pagesS123 = {
+  '/dashboard/maps/:dimension/:slug': mapDetail,
   '/dashboard/brief': { ...brief, steps: [...withMap.slice(0, at), agentsStep, askStep, landscapeStep, knowsStep, ...withMap.slice(at)] },
   '/dashboard/admin/brief-preview': {
     ...preview,
