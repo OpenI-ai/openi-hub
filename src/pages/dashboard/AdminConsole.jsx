@@ -54,6 +54,7 @@ export default function AdminConsole() {
     { to: '/dashboard/admin/platform-health', label: 'Platform Health', desc: 'Revenue, signups, churn, embeddings and clusters.', icon: Activity, color: 'bg-rose-500' },
     { to: '/dashboard/admin/brief-preview', label: 'Brief Preview', desc: "See any account's Innovation Brief, or build one for a prospect.", icon: BarChart3, color: 'bg-slate-600' },
     { to: '/dashboard/admin/agent-runs', label: 'Agent Runs', desc: 'Every run of OpenI\'s agents, step by step: model, tokens, cost, time, errors.', icon: Activity, color: 'bg-indigo-500' },
+    { to: '/dashboard/admin/sector-recheck', label: 'Sector Re-check', desc: 'The analyst re-checks startups filed under the wrong sector; you approve each change.', icon: Activity, color: 'bg-rose-500' },
   ];
 
   return (

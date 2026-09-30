@@ -72,6 +72,8 @@ const NAV = [
   { to: "/dashboard/admin/brief-preview", label: "Brief Preview", Icon: Search,         roles: ["admin"] },
   /* s122: the agent runtime's run log */
   { to: "/dashboard/admin/agent-runs",    label: "Agent Runs",    Icon: TrendingUp,     roles: ["admin"] },
+  /* s124: the analyst's sector re-check (admin approves each change) */
+  { to: "/dashboard/admin/sector-recheck", label: "Sector Re-check", Icon: ClipboardCheck, roles: ["admin"] },
   // ── Legacy admin + shared items ──
   { to: "/dashboard/evaluate",       label: "8-Vector Eval",    Icon: ClipboardCheck,  roles: ["admin","evaluator"] },
   { to: "/dashboard/startups",       label: "Startups",         Icon: Rocket },

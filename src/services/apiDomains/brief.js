@@ -118,3 +118,16 @@ export const agentRunsAPI = {
   },
   get: (id) => get(`/admin/agent-runs/${id}`),
 };
+
+// s124 — the analyst's sector re-check (admin): proposals to review, run it, approve / reject.
+export const sectorRecheckAPI = {
+  overview: ({ status = 'pending', confidence, limit, offset } = {}) => {
+    const q = new URLSearchParams({ status });
+    if (confidence) q.set('confidence', confidence);
+    if (limit) q.set('limit', String(limit));
+    if (offset) q.set('offset', String(offset));
+    return get(`/admin/sector-recheck?${q.toString()}`);
+  },
+  run: () => post('/admin/sector-recheck/run', {}),
+  decide: (ids, decision) => post('/admin/sector-recheck/decide', { ids, decision }),
+};
