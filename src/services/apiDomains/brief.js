@@ -53,6 +53,7 @@ export const briefAPI = {
   snoozeInbox:   (id)                            => post(`/brief/inbox/${encodeURIComponent(id)}/snooze`, {}),
   runAgent:      ()                              => post('/brief/agent/run', {}),
   agentSettings: (settings)                      => put('/brief/agent/settings', settings),  // Phase 1c weekly email on/off
+  pipeline:      ()                              => get('/brief/pipeline'),                    // s123 Phase 2 pilot pipeline
 };
 
 // s121g — admin, read-only previews.

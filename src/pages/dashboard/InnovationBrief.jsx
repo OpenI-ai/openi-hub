@@ -20,6 +20,7 @@ import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
 import AgentInbox from './AgentInbox';
+import { EngageSheet, PipelinePanel } from './EngageAgents';
 import AskPanel from './AskPanel';
 import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
@@ -171,7 +172,9 @@ export default function InnovationBrief() {
   const [actionOffers, setActionOffers] = useState(() => new Map());
   const [launching, setLaunching] = useState(null);
   const [inviting, setInviting] = useState(null);
-  const [inboxKey, setInboxKey] = useState(0);  // s123 — reload the agent's inbox after a sheet closes
+  const [inboxKey, setInboxKey] = useState(0);
+  const [engaging, setEngaging] = useState(null);  // s123 Phase 2: intro / meeting / pilot sheet
+  const previewEngage = useCallback((key, subject) => briefAPI.previewAction(key, subject), []);  // s123 — reload the agent's inbox after a sheet closes
   const loadOffers = useCallback(() => briefAPI.actions()
     .then(r => setActionOffers(new Map((r.offers || []).map(o => [`${o.key}|${o.subject}`, o]))))
     .catch(() => {}), []);
@@ -394,8 +397,9 @@ export default function InnovationBrief() {
       {/* s123 — the Innovation Agent's next moves (company accounts). */}
       {isCorporate && (
         <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} saveSettings={briefAPI.agentSettings} refreshKey={`${inboxKey}|${brief.generated_at}`}
-          onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} />
+          onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} onEngage={setEngaging} />
       )}
+      {isCorporate && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
 
       {(  // always shown: the add-a-focus-area box lives here too
         <div id="tour-brief-priorities" style={{ marginTop: 16 }}>
@@ -456,6 +460,11 @@ export default function InnovationBrief() {
       {launching && (
         <LaunchChallengeSheet offer={launching} preview={previewLaunch} execute={briefAPI.executeAction} dismiss={briefAPI.dismissAction}
           onClose={() => { setLaunching(null); loadOffers(); setInboxKey(k => k + 1); }} onDone={() => { setLaunching(null); loadOffers(); setInboxKey(k => k + 1); }} />
+      )}
+
+      {engaging && (
+        <EngageSheet offer={engaging} preview={previewEngage} execute={briefAPI.executeAction} dismiss={briefAPI.dismissAction}
+          onClose={() => { setEngaging(null); setInboxKey(k => k + 1); }} onDone={() => { setEngaging(null); setInboxKey(k => k + 1); }} />
       )}
 
       {inviting && (

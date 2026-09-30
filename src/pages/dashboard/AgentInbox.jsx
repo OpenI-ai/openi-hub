@@ -25,7 +25,8 @@ const NAVY = '#0B1E3F';
 const btn = { border: '1px solid #ddd', background: '#fff', borderRadius: 8, padding: '6px 10px', fontSize: 12.5, cursor: 'pointer' };
 const primary = { ...btn, background: NAVY, borderColor: NAVY, color: '#fff', fontWeight: 600 };
 
-const ACT = { shortlist: 'Shortlist', invite: 'Review and invite', launch: 'Review the challenge', priority: 'Add priority' };
+const ACT = { shortlist: 'Shortlist', invite: 'Review and invite', launch: 'Review the challenge', priority: 'Add priority',
+  intro: 'Write the intro', meeting: 'Plan the meeting', pilot: 'Start the pilot' };  // Phase 2: stalled pipeline steps
 const TRIGGER = { weekly: 'weekly check', priorities: 'after you changed your priorities', website: 'after you changed your website', manual: 'you asked' };
 
 export function agentStatusText(agent) {
@@ -35,7 +36,7 @@ export function agentStatusText(agent) {
   return `Last run ${ago(agent.ran_at)}${TRIGGER[agent.trigger] ? ` (${TRIGGER[agent.trigger]})` : ''}. It runs again every Monday and whenever you change your priorities.`;
 }
 
-export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey = 0, onShortlist, onLaunch, onInvite, onAddPriority }) {
+export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey = 0, onShortlist, onLaunch, onInvite, onAddPriority, onEngage }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(null);
@@ -57,6 +58,7 @@ export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey
   const act = async (item) => {
     if (item.kind === 'launch') return onLaunch(item.offer);
     if (item.kind === 'invite') return onInvite(item.offer);
+    if (['intro', 'meeting', 'pilot'].includes(item.kind)) return onEngage(item.offer);
     setBusy(item.id);
     try {
       if (item.kind === 'shortlist') await onShortlist({ user_id: item.startup_user_id, name: item.name, shortlisted: false, priority_label: item.priority });
