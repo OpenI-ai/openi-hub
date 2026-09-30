@@ -19,6 +19,7 @@ import TastePanel from './TastePanel';
 import AgentsPanel from './AgentsPanel';
 import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
+import AskPanel from './AskPanel';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
@@ -406,6 +407,11 @@ export default function InnovationBrief() {
       {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
       <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} undo={briefAPI.undoCoach}
         onFound={() => load({ after: 'ran Scout' })} onChanged={() => load({ after: 'undid a Coach change' })} />
+
+      {/* s123 — Ask OpenI: a question in the client's words, answered with analyst-checked startups. */}
+      <AskPanel load={briefAPI.asks} ask={briefAPI.ask}
+        shortlist={async (id) => { await briefAPI.feedback(id, 'shortlist'); load({ after: 'shortlisted from Ask OpenI' }); }}
+        addPriority={label => savePrefs([...brief.priorities, { key: 'custom', label, on: true }])} />
 
       {/* s123 — the Innovation Maps around the client's own priorities. */}
       <LandscapePanel load={briefAPI.landscape} build={briefAPI.buildMaps} />

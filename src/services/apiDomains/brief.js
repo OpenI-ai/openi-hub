@@ -38,6 +38,8 @@ export const briefAPI = {
   knows:       ()                                => get('/brief/knows'),            // s123 What OpenI knows
   refreshKnows: ()                               => post('/brief/knows/refresh', {}),
   undoCoach:   (changeId)                        => post(`/brief/coach/${changeId}/undo`, {}),  // s123 the Coach
+  asks:        ()                                => get('/brief/ask'),              // s123 Ask OpenI
+  ask:         (question)                        => post('/brief/ask', { question }),
 };
 
 // s121g — admin, read-only previews.
@@ -65,6 +67,8 @@ export const briefPreviewAPI = {
   refreshKnows: (id) => post(`/admin/brief-preview/${id}/knows/refresh`, {}),  // s123
   coach: (id) => post(`/admin/brief-preview/${id}/coach`, {}),  // s123 the Coach
   undoCoach: (id, changeId) => post(`/admin/brief-preview/${id}/coach/${changeId}/undo`, {}),  // s123
+  asks: (id) => get(`/admin/brief-preview/${id}/ask`),  // s123 Ask OpenI
+  ask: (id, question) => post(`/admin/brief-preview/${id}/ask`, { question }),  // s123
 };
 
 // s122 — the agent runtime's run log (admin, read-only).
