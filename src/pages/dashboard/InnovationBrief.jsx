@@ -17,6 +17,7 @@ import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 import TastePanel from './TastePanel';
 import AgentsPanel from './AgentsPanel';
+import LandscapePanel from './LandscapePanel';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
@@ -403,6 +404,9 @@ export default function InnovationBrief() {
 
       {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
       <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} onFound={() => load({ after: 'ran Scout' })} />
+
+      {/* s123 — the Innovation Maps around the client's own priorities. */}
+      <LandscapePanel load={briefAPI.landscape} build={briefAPI.buildMaps} />
 
       {/* s122 — the personalisation loop's "show" step; a Keep / Not me re-ranks the brief. */}
       <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />
