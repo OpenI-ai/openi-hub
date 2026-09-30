@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDraftForm } from '../../hooks/useFormDraft';
 import DraftRestoredNotice from '../../components/DraftRestoredNotice';
 import { meetingAPI } from '../../services/api';
@@ -57,6 +58,10 @@ const Avatar = ({ src, name, size = 32 }) => {
 
 export default function Meetings() {
   const { user } = useAuth();
+  // s124: /dashboard/meetings/:id (the link in every "Meeting scheduled"
+  // notification) opens that meeting; before, no route matched it.
+  const { id: routeId } = useParams();
+  const navigate = useNavigate();
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('upcoming');
@@ -104,6 +109,9 @@ export default function Meetings() {
     } catch (err) { toast.error(err.message); setSelectedId(null); }
     finally { setDetailLoading(false); }
   };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- open once per URL id; `openDetail` is a stable inline closure
+  useEffect(() => { if (/^\d+$/.test(routeId || '')) openDetail(Number(routeId)); }, [routeId]);
 
   const handleRsvp = async (meetingId, rsvp) => {
     try {
@@ -183,7 +191,7 @@ export default function Meetings() {
 
     return (
       <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
-        <button onClick={() => { setSelectedId(null); setDetail(null); }}
+        <button onClick={() => { setSelectedId(null); setDetail(null); if (routeId) navigate('/dashboard/meetings', { replace: true }); }}
           style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#5c5c5c', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
           <ChevronLeft size={16} /> Back to Meetings
         </button>

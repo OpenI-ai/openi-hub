@@ -339,6 +339,7 @@ export default function App() {
             <Route path="marketplace/:id"     element={<Marketplace />} />  {/* Phase 120 — route-based detail */}
             <Route path="directory"           element={<Directory />} />
             <Route path="meetings"            element={<Meetings />} />
+            <Route path="meetings/:id"        element={<Meetings />} />  {/* s124 — notification links open the meeting */}
             <Route path="home"                element={<PersonaDashboard />} />
             <Route path="brief"               element={<InnovationBrief />} />  {/* s121e — every persona */}
             <Route path="network"             element={<MyNetwork />} />
