@@ -33,6 +33,8 @@ export const briefAPI = {
   // s123 — Agents working for you + Run Scout now
   agents:      ()                                => get('/brief/agents'),
   scout:       ()                                => post('/brief/scout', {}),
+  landscape:   ()                                => get('/brief/landscape'),       // s123 innovation landscape
+  buildMaps:   ()                                => post('/brief/maps/build', {}),  // s123 map-builder agent
 };
 
 // s121g — admin, read-only previews.
@@ -54,6 +56,8 @@ export const briefPreviewAPI = {
   saveWatchlist: (payload) => post('/admin/brief-preview/watchlist', payload),
   agents: (id) => get(`/admin/brief-preview/${id}/agents`),  // s123
   scout: (id) => post(`/admin/brief-preview/${id}/scout`, {}),  // s123
+  landscape: (id) => get(`/admin/brief-preview/${id}/landscape`),  // s123
+  buildMaps: (id) => post(`/admin/brief-preview/${id}/maps/build`, {}),  // s123
 };
 
 // s122 — the agent runtime's run log (admin, read-only).
