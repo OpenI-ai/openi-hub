@@ -22,7 +22,9 @@ import {
   ChevronRight,
   Map as MapIcon,
   Loader2,
+  Download,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { mapsAPI } from '../../services/clusterAPI';
 import ClusterHubAndSpoke from '../../components/ClusterHubAndSpoke';
 
@@ -45,6 +47,26 @@ export default function MapDetail() {
   const [sort, setSort] = useState('score_desc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const downloadPdf = async () => {
+    setDownloading(true);
+    try {
+      const { blob, name } = await mapsAPI.downloadPdf(dimension, slug);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      toast.error(err.message || 'Could not prepare the PDF');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -134,12 +156,25 @@ export default function MapDetail() {
 
       {/* Header */}
       {term && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-5">
+        <div data-testid="map-detail" className="bg-white border border-gray-200 rounded-lg p-6 mb-5">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-[#D4A843]/10 rounded-lg shrink-0">
               <MapIcon className="w-7 h-7 text-[#D4A843]" />
             </div>
             <div className="flex-1 min-w-0">
+              {/* s123 — Rajeev: maps should be downloadable for internal use. */}
+              <button
+                type="button"
+                id="tour-map-download"
+                data-testid="map-download-pdf"
+                onClick={downloadPdf}
+                disabled={downloading}
+                className="float-right ml-3 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded border border-[#D4A843] text-[#0D2137] bg-white hover:bg-[#D4A843]/10 disabled:opacity-60"
+                title="The map, its related themes, the representative startups (linked) and the top 30, as a PDF for internal use"
+              >
+                {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                {downloading ? 'Preparing PDF…' : 'Download PDF'}
+              </button>
               <div className="text-[11px] font-mono text-gray-400 mb-1">
                 {DIMENSION_KICKER[dimension] || 'Innovation map'}
                 {term.parent && (

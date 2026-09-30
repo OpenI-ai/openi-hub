@@ -44,4 +44,15 @@ export const mapsAPI = {
   representatives: (dimension, slug, params) => get(`/maps/${dimension}/${slug}/representatives${qs(params)}`),
   // s107 — semantic map discovery (query embedded vs term definitions).
   suggest: (q) => get(`/maps/suggest${qs({ q })}`),
+  // s123 — the map as a branded PDF, for internal use. Returns { blob, name }.
+  downloadPdf: async (dimension, slug) => {
+    const token = getToken();
+    const res = await fetch(`${BASE_URL}/maps/${dimension}/${slug}/pdf`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.message || `HTTP ${res.status}`);
+    }
+    const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '')?.[1] || 'OpenI-Innovation-Map.pdf';
+    return { blob: await res.blob(), name };
+  },
 };
