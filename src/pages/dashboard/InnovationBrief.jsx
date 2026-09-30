@@ -21,6 +21,7 @@ import LandscapePanel from './LandscapePanel';
 import KnowsPanel from './KnowsPanel';
 import AgentInbox from './AgentInbox';
 import { EngageSheet, PipelinePanel } from './EngageAgents';
+import CeoPanel from './CeoPanel';
 import AskPanel from './AskPanel';
 import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
@@ -400,6 +401,9 @@ export default function InnovationBrief() {
           onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} onEngage={setEngaging} />
       )}
       {isCorporate && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
+      {/* s124 Phase 3 — the CEO view: competitors' startup deals, where to venture next, the board pack. */}
+      {isCorporate && <CeoPanel load={briefAPI.ceo} save={briefAPI.setCompetitors} run={briefAPI.runCeo} download={briefAPI.boardPack}
+        shortlist={async (id) => { await briefAPI.feedback(id, 'shortlist'); setInboxKey(k => k + 1); }} />}
 
       {(  // always shown: the add-a-focus-area box lives here too
         <div id="tour-brief-priorities" style={{ marginTop: 16 }}>

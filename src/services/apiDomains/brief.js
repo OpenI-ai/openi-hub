@@ -20,6 +20,22 @@ async function blobPost(path, body) {
   return { blob: await res.blob(), name };
 }
 
+// s124 — GET that returns a file, with the server's file name (the board pack).
+async function blobGet(path, fallbackName) {
+  const headers = {};
+  const token = getToken();
+  const role = getActiveRole();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (role) headers['X-Active-Role'] = role;
+  const res = await fetch(`${BASE_URL}${path}`, { headers });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '')?.[1] || fallbackName;
+  return { blob: await res.blob(), name };
+}
+
 export const briefAPI = {
   get:         ()                                => get('/brief'),
   feedback:    (startup_user_id, action, undo, priority_label) => post('/brief/feedback', { startup_user_id, action, undo: undo === true, priority_label }),
@@ -54,6 +70,11 @@ export const briefAPI = {
   runAgent:      ()                              => post('/brief/agent/run', {}),
   agentSettings: (settings)                      => put('/brief/agent/settings', settings),  // Phase 1c weekly email on/off
   pipeline:      ()                              => get('/brief/pipeline'),                    // s123 Phase 2 pilot pipeline
+  // s124 Phase 3 — the CEO view: competitors' startup deals, where to venture next, the board pack.
+  ceo:           ()                              => get('/brief/ceo'),
+  setCompetitors: (competitors)                  => put('/brief/ceo/competitors', { competitors }),
+  runCeo:        ()                              => post('/brief/ceo/run', {}),
+  boardPack:     ()                              => blobGet('/brief/ceo/board-pack.pdf', 'OpenI-Board-Pack.pdf'),
 };
 
 // s121g — admin, read-only previews.
