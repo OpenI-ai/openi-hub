@@ -17,6 +17,7 @@ import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 import TastePanel from './TastePanel';
 import AgentsPanel from './AgentsPanel';
+import { LensBar, LensTag, OutcomeView } from './BriefLens';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
 const G = '#D0A848';
@@ -159,6 +160,9 @@ export default function InnovationBrief() {
   const [notice, setNotice] = useState(null);
   const [shortlistKey, setShortlistKey] = useState(0);
   const [fresh, setFresh] = useState(new Set());
+  // s123: the client's own strategy map (stored placements, the OpenI team's corrections win).
+  const [view, setView] = useState('priority');
+  const [lensFilter, setLensFilter] = useState(null);
   const prevIds = useRef(new Set());
 
   const idsOf = (b) => new Set((b?.sections || []).flatMap(s => s.items.map(i => `${i.type}:${i.user_id || i.id}`)));
@@ -198,6 +202,16 @@ export default function InnovationBrief() {
   // s122 — opening a card is a signal the brief learns from (fire and forget).
   const onOpenCard = (item) => {
     if (item.type === 'startup') briefAPI.events([{ event: 'open', startup_user_id: item.user_id }]).catch(() => {});
+  };
+  // A card, with where it sits on the client's strategy map when OpenI has placed it (s123).
+  const renderCard = (it) => {
+    const key = `${it.type}:${it.user_id || it.id}`;
+    const tag = brief?.lens && it.type === 'startup' ? brief.lens.lens[it.user_id] : null;
+    const shown = tag ? { ...it, relationship: { partner: 'Partner', source: 'Source', invest: 'Invest' }[tag.action] } : it;
+    const c = <BriefCard item={shown} onShortlist={onShortlist} onDismiss={onDismiss} highlight={fresh.has(key)} onOpen={onOpenCard} />;
+    return tag
+      ? <div key={key} style={{ display: 'flex', flexDirection: 'column' }}>{c}<LensTag tag={tag} lens={brief.lens} /></div>
+      : <div key={key} style={{ display: 'flex', flexDirection: 'column' }}>{c}</div>;
   };
   const onShortlist = async (item) => {
     setBusy(true);
@@ -402,7 +416,16 @@ export default function InnovationBrief() {
         </div>
       )}
 
-      {brief.sections.every(s => s.items.length === 0) ? (
+      {/* s123 — Rajeev: "use the learning to personalise user dashboard". Shown once OpenI has placed this brief's startups. */}
+      {brief.lens && (
+        <div id="tour-brief-lens">
+          <LensBar lens={brief.lens} client="you" view={view} setView={setView} filter={lensFilter} setFilter={setLensFilter} />
+        </div>
+      )}
+
+      {brief.lens && view === 'outcome' ? (
+        <OutcomeView brief={brief} lens={brief.lens} renderCard={(it) => renderCard(it)} filter={lensFilter} clearFilter={() => setLensFilter(null)} />
+      ) : brief.sections.every(s => s.items.length === 0) ? (
         <div style={{ ...card, marginTop: 24, alignItems: 'flex-start' }}>
           <p style={{ margin: 0, fontSize: 14 }}>Your brief needs a little more to go on.</p>
           <p style={{ margin: 0, fontSize: 13, color: '#555' }}>Add your sectors, focus areas or use cases to your profile{isCorporate ? ', or post a challenge' : ''}, and your brief fills in.</p>
@@ -418,8 +441,7 @@ export default function InnovationBrief() {
           {s.items.length === 0
             ? (s.gap ? null : <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>)
             : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 12 }}>
-                {s.items.map(it => <BriefCard key={`${it.type}:${it.user_id || it.id}`} item={it} onShortlist={onShortlist} onDismiss={onDismiss}
-                  highlight={fresh.has(`${it.type}:${it.user_id || it.id}`)} onOpen={onOpenCard} />)}
+                {s.items.map(it => renderCard(it))}
               </div>}
           <GapNote s={s} />
         </section>

@@ -20,7 +20,7 @@ import { focusLabel } from '../../utils/focusLabel';
 import { applyLabel } from '../../utils/briefLabels';
 import PainBriefPanel from './PainBriefPanel';
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
-import { LensBar, LensTag, OutcomeView } from './BriefLens';
+import { LensBar, LensTag, OutcomeView, summariseLens } from './BriefLens';
 
 const G = '#D0A848';
 const btn = { fontSize: 13, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
@@ -96,7 +96,7 @@ function QualityPanel({ refreshKey }) {
   );
 }
 
-function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload, busy }) {
+function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload, onCorrect, busy }) {
   const [label, setLabel] = useState('');
   // s121j — what the agent suggests for this client (read-only; nothing cached on their account).
   const [suggestions, setSuggestions] = useState([]);
@@ -192,6 +192,20 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload,
     onAdd(clean); setLabel('');
   };
   const items = brief.sections.flatMap(s => s.items);
+  // s123: one click on the strategy map; the map updates at once and learns from it.
+  const correctTag = async (it, outcome, action) => {
+    try {
+      const { tag } = await onCorrect({ startup_user_id: it.user_id, outcome, action });
+      setLens(l => {
+        const tags = { ...l.lens, [it.user_id]: tag };
+        return { ...l, lens: tags, tagged: Object.keys(tags).length, summary: summariseLens(tags, l) };
+      });
+      toast.success(`${it.name}: ${lens.outcomes.find(o => o.key === outcome)?.label} · ${lens.actions.find(a => a.key === action)?.label}. OpenI will learn from this.`);
+    } catch (err) {
+      toast.error(err.message || 'Could not save that change');
+      throw err;
+    }
+  };
   const renderCard = (it, s) => {
     const tag = lens && it.type === 'startup' ? lens.lens[it.user_id] : null;
     // The lens's action replaces the stage-based badge, so the card never contradicts its tag.
@@ -202,7 +216,8 @@ function BriefResult({ brief, onAdd, onRemove, onLabel, onLens, onPdf, onReload,
       adminLabel={onLabel && it.type === 'startup' && s.priority_key
         ? { value: it.eval_label || null, onLabel: (label) => onLabel({ priority_key: s.priority_key, startup_user_id: it.user_id, label }) } : null} />;
     return tag
-      ? <div key={`${it.type}:${it.user_id || it.id}`} style={{ display: 'flex', flexDirection: 'column' }}>{card}<LensTag tag={tag} lens={lens} /></div>
+      ? <div key={`${it.type}:${it.user_id || it.id}`} style={{ display: 'flex', flexDirection: 'column' }}>{card}<LensTag tag={tag} lens={lens}
+          onCorrect={onCorrect ? (outcome, action) => correctTag(it, outcome, action) : null} /></div>
       : <div key={`${it.type}:${it.user_id || it.id}`} style={{ display: 'flex', flexDirection: 'column' }}>{card}</div>;
   };
   return (
@@ -476,7 +491,8 @@ export default function AdminBriefPreview() {
         onLabel={brief?.preview === 'user' ? labelStartup : null}
         onLens={() => briefPreviewAPI.lens(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current })}
         onPdf={(view) => briefPreviewAPI.pdf({ ...(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current }), view })}
-        onReload={brief?.preview === 'user' ? () => briefPreviewAPI.user(brief.user.id).then(setBrief).catch(() => {}) : null} />
+        onReload={brief?.preview === 'user' ? () => briefPreviewAPI.user(brief.user.id).then(setBrief).catch(() => {}) : null}
+        onCorrect={(body) => briefPreviewAPI.correctLens({ ...(brief?.preview === 'user' ? { user_id: brief.user.id } : { prospect: prospectPayload.current }), ...body })} />
     </div>
   );
 }

@@ -13,6 +13,7 @@
  * clickable), then the startups grouped by outcome, each with "Your move".
  * A startup the agent could not place gets no tag (never forced into a bucket).
  */
+import { useState } from 'react';
 import { TrendingUp, Gauge, Compass, Loader2, Layers, ArrowRight, AlertTriangle, X } from 'lucide-react';
 
 export const OUTCOME_STYLE = {
@@ -133,8 +134,41 @@ export function LensBar({ lens, loading, onRun, view, setView, client, filter, s
   );
 }
 
-/** Under a card: outcome and action, then the move in plain words. */
-export function LensTag({ tag, lens }) {
+/** s123: the map's counts, recomputed after a correction (same shape as the API's `summary`). */
+export function summariseLens(tags, lens) {
+  const outcomes = Object.fromEntries(lens.outcomes.map(o => [o.key, 0]));
+  const grid = Object.fromEntries(lens.outcomes.map(o => [o.key, Object.fromEntries(lens.actions.map(a => [a.key, 0]))]));
+  for (const t of Object.values(tags)) { if (grid[t.outcome]) { outcomes[t.outcome]++; grid[t.outcome][t.action]++; } }
+  return { outcomes, grid };
+}
+
+/**
+ * s123 (Rajeev: "yes" to one click on the strategy map) — pick the right outcome
+ * and action for a startup; the map learns from it for this client and others.
+ */
+function CorrectTag({ tag, lens, onSave, onCancel }) {
+  const [outcome, setOutcome] = useState(tag?.outcome || 'grow');
+  const [action, setAction] = useState(tag?.action || 'partner');
+  const [busy, setBusy] = useState(false);
+  const sel = { fontSize: 12.5, padding: '4px 6px', borderRadius: 6, border: '1px solid #ddd', background: '#fff' };
+  return (
+    <div data-testid="lens-correct" style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginTop: 6 }}>
+      <select aria-label="Outcome" value={outcome} onChange={e => setOutcome(e.target.value)} style={sel}>
+        {lens.outcomes.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+      </select>
+      <select aria-label="Action" value={action} onChange={e => setAction(e.target.value)} style={sel}>
+        {lens.actions.map(a => <option key={a.key} value={a.key}>{a.label}</option>)}
+      </select>
+      <button type="button" disabled={busy} onClick={async () => { setBusy(true); try { await onSave(outcome, action); } finally { setBusy(false); } }}
+        style={{ ...btn, padding: '3px 10px', fontSize: 12.5, background: NAVY, color: '#fff', borderColor: NAVY }}>{busy ? 'Saving…' : 'Apply'}</button>
+      <button type="button" onClick={onCancel} style={{ ...btn, padding: '3px 10px', fontSize: 12.5 }}>Cancel</button>
+    </div>
+  );
+}
+
+/** Under a card: outcome and action, then the move in plain words. `onCorrect` (admin) adds "Change". */
+export function LensTag({ tag, lens, onCorrect = null }) {
+  const [editing, setEditing] = useState(false);
   if (!tag) return null;
   const st = OUTCOME_STYLE[tag.outcome];
   return (
@@ -143,7 +177,14 @@ export function LensTag({ tag, lens }) {
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', color: st.color, fontWeight: 600 }}>
         <st.Icon size={13} /> {labelOf(lens.outcomes, tag.outcome)}
         <ArrowRight size={12} style={{ opacity: 0.6 }} /> {labelOf(lens.actions, tag.action)}
+        {tag.corrected && <span data-testid="lens-corrected" title="Set by the OpenI team" style={{ fontSize: 11, fontWeight: 500, color: '#777' }}>· checked by OpenI</span>}
+        {onCorrect && !editing && (
+          <button type="button" data-testid="lens-change" onClick={() => setEditing(true)}
+            style={{ marginLeft: 'auto', border: 0, background: 'transparent', color: '#555', fontSize: 12, textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>Change</button>
+        )}
       </div>
+      {editing && <CorrectTag tag={tag} lens={lens} onCancel={() => setEditing(false)}
+        onSave={async (o, a) => { await onCorrect(o, a); setEditing(false); }} />}
       {tag.move && (
         <div style={{ marginTop: 5, color: '#222', lineHeight: 1.45 }}>
           <span style={{ fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#777', fontWeight: 600, marginRight: 6 }}>Your move</span>
