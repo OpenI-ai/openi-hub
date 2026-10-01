@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Building2, Loader2, Mail } from 'lucide-react';
+import { Building2, ExternalLink, Globe, Loader2, Mail } from 'lucide-react';
 import { startupAgentAPI } from '../services/api';
 
 const G = '#D0A848';
@@ -19,8 +19,10 @@ const card = { background: '#fff', border: '1px solid #eee', borderRadius: 12 };
 export function matchesText(d) {
   if (!d) return '';
   const groups = d.groups || [];
+  const calls = (d.open_calls || []).length;
   if (!groups.length) {
     if (d.reason === 'no_profile' || d.reason === 'thin_profile') return 'Add your sector, technologies and a short description to your profile, and matching challenges will show here.';
+    if (calls) return `No OpenI challenge matches you right now, but ${calls} open call${calls === 1 ? '' : 's'} from outside OpenI ${calls === 1 ? 'does' : 'do'}: see below.`;
     return 'No open public challenge matches you right now. New ones are checked every week.';
   }
   const n = groups.reduce((k, g) => k + g.challenges.length, 0);
@@ -89,6 +91,32 @@ export default function StartupAgentCard() {
               ))}
             </div>
           ))}
+        </div>
+      )}
+      {/* s125 — Rajeev: "add crawled open calls for startups" (India first). Calls published by government programmes,
+          missions and incubators on their own sites, read daily; the startup applies there, so the link leaves OpenI. */}
+      {(data?.open_calls || []).length > 0 && (
+        <div data-testid="startup-agent-calls" style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Globe size={14} color={G} /> Open calls from outside OpenI
+            <span style={{ fontSize: 11.5, fontWeight: 400, color: '#888' }}>Government programmes, missions and incubators. You apply on their site.</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 10, marginTop: 8 }}>
+            {data.open_calls.map(c => (
+              <div key={c.id} data-testid="startup-agent-call" style={{ ...card, padding: 12 }}>
+                <a href={c.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{c.title}</a>
+                <div style={{ fontSize: 11.5, color: '#666', marginTop: 2 }}>
+                  {c.org_name || c.source_name}{c.deadline ? ` · apply by ${new Date(c.deadline).toLocaleDateString()}` : ''}
+                </div>
+                {c.summary && <div style={{ fontSize: 12, color: '#444', marginTop: 4 }}>{c.summary}</div>}
+                <div style={{ fontSize: 11.5, color: '#8A6A1C', marginTop: 4 }}>{c.why}</div>
+                <a href={c.url} target="_blank" rel="noopener noreferrer" data-testid="startup-agent-call-apply"
+                  style={{ fontSize: 12, fontWeight: 600, color: G, display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
+                  Apply on {c.source_name} <ExternalLink size={12} />
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

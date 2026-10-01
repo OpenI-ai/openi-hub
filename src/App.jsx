@@ -337,6 +337,7 @@ export default function App() {
             {/* s38 — Disburse Grants placeholder; government grant-disbursement backend wires this later */}
             <Route path="government/grants"   element={<ComingSoonPlaceholder title="Disburse Grants" note="Disburse investment grants to startups. This surface is being wired up." />} />
             <Route path="marketplace"         element={<Marketplace />} />
+            <Route path="search"              element={<GlobalSearch inDashboard />} />  {/* s125 — logged-in search stays in the dashboard */}
             <Route path="marketplace/:id"     element={<Marketplace />} />  {/* Phase 120 — route-based detail */}
             <Route path="directory"           element={<Directory />} />
             <Route path="meetings"            element={<Meetings />} />

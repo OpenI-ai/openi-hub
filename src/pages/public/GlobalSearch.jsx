@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext, Fragment } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Search, Loader2, Rocket, Building2, Users, ChevronRight, Sparkles, Brain, MapPin, Calendar, Tag, Info, BookOpen } from 'lucide-react';
 import PublicLayout from '../../components/PublicLayout';
@@ -25,7 +25,14 @@ const TABS = [
 // Map AI intent → default tab
 const INTENT_TO_TAB = { startups: 'startups', challenges: 'challenges', directory: 'directory', all: 'all' };
 
-export default function GlobalSearch() {
+// s125 — Rajeev: "ask openI button signs you out". /search is the PUBLIC page (website header with Sign In), so a
+// logged-in user who searched from the dashboard looked signed out. Logged-in search now runs inside the dashboard at
+// /dashboard/search (<GlobalSearch inDashboard />); its links stay in the dashboard. /search stays for visitors.
+const BaseContext = createContext('');
+
+export default function GlobalSearch({ inDashboard = false }) {
+  const base = inDashboard ? '/dashboard' : '';
+  const Shell = inDashboard ? Fragment : PublicLayout;
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const q = params.get('q') || '';
@@ -99,13 +106,13 @@ export default function GlobalSearch() {
   const handleSearch = (term, newMode) => {
     const effectiveMode = newMode || mode;
     const modeParam = effectiveMode !== 'keyword' ? `&mode=${effectiveMode}` : '';
-    navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+    navigate(`${base}/search?q=${encodeURIComponent(term)}${modeParam}`);
   };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     const modeParam = mode !== 'keyword' ? `&mode=${mode}` : '';
-    if (q) navigate(`/search?q=${encodeURIComponent(q)}&type=${tab}${modeParam}`);
+    if (q) navigate(`${base}/search?q=${encodeURIComponent(q)}&type=${tab}${modeParam}`);
   };
 
   const totalResults = results
@@ -113,7 +120,7 @@ export default function GlobalSearch() {
     : 0;
 
   return (
-    <PublicLayout>
+    <BaseContext.Provider value={base}><Shell>
       <div style={{ minHeight: '70vh', background: '#fafafa' }}>
         {/* Hero search */}
         <div style={{ background: '#1a1a2e', padding: '48px 24px 40px', textAlign: 'center' }}>
@@ -219,7 +226,7 @@ export default function GlobalSearch() {
 
               {/* Challenges section */}
               {(activeTab === 'all' || activeTab === 'challenges') && results.challenges?.results?.length > 0 && (
-                <Section title="Challenges" icon={Building2} count={results.challenges.total} viewAllLink={`/marketplace?search=${encodeURIComponent(q)}`}>
+                <Section title="Challenges" icon={Building2} count={results.challenges.total} viewAllLink={`${base}/marketplace?search=${encodeURIComponent(q)}`}>
                   {results.challenges.results.map(c => (
                     <ChallengeCard key={c.id} challenge={c} />
                   ))}
@@ -268,7 +275,7 @@ export default function GlobalSearch() {
         </div>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </PublicLayout>
+    </Shell></BaseContext.Provider>
   );
 }
 
@@ -338,12 +345,13 @@ function Section({ title, icon: Icon, count, viewAllLink, children }) {
 }
 
 function ChallengeCard({ challenge: c }) {
+  const base = useContext(BaseContext);
   return (
     <div style={{ ...card, padding: 20, marginBottom: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
         {c.corporate_logo && <img src={c.corporate_logo} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />}
         <div style={{ flex: 1 }}>
-          <Link to={`/marketplace`} style={{ textDecoration: 'none' }}>
+          <Link to={`${base}/marketplace`} style={{ textDecoration: 'none' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1a1a2e', margin: '0 0 4px' }}>{c.title}</h3>
           </Link>
           <p style={{ fontSize: 12, color: '#5c5c5c', margin: 0 }}>{c.company_name || c.corporate_name}</p>
