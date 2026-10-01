@@ -45,10 +45,10 @@ const WHO_OLD = 'For company accounts, your Innovation Agent runs all of these f
 const WHO_NEW = 'For company and investor accounts, your Innovation Agent runs all of these for you';
 const DEAL = ' For investors, its next moves include "Add to your deal pipeline" for a startup you shortlisted.';
 
-// s125 Phase 4d (startups): "Corporates looking for startups like you" on a startup's home page.
+// s125 Phase 4d (startups): "Requirements from corporates, government and defence" (renamed 1 Oct; was "Corporates looking for startups like you") on a startup's home page.
 // The shared home tour gains one step; for other personas its target is absent and the tour skips it.
 const home = pagesUniversal['/dashboard/home'];
-const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Corporates looking for startups like you', content: 'For startups: the companies with open public challenges that match what you do, grouped by company, each with why it matches and a link to apply. Below them, "Open calls from outside OpenI": government programmes, missions and incubators whose calls fit you, read every day from their own sites; you apply on their site. Only calls open now are shown. "Weekly email" sends you the new ones on Mondays; untick it to stop.', placement: 'top', skipBeacon: true };
+const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Requirements from corporates, government and defence', content: 'For startups: the companies with open public challenges on OpenI that match what you do, grouped by company, each with why it matches and a link to apply. Below them, "From outside OpenI": defence problem statements, government grants and challenges, corporate innovation programmes and investor or accelerator calls that fit you, each labelled with who asks. OpenI\'s Programme Scout reads them every night from the publishers\' own sites and finds new programmes by itself; you apply on their site. Only calls open now are shown. "Weekly email" sends you the new ones on Mondays; untick it to stop.', placement: 'top', skipBeacon: true };
 
 // s125 — Rajeev (1 Oct): "we can't download this page?" Told in the always-present first step.
 const PDF = ' "Download PDF" (top right) saves this brief as a branded PDF to share or present; a startup\'s PDF lists its matching challenges and open calls.';
