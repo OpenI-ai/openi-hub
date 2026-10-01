@@ -28,6 +28,11 @@ const AUTO = ' The agent approves its own high-confidence proposals that change 
 const COACH_OLD = 'Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.';
 const COACH_NEW = 'It can also put a stage you keep passing on (for example idea-to-seed startups) last in every section, without hiding any; ease a minimum it raised when a section gets too thin; and, when you pass on most of what a priority shows, ask Scout to search again for that priority ("Searched"). Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.';
 
+// s125 Phase 4d: investors have the agent too (deal flow).
+const WHO_OLD = 'For company accounts, your Innovation Agent runs all of these for you';
+const WHO_NEW = 'For company and investor accounts, your Innovation Agent runs all of these for you';
+const DEAL = ' For investors, its next moves include "Add to your deal pipeline" for a startup you shortlisted.';
+
 export const pagesS125 = {
   '/dashboard/admin/sector-recheck': {
     ...sector,
@@ -35,6 +40,6 @@ export const pagesS125 = {
   },
   '/dashboard/brief': {
     ...brief,
-    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: s.content.replace(OLD, NEW).replace(COACH_OLD, COACH_NEW) } : s)),
+    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content.replace(OLD, NEW).replace(COACH_OLD, COACH_NEW).replace(WHO_OLD, WHO_NEW)}${DEAL}` } : s)),
   },
 };
