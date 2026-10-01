@@ -205,7 +205,7 @@ describe('AdminSectorRecheck', () => {
     expect(nightlyText({ remaining: 129367, max_per_run: 4000, nightly: { on: false } }))
       .toBe('Keep going every night until done: 1,29,367 left, about 33 nights at 4,000 a night (03:45 IST).');
     expect(nightlyText({ remaining: 125367, max_per_run: 4000, nightly: { on: true, requested_by: 'rajeev@openi.ai', last_run_at: '2026-10-02T22:20:00Z', last_checked: 4000 } }))
-      .toBe('Keep going every night until done: 1,25,367 left, about 32 nights at 4,000 a night (03:45 IST). On (switched on by rajeev@openi.ai); last night read 4,000.');
+      .toBe('Keep going every night until done: 1,25,367 left, about 32 nights at 4,000 a night (03:45 IST). On (switched on by rajeev@openi.ai); last pass read 4,000.');
     expect(nightlyText({ remaining: 0, max_per_run: 4000, nightly: { on: false, done_at: '2026-11-03T22:20:00Z' } })).toMatch(/^Every startup in this sector has been read \(finished /);
   });
 
@@ -251,5 +251,11 @@ describe('AdminSectorRecheck', () => {
     await screen.findByTestId('recheck-start-all');
     await waitFor(() => expect(screen.getByTestId('recheck-start').querySelector('.animate-spin')).not.toBeNull());
     expect(screen.getByTestId('recheck-start-all').querySelector('.animate-spin')).toBeNull();
+  });
+
+  // Rajeev: "at this rate it'll take 32 nights. Can we pls expedite this?" — read every 2 hours, up to 20,000 each time.
+  it('a keep-going sector is read every 2 hours: the line says how many hours in all', () => {
+    expect(nightlyText({ remaining: 125511, max_per_run: 20000, keep_going_hours: 2, nightly: { on: true, requested_by: 'rajeev@openi.ai' } }))
+      .toBe('Keep going until done: 1,25,511 left. The analyst reads up to 20,000 every 2 hours, about 14 hours in all. On (switched on by rajeev@openi.ai).');
   });
 });

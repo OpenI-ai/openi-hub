@@ -27,4 +27,11 @@ describe('Innovation Agent name', () => {
     expect(first.content).toContain('"Download PDF" (top right) saves what it found as your Innovation Brief');
     expect(t.steps.map(s => s.title)).not.toContain('Your Innovation Brief');
   });
+
+  it('the Sector re-check tour tells the faster pace (20,000 a press, every 2 hours)', () => {
+    const first = PAGE_TOURS['/dashboard/admin/sector-recheck'].steps.find(s => s.target === '#tour-page-admin-sector-recheck');
+    expect(first.content).toContain('reads up to 20,000');
+    expect(first.content).toContain('every 2 hours');
+    expect(first.content).not.toContain('4,000');
+  });
 });

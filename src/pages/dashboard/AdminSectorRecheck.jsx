@@ -50,10 +50,15 @@ export function nightlyText(d) {
   const max = Number(d?.max_per_run || 1);
   const n = d?.nightly || {};
   if (!left && n.done_at) return `Every startup in this sector has been read (finished ${new Date(n.done_at).toLocaleDateString('en-IN')}).`;
-  const nights = Math.ceil(left / max);
-  const base = `Keep going every night until done: ${left.toLocaleString('en-IN')} left, about ${nights} night${nights === 1 ? '' : 's'} at ${max.toLocaleString('en-IN')} a night (03:45 IST).`;
+  const passes = Math.ceil(left / max);
+  // s125 — Rajeev: "at this rate it'll take 32 nights. Can we pls expedite this?" A keep-going sector is read every
+  // keep_going_hours (2), up to max_per_run each time; older servers read it once a night.
+  const every = Number(d?.keep_going_hours || 0);
+  const base = every
+    ? `Keep going until done: ${left.toLocaleString('en-IN')} left. The analyst reads up to ${max.toLocaleString('en-IN')} every ${every} hours, about ${passes * every} hours in all.`
+    : `Keep going every night until done: ${left.toLocaleString('en-IN')} left, about ${passes} night${passes === 1 ? '' : 's'} at ${max.toLocaleString('en-IN')} a night (03:45 IST).`;
   if (!n.on) return base;
-  return `${base} On${n.requested_by ? ` (switched on by ${n.requested_by})` : ''}${n.last_run_at ? `; last night read ${Number(n.last_checked || 0).toLocaleString('en-IN')}` : ''}.`;
+  return `${base} On${n.requested_by ? ` (switched on by ${n.requested_by})` : ''}${n.last_run_at ? `; last pass read ${Number(n.last_checked || 0).toLocaleString('en-IN')}` : ''}.`;
 }
 
 /** The line under the title: how far the analyst has got. */
