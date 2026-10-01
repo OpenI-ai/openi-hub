@@ -84,7 +84,20 @@ describe('StartupAgentCard', () => {
     expect(a.getAttribute('rel')).toContain('noopener');
     expect(calls[0].textContent).toContain('Matches your Biotech');
     expect(screen.getByTestId('startup-agent-call-apply').textContent).toContain('Apply on BIRAC (DBT)');
-    expect(screen.getByTestId('startup-agent-status').textContent).toBe('No OpenI challenge matches you right now, but 1 open call from outside OpenI does: see below.');
+    expect(screen.getByTestId('startup-agent-status').textContent).toBe('No OpenI challenge matches you right now, but 1 requirement from outside OpenI does: see below.');
+  });
+
+  // s125 Programme Scout (Rajeev: "requirements from India, corporate, Investors, Govt defence"): who asks, and the card's new name.
+  it('each requirement says who asks; the card is "Requirements from corporates, government and defence"', async () => {
+    api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, open_calls: [
+      { id: 7, title: 'DISC 14: counter-drone', org_name: 'iDEX', source_name: 'iDEX (Ministry of Defence)', url: 'https://idex.gov.in/x', publisher_type: 'defence', why: 'Matches your Drones' },
+      { id: 8, title: 'Mobility Innovation Challenge', org_name: 'Hyundai', source_name: 'Hyundai Motor India', url: 'https://hyundai.example/x', publisher_type: 'corporate', why: 'Close to what you do' },
+      { id: 9, title: 'Untyped call', org_name: 'X', source_name: 'X', url: 'https://x.example/x', why: 'Close' }] });
+    show();
+    const calls = await screen.findAllByTestId('startup-agent-call');
+    expect(calls.map(c => c.querySelector('[data-testid="startup-agent-call-type"]')?.textContent || null)).toEqual(['Defence', 'Corporate', null]);
+    expect(screen.getByTestId('startup-agent').textContent).toContain('Requirements from corporates, government and defence');
+    expect(screen.getByTestId('startup-agent').textContent).not.toContain('Corporates looking for startups like you');
   });
 
   it('no open calls: no empty section', async () => {

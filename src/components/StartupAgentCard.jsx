@@ -14,6 +14,8 @@ import { startupAgentAPI } from '../services/api';
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 12 };
+// s125 Programme Scout: who asks.
+const TYPE_LABEL = { government: 'Government', defence: 'Defence', corporate: 'Corporate', investor: 'Investor', incubator: 'Incubator' };
 
 /** The line under the title. */
 export function matchesText(d) {
@@ -22,7 +24,7 @@ export function matchesText(d) {
   const calls = (d.open_calls || []).length;
   if (!groups.length) {
     if (d.reason === 'no_profile' || d.reason === 'thin_profile') return 'Add your sector, technologies and a short description to your profile, and matching challenges will show here.';
-    if (calls) return `No OpenI challenge matches you right now, but ${calls} open call${calls === 1 ? '' : 's'} from outside OpenI ${calls === 1 ? 'does' : 'do'}: see below.`;
+    if (calls) return `No OpenI challenge matches you right now, but ${calls} requirement${calls === 1 ? '' : 's'} from outside OpenI ${calls === 1 ? 'does' : 'do'}: see below.`;
     return 'No open public challenge matches you right now. New ones are checked every week.';
   }
   const n = groups.reduce((k, g) => k + g.challenges.length, 0);
@@ -60,7 +62,8 @@ export default function StartupAgentCard() {
     <div id="tour-startup-agent" data-testid="startup-agent" style={{ ...card, padding: 18, marginTop: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0, flex: '1 1 300px' }}>
-          <Building2 size={15} style={{ verticalAlign: -3, marginRight: 6, color: G }} />Corporates looking for startups like you
+          {/* s125 — renamed (Rajeev, 1 Oct): it now carries requirements from defence, government, corporates and investors. */}
+          <Building2 size={15} style={{ verticalAlign: -3, marginRight: 6, color: G }} />Requirements from corporates, government and defence
         </h2>
         {data && (
           <label style={{ fontSize: 12.5, color: '#555', display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
@@ -98,12 +101,13 @@ export default function StartupAgentCard() {
       {(data?.open_calls || []).length > 0 && (
         <div data-testid="startup-agent-calls" style={{ marginTop: 16 }}>
           <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Globe size={14} color={G} /> Open calls from outside OpenI
-            <span style={{ fontSize: 11.5, fontWeight: 400, color: '#888' }}>Government programmes, missions and incubators. You apply on their site.</span>
+            <Globe size={14} color={G} /> From outside OpenI
+            <span style={{ fontSize: 11.5, fontWeight: 400, color: '#888' }}>Defence, government, corporate and investor programmes, read every night from their own sites. You apply on their site.</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 10, marginTop: 8 }}>
             {data.open_calls.map(c => (
               <div key={c.id} data-testid="startup-agent-call" style={{ ...card, padding: 12 }}>
+                {TYPE_LABEL[c.publisher_type] && <div data-testid="startup-agent-call-type" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#8A6A1C', marginBottom: 2 }}>{TYPE_LABEL[c.publisher_type]}</div>}
                 <a href={c.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{c.title}</a>
                 <div style={{ fontSize: 11.5, color: '#666', marginTop: 2 }}>
                   {c.org_name || c.source_name}{c.deadline ? ` · apply by ${new Date(c.deadline).toLocaleDateString()}` : ''}

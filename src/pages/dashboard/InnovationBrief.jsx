@@ -606,7 +606,7 @@ export default function InnovationBrief() {
       })()}
 
       <p style={{ fontSize: 11.5, color: '#888', marginTop: 28, maxWidth: '100ch' }}>
-        {isStartupRole ? 'Fit is how closely a challenge matches what your startup does, by meaning. Open calls from outside OpenI link to the publisher\'s own site.' : (<>
+        {isStartupRole ? 'Fit is how closely a challenge matches what your startup does, by meaning. Requirements from outside OpenI link to the publisher\'s own site.' : (<>
         Fit is how closely a startup's profile matches the priority, by meaning. Partner / Source / Invest is OpenI's suggestion from the startup's stage.
         Imported profiles were built from public sources and are not yet verified by the startup.</>)}
       </p>
