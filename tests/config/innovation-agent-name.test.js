@@ -34,4 +34,10 @@ describe('Innovation Agent name', () => {
     expect(first.content).toContain('every 2 hours');
     expect(first.content).not.toContain('4,000');
   });
+
+  it('the stats step speaks of the agent, not the brief (Rajeev: "yes, change it")', () => {
+    const stats = PAGE_TOURS['/dashboard/brief'].steps.find(s => s.target === '#tour-brief-stats');
+    expect(stats.content).toContain('How many matches your agent found');
+    expect(stats.content).not.toContain('this brief holds');
+  });
 });

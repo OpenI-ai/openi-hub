@@ -69,7 +69,7 @@ export default function KnowsPanel({ load, refresh, client = null, startup = fal
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         <BookOpen size={15} color="#8A6A1C" />
         <strong style={{ fontSize: 14, fontWeight: 600 }}>{title}</strong>
-        <span style={{ fontSize: 12, color: '#888' }}>What {client ? 'its' : 'your'} brief is built on, and where each part came from.</span>
+        <span style={{ fontSize: 12, color: '#888' }}>{client ? 'What its brief is built on' : 'What your agent works from'}, and where each part came from.</span>
       </div>
       {data && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: 10, marginTop: 10 }}>

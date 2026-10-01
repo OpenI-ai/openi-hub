@@ -177,8 +177,8 @@ export function EmptyBriefNote({ startup = false, corporate = false }) {
   if (startup) return null;
   return (
     <div data-testid="brief-empty" style={{ ...card, marginTop: 24, alignItems: 'flex-start' }}>
-      <p style={{ margin: 0, fontSize: 14 }}>Your brief needs a little more to go on.</p>
-      <p style={{ margin: 0, fontSize: 13, color: '#555' }}>Add your sectors, focus areas or use cases to your profile{corporate ? ', or post a challenge' : ''}, and your brief fills in.</p>
+      <p style={{ margin: 0, fontSize: 14 }}>Your agent needs a little more to go on.</p>
+      <p style={{ margin: 0, fontSize: 13, color: '#555' }}>Add your sectors, focus areas or use cases to your profile{corporate ? ', or post a challenge' : ''}, and your agent gets to work.</p>
       <Link to="/dashboard/profile" style={{ ...btn, textDecoration: 'none' }}>Complete your profile</Link>
     </div>
   );
@@ -267,7 +267,7 @@ export default function InnovationBrief() {
       setError(false);
     } catch (err) {
       setError(true);
-      toast.error(err.message || 'Could not load your brief');
+      toast.error(err.message || 'Could not load your Innovation Agent');
     } finally {
       setLoading(false);
     }
@@ -394,11 +394,11 @@ export default function InnovationBrief() {
 
   if (loading) {
     return <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 40, color: '#666' }}>
-      <Loader2 className="animate-spin" size={18} /> Building your brief…</div>;
+      <Loader2 className="animate-spin" size={18} /> Your agent is gathering your matches…</div>;
   }
   if (error || !brief) {
     return <div style={{ padding: 40 }}>
-      <p style={{ color: '#444' }}>We could not build your brief just now.</p>
+      <p style={{ color: '#444' }}>Your agent could not load your matches just now.</p>
       <button type="button" style={btn} onClick={() => { setLoading(true); load(); }}><RefreshCw size={12} /> Try again</button>
     </div>;
   }
@@ -450,7 +450,7 @@ export default function InnovationBrief() {
 
       <div id="tour-brief-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
         background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '12px 16px' }}>
-        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? (items.length === 1 ? 'challenge you could win' : 'challenges you could win') : 'matches in this brief'}</div></div>
+        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? (items.length === 1 ? 'challenge you could win' : 'challenges you could win') : (items.length === 1 ? 'match your agent found' : 'matches your agent found')}</div></div>
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.since.new_count}</div>
           <div style={{ fontSize: 12, color: '#777' }}>{brief.since.last_visit_at ? `new since your last visit (${timeAgo(brief.since.last_visit_at)})` : 'new on OpenI this week'}</div></div>
         {!isStartupRole && <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>}

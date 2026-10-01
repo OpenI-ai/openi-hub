@@ -148,7 +148,7 @@ export default function AgentsPanel({ load, scout, undo = null, coach = null, on
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         <Bot size={15} color="#8A6A1C" />
         <strong style={{ fontSize: 14, fontWeight: 600 }}>Agents working for {client || 'you'}</strong>
-        <span style={{ fontSize: 12, color: '#888' }}>What OpenI's agents did for {client ? 'this brief' : 'your brief'}, most recent first.</span>
+        <span style={{ fontSize: 12, color: '#888' }}>What OpenI's agents did for {client ? 'this brief' : 'you'}, most recent first.</span>
         <button type="button" data-testid="run-scout" onClick={run} disabled={running || resting}
           title={resting ? `Scout can run again at ${waitUntil.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Search OpenI\'s startups for every priority now'}
           style={{ marginLeft: 'auto', fontSize: 12.5, padding: '6px 12px', borderRadius: 8, border: `1px solid ${G}`, background: running || resting ? '#f4efe2' : G,
@@ -168,7 +168,7 @@ export default function AgentsPanel({ load, scout, undo = null, coach = null, on
       {result && <p role="status" data-testid="scout-result" style={{ fontSize: 13, color: '#6B5A24', background: '#FBF6EA', borderRadius: 8, padding: '6px 10px', margin: '8px 0 0' }}>{result}</p>}
       {data === null ? null : items.length === 0 ? (
         <p data-testid="agents-empty" style={{ fontSize: 13, color: '#666', margin: '8px 0 0' }}>
-          No agent has worked on {client ? 'this brief' : 'your brief'} yet. Run Scout to search for startups now; the nightly crawl also searches the news for {client ? 'these' : 'your'} priorities.
+          No agent has worked {client ? 'on this brief' : 'for you'} yet. Run Scout to search for startups now; the nightly crawl also searches the news for {client ? 'these' : 'your'} priorities.
         </p>
       ) : (
         <ul style={{ listStyle: 'none', margin: '8px 0 0', padding: 0, display: 'grid', gap: 5 }}>

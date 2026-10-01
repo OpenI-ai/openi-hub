@@ -64,6 +64,19 @@ describe('LaunchChallengeSheet — the whole challenge, then just Launch', () =>
       rfi_questions: [{ question: 'First question here?' }, { question: 'Second question here?' }] })));
   });
 
+  // Rajeev (1 Oct): "difficult to spot edit details" — a bordered button above the challenge, and one beside Launch.
+  it('"Edit details" is a real button above the challenge and beside Launch; either opens the editor', async () => {
+    wrap(<LaunchChallengeSheet offer={offer} preview={vi.fn().mockResolvedValue({ id: 5, draft: full, drafted_by: 'agent', cost })} execute={vi.fn()}
+      dismiss={vi.fn()} onClose={vi.fn()} onDone={vi.fn()} />);
+    const top = await screen.findByTestId('launch-edit-top');
+    expect(top.textContent).toBe(' Edit details');
+    expect(top.querySelector('svg')).not.toBeNull();
+    expect(screen.getByTestId('launch-edit-toggle').parentElement).toBe(screen.getByTestId('launch-go').parentElement);
+    fireEvent.click(top);
+    expect(screen.getByTestId('launch-title')).toBeTruthy();
+    expect(screen.getByTestId('launch-edit-top').textContent).toBe(' Show it as startups will see it');
+  });
+
   it('says so when the draft is only a template; shows why a launch was refused (e.g. no challenge left this month)', async () => {
     const preview = vi.fn().mockResolvedValue({ id: 6, draft: { ...full, title: 'GEO optimisation — startup challenge' }, drafted_by: 'template', cost });
     const execute = vi.fn().mockRejectedValue(new Error('Plan limit reached for challenge create. You have used 1/1 this month. You can save it as a draft instead and launch it later.'));

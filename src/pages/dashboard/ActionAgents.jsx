@@ -20,7 +20,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Rocket, Send, X } from 'lucide-react';
+import { Eye, Pencil, Rocket, Send, X } from 'lucide-react';
 
 const G = '#C9A84C';
 const NAVY = '#0B1E3F';
@@ -46,6 +46,7 @@ export function LaunchChallengeChip({ offer, onOpen }) {
   );
 }
 
+const editBtn = { fontSize: 13, padding: '8px 14px', borderRadius: 8, border: '1px solid #2B4C8C', background: '#fff', color: '#2B4C8C', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
 const TYPE_LABEL = { partner: 'Partner', source: 'Source', invest: 'Invest' };
 const tagPill = { fontSize: 11.5, padding: '2px 8px', borderRadius: 20, background: '#F2F4F8', color: '#334' };
 const lines = v => String(v || '').split('\n').map(x => x.trim()).filter(Boolean);
@@ -134,6 +135,10 @@ export function LaunchChallengeSheet({ offer, preview, execute, dismiss, onClose
                 ? 'OpenI\'s challenge drafter filled in the whole challenge. Review it and press Launch, or edit anything first.'
                 : 'A complete starting point from your priority\'s words (the drafter was not available). Review it, edit anything, then launch.'}
             </p>
+            {/* Rajeev (1 Oct): "difficult to spot edit details" — a real button, above the challenge and beside Launch. */}
+            <button type="button" data-testid="launch-edit-top" onClick={() => setEditing(e => !e)} style={{ ...editBtn, marginTop: 10 }}>
+              {editing ? <><Eye size={14} /> Show it as startups will see it</> : <><Pencil size={14} /> Edit details</>}
+            </button>
             {!editing && <ChallengePreview d={draft} />}
             {editing && (
               <div data-testid="launch-edit">
@@ -171,16 +176,15 @@ export function LaunchChallengeSheet({ offer, preview, execute, dismiss, onClose
                 ))}
               </div>
             )}
-            <button type="button" data-testid="launch-edit-toggle" onClick={() => setEditing(e => !e)}
-              style={{ marginTop: 8, fontSize: 12.5, border: 0, background: 'none', color: '#2B4C8C', cursor: 'pointer', padding: 0 }}>
-              {editing ? 'Show it as startups will see it' : 'Edit details'}
-            </button>
             {errors.length > 0 && <p role="alert" data-testid="launch-errors" style={{ fontSize: 13, color: '#A33', margin: '8px 0 0' }}>{errors.join(' ')}</p>}
             <p data-testid="launch-cost" style={{ fontSize: 12.5, color: '#666', margin: '12px 0 0' }}>{state.cost}</p>
             <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <button type="button" data-testid="launch-go" onClick={() => submit(true)} disabled={Boolean(saving)}
                 style={{ fontSize: 13.5, padding: '9px 16px', borderRadius: 8, border: `1px solid ${G}`, background: saving ? '#f4efe2' : G, color: NAVY, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
                 {saving === 'launch' ? 'Launching…' : 'Launch challenge'}
+              </button>
+              <button type="button" data-testid="launch-edit-toggle" onClick={() => setEditing(e => !e)} style={editBtn}>
+                {editing ? <><Eye size={14} /> Show it as startups will see it</> : <><Pencil size={14} /> Edit details</>}
               </button>
               <button type="button" data-testid="launch-save" onClick={() => submit(false)} disabled={Boolean(saving)}
                 style={{ fontSize: 13, padding: '8px 14px', borderRadius: 8, border: '1px solid #ddd', background: '#fff', cursor: saving ? 'default' : 'pointer' }}>
@@ -268,7 +272,7 @@ export function InviteShortlistedSheet({ offer, preview, execute, dismiss, onClo
         {state.error && <p role="alert" style={{ fontSize: 13, color: '#A33' }}>{state.error}</p>}
         {!state.loading && !state.error && list.length === 0 && (
           <p data-testid="invite-empty" style={{ fontSize: 13, color: '#555' }}>
-            Every startup you shortlisted is already invited or has applied. Shortlist more startups in your brief, then come back.
+            Every startup you shortlisted is already invited or has applied. Shortlist more startups on your Innovation Agent page, then come back.
           </p>
         )}
         {list.length > 0 && (

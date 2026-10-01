@@ -47,6 +47,9 @@ describe('a priority the map builder already searched for', () => {
     const tried = await screen.findByTestId('landscape-tried');
     expect(tried.textContent).toMatch(/OpenI looked for startups doing "Flywheel Storage" and has not found any that fit yet/);
     expect(tried.textContent).toMatch(/looks again every night/);
+    // Rajeev (1 Oct): the page is the Innovation Agent — "Your agent still searches", not "Your brief".
+    expect(tried.textContent).toMatch(/Your agent still searches for it above\./);
+    expect(document.body.textContent).not.toMatch(/Your brief/);
     const untried = screen.getByTestId('landscape-unmapped');
     expect(untried.textContent).toMatch(/No Innovation Map covers "Grid Stability" yet/);
     expect(untried.textContent).not.toMatch(/Flywheel/);

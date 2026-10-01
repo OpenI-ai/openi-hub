@@ -76,6 +76,6 @@ describe('PipelinePanel', () => {
 
   it('empty: says how startups get here', async () => {
     render(<MemoryRouter><PipelinePanel load={vi.fn().mockResolvedValue({ stages: {}, last30: { intros: 0, meetings: 0, pilots: 0 }, items: [] })} onAction={vi.fn()} /></MemoryRouter>);
-    expect((await screen.findByTestId('pipeline-empty')).textContent).toMatch(/^Shortlist startups in your brief/);
+    expect((await screen.findByTestId('pipeline-empty')).textContent).toMatch(/^Shortlist startups on your Innovation Agent page/);
   });
 });
