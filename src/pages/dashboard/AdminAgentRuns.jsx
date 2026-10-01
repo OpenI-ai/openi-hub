@@ -10,7 +10,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Loader2, RefreshCw, ChevronRight } from 'lucide-react';
-import { agentRunsAPI } from '../../services/api';
+import { agentRunsAPI, programmeScoutAPI } from '../../services/api';
 
 const G = '#D0A848';
 const btn = { fontSize: 13, padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
@@ -79,6 +79,73 @@ function RunDetail({ id }) {
   );
 }
 
+const TYPE_LABEL = { government: 'Government', defence: 'Defence', corporate: 'Corporate', investor: 'Investor', incubator: 'Incubator' };
+
+/**
+ * s125 — Rajeev (1 Oct): "yes, add the Run now button". The Programme Scout agent reads startup requirements
+ * (defence, government, corporate, investor programmes) every night at 00:20 IST; "Run now" starts tonight's
+ * read straight away. Below it, every page it reads and what that page last returned.
+ */
+export function ProgrammeScoutPanel({ onStarted }) {
+  const [sources, setSources] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState(null);
+  const [show, setShow] = useState(false);
+  const load = () => programmeScoutAPI.sources().then(d => setSources(d.sources || [])).catch(() => setSources([]));
+  useEffect(() => { load(); }, []);
+  const run = async () => {
+    setBusy(true); setNote(null);
+    try {
+      const r = await programmeScoutAPI.run();
+      setNote(r?.message || 'The Programme Scout is running.');
+      onStarted?.();
+    } catch (e) {
+      setNote(e.message || 'Could not start the Programme Scout.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  const list = (sources || []).filter(s => s.role === 'source');
+  const active = list.filter(s => s.status === 'active');
+  const found = list.filter(s => s.origin === 'discovered' && s.status === 'active').length;
+  const notOk = active.filter(s => s.last_status && s.last_status !== 'ok').length;
+  return (
+    <div id="tour-programme-scout" data-testid="programme-scout" style={{ border: '1px solid #eee', borderRadius: 12, background: '#fff', padding: 14, margin: '0 0 16px' }}>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <strong style={{ fontWeight: 600, fontSize: 14.5, flex: '1 1 260px' }}>Programme Scout</strong>
+        <button type="button" data-testid="programme-scout-run" onClick={run} disabled={busy} style={{ ...btn, background: '#C9A84C', borderColor: '#C9A84C', color: '#0B1E3F', fontWeight: 600 }}>
+          {busy ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />} Run now
+        </button>
+      </div>
+      <p style={{ fontSize: 12.5, color: '#555', margin: '6px 0 0' }}>
+        Finds startup requirements from defence, government, corporates and investors every night at 00:20 IST, and new programmes on listing sites by itself.
+        {sources ? ` It reads ${active.length} page${active.length === 1 ? '' : 's'}${found ? ` (${found} found by itself)` : ''}${notOk ? `; ${notOk} did not answer last time` : ''}.` : ''}
+      </p>
+      {note && <p role="status" data-testid="programme-scout-note" style={{ fontSize: 12.5, background: '#F4F7FB', borderRadius: 8, padding: '6px 10px', margin: '8px 0 0' }}>{note}</p>}
+      {list.length > 0 && (
+        <button type="button" onClick={() => setShow(v => !v)} style={{ ...btn, marginTop: 8 }} data-testid="programme-scout-toggle">
+          <ChevronRight size={13} style={{ transform: show ? 'rotate(90deg)' : undefined }} /> {show ? 'Hide' : 'Show'} the pages it reads
+        </button>
+      )}
+      {show && (
+        <table data-testid="programme-scout-sources" style={{ width: '100%', fontSize: 12, marginTop: 8, borderCollapse: 'collapse' }}>
+          <thead><tr style={{ textAlign: 'left', color: '#777' }}><th>Page</th><th>Who asks</th><th>How added</th><th>Last result</th></tr></thead>
+          <tbody>
+            {list.map(s => (
+              <tr key={s.key} style={{ borderTop: '1px solid #f2f2f2', color: s.status === 'active' ? '#1a1a1a' : '#999' }}>
+                <td style={{ padding: '4px 6px 4px 0' }}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a></td>
+                <td>{TYPE_LABEL[s.publisher_type] || s.publisher_type}</td>
+                <td>{s.origin === 'discovered' ? 'Found by the agent' : 'Added by OpenI'}{s.status !== 'active' ? ` · ${s.status === 'dead' ? 'retired' : 'no official page'}` : ''}</td>
+                <td>{s.last_status ? `${s.last_status === 'ok' ? `${s.last_found} open` : s.last_status}${s.last_run_at ? ` · ${when(s.last_run_at)}` : ''}` : 'not read yet'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function AdminAgentRuns() {
   const [runs, setRuns] = useState(null);
   const [status, setStatus] = useState('');
@@ -109,6 +176,7 @@ export default function AdminAgentRuns() {
         <span><strong style={{ fontWeight: 600 }}>{done.length ? `${Math.round((ok / done.length) * 100)}%` : '—'}</strong> finished OK</span>
         <span><strong style={{ fontWeight: 600 }}>{usd(cost)}</strong> model cost</span>
       </div>
+      <ProgrammeScoutPanel onStarted={() => setTimeout(() => setTick(t => t + 1), 1500)} />
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
         <select aria-label="Filter by status" value={status} onChange={e => setStatus(e.target.value)} style={{ ...btn, padding: '6px 8px' }}>
           <option value="">All statuses</option>

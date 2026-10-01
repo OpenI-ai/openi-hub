@@ -14,6 +14,7 @@
  * AFTER pagesS124 in ./index.js; the earlier steps are reused, not copied.
  */
 import { pagesS124 } from './pagesS124.js';
+import { pagesS122 } from './pagesS122.js';
 import { pagesUniversal } from './pagesUniversal.js';
 
 const brief = pagesS124['/dashboard/brief'];
@@ -53,7 +54,12 @@ const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Requirements from
 // s125 — Rajeev (1 Oct): "we can't download this page?" Told in the always-present first step.
 const PDF = ' "Download PDF" (top right) saves this brief as a branded PDF to share or present; a startup\'s PDF lists its matching challenges and open calls.';
 
+// s125 — "Run now" for the Programme Scout on Agent Runs (Rajeev, 1 Oct: "yes, add the Run now button").
+const runs = pagesS122['/dashboard/admin/agent-runs'];
+const SCOUT = { target: '#tour-programme-scout', title: 'Programme Scout', content: 'The agent that finds startup requirements from defence, government, corporates and investors. It runs by itself every night at 00:20 IST, reading official pages and finding new programmes on listing sites (always storing the programme\'s official page). "Run now" starts it straight away; its run appears in the list below when it finishes. "Show the pages it reads" lists every page, who asks, whether OpenI or the agent added it, and what it returned last time.', placement: 'bottom', skipBeacon: true };
+
 export const pagesS125 = {
+  '/dashboard/admin/agent-runs': { ...runs, steps: [...runs.steps, SCOUT] },
   '/dashboard/home': { ...home, steps: [...home.steps, STARTUP_AGENT] },
   '/dashboard/admin/sector-recheck': {
     ...sector,

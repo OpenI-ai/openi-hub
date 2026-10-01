@@ -121,6 +121,12 @@ export const agentRunsAPI = {
   get: (id) => get(`/admin/agent-runs/${id}`),
 };
 
+// s125 — the Programme Scout agent (admin): run tonight's read now; the pages it reads and what each returned.
+export const programmeScoutAPI = {
+  run:     () => post('/admin/programme-scout/run', {}),
+  sources: () => get('/admin/programme-scout/sources'),
+};
+
 // s124 — the analyst's sector re-check (admin): proposals to review, run it, approve / reject.
 export const sectorRecheckAPI = {
   overview: ({ from, status = 'pending', confidence, limit, offset } = {}) => {
