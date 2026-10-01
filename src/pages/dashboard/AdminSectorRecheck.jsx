@@ -31,6 +31,23 @@ export function recheckStatusText(d) {
   return `${done.toLocaleString('en-IN')} checked · ${(c.pending || 0).toLocaleString('en-IN')} to review · ${(c.kept || 0).toLocaleString('en-IN')} kept as "${d.from}" · ${d.still_filed.toLocaleString('en-IN')} still filed under it.`;
 }
 
+/**
+ * s124 (1 Oct 2026) — Rajeev read "Financial Services → MarTech" as one sector.
+ * Each side now says what it is: [grey, bold] labels for a row on this tab.
+ */
+export function sectorLabels(i, tab) {
+  if (tab === 'approved') return [`Was: ${i.from_sector}`, `Now: ${i.proposed_sector}`];
+  if (tab === 'kept') return [`Now: ${i.from_sector}`, 'Stays as it is'];
+  if (tab === 'stale') return [`Was: ${i.from_sector}`, `Proposed: ${i.proposed_sector}`];
+  return [`Now: ${i.from_sector}`, `Proposed: ${i.proposed_sector}`];
+}
+
+/** What the page says while a decision saves (~0.7 s a startup on production). */
+export function busyText(decision, n) {
+  const secs = Math.max(1, Math.ceil(n * 0.7));
+  return `${decision === 'approve' ? 'Approving' : 'Rejecting'} ${n} startup${n === 1 ? '' : 's'}… about ${secs} second${secs === 1 ? '' : 's'}.`;
+}
+
 export default function AdminSectorRecheck() {
   const [tab, setTab] = useState('pending');
   const [confidence, setConfidence] = useState('');
@@ -38,6 +55,7 @@ export default function AdminSectorRecheck() {
   const [error, setError] = useState(false);
   const [picked, setPicked] = useState(() => new Set());
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState('');
 
   const load = useCallback(() => sectorRecheckAPI.overview({ status: tab, confidence: confidence || undefined, limit: 100 })
     .then((r) => { setData(r); setError(false); }).catch(() => setError(true)), [tab, confidence]);
@@ -58,6 +76,7 @@ export default function AdminSectorRecheck() {
     const ids = [...picked];
     if (!ids.length) return;
     setBusy(true);
+    setSaving(busyText(decision, ids.length));
     try {
       const r = await sectorRecheckAPI.decide(ids, decision);
       toast.success(decision === 'approve'
@@ -69,6 +88,7 @@ export default function AdminSectorRecheck() {
       toast.error(err.message || 'Could not save.');
     } finally {
       setBusy(false);
+      setSaving('');
     }
   };
   const items = data?.items || [];
@@ -114,6 +134,7 @@ export default function AdminSectorRecheck() {
               <input type="checkbox" data-testid="recheck-pick-all" checked={allPicked} onChange={() => setPicked(allPicked ? new Set() : new Set(items.map(i => i.id)))} />
               Select all on this page</label>
             <span style={{ fontSize: 12.5, color: '#777' }}>{picked.size} selected</span>
+            {saving && <span data-testid="recheck-saving" style={{ fontSize: 12.5, color: '#8A6A1C', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Loader2 size={13} className="animate-spin" /> {saving}</span>}
             <button type="button" data-testid="recheck-approve" disabled={busy || !picked.size} onClick={() => decide('approve')} style={{ ...btn, marginLeft: 'auto', borderColor: '#2E7D4F', color: '#2E7D4F' }}><Check size={14} /> Approve selected</button>
             <button type="button" data-testid="recheck-reject" disabled={busy || !picked.size} onClick={() => decide('reject')} style={btn}><X size={14} /> Reject selected</button>
           </div>
@@ -130,8 +151,9 @@ export default function AdminSectorRecheck() {
                   <Link to={`/dashboard/startups/${i.user_id}?by=user_id`} style={{ fontWeight: 600, color: '#0B1E3F' }}>{i.company_name}</Link>
                   {i.not_startup && <div data-testid="recheck-not-startup" style={{ fontSize: 11.5, color: '#A33', fontWeight: 600 }}>Probably not a startup</div>}
                 </td>
-                <td style={{ padding: '8px 6px', width: '26%', whiteSpace: 'nowrap' }}>
-                  <span style={{ color: '#888' }}>{i.from_sector}</span> → <b>{i.proposed_sector}</b></td>
+                <td data-testid="recheck-sectors" style={{ padding: '8px 6px', width: '26%' }}>
+                  <div style={{ color: '#888' }}>{sectorLabels(i, tab)[0]}</div>
+                  <div style={{ fontWeight: 700 }}>{sectorLabels(i, tab)[1]}</div></td>
                 <td style={{ padding: '8px 6px' }}>
                   {i.confidence && <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 999, marginRight: 6, background: CONF[i.confidence]?.bg, color: CONF[i.confidence]?.fg }}>{i.confidence}</span>}
                   <span style={{ color: '#555' }}>{i.reason}</span>

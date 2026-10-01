@@ -12,7 +12,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ sectorRecheckAPI: api }));
-const { default: Page, recheckStatusText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
+const { default: Page, recheckStatusText, sectorLabels, busyText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
 
 const data = {
   from: 'Financial Services', still_filed: 3256, counts: { pending: 2, kept: 5 }, run: null,
@@ -31,7 +31,9 @@ describe('AdminSectorRecheck', () => {
     show();
     const rows = await screen.findAllByTestId('recheck-row');
     expect(rows).toHaveLength(2);
-    expect(rows[0].textContent).toContain('Financial Services → FinTech');
+    const sectors = rows[0].querySelector('[data-testid="recheck-sectors"]').children;
+    expect(sectors[0].textContent).toBe('Now: Financial Services');
+    expect(sectors[1].textContent).toBe('Proposed: FinTech');
     expect(rows[0].textContent).toContain('Payments API.');
     expect(rows[0].querySelector('a').getAttribute('href')).toBe('/dashboard/startups/101?by=user_id');
     expect(screen.getAllByTestId('recheck-not-startup')).toHaveLength(1);
@@ -62,5 +64,28 @@ describe('AdminSectorRecheck', () => {
       .toBe('3,256 startups are filed under "Financial Services". Press "Start the re-check" and the analyst reads each one.');
     expect(recheckStatusText({ counts: {}, run: { running: true, checked: 75 } })).toBe('The analyst is reading startups… 75 checked so far in this run.');
     expect(recheckStatusText({ counts: {}, run: { running: false, status: 'no_model' } })).toBe('The analyst is not available right now (no AI model); nothing was checked.');
+  });
+
+  it('each side of a row says what it is, per tab (1 Oct: "Financial Services → MarTech" read as one sector)', () => {
+    const i = { from_sector: 'Financial Services', proposed_sector: 'MarTech' };
+    expect(sectorLabels(i, 'pending')).toEqual(['Now: Financial Services', 'Proposed: MarTech']);
+    expect(sectorLabels(i, 'rejected')).toEqual(['Now: Financial Services', 'Proposed: MarTech']);
+    expect(sectorLabels(i, 'approved')).toEqual(['Was: Financial Services', 'Now: MarTech']);
+    expect(sectorLabels(i, 'stale')).toEqual(['Was: Financial Services', 'Proposed: MarTech']);
+    expect(sectorLabels(i, 'kept')).toEqual(['Now: Financial Services', 'Stays as it is']);
+  });
+
+  it('says how long an approval takes while it saves, and clears it after', async () => {
+    let finish;
+    api.decide.mockImplementation(() => new Promise((r) => { finish = r; }));
+    show();
+    await screen.findAllByTestId('recheck-row');
+    fireEvent.click(screen.getByTestId('recheck-pick-all'));
+    fireEvent.click(screen.getByTestId('recheck-approve'));
+    expect((await screen.findByTestId('recheck-saving')).textContent).toContain('Approving 2 startups… about 2 seconds.');
+    finish({ approved: 2, rejected: 0, stale: 0 });
+    await waitFor(() => expect(screen.queryByTestId('recheck-saving')).toBeNull());
+    expect(busyText('approve', 9)).toBe('Approving 9 startups… about 7 seconds.');
+    expect(busyText('reject', 1)).toBe('Rejecting 1 startup… about 1 second.');
   });
 });
