@@ -409,7 +409,7 @@ export default function InnovationBrief() {
 
       <div id="tour-brief-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
         background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '12px 16px' }}>
-        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? 'challenges you could win' : 'matches in this brief'}</div></div>
+        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? (items.length === 1 ? 'challenge you could win' : 'challenges you could win') : 'matches in this brief'}</div></div>
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.since.new_count}</div>
           <div style={{ fontSize: 12, color: '#777' }}>{brief.since.last_visit_at ? `new since your last visit (${timeAgo(brief.since.last_visit_at)})` : 'new on OpenI this week'}</div></div>
         {!isStartupRole && <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>}
@@ -509,10 +509,10 @@ export default function InnovationBrief() {
         addPriority={label => savePrefs([...brief.priorities, { key: 'custom', label, on: true }])} />}
 
       {/* s123 — the Innovation Maps around the client's own priorities. */}
-      <LandscapePanel load={briefAPI.landscape} build={briefAPI.buildMaps} />
+      <LandscapePanel load={briefAPI.landscape} build={briefAPI.buildMaps} startup={isStartupRole} />
 
       {/* s123 — What OpenI knows about you (profile, stated needs, public sources, learned). */}
-      <KnowsPanel load={briefAPI.knows} refresh={briefAPI.refreshKnows} />
+      <KnowsPanel load={briefAPI.knows} refresh={briefAPI.refreshKnows} startup={isStartupRole} />
 
       {/* s122 — the personalisation loop's "show" step; a Keep / Not me re-ranks the brief. */}
       {!isStartupRole && <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />}
@@ -569,8 +569,9 @@ export default function InnovationBrief() {
       })()}
 
       <p style={{ fontSize: 11.5, color: '#888', marginTop: 28, maxWidth: '100ch' }}>
+        {isStartupRole ? 'Fit is how closely a challenge matches what your startup does, by meaning. Open calls from outside OpenI link to the publisher\'s own site.' : (<>
         Fit is how closely a startup's profile matches the priority, by meaning. Partner / Source / Invest is OpenI's suggestion from the startup's stage.
-        Imported profiles were built from public sources and are not yet verified by the startup.
+        Imported profiles were built from public sources and are not yet verified by the startup.</>)}
       </p>
     </div>
   );

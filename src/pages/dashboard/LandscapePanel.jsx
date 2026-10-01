@@ -18,7 +18,8 @@ import { Map as MapIcon, TrendingUp } from 'lucide-react';
 const BAR = '#2B4C8C';
 const TRACK = '#EEF1F6';
 
-export default function LandscapePanel({ load, build = null, client = null, id = 'tour-brief-landscape' }) {
+// s125 — `startup`: no "from what you shortlist and pass on" (a startup's brief has nothing to shortlist).
+export default function LandscapePanel({ load, build = null, client = null, startup = false, id = 'tour-brief-landscape' }) {
   const [data, setData] = useState(null);
   const [tab, setTab] = useState('sector');
   const loadRef = useRef(load);
@@ -38,7 +39,7 @@ export default function LandscapePanel({ load, build = null, client = null, id =
       const maps = (r.maps || []).filter(m => m.members > 0);
       const empty = (r.maps || []).filter(m => !m.members).map(m => `"${m.source}"`);
       setBuilt([
-        maps.length ? `Built ${maps.length === 1 ? 'a map' : `${maps.length} maps`}: ${maps.map(m => `"${m.label}" (${m.members} startup${m.members === 1 ? '' : 's'})`).join(', ')}. OpenI keeps ${maps.length === 1 ? 'it' : 'them'} up to date every night from what ${client ? 'this client shortlists and passes on' : 'you shortlist and pass on'}.` : '',
+        maps.length ? `Built ${maps.length === 1 ? 'a map' : `${maps.length} maps`}: ${maps.map(m => `"${m.label}" (${m.members} startup${m.members === 1 ? '' : 's'})`).join(', ')}. OpenI keeps ${maps.length === 1 ? 'it' : 'them'} up to date every night${startup ? '' : ` from what ${client ? 'this client shortlists and passes on' : 'you shortlist and pass on'}`}.` : '',
         empty.length ? `No startup checked out for ${empty.join(', ')} yet; the map builder tries again every night.` : '',
         !(r.maps || []).length ? 'OpenI\'s Innovation Maps already cover these priorities.' : '',
       ].filter(Boolean).join(' '));
