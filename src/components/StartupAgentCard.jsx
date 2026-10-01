@@ -31,14 +31,21 @@ export function matchesText(d) {
   return `${n} open challenge${n === 1 ? '' : 's'} from ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'} ${n === 1 ? 'matches' : 'match'} what you do. Only public challenges, open now, are used.`;
 }
 
-export default function StartupAgentCard() {
+export default function StartupAgentCard({ place = 'card' }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    startupAgentAPI.matches().then(setData).catch(() => setError(true));
-  }, []);
+    startupAgentAPI.matches().then((d) => {
+      setData(d);
+      // s125 — the Programme Scout learns from what startups do (Rajeev: "agree, pls do all the three"): the
+      // requirements shown here count as seen once a day. Never blocks or fails the card.
+      const ids = (d?.open_calls || []).map(c => c.id);
+      if (ids.length) startupAgentAPI.callEvents?.(ids, 'view', place)?.catch?.(() => {});
+    }).catch(() => setError(true));
+  }, [place]);
+  const opened = (id) => { startupAgentAPI.callEvents?.([id], 'click', place)?.catch?.(() => {}); };
 
   const toggleEmail = async () => {
     const was = data?.settings?.weekly_email !== false;
@@ -108,13 +115,13 @@ export default function StartupAgentCard() {
             {data.open_calls.map(c => (
               <div key={c.id} data-testid="startup-agent-call" style={{ ...card, padding: 12 }}>
                 {TYPE_LABEL[c.publisher_type] && <div data-testid="startup-agent-call-type" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#8A6A1C', marginBottom: 2 }}>{TYPE_LABEL[c.publisher_type]}</div>}
-                <a href={c.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{c.title}</a>
+                <a href={c.url} target="_blank" rel="noopener noreferrer" onClick={() => opened(c.id)} style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{c.title}</a>
                 <div style={{ fontSize: 11.5, color: '#666', marginTop: 2 }}>
                   {c.org_name || c.source_name}{c.deadline ? ` · apply by ${new Date(c.deadline).toLocaleDateString()}` : ''}
                 </div>
                 {c.summary && <div style={{ fontSize: 12, color: '#444', marginTop: 4 }}>{c.summary}</div>}
                 <div style={{ fontSize: 11.5, color: '#8A6A1C', marginTop: 4 }}>{c.why}</div>
-                <a href={c.url} target="_blank" rel="noopener noreferrer" data-testid="startup-agent-call-apply"
+                <a href={c.url} target="_blank" rel="noopener noreferrer" data-testid="startup-agent-call-apply" onClick={() => opened(c.id)}
                   style={{ fontSize: 12, fontWeight: 600, color: G, display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
                   Apply on {c.source_name} <ExternalLink size={12} />
                 </a>

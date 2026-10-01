@@ -149,4 +149,6 @@ export const sectorRecheckAPI = {
 export const startupAgentAPI = {
   matches: () => get('/startup/agent'),
   setSettings: (settings) => put('/startup/agent/settings', settings),
+  // s125 — what the startup does with the requirements shown (the Programme Scout learns from it).
+  callEvents: (ids, action, source) => post('/startup/agent/calls/events', { ids, action, source }),
 };

@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const api = vi.hoisted(() => ({ matches: vi.fn(), setSettings: vi.fn() }));
+const api = vi.hoisted(() => ({ matches: vi.fn(), setSettings: vi.fn(), callEvents: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ startupAgentAPI: api }));
 const { default: Card, matchesText } = await import('../../src/components/StartupAgentCard');
 
@@ -26,7 +26,7 @@ const data = {
 const show = () => render(<MemoryRouter><Card /></MemoryRouter>);
 
 describe('StartupAgentCard', () => {
-  beforeEach(() => { api.matches.mockReset().mockResolvedValue(data); api.setSettings.mockReset().mockResolvedValue({ weekly_email: false, email_at: null }); });
+  beforeEach(() => { api.callEvents.mockReset().mockResolvedValue(null); api.matches.mockReset().mockResolvedValue(data); api.setSettings.mockReset().mockResolvedValue({ weekly_email: false, email_at: null }); });
 
   it('groups by corporate; each challenge says why and links to its page', async () => {
     show();
@@ -98,6 +98,28 @@ describe('StartupAgentCard', () => {
     expect(calls.map(c => c.querySelector('[data-testid="startup-agent-call-type"]')?.textContent || null)).toEqual(['Defence', 'Corporate', null]);
     expect(screen.getByTestId('startup-agent').textContent).toContain('Requirements from corporates, government and defence');
     expect(screen.getByTestId('startup-agent').textContent).not.toContain('Corporates looking for startups like you');
+  });
+
+  // s125 — the Programme Scout learns from startups: the requirements shown count as seen; opening one counts as a click.
+  it('records the requirements shown, and a click on one, with the place (home card or brief)', async () => {
+    api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, open_calls: [
+      { id: 7, title: 'DISC 14', source_name: 'iDEX', url: 'https://idex.gov.in/x', why: 'Close' },
+      { id: 8, title: 'Mobility', source_name: 'Hyundai', url: 'https://h.example/x', why: 'Close' }] });
+    render(<MemoryRouter><Card place="brief" /></MemoryRouter>);
+    await screen.findAllByTestId('startup-agent-call');
+    await waitFor(() => expect(api.callEvents).toHaveBeenCalledWith([7, 8], 'view', 'brief'));
+    fireEvent.click(screen.getAllByTestId('startup-agent-call-apply')[1]);
+    expect(api.callEvents).toHaveBeenCalledWith([8], 'click', 'brief');
+  });
+
+  it('records nothing when there are no requirements, and a failed record never breaks the card', async () => {
+    show();
+    await screen.findAllByTestId('startup-agent-corporate');
+    expect(api.callEvents).not.toHaveBeenCalled();
+    api.callEvents.mockRejectedValue(new Error('down'));
+    api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, open_calls: [{ id: 9, title: 'Unique call title', source_name: 'Src', url: 'https://x.example', why: 'C' }] });
+    render(<MemoryRouter><Card /></MemoryRouter>);
+    expect(await screen.findByText('Unique call title')).toBeTruthy();
   });
 
   it('no open calls: no empty section', async () => {

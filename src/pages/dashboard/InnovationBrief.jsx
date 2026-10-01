@@ -457,7 +457,7 @@ export default function InnovationBrief() {
       </div>
 
       {/* s125 — a startup's brief leads with its agent: corporates looking for it + open calls from outside OpenI. */}
-      {isStartupRole && <StartupAgentCard />}
+      {isStartupRole && <StartupAgentCard place="brief" />}
 
       {/* s123 — the Innovation Agent's next moves (company accounts; s125: investors too). */}
       {hasAgent && (
