@@ -8,6 +8,7 @@
  * Derived from pagesS125 so the six split modules and the earlier S12x modules stay verbatim.
  */
 import { pagesS125 } from './pagesS125.js';
+import { pagesAdminPublic } from './pagesAdminPublic.js';
 
 const brief = pagesS125['/dashboard/brief'];
 const sector = pagesS125['/dashboard/admin/sector-recheck'];
@@ -19,7 +20,14 @@ const BRIEF_OLD = 'Startups and opportunities picked';
 const STATS_OLD = 'How many matches this brief holds';
 const STATS_NEW = 'How many matches your agent found';
 
+// s125 — the landing page now leads with the Innovation Agent (headline chosen by Rajeev, 1 Oct).
+const WELCOME = { target: '#tour-page-landing', title: 'Your innovation team that works while you sleep', content: 'OpenI\u2019s agents find startups for your priorities every night, check each one against your business, and suggest your next move. Every suggestion shows its evidence, and nothing happens without your OK. Free to start.', placement: 'bottom', skipBeacon: true };
+const AGENTS = { target: '#tour-landing-agents', title: 'How your Innovation Agent works', content: 'Scout searches, the Analyst checks, your agent ranks, the Map builder fills the gaps, and you get next moves. Below: what the agent does for companies, investors and startups, and how you stay in charge.', placement: 'top', skipBeacon: true };
+const landing = key => ({ ...pagesAdminPublic[key], steps: [WELCOME, AGENTS] });
+
 export const pagesS125b = {
+  '/': landing('/'),
+  '/landing': landing('/landing'),
   '/dashboard/admin/sector-recheck': {
     ...sector,
     steps: sector.steps.map(s => (s.target === '#tour-page-admin-sector-recheck' ? { ...s, content: s.content.replace(FAST_OLD, FAST_NEW) } : s)),

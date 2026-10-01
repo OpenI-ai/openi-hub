@@ -26,6 +26,8 @@ import {
   LandingHeader, LandingFooter,
 } from './landingParts/index.js';
 import CardDeck from './landingParts/CardDeck.jsx';
+import AgentSection from './landingParts/AgentSection.jsx';
+import HeroScreens from './landingParts/HeroScreens.jsx';  // s125 — the hero's right panel: real screens from the demo login  // s125 — the Innovation Agent, right under the hero
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING PAGE
@@ -125,7 +127,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            {hero?.badge_text || 'ART OF THE POSSIBLE'}
+            {hero?.badge_text || 'YOUR INNOVATION AGENT'}
           </div>
 
           <h1
@@ -138,16 +140,20 @@ export default function Landing() {
               fontFamily: 'Lexend, sans-serif',
             }}
           >
-            The map of everything startups can do for you.
+            {/* s125 — headline chosen by Rajeev (1 Oct 2026, option A). The map stays the foundation (right panel). */}
+            Your innovation team that works while you sleep.
           </h1>
 
           <p
-            className="mb-8 text-lg leading-relaxed"
+            className="mb-3 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            Search {startupCount} startups organized into a living family tree of 240+ innovation
-            maps. Open a branch, follow it down, and land on the companies that solve your exact
-            problem.
+            {/* s125 — subline approved by Rajeev (1 Oct 2026). */}
+            Every match checked by an analyst agent. Every suggestion shows its evidence. Nothing
+            happens without your OK, unless you switch it on.
+          </p>
+          <p data-testid="landing-proof" className="mb-8 text-sm leading-relaxed" style={{ color: GRAY }}>
+            Your agents work across {startupCount} startups and a living family tree of 240+ Innovation Maps.
           </p>
 
           {/* Hero search — shown BELOW xl only (UX audit, 21 Aug 2026).
@@ -239,86 +245,15 @@ export default function Landing() {
           </a>
           </div>
 
-          {/* ── Right: the living map tree ──
-              Startup counts here are FLOOR claims (43K+, 5.3K+…), verified live
-              on 3 Sep 2026 — NEVER write exact live counts into this panel (the
-              hero-number rule; see the DEFAULT_STATS comment in constants.js).
-              Sub-map counts are structural: they change only when a curated
-              taxonomy round ships, so update them alongside that ship. */}
-          <div
-            className="lg:col-span-3 rounded-2xl p-6 md:p-7"
-            style={{ background: '#fff', border: `1px solid ${BORDER}`, boxShadow: '0 28px 70px rgba(46,46,52,0.12)' }}
-          >
-            <div className="flex items-center justify-between pb-4 mb-5" style={{ borderBottom: `1px solid ${BORDER}` }}>
-              <div className="text-lg font-bold" style={{ color: DARK }}>Innovation Maps</div>
-              <div className="text-sm" style={{ color: GRAY }}>240+ maps · 4 lenses · live counts</div>
-            </div>
-
-            {/* Financial Services branch — expanded */}
-            <div
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-5 py-4 mb-3"
-              style={{ background: GOLD_LIGHT, border: `1px solid ${GOLD}` }}
-            >
-              <span className="font-bold" style={{ color: DARK }}>Financial Services</span>
-              <span className="text-sm font-bold" style={{ color: GOLD_DEEP }}>43K+ startups · 5 sub-maps</span>
-            </div>
-            <div className="flex flex-col gap-2 pl-5 ml-3 mb-5" style={{ borderLeft: `2px solid ${BORDER}` }}>
-              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
-                <span className="font-semibold" style={{ color: DARK }}>Banking</span>
-                <span style={{ color: GRAY }}>5.3K+</span>
-              </div>
-              <div className="flex flex-wrap gap-2 pl-5">
-                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>↳ Retail Banking · 1.3K+</span>
-                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>↳ Neo Banking · 2.1K+</span>
-                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>↳ Commercial Banking · 2.2K+</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
-                <span className="font-semibold" style={{ color: DARK }}>Capital Markets &amp; Wealth</span>
-                <span style={{ color: GRAY }}>26K+</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
-                <span className="font-semibold" style={{ color: DARK }}>Payments</span>
-                <span style={{ color: GRAY }}>5.7K+</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
-                <span className="font-semibold" style={{ color: DARK }}>NBFC &amp; Alternative Lending</span>
-                <span style={{ color: GRAY }}>4.3K+</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg px-4 py-3 text-sm" style={{ border: `1px solid ${BORDER}` }}>
-                <span className="font-semibold" style={{ color: DARK }}>Insurance</span>
-                <span style={{ color: GRAY }}>2.7K+</span>
-              </div>
-            </div>
-
-            {/* Media & Entertainment branch — collapsed */}
-            <div
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-5 py-4 mb-3"
-              style={{ border: `1px solid ${BORDER}` }}
-            >
-              <span className="font-bold" style={{ color: DARK }}>Media &amp; Entertainment</span>
-              <span className="text-sm" style={{ color: GRAY }}>38K+ startups · 7 sub-maps</span>
-            </div>
-            <div className="flex flex-wrap gap-2 pl-8 mb-5">
-              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>Streaming &amp; Content</span>
-              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>Advertising &amp; Marketing</span>
-              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>Music &amp; Audio</span>
-              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: DARK }}>News &amp; Publishing</span>
-              <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold" style={{ background: LIGHT_GRAY, color: GRAY }}>+ 3 more</span>
-            </div>
-
-            <Link
-              to="/register"
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-5 py-3.5 text-sm transition-all"
-              style={{ border: `1px dashed ${BORDER}`, color: GRAY, textDecoration: 'none' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = GOLD}
-              onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
-            >
-              <span>HealthTech · AgriTech · Energy · Logistics · 120+ more sectors…</span>
-              <span className="font-bold" style={{ color: GOLD_DEEP }}>Browse all →</span>
-            </Link>
-          </div>
+          {/* ── Right: the Innovation Agent at work ──
+              s125 — Rajeev: "right hand side image should show the work of Innovation agent not Innovation map", then
+              "show the image from our demo login" / "make them the first screenshots": real screens from the demo login.
+              Was the living map tree (s110); the maps stay in the proof line and the chapters below. */}
+          <HeroScreens />
         </div>
       </section>
+
+      <AgentSection />
 
       {/* ═══════════════════════════════════════════════════════════
           CHAPTERS 01-03 (s110 redesign) — the Art of the Possible story.

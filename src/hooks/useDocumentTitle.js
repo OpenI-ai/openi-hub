@@ -39,8 +39,9 @@ import { useLocation } from 'react-router-dom';
 const SUFFIX = 'OpenI Hub';
 
 /** Base title from index.html — the homepage keeps it, nothing else should. */
+// s125 (1 Oct 2026) — the homepage leads with the Innovation Agent (Rajeev approved the title). Matches index.html.
 export const DEFAULT_TITLE =
-  'OpenI Hub — AI Open Innovation Marketplace | Find Startups & Partners';
+  'OpenI Hub — Your innovation team that works while you sleep';
 
 /**
  * Exact-match routes. Keys are pathnames; values are complete <title> strings.
