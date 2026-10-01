@@ -25,6 +25,7 @@ import CeoPanel from './CeoPanel';
 import AskPanel from './AskPanel';
 import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
+import StartupAgentCard from '../../components/StartupAgentCard';  // s125: a startup's brief leads with it
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
 const G = '#D0A848';
@@ -372,6 +373,9 @@ export default function InnovationBrief() {
   const isCorporate = brief.role === 'corporate';
   // s125 Phase 4d: the Innovation Agent also works for investors (deal flow).
   const hasAgent = isCorporate || brief.role === 'investor';
+  // s125 — Rajeev chose "Opportunities" for a startup's brief: it leads with the corporates whose open challenges fit
+  // and the open calls from outside OpenI; the panels built for buyers (shortlisting startups, Scout, Ask, taste) are not shown.
+  const isStartupRole = brief.role === 'startup';
   const addDeal = async (offer) => {
     try {
       const p = await briefAPI.previewAction(offer.key, offer.subject);
@@ -395,20 +399,24 @@ export default function InnovationBrief() {
           </div>
           <h1 id="tour-page-brief" style={{ fontSize: 26, fontWeight: 600, color: '#1a1a1a', margin: '4px 0 6px' }}>Built for you, updated as you use it</h1>
           <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '70ch' }}>
+            {isStartupRole ? 'The open challenges and calls you could apply to, matched to your profile and your priorities. New ones are added every night.' : (<>
             Ranked against your profile{challengeCount ? ` and your ${challengeCount} open challenge${challengeCount === 1 ? '' : 's'}` : ''}.
-            Shortlist or dismiss startups and it re-ranks straight away; OpenI's crawler adds new matches every night.
+            Shortlist or dismiss startups and it re-ranks straight away; OpenI's crawler adds new matches every night.</>)}
           </p>
         </div>
-        <Link to="/search" style={{ ...btn, textDecoration: 'none', padding: '8px 12px' }}><Search size={13} /> Ask OpenI</Link>
+        <Link to="/dashboard/search" data-testid="brief-ask-link" style={{ ...btn, textDecoration: 'none', padding: '8px 12px' }}><Search size={13} /> Ask OpenI</Link>
       </div>
 
       <div id="tour-brief-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
         background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '12px 16px' }}>
-        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>matches in this brief</div></div>
+        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? 'challenges you could win' : 'matches in this brief'}</div></div>
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.since.new_count}</div>
           <div style={{ fontSize: 12, color: '#777' }}>{brief.since.last_visit_at ? `new since your last visit (${timeAgo(brief.since.last_visit_at)})` : 'new on OpenI this week'}</div></div>
-        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>
+        {!isStartupRole && <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>}
       </div>
+
+      {/* s125 — a startup's brief leads with its agent: corporates looking for it + open calls from outside OpenI. */}
+      {isStartupRole && <StartupAgentCard />}
 
       {/* s123 — the Innovation Agent's next moves (company accounts; s125: investors too). */}
       {hasAgent && (
@@ -492,13 +500,13 @@ export default function InnovationBrief() {
       )}
 
       {/* s123 — Agents working for you + Run Scout now (Dentsu prototype). */}
-      <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} undo={briefAPI.undoCoach}
-        onFound={() => load({ after: 'ran Scout' })} onChanged={() => load({ after: 'undid a Coach change' })} />
+      {!isStartupRole && <AgentsPanel load={briefAPI.agents} scout={briefAPI.scout} undo={briefAPI.undoCoach}
+        onFound={() => load({ after: 'ran Scout' })} onChanged={() => load({ after: 'undid a Coach change' })} />}
 
       {/* s123 — Ask OpenI: a question in the client's words, answered with analyst-checked startups. */}
-      <AskPanel load={briefAPI.asks} ask={briefAPI.ask}
+      {!isStartupRole && <AskPanel load={briefAPI.asks} ask={briefAPI.ask}
         shortlist={async (id) => { await briefAPI.feedback(id, 'shortlist'); load({ after: 'shortlisted from Ask OpenI' }); }}
-        addPriority={label => savePrefs([...brief.priorities, { key: 'custom', label, on: true }])} />
+        addPriority={label => savePrefs([...brief.priorities, { key: 'custom', label, on: true }])} />}
 
       {/* s123 — the Innovation Maps around the client's own priorities. */}
       <LandscapePanel load={briefAPI.landscape} build={briefAPI.buildMaps} />
@@ -507,10 +515,10 @@ export default function InnovationBrief() {
       <KnowsPanel load={briefAPI.knows} refresh={briefAPI.refreshKnows} />
 
       {/* s122 — the personalisation loop's "show" step; a Keep / Not me re-ranks the brief. */}
-      <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />
+      {!isStartupRole && <TastePanel onChanged={() => briefAPI.get().then(setBrief).catch(() => {})} />}
 
       {/* s122 action A3 — the brief's watchlists, each with a read-only share link. */}
-      <BriefShortlists refreshKey={shortlistKey} />
+      {!isStartupRole && <BriefShortlists refreshKey={shortlistKey} />}
 
       {notice && (
         <div role="status" data-testid="brief-notice" style={{ marginTop: 14, background: '#FBF6EA', border: `1px solid ${G}`, borderRadius: 10, padding: '10px 14px', fontSize: 13.5 }}>

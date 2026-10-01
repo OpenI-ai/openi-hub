@@ -69,4 +69,27 @@ describe('StartupAgentCard', () => {
     expect((await screen.findByText('Could not load your matches just now.'))).toBeTruthy();
     expect(screen.getByTestId('startup-agent')).toBeTruthy();   // still rendered: the tour step points at it
   });
+
+  // s125 — open calls from OUTSIDE OpenI (crawled daily from government programmes, missions, incubators).
+  it('open calls: their own section, each linking out to the publisher in a new tab; the status line points to them when no challenge fits', async () => {
+    api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, open_calls: [
+      { id: 5, title: 'Grand Challenges India: diagnostics', org_name: 'BIRAC', source_name: 'BIRAC (DBT)', url: 'https://birac.nic.in/cfp_view.php?id=27',
+        deadline: '2026-12-01', summary: 'Grants for low-cost screening.', why: 'Matches your Biotech', external: true }] });
+    show();
+    const calls = await screen.findAllByTestId('startup-agent-call');
+    expect(calls).toHaveLength(1);
+    const a = calls[0].querySelector('a');
+    expect(a.getAttribute('href')).toBe('https://birac.nic.in/cfp_view.php?id=27');
+    expect(a.getAttribute('target')).toBe('_blank');
+    expect(a.getAttribute('rel')).toContain('noopener');
+    expect(calls[0].textContent).toContain('Matches your Biotech');
+    expect(screen.getByTestId('startup-agent-call-apply').textContent).toContain('Apply on BIRAC (DBT)');
+    expect(screen.getByTestId('startup-agent-status').textContent).toBe('No OpenI challenge matches you right now, but 1 open call from outside OpenI does: see below.');
+  });
+
+  it('no open calls: no empty section', async () => {
+    show();
+    await screen.findAllByTestId('startup-agent-corporate');
+    expect(screen.queryByTestId('startup-agent-calls')).toBeNull();
+  });
 });

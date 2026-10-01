@@ -42,9 +42,9 @@ const FEATURES = [
   {
     category: 'Search & Discovery',
     items: [
-      { icon: Search, title: 'Keyword Search (FTS)', desc: 'Full-text search with relevance ranking across startups, challenges, and people.', tier: 'free', link: '/search' },
-      { icon: Brain, title: 'AI Ask', featureKey: 'ai_search_daily_cap', desc: 'Natural language search — ask in plain English and get structured results with confidence scores.', tier: 'pro', link: '/search' },
-      { icon: Sparkles, title: 'Semantic Search', featureKey: 'semantic_search', desc: 'pgvector similarity matching finds results even without exact keyword match.', tier: 'pro', link: '/search' },
+      { icon: Search, title: 'Keyword Search (FTS)', desc: 'Full-text search with relevance ranking across startups, challenges, and people.', tier: 'free', link: '/dashboard/search' },
+      { icon: Brain, title: 'AI Ask', featureKey: 'ai_search_daily_cap', desc: 'Natural language search — ask in plain English and get structured results with confidence scores.', tier: 'pro', link: '/dashboard/search' },
+      { icon: Sparkles, title: 'Semantic Search', featureKey: 'semantic_search', desc: 'pgvector similarity matching finds results even without exact keyword match.', tier: 'pro', link: '/dashboard/search' },
       { icon: Search, title: 'Directory', desc: 'Browse all 11 persona types with filters for sector, city, skills, and more.', tier: 'free', link: '/dashboard/directory' },
     ],
   },

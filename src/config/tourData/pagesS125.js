@@ -48,7 +48,7 @@ const DEAL = ' For investors, its next moves include "Add to your deal pipeline"
 // s125 Phase 4d (startups): "Corporates looking for startups like you" on a startup's home page.
 // The shared home tour gains one step; for other personas its target is absent and the tour skips it.
 const home = pagesUniversal['/dashboard/home'];
-const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Corporates looking for startups like you', content: 'For startups: the companies with open public challenges that match what you do, grouped by company, each with why it matches and a link to apply. Only public challenges that are open now are used. "Weekly email" sends you the new ones on Mondays; untick it to stop.', placement: 'top', skipBeacon: true };
+const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Corporates looking for startups like you', content: 'For startups: the companies with open public challenges that match what you do, grouped by company, each with why it matches and a link to apply. Below them, "Open calls from outside OpenI": government programmes, missions and incubators whose calls fit you, read every day from their own sites; you apply on their site. Only calls open now are shown. "Weekly email" sends you the new ones on Mondays; untick it to stop.', placement: 'top', skipBeacon: true };
 
 export const pagesS125 = {
   '/dashboard/home': { ...home, steps: [...home.steps, STARTUP_AGENT] },
@@ -58,6 +58,8 @@ export const pagesS125 = {
   },
   '/dashboard/brief': {
     ...brief,
-    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content.replace(OLD, NEW).replace(COACH_OLD, COACH_NEW).replace(WHO_OLD, WHO_NEW)}${DEAL}` } : s)),
+    // s125 — a startup's brief leads with its agent card (step skipped on other accounts' briefs, where it is absent).
+    steps: brief.steps.flatMap(s => (s.target === '#tour-brief-agents' ? [{ ...s, content: `${s.content.replace(OLD, NEW).replace(COACH_OLD, COACH_NEW).replace(WHO_OLD, WHO_NEW)}${DEAL}` }]
+      : s.target === '#tour-brief-stats' ? [s, STARTUP_AGENT] : [s])),
   },
 };

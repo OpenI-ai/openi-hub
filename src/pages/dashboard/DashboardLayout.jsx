@@ -528,7 +528,7 @@ export default function DashboardLayout() {
             <SearchBar
               onSearch={(term, mode) => {
                 const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
-                navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+                navigate(`/dashboard/search?q=${encodeURIComponent(term)}${modeParam}`);  // s125: stay in the dashboard (/search is the public page)
               }}
               showAiToggle
               showMapSuggestions
@@ -754,7 +754,7 @@ export default function DashboardLayout() {
               onSearch={(term, mode) => {
                 const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
                 setMobileSearchOpen(false);
-                navigate(`/search?q=${encodeURIComponent(term)}${modeParam}`);
+                navigate(`/dashboard/search?q=${encodeURIComponent(term)}${modeParam}`);  // s125: stay in the dashboard (/search is the public page)
               }}
               showAiToggle
               showMapSuggestions
