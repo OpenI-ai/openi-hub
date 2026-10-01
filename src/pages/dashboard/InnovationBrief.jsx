@@ -186,6 +186,8 @@ export function EmptyBriefNote({ startup = false, corporate = false }) {
 
 export default function InnovationBrief() {
   const [brief, setBrief] = useState(null);
+  // s125 — a startup's count is what its card shows: OpenI challenges + requirements from outside OpenI (Rajeev: "yes pls").
+  const [applyCount, setApplyCount] = useState(null);
   // s123 action agents: what OpenI offers to do on each section (A4 launch a challenge, A4b invite shortlisted).
   const [actionOffers, setActionOffers] = useState(() => new Map());
   const [launching, setLaunching] = useState(null);
@@ -450,14 +452,14 @@ export default function InnovationBrief() {
 
       <div id="tour-brief-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
         background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '12px 16px' }}>
-        <div><div style={{ fontSize: 22, fontWeight: 600 }}>{items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? (items.length === 1 ? 'challenge you could win' : 'challenges you could win') : (items.length === 1 ? 'match your agent found' : 'matches your agent found')}</div></div>
+        <div><div data-testid="brief-count" style={{ fontSize: 22, fontWeight: 600 }}>{isStartupRole ? (applyCount ?? '…') : items.length}</div><div style={{ fontSize: 12, color: '#777' }}>{isStartupRole ? (applyCount === 1 ? 'requirement you could apply to' : 'requirements you could apply to') : (items.length === 1 ? 'match your agent found' : 'matches your agent found')}</div></div>
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.since.new_count}</div>
           <div style={{ fontSize: 12, color: '#777' }}>{brief.since.last_visit_at ? `new since your last visit (${timeAgo(brief.since.last_visit_at)})` : 'new on OpenI this week'}</div></div>
         {!isStartupRole && <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>}
       </div>
 
       {/* s125 — a startup's brief leads with its agent: corporates looking for it + open calls from outside OpenI. */}
-      {isStartupRole && <StartupAgentCard place="brief" />}
+      {isStartupRole && <StartupAgentCard place="brief" onLoaded={setApplyCount} />}
 
       {/* s123 — the Innovation Agent's next moves (company accounts; s125: investors too). */}
       {hasAgent && (
