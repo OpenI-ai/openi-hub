@@ -14,6 +14,7 @@
  * AFTER pagesS124 in ./index.js; the earlier steps are reused, not copied.
  */
 import { pagesS124 } from './pagesS124.js';
+import { pagesUniversal } from './pagesUniversal.js';
 
 const brief = pagesS124['/dashboard/brief'];
 const OLD = 'It only suggests; nothing happens without your click.';
@@ -44,7 +45,13 @@ const WHO_OLD = 'For company accounts, your Innovation Agent runs all of these f
 const WHO_NEW = 'For company and investor accounts, your Innovation Agent runs all of these for you';
 const DEAL = ' For investors, its next moves include "Add to your deal pipeline" for a startup you shortlisted.';
 
+// s125 Phase 4d (startups): "Corporates looking for startups like you" on a startup's home page.
+// The shared home tour gains one step; for other personas its target is absent and the tour skips it.
+const home = pagesUniversal['/dashboard/home'];
+const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Corporates looking for startups like you', content: 'For startups: the companies with open public challenges that match what you do, grouped by company, each with why it matches and a link to apply. Only public challenges that are open now are used. "Weekly email" sends you the new ones on Mondays; untick it to stop.', placement: 'top', skipBeacon: true };
+
 export const pagesS125 = {
+  '/dashboard/home': { ...home, steps: [...home.steps, STARTUP_AGENT] },
   '/dashboard/admin/sector-recheck': {
     ...sector,
     steps: sectorSteps,

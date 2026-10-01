@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import BriefTeaser from '../../components/BriefTeaser';
+import StartupAgentCard from '../../components/StartupAgentCard';  // s125 Phase 4d (startups)
 
 const G = '#D0A848';
 const card = { background: '#fff', border: '1px solid #eee', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' };
@@ -398,6 +399,9 @@ export default function PersonaDashboard() {
           </div>
         </div>
       </div>
+
+      {/* s125 Phase 4d: corporates with open public challenges that match this startup, by corporate */}
+      {role === 'startup' && <StartupAgentCard />}
 
       {/* Recommended Challenges — startup only */}
       {role === 'startup' && (data?.stats?.recommended_challenges || []).length > 0 && (
