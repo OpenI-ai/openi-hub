@@ -16,6 +16,7 @@
  *   pagesS122.js         NEW 29 Sep 2026     Innovation Brief, Brief Preview, Agent Runs
  *   pagesS123.js         NEW 30 Sep 2026     Agents working for you (brief + preview)
  *   pagesS124.js         NEW 30 Sep 2026     the CEO view (in the brief's Agents step)
+ *   pagesS125.js         NEW  1 Oct 2026     Innovation Agent autonomy + "Why?" (in the brief's Agents step)
  *                        (not from the pre-split file — excluded from the recipe)
  *
  * The six modules together own original lines 31-299, 324-2003 and 2007-2022.
@@ -70,6 +71,7 @@ import { pagesAdminPublic } from './pagesAdminPublic.js';
 import { pagesS122 } from './pagesS122.js';
 import { pagesS123 } from './pagesS123.js';
 import { pagesS124 } from './pagesS124.js';
+import { pagesS125 } from './pagesS125.js';
 
 export { TOURS };
 export default TOURS;
@@ -84,6 +86,7 @@ export const PAGE_TOURS = {
   ...pagesS122,  // 29 Sep 2026 — new module, not part of the verbatim split; see its header.
   ...pagesS123,  // 30 Sep 2026 — replaces two pagesS122 keys (adds the Agents panel); see its header.
   ...pagesS124,  // 30 Sep 2026 (s124) — the brief's Agents step also describes the CEO view; see its header.
+  ...pagesS125,  // 1 Oct 2026 (s125) — the brief's Agents step describes autonomy + "Why?"; see its header.
 };
 
 // Resolve the PAGE_TOURS entry for a given pathname.

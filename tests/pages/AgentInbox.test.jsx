@@ -79,4 +79,62 @@ describe('AgentInbox', () => {
     await waitFor(() => expect(screen.getByTestId('agent-email-state').textContent).toBe('Off'));
     expect(saveSettings).toHaveBeenCalledWith({ weekly_email: false });
   });
+
+  // s125 Phase 4: autonomy, evidence, "Done for you".
+  it('"Why?" opens the evidence: text, OpenI links in the app, outside links in a new tab', async () => {
+    const ev = [{ text: 'Analyst: sells shelf ads.' }, { text: 'Shelfco on OpenI', url: '/dashboard/startups/7?by=user_id' }, { text: 'Their website', url: 'https://shelf.example' }];
+    const withEv = [{ ...items[0], evidence: ev }, items[1]];
+    const { MemoryRouter } = await import('react-router-dom');
+    render(<MemoryRouter><AgentInbox {...props({ load: vi.fn().mockResolvedValue({ items: withEv, agent }) })} /></MemoryRouter>);
+    const toggles = await screen.findAllByTestId('inbox-evidence-toggle');
+    expect(toggles).toHaveLength(1); // only the move that has evidence
+    expect(screen.queryByTestId('inbox-evidence')).toBeNull();
+    fireEvent.click(toggles[0]);
+    const links = screen.getByTestId('inbox-evidence').querySelectorAll('a');
+    expect(screen.getByTestId('inbox-evidence').textContent).toContain('Analyst: sells shelf ads.');
+    expect(links[0].getAttribute('href')).toBe('/dashboard/startups/7?by=user_id');
+    expect(links[0].getAttribute('target')).toBeNull();
+    expect(links[1].getAttribute('href')).toBe('https://shelf.example');
+    expect(links[1].getAttribute('target')).toBe('_blank');
+    expect(links[1].getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('autonomy: Suggest only by default; Auto asks first (cancel = nothing saved), then saves; back to Suggest is immediate', async () => {
+    const saveSettings = vi.fn()
+      .mockResolvedValueOnce({ settings: { weekly_email: true, autonomy: 'auto' } })
+      .mockResolvedValueOnce({ settings: { weekly_email: true, autonomy: 'suggest' } });
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true);
+    render(<AgentInbox {...props({ saveSettings })} />);
+    expect((await screen.findByTestId('agent-autonomy')).getAttribute('data-value')).toBe('suggest');
+    fireEvent.click(screen.getByTestId('agent-autonomy-auto'));
+    expect(confirm.mock.calls[0][0]).toMatch(/never launches a challenge, invites, writes intros, books meetings, adds priorities or spends credits/);
+    expect(saveSettings).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('agent-autonomy-auto'));
+    await waitFor(() => expect(screen.getByTestId('agent-autonomy').getAttribute('data-value')).toBe('auto'));
+    expect(saveSettings).toHaveBeenLastCalledWith({ autonomy: 'auto' });
+    fireEvent.click(screen.getByTestId('agent-autonomy-suggest'));
+    await waitFor(() => expect(screen.getByTestId('agent-autonomy').getAttribute('data-value')).toBe('suggest'));
+    expect(confirm).toHaveBeenCalledTimes(2);
+    confirm.mockRestore();
+  });
+
+  it('"Done for you": Undo un-shortlists through the brief; an undone one says so; Review opens the drafted challenge', async () => {
+    const done = [
+      { kind: 'shortlist', startup_user_id: 7, name: 'Shelfco', priority: 'Retail media', watchlist: 'Innovation Brief — Retail media', undone: false },
+      { kind: 'shortlist', startup_user_id: 8, name: 'Gone', priority: 'Retail media', undone: true },
+      { kind: 'draft', subject: 'interest:retail-media', label: 'Retail media' },
+    ];
+    const launchItem = { ...items[1], subject: offer.subject, drafted: true };  // the API sends subject on launch items
+    const p = props({ load: vi.fn().mockResolvedValue({ items: [launchItem], agent: { ...agent, autonomy: 'auto', done_for_you: done } }) });
+    render(<AgentInbox {...p} />);
+    const rows = await screen.findAllByTestId('agent-done-item');
+    expect(rows.map(r => r.getAttribute('data-kind'))).toEqual(['shortlist', 'shortlist', 'draft']);
+    expect(rows[0].textContent).toContain('Shortlisted Shelfco for "Retail media", added to Innovation Brief — Retail media');
+    expect(rows[1].textContent).toContain('Undone');
+    expect(screen.getByTestId('inbox-act').textContent).toBe('Review the draft');
+    fireEvent.click(screen.getAllByTestId('agent-done-undo')[0]);
+    await waitFor(() => expect(p.onShortlist).toHaveBeenCalledWith({ user_id: 7, name: 'Shelfco', shortlisted: true, priority_label: 'Retail media' }));
+    fireEvent.click(screen.getByTestId('agent-done-review'));
+    expect(p.onLaunch).toHaveBeenCalledWith(offer);
+  });
 });
