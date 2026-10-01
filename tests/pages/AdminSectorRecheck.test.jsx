@@ -233,4 +233,23 @@ describe('AdminSectorRecheck', () => {
     fireEvent.click(await screen.findByTestId('recheck-nightly'));
     await waitFor(() => expect(screen.getByTestId('recheck-nightly').checked).toBe(false));
   });
+
+  // Rajeev: "I pressed 4000 but the circle is showing 50" — the spinner and the status follow the press that is running.
+  it('the spinner is on the button that was pressed, and the status says how many this run reads', async () => {
+    const sectors = [{ name: 'SaaS/Enterprise', group: 'specific', still_filed: 129416 }];
+    const base = { ...data, from: 'SaaS/Enterprise', group: 'specific', sample_size: 50, max_per_run: 4000, remaining: 129346, nightly: { on: false }, counts: { kept: 64, approved: 5, pending: 6 }, sectors, items: [] };
+    expect(recheckStatusText({ ...base, run: { running: true, checked: 25, max: 4000 } }))
+      .toBe('The analyst is reading startups… 25 of up to 4,000 checked so far in this run.');
+    api.overview.mockResolvedValue({ ...base, run: { running: true, checked: 25, max: 4000 } });
+    const { unmount } = show();
+    const all = await screen.findByTestId('recheck-start-all');
+    expect(all.querySelector('.animate-spin')).not.toBeNull();
+    expect(screen.getByTestId('recheck-start').querySelector('.animate-spin')).toBeNull();
+    unmount();
+    api.overview.mockResolvedValue({ ...base, run: { running: true, checked: 10, max: 50 } });
+    show();
+    await screen.findByTestId('recheck-start-all');
+    await waitFor(() => expect(screen.getByTestId('recheck-start').querySelector('.animate-spin')).not.toBeNull());
+    expect(screen.getByTestId('recheck-start-all').querySelector('.animate-spin')).toBeNull();
+  });
 });

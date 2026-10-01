@@ -33,6 +33,11 @@ const TABS = [['pending', 'To review'], ['approved', 'Approved'], ['rejected', '
 const CONF = { high: { bg: '#E7F4EC', fg: '#2E7D4F' }, medium: { bg: '#FFF7E0', fg: '#8A6A1C' }, low: { bg: '#f3f3f3', fg: '#666' } };
 
 /** s125 — what "Check all" really reads in one press (at most max_per_run). */
+/** The running press is the big one ("Check the next 4,000"), not the sample: its spinner goes there. */
+export function bigRun(d) {
+  return d?.group === 'specific' && (d.run?.max || 0) > (d.sample_size || 0);
+}
+
 export function checkAllLabel(d) {
   const left = Number(d?.remaining ?? d?.still_filed ?? 0);
   const max = Number(d?.max_per_run || left);
@@ -57,7 +62,9 @@ export function recheckStatusText(d) {
   const c = d.counts || {};
   const done = (c.pending || 0) + (c.kept || 0) + (c.approved || 0) + (c.rejected || 0) + (c.stale || 0);
   const run = d.run;
-  if (run?.running) return `The analyst is reading startups… ${run.checked} checked so far in this run.`;
+  if (run?.running) return run.max
+    ? `The analyst is reading startups… ${run.checked.toLocaleString('en-IN')} of up to ${run.max.toLocaleString('en-IN')} checked so far in this run.`
+    : `The analyst is reading startups… ${run.checked} checked so far in this run.`;
   if (run?.status === 'no_model') return 'The analyst is not available right now (no AI model); nothing was checked.';
   // s125 — a specific sector is read by sample first (Rajeev: "More sectors in the list").
   if (d.group === 'specific') {
@@ -237,11 +244,11 @@ export default function AdminSectorRecheck() {
       <div id="tour-sector-recheck-status" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '10px 14px' }}>
         <span data-testid="recheck-status" style={{ fontSize: 13.5, flex: '1 1 400px' }}>{error ? 'Could not load the re-check just now.' : recheckStatusText(data)}</span>
         <button type="button" data-testid="recheck-start" onClick={start} disabled={busy || !data || data.run?.running} style={{ ...btn, borderColor: G }}>
-          {data?.run?.running ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} {data?.group === 'specific' ? `Check a sample (${data.sample_size})` : 'Start the re-check'}</button>
+          {data?.run?.running && !bigRun(data) ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} {data?.group === 'specific' ? `Check a sample (${data.sample_size})` : 'Start the re-check'}</button>
         {/* s125 — Rajeev: "yes, make both changes". The button says what one press really reads (at most max_per_run). */}
         {data?.group === 'specific' && Object.values(data.counts || {}).some(Boolean) && (data.remaining ?? 0) > 0 && (
           <button type="button" data-testid="recheck-start-all" onClick={startAll} disabled={busy || data.run?.running} style={btn}>
-            <Play size={14} /> {checkAllLabel(data)}</button>
+            {data.run?.running && bigRun(data) ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} {checkAllLabel(data)}</button>
         )}
         <button type="button" onClick={load} style={btn}><RefreshCw size={14} /> Refresh</button>
         {/* s125 — "Keep going every night until done": the nightly run reads the next batch of this sector each night. */}
