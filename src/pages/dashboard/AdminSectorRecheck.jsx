@@ -13,11 +13,18 @@
  * change a sector (after each run, and nightly with the new startups), audited the
  * same way; medium, low and "not a startup" without a sector change still wait
  * here. "Approve high confidence now" clears the backlog at once.
+ *
+ * s125 — Rajeev: "it's only working for Financial services. What about other startups
+ * sectors?" -> a sector picker over all eight older broad sectors. "something that's
+ * flagged as not a startup … it's appear as a startup to users" -> "Hide: not a startup"
+ * takes it out of every client list (audited, Undo). "any startup where there is not
+ * sufficient data to categorise it … hide till we've crawled enough data" -> "Hide until
+ * more data": shown again automatically once the crawler fills its profile in.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Check, Loader2, Play, RefreshCw, X } from 'lucide-react';
+import { Check, EyeOff, Loader2, Play, RefreshCw, Undo2, X } from 'lucide-react';
 import { sectorRecheckAPI } from '../../services/api';
 
 const G = '#D0A848';
@@ -64,7 +71,21 @@ export function busyText(decision, n) {
   return `${decision === 'approve' ? 'Approving' : 'Rejecting'} ${n} startup${n === 1 ? '' : 's'}… about ${secs} second${secs === 1 ? '' : 's'}.`;
 }
 
+/** s125: the badge on a hidden company. */
+export function hiddenText(reason) {
+  if (reason === 'not_a_startup') return 'Hidden from clients: not a startup';
+  if (reason === 'insufficient_data') return 'Hidden from clients until its profile has enough data';
+  return '';
+}
+
+/** s125: the toast after hiding. */
+export function hideDoneText(reason, n) {
+  const what = `${n} compan${n === 1 ? 'y' : 'ies'} hidden from every client list`;
+  return reason === 'insufficient_data' ? `${what}; each comes back by itself once its profile has enough data.` : `${what}. "Undo" on the Rejected tab shows one again.`;
+}
+
 export default function AdminSectorRecheck() {
+  const [from, setFrom] = useState('Financial Services');
   const [tab, setTab] = useState('pending');
   const [confidence, setConfidence] = useState('');
   const [data, setData] = useState(null);
@@ -73,8 +94,8 @@ export default function AdminSectorRecheck() {
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState('');
 
-  const load = useCallback(() => sectorRecheckAPI.overview({ status: tab, confidence: confidence || undefined, limit: 100 })
-    .then((r) => { setData(r); setError(false); }).catch(() => setError(true)), [tab, confidence]);
+  const load = useCallback(() => sectorRecheckAPI.overview({ from, status: tab, confidence: confidence || undefined, limit: 100 })
+    .then((r) => { setData(r); setError(false); }).catch(() => setError(true)), [from, tab, confidence]);
   useEffect(() => { setPicked(new Set()); load(); }, [load]);
   const working = !!(data?.run?.running || data?.auto?.running);
   useEffect(() => {
@@ -85,14 +106,14 @@ export default function AdminSectorRecheck() {
 
   const start = async () => {
     setBusy(true);
-    try { await sectorRecheckAPI.run(); toast.success('The analyst started. This page updates as it goes.'); await load(); }
+    try { await sectorRecheckAPI.run(from); toast.success('The analyst started. This page updates as it goes.'); await load(); }
     catch (err) { toast.error(err.message || 'Could not start.'); }
     finally { setBusy(false); }
   };
   const autoNow = async () => {
     setBusy(true);
     try {
-      const r = await sectorRecheckAPI.autoApprove();
+      const r = await sectorRecheckAPI.autoApprove(from);
       toast.success(r.status === 'nothing' ? 'Nothing waiting: every high-confidence proposal is already approved.'
         : `The agent is approving ${Number(r.waiting || 0).toLocaleString('en-IN')} high-confidence proposals. This page updates as it goes.`);
       await load();
@@ -118,6 +139,24 @@ export default function AdminSectorRecheck() {
       setSaving('');
     }
   };
+  const hide = async (reason) => {
+    const ids = [...picked];
+    if (!ids.length) return;
+    setBusy(true);
+    try {
+      const r = await sectorRecheckAPI.hide(ids, reason);
+      toast.success(hideDoneText(reason, (r.hidden || []).length));
+      setPicked(new Set());
+      await load();
+    } catch (err) { toast.error(err.message || 'Could not hide them.'); }
+    finally { setBusy(false); }
+  };
+  const unhide = async (id) => {
+    setBusy(true);
+    try { await sectorRecheckAPI.unhide([id]); toast.success('Shown to clients again.'); await load(); }
+    catch (err) { toast.error(err.message || 'Could not show it again.'); }
+    finally { setBusy(false); }
+  };
   const items = data?.items || [];
   const allPicked = items.length > 0 && items.every(i => picked.has(i.id));
   const toggle = id => setPicked((p) => { const n = new Set(p); if (n.has(id)) n.delete(id); else n.add(id); return n; });
@@ -127,9 +166,18 @@ export default function AdminSectorRecheck() {
       <h1 id="tour-page-admin-sector-recheck" style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Sector re-check</h1>
       <p style={{ fontSize: 13.5, color: '#555', margin: '0 0 12px', maxWidth: 820 }}>
         Startups filed under the wrong sector look wrong to every client who opens them. OpenI's analyst re-reads each startup filed
-        under "Financial Services" and proposes the right sector from OpenI's own list, with its reason. High-confidence proposals are approved by
-        the agent itself (audited, and never over a profile someone edited); the rest wait for you here.
+        under one of OpenI's eight older broad sectors and proposes the right sector from OpenI's own list, with its reason. High-confidence proposals are approved by
+        the agent itself (audited, and never over a profile someone edited); the rest wait for you here. A company that is not a startup, or
+        has too little data to place, can be hidden from every client list.
       </p>
+
+      <label style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 8, margin: '0 0 10px' }}>Sector to re-check
+        <select data-testid="recheck-sector" value={from} onChange={e => setFrom(e.target.value)} style={btn}>
+          {(data?.sectors?.length ? data.sectors : [{ name: from }]).map(s => (
+            <option key={s.name} value={s.name}>{s.name}{s.pending ? ` (${Number(s.pending).toLocaleString('en-IN')} to review)` : ''}</option>
+          ))}
+        </select>
+      </label>
 
       <div id="tour-sector-recheck-status" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '10px 14px' }}>
         <span data-testid="recheck-status" style={{ fontSize: 13.5, flex: '1 1 400px' }}>{error ? 'Could not load the re-check just now.' : recheckStatusText(data)}</span>
@@ -175,6 +223,10 @@ export default function AdminSectorRecheck() {
             {saving && <span data-testid="recheck-saving" style={{ fontSize: 12.5, color: '#8A6A1C', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Loader2 size={13} className="animate-spin" /> {saving}</span>}
             <button type="button" data-testid="recheck-approve" disabled={busy || !picked.size} onClick={() => decide('approve')} style={{ ...btn, marginLeft: 'auto', borderColor: '#2E7D4F', color: '#2E7D4F' }}><Check size={14} /> Approve selected</button>
             <button type="button" data-testid="recheck-reject" disabled={busy || !picked.size} onClick={() => decide('reject')} style={btn}><X size={14} /> Reject selected</button>
+            <button type="button" data-testid="recheck-hide-not-startup" disabled={busy || !picked.size} onClick={() => hide('not_a_startup')}
+              title="Takes them out of every client list; Undo shows one again" style={{ ...btn, borderColor: '#A33', color: '#A33' }}><EyeOff size={14} /> Hide: not a startup</button>
+            <button type="button" data-testid="recheck-hide-thin" disabled={busy || !picked.size} onClick={() => hide('insufficient_data')}
+              title="Hidden until the crawler fills in its profile; then shown and re-checked by itself" style={btn}><EyeOff size={14} /> Hide until more data</button>
           </div>
         )}
 
@@ -188,6 +240,12 @@ export default function AdminSectorRecheck() {
                 <td style={{ padding: '8px 6px', width: '26%' }}>
                   <Link to={`/dashboard/startups/${i.user_id}?by=user_id`} style={{ fontWeight: 600, color: '#0B1E3F' }}>{i.company_name}</Link>
                   {i.not_startup && <div data-testid="recheck-not-startup" style={{ fontSize: 11.5, color: '#A33', fontWeight: 600 }}>Probably not a startup</div>}
+                  {i.hidden_reason && (
+                    <div data-testid="recheck-hidden" style={{ fontSize: 11.5, color: '#555', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                      <EyeOff size={12} /> {hiddenText(i.hidden_reason)}
+                      <button type="button" data-testid="recheck-unhide" disabled={busy} onClick={() => unhide(i.id)} style={{ ...btn, fontSize: 11.5, padding: '2px 8px' }}><Undo2 size={12} /> Undo</button>
+                    </div>
+                  )}
                 </td>
                 <td data-testid="recheck-sectors" style={{ padding: '8px 6px', width: '26%' }}>
                   <div style={{ color: '#888' }}>{sectorLabels(i, tab)[0]}</div>

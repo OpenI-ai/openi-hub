@@ -10,9 +10,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn() }));
+const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn(), hide: vi.fn(), unhide: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ sectorRecheckAPI: api }));
-const { default: Page, recheckStatusText, sectorLabels, busyText, autoText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
+const { default: Page, recheckStatusText, sectorLabels, busyText, autoText, hiddenText, hideDoneText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
 
 const data = {
   from: 'Financial Services', still_filed: 3256, counts: { pending: 2, kept: 5 }, run: null,
@@ -118,5 +118,56 @@ describe('AdminSectorRecheck', () => {
     api.overview.mockResolvedValue({ ...data, auto: { enabled: true, waiting: 0, approved_by_agent: 9, running: false } });
     show();
     expect((await screen.findByTestId('recheck-auto-now')).disabled).toBe(true);
+  });
+
+  // s125: all eight older sectors, and hiding what is not a startup / too thin to place.
+  const SECTORS = [{ name: 'Financial Services', still_filed: 3256, pending: 2 }, { name: 'IT & Software', still_filed: 9000, pending: 0 }, { name: 'Energy & Utilities', still_filed: 800, pending: 4 }];
+
+  it('a sector picker over the eight sectors: choosing one reloads it, and Start / Approve-now act on it', async () => {
+    api.overview.mockResolvedValue({ ...data, sectors: SECTORS, auto: { enabled: true, waiting: 3, approved_by_agent: 0, running: false } });
+    api.autoApprove.mockReset().mockResolvedValue({ status: 'started', waiting: 3 });
+    show();
+    const pick = await screen.findByTestId('recheck-sector');
+    await waitFor(() => expect(pick.querySelectorAll('option')).toHaveLength(3));
+    expect([...pick.querySelectorAll('option')].map(o => o.textContent)).toEqual(['Financial Services (2 to review)', 'IT & Software', 'Energy & Utilities (4 to review)']);
+    expect(api.overview).toHaveBeenLastCalledWith(expect.objectContaining({ from: 'Financial Services' }));
+    fireEvent.change(pick, { target: { value: 'Energy & Utilities' } });
+    await waitFor(() => expect(api.overview).toHaveBeenLastCalledWith(expect.objectContaining({ from: 'Energy & Utilities' })));
+    fireEvent.click(screen.getByTestId('recheck-start'));
+    await waitFor(() => expect(api.run).toHaveBeenCalledWith('Energy & Utilities'));
+    fireEvent.click(await screen.findByTestId('recheck-auto-now'));
+    await waitFor(() => expect(api.autoApprove).toHaveBeenCalledWith('Energy & Utilities'));
+  });
+
+  it('"Hide: not a startup" and "Hide until more data" send only the ticked rows with their reason', async () => {
+    api.hide.mockReset().mockResolvedValue({ hidden: [102] });
+    show();
+    await screen.findAllByTestId('recheck-row');
+    expect(screen.getByTestId('recheck-hide-not-startup').disabled).toBe(true);
+    fireEvent.click(screen.getByLabelText('Select Fundco'));
+    fireEvent.click(screen.getByTestId('recheck-hide-not-startup'));
+    await waitFor(() => expect(api.hide).toHaveBeenCalledWith([12], 'not_a_startup'));
+    await waitFor(() => expect(screen.getByLabelText('Select Payco').checked).toBe(false));
+    fireEvent.click(screen.getByLabelText('Select Payco'));
+    fireEvent.click(screen.getByTestId('recheck-hide-thin'));
+    await waitFor(() => expect(api.hide).toHaveBeenLastCalledWith([11], 'insufficient_data'));
+  });
+
+  it('a hidden company says why, and Undo shows it again', async () => {
+    api.unhide.mockReset().mockResolvedValue({ restored: [102] });
+    api.overview.mockResolvedValue({ ...data, items: [{ ...data.items[1], hidden_reason: 'not_a_startup' }, data.items[0]] });
+    show();
+    const badge = await screen.findByTestId('recheck-hidden');
+    expect(badge.textContent).toContain('Hidden from clients: not a startup');
+    expect(screen.getAllByTestId('recheck-hidden')).toHaveLength(1);
+    fireEvent.click(screen.getByTestId('recheck-unhide'));
+    await waitFor(() => expect(api.unhide).toHaveBeenCalledWith([12]));
+  });
+
+  it('hiddenText / hideDoneText', () => {
+    expect(hiddenText('insufficient_data')).toBe('Hidden from clients until its profile has enough data');
+    expect(hiddenText(null)).toBe('');
+    expect(hideDoneText('not_a_startup', 1)).toBe('1 company hidden from every client list. "Undo" on the Rejected tab shows one again.');
+    expect(hideDoneText('insufficient_data', 3)).toBe('3 companies hidden from every client list; each comes back by itself once its profile has enough data.');
   });
 });
