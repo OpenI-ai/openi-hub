@@ -75,6 +75,8 @@ export const briefAPI = {
   setCompetitors: (competitors)                  => put('/brief/ceo/competitors', { competitors }),
   runCeo:        ()                              => post('/brief/ceo/run', {}),
   boardPack:     ()                              => blobGet('/brief/ceo/board-pack.pdf', 'OpenI-Board-Pack.pdf'),
+  // s125 — Rajeev: "we can't download this page?" Your own brief as a PDF ('outcome' = the "By outcome" view).
+  myPdf:         (view)                          => blobGet(`/brief/pdf${view === 'outcome' ? '?view=outcome' : ''}`, 'OpenI-Innovation-Brief.pdf'),
 };
 
 // s121g — admin, read-only previews.

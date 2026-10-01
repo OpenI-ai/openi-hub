@@ -12,7 +12,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck, Bookmark } from 'lucide-react';
+import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck, Bookmark, Download } from 'lucide-react';
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
 import TastePanel from './TastePanel';
@@ -168,6 +168,22 @@ export function VerifiedNote() {
     style={{ fontSize: 11.5, color: '#2E7D4F', display: 'inline-flex', alignItems: 'center', gap: 3 }}><ShieldCheck size={12} /> Checked by OpenI's analyst</span>;
 }
 
+/**
+ * The brief with nothing in it. s125 — Rajeev's screenshot: a startup with a full profile was told "Your brief
+ * needs a little more to go on". A startup's brief leads with its agent card, which already says what matches and,
+ * for a thin profile, what to add; so nothing more is said here for a startup.
+ */
+export function EmptyBriefNote({ startup = false, corporate = false }) {
+  if (startup) return null;
+  return (
+    <div data-testid="brief-empty" style={{ ...card, marginTop: 24, alignItems: 'flex-start' }}>
+      <p style={{ margin: 0, fontSize: 14 }}>Your brief needs a little more to go on.</p>
+      <p style={{ margin: 0, fontSize: 13, color: '#555' }}>Add your sectors, focus areas or use cases to your profile{corporate ? ', or post a challenge' : ''}, and your brief fills in.</p>
+      <Link to="/dashboard/profile" style={{ ...btn, textDecoration: 'none' }}>Complete your profile</Link>
+    </div>
+  );
+}
+
 export default function InnovationBrief() {
   const [brief, setBrief] = useState(null);
   // s123 action agents: what OpenI offers to do on each section (A4 launch a challenge, A4b invite shortlisted).
@@ -211,6 +227,25 @@ export default function InnovationBrief() {
   const [fresh, setFresh] = useState(new Set());
   // s123: the client's own strategy map (stored placements, the OpenI team's corrections win).
   const [view, setView] = useState('priority');
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const downloadPdf = async () => {
+    setPdfBusy(true);
+    try {
+      const { blob, name } = await briefAPI.myPdf(view);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      toast.error(err.message || 'Could not prepare the PDF.');
+    } finally {
+      setPdfBusy(false);
+    }
+  };
   const [lensFilter, setLensFilter] = useState(null);
   const prevIds = useRef(new Set());
 
@@ -404,7 +439,13 @@ export default function InnovationBrief() {
             Shortlist or dismiss startups and it re-ranks straight away; OpenI's crawler adds new matches every night.</>)}
           </p>
         </div>
-        <Link to="/dashboard/search" data-testid="brief-ask-link" style={{ ...btn, textDecoration: 'none', padding: '8px 12px' }}><Search size={13} /> Ask OpenI</Link>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {/* s125 — Rajeev: "we can't download this page?" The brief as a PDF, in the view on screen. */}
+          <button type="button" data-testid="brief-pdf" onClick={downloadPdf} disabled={pdfBusy} style={{ ...btn, padding: '8px 12px' }}>
+            {pdfBusy ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} Download PDF
+          </button>
+          <Link to="/dashboard/search" data-testid="brief-ask-link" style={{ ...btn, textDecoration: 'none', padding: '8px 12px' }}><Search size={13} /> Ask OpenI</Link>
+        </div>
       </div>
 
       <div id="tour-brief-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 16,
@@ -536,11 +577,7 @@ export default function InnovationBrief() {
       {brief.lens && view === 'outcome' ? (
         <OutcomeView brief={brief} lens={brief.lens} renderCard={(it) => renderCard(it)} filter={lensFilter} clearFilter={() => setLensFilter(null)} />
       ) : brief.sections.every(s => s.items.length === 0) ? (
-        <div style={{ ...card, marginTop: 24, alignItems: 'flex-start' }}>
-          <p style={{ margin: 0, fontSize: 14 }}>Your brief needs a little more to go on.</p>
-          <p style={{ margin: 0, fontSize: 13, color: '#555' }}>Add your sectors, focus areas or use cases to your profile{isCorporate ? ', or post a challenge' : ''}, and your brief fills in.</p>
-          <Link to="/dashboard/profile" style={{ ...btn, textDecoration: 'none' }}>Complete your profile</Link>
-        </div>
+        <EmptyBriefNote startup={isStartupRole} corporate={isCorporate} />
       ) : brief.sections.filter(s => s.items.length > 0 || s.gap || s.id.startsWith('challenge:')).map(s => (
         <section key={s.id} style={{ marginTop: 28 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', borderBottom: '1px solid #eee', paddingBottom: 6, marginBottom: 12 }}>
