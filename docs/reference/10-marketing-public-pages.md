@@ -90,6 +90,27 @@ Ideas captured here for when they're needed:
 
 ---
 
+### 15.10 Innovation Agent rewrite (1 Oct 2026)
+The landing page (`/`, `/landing`) now leads with the Innovation Agent. Copy was chosen by Rajeev; the page claims
+only what was checked live for each persona on 1 Oct 2026.
+- **Hero** (`src/pages/auth/Landing.jsx`): badge "YOUR INNOVATION AGENT", headline "Your innovation team that works
+  while you sleep.", subline "Every match checked by an analyst agent. Every suggestion shows its evidence. Nothing
+  happens without your OK, unless you switch it on.", proof line (live startup count + 240+ Innovation Maps).
+- **Right panel** (`landingParts/HeroScreens.jsx`): three real screens from the demo accounts (demo companies are
+  fictional: Northwind Defence Systems, Voltgrid Energy) — "Next moves", "Matches, checked", "For startups" — as
+  cropped JPEGs in `public/landing/`, rotating every 6 s, tabs to pick one, labelled "From our demo account".
+- **Agent section** (`landingParts/AgentSection.jsx`): the five agents in order (Scout, Analyst, Your Innovation
+  Agent, Map builder, Next moves), what the agent does for companies, investors and startups, and "You stay in
+  charge" (Suggest only, "Why?", Undo). CTA "Get your Innovation Agent, free".
+- **Meta**: `index.html` title / description / og / twitter text and `useDocumentTitle` DEFAULT_TITLE read
+  "OpenI Hub — Your innovation team that works while you sleep".
+- **Tour**: `src/config/tourData/pagesS125b.js` (`/` and `/landing`, WELCOME + AGENTS steps).
+- **Tests**: `tests/pages/LandingAgents.test.jsx`; browser checks in the backend e2e suite (hero, screens load, tabs,
+  title, tour).
+- **Responsive**: every OpenI Hub page must work at 390 / 768 / 1440 px. Known open items from the 1 Oct audit:
+  the hero search bar's Search button is cut off at 390 px; the agent-steps row is squeezed at 768 px
+  (`md:grid-cols-5`). The daily testing agent checks every page at all three widths.
+
 ## 16. Public Pages (v2.5)
 
 Public pages accessible without authentication, designed to drive organic traffic and conversions.
