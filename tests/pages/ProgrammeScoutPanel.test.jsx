@@ -13,7 +13,7 @@ vi.mock('../../src/services/api', () => ({ programmeScoutAPI: scout, agentRunsAP
 const { ProgrammeScoutPanel } = await import('../../src/pages/dashboard/AdminAgentRuns');
 
 const sources = [
-  { key: 'idex', name: 'iDEX (Ministry of Defence)', url: 'https://idex.gov.in/challenges', publisher_type: 'defence', role: 'source', origin: 'seed', status: 'active', last_status: 'ok', last_found: 3, last_run_at: '2026-10-01T18:52:00Z' },
+  { key: 'idex', name: 'iDEX (Ministry of Defence)', url: 'https://idex.gov.in/challenges', publisher_type: 'defence', role: 'source', origin: 'seed', status: 'active', last_status: 'ok', last_found: 3, last_run_at: '2026-10-01T18:52:00Z', views_30d: 12, clicks_30d: 4 },
   { key: 'birac', name: 'BIRAC (DBT)', url: 'https://birac.nic.in/cfp.php', publisher_type: 'government', role: 'source', origin: 'seed', status: 'active', last_status: 'http_403', last_found: 0 },
   { key: 'found-1', name: 'Mobility Motors', url: 'https://m.example/c', publisher_type: 'corporate', role: 'source', origin: 'discovered', status: 'active', last_status: null, last_found: 0 },
   { key: 'sgi', name: 'startupgrantsindia.com (competitions)', url: 'https://www.startupgrantsindia.com/competitions', publisher_type: 'government', role: 'discovery', origin: 'seed', status: 'active' },
@@ -40,7 +40,8 @@ describe('ProgrammeScoutPanel', () => {
     fireEvent.click(screen.getByTestId('programme-scout-toggle'));
     const rows = [...screen.getByTestId('programme-scout-sources').querySelectorAll('tbody tr')].map(r => r.textContent);
     expect(rows).toHaveLength(3);
-    expect(rows[0]).toMatch(/iDEX.*Defence.*Added by OpenI.*3 open/);
+    expect(rows[0]).toMatch(/iDEX.*Defence.*Added by OpenI.*3 open.*12 seen · 4 opened/);
+    expect(rows[1]).toMatch(/0 seen · 0 opened/);
     expect(rows[1]).toMatch(/BIRAC.*Government.*http_403/);
     expect(rows[2]).toMatch(/Mobility Motors.*Corporate.*Found by the agent.*not read yet/);
   });

@@ -129,7 +129,7 @@ export function ProgrammeScoutPanel({ onStarted }) {
       )}
       {show && (
         <table data-testid="programme-scout-sources" style={{ width: '100%', fontSize: 12, marginTop: 8, borderCollapse: 'collapse' }}>
-          <thead><tr style={{ textAlign: 'left', color: '#777' }}><th>Page</th><th>Who asks</th><th>How added</th><th>Last result</th></tr></thead>
+          <thead><tr style={{ textAlign: 'left', color: '#777' }}><th>Page</th><th>Who asks</th><th>How added</th><th>Last result</th><th>Startups, 30 days</th></tr></thead>
           <tbody>
             {list.map(s => (
               <tr key={s.key} style={{ borderTop: '1px solid #f2f2f2', color: s.status === 'active' ? '#1a1a1a' : '#999' }}>
@@ -137,6 +137,8 @@ export function ProgrammeScoutPanel({ onStarted }) {
                 <td>{TYPE_LABEL[s.publisher_type] || s.publisher_type}</td>
                 <td>{s.origin === 'discovered' ? 'Found by the agent' : 'Added by OpenI'}{s.status !== 'active' ? ` · ${s.status === 'dead' ? 'retired' : 'no official page'}` : ''}</td>
                 <td>{s.last_status ? `${s.last_status === 'ok' ? `${s.last_found} open` : s.last_status}${s.last_run_at ? ` · ${when(s.last_run_at)}` : ''}` : 'not read yet'}</td>
+                {/* s125 — what startups did with this page's requirements (the Scout learns from it). */}
+                <td>{`${s.views_30d || 0} seen · ${s.clicks_30d || 0} opened`}</td>
               </tr>
             ))}
           </tbody>
