@@ -10,6 +10,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AgentSection, { AGENT_STEPS, AGENT_PERSONAS } from '../../src/pages/auth/landingParts/AgentSection.jsx';
 import { PAGE_TOURS } from '../../src/config/tourData/index.js';
+import HeroAgentPanel, { HERO_FEED } from '../../src/pages/auth/landingParts/HeroAgentPanel.jsx';
 
 describe('landing: the Innovation Agent section', () => {
   it('shows the five agents in order, the three verified personas, and how the client stays in charge', () => {
@@ -31,4 +32,16 @@ describe('landing: the Innovation Agent section', () => {
       expect(steps.map(s => s.target)).toEqual(['#tour-page-landing', '#tour-landing-agents']);
     }
   });
+
+  // Rajeev (1 Oct): "right hand side image should show the work of Innovation agent not Innovation map".
+  it('the hero panel shows one night of the agent at work, labelled as an example, with a next move and its Why?', () => {
+    render(<HeroAgentPanel />);
+    expect(screen.getByTestId('hero-agent-example').textContent).toBe('Example');
+    expect(HERO_FEED.map(f => f.who)).toEqual(['Scout', 'Analyst', 'Map builder', 'Your agent']);
+    expect(screen.getAllByTestId('hero-agent-feed')).toHaveLength(4);
+    expect(screen.getByTestId('hero-agent-why').textContent).toMatch(/^Why\?Analyst:.*Scout's search:.*profile and website/);
+    expect(screen.getByTestId('hero-agent-panel').textContent).toMatch(/Suggest only: nothing happens without your OK\./);
+    expect(screen.getByTestId('hero-agent-panel').textContent).not.toMatch(/Innovation Maps\b.*240/);
+  });
 });
+
