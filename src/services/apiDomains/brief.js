@@ -129,15 +129,16 @@ export const programmeScoutAPI = {
 
 // s124 — the analyst's sector re-check (admin): proposals to review, run it, approve / reject.
 export const sectorRecheckAPI = {
-  overview: ({ from, status = 'pending', confidence, limit, offset } = {}) => {
+  overview: ({ from, status = 'pending', confidence, limit, offset, fresh } = {}) => {
     const q = new URLSearchParams({ status });
-    if (from) q.set('from', from);  // s125: any of the eight legacy sectors
+    if (fresh) q.set('fresh', '1');   // s125: re-read the sector list
+    if (from) q.set('from', from);  // s125: the eight legacy sectors and OpenI's specific ones
     if (confidence) q.set('confidence', confidence);
     if (limit) q.set('limit', String(limit));
     if (offset) q.set('offset', String(offset));
     return get(`/admin/sector-recheck?${q.toString()}`);
   },
-  run: (from) => post('/admin/sector-recheck/run', { from }),
+  run: (from, { all = false } = {}) => post('/admin/sector-recheck/run', all ? { from, all: true } : { from }),  // s125: a specific sector samples first
   decide: (ids, decision) => post('/admin/sector-recheck/decide', { ids, decision }),
   autoApprove: (from) => post('/admin/sector-recheck/auto', { from }),  // s125: the agent approves its high-confidence proposals now
   // s125: hide the companies behind proposals from every client list ('not_a_startup' | 'insufficient_data'); Undo.

@@ -40,6 +40,12 @@ export function recheckStatusText(d) {
   const run = d.run;
   if (run?.running) return `The analyst is reading startups… ${run.checked} checked so far in this run.`;
   if (run?.status === 'no_model') return 'The analyst is not available right now (no AI model); nothing was checked.';
+  // s125 — a specific sector is read by sample first (Rajeev: "More sectors in the list").
+  if (d.group === 'specific') {
+    if (!done) return `${d.still_filed.toLocaleString('en-IN')} startups are filed under "${d.from}". Press "Check a sample" and the analyst reads ${d.sample_size} of them, so you see how many are mis-filed before reading them all.`;
+    const mis = done - (c.kept || 0);
+    return `${done.toLocaleString('en-IN')} checked · ${mis.toLocaleString('en-IN')} look mis-filed (${Math.round((mis / done) * 100)}%) · ${(c.pending || 0).toLocaleString('en-IN')} to review · ${d.still_filed.toLocaleString('en-IN')} still filed under it.`;
+  }
   if (!done) return `${d.still_filed.toLocaleString('en-IN')} startups are filed under "${d.from}". Press "Start the re-check" and the analyst reads each one.`;
   return `${done.toLocaleString('en-IN')} checked · ${(c.pending || 0).toLocaleString('en-IN')} to review · ${(c.kept || 0).toLocaleString('en-IN')} kept as "${d.from}" · ${d.still_filed.toLocaleString('en-IN')} still filed under it.`;
 }
@@ -94,9 +100,10 @@ export default function AdminSectorRecheck() {
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState('');
 
-  const load = useCallback(() => sectorRecheckAPI.overview({ from, status: tab, confidence: confidence || undefined, limit: 100 })
+  // fresh: re-read the list of sectors (opening the page, or choosing another sector); the 5-second polling does not.
+  const load = useCallback((fresh) => sectorRecheckAPI.overview({ from, status: tab, confidence: confidence || undefined, limit: 100, fresh: fresh === true })
     .then((r) => { setData(r); setError(false); }).catch(() => setError(true)), [from, tab, confidence]);
-  useEffect(() => { setPicked(new Set()); load(); }, [load]);
+  useEffect(() => { setPicked(new Set()); load(true); }, [load]);
   const working = !!(data?.run?.running || data?.auto?.running);
   useEffect(() => {
     if (!working) return undefined;
@@ -107,6 +114,13 @@ export default function AdminSectorRecheck() {
   const start = async () => {
     setBusy(true);
     try { await sectorRecheckAPI.run(from); toast.success('The analyst started. This page updates as it goes.'); await load(); }
+    catch (err) { toast.error(err.message || 'Could not start.'); }
+    finally { setBusy(false); }
+  };
+  // s125: after a sample, read every startup still filed under a specific sector.
+  const startAll = async () => {
+    setBusy(true);
+    try { await sectorRecheckAPI.run(from, { all: true }); toast.success('The analyst is reading all of them. This page updates as it goes.'); await load(); }
     catch (err) { toast.error(err.message || 'Could not start.'); }
     finally { setBusy(false); }
   };
@@ -166,23 +180,35 @@ export default function AdminSectorRecheck() {
       <h1 id="tour-page-admin-sector-recheck" style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Sector re-check</h1>
       <p style={{ fontSize: 13.5, color: '#555', margin: '0 0 12px', maxWidth: 820 }}>
         Startups filed under the wrong sector look wrong to every client who opens them. OpenI's analyst re-reads each startup filed
-        under one of OpenI's eight older broad sectors and proposes the right sector from OpenI's own list, with its reason. High-confidence proposals are approved by
+        under one of OpenI's eight older broad sectors, or under one of its specific sectors (checked by a sample first), and proposes the right sector from OpenI's own list, with its reason. High-confidence proposals are approved by
         the agent itself (audited, and never over a profile someone edited); the rest wait for you here. A company that is not a startup, or
         has too little data to place, can be hidden from every client list.
       </p>
 
       <label style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 8, margin: '0 0 10px' }}>Sector to re-check
         <select data-testid="recheck-sector" value={from} onChange={e => setFrom(e.target.value)} style={btn}>
-          {(data?.sectors?.length ? data.sectors : [{ name: from }]).map(s => (
-            <option key={s.name} value={s.name}>{s.name}{s.pending ? ` (${Number(s.pending).toLocaleString('en-IN')} to review)` : ''}</option>
-          ))}
+          {/* s125 — the eight older broad sectors, then OpenI's specific sectors that have startups (largest first). */}
+          {(() => {
+            const list = data?.sectors?.length ? data.sectors : [{ name: from, group: 'legacy' }];
+            const opt = s => <option key={s.name} value={s.name}>{s.name}{s.group === 'specific' && s.still_filed ? ` · ${Number(s.still_filed).toLocaleString('en-IN')}` : ''}{s.pending ? ` (${Number(s.pending).toLocaleString('en-IN')} to review)` : ''}</option>;
+            const broad = list.filter(s => s.group !== 'specific');
+            const specific = list.filter(s => s.group === 'specific');
+            return specific.length ? (<>
+              <optgroup label="Older broad sectors">{broad.map(opt)}</optgroup>
+              <optgroup label="Specific sectors (startups filed)">{specific.map(opt)}</optgroup>
+            </>) : broad.map(opt);
+          })()}
         </select>
       </label>
 
       <div id="tour-sector-recheck-status" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '10px 14px' }}>
         <span data-testid="recheck-status" style={{ fontSize: 13.5, flex: '1 1 400px' }}>{error ? 'Could not load the re-check just now.' : recheckStatusText(data)}</span>
         <button type="button" data-testid="recheck-start" onClick={start} disabled={busy || !data || data.run?.running} style={{ ...btn, borderColor: G }}>
-          {data?.run?.running ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} Start the re-check</button>
+          {data?.run?.running ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} {data?.group === 'specific' ? `Check a sample (${data.sample_size})` : 'Start the re-check'}</button>
+        {data?.group === 'specific' && Object.values(data.counts || {}).some(Boolean) && data.still_filed > 0 && (
+          <button type="button" data-testid="recheck-start-all" onClick={startAll} disabled={busy || data.run?.running} style={btn}>
+            <Play size={14} /> Check all {Number(data.still_filed).toLocaleString('en-IN')}</button>
+        )}
         <button type="button" onClick={load} style={btn}><RefreshCw size={14} /> Refresh</button>
         {data?.auto && (
           <div id="tour-sector-recheck-auto" style={{ flex: '1 1 100%', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', borderTop: '1px dashed #eee', paddingTop: 8 }}>

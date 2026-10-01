@@ -170,4 +170,28 @@ describe('AdminSectorRecheck', () => {
     expect(hideDoneText('not_a_startup', 1)).toBe('1 company hidden from every client list. "Undo" on the Rejected tab shows one again.');
     expect(hideDoneText('insufficient_data', 3)).toBe('3 companies hidden from every client list; each comes back by itself once its profile has enough data.');
   });
+
+  // s125 — Rajeev: "we need to expand this sector" → "More sectors in the list". Specific sectors, sample first.
+  it('specific sectors are listed apart, and are read by sample first; "Check all" appears after the sample', async () => {
+    const sectors = [{ name: 'Financial Services', group: 'legacy', still_filed: 3256 }, { name: 'AgriTech', group: 'specific', still_filed: 4100 }];
+    api.overview.mockImplementation(({ from }) => Promise.resolve(from === 'AgriTech'
+      ? { ...data, from: 'AgriTech', group: 'specific', sample_size: 50, still_filed: 4100, counts: { pending: 6, kept: 40, approved: 4 }, sectors, items: [] }
+      : { ...data, group: 'legacy', sample_size: 50, sectors }));
+    show();
+    const pick = await screen.findByTestId('recheck-sector');
+    expect([...pick.querySelectorAll('optgroup')].map(g => g.label)).toEqual(['Older broad sectors', 'Specific sectors (startups filed)']);
+    expect(screen.queryByTestId('recheck-start-all')).toBeNull();   // broad sectors: one button, as before
+    fireEvent.change(pick, { target: { value: 'AgriTech' } });
+    await waitFor(() => expect(screen.getByTestId('recheck-start').textContent).toContain('Check a sample (50)'));
+    expect(screen.getByTestId('recheck-status').textContent).toBe('50 checked · 10 look mis-filed (20%) · 6 to review · 4,100 still filed under it.');
+    fireEvent.click(screen.getByTestId('recheck-start'));
+    await waitFor(() => expect(api.run).toHaveBeenCalledWith('AgriTech'));
+    fireEvent.click(screen.getByTestId('recheck-start-all'));
+    await waitFor(() => expect(api.run).toHaveBeenCalledWith('AgriTech', { all: true }));
+  });
+
+  it('a specific sector not checked yet explains the sample', () => {
+    expect(recheckStatusText({ from: 'AgriTech', group: 'specific', sample_size: 50, still_filed: 4100, counts: {} }))
+      .toBe('4,100 startups are filed under "AgriTech". Press "Check a sample" and the analyst reads 50 of them, so you see how many are mis-filed before reading them all.');
+  });
 });
