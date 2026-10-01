@@ -13,9 +13,9 @@ export default function BriefTeaser() {
         borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>
       <TrendingUp size={20} style={{ color: '#D0A848', flexShrink: 0 }} />
       <span style={{ flex: 1, minWidth: 0 }}>
-        <strong style={{ fontWeight: 600, color: '#fff' }}>Your Innovation Brief</strong>
+        <strong style={{ fontWeight: 600, color: '#fff' }}>Your Innovation Agent</strong>
         <span style={{ display: 'block', fontSize: 13, color: '#C9D3DB' }}>
-          Startups and opportunities picked for your priorities, updated every time you visit.
+          Works for you: startups and opportunities picked for your priorities, updated every time you visit.
         </span>
       </span>
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#D0A848', fontWeight: 600 }}>

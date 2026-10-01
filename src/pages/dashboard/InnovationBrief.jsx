@@ -430,7 +430,7 @@ export default function InnovationBrief() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>
-            <TrendingUp size={12} style={{ display: 'inline-block', verticalAlign: '-2px', marginRight: 4 }} />Innovation Brief
+            <TrendingUp size={12} style={{ display: 'inline-block', verticalAlign: '-2px', marginRight: 4 }} />Innovation Agent
           </div>
           <h1 id="tour-page-brief" style={{ fontSize: 26, fontWeight: 600, color: '#1a1a1a', margin: '4px 0 6px' }}>Built for you, updated as you use it</h1>
           <p style={{ fontSize: 14, color: '#555', margin: 0, maxWidth: '70ch' }}>

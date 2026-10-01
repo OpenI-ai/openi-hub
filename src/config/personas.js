@@ -137,7 +137,8 @@ function buildPersonaNav(role, { recommended = null, actions = [], workspace = n
     items: [
       { to: DASHBOARD_HOME[role] || '/dashboard', label: 'My Dashboard', icon: 'LayoutDashboard', end: true },
       // s121e — every persona gets the personalised, self-updating brief.
-      { to: '/dashboard/brief',                   label: 'Innovation Brief', icon: 'TrendingUp' },
+      // s125b — named after the agent for every persona (Rajeev, 1 Oct); the PDF it writes keeps "Innovation Brief".
+      { to: '/dashboard/brief',                   label: 'Innovation Agent', icon: 'TrendingUp' },
       { to: '/dashboard/profile',                 label: 'My Profile',   icon: 'User' },
       // Optional persona-specific items pinned directly under My Profile.
       // Defaults to [] so every other persona's hub group is unchanged.
