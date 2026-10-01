@@ -130,4 +130,5 @@ export const sectorRecheckAPI = {
   },
   run: () => post('/admin/sector-recheck/run', {}),
   decide: (ids, decision) => post('/admin/sector-recheck/decide', { ids, decision }),
+  autoApprove: () => post('/admin/sector-recheck/auto', {}),  // s125: the agent approves its high-confidence proposals now
 };
