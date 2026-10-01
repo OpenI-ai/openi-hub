@@ -24,6 +24,17 @@ const NEW = 'Under each next move, "Why?" shows what it rests on: the analyst\'s
 const sector = pagesS124['/dashboard/admin/sector-recheck'];
 const AUTO = ' The agent approves its own high-confidence proposals that change a sector: after each run, and every night with the newly filed startups. Each approval is recorded like yours and never overwrites a profile someone edited. Medium and low confidence, and a "Probably not a startup" that keeps the sector, still wait for you. "Approve high confidence now" clears the backlog at once.';
 
+// s125 — all eight older broad sectors (a picker), and hiding what is not a startup / too thin to place.
+const INTRO_OLD = 're-reads each startup filed under "Financial Services" and proposes the right sector from OpenI\'s own list, keeping "Financial Services" for real banks and other established financial companies.';
+const INTRO_NEW = 're-reads each startup filed under one of OpenI\'s eight older broad sectors (pick it under "Sector to re-check": Financial Services, IT & Software, Retail & Consumer and the rest) and proposes the right sector from OpenI\'s own list, keeping the broad one for real incumbents such as banks, IT services firms or utilities.';
+const HIDE = ' Two more buttons act on the ticked rows: "Hide: not a startup" takes a fund, agency or established company out of every client list (search, discovery, briefs and recommendations); "Hide until more data" hides a company whose profile is too thin to place, and it comes back by itself once the crawler fills it in, to be re-checked. Both are recorded, and "Undo" beside a hidden company shows it again.';
+const sectorSteps = sector.steps.map((s) => {
+  if (s.target === '#tour-page-admin-sector-recheck') return { ...s, content: s.content.replace(INTRO_OLD, INTRO_NEW) };
+  if (s.target === '#tour-sector-recheck-status') return { ...s, content: `${s.content}${AUTO}` };
+  if (s.target === '#tour-sector-recheck-review') return { ...s, content: `${s.content}${HIDE}` };
+  return s;
+});
+
 // s125 Phase 4c: the Coach's new knobs, told in the same Agents step (it already describes the Coach).
 const COACH_OLD = 'Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.';
 const COACH_NEW = 'It can also put a stage you keep passing on (for example idea-to-seed startups) last in every section, without hiding any; ease a minimum it raised when a section gets too thin; and, when you pass on most of what a priority shows, ask Scout to search again for that priority ("Searched"). Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.';
@@ -36,7 +47,7 @@ const DEAL = ' For investors, its next moves include "Add to your deal pipeline"
 export const pagesS125 = {
   '/dashboard/admin/sector-recheck': {
     ...sector,
-    steps: sector.steps.map(s => (s.target === '#tour-sector-recheck-status' ? { ...s, content: `${s.content}${AUTO}` } : s)),
+    steps: sectorSteps,
   },
   '/dashboard/brief': {
     ...brief,

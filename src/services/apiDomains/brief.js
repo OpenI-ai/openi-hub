@@ -121,14 +121,18 @@ export const agentRunsAPI = {
 
 // s124 — the analyst's sector re-check (admin): proposals to review, run it, approve / reject.
 export const sectorRecheckAPI = {
-  overview: ({ status = 'pending', confidence, limit, offset } = {}) => {
+  overview: ({ from, status = 'pending', confidence, limit, offset } = {}) => {
     const q = new URLSearchParams({ status });
+    if (from) q.set('from', from);  // s125: any of the eight legacy sectors
     if (confidence) q.set('confidence', confidence);
     if (limit) q.set('limit', String(limit));
     if (offset) q.set('offset', String(offset));
     return get(`/admin/sector-recheck?${q.toString()}`);
   },
-  run: () => post('/admin/sector-recheck/run', {}),
+  run: (from) => post('/admin/sector-recheck/run', { from }),
   decide: (ids, decision) => post('/admin/sector-recheck/decide', { ids, decision }),
-  autoApprove: () => post('/admin/sector-recheck/auto', {}),  // s125: the agent approves its high-confidence proposals now
+  autoApprove: (from) => post('/admin/sector-recheck/auto', { from }),  // s125: the agent approves its high-confidence proposals now
+  // s125: hide the companies behind proposals from every client list ('not_a_startup' | 'insufficient_data'); Undo.
+  hide: (ids, reason) => post('/admin/sector-recheck/hide', { ids, reason }),
+  unhide: (ids) => post('/admin/sector-recheck/unhide', { ids }),
 };
