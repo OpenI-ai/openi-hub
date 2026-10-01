@@ -1612,3 +1612,11 @@ other todo surface in the repo. Rescued from a scheduled check-in that was retir
   catch (the 8 Sep outage was invisible to monitoring); soften the integrity
   cron email's "structurally impossible" wording. Detail → memory repo
   `NEXT_SESSION_TODOS.md` s114 items 4–5.
+
+### Session close 1 Oct 2026 ~17:15 UTC (s125)
+- SHIPPED + LIVE: FE #131–#133 (sector re-check labels/spinner, "Innovation Agent" rename, Edit details buttons,
+  startup count incl. outside requirements); FE #134 landing page rewrite (see docs/reference/10 §15.10).
+- RESPONSIVE AUDIT #1 (95 live pages × 390/768/1440): only /search scrolls sideways at 390, but several pages clip or
+  squeeze content on phones — 8-Vector Eval, Mentor Availability time boxes, Invited Challenges title, Discover
+  Startups header, Lab "New Announcement", directory sort, Knowledge Hub, landing hero Search button, tour beacon
+  half off-screen. NOT fixed yet; the daily testing agent now checks every page at 3 widths and fixes these in a loop.
