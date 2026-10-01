@@ -139,6 +139,7 @@ export const sectorRecheckAPI = {
     return get(`/admin/sector-recheck?${q.toString()}`);
   },
   run: (from, { all = false } = {}) => post('/admin/sector-recheck/run', all ? { from, all: true } : { from }),  // s125: a specific sector samples first
+  nightly: (from, on) => post('/admin/sector-recheck/nightly', { from, on }),  // s125: keep going every night until done
   decide: (ids, decision) => post('/admin/sector-recheck/decide', { ids, decision }),
   autoApprove: (from) => post('/admin/sector-recheck/auto', { from }),  // s125: the agent approves its high-confidence proposals now
   // s125: hide the companies behind proposals from every client list ('not_a_startup' | 'insufficient_data'); Undo.

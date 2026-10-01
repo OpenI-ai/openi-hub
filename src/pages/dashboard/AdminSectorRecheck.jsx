@@ -32,6 +32,25 @@ const btn = { fontSize: 13, padding: '6px 12px', borderRadius: 8, border: '1px s
 const TABS = [['pending', 'To review'], ['approved', 'Approved'], ['rejected', 'Rejected'], ['kept', 'Kept as is'], ['stale', 'Changed meanwhile']];
 const CONF = { high: { bg: '#E7F4EC', fg: '#2E7D4F' }, medium: { bg: '#FFF7E0', fg: '#8A6A1C' }, low: { bg: '#f3f3f3', fg: '#666' } };
 
+/** s125 — what "Check all" really reads in one press (at most max_per_run). */
+export function checkAllLabel(d) {
+  const left = Number(d?.remaining ?? d?.still_filed ?? 0);
+  const max = Number(d?.max_per_run || left);
+  return left <= max ? `Check all ${left.toLocaleString('en-IN')}` : `Check the next ${max.toLocaleString('en-IN')}`;
+}
+
+/** s125 — the "keep going every night until done" line. */
+export function nightlyText(d) {
+  const left = Number(d?.remaining ?? 0);
+  const max = Number(d?.max_per_run || 1);
+  const n = d?.nightly || {};
+  if (!left && n.done_at) return `Every startup in this sector has been read (finished ${new Date(n.done_at).toLocaleDateString('en-IN')}).`;
+  const nights = Math.ceil(left / max);
+  const base = `Keep going every night until done: ${left.toLocaleString('en-IN')} left, about ${nights} night${nights === 1 ? '' : 's'} at ${max.toLocaleString('en-IN')} a night (03:45 IST).`;
+  if (!n.on) return base;
+  return `${base} On${n.requested_by ? ` (switched on by ${n.requested_by})` : ''}${n.last_run_at ? `; last night read ${Number(n.last_checked || 0).toLocaleString('en-IN')}` : ''}.`;
+}
+
 /** The line under the title: how far the analyst has got. */
 export function recheckStatusText(d) {
   if (!d) return '';
@@ -116,6 +135,20 @@ export default function AdminSectorRecheck() {
     try { await sectorRecheckAPI.run(from); toast.success('The analyst started. This page updates as it goes.'); await load(); }
     catch (err) { toast.error(err.message || 'Could not start.'); }
     finally { setBusy(false); }
+  };
+  const setNightly = async (on) => {
+    // Flip at once (the box must answer the click), and put it back if the save fails.
+    const was = !!data?.nightly?.on;
+    setData(d => ({ ...d, nightly: { ...(d?.nightly || {}), on } }));
+    setBusy(true);
+    try {
+      await sectorRecheckAPI.nightly(from, on);
+      toast.success(on ? 'The analyst will keep going every night until this sector is done.' : 'Nightly re-check of this sector switched off.');
+      await load();
+    } catch (err) {
+      setData(d => ({ ...d, nightly: { ...(d?.nightly || {}), on: was } }));
+      toast.error(err.message || 'Could not save that.');
+    } finally { setBusy(false); }
   };
   // s125: after a sample, read every startup still filed under a specific sector.
   const startAll = async () => {
@@ -205,11 +238,20 @@ export default function AdminSectorRecheck() {
         <span data-testid="recheck-status" style={{ fontSize: 13.5, flex: '1 1 400px' }}>{error ? 'Could not load the re-check just now.' : recheckStatusText(data)}</span>
         <button type="button" data-testid="recheck-start" onClick={start} disabled={busy || !data || data.run?.running} style={{ ...btn, borderColor: G }}>
           {data?.run?.running ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} {data?.group === 'specific' ? `Check a sample (${data.sample_size})` : 'Start the re-check'}</button>
-        {data?.group === 'specific' && Object.values(data.counts || {}).some(Boolean) && data.still_filed > 0 && (
+        {/* s125 — Rajeev: "yes, make both changes". The button says what one press really reads (at most max_per_run). */}
+        {data?.group === 'specific' && Object.values(data.counts || {}).some(Boolean) && (data.remaining ?? 0) > 0 && (
           <button type="button" data-testid="recheck-start-all" onClick={startAll} disabled={busy || data.run?.running} style={btn}>
-            <Play size={14} /> Check all {Number(data.still_filed).toLocaleString('en-IN')}</button>
+            <Play size={14} /> {checkAllLabel(data)}</button>
         )}
         <button type="button" onClick={load} style={btn}><RefreshCw size={14} /> Refresh</button>
+        {/* s125 — "Keep going every night until done": the nightly run reads the next batch of this sector each night. */}
+        {data?.group === 'specific' && ((data.remaining ?? 0) > 0 || data.nightly?.done_at) && (
+          <label data-testid="recheck-nightly-label" style={{ flex: '1 1 100%', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 8, color: '#333' }}>
+            <input type="checkbox" data-testid="recheck-nightly" checked={!!data.nightly?.on} disabled={busy || (data.remaining ?? 0) === 0}
+              onChange={e => setNightly(e.target.checked)} />
+            {nightlyText(data)}
+          </label>
+        )}
         {data?.auto && (
           <div id="tour-sector-recheck-auto" style={{ flex: '1 1 100%', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', borderTop: '1px dashed #eee', paddingTop: 8 }}>
             <span data-testid="recheck-auto" style={{ fontSize: 13, color: '#2E7D4F', flex: '1 1 400px' }}>{autoText(data)}</span>

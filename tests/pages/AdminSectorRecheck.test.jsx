@@ -10,9 +10,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn(), hide: vi.fn(), unhide: vi.fn() }));
+const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn(), hide: vi.fn(), unhide: vi.fn(), nightly: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ sectorRecheckAPI: api }));
-const { default: Page, recheckStatusText, sectorLabels, busyText, autoText, hiddenText, hideDoneText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
+const { default: Page, recheckStatusText, sectorLabels, busyText, autoText, hiddenText, hideDoneText, checkAllLabel, nightlyText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
 
 const data = {
   from: 'Financial Services', still_filed: 3256, counts: { pending: 2, kept: 5 }, run: null,
@@ -175,7 +175,7 @@ describe('AdminSectorRecheck', () => {
   it('specific sectors are listed apart, and are read by sample first; "Check all" appears after the sample', async () => {
     const sectors = [{ name: 'Financial Services', group: 'legacy', still_filed: 3256 }, { name: 'AgriTech', group: 'specific', still_filed: 4100 }];
     api.overview.mockImplementation(({ from }) => Promise.resolve(from === 'AgriTech'
-      ? { ...data, from: 'AgriTech', group: 'specific', sample_size: 50, still_filed: 4100, counts: { pending: 6, kept: 40, approved: 4 }, sectors, items: [] }
+      ? { ...data, from: 'AgriTech', group: 'specific', sample_size: 50, still_filed: 4100, remaining: 4050, max_per_run: 4000, nightly: { on: false }, counts: { pending: 6, kept: 40, approved: 4 }, sectors, items: [] }
       : { ...data, group: 'legacy', sample_size: 50, sectors }));
     show();
     const pick = await screen.findByTestId('recheck-sector');
@@ -193,5 +193,44 @@ describe('AdminSectorRecheck', () => {
   it('a specific sector not checked yet explains the sample', () => {
     expect(recheckStatusText({ from: 'AgriTech', group: 'specific', sample_size: 50, still_filed: 4100, counts: {} }))
       .toBe('4,100 startups are filed under "AgriTech". Press "Check a sample" and the analyst reads 50 of them, so you see how many are mis-filed before reading them all.');
+  });
+
+  // s125 — Rajeev: "yes, make both changes". One press reads at most max_per_run; a big sector can keep going nightly.
+  it('"Check all" says what one press really reads', () => {
+    expect(checkAllLabel({ remaining: 129367, max_per_run: 4000 })).toBe('Check the next 4,000');
+    expect(checkAllLabel({ remaining: 3200, max_per_run: 4000 })).toBe('Check all 3,200');
+  });
+
+  it('the nightly line: how many are left, how many nights, who switched it on, and when it finished', () => {
+    expect(nightlyText({ remaining: 129367, max_per_run: 4000, nightly: { on: false } }))
+      .toBe('Keep going every night until done: 1,29,367 left, about 33 nights at 4,000 a night (03:45 IST).');
+    expect(nightlyText({ remaining: 125367, max_per_run: 4000, nightly: { on: true, requested_by: 'rajeev@openi.ai', last_run_at: '2026-10-02T22:20:00Z', last_checked: 4000 } }))
+      .toBe('Keep going every night until done: 1,25,367 left, about 32 nights at 4,000 a night (03:45 IST). On (switched on by rajeev@openi.ai); last night read 4,000.');
+    expect(nightlyText({ remaining: 0, max_per_run: 4000, nightly: { on: false, done_at: '2026-11-03T22:20:00Z' } })).toMatch(/^Every startup in this sector has been read \(finished /);
+  });
+
+  it('ticking "Keep going every night" switches it on for that sector; the label shows the real batch', async () => {
+    const sectors = [{ name: 'Financial Services', group: 'legacy' }, { name: 'SaaS/Enterprise', group: 'specific', still_filed: 129417 }];
+    api.nightly.mockReset().mockResolvedValue({ on: true });
+    api.overview.mockImplementation(({ from }) => Promise.resolve(from === 'SaaS/Enterprise'
+      ? { ...data, from, group: 'specific', sample_size: 50, max_per_run: 4000, remaining: 129367, still_filed: 129417, nightly: { on: false }, counts: { kept: 45, approved: 4, pending: 1 }, sectors, items: [] }
+      : { ...data, group: 'legacy', sectors, nightly: { on: true, legacy: true } }));
+    show();
+    expect(screen.queryByTestId('recheck-nightly')).toBeNull();   // broad sectors: read nightly anyway
+    fireEvent.change(await screen.findByTestId('recheck-sector'), { target: { value: 'SaaS/Enterprise' } });
+    await waitFor(() => expect(screen.getByTestId('recheck-start-all').textContent).toContain('Check the next 4,000'));
+    api.nightly.mockImplementation(() => new Promise(() => {}));   // the save is still on its way…
+    fireEvent.click(screen.getByTestId('recheck-nightly'));
+    expect(screen.getByTestId('recheck-nightly').checked).toBe(true);   // …and the box already answers the click
+    await waitFor(() => expect(api.nightly).toHaveBeenCalledWith('SaaS/Enterprise', true));
+  });
+
+  it('a failed save puts the nightly box back', async () => {
+    const sectors = [{ name: 'SaaS/Enterprise', group: 'specific', still_filed: 10 }];
+    api.overview.mockResolvedValue({ ...data, from: 'Financial Services', group: 'specific', sample_size: 50, max_per_run: 4000, remaining: 10, nightly: { on: false }, counts: { kept: 1 }, sectors, items: [] });
+    api.nightly.mockReset().mockRejectedValue(new Error('down'));
+    show();
+    fireEvent.click(await screen.findByTestId('recheck-nightly'));
+    await waitFor(() => expect(screen.getByTestId('recheck-nightly').checked).toBe(false));
   });
 });
