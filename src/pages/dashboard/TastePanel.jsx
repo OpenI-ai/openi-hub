@@ -29,7 +29,7 @@ export default function TastePanel({ onChanged }) {
     setBusy(key);
     try {
       setTaste(await briefAPI.decideTaste(key, decision));
-      toast.success(decision === 'reject' ? 'Got it: OpenI will not use that.' : 'Kept. Your brief keeps using it.');
+      toast.success(decision === 'reject' ? 'Got it: OpenI will not use that.' : 'Kept. Your agent keeps using it.');
       onChanged?.();
     } catch (err) {
       toast.error(err.message || 'Could not save that');

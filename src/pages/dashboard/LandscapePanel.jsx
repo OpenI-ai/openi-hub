@@ -133,7 +133,7 @@ export default function LandscapePanel({ load, build = null, client = null, star
           flywheel storage), so the map is empty. A priority already tried says so instead of offering the button again. */}
       {untried.length > 0 && (
         <p data-testid="landscape-unmapped" style={{ fontSize: 12.5, color: '#6B5A24', background: '#FBF6EA', borderRadius: 8, padding: '6px 10px', margin: '10px 0 0' }}>
-          No Innovation Map covers {untried.map(u => `"${u}"`).join(', ')} yet, so {untried.length === 1 ? 'it is' : 'they are'} not in this view. {client ? 'This client\'s' : 'Your'} brief still searches for {untried.length === 1 ? 'it' : 'them'} above.
+          No Innovation Map covers {untried.map(u => `"${u}"`).join(', ')} yet, so {untried.length === 1 ? 'it is' : 'they are'} not in this view. {client ? 'This client\'s brief' : 'Your agent'} still searches for {untried.length === 1 ? 'it' : 'them'} above.
           {build && (
             <button type="button" data-testid="build-maps" onClick={runBuild} disabled={building}
               style={{ marginLeft: 8, fontSize: 12.5, padding: '3px 10px', borderRadius: 8, border: '1px solid #C9A84C', background: building ? '#f4efe2' : '#C9A84C', color: '#0B1E3F', fontWeight: 600, cursor: building ? 'default' : 'pointer' }}>
@@ -144,7 +144,7 @@ export default function LandscapePanel({ load, build = null, client = null, star
       )}
       {tried.length > 0 && (
         <p data-testid="landscape-tried" style={{ fontSize: 12.5, color: '#555', background: '#F6F6F4', borderRadius: 8, padding: '6px 10px', margin: '10px 0 0' }}>
-          OpenI looked for startups doing {tried.map(u => `"${u}"`).join(', ')} and has not found any that fit yet: the analyst checked the closest companies and none of them {tried.length === 1 ? 'does it' : 'do these'}. The map builder looks again every night and the map appears here once it finds some. {client ? 'This client\'s' : 'Your'} brief still searches for {tried.length === 1 ? 'it' : 'them'} above.
+          OpenI looked for startups doing {tried.map(u => `"${u}"`).join(', ')} and has not found any that fit yet: the analyst checked the closest companies and none of them {tried.length === 1 ? 'does it' : 'do these'}. The map builder looks again every night and the map appears here once it finds some. {client ? 'This client\'s brief' : 'Your agent'} still searches for {tried.length === 1 ? 'it' : 'them'} above.
         </p>
       )}
     </section>

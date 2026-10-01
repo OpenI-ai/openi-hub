@@ -15,6 +15,9 @@ const FAST_OLD = 'one press of "Check all" reads up to 4,000 (the button says ho
 const FAST_NEW = 'one press of "Check all" reads up to 20,000 (the button says how many), and "Keep going until done" lets the analyst read the next batch every 2 hours until the sector is finished.';
 const AGENT = 'Your Innovation Agent works for you: it picks startups and opportunities';
 const BRIEF_OLD = 'Startups and opportunities picked';
+// Rajeev (1 Oct): "26 matches in this brief" -> "26 matches your agent found" — yes, change it.
+const STATS_OLD = 'How many matches this brief holds';
+const STATS_NEW = 'How many matches your agent found';
 
 export const pagesS125b = {
   '/dashboard/admin/sector-recheck': {
@@ -26,6 +29,6 @@ export const pagesS125b = {
     title: 'Innovation Agent',
     steps: brief.steps.map(s => (s.target === '#tour-page-brief'
       ? { ...s, title: 'Your Innovation Agent', content: s.content.replace(BRIEF_OLD, AGENT).replace('saves this brief as', 'saves what it found as your Innovation Brief,') }
-      : s)),
+      : s.target === '#tour-brief-stats' ? { ...s, content: s.content.replace(STATS_OLD, STATS_NEW) } : s)),
   },
 };

@@ -11,7 +11,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 const api = vi.hoisted(() => ({ matches: vi.fn(), setSettings: vi.fn(), callEvents: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ startupAgentAPI: api }));
-const { default: Card, matchesText } = await import('../../src/components/StartupAgentCard');
+const { default: Card, matchesText, applyCountOf } = await import('../../src/components/StartupAgentCard');
 
 const data = {
   total: 3, settings: { weekly_email: true, email_at: null },
@@ -126,5 +126,16 @@ describe('StartupAgentCard', () => {
     show();
     await screen.findAllByTestId('startup-agent-corporate');
     expect(screen.queryByTestId('startup-agent-calls')).toBeNull();
+  });
+
+  // Rajeev (1 Oct): "0 challenges you could win" above 4 requirements — the page counts both.
+  it('tells the page how many things the startup could apply to: OpenI challenges plus outside requirements', async () => {
+    expect(applyCountOf({ groups: [{ challenges: [{}, {}] }, { challenges: [{}] }], open_calls: [{}, {}, {}, {}] })).toBe(7);
+    expect(applyCountOf({ groups: [], open_calls: [{}, {}, {}, {}] })).toBe(4);
+    expect(applyCountOf(null)).toBe(0);
+    const onLoaded = vi.fn();
+    api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, open_calls: [{ id: 1, title: 'A', url: 'https://a.example', why: 'x' }, { id: 2, title: 'B', url: 'https://b.example', why: 'y' }] });
+    render(<MemoryRouter><Card place="brief" onLoaded={onLoaded} /></MemoryRouter>);
+    await waitFor(() => expect(onLoaded).toHaveBeenCalledWith(2));
   });
 });

@@ -25,7 +25,7 @@ describe('AgentsPanel', () => {
 
   it('says so when no agent has run yet', async () => {
     render(<AgentsPanel load={vi.fn().mockResolvedValue({ items: [], scout: {} })} scout={vi.fn()} />);
-    expect((await screen.findByTestId('agents-empty')).textContent).toMatch(/^No agent has worked on your brief yet\./);
+    expect((await screen.findByTestId('agents-empty')).textContent).toMatch(/^No agent has worked for you yet\./);
   });
 
   it('Run Scout now: shows the result and reloads the brief when it found something', async () => {

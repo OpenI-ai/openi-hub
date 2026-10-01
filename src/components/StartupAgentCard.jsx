@@ -31,7 +31,13 @@ export function matchesText(d) {
   return `${n} open challenge${n === 1 ? '' : 's'} from ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'} ${n === 1 ? 'matches' : 'match'} what you do. Only public challenges, open now, are used.`;
 }
 
-export default function StartupAgentCard({ place = 'card' }) {
+/** How many things a startup could apply to: OpenI challenges plus requirements from outside OpenI. */
+export function applyCountOf(d) {
+  const challenges = (d?.groups || []).reduce((n, g) => n + (g.challenges || []).length, 0);
+  return challenges + (d?.open_calls || []).length;
+}
+
+export default function StartupAgentCard({ place = 'card', onLoaded }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -39,6 +45,7 @@ export default function StartupAgentCard({ place = 'card' }) {
   useEffect(() => {
     startupAgentAPI.matches().then((d) => {
       setData(d);
+      onLoaded?.(applyCountOf(d));
       // s125 — the Programme Scout learns from what startups do (Rajeev: "agree, pls do all the three"): the
       // requirements shown here count as seen once a day. Never blocks or fails the card.
       const ids = (d?.open_calls || []).map(c => c.id);

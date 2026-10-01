@@ -38,6 +38,6 @@ describe('EmptyBriefNote', () => {
   });
   it('a company still is, with "or post a challenge"', () => {
     render(<MemoryRouter><EmptyBriefNote corporate /></MemoryRouter>);
-    expect(screen.getByTestId('brief-empty').textContent).toMatch(/Your brief needs a little more to go on\..*or post a challenge/);
+    expect(screen.getByTestId('brief-empty').textContent).toMatch(/Your agent needs a little more to go on\..*or post a challenge/);
   });
 });

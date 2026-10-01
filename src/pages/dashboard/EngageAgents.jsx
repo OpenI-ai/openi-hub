@@ -172,7 +172,7 @@ export function PipelinePanel({ load, onAction, refreshKey = 0 }) {
       )}
       {data && !items.length && (
         <p data-testid="pipeline-empty" style={{ fontSize: 13.5, color: '#555', margin: 0 }}>
-          Shortlist startups in your brief and they appear here, with the next step for each: an intro, a meeting, a pilot.</p>
+          Shortlist startups on your Innovation Agent page and they appear here, with the next step for each: an intro, a meeting, a pilot.</p>
       )}
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 6 }}>
         {items.map(i => (
