@@ -26,6 +26,7 @@ import {
   LandingHeader, LandingFooter,
 } from './landingParts/index.js';
 import CardDeck from './landingParts/CardDeck.jsx';
+import AgentSection from './landingParts/AgentSection.jsx';  // s125 — the Innovation Agent, right under the hero
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING PAGE
@@ -125,7 +126,7 @@ export default function Landing() {
             style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
           >
             <Sparkles size={14} />
-            {hero?.badge_text || 'ART OF THE POSSIBLE'}
+            {hero?.badge_text || 'YOUR INNOVATION AGENT'}
           </div>
 
           <h1
@@ -138,16 +139,20 @@ export default function Landing() {
               fontFamily: 'Lexend, sans-serif',
             }}
           >
-            The map of everything startups can do for you.
+            {/* s125 — headline chosen by Rajeev (1 Oct 2026, option A). The map stays the foundation (right panel). */}
+            Your innovation team that works while you sleep.
           </h1>
 
           <p
-            className="mb-8 text-lg leading-relaxed"
+            className="mb-3 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            Search {startupCount} startups organized into a living family tree of 240+ innovation
-            maps. Open a branch, follow it down, and land on the companies that solve your exact
-            problem.
+            {/* s125 — subline approved by Rajeev (1 Oct 2026). */}
+            Every match checked by an analyst agent. Every suggestion shows its evidence. Nothing
+            happens without your OK, unless you switch it on.
+          </p>
+          <p data-testid="landing-proof" className="mb-8 text-sm leading-relaxed" style={{ color: GRAY }}>
+            Your agents work across {startupCount} startups and a living family tree of 240+ Innovation Maps.
           </p>
 
           {/* Hero search — shown BELOW xl only (UX audit, 21 Aug 2026).
@@ -319,6 +324,8 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      <AgentSection />
 
       {/* ═══════════════════════════════════════════════════════════
           CHAPTERS 01-03 (s110 redesign) — the Art of the Possible story.
