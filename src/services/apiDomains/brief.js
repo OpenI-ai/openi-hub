@@ -136,3 +136,9 @@ export const sectorRecheckAPI = {
   hide: (ids, reason) => post('/admin/sector-recheck/hide', { ids, reason }),
   unhide: (ids) => post('/admin/sector-recheck/unhide', { ids }),
 };
+
+// s125 Phase 4d (startups): corporates with open public challenges that match this startup, by corporate.
+export const startupAgentAPI = {
+  matches: () => get('/startup/agent'),
+  setSettings: (settings) => put('/startup/agent/settings', settings),
+};
