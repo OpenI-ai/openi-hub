@@ -34,7 +34,8 @@ function Sources({ sources }) {
   );
 }
 
-export default function KnowsPanel({ load, refresh, client = null, id = 'tour-brief-knows' }) {
+// s125 — `startup`: a startup's brief has no startups to shortlist or pass on, so the empty "Learned from what you do" box (its text is about that) is not shown.
+export default function KnowsPanel({ load, refresh, client = null, startup = false, id = 'tour-brief-knows' }) {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const loadRef = useRef(load);
@@ -125,7 +126,7 @@ export default function KnowsPanel({ load, refresh, client = null, id = 'tour-br
             </div>
           </div>
 
-          <div style={box} data-testid="knows-learned">
+          {!(startup && learned.insights.length === 0 && learned.maps.length === 0) && <div style={box} data-testid="knows-learned">
             <p style={head}>Learned from what {client ? 'they do' : 'you do'}</p>
             {learned.insights.length === 0 && learned.maps.length === 0 ? (
               <p style={{ fontSize: 13, color: '#666', margin: 0 }}>Nothing yet. As {you === 'you' ? 'you shortlist and pass on' : 'they shortlist and pass on'} startups, OpenI learns and shows it here.</p>
@@ -135,7 +136,7 @@ export default function KnowsPanel({ load, refresh, client = null, id = 'tour-br
                 {learned.maps.map(m => <li key={`m${m.label}`}>Map built for {client ? 'them' : 'you'}: <b style={{ fontWeight: 600 }}>{m.label}</b> ({m.startups} startups, for "{m.source}")</li>)}
               </ul>
             )}
-          </div>
+          </div>}
         </div>
       )}
     </section>
