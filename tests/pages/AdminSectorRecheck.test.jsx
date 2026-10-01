@@ -10,9 +10,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn() }));
+const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ sectorRecheckAPI: api }));
-const { default: Page, recheckStatusText, sectorLabels, busyText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
+const { default: Page, recheckStatusText, sectorLabels, busyText, autoText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
 
 const data = {
   from: 'Financial Services', still_filed: 3256, counts: { pending: 2, kept: 5 }, run: null,
@@ -87,5 +87,36 @@ describe('AdminSectorRecheck', () => {
     await waitFor(() => expect(screen.queryByTestId('recheck-saving')).toBeNull());
     expect(busyText('approve', 9)).toBe('Approving 9 startups… about 7 seconds.');
     expect(busyText('reject', 1)).toBe('Rejecting 1 startup… about 1 second.');
+  });
+
+  // s125: the agent approves its own high-confidence proposals.
+  it('autoText: on, off, running; says what waits and that medium/low stay with the admin', () => {
+    expect(autoText({})).toBe('');
+    expect(autoText({ auto: { enabled: false } })).toBe('Auto-approve is off on this server: every proposal waits for you.');
+    expect(autoText({ auto: { enabled: true, running: true } })).toMatch(/^The agent is approving/);
+    expect(autoText({ auto: { enabled: true, approved_by_agent: 1200, waiting: 1323 } }))
+      .toBe('Auto-approve is on for high confidence: 1,200 approved by the agent so far, 1,323 waiting for its next pass. Medium and low confidence wait for you.');
+    expect(autoText({ auto: { enabled: true, approved_by_agent: 5, waiting: 0 } })).not.toMatch(/waiting/);
+  });
+
+  it('"Approve high confidence now" starts the agent; disabled when nothing waits or auto is off', async () => {
+    api.autoApprove.mockReset().mockResolvedValue({ status: 'started', waiting: 1323 });
+    api.overview.mockResolvedValue({ ...data, auto: { enabled: true, waiting: 1323, approved_by_agent: 0, running: false } });
+    show();
+    const b = await screen.findByTestId('recheck-auto-now');
+    expect(b.disabled).toBe(false);
+    fireEvent.click(b);
+    await waitFor(() => expect(api.autoApprove).toHaveBeenCalledTimes(1));
+  });
+
+  it('no button when auto-approve is off; disabled when nothing waits', async () => {
+    api.overview.mockResolvedValue({ ...data, auto: { enabled: false } });
+    const { unmount } = show();
+    expect((await screen.findByTestId('recheck-auto')).textContent).toMatch(/off/);
+    expect(screen.queryByTestId('recheck-auto-now')).toBeNull();
+    unmount();
+    api.overview.mockResolvedValue({ ...data, auto: { enabled: true, waiting: 0, approved_by_agent: 9, running: false } });
+    show();
+    expect((await screen.findByTestId('recheck-auto-now')).disabled).toBe(true);
   });
 });

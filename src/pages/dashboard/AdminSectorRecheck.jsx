@@ -7,6 +7,12 @@
  * Services" for real banks and incumbents), with a reason and a confidence, and
  * flags companies that are not startups. NOTHING changes until an admin approves
  * here; each approval is audited, and a profile edited meanwhile is left alone.
+ *
+ * s125 (1 Oct 2026) — Rajeev: "sector recheck is quite accurate … automate this
+ * entire agent". The agent now approves its own HIGH-confidence proposals that
+ * change a sector (after each run, and nightly with the new startups), audited the
+ * same way; medium, low and "not a startup" without a sector change still wait
+ * here. "Approve high confidence now" clears the backlog at once.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -29,6 +35,16 @@ export function recheckStatusText(d) {
   if (run?.status === 'no_model') return 'The analyst is not available right now (no AI model); nothing was checked.';
   if (!done) return `${d.still_filed.toLocaleString('en-IN')} startups are filed under "${d.from}". Press "Start the re-check" and the analyst reads each one.`;
   return `${done.toLocaleString('en-IN')} checked · ${(c.pending || 0).toLocaleString('en-IN')} to review · ${(c.kept || 0).toLocaleString('en-IN')} kept as "${d.from}" · ${d.still_filed.toLocaleString('en-IN')} still filed under it.`;
+}
+
+/** s125: the line about the agent's own approvals (high confidence). */
+export function autoText(d) {
+  const a = d?.auto;
+  if (!a) return '';
+  if (!a.enabled) return 'Auto-approve is off on this server: every proposal waits for you.';
+  if (a.running) return 'The agent is approving its high-confidence proposals now (about 0.7 s each)…';
+  const n = v => Number(v || 0).toLocaleString('en-IN');
+  return `Auto-approve is on for high confidence: ${n(a.approved_by_agent)} approved by the agent so far${a.waiting ? `, ${n(a.waiting)} waiting for its next pass` : ''}. Medium and low confidence wait for you.`;
 }
 
 /**
@@ -60,16 +76,27 @@ export default function AdminSectorRecheck() {
   const load = useCallback(() => sectorRecheckAPI.overview({ status: tab, confidence: confidence || undefined, limit: 100 })
     .then((r) => { setData(r); setError(false); }).catch(() => setError(true)), [tab, confidence]);
   useEffect(() => { setPicked(new Set()); load(); }, [load]);
+  const working = !!(data?.run?.running || data?.auto?.running);
   useEffect(() => {
-    if (!data?.run?.running) return undefined;
+    if (!working) return undefined;
     const t = setInterval(load, 5000);
     return () => clearInterval(t);
-  }, [data?.run?.running, load]);
+  }, [working, load]);
 
   const start = async () => {
     setBusy(true);
     try { await sectorRecheckAPI.run(); toast.success('The analyst started. This page updates as it goes.'); await load(); }
     catch (err) { toast.error(err.message || 'Could not start.'); }
+    finally { setBusy(false); }
+  };
+  const autoNow = async () => {
+    setBusy(true);
+    try {
+      const r = await sectorRecheckAPI.autoApprove();
+      toast.success(r.status === 'nothing' ? 'Nothing waiting: every high-confidence proposal is already approved.'
+        : `The agent is approving ${Number(r.waiting || 0).toLocaleString('en-IN')} high-confidence proposals. This page updates as it goes.`);
+      await load();
+    } catch (err) { toast.error(err.message || 'Could not start.'); }
     finally { setBusy(false); }
   };
   const decide = async (decision) => {
@@ -100,7 +127,8 @@ export default function AdminSectorRecheck() {
       <h1 id="tour-page-admin-sector-recheck" style={{ fontSize: 24, fontWeight: 600, margin: '4px 0 6px' }}>Sector re-check</h1>
       <p style={{ fontSize: 13.5, color: '#555', margin: '0 0 12px', maxWidth: 820 }}>
         Startups filed under the wrong sector look wrong to every client who opens them. OpenI's analyst re-reads each startup filed
-        under "Financial Services" and proposes the right sector from OpenI's own list, with its reason. Nothing changes until you approve it here.
+        under "Financial Services" and proposes the right sector from OpenI's own list, with its reason. High-confidence proposals are approved by
+        the agent itself (audited, and never over a profile someone edited); the rest wait for you here.
       </p>
 
       <div id="tour-sector-recheck-status" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '10px 14px' }}>
@@ -108,6 +136,16 @@ export default function AdminSectorRecheck() {
         <button type="button" data-testid="recheck-start" onClick={start} disabled={busy || !data || data.run?.running} style={{ ...btn, borderColor: G }}>
           {data?.run?.running ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} Start the re-check</button>
         <button type="button" onClick={load} style={btn}><RefreshCw size={14} /> Refresh</button>
+        {data?.auto && (
+          <div id="tour-sector-recheck-auto" style={{ flex: '1 1 100%', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', borderTop: '1px dashed #eee', paddingTop: 8 }}>
+            <span data-testid="recheck-auto" style={{ fontSize: 13, color: '#2E7D4F', flex: '1 1 400px' }}>{autoText(data)}</span>
+            {data.auto.enabled && (
+              <button type="button" data-testid="recheck-auto-now" onClick={autoNow} disabled={busy || data.auto.running || !data.auto.waiting}
+                style={{ ...btn, borderColor: '#2E7D4F', color: '#2E7D4F' }}>
+                {data.auto.running ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Approve high confidence now</button>
+            )}
+          </div>
+        )}
       </div>
 
       {(data?.proposed_by_sector || []).length > 0 && (
