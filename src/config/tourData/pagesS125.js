@@ -24,6 +24,10 @@ const NEW = 'Under each next move, "Why?" shows what it rests on: the analyst\'s
 const sector = pagesS124['/dashboard/admin/sector-recheck'];
 const AUTO = ' The agent approves its own high-confidence proposals that change a sector: after each run, and every night with the newly filed startups. Each approval is recorded like yours and never overwrites a profile someone edited. Medium and low confidence, and a "Probably not a startup" that keeps the sector, still wait for you. "Approve high confidence now" clears the backlog at once.';
 
+// s125 Phase 4c: the Coach's new knobs, told in the same Agents step (it already describes the Coach).
+const COACH_OLD = 'Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.';
+const COACH_NEW = 'It can also put a stage you keep passing on (for example idea-to-seed startups) last in every section, without hiding any; ease a minimum it raised when a section gets too thin; and, when you pass on most of what a priority shows, ask Scout to search again for that priority ("Searched"). Each change is tested on your own decisions and kept only if it helps; press "Undo" to put one back.';
+
 export const pagesS125 = {
   '/dashboard/admin/sector-recheck': {
     ...sector,
@@ -31,6 +35,6 @@ export const pagesS125 = {
   },
   '/dashboard/brief': {
     ...brief,
-    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: s.content.replace(OLD, NEW) } : s)),
+    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: s.content.replace(OLD, NEW).replace(COACH_OLD, COACH_NEW) } : s)),
   },
 };

@@ -99,4 +99,17 @@ describe('AgentsPanel', () => {
     await screen.findByTestId('agents-empty');
     expect(screen.queryByTestId('run-coach')).toBeNull();
   });
+
+  // s125 Phase 4c: a Scout search the Coach ran is shown as "Searched", with no Undo.
+  it('a Coach Scout search reads "Searched" and has no Undo; a stage change has one', () => {
+    render(<CoachChanges onUndo={vi.fn()} changes={[
+      { id: 7, kind: 'scout_search', status: 'kept', undoable: false, text: 'Scout searched again for "Drone delivery".' },
+      { id: 8, kind: 'stage_avoid', status: 'trial', undoable: true, text: 'Idea-to-seed startups now come last.' },
+    ]} />);
+    const rows = screen.getAllByTestId('coach-change');
+    expect(rows[0].textContent).toMatch(/^Searched/);
+    expect(rows[0].querySelector('[data-testid="coach-undo"]')).toBeNull();
+    expect(rows[1].textContent).toMatch(/^Testing/);
+    expect(rows[1].querySelector('[data-testid="coach-undo"]')).not.toBeNull();
+  });
 });

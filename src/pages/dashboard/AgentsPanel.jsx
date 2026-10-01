@@ -47,6 +47,7 @@ export const COACH_STATUS = {
   undone: { label: 'Put back', color: '#666', bg: '#F2F2F2' },
   user_undone: { label: 'Undone', color: '#666', bg: '#F2F2F2' },
 };
+export const COACH_SEARCHED = { label: 'Searched', color: '#1F4E8A', bg: '#EAF1FB' };
 
 export function CoachChanges({ changes, onUndo, client = null, busy = null }) {
   if (!changes?.length) return null;
@@ -58,7 +59,8 @@ export function CoachChanges({ changes, onUndo, client = null, busy = null }) {
       </div>
       <ul style={{ listStyle: 'none', margin: '6px 0 0', padding: 0, display: 'grid', gap: 6 }}>
         {changes.map((c) => {
-          const st = COACH_STATUS[c.status] || COACH_STATUS.trial;
+          // s125 (Phase 4c): a Scout search the Coach ran is an action, not a setting being tested.
+          const st = c.kind === 'scout_search' ? COACH_SEARCHED : (COACH_STATUS[c.status] || COACH_STATUS.trial);
           return (
             <li key={c.id} data-testid="coach-change" style={{ fontSize: 13, display: 'flex', gap: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
               <span style={{ fontSize: 11.5, fontWeight: 600, color: st.color, background: st.bg, borderRadius: 6, padding: '1px 7px', whiteSpace: 'nowrap' }}>{st.label}</span>
