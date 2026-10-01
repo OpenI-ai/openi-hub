@@ -10,7 +10,10 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AgentSection, { AGENT_STEPS, AGENT_PERSONAS } from '../../src/pages/auth/landingParts/AgentSection.jsx';
 import { PAGE_TOURS } from '../../src/config/tourData/index.js';
-import HeroAgentPanel, { HERO_FEED } from '../../src/pages/auth/landingParts/HeroAgentPanel.jsx';
+import { fireEvent } from '@testing-library/react';
+import { readFileSync, existsSync } from 'fs';
+import HeroScreens, { HERO_SCREENS } from '../../src/pages/auth/landingParts/HeroScreens.jsx';
+import { DEFAULT_TITLE } from '../../src/hooks/useDocumentTitle.js';
 
 describe('landing: the Innovation Agent section', () => {
   it('shows the five agents in order, the three verified personas, and how the client stays in charge', () => {
@@ -33,15 +36,22 @@ describe('landing: the Innovation Agent section', () => {
     }
   });
 
-  // Rajeev (1 Oct): "right hand side image should show the work of Innovation agent not Innovation map".
-  it('the hero panel shows one night of the agent at work, labelled as an example, with a next move and its Why?', () => {
-    render(<HeroAgentPanel />);
-    expect(screen.getByTestId('hero-agent-example').textContent).toBe('Example');
-    expect(HERO_FEED.map(f => f.who)).toEqual(['Scout', 'Analyst', 'Map builder', 'Your agent']);
-    expect(screen.getAllByTestId('hero-agent-feed')).toHaveLength(4);
-    expect(screen.getByTestId('hero-agent-why').textContent).toMatch(/^Why\?Analyst:.*Scout's search:.*profile and website/);
-    expect(screen.getByTestId('hero-agent-panel').textContent).toMatch(/Suggest only: nothing happens without your OK\./);
-    expect(screen.getByTestId('hero-agent-panel').textContent).not.toMatch(/Innovation Maps\b.*240/);
+  // Rajeev (1 Oct): "show the image from our demo login" -> "pls make them the first screenshots".
+  it('the hero shows three real screens from the demo login; a tab picks one; every image ships with the page', () => {
+    render(<HeroScreens />);
+    expect(HERO_SCREENS.map(x => x.tab)).toEqual(['Next moves', 'Matches, checked', 'For startups']);
+    expect(screen.getByTestId('hero-screens-source').textContent).toBe('From our demo account');
+    expect(screen.getByTestId('hero-screens-img').getAttribute('src')).toBe('/landing/demo-next-moves.jpg');
+    fireEvent.click(screen.getAllByTestId('hero-screens-tab')[2]);
+    expect(screen.getByTestId('hero-screens-img').getAttribute('src')).toBe('/landing/demo-startup.jpg');
+    expect(screen.getByTestId('hero-screens-img').getAttribute('alt')).toMatch(/requirements from outside OpenI/);
+    for (const x of HERO_SCREENS) expect(existsSync(`public${x.src}`), x.src).toBe(true);
+  });
+
+  it('the homepage title and share text lead with the agent, the same in index.html and the title hook', () => {
+    const html = readFileSync('index.html', 'utf8');
+    expect(DEFAULT_TITLE).toBe('OpenI Hub — Your innovation team that works while you sleep');
+    for (const tag of [`<title>${DEFAULT_TITLE}</title>`, `property="og:title" content="${DEFAULT_TITLE}"`, `name="twitter:title" content="${DEFAULT_TITLE}"`]) expect(html).toContain(tag);
+    expect(html).not.toMatch(/AI Open Innovation Marketplace" \/>/);
   });
 });
-

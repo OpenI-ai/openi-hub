@@ -27,7 +27,7 @@ import {
 } from './landingParts/index.js';
 import CardDeck from './landingParts/CardDeck.jsx';
 import AgentSection from './landingParts/AgentSection.jsx';
-import HeroAgentPanel from './landingParts/HeroAgentPanel.jsx';  // s125 — the hero's right panel  // s125 — the Innovation Agent, right under the hero
+import HeroScreens from './landingParts/HeroScreens.jsx';  // s125 — the hero's right panel: real screens from the demo login  // s125 — the Innovation Agent, right under the hero
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING PAGE
@@ -246,9 +246,10 @@ export default function Landing() {
           </div>
 
           {/* ── Right: the Innovation Agent at work ──
-              s125 — Rajeev: "right hand side image should show the work of Innovation agent not Innovation map".
+              s125 — Rajeev: "right hand side image should show the work of Innovation agent not Innovation map", then
+              "show the image from our demo login" / "make them the first screenshots": real screens from the demo login.
               Was the living map tree (s110); the maps stay in the proof line and the chapters below. */}
-          <HeroAgentPanel />
+          <HeroScreens />
         </div>
       </section>
 
