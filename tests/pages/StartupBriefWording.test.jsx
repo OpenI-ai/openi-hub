@@ -36,3 +36,21 @@ describe('a startup brief has no buyer wording', () => {
     await waitFor(() => expect(document.body.textContent).toMatch(/from what you shortlist and pass on\./));
   });
 });
+
+// s125 — Rajeev: "build map is not working". It ran and found no startup that fits (OpenI has none doing flywheel
+// storage); the page must say so, not offer the same button again as if nothing had happened.
+describe('a priority the map builder already searched for', () => {
+  it('says it looked and found none yet, without the button; an untried one keeps the button', async () => {
+    const data = { dimensions: [], unmapped: ['Flywheel Storage', 'Grid Stability'],
+      learned: [{ id: 11, label: 'Flywheel Energy Storage', source: 'Flywheel Storage', startups: 0, definition: 'x', examples: [] }] };
+    render(<MemoryRouter><LandscapePanel load={async () => data} build={vi.fn()} startup /></MemoryRouter>);
+    const tried = await screen.findByTestId('landscape-tried');
+    expect(tried.textContent).toMatch(/OpenI looked for startups doing "Flywheel Storage" and has not found any that fit yet/);
+    expect(tried.textContent).toMatch(/looks again every night/);
+    const untried = screen.getByTestId('landscape-unmapped');
+    expect(untried.textContent).toMatch(/No Innovation Map covers "Grid Stability" yet/);
+    expect(untried.textContent).not.toMatch(/Flywheel/);
+    expect(screen.getByTestId('build-maps').textContent).toBe('Build a map for it');
+    expect(screen.queryByTestId('learned-row')).toBeNull();
+  });
+});

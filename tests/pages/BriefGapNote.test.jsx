@@ -7,7 +7,8 @@
  */
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { GapNote } from '../../src/pages/dashboard/InnovationBrief';
+import { MemoryRouter } from 'react-router-dom';
+import { GapNote, EmptyBriefNote } from '../../src/pages/dashboard/InnovationBrief';
 
 describe('GapNote', () => {
   it('an empty section says "not yet", never "few"', () => {
@@ -26,5 +27,17 @@ describe('GapNote', () => {
   it('says nothing when the section is not thin', () => {
     const { container } = render(<GapNote s={{ gap: false, items: [] }} />);
     expect(container.textContent).toBe('');
+  });
+});
+
+// s125 — Rajeev's screenshot: a startup with a full profile was told "Your brief needs a little more to go on".
+describe('EmptyBriefNote', () => {
+  it('a startup is not told its profile is thin (its agent card above says what matches)', () => {
+    const { container } = render(<MemoryRouter><EmptyBriefNote startup /></MemoryRouter>);
+    expect(container.textContent).toBe('');
+  });
+  it('a company still is, with "or post a challenge"', () => {
+    render(<MemoryRouter><EmptyBriefNote corporate /></MemoryRouter>);
+    expect(screen.getByTestId('brief-empty').textContent).toMatch(/Your brief needs a little more to go on\..*or post a challenge/);
   });
 });

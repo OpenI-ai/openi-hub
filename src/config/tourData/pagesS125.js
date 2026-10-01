@@ -50,6 +50,9 @@ const DEAL = ' For investors, its next moves include "Add to your deal pipeline"
 const home = pagesUniversal['/dashboard/home'];
 const STARTUP_AGENT = { target: '#tour-startup-agent', title: 'Corporates looking for startups like you', content: 'For startups: the companies with open public challenges that match what you do, grouped by company, each with why it matches and a link to apply. Below them, "Open calls from outside OpenI": government programmes, missions and incubators whose calls fit you, read every day from their own sites; you apply on their site. Only calls open now are shown. "Weekly email" sends you the new ones on Mondays; untick it to stop.', placement: 'top', skipBeacon: true };
 
+// s125 — Rajeev (1 Oct): "we can't download this page?" Told in the always-present first step.
+const PDF = ' "Download PDF" (top right) saves this brief as a branded PDF to share or present; a startup\'s PDF lists its matching challenges and open calls.';
+
 export const pagesS125 = {
   '/dashboard/home': { ...home, steps: [...home.steps, STARTUP_AGENT] },
   '/dashboard/admin/sector-recheck': {
@@ -60,6 +63,7 @@ export const pagesS125 = {
     ...brief,
     // s125 — a startup's brief leads with its agent card (step skipped on other accounts' briefs, where it is absent).
     steps: brief.steps.flatMap(s => (s.target === '#tour-brief-agents' ? [{ ...s, content: `${s.content.replace(OLD, NEW).replace(COACH_OLD, COACH_NEW).replace(WHO_OLD, WHO_NEW)}${DEAL}` }]
-      : s.target === '#tour-brief-stats' ? [s, STARTUP_AGENT] : [s])),
+      : s.target === '#tour-brief-stats' ? [s, STARTUP_AGENT]
+        : s.target === '#tour-page-brief' ? [{ ...s, content: `${s.content}${PDF}` }] : [s])),
   },
 };
