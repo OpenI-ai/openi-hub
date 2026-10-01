@@ -15,6 +15,9 @@
  * The page passes the actions it already has (shortlist, the Launch and Invite
  * sheets, add a priority), so the inbox does exactly what the brief does.
  *
+ * Phase 4d (s125): investors get the same inbox (deal flow): Scout's finds to
+ * shortlist and "Add to your deal pipeline" for a shortlisted startup (onDeal).
+ *
  * Phase 4 (s125, 1 Oct 2026; Rajeev: "go ahead with Phase 4"):
  *   - AUTONOMY: "Suggest only" (default) or "Auto: free steps". On Auto the agent
  *     shortlists up to 3 startups Scout found and the analyst kept (each on the
@@ -35,7 +38,7 @@ const NAVY = '#0B1E3F';
 const btn = { border: '1px solid #ddd', background: '#fff', borderRadius: 8, padding: '6px 10px', fontSize: 12.5, cursor: 'pointer' };
 const primary = { ...btn, background: NAVY, borderColor: NAVY, color: '#fff', fontWeight: 600 };
 
-const ACT = { shortlist: 'Shortlist', invite: 'Review and invite', launch: 'Review the challenge', priority: 'Add priority',
+const ACT = { deal: 'Add to deal pipeline', shortlist: 'Shortlist', invite: 'Review and invite', launch: 'Review the challenge', priority: 'Add priority',
   intro: 'Write the intro', meeting: 'Plan the meeting', pilot: 'Start the pilot' };  // Phase 2: stalled pipeline steps
 const TRIGGER = { weekly: 'weekly check', priorities: 'after you changed your priorities', website: 'after you changed your website', manual: 'you asked' };
 
@@ -103,7 +106,7 @@ function DoneForYou({ items, onUndo, onReview }) {
   );
 }
 
-export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey = 0, onShortlist, onLaunch, onInvite, onAddPriority, onEngage }) {
+export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey = 0, onShortlist, onLaunch, onInvite, onAddPriority, onEngage, onDeal }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(null);
@@ -130,6 +133,7 @@ export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey
     try {
       if (item.kind === 'shortlist') await onShortlist({ user_id: item.startup_user_id, name: item.name, shortlisted: false, priority_label: item.priority });
       if (item.kind === 'priority') await onAddPriority({ label: item.label });
+      if (item.kind === 'deal') await onDeal(item.offer);  // s125 Phase 4d (investors)
       await fetchInbox();
     } finally {
       setBusy(null);

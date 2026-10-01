@@ -370,6 +370,21 @@ export default function InnovationBrief() {
   const items = brief.sections.flatMap(s => s.items);
   const challengeCount = brief.priorities.filter(p => p.source === 'challenge').length;
   const isCorporate = brief.role === 'corporate';
+  // s125 Phase 4d: the Innovation Agent also works for investors (deal flow).
+  const hasAgent = isCorporate || brief.role === 'investor';
+  const addDeal = async (offer) => {
+    try {
+      const p = await briefAPI.previewAction(offer.key, offer.subject);
+      const r = await briefAPI.executeAction(p.id, p.draft);
+      toast.success((t) => (
+        <span data-testid="deal-toast">Added <b>{r?.result?.name || offer.label}</b> to your deal pipeline.{' '}
+          {/* A plain <a>: toasts render outside the router, so a <Link> here crashes the page (s125, caught by e2e). */}
+          <a href={r?.result?.url || '/dashboard/investor/deals'} onClick={() => toast.dismiss(t.id)} style={{ color: '#8A6A1C', fontWeight: 600 }}>Open</a></span>
+      ));
+    } catch (err) {
+      toast.error(err.message || 'Could not add it to your deal pipeline.');
+    }
+  };
 
   return (
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '8px 4px 40px' }} data-testid="innovation-brief">
@@ -395,10 +410,10 @@ export default function InnovationBrief() {
         <div><div style={{ fontSize: 22, fontWeight: 600 }}>{brief.shortlist_count}</div><div style={{ fontSize: 12, color: '#777' }}>on your shortlist</div></div>
       </div>
 
-      {/* s123 — the Innovation Agent's next moves (company accounts). */}
-      {isCorporate && (
+      {/* s123 — the Innovation Agent's next moves (company accounts; s125: investors too). */}
+      {hasAgent && (
         <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} saveSettings={briefAPI.agentSettings} refreshKey={`${inboxKey}|${brief.generated_at}`}
-          onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} onEngage={setEngaging} />
+          onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} onEngage={setEngaging} onDeal={addDeal} />
       )}
       {isCorporate && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
       {/* s124 Phase 3 — the CEO view: competitors' startup deals, where to venture next, the board pack. */}

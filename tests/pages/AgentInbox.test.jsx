@@ -137,4 +137,16 @@ describe('AgentInbox', () => {
     fireEvent.click(screen.getByTestId('agent-done-review'));
     expect(p.onLaunch).toHaveBeenCalledWith(offer);
   });
+
+  // s125 Phase 4d: investors — "Add to deal pipeline".
+  it('a deal move: "Add to deal pipeline" hands the offer to the brief', async () => {
+    const dealOffer = { key: 'add_to_deals', subject: 'startup:7', label: 'Shelfco' };
+    const onDeal = vi.fn().mockResolvedValue();
+    const deal = { id: 'deal:7', kind: 'deal', startup_user_id: 7, name: 'Shelfco', offer: dealOffer, title: 'Add Shelfco to your deal pipeline', why: 'You shortlisted it.', cost: 'Free.' };
+    render(<AgentInbox {...props({ onDeal, load: vi.fn().mockResolvedValue({ items: [deal], agent }) })} />);
+    const act = await screen.findByTestId('inbox-act');
+    expect(act.textContent).toBe('Add to deal pipeline');
+    fireEvent.click(act);
+    await waitFor(() => expect(onDeal).toHaveBeenCalledWith(dealOffer));
+  });
 });
