@@ -9,7 +9,7 @@
 import { Link } from 'react-router-dom';
 import { Users } from 'lucide-react';
 
-const WHO = { corporate: 'corporates', investor: 'investors' };
+const WHO = { corporate: 'corporates', investor: 'investors', government: 'government bodies' };   // s126 G1: universities and labs see government
 
 export function signalLine(item, other) {
   const who = WHO[other] || 'accounts';

@@ -29,6 +29,11 @@ import { LensBar, LensTag, OutcomeView } from './BriefLens';
 import StartupAgentCard from '../../components/StartupAgentCard';  // s125: a startup's brief leads with it
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
+// s126 G1: who has the Innovation Agent, who runs challenges, who runs pilots (same lists as the backend's agents/personas.js).
+const AGENT_ROLES = ['corporate', 'investor', 'government', 'incubator', 'accelerator', 'academia', 'lab', 'mentor', 'student'];
+const RUNS_CHALLENGES = ['corporate', 'government', 'incubator', 'accelerator', 'lab'];
+const PILOTS = ['corporate', 'government', 'accelerator', 'academia', 'lab'];
+
 const G = '#D0A848';
 const NAVY = '#152838';
 const REL_STYLE = {
@@ -411,9 +416,11 @@ export default function InnovationBrief() {
   const isCorporate = brief.role === 'corporate';
   // s125 Phase 4d: the Innovation Agent also works for investors (deal flow).
   // s126 G1 (Rajeev: "next priority is Govt"): government bodies get the agent, grand challenges, intros and pilots too.
-  const isGovernment = brief.role === 'government';
-  const runsChallenges = isCorporate || isGovernment;
-  const hasAgent = runsChallenges || brief.role === 'investor';
+  // s126 G1 ("yes go ahead with the remaining personas"): every persona but a startup has the agent; the lists match the
+  // backend's src/agents/personas.js (which also refuses anything outside them).
+  const hasAgent = AGENT_ROLES.includes(brief.role);
+  const runsChallenges = RUNS_CHALLENGES.includes(brief.role);
+  const runsPilots = PILOTS.includes(brief.role);
   // s125 — Rajeev chose "Opportunities" for a startup's brief: it leads with the corporates whose open challenges fit
   // and the open calls from outside OpenI; the panels built for buyers (shortlisting startups, Scout, Ask, taste) are not shown.
   const isStartupRole = brief.role === 'startup';
@@ -470,7 +477,7 @@ export default function InnovationBrief() {
         <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} saveSettings={briefAPI.agentSettings} refreshKey={`${inboxKey}|${brief.generated_at}`}
           onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} onEngage={setEngaging} onDeal={addDeal} />
       )}
-      {runsChallenges && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
+      {runsPilots && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
       {/* s124 Phase 3 — the CEO view: competitors' startup deals, where to venture next, the board pack. */}
       {isCorporate && <CeoPanel load={briefAPI.ceo} save={briefAPI.setCompetitors} run={briefAPI.runCeo} download={briefAPI.boardPack}
         shortlist={async (id) => { await briefAPI.feedback(id, 'shortlist'); setInboxKey(k => k + 1); }} />}
