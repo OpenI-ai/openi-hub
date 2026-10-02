@@ -12,6 +12,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { isUpgradeError } from '../../utils/upgradeError';
 import { Loader2, MapPin, Star, X, ArrowUp, Search, RefreshCw, Target, TrendingUp, Plus, Sparkles, ThumbsUp, ThumbsDown, ShieldCheck, Bookmark, Download } from 'lucide-react';
 import { briefAPI } from '../../services/api';
 import { focusLabel } from '../../utils/focusLabel';
@@ -73,6 +74,12 @@ function Initials({ name, logo }) {
 
 // Exported for the admin preview page (read-only: no Shortlist / Not relevant).
 // adminLabel (s121k, Brief Preview only): { value: 'good'|'bad'|null, onLabel(next) } — an admin's accuracy label.
+// s126 live check: an account with no AI credits got the raw code "upgrade_required" as the toast. Say what to do instead.
+export function evaluateErrorText(err) {
+  if (isUpgradeError(err)) return 'Evaluate with AI uses 5 AI credits and this account has none left. Buy an AI credit pack or upgrade to Pro in Settings → Credits.';
+  return err?.message || 'The evaluation could not run';
+}
+
 export function BriefCard({ item, onShortlist, onDismiss, highlight, readOnly = false, adminLabel = null, adminSave = null, onOpen = null, evaluation = null, onEvaluate = null, evaluating = false }) {
   const isStartup = item.type === 'startup';
   // ?by=user_id: the brief carries the startup's user_id, and StartupProfile otherwise reads :id as a
@@ -224,7 +231,7 @@ export default function InnovationBrief() {
       setEvaluations(m => new Map(m).set(item.user_id, r.evaluation));
       toast.success(`Evaluated ${item.name}.`);
     } catch (err) {
-      toast.error(err.message || 'The evaluation could not run');
+      toast.error(evaluateErrorText(err));
     } finally {
       setEvaluating((s) => { const n = new Set(s); n.delete(item.user_id); return n; });
     }
