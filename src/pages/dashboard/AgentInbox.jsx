@@ -203,12 +203,15 @@ export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey
         <strong style={{ fontSize: 15 }}>Your Innovation Agent: next moves</strong>
         {saveSettings && agent ? (
           <span role="group" aria-label="What your agent may do on its own" data-testid="agent-autonomy" data-value={autonomy}
-            style={{ display: 'inline-flex', border: `1px solid ${G}`, borderRadius: 999, overflow: 'hidden', fontSize: 11.5 }}>
+            style={{ display: 'inline-flex', border: `1.5px solid ${NAVY}`, borderRadius: 999, overflow: 'hidden', fontSize: 12.5 }}>
             {[['suggest', 'Suggest only', 'The agent proposes; nothing happens without your click.'], ['auto', 'Auto: free steps', AUTO_EXPLAIN]].map(([v, label, title]) => (
               <button key={v} type="button" data-testid={`agent-autonomy-${v}`} aria-pressed={autonomy === v ? 'true' : 'false'} title={title}
                 onClick={() => setAutonomy(v)}
-                style={{ border: 0, padding: '2px 9px', cursor: 'pointer', background: autonomy === v ? '#FBF6EA' : '#fff',
-                  color: autonomy === v ? '#6B5A24' : '#888', fontWeight: autonomy === v ? 700 : 500 }}>{label}</button>
+                // s126 (Rajeev, 2 Oct: "this is too light to notice"): the chosen mode is filled navy with a tick; the other
+                // reads as a real option (dark text, not grey); larger tap target.
+                style={{ border: 0, padding: '4px 12px', minHeight: 28, cursor: 'pointer', background: autonomy === v ? NAVY : '#fff',
+                  color: autonomy === v ? '#fff' : '#333', fontWeight: autonomy === v ? 700 : 600,
+                  borderLeft: v === 'auto' ? `1.5px solid ${NAVY}` : 0 }}>{autonomy === v ? '✓ ' : ''}{label}</button>
             ))}
           </span>
         ) : (
