@@ -99,6 +99,17 @@ describe('AgentInbox', () => {
     expect(links[1].getAttribute('rel')).toBe('noopener noreferrer');
   });
 
+  it('autonomy switch is easy to see (s126, Rajeev: "too light to notice"): chosen = filled navy with a tick, the other dark text', async () => {
+    render(<AgentInbox {...props({ saveSettings: vi.fn() })} />);
+    const on = await screen.findByTestId('agent-autonomy-suggest');
+    const off = screen.getByTestId('agent-autonomy-auto');
+    expect(on.textContent).toBe('✓ Suggest only');
+    expect(on.style.background).toBe('rgb(11, 30, 63)');
+    expect(on.style.color).toBe('rgb(255, 255, 255)');
+    expect(off.textContent).toBe('Auto: free steps');
+    expect(off.style.color).toBe('rgb(51, 51, 51)');   // not the old #888 grey
+  });
+
   it('autonomy: Suggest only by default; Auto asks first (cancel = nothing saved), then saves; back to Suggest is immediate', async () => {
     const saveSettings = vi.fn()
       .mockResolvedValueOnce({ settings: { weekly_email: true, autonomy: 'auto' } })
