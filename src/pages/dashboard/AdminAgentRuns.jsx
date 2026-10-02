@@ -11,9 +11,14 @@
  * s126 (2 Oct 2026) — "Results per client" (AGENTIC_PLATFORM_PLAN "Measures, shown in Agent Runs, per client"; Rajeev:
  * "yes do 1 → 2 → 3"): time to the first useful startup, proposals accepted %, good fit, shortlist → intro → meeting →
  * pilot, the last 30 days against the design-partner target (3 intros + 1 meeting), and an estimate of minutes saved.
+ *
+ * s126 — "Your agents", the control room (AGENTIC_PLATFORM_PLAN G6; Rajeev: "End to End agentic platform managed using
+ * graphs" … "a self learning agent continuously improving"): one card per graph — what it does, for whom, when it
+ * runs, its week (runs, OK %, clients, cost, a 14-day run line), whether it is getting better (a quality number this
+ * week vs last), how it learns; Pause / Resume, Run now for nightly jobs, and "See runs" filters the list below.
  */
 import { useEffect, useState } from 'react';
-import { Loader2, RefreshCw, ChevronRight } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronRight, Pause, Play, Zap } from 'lucide-react';
 import { agentRunsAPI, programmeScoutAPI } from '../../services/api';
 
 const G = '#D0A848';
@@ -231,20 +236,108 @@ export function ClientMeasuresPanel() {
   );
 }
 
+
+// s126 — the agent control room.
+export function trendText(q) {
+  if (!q || q.now == null) return q && q.n === 0 ? 'No client decisions this week yet' : null;
+  const base = `${q.label}: ${q.now}%`;
+  if (q.before == null) return `${base} (no data last week)`;
+  const d = q.now - q.before;
+  return `${base} · ${d > 0 ? `up ${d}` : d < 0 ? `down ${-d}` : 'same as'} ${d === 0 ? 'last week' : 'points on last week'}`;
+}
+export function healthOf(g) {
+  if (g.paused) return { label: 'Paused', bg: '#F1F1F1', fg: '#555' };
+  if (!g.last_status) return { label: 'No runs yet', bg: '#F6F6F6', fg: '#777' };
+  if (g.last_status === 'running') return { label: 'Running', bg: '#EEF2F8', fg: '#3B5B8C' };
+  if (g.last_status !== 'ok') return { label: 'Last run failed', bg: '#FBEAEA', fg: '#A33' };
+  return { label: 'Healthy', bg: '#E7F4EC', fg: '#2E7D4F' };
+}
+function Spark({ daily }) {
+  const max = Math.max(1, ...daily);
+  return (
+    <span aria-label={`Runs per day, last 14 days: ${daily.join(', ')}`} style={{ display: 'inline-flex', alignItems: 'flex-end', gap: 2, height: 18 }}>
+      {daily.map((n, i) => <span key={i} style={{ width: 4, height: Math.max(2, Math.round((n / max) * 18)), background: n ? '#0B1E3F' : '#e5e5e5', borderRadius: 1 }} />)}
+    </span>
+  );
+}
+export function AgentControlRoom({ onSeeRuns, refreshKey = 0 }) {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const [note, setNote] = useState({});
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    let live = true;
+    agentRunsAPI.graphs().then(d => { if (live) { setData(d); setErr(null); } }).catch(e => { if (live) setErr(e.message || 'Could not load the agents'); });
+    return () => { live = false; };
+  }, [tick, refreshKey]);
+  const pause = async (g) => {
+    if (!g.paused && confirm !== g.name) { setConfirm(g.name); return; }
+    setConfirm(null);
+    try { await agentRunsAPI.pause(g.name, !g.paused); setTick(t => t + 1); } catch (e) { setNote(n => ({ ...n, [g.name]: e.message || 'Could not change it' })); }
+  };
+  const runNow = async (g) => {
+    try { const r = await agentRunsAPI.runNow(g.name); setNote(n => ({ ...n, [g.name]: r.message || 'Started.' })); } catch (e) { setNote(n => ({ ...n, [g.name]: e.message || 'Could not start it' })); }
+  };
+  const t = data?.totals;
+  return (
+    <div id="tour-agent-control" data-testid="agent-control" style={{ margin: '0 0 18px' }}>
+      <h2 style={{ fontSize: 17, fontWeight: 600, margin: '6px 0 4px' }}>Your agents</h2>
+      <p style={{ fontSize: 13, color: '#666', margin: '0 0 10px' }} data-testid="agent-control-totals">
+        {t ? `${t.graphs} agents · ${t.runs_7d} runs this week · ${usd(t.cost_7d)} model cost · ${t.paused} paused · ${t.failing} failing on the last run` : err ? '' : 'Loading…'}
+      </p>
+      {err && <p style={{ color: '#A33', fontSize: 13 }}>{err}</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: 12 }}>
+        {(data?.graphs || []).map((g) => {
+          const h = healthOf(g);
+          const trend = trendText(g.quality);
+          return (
+            <div key={g.name} data-testid="agent-card" data-graph={g.name} style={{ border: '1px solid #eee', borderRadius: 12, background: '#fff', padding: 12, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
+                <strong style={{ fontSize: 14.5, fontWeight: 600 }}>{g.label}</strong>
+                <span data-testid="agent-health" style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999, background: h.bg, color: h.fg, whiteSpace: 'nowrap' }}>{h.label}</span>
+              </div>
+              <span style={{ fontSize: 13, color: '#444' }}>{g.what}</span>
+              <span style={{ fontSize: 12, color: '#777' }}>{g.who} · {g.when}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 12.5 }}>
+                <Spark daily={g.daily || []} />
+                <span data-testid="agent-week">{g.runs_7d} runs · {g.ok_pct == null ? '—' : `${g.ok_pct}% OK`} · {plural(g.clients_7d, 'client')} · {usd(g.cost_7d)}</span>
+              </div>
+              {trend && <span data-testid="agent-quality" style={{ fontSize: 12.5, color: '#2E5E3F' }}>{trend}</span>}
+              {g.learns && g.learns !== '—' && <span style={{ fontSize: 12, color: '#6B5A24' }}>Learns: {g.learns}</span>}
+              {g.last_status && g.last_status !== 'ok' && g.last_error && <span style={{ fontSize: 12, color: '#A33' }}>Last error: {g.last_error}</span>}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 'auto' }}>
+                <button type="button" style={btn} data-testid="agent-pause" onClick={() => pause(g)}>
+                  {g.paused ? <><Play size={13} /> Resume</> : confirm === g.name ? <><Pause size={13} /> Confirm pause</> : <><Pause size={13} /> Pause</>}
+                </button>
+                {g.can_run_now && !g.paused && <button type="button" style={btn} data-testid="agent-run-now" onClick={() => runNow(g)}><Zap size={13} /> Run now</button>}
+                {g.runs_7d > 0 && onSeeRuns && <button type="button" style={btn} onClick={() => onSeeRuns(g.name)}>See runs <ChevronRight size={13} /></button>}
+              </div>
+              {confirm === g.name && <span style={{ fontSize: 12, color: '#9A5B00' }}>While paused it does not run, and features that use it say so. Press again to pause.</span>}
+              {note[g.name] && <span data-testid="agent-note" style={{ fontSize: 12, color: '#555' }}>{note[g.name]}</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminAgentRuns() {
   const [runs, setRuns] = useState(null);
   const [status, setStatus] = useState('');
+  const [graph, setGraph] = useState('');
   const [picked, setPicked] = useState(null);
   const [tick, setTick] = useState(0);
   const [err, setErr] = useState(null);
   useEffect(() => {
     let live = true;
     setErr(null);
-    agentRunsAPI.list({ status: status || undefined, limit: 50 })
+    agentRunsAPI.list({ status: status || undefined, graph: graph || undefined, limit: 50 })
       .then(d => { if (live) setRuns(d.runs || []); })
       .catch(e => { if (live) { setRuns([]); setErr(e.message || 'Could not load runs'); } });
     return () => { live = false; };
-  }, [status, tick]);
+  }, [status, graph, tick]);
 
   const done = (runs || []).filter(r => r.status !== 'running');
   const ok = done.filter(r => r.status === 'ok').length;
@@ -261,9 +354,11 @@ export default function AdminAgentRuns() {
         <span><strong style={{ fontWeight: 600 }}>{done.length ? `${Math.round((ok / done.length) * 100)}%` : '—'}</strong> finished OK</span>
         <span><strong style={{ fontWeight: 600 }}>{usd(cost)}</strong> model cost</span>
       </div>
+      <AgentControlRoom refreshKey={tick} onSeeRuns={(name) => { setGraph(name); document.getElementById('agent-runs-list')?.scrollIntoView({ behavior: 'smooth' }); }} />
       <ClientMeasuresPanel />
       <ProgrammeScoutPanel onStarted={() => setTimeout(() => setTick(t => t + 1), 1500)} />
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
+      <div id="agent-runs-list" style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
+        {graph && <button type="button" style={btn} data-testid="runs-graph-filter" onClick={() => setGraph('')}>Agent: {graph} ✕</button>}
         <select aria-label="Filter by status" value={status} onChange={e => setStatus(e.target.value)} style={{ ...btn, padding: '6px 8px' }}>
           <option value="">All statuses</option>
           {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
