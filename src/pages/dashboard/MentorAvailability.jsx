@@ -67,7 +67,7 @@ export default function MentorAvailability() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {slots.map((slot, idx) => (
-          <div key={slot.day_of_week} style={{ ...card, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, opacity: slot.is_active ? 1 : 0.5 }}>
+          <div key={slot.day_of_week} style={{ ...card, padding: '14px 18px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 14, opacity: slot.is_active ? 1 : 0.5 }}>
             {/* Active toggle */}
             <input type="checkbox" checked={slot.is_active} onChange={e => update(idx, 'is_active', e.target.checked)}
               style={{ width: 18, height: 18, accentColor: G, cursor: 'pointer' }}/>

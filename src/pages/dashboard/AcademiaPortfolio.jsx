@@ -110,7 +110,7 @@ export default function AcademiaPortfolio() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #eee' }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #eee', overflowX: 'auto' }}>
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)}
             style={{ padding: '8px 20px', border: 'none', borderBottom: tab === i ? `3px solid ${G}` : '3px solid transparent', background: 'none', fontWeight: tab === i ? 700 : 400, color: tab === i ? G : '#666', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>

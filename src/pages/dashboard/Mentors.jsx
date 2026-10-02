@@ -211,7 +211,7 @@ export default function Mentors() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-primary-400 text-sm" placeholder="Search by name or expertise..." />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {['all', 'academia', 'retired_defense', 'ex_drdo', 'industry'].map(f => (
             <button key={f} onClick={() => setFilter(f)} className={`px-3 py-2 rounded-lg text-xs font-semibold capitalize ${filter === f ? 'bg-primary-500 text-dark-950' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
               {BACKGROUND_LABELS[f] || 'All'}

@@ -537,7 +537,7 @@ export default function Settings() {
       <p style={{ margin: '0 0 24px', color: '#5c5c5c', fontSize: 13 }}>Manage your profile, security and preferences</p>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#fff', border: '1px solid #eee', borderRadius: 10, padding: 4, width: 'fit-content' }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#fff', border: '1px solid #eee', borderRadius: 10, padding: 4, width: 'fit-content', maxWidth: '100%', overflowX: 'auto' }}>
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)} style={{
             padding: '8px 18px', borderRadius: 7, fontSize: 13, fontWeight: 600,

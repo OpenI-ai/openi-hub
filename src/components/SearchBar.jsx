@@ -125,7 +125,7 @@ export default function SearchBar({
   return (
     <div ref={ref} style={{ position: 'relative', width: compact ? 260 : '100%', maxWidth: 560 }}>
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
+        display: 'flex', alignItems: 'center', flexWrap: compact ? 'nowrap' : 'wrap', gap: 8,
         background: compact ? 'rgba(255,255,255,0.08)' : '#fff',
         border: compact ? '1px solid rgba(255,255,255,0.15)' : `1.5px solid ${mode === 'ai' ? G : '#ddd'}`,
         borderRadius: 10, padding: compact ? '6px 12px' : '10px 16px',
@@ -141,7 +141,7 @@ export default function SearchBar({
           onFocus={() => (suggestions.length || mapMatches.length) && setShowDropdown(true)}
           placeholder={effectivePlaceholder}
           style={{
-            flex: 1, border: 'none', background: 'transparent',
+            flex: 1, minWidth: compact ? 0 : 120, border: 'none', background: 'transparent',
             fontSize: compact ? 13 : 15,
             color: compact ? '#fff' : '#1a1a2e',
           }}

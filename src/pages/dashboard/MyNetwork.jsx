@@ -150,7 +150,7 @@ export default function MyNetwork() {
       </ContextualTip>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '1px solid #eee', paddingBottom: 0 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '1px solid #eee', paddingBottom: 0, overflowX: 'auto' }}>
         {tabs.map(t => {
           const Icon = t.icon;
           const active = tab === t.key;
