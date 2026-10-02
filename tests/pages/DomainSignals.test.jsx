@@ -19,6 +19,8 @@ describe('DomainSignals', () => {
     expect(signalLine(signals.items[0], 'corporate')).toBe('5+ corporates on OpenI have a priority close to this · 3+ shortlisted startups here this month');
     expect(signalLine({ interest: '10+' }, 'investor')).toBe('10+ investors on OpenI have a priority close to this');
     expect(signalLine({}, 'corporate')).toBe('');
+    // s126 G1: universities and labs see government bodies
+    expect(signalLine({ interest: '3+' }, 'government')).toBe('3+ government bodies on OpenI have a priority close to this');
   });
 
   it('names only the public challenge, links it, and says how privacy is kept', () => {

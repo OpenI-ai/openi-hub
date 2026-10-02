@@ -21,13 +21,16 @@ const CONTROL = {
 const first = runs.steps.findIndex(s => s.target === '#tour-page-admin-agent-runs');
 const brief = pagesS126['/dashboard/brief'];
 const DAILY = ' "Daily alerts" (on by default): one short email in the morning, only when your agent found something new for you — a startup, a competitor\'s startup deal or an open call. Turn it off here.';
-const SIGNALS = ' "What corporates are looking for in your areas" (for investors; companies see investors): open public challenges close to your priorities, by name, and how many accounts on the other side work in the same area — counts only, from at least 3 companies, so no one can be identified.';
+const SIGNALS = ' "What corporates / investors / government bodies are looking for in your areas": the other side of the market in your areas (investors see corporates; companies see investors; government bodies, incubators, accelerators and mentors see corporates and investors; universities and labs see corporates and government bodies; students see corporates). Open public challenges close to your priorities are named, and so are open calls from peer programmes; the rest is how many accounts work in the same area — counts only, from at least 3 companies, so no one can be identified.';
+// s126 G1 ("yes go ahead with the remaining personas"): the step's opening line named only companies and investors.
+const WHO_OLD = 'For company and investor accounts, your Innovation Agent runs all of these for you';
+const WHO_NEW = 'For every account except startups (companies, investors, government bodies, incubators, accelerators, universities, labs, mentors and students), your Innovation Agent runs all of these for you';
 const VENTURE = ' "Where to venture next" lists adjacent markets the CEO view found and small startups you could invest in or acquire to enter them; they fill the Strategy map\'s "Venture into adjacent markets" row.';
 
 export const pagesS126b = {
   '/dashboard/brief': {
     ...brief,
-    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content}${DAILY}${VENTURE}${SIGNALS}` } : s)),
+    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content.replace(WHO_OLD, WHO_NEW)}${DAILY}${VENTURE}${SIGNALS}` } : s)),
   },
   '/dashboard/admin/agent-runs': {
     ...runs,
