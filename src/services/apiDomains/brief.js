@@ -145,6 +145,9 @@ export const sectorRecheckAPI = {
   // s125: hide the companies behind proposals from every client list ('not_a_startup' | 'insufficient_data'); Undo.
   hide: (ids, reason) => post('/admin/sector-recheck/hide', { ids, reason }),
   unhide: (ids) => post('/admin/sector-recheck/unhide', { ids }),
+  // s126: approve every pending proposal of one confidence that moves `from` to `to`; Undo one bulk.
+  bulkApprove: (from, to, confidence) => post('/admin/sector-recheck/bulk', { from, to, confidence }),
+  bulkUndo: (bulkId) => post('/admin/sector-recheck/bulk/undo', { bulk_id: bulkId }),
 };
 
 // s125 Phase 4d (startups): corporates with open public challenges that match this startup, by corporate.

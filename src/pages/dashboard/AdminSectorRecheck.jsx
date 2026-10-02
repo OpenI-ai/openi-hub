@@ -20,6 +20,10 @@
  * takes it out of every client list (audited, Undo). "any startup where there is not
  * sufficient data to categorise it … hide till we've crawled enough data" -> "Hide until
  * more data": shown again automatically once the crawler fills its profile in.
+ *
+ * s126 (2 Oct 2026) — the SaaS/Enterprise pass left ~14,000 medium/low proposals; one page at a time was too slow.
+ * Rajeev said yes to "Approve in bulk": every pending proposal of one confidence that moves this sector to one target
+ * sector, approved at once (audited, never over an edited profile), and an Undo per bulk that puts them back.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -31,6 +35,36 @@ const G = '#D0A848';
 const btn = { fontSize: 13, padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e2e2', background: '#fff', color: '#333', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
 const TABS = [['pending', 'To review'], ['approved', 'Approved'], ['rejected', 'Rejected'], ['kept', 'Kept as is'], ['stale', 'Changed meanwhile']];
 const CONF = { high: { bg: '#E7F4EC', fg: '#2E7D4F' }, medium: { bg: '#FFF7E0', fg: '#8A6A1C' }, low: { bg: '#f3f3f3', fg: '#666' } };
+
+const n = v => Number(v || 0).toLocaleString('en-IN');
+
+/** s126 — the button for one target sector: "Approve all 1,234 medium → FinTech". */
+export function bulkLabel(o) {
+  return `Approve all ${n(o.n)} ${o.confidence} → ${o.sector}`;
+}
+
+/** s126 — the confirm before a bulk: how many, where, and that Undo exists. */
+export function bulkConfirmText(from, o) {
+  return `Move ${n(o.n)} startups from "${from}" to "${o.sector}" (${o.confidence} confidence)?\n\n`
+    + 'Each is changed only if its profile still says the old sector. You can Undo the whole bulk afterwards.';
+}
+
+/** s126 — while a bulk (or its Undo) runs. */
+export function bulkRunningText(r) {
+  if (!r) return '';
+  return r.kind === 'undo'
+    ? `Undoing bulk #${r.bulk_id}: ${n(r.done)} of ${n(r.total)} put back so far…`
+    : `Approving bulk #${r.bulk_id}: ${n(r.done)} of ${n(r.total)} done (about 0.7 s each)…`;
+}
+
+/** s126 — one line per recent bulk. */
+export function bulkRecentText(b) {
+  const when = b.started_at ? new Date(b.started_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  const head = `#${b.id} · ${b.confidence} → ${b.to_sector} · ${n(b.approved)} approved${b.stale ? `, ${n(b.stale)} left alone (edited)` : ''} · by ${b.actor}${when ? ` · ${when}` : ''}`;
+  if (b.undone_at) return `${head} · Undone: ${n(b.restored)} put back${b.kept_changed ? `, ${n(b.kept_changed)} kept (edited since)` : ''}`;
+  if (!b.finished_at) return `${head} · running`;
+  return head;
+}
 
 /** s125 — what "Check all" really reads in one press (at most max_per_run). */
 /** The running press is the big one ("Check the next 4,000"), not the sample: its spinner goes there. */
@@ -130,12 +164,13 @@ export default function AdminSectorRecheck() {
   const [picked, setPicked] = useState(() => new Set());
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState('');
+  const [bulkConf, setBulkConf] = useState('medium');   // s126
 
   // fresh: re-read the list of sectors (opening the page, or choosing another sector); the 5-second polling does not.
   const load = useCallback((fresh) => sectorRecheckAPI.overview({ from, status: tab, confidence: confidence || undefined, limit: 100, fresh: fresh === true })
     .then((r) => { setData(r); setError(false); }).catch(() => setError(true)), [from, tab, confidence]);
   useEffect(() => { setPicked(new Set()); load(true); }, [load]);
-  const working = !!(data?.run?.running || data?.auto?.running);
+  const working = !!(data?.run?.running || data?.auto?.running || data?.bulk?.running);
   useEffect(() => {
     if (!working) return undefined;
     const t = setInterval(load, 5000);
@@ -177,6 +212,30 @@ export default function AdminSectorRecheck() {
         : `The agent is approving ${Number(r.waiting || 0).toLocaleString('en-IN')} high-confidence proposals. This page updates as it goes.`);
       await load();
     } catch (err) { toast.error(err.message || 'Could not start.'); }
+    finally { setBusy(false); }
+  };
+  // s126 — approve every pending proposal of one confidence that moves this sector to one target sector.
+  const bulkApprove = async (o) => {
+    if (!window.confirm(bulkConfirmText(from, o))) return;
+    setBusy(true);
+    try {
+      const r = await sectorRecheckAPI.bulkApprove(from, o.sector, o.confidence);
+      toast.success(r.status === 'nothing' ? 'Nothing left to approve there.'
+        : r.status === 'running' ? 'A bulk is already running on this sector; wait for it to finish.'
+          : `Approving ${n(r.waiting)} → ${o.sector}. This page updates as it goes; Undo is below when it finishes.`);
+      await load();
+    } catch (err) { toast.error(err.message || 'Could not start.'); }
+    finally { setBusy(false); }
+  };
+  const bulkUndo = async (b) => {
+    if (!window.confirm(`Undo bulk #${b.id}? ${n(b.approved)} startups go back to "${from}" (any edited since are left as they are) and wait for review again.`)) return;
+    setBusy(true);
+    try {
+      const r = await sectorRecheckAPI.bulkUndo(b.id);
+      toast.success(r.status === 'already' ? 'That bulk was already undone.'
+        : r.status === 'running' ? 'Wait for the running bulk to finish first.' : `Undoing bulk #${b.id}. This page updates as it goes.`);
+      await load();
+    } catch (err) { toast.error(err.message || 'Could not undo it.'); }
     finally { setBusy(false); }
   };
   const decide = async (decision) => {
@@ -281,6 +340,48 @@ export default function AdminSectorRecheck() {
           {data.proposed_by_sector.map(s => <span key={s.sector} style={{ fontSize: 12, background: '#f6f6f6', borderRadius: 999, padding: '3px 10px' }}>→ {s.sector}: <b>{s.n}</b></span>)}
         </div>
       )}
+
+      {/* s126 — Approve in bulk: always rendered (the tour points here). */}
+      <div id="tour-sector-recheck-bulk" data-testid="recheck-bulk" style={{ marginTop: 10, background: '#fff', border: '1px solid #eee', borderRadius: 12, padding: '10px 14px' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <b style={{ fontSize: 13.5 }}>Approve in bulk</b>
+          <span style={{ fontSize: 12.5, color: '#666', flex: '1 1 320px' }}>Spot-check a few in the list below first (choose Medium), then approve the rest for one sector at once. Undo puts a whole bulk back.</span>
+          <select data-testid="recheck-bulk-confidence" value={bulkConf} onChange={e => setBulkConf(e.target.value)} aria-label="Bulk confidence" style={btn}>
+            <option value="medium">Medium confidence</option><option value="low">Low confidence</option><option value="high">High confidence</option>
+          </select>
+        </div>
+        {data?.bulk?.running && (
+          <div data-testid="recheck-bulk-running" style={{ fontSize: 13, color: '#8A6A1C', display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+            <Loader2 size={14} className="animate-spin" /> {bulkRunningText(data.bulk.running)}</div>
+        )}
+        {(() => {
+          const opts = (data?.bulk?.options || []).filter(o => o.confidence === bulkConf);
+          if (!data) return null;
+          if (!opts.length) return <p data-testid="recheck-bulk-none" style={{ fontSize: 12.5, color: '#777', margin: '8px 0 0' }}>No {bulkConf}-confidence proposals waiting for this sector.</p>;
+          return (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+              {opts.map(o => (
+                <button key={o.sector} type="button" data-testid="recheck-bulk-approve" disabled={busy || !!data.bulk.running} onClick={() => bulkApprove(o)}
+                  style={{ ...btn, fontSize: 12.5, padding: '4px 10px', borderColor: '#2E7D4F', color: '#2E7D4F' }}><Check size={13} /> {bulkLabel(o)}</button>
+              ))}
+            </div>
+          );
+        })()}
+        {(data?.bulk?.recent || []).length > 0 && (
+          <div style={{ marginTop: 10, borderTop: '1px dashed #eee', paddingTop: 8 }}>
+            <div style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Recent bulk approvals</div>
+            {data.bulk.recent.map(b => (
+              <div key={b.id} data-testid="recheck-bulk-recent" style={{ fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '3px 0' }}>
+                <span style={{ flex: '1 1 300px', overflowWrap: 'anywhere' }}>{bulkRecentText(b)}</span>
+                {!b.undone_at && b.finished_at && b.approved > 0 && (
+                  <button type="button" data-testid="recheck-bulk-undo" disabled={busy || !!data.bulk.running} onClick={() => bulkUndo(b)}
+                    style={{ ...btn, fontSize: 12, padding: '2px 8px' }}><Undo2 size={12} /> Undo</button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div id="tour-sector-recheck-review" style={{ marginTop: 14 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
