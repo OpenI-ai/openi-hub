@@ -7,6 +7,10 @@
  * automation of agents and accuracy of our recommendations" — this page is
  * where the automation side is seen, and where a wrong recommendation is
  * traced back to the step that produced it. Read-only.
+ *
+ * s126 (2 Oct 2026) — "Results per client" (AGENTIC_PLATFORM_PLAN "Measures, shown in Agent Runs, per client"; Rajeev:
+ * "yes do 1 → 2 → 3"): time to the first useful startup, proposals accepted %, good fit, shortlist → intro → meeting →
+ * pilot, the last 30 days against the design-partner target (3 intros + 1 meeting), and an estimate of minutes saved.
  */
 import { useEffect, useState } from 'react';
 import { Loader2, RefreshCw, ChevronRight } from 'lucide-react';
@@ -148,6 +152,85 @@ export function ProgrammeScoutPanel({ onStarted }) {
   );
 }
 
+/** s126 — "8 min", "3 h", "2 days"; null → "—". */
+export function minutesText(m) {
+  if (m == null) return '—';
+  if (m < 60) return `${m} min`;
+  if (m < 48 * 60) return `${Math.round(m / 60)} h`;
+  return `${Math.round(m / 1440)} days`;
+}
+
+/** s126 — "1 meeting", "3 intros". */
+export function plural(n, word) {
+  const v = Number(n || 0);
+  return `${v} ${word}${v === 1 ? '' : 's'}`;
+}
+
+/** s126 — the design-partner target for 30 days: 3 intros and 1 meeting. */
+export function targetMet(l30) {
+  return !!l30 && (l30.intros || 0) >= 3 && (l30.meetings || 0) >= 1;
+}
+
+const th = { textAlign: 'left', fontWeight: 600, fontSize: 12, color: '#666', padding: '6px 8px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' };
+const td = { padding: '8px', borderBottom: '1px solid #f4f4f4', verticalAlign: 'top', fontSize: 13 };
+
+export function ClientMeasuresPanel() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+  const [demo, setDemo] = useState(true);
+  useEffect(() => {
+    let live = true;
+    agentRunsAPI.measures().then(d => { if (live) setData(d); }).catch(e => { if (live) setErr(e.message || 'Could not load the client measures'); });
+    return () => { live = false; };
+  }, []);
+  const rows = (data?.clients || []).filter(c => demo || !c.demo);
+  const f = data?.formula;
+  return (
+    <div id="tour-agent-runs-clients" data-testid="client-measures" style={{ border: '1px solid #eee', borderRadius: 12, background: '#fff', padding: 14, margin: '0 0 16px' }}>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <strong style={{ fontSize: 15, fontWeight: 600 }}>Results per client</strong>
+        <span style={{ fontSize: 12.5, color: '#666', flex: '1 1 320px' }}>What the Innovation Agent did for each client: how fast it found a startup they kept, how many of its suggestions they accepted, and how far startups moved.</span>
+        <label style={{ fontSize: 12.5, display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+          <input type="checkbox" data-testid="client-measures-demo" checked={demo} onChange={e => setDemo(e.target.checked)} /> Show demo accounts</label>
+      </div>
+      {err && <p style={{ color: '#A33', fontSize: 13 }}>{err}</p>}
+      {!data && !err && <div style={{ display: 'flex', gap: 8, color: '#666', marginTop: 8 }}><Loader2 className="animate-spin" size={16} /> Loading…</div>}
+      {data && !rows.length && <p data-testid="client-measures-empty" style={{ fontSize: 13, color: '#666', margin: '8px 0 0' }}>No client has used the Innovation Agent yet.</p>}
+      {rows.length > 0 && (
+        <div style={{ overflowX: 'auto', marginTop: 8 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760 }}>
+            <thead><tr>
+              <th style={th}>Client</th><th style={th} title="From when the agent started for them (the later of sign-up and their first brief) to the first startup they shortlisted. Target: under 10 min.">First useful startup</th>
+              <th style={th} title="Of the actions the agent proposed that the client decided on, how many they accepted.">Suggestions accepted</th>
+              <th style={th} title="Latest nightly accuracy: of the startups an admin labelled, how many are good fits.">Good fit</th>
+              <th style={th}>Shortlisted → Intro → Meeting → Pilot</th>
+              <th style={th} title="Design-partner target: 3 intros and 1 meeting in 30 days.">Last 30 days</th>
+              <th style={th} title="Estimate">Time saved</th>
+            </tr></thead>
+            <tbody>
+              {rows.map(c => (
+                <tr key={c.id} data-testid="client-measures-row">
+                  <td style={td}><div style={{ fontWeight: 600 }}>{c.company}</div><div style={{ fontSize: 11.5, color: '#888' }}>{c.role}{c.demo ? ' · demo' : ''}</div></td>
+                  <td style={{ ...td, color: c.first_useful_min != null && c.first_useful_min <= 10 ? '#2E7D4F' : undefined }}>{minutesText(c.first_useful_min)}</td>
+                  <td style={td}>{c.proposals.accepted_pct == null ? '—' : `${c.proposals.accepted_pct}%`}
+                    <div style={{ fontSize: 11.5, color: '#888' }}>{c.proposals.done} done · {c.proposals.dismissed} dismissed · {c.proposals.open} open</div></td>
+                  <td style={td}>{c.good_fit?.pct == null ? '—' : `${c.good_fit.pct}%`}{c.good_fit ? <div style={{ fontSize: 11.5, color: '#888' }}>{c.good_fit.good} of {c.good_fit.labeled} labelled</div> : null}</td>
+                  <td style={td} data-testid="client-measures-funnel">{c.funnel.shortlisted} → {c.funnel.intro} → {c.funnel.meeting} → {c.funnel.pilot}</td>
+                  <td style={td} data-testid="client-measures-last30">{plural(c.funnel.last30?.intros, 'intro')} · {plural(c.funnel.last30?.meetings, 'meeting')}
+                    {targetMet(c.funnel.last30) && <div style={{ fontSize: 11.5, color: '#2E7D4F', fontWeight: 600 }}>Target met</div>}</td>
+                  <td style={td}>{minutesText(c.minutes_saved)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {f && <p data-testid="client-measures-formula" style={{ fontSize: 11.5, color: '#888', margin: '8px 0 0' }}>
+        Time saved is an estimate: {f.minutes_per_find} min for each startup the agent found that the client kept, plus {Object.entries(f.minutes_per_action).map(([k, v]) => `${v} min per ${k.replace(/_/g, ' ')}`).join(', ')} the agent did.</p>}
+    </div>
+  );
+}
+
 export default function AdminAgentRuns() {
   const [runs, setRuns] = useState(null);
   const [status, setStatus] = useState('');
@@ -178,6 +261,7 @@ export default function AdminAgentRuns() {
         <span><strong style={{ fontWeight: 600 }}>{done.length ? `${Math.round((ok / done.length) * 100)}%` : '—'}</strong> finished OK</span>
         <span><strong style={{ fontWeight: 600 }}>{usd(cost)}</strong> model cost</span>
       </div>
+      <ClientMeasuresPanel />
       <ProgrammeScoutPanel onStarted={() => setTimeout(() => setTick(t => t + 1), 1500)} />
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
         <select aria-label="Filter by status" value={status} onChange={e => setStatus(e.target.value)} style={{ ...btn, padding: '6px 8px' }}>

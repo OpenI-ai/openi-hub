@@ -110,6 +110,7 @@ export const briefPreviewAPI = {
 
 // s122 — the agent runtime's run log (admin, read-only).
 export const agentRunsAPI = {
+  measures: () => get('/admin/agent-measures'),  // s126: results per client
   list: ({ graph, status, limit } = {}) => {
     const q = new URLSearchParams();
     if (graph) q.set('graph', graph);

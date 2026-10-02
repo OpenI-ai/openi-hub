@@ -10,7 +10,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import CeoPanel, { ceoStatusText } from '../../src/pages/dashboard/CeoPanel';
+import CeoPanel, { ceoStatusText, programmeLine } from '../../src/pages/dashboard/CeoPanel';
 
 const view = {
   competitors: [{ name: 'Rivalco', source: 'you' }, { name: 'Othercorp', source: 'agent' }],
@@ -82,3 +82,39 @@ describe('CeoPanel', () => {
     expect(ceoStatusText({ competitors: [{ name: 'A' }], ran_at: '2026-09-30T10:00:00Z', deals_by: 'headlines' })).toMatch(/^Last read 30 Sept? 2026 \(from the headlines\)\.$/);  // ICU spells it Sep or Sept
   });
 });
+
+describe('CeoPanel — s126: 12 months of deals and competitors\' startup programmes', () => {
+  const programmes = {
+    competitors: [
+      { id: 1, title: 'Rivalco Accelerator', publisher: 'Rivalco Labs', competitor: 'Rivalco', who_asks: 'Corporate', url: 'https://rival.example/acc', on_openi: false, deadline: '2026-11-01' },
+      { id: 'c5', title: 'Othercorp challenge', publisher: 'Othercorp', competitor: 'Othercorp', who_asks: 'Corporate', url: null, on_openi: true, deadline: null },
+    ],
+    in_sector: [{ id: 9, title: 'Retail media mission', publisher: 'MeitY', who_asks: 'Government', url: 'https://gov.example/m', on_openi: false, deadline: null, match: 81 }],
+  };
+  const v2 = { ...view, programmes, ecosystem: [...view.ecosystem, { competitor: 'Othercorp', kind: 'invested', startup: 'Oldie', headline: 'Othercorp invests in Oldie', url: null, date: '2026-05-01T00:00:00Z', earlier: true }] };
+
+  it('lists competitors\' programmes and other programmes, each with who runs it and its deadline; a deal from an earlier read is marked', async () => {
+    show(props({ load: vi.fn().mockResolvedValue(v2) }));
+    const comp = await screen.findByTestId('ceo-programmes-competitors');
+    expect(comp.textContent).toContain('Run by your competitors');
+    const items = screen.getAllByTestId('ceo-programme');
+    expect(items).toHaveLength(3);
+    expect(items[0].querySelector('a').getAttribute('href')).toBe('https://rival.example/acc');
+    expect(items[0].textContent).toContain('Rivalco · Rivalco Labs · Corporate · Apply by 1 Nov 2026');
+    expect(items[1].querySelector('a')).toBeNull();
+    expect(items[1].textContent).toContain('Posted on OpenI · Open');
+    expect(screen.getByTestId('ceo-programmes-in_sector').textContent).toContain('MeitY · Government · Open · 81% match');
+    expect(screen.getAllByTestId('ceo-deal-earlier')).toHaveLength(1);
+  });
+
+  it('no programmes: no section', async () => {
+    show(props({ load: vi.fn().mockResolvedValue({ ...view, programmes: { competitors: [], in_sector: [] } }) }));
+    await screen.findAllByTestId('ceo-deal');
+    expect(screen.queryByTestId('ceo-programmes')).toBeNull();
+  });
+
+  it('programmeLine', () => {
+    expect(programmeLine({ publisher: 'X', who_asks: 'Investor', deadline: null })).toBe('X · Investor · Open');
+  });
+});
+
