@@ -109,7 +109,7 @@ export default function AdminPlatformHealth() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12 }}>
           <Tile icon={Users} label="Total claimed" value={fmt(u.total_claimed)} />
           <Tile icon={UserCheck} label="Active account" value={fmt(u.active_account)} sub="is_active=true" />
-          <Tile icon={Activity} label="Active 30d" value={fmt(u.active_30d)} sub="last login" />
+          <Tile icon={Activity} label="Active 30d" value={fmt(u.active_30d)} sub="used OpenI in the last 30 days" />
           <Tile icon={TrendingUp} label="Signups 7d" value={fmt(u.signups_7d)} />
           <Tile icon={TrendingUp} label="Signups 30d" value={fmt(u.signups_30d)} />
           <Tile icon={TrendingUp} label="Signups 90d" value={fmt(u.signups_90d)} />
