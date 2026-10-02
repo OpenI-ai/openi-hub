@@ -30,6 +30,17 @@ describe('DomainSignals', () => {
     expect(screen.getByText(/a count from at least 3 companies, so no one can be identified/)).toBeTruthy();
   });
 
+  it('government: open calls from peer programmes are named and open the publisher in a new tab', () => {
+    const gov = { other: 'corporate', min_companies: 3, items: [{ key: 'd', label: 'Defence Tech', interest: '3+', active: null, public: [],
+      calls: [{ id: 9, title: 'iDEX open challenge', publisher: 'iDEX', deadline: null, url: 'https://idex.example/c' }] }] };
+    render(<MemoryRouter><DomainSignals signals={gov} /></MemoryRouter>);
+    const a = screen.getByTestId('signal-call');
+    expect(a.getAttribute('href')).toBe('https://idex.example/c');
+    expect(a.getAttribute('target')).toBe('_blank');
+    expect(screen.getByText(/open call by iDEX/)).toBeTruthy();
+    expect(screen.getByText(/Only public challenges and open calls are named/)).toBeTruthy();
+  });
+
   it('renders nothing when there is nothing to show', () => {
     const { container } = render(<MemoryRouter><DomainSignals signals={{ other: 'corporate', items: [] }} /></MemoryRouter>);
     expect(container.innerHTML).toBe('');
