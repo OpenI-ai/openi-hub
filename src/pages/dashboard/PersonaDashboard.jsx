@@ -246,11 +246,11 @@ export default function PersonaDashboard() {
       <BriefTeaser />  {/* s121e */}
 
       {/* Welcome Card */}
-      <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div id="tour-welcome" style={{ ...card, padding: '20px 24px', marginBottom: 20, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: `${persona.color || G}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <PersonaIcon size={22} style={{ color: persona.color || G }} />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: '1 1 200px', minWidth: 0 }}>
           <h1 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
             Welcome, {user?.organization_name || user?.name}
           </h1>
