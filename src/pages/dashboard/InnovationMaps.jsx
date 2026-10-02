@@ -232,7 +232,7 @@ export default function InnovationMaps({ embedded = false }) {
 
       {/* Lens tabs + filter */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1 max-w-full overflow-x-auto">
           {TAB_ORDER.map((dim) => {
             const d = byDim[dim];
             if (!d) return null;

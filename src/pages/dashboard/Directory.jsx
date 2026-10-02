@@ -195,8 +195,8 @@ export default function Directory() {
       </div>
 
       {/* Search bar — Ship #12 follow-up tour anchor */}
-      <div id="tour-page-directory-search" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <div style={{ flex: 1, position: 'relative' }}>
+      <div id="tour-page-directory-search" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6e6e6e' }} />
           <input
             value={search}

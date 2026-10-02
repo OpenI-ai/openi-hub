@@ -244,7 +244,7 @@ function VectorCard({ vector, scores, onScore, statuses, onStatus, comments, onC
         <div style={{ width:40, height:40, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, backgroundColor: vector.hex + "22", color: vector.hex }}>
           <Icon className="w-5 h-5" />
         </div>
-        <div style={{ flex:1, textAlign:"left" }}>
+        <div style={{ flex:1, minWidth:0, textAlign:"left" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
             <h3 style={{ margin:0, fontSize:14, fontWeight:600, color:"#1a1a1a" }}>
               {vector.id}. {vector.name}
@@ -775,7 +775,7 @@ export default function StartupEvaluation() {
         </div>
 
         {/* ── RIGHT CONTENT (vector cards) ─────────────────────── */}
-        <div style={{ flex:1, minWidth:0, display:"flex", flexDirection:"column", gap:14 }}>
+        <div style={{ flex:"1 1 320px", minWidth:0, display:"flex", flexDirection:"column", gap:14 }}>
           {/* Page intro */}
           <div style={{ marginBottom:4 }}>
             <h2 style={{ margin:"0 0 4px", fontSize:18, fontWeight:700, color:"#1a1a1a" }}>
