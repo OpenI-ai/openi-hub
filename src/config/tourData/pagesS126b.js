@@ -5,6 +5,7 @@
  * Also (same day, G2 "Adjacent markets agent"): a company's brief gets "Where to venture next" — adjacent markets and
  * small startups to invest in or acquire, which also fill the Strategy map's Venture row. The section appears only once
  * the CEO view has run, so it is described in the always-present Agents step.
+ * Also (G3 account watch): the Agents step (it holds the inbox) describes "Daily alerts".
  * Derived from pagesS126 so the six split modules and the earlier S12x modules stay verbatim.
  */
 import { pagesS126 } from './pagesS126.js';
@@ -19,12 +20,13 @@ const CONTROL = {
 };
 const first = runs.steps.findIndex(s => s.target === '#tour-page-admin-agent-runs');
 const brief = pagesS126['/dashboard/brief'];
+const DAILY = ' "Daily alerts" (on by default): one short email in the morning, only when your agent found something new for you — a startup, a competitor\'s startup deal or an open call. Turn it off here.';
 const VENTURE = ' "Where to venture next" lists adjacent markets the CEO view found and small startups you could invest in or acquire to enter them; they fill the Strategy map\'s "Venture into adjacent markets" row.';
 
 export const pagesS126b = {
   '/dashboard/brief': {
     ...brief,
-    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content}${VENTURE}` } : s)),
+    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content}${DAILY}${VENTURE}` } : s)),
   },
   '/dashboard/admin/agent-runs': {
     ...runs,

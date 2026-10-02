@@ -194,6 +194,18 @@ export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey
     }
   };
 
+  // s126 G3: the daily "something new for you" alert (account watch); on by default, the client turns it off here.
+  const daily = data?.agent?.settings?.watch_alerts !== false;
+  const toggleDaily = async () => {
+    try {
+      const r = await saveSettings({ watch_alerts: !daily });
+      setData(d => ({ ...d, agent: { ...d.agent, settings: r.settings } }));
+      toast.success(r.settings.watch_alerts !== false ? 'Daily alerts on: one short email in the morning, only when something is new.' : 'Daily alerts off.');
+    } catch (err) {
+      toast.error(err.message || 'Could not save.');
+    }
+  };
+
   const items = data?.items || [];
   const agent = data?.agent;
   return (
@@ -223,14 +235,19 @@ export default function AgentInbox({ load, snooze, run, saveSettings, refreshKey
           title={agent?.next_manual_at ? 'Your agent ran a few minutes ago.' : 'Research, priorities, Scout and your Strategy map, now'}>
           {running ? 'Working…' : 'Run my agent now'}</button>
       </div>
-      <p data-testid="agent-status" style={{ fontSize: 12.5, color: '#666', margin: '6px 0 10px', display: 'flex', gap: 6, alignItems: 'center' }}>
+      <p data-testid="agent-status" style={{ fontSize: 12.5, color: '#666', margin: '6px 0 10px', display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
         <Clock size={12} /> {error ? 'Could not load your next moves just now.' : agentStatusText(agent)}
         {saveSettings && agent && (
-          <span style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+          <span style={{ marginLeft: 'auto' }}>
             Weekly email: <strong data-testid="agent-email-state">{weekly ? 'On' : 'Off'}</strong>{' '}
             <button type="button" data-testid="agent-email-toggle" onClick={toggleEmail}
               style={{ border: 0, background: 'transparent', color: '#8A6A1C', cursor: 'pointer', fontWeight: 600, padding: 0, fontSize: 12.5 }}>
               {weekly ? 'Turn off' : 'Turn on'}</button>
+            {' · '}Daily alerts: <strong data-testid="agent-daily-state">{daily ? 'On' : 'Off'}</strong>{' '}
+            <button type="button" data-testid="agent-daily-toggle" onClick={toggleDaily}
+              title="One short email in the morning when your agent found something new: a startup, a competitor's deal or an open call."
+              style={{ border: 0, background: 'transparent', color: '#8A6A1C', cursor: 'pointer', fontWeight: 600, padding: 0, fontSize: 12.5 }}>
+              {daily ? 'Turn off' : 'Turn on'}</button>
           </span>
         )}
       </p>
