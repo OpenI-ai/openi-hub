@@ -723,7 +723,7 @@ export default function Landing() {
               features={[
                 'Full profile with all sections',
                 'Direct messaging with any active OpenI user',
-                '8-Vector self-assessment + share via PDF / link',
+                '8-Vector self-assessment + share via PDF / link (AI draft: 20 AI credits)',
                 'Apply to 5 challenges + 3 deal requests / month',
                 'Art of the Possible — 240+ innovation maps + Directory + Find Mentors',
                 'Notifications bell + Watchlist (saved searches)',
@@ -759,7 +759,7 @@ export default function Landing() {
               priceNote="/forever"
               features={[
                 'Direct messaging with startups + any active OpenI user',
-                '8-Vector self-evaluation framework',
+                '8-Vector self-evaluation framework (AI draft: 20 AI credits)',
                 'Art of the Possible — 240+ innovation maps with drill-down + Directory + keyword search',
                 '1 active challenge / month + review queue',
                 'Watchlist + Notifications bell',
@@ -776,7 +776,7 @@ export default function Landing() {
               featured
               features={[
                 'Everything in Free, plus:',
-                'AI Startup Evaluator (auto-fill 8-Vector + red flags)',
+                'AI Startup Evaluator (auto-fill 8-Vector + red flags; 20 AI credits a draft)',
                 'AI Ask — 50 natural-language searches/day',
                 'AI Smart Recommendations + Challenge Advisor',
                 'AI semantic search — find startups by meaning, not keywords',

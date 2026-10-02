@@ -38,6 +38,22 @@ const DEFAULT_CHART_METRICS = [
   { key: 'storage', name: 'Storage GB', color: '#16a34a' },
 ];
 
+/** s126 — 8-vector AI draft: drafts in 30 days, model cost, cost per draft, credits charged (estimate). */
+export function EightVectorSpend({ v }) {
+  const usd = n => (n == null ? '—' : `$${Number(n).toFixed(n < 1 ? 3 : 2)}`);
+  return (
+    <div data-testid="eight-vector-spend" style={{ border: '1px solid #eee', borderRadius: 12, background: '#fff', padding: '12px 16px', marginBottom: 20 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: '#333', marginBottom: 6 }}>8-Vector AI drafts (last {v.days} days)</div>
+      <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 13 }}>
+        <span><strong>{v.drafts}</strong> drafts</span>
+        <span><strong>{usd(v.model_cost_usd)}</strong> model cost</span>
+        <span><strong>{usd(v.cost_per_draft_usd)}</strong> per draft</span>
+        <span><strong>{Number(v.credits_charged_est || 0).toLocaleString('en-IN')}</strong> credits charged (est., {v.credits_per_draft} a draft; Enterprise unlimited)</span>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminCosts() {
   const [summary, setSummary] = useState({ daily: [], status: [], manual: [] });
   const [alerts, setAlerts] = useState([]);
@@ -172,6 +188,9 @@ export default function AdminCosts() {
         </div>
       ) : (
         <>
+          {/* s126 (2 Oct 2026) — the 8-vector AI draft costs clients 20 credits: what it costs OpenI, and what it earns. */}
+          {summary.eight_vector && <EightVectorSpend v={summary.eight_vector} />}
+
           {/* ── Service status grid ─────────────────────────────────────── */}
           <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: '#333' }}>Service Status</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12, marginBottom: 28 }}>

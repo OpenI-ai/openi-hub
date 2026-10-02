@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect } from "react";
 import toast from 'react-hot-toast';
 import { eightVectorSelfAPI, startupAPI, getToken } from '../../services/api';
@@ -8,6 +9,9 @@ import {
   Share2, FileDown, Globe, X, ChevronRight,  // Phase 111 Ship 2c icons added
   Sparkles, Link2,                            // s93: AI draft + startup link
 } from "lucide-react";
+
+// s126 (2 Oct 2026) — Rajeev: the 8-vector AI draft costs 20 AI credits (backend AI_DRAFT_CREDITS).
+export const AI_DRAFT_CREDITS = 20;
 
 // ─── 8 VECTOR DATA ─────────────────────────────────────────────────────────────
 const VECTORS = [
@@ -398,6 +402,7 @@ export default function StartupEvaluation() {
   const [startupResults, setStartupResults] = useState([]);
   const [startupSearching, setStartupSearching] = useState(false);
   const [aiDrafting, setAiDrafting] = useState(false);
+  const navigate = useNavigate();   // s126: no credits → Settings → Billing
   const [aiMeta, setAiMeta] = useState(null);
   const [sourceEdited, setSourceEdited] = useState(false);
 
@@ -427,6 +432,8 @@ export default function StartupEvaluation() {
     setAiDrafting(true);
     try {
       const draft = await eightVectorSelfAPI.aiDraft({ startup_user_id: linkedStartup.user_id });
+      // s126: the model was down — nothing was drafted, the credits were put back; keep what is on screen.
+      if (draft?.ai_available === false) { toast.error(draft.message || 'OpenI\'s AI could not draft this just now. Your credits were not used.'); return; }
       setScores(draft.criterion_scores || {});
       setStatuses(draft.statuses || {});
       setComments(draft.comments || {});
@@ -436,8 +443,14 @@ export default function StartupEvaluation() {
       if (draft.startup_name) setStartupName(draft.startup_name);
       const scored = draft.ai_meta?.scored ?? Object.keys(draft.criterion_scores || {}).length;
       const total = draft.ai_meta?.total_criteria ?? 107;
-      toast.success(`AI draft ready — ${scored} of ${total} criteria scored from platform evidence`);
+      toast.success(`AI draft ready — ${scored} of ${total} criteria scored from platform evidence${draft.credits_cost ? ` (${draft.credits_cost} AI credits used)` : ''}`);
     } catch (err) {
+      // s126: the draft costs AI_DRAFT_CREDITS; with no plan allowance and too few credits the server answers 402.
+      if (err?.status === 402) {
+        toast.error(`An AI draft uses ${AI_DRAFT_CREDITS} AI credits. Buy a credit pack in Settings → Billing, or upgrade your plan.`, { duration: 6000 });
+        navigate('/dashboard/settings#credits');
+        return;
+      }
       toast.error(err?.message || 'AI draft failed');
     } finally {
       setAiDrafting(false);
@@ -683,7 +696,8 @@ export default function StartupEvaluation() {
           <button
             onClick={generateAiDraft}
             disabled={!linkedStartup || aiDrafting}
-            title={linkedStartup ? 'Draft scores from platform evidence — review before saving' : 'Link a platform startup first'}
+            title={linkedStartup ? `Draft scores from platform evidence — review before saving. Uses ${AI_DRAFT_CREDITS} AI credits (not used if the draft fails).` : 'Link a platform startup first'}
+            data-testid="eight-vector-ai-draft"
             style={{
               display:"inline-flex", alignItems:"center", gap:6, padding:"9px 14px",
               background: (!linkedStartup || aiDrafting) ? "#f0f0f0" : "#fff8ec",
@@ -694,7 +708,7 @@ export default function StartupEvaluation() {
             }}
           >
             <Sparkles className="w-4 h-4" />
-            {aiDrafting ? "Drafting…" : "AI Draft"}
+            {aiDrafting ? "Drafting…" : `AI Draft · ${AI_DRAFT_CREDITS} credits`}
           </button>
           <input type="text" value={evaluator} onChange={e => setEvaluator(e.target.value)}
             placeholder="Evaluator name"
