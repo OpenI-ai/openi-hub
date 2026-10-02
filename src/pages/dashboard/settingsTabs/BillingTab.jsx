@@ -221,6 +221,11 @@ export default function BillingTab({ autoRenewSelected, billingAddress, billingC
                     </div>
                   </div>
 
+                  {/* s126 (2 Oct 2026) — Rajeev: the 8-vector AI draft now costs credits; say what credits buy. */}
+                  <div data-testid="credits-buy" style={{ fontSize: 12, color: '#444', background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 10, padding: '8px 12px', marginTop: 12 }}>
+                    <strong>What credits buy:</strong> 8-Vector AI draft · 20 credits &nbsp;|&nbsp; AI startup evaluation · 5 credits &nbsp;|&nbsp; AI analysis · 8 credits &nbsp;|&nbsp; Challenge advisor · 3 credits.
+                    <span style={{ color: '#777' }}> Your plan's monthly AI allowance is used first; Enterprise is unlimited. If an AI action fails, its credits are put back.</span>
+                  </div>
                   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(creditPacks.length || 1, 3)}, 1fr)`, gap: 12, marginTop: 14 }}>
                     {creditPacks.map(pack => {
                       const isBestValue = creditPacks.length > 0 && pack.price_per_credit === Math.min(...creditPacks.map(x => x.price_per_credit));

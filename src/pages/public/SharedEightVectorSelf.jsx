@@ -184,7 +184,7 @@ export default function SharedEightVectorSelf() {
         <div style={{ marginTop: 24, padding: 24, textAlign: 'center', background: 'linear-gradient(180deg, #fff 0%, #fff8ec 100%)', borderRadius: 14, border: '1px solid rgba(213,170,91,0.3)' }}>
           <Sparkles size={24} color={G} style={{ margin: '0 auto 8px', display: 'block' }} />
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>Run your own 8-Vector assessment</h3>
-          <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px' }}>OpenI Hub gives every startup a free 8-Vector self-evaluation.</p>
+          <p style={{ fontSize: 12, color: '#666', margin: '0 0 14px' }}>OpenI Hub gives every startup a free 8-Vector self-evaluation; an AI draft of it uses 20 AI credits.</p>
           <Link to="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 20px', background: G, color: '#fff', borderRadius: 9, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
             Sign up free <ArrowRight size={14} />
           </Link>
