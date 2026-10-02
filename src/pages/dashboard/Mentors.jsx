@@ -206,8 +206,8 @@ export default function Mentors() {
         ))}
       </div>
 
-      <div className="flex gap-3 mb-5">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap gap-3 mb-5">
+        <div className="relative flex-1 min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-primary-400 text-sm" placeholder="Search by name or expertise..." />
         </div>
