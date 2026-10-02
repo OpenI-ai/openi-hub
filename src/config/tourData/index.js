@@ -74,6 +74,7 @@ import { pagesS123 } from './pagesS123.js';
 import { pagesS124 } from './pagesS124.js';
 import { pagesS125 } from './pagesS125.js';
 import { pagesS125b } from './pagesS125b.js';
+import { pagesS126 } from './pagesS126.js';
 
 export { TOURS };
 export default TOURS;
@@ -90,6 +91,7 @@ export const PAGE_TOURS = {
   ...pagesS124,  // 30 Sep 2026 (s124) — the brief's Agents step also describes the CEO view; see its header.
   ...pagesS125,  // 1 Oct 2026 (s125) — the brief's Agents step describes autonomy + "Why?"; see its header.
   ...pagesS125b, // 1 Oct 2026 (s125b) — the page is the "Innovation Agent" for every persona; see its header.
+  ...pagesS126,  // 2 Oct 2026 (s126) — Sector re-check: "Approve in bulk" step; see its header.
 };
 
 // Resolve the PAGE_TOURS entry for a given pathname.

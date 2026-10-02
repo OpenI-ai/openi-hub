@@ -10,9 +10,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn(), hide: vi.fn(), unhide: vi.fn(), nightly: vi.fn() }));
+const api = vi.hoisted(() => ({ overview: vi.fn(), run: vi.fn(), decide: vi.fn(), autoApprove: vi.fn(), hide: vi.fn(), unhide: vi.fn(), nightly: vi.fn(), bulkApprove: vi.fn(), bulkUndo: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ sectorRecheckAPI: api }));
-const { default: Page, recheckStatusText, sectorLabels, busyText, autoText, hiddenText, hideDoneText, checkAllLabel, nightlyText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
+const { default: Page, recheckStatusText, sectorLabels, busyText, autoText, hiddenText, hideDoneText, checkAllLabel, nightlyText, bulkLabel, bulkConfirmText, bulkRunningText, bulkRecentText } = await import('../../src/pages/dashboard/AdminSectorRecheck');
 
 const data = {
   from: 'Financial Services', still_filed: 3256, counts: { pending: 2, kept: 5 }, run: null,
@@ -257,5 +257,69 @@ describe('AdminSectorRecheck', () => {
   it('a keep-going sector is read every 2 hours: the line says how many hours in all', () => {
     expect(nightlyText({ remaining: 125511, max_per_run: 20000, keep_going_hours: 2, nightly: { on: true, requested_by: 'rajeev@openi.ai' } }))
       .toBe('Keep going until done: 1,25,511 left. The analyst reads up to 20,000 every 2 hours, about 14 hours in all. On (switched on by rajeev@openi.ai).');
+  });
+});
+
+describe('AdminSectorRecheck — Approve in bulk (s126)', () => {
+  const bulk = {
+    options: [{ sector: 'FinTech', confidence: 'medium', n: 1234 }, { sector: 'MarTech', confidence: 'medium', n: 7 }, { sector: 'AI/ML', confidence: 'low', n: 3 }],
+    recent: [
+      { id: 5, to_sector: 'HealthTech', confidence: 'medium', actor: 'rajeev@openi.ai', started_at: '2026-10-02T10:40:00Z', finished_at: '2026-10-02T10:50:00Z', approved: 40, stale: 1, undone_at: null, restored: 0, kept_changed: 0 },
+      { id: 4, to_sector: 'EdTech', confidence: 'medium', actor: 'rajeev@openi.ai', started_at: '2026-10-02T10:00:00Z', finished_at: '2026-10-02T10:05:00Z', approved: 9, stale: 0, undone_at: '2026-10-02T10:20:00Z', restored: 8, kept_changed: 1 },
+    ],
+    running: null,
+  };
+  beforeEach(() => {
+    api.overview.mockReset().mockResolvedValue({ ...data, bulk });
+    api.bulkApprove.mockReset().mockResolvedValue({ status: 'started', bulk_id: 6, waiting: 1234 });
+    api.bulkUndo.mockReset().mockResolvedValue({ status: 'started', bulk_id: 5 });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+  });
+
+  it('one button per target sector for the chosen confidence; pressing one confirms, then sends from / to / confidence', async () => {
+    show();
+    const buttons = await screen.findAllByTestId('recheck-bulk-approve');
+    expect(buttons.map(b => b.textContent.trim())).toEqual(['Approve all 1,234 medium → FinTech', 'Approve all 7 medium → MarTech']);
+    fireEvent.click(buttons[0]);
+    await waitFor(() => expect(api.bulkApprove).toHaveBeenCalledWith('Financial Services', 'FinTech', 'medium'));
+    expect(window.confirm.mock.calls[0][0]).toContain('Move 1,234 startups from "Financial Services" to "FinTech"');
+  });
+
+  it('cancelling the confirm sends nothing; switching to Low shows the low ones', async () => {
+    window.confirm.mockReturnValue(false);
+    show();
+    fireEvent.click((await screen.findAllByTestId('recheck-bulk-approve'))[0]);
+    expect(api.bulkApprove).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId('recheck-bulk-confidence'), { target: { value: 'low' } });
+    expect(screen.getAllByTestId('recheck-bulk-approve').map(b => b.textContent.trim())).toEqual(['Approve all 3 low → AI/ML']);
+    fireEvent.change(screen.getByTestId('recheck-bulk-confidence'), { target: { value: 'high' } });
+    expect(screen.getByTestId('recheck-bulk-none').textContent).toContain('No high-confidence proposals');
+  });
+
+  it('recent bulks: Undo only on one not undone yet; it confirms and sends the bulk id', async () => {
+    show();
+    const rows = await screen.findAllByTestId('recheck-bulk-recent');
+    expect(rows).toHaveLength(2);
+    expect(rows[1].textContent).toContain('Undone: 8 put back, 1 kept (edited since)');
+    const undo = screen.getAllByTestId('recheck-bulk-undo');
+    expect(undo).toHaveLength(1);
+    fireEvent.click(undo[0]);
+    await waitFor(() => expect(api.bulkUndo).toHaveBeenCalledWith(5));
+  });
+
+  it('while a bulk runs: progress shows and every bulk button is disabled', async () => {
+    api.overview.mockResolvedValue({ ...data, bulk: { ...bulk, running: { kind: 'approve', bulk_id: 6, done: 400, total: 1234 } } });
+    show();
+    expect((await screen.findByTestId('recheck-bulk-running')).textContent).toContain('Approving bulk #6: 400 of 1,234 done');
+    for (const b of screen.getAllByTestId('recheck-bulk-approve')) expect(b).toBeDisabled();
+    for (const b of screen.getAllByTestId('recheck-bulk-undo')) expect(b).toBeDisabled();
+  });
+
+  it('text helpers', () => {
+    expect(bulkLabel({ sector: 'FinTech', confidence: 'medium', n: 14000 })).toBe('Approve all 14,000 medium → FinTech');
+    expect(bulkConfirmText('SaaS/Enterprise', { sector: 'FinTech', confidence: 'low', n: 2 })).toContain('You can Undo the whole bulk');
+    expect(bulkRunningText({ kind: 'undo', bulk_id: 3, done: 10, total: 20 })).toBe('Undoing bulk #3: 10 of 20 put back so far…');
+    expect(bulkRunningText(null)).toBe('');
+    expect(bulkRecentText({ id: 1, to_sector: 'X', confidence: 'medium', actor: 'a', approved: 2, stale: 0, finished_at: null })).toContain('running');
   });
 });
