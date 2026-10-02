@@ -2,6 +2,9 @@
  * s126b (2 Oct 2026) — Agent Runs gets "Your agents", the control room (AGENTIC_PLATFORM_PLAN G6; Rajeev: "End to End
  * agentic platform managed using graphs" … "a self learning agent continuously improving"). One step pointing at the
  * panel (always rendered once the page loads), right after the page title step.
+ * Also (same day, G2 "Adjacent markets agent"): a company's brief gets "Where to venture next" — adjacent markets and
+ * small startups to invest in or acquire, which also fill the Strategy map's Venture row. The section appears only once
+ * the CEO view has run, so it is described in the always-present Agents step.
  * Derived from pagesS126 so the six split modules and the earlier S12x modules stay verbatim.
  */
 import { pagesS126 } from './pagesS126.js';
@@ -15,8 +18,14 @@ const CONTROL = {
   skipBeacon: true,
 };
 const first = runs.steps.findIndex(s => s.target === '#tour-page-admin-agent-runs');
+const brief = pagesS126['/dashboard/brief'];
+const VENTURE = ' "Where to venture next" lists adjacent markets the CEO view found and small startups you could invest in or acquire to enter them; they fill the Strategy map\'s "Venture into adjacent markets" row.';
 
 export const pagesS126b = {
+  '/dashboard/brief': {
+    ...brief,
+    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content}${VENTURE}` } : s)),
+  },
   '/dashboard/admin/agent-runs': {
     ...runs,
     steps: [...runs.steps.slice(0, first + 1), CONTROL, ...runs.steps.slice(first + 1)],
