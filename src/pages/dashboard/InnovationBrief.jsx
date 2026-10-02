@@ -22,6 +22,7 @@ import KnowsPanel from './KnowsPanel';
 import AgentInbox from './AgentInbox';
 import { EngageSheet, PipelinePanel } from './EngageAgents';
 import CeoPanel from './CeoPanel';
+import DomainSignals from './DomainSignals';  // s126 G1: the other side of the market in your areas
 import AskPanel from './AskPanel';
 import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
@@ -568,6 +569,9 @@ export default function InnovationBrief() {
           {notice}
         </div>
       )}
+
+      {/* s126 G1 — what corporates (for an investor) or investors (for a company) look for in the client's areas. */}
+      <DomainSignals signals={brief.signals} />
 
       {/* s123 — Rajeev: "use the learning to personalise user dashboard". Shown once OpenI has placed this brief's startups. */}
       {brief.lens && (
