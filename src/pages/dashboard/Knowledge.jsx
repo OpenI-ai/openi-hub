@@ -293,7 +293,7 @@ export default function Knowledge() {
           const Icon = getSectorIcon(article.sector, article.tags, article.type);
           const sectorColor = getSectorColor(article.sector);
           return (
-            <div key={article.id} onClick={() => openArticle(article)} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all cursor-pointer group"
+            <div key={article.id} onClick={() => openArticle(article)} className="bg-white rounded-2xl border border-gray-200 p-5 min-w-0 hover:shadow-md transition-all cursor-pointer group"
               style={{ transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = sectorColor; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}>
@@ -307,8 +307,8 @@ export default function Knowledge() {
                   <Icon size={22} style={{ color: sectorColor }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2 mb-1">
-                    <h3 className="font-display font-bold text-gray-900 text-sm leading-snug flex-1">{article.title}</h3>
+                  <div className="flex flex-wrap items-start gap-2 mb-1">
+                    <h3 className="font-display font-bold text-gray-900 text-sm leading-snug flex-1 min-w-[10rem]">{article.title}</h3>
                     {article.is_published === false && (
                       <span className="px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0 bg-gray-200 text-gray-600">Unpublished</span>
                     )}
