@@ -102,8 +102,8 @@ export default function ChallengeInvites() {
               <div key={inv.id} style={{
                 border: `1.5px solid ${c.border}`, borderRadius: 12, background: c.bg, padding: 16,
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
-                  <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                  <div style={{ flex: '1 1 200px', minWidth: 0 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
                                    letterSpacing: 0.4, color: c.fg, marginBottom: 4 }}>
                       {inv.status}
