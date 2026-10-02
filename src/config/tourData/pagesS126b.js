@@ -25,12 +25,14 @@ const SIGNALS = ' "What corporates / investors / government bodies are looking f
 // s126 G1 ("yes go ahead with the remaining personas"): the step's opening line named only companies and investors.
 const WHO_OLD = 'For company and investor accounts, your Innovation Agent runs all of these for you';
 const WHO_NEW = 'For every account except startups (companies, investors, government bodies, incubators, accelerators, universities, labs, mentors and students), your Innovation Agent runs all of these for you';
+// s126 (Rajeev: "yes give Evaluate with AI to them too").
+const EVALUATE = ' "Evaluate with AI" on a startup card is for companies, government bodies, incubators and accelerators; each is scored through its own lens (an incubator\'s fit for its programme, not a company\'s).';
 const VENTURE = ' "Where to venture next" lists adjacent markets the CEO view found and small startups you could invest in or acquire to enter them; they fill the Strategy map\'s "Venture into adjacent markets" row.';
 
 export const pagesS126b = {
   '/dashboard/brief': {
     ...brief,
-    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content.replace(WHO_OLD, WHO_NEW)}${DAILY}${VENTURE}${SIGNALS}` } : s)),
+    steps: brief.steps.map(s => (s.target === '#tour-brief-agents' ? { ...s, content: `${s.content.replace(WHO_OLD, WHO_NEW)}${DAILY}${VENTURE}${SIGNALS}${EVALUATE}` } : s)),
   },
   '/dashboard/admin/agent-runs': {
     ...runs,
