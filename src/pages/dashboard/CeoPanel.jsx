@@ -13,7 +13,10 @@
  *                      adjacent industries with why, and startups on OpenI small
  *                      enough to acquire, each checked by the analyst for this
  *                      company; "Shortlist" puts one in the pilot pipeline
+ *   Startup programmes s126: open calls and challenges run by the competitors, and other live
+ *                      programmes close to the company's priorities (from the Programme Scout)
  *   Board pack         the quarterly PDF for the board
+ * s126: deals stay for 12 months — one found on an earlier read is kept, marked "seen on an earlier read".
  * It only reads and suggests; nothing is sent to anyone.
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -36,6 +39,18 @@ export function ceoStatusText(v) {
   if (!v.competitors?.length) return 'Name up to 3 competitors and OpenI follows their startup deals for you.';
   if (!v.ran_at) return 'Not read yet: press Refresh.';
   return `Last read ${day(v.ran_at)}${v.deals_by === 'headlines' ? ' (from the headlines)' : ''}.`;
+}
+
+/** s126 — the line under a programme: who runs it, who asks, deadline, how close. */
+export function programmeLine(p) {
+  const parts = [];
+  if (p.competitor) parts.push(`${p.competitor}`);
+  if (p.publisher && p.publisher !== p.competitor) parts.push(p.publisher);
+  if (p.who_asks) parts.push(p.who_asks);
+  if (p.on_openi) parts.push('Posted on OpenI');
+  parts.push(p.deadline ? `Apply by ${day(p.deadline)}` : 'Open');
+  if (p.match != null) parts.push(`${p.match}% match`);
+  return parts.join(' · ');
 }
 
 export default function CeoPanel({ load, save, run, download, shortlist }) {
@@ -172,6 +187,7 @@ export default function CeoPanel({ load, save, run, download, shortlist }) {
                           <div style={{ fontSize: 12, color: '#777' }}>
                             {d.url ? <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ color: '#777' }}>{d.headline}</a> : d.headline}
                             {d.date ? ` · ${day(d.date)}` : ''}
+                            {d.earlier && <span data-testid="ceo-deal-earlier"> · seen on an earlier read</span>}
                           </div>
                         </li>
                       ))}
@@ -179,6 +195,25 @@ export default function CeoPanel({ load, save, run, download, shortlist }) {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {(v.programmes?.competitors?.length > 0 || v.programmes?.in_sector?.length > 0) && (
+            <div data-testid="ceo-programmes" style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 6 }}>Startup programmes: what your competitors are asking startups for, and what else is open in your area</div>
+              {[['competitors', 'Run by your competitors'], ['in_sector', 'Other open programmes close to your priorities']].map(([k, label]) => (v.programmes[k] || []).length > 0 && (
+                <div key={k} data-testid={`ceo-programmes-${k}`} style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: NAVY }}>{label}</div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                    {v.programmes[k].map(p => (
+                      <li key={p.id} data-testid="ceo-programme" style={{ fontSize: 13, padding: '3px 0 3px 8px', borderLeft: `3px solid ${G}`, margin: '4px 0', overflowWrap: 'anywhere' }}>
+                        {p.url ? <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600, color: NAVY }}>{p.title}</a> : <b>{p.title}</b>}
+                        <div style={{ fontSize: 12, color: '#777' }}>{programmeLine(p)}</div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           )}
 
