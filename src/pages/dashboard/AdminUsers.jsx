@@ -13,6 +13,19 @@ const ROLES = ['admin','evaluator','startup','student','academia','corporate','g
 // Plans are FETCHED, never hardcoded — see src/utils/plans.js for why.
 const STATUS_COLOR = { true: 'bg-green-100 text-green-700', false: 'bg-red-100 text-red-600' };
 
+// s126 — "Last active": the last time the account was used, not only the last typed password.
+export function shortDate(d) {
+  return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' });
+}
+export function lastActiveText(d, now = Date.now()) {
+  if (!d) return 'Never';
+  const days = Math.floor((now - new Date(d).getTime()) / 86400000);
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days} days ago`;
+  return shortDate(d);
+}
+
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);  // s83
@@ -28,6 +41,8 @@ export default function AdminUsers() {
   // link (bot registrations, the TL-bonus incident).
   const [flagFilter, setFlagFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  // s126 (Rajeev: "how do I find out how users are active?"): sort by when the account was last USED.
+  const [sort, setSort] = useState('newest');
   const [editUser, setEditUser] = useState(null);
   const [editForm, setEditForm] = useState({});
   const plans = useAssignablePlans();
@@ -42,12 +57,13 @@ export default function AdminUsers() {
       if (activeFilter) params.active = activeFilter;
       if (importedFilter) params.imported = importedFilter;
       if (flagFilter) params.flag = flagFilter;
+      if (sort && sort !== 'newest') params.sort = sort;
       const data = await adminAPI.listUsers(params);
       setUsers(data.users);
       setTotal(data.total);
     } catch (err) { toast.error(err.message || 'Failed to load users'); }
     finally { setLoading(false); }
-  }, [page, search, roleFilter, planFilter, activeFilter, importedFilter, flagFilter]);
+  }, [page, search, roleFilter, planFilter, activeFilter, importedFilter, flagFilter, sort]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
@@ -154,18 +170,25 @@ export default function AdminUsers() {
             <option value="">No Flag Filter</option>
             <option value="spam_name">Spam suspects (link in name)</option>
           </select>
+          <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }} data-testid="admin-users-sort" aria-label="Sort users"
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white">
+            <option value="newest">Newest sign-ups</option>
+            <option value="last_active">Recently active</option>
+            <option value="name">Name A–Z</option>
+          </select>
         </div>
 
         {loading ? <LoadingSkeleton type="card" /> : (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-x-auto">
+            <table className="w-full text-sm min-w-[720px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">User</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Role</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Plan</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Status</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Last Login</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600"
+                    title="When the account was last used. Staying signed in counts; 'Last Login' only changed when a password was typed.">Last active</th>
                   <th className="text-right px-4 py-3 font-semibold text-gray-600">Actions</th>
                 </tr>
               </thead>
@@ -198,8 +221,9 @@ export default function AdminUsers() {
                         {u.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
-                      {u.last_login ? new Date(u.last_login).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'Never'}
+                    <td className="px-4 py-3 text-xs text-gray-500" data-testid="admin-user-last-active"
+                      title={u.last_login ? `Last password login: ${shortDate(u.last_login)}` : 'Never signed in with a password'}>
+                      {lastActiveText(u.last_active_at || u.last_login)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
