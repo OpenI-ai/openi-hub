@@ -120,6 +120,10 @@ export const agentRunsAPI = {
     return get(`/admin/agent-runs${qs ? `?${qs}` : ''}`);
   },
   get: (id) => get(`/admin/agent-runs/${id}`),
+  // s126 — the agent control room: every graph, its health and quality trend; pause / resume; run a nightly job now.
+  graphs: () => get('/admin/agent-graphs'),
+  pause: (name, paused) => post(`/admin/agent-graphs/${name}/pause`, { paused }),
+  runNow: (name) => post(`/admin/agent-graphs/${name}/run`, {}),
 };
 
 // s125 — the Programme Scout agent (admin): run tonight's read now; the pages it reads and what each returned.

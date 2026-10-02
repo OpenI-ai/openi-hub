@@ -80,6 +80,17 @@ describe('AgentInbox', () => {
     expect(saveSettings).toHaveBeenCalledWith({ weekly_email: false });
   });
 
+  // s126 G3: the daily alert (account watch).
+  it('Daily alerts: On by default, turns off, and the weekly email is left alone', async () => {
+    const saveSettings = vi.fn().mockResolvedValue({ settings: { weekly_email: true, watch_alerts: false } });
+    render(<AgentInbox {...props({ saveSettings })} />);
+    expect((await screen.findByTestId('agent-daily-state')).textContent).toBe('On');
+    fireEvent.click(screen.getByTestId('agent-daily-toggle'));
+    await waitFor(() => expect(screen.getByTestId('agent-daily-state').textContent).toBe('Off'));
+    expect(saveSettings).toHaveBeenCalledWith({ watch_alerts: false });
+    expect(screen.getByTestId('agent-email-state').textContent).toBe('On');
+  });
+
   // s125 Phase 4: autonomy, evidence, "Done for you".
   it('"Why?" opens the evidence: text, OpenI links in the app, outside links in a new tab', async () => {
     const ev = [{ text: 'Analyst: sells shelf ads.' }, { text: 'Shelfco on OpenI', url: '/dashboard/startups/7?by=user_id' }, { text: 'Their website', url: 'https://shelf.example' }];

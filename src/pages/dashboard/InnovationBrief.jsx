@@ -22,6 +22,7 @@ import KnowsPanel from './KnowsPanel';
 import AgentInbox from './AgentInbox';
 import { EngageSheet, PipelinePanel } from './EngageAgents';
 import CeoPanel from './CeoPanel';
+import DomainSignals from './DomainSignals';  // s126 G1: the other side of the market in your areas
 import AskPanel from './AskPanel';
 import { LaunchChallengeChip, LaunchChallengeSheet, InviteShortlistedChip, InviteShortlistedSheet, EvaluationNote } from './ActionAgents';
 import { LensBar, LensTag, OutcomeView } from './BriefLens';
@@ -409,7 +410,10 @@ export default function InnovationBrief() {
   const challengeCount = brief.priorities.filter(p => p.source === 'challenge').length;
   const isCorporate = brief.role === 'corporate';
   // s125 Phase 4d: the Innovation Agent also works for investors (deal flow).
-  const hasAgent = isCorporate || brief.role === 'investor';
+  // s126 G1 (Rajeev: "next priority is Govt"): government bodies get the agent, grand challenges, intros and pilots too.
+  const isGovernment = brief.role === 'government';
+  const runsChallenges = isCorporate || isGovernment;
+  const hasAgent = runsChallenges || brief.role === 'investor';
   // s125 — Rajeev chose "Opportunities" for a startup's brief: it leads with the corporates whose open challenges fit
   // and the open calls from outside OpenI; the panels built for buyers (shortlisting startups, Scout, Ask, taste) are not shown.
   const isStartupRole = brief.role === 'startup';
@@ -466,7 +470,7 @@ export default function InnovationBrief() {
         <AgentInbox load={briefAPI.inbox} snooze={briefAPI.snoozeInbox} run={briefAPI.runAgent} saveSettings={briefAPI.agentSettings} refreshKey={`${inboxKey}|${brief.generated_at}`}
           onShortlist={onShortlist} onLaunch={setLaunching} onInvite={setInviting} onAddPriority={acceptSuggestion} onEngage={setEngaging} onDeal={addDeal} />
       )}
-      {isCorporate && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
+      {runsChallenges && <PipelinePanel load={briefAPI.pipeline} onAction={setEngaging} refreshKey={`${inboxKey}|${brief.generated_at}`} />}
       {/* s124 Phase 3 — the CEO view: competitors' startup deals, where to venture next, the board pack. */}
       {isCorporate && <CeoPanel load={briefAPI.ceo} save={briefAPI.setCompetitors} run={briefAPI.runCeo} download={briefAPI.boardPack}
         shortlist={async (id) => { await briefAPI.feedback(id, 'shortlist'); setInboxKey(k => k + 1); }} />}
@@ -569,6 +573,10 @@ export default function InnovationBrief() {
         </div>
       )}
 
+      {/* s126 G1 — what corporates (for an investor) or investors (for a company) look for in the client's areas. */}
+      <DomainSignals signals={brief.signals} />
+      {(brief.signals_more || []).map(sig => <DomainSignals key={sig.other} signals={sig} />)}
+
       {/* s123 — Rajeev: "use the learning to personalise user dashboard". Shown once OpenI has placed this brief's startups. */}
       {brief.lens && (
         <div id="tour-brief-lens">
@@ -586,8 +594,8 @@ export default function InnovationBrief() {
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>{s.title}</h2>
             <span style={{ fontSize: 12.5, color: '#888' }}>{s.question}</span>
             {s.verified && <VerifiedNote />}
-            {isCorporate && actionOffers.get(`launch_challenge|${s.id}`) && <LaunchChallengeChip offer={actionOffers.get(`launch_challenge|${s.id}`)} onOpen={setLaunching} />}
-            {isCorporate && actionOffers.get(`invite_shortlisted|${s.id}`) && <InviteShortlistedChip offer={actionOffers.get(`invite_shortlisted|${s.id}`)} onOpen={setInviting} />}
+            {runsChallenges && actionOffers.get(`launch_challenge|${s.id}`) && <LaunchChallengeChip offer={actionOffers.get(`launch_challenge|${s.id}`)} onOpen={setLaunching} />}
+            {runsChallenges && actionOffers.get(`invite_shortlisted|${s.id}`) && <InviteShortlistedChip offer={actionOffers.get(`invite_shortlisted|${s.id}`)} onOpen={setInviting} />}
           </div>
           {s.items.length === 0
             ? (s.gap ? null : <p style={{ fontSize: 13, color: '#777', fontStyle: 'italic' }}>No strong matches yet. OpenI's crawler is looking tonight.</p>)
