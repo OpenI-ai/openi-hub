@@ -33,6 +33,8 @@ import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefSh
 const AGENT_ROLES = ['corporate', 'investor', 'government', 'incubator', 'accelerator', 'academia', 'lab', 'mentor', 'student'];
 const RUNS_CHALLENGES = ['corporate', 'government', 'incubator', 'accelerator', 'lab'];
 const PILOTS = ['corporate', 'government', 'accelerator', 'academia', 'lab'];
+// s126 (Rajeev: "yes give Evaluate with AI to them too"): scored through each persona's own evaluator lens.
+const EVALUATES = ['corporate', 'government', 'incubator', 'accelerator'];
 
 const G = '#D0A848';
 const NAVY = '#152838';
@@ -300,7 +302,7 @@ export default function InnovationBrief() {
     const key = `${it.type}:${it.user_id || it.id}`;
     const tag = brief?.lens && it.type === 'startup' ? brief.lens.lens[it.user_id] : null;
     const shown = tag ? { ...it, relationship: { partner: 'Partner', source: 'Source', invest: 'Invest' }[tag.action] } : it;
-    const corp = brief?.role === 'corporate' && it.type === 'startup';
+    const corp = EVALUATES.includes(brief?.role) && it.type === 'startup';   // s126: "Evaluate with AI" for every persona in EVALUATES
     const c = <BriefCard item={shown} onShortlist={onShortlist} onDismiss={onDismiss} highlight={fresh.has(key)} onOpen={onOpenCard}
       evaluation={corp ? evaluations.get(it.user_id) || null : null} onEvaluate={corp ? onEvaluate : null} evaluating={evaluating.has(it.user_id)} />;
     return tag
