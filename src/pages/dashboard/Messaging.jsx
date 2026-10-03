@@ -62,8 +62,8 @@ export default function Messaging() {
       .then(data => {
         const list = (data.conversations || data || []).map(c => ({
           ...c,
-          name: c.name || `Conversation #${c.id}`,
-          avatar: (c.name || 'C')[0],
+          name: c.name || c.other_names || `Conversation #${c.id}`,
+          avatar: (c.name || c.other_names || 'C')[0],
           lastMsg: c.last_message || '',
           time: fmtTime(c.last_message_at || c.created_at),
           unread: Number(c.unread_count) || 0,
@@ -139,8 +139,8 @@ export default function Messaging() {
         .then(data => {
           const list = (data.conversations || data || []).map(c => ({
             ...c,
-            name: c.name || `Conversation #${c.id}`,
-            avatar: (c.name || 'C')[0],
+            name: c.name || c.other_names || `Conversation #${c.id}`,
+            avatar: (c.name || c.other_names || 'C')[0],
             lastMsg: c.last_message || '',
             time: fmtTime(c.last_message_at || c.created_at),
             unread: Number(c.unread_count) || 0,
@@ -270,7 +270,7 @@ export default function Messaging() {
         return messageAPI.listConversations().then(data => {
           const list = (data.conversations || data || []).map(c => ({
             ...c,
-            name: c.name || `Conversation #${c.id}`,
+            name: c.name || c.other_names || `Conversation #${c.id}`,
           }));
           setConversations(list);
           const fresh = list.find(c => c.id === conv.id);
