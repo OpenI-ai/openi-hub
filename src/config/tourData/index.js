@@ -78,6 +78,7 @@ import { pagesS126 } from './pagesS126.js';
 import { pagesS126b } from './pagesS126b.js';
 import { pagesS127 } from './pagesS127.js';
 import { pagesS127b } from './pagesS127b.js';
+import { pagesS127c } from './pagesS127c.js';
 
 export { TOURS };
 export default TOURS;
@@ -98,6 +99,7 @@ export const PAGE_TOURS = {
   ...pagesS126b, // 2 Oct 2026 (s126b) — Agent Runs: "Your agents" control room step; see its header.
   ...pagesS127,  // 3 Oct 2026 (s127) — a challenge's page: applicants with their fit (applicant triage); see its header.
   ...pagesS127b, // 3 Oct 2026 (s127b) — landing rethink: the public tour walks roles, agents, you stay in charge.
+  ...pagesS127c, // 3 Oct 2026 (s127c) — Disburse Grants (government) and My Grants (startup).
 };
 
 // Resolve the PAGE_TOURS entry for a given pathname.
