@@ -21,7 +21,7 @@ const EYEBROW = '#7a5f17';
 
 /** One tab per role group. `types` = the personas it covers (sign-up links), first is the default. */
 export const ROLE_AGENTS = [
-  { key: 'company', icon: Building2, tab: 'Companies', types: [['corporate', 'Join as a company']],
+  { key: 'company', shot: '/landing/role-company.jpg', shotAlt: "A company's Innovation Agent: matches found, next moves with a Why? behind each", icon: Building2, tab: 'Companies', types: [['corporate', 'Join as a company']],
     title: 'Your agent finds the startups for every priority, and tells you the move.',
     points: [
       'Startups matched to each of your innovation priorities, every one checked by the analyst agent against your business',
@@ -29,7 +29,7 @@ export const ROLE_AGENTS = [
       'A CEO view: what your competitors do with startups, and where to venture next',
       'A challenge drafted from a priority; every applicant scored for fit, best fit first',
     ] },
-  { key: 'government', icon: Landmark, tab: 'Government', types: [['government', 'Join as a government body']],
+  { key: 'government', shot: '/landing/role-government.jpg', shotAlt: "A government body's Innovation Agent: next moves for its missions and its pilot pipeline", icon: Landmark, tab: 'Government', types: [['government', 'Join as a government body']],
     title: 'Your agent works your missions and grand challenges.',
     points: [
       'Startups matched to your missions and open challenges, checked by the analyst agent',
@@ -37,7 +37,7 @@ export const ROLE_AGENTS = [
       'Open calls from peer programmes in your areas, linked to their own sites',
       'Launch a challenge, invite the startups you shortlisted, evaluate one with AI',
     ] },
-  { key: 'investor', icon: TrendingUp, tab: 'Investors', types: [['investor', 'Join as an investor']],
+  { key: 'investor', shot: '/landing/role-investor.jpg', shotAlt: "An investor's Innovation Agent: next moves, priorities and what the agents did this week", icon: TrendingUp, tab: 'Investors', types: [['investor', 'Join as an investor']],
     title: 'Deal flow matched to your thesis, checked before you see it.',
     points: [
       'Startups matched to your thesis and sectors, each checked by the analyst agent',
@@ -45,7 +45,7 @@ export const ROLE_AGENTS = [
       'Add a startup to your deal pipeline in one click',
       'Next moves with a "Why?" behind each, and your Innovation Brief as a PDF for your partners',
     ] },
-  { key: 'programme', icon: Home, tab: 'Incubators & accelerators',
+  { key: 'programme', shot: '/landing/role-programme.jpg', shotAlt: "An incubator's Innovation Agent: a challenge drafted from a priority, and suggested priorities", icon: Home, tab: 'Incubators & accelerators',
     types: [['incubator', 'Join as an incubator'], ['accelerator', 'Join as an accelerator']],
     title: 'Startups for your cohort, and the demand around it.',
     points: [
@@ -54,7 +54,7 @@ export const ROLE_AGENTS = [
       'Open calls from peer programmes, linked',
       'Evaluate a startup with AI through your own programme lens',
     ] },
-  { key: 'research', icon: BookOpen, tab: 'Universities & labs',
+  { key: 'research', shot: '/landing/role-research.jpg', shotAlt: "A university's Innovation Agent: matched startups, next moves and its pilot pipeline", icon: BookOpen, tab: 'Universities & labs',
     types: [['academia', 'Join as a university'], ['lab', 'Join as a lab']],
     title: 'Who needs your research, found for you.',
     points: [
@@ -63,7 +63,7 @@ export const ROLE_AGENTS = [
       'An intro or a meeting with a startup, drafted for you to send',
       'A short morning alert when something new appears for you',
     ] },
-  { key: 'advisor', icon: Users, tab: 'Mentors & service providers',
+  { key: 'advisor', shot: '/landing/role-advisor.jpg', shotAlt: "A service provider's Innovation Agent: matches in the sectors it serves", icon: Users, tab: 'Mentors & service providers',
     types: [['mentor', 'Join as a mentor'], ['service_provider', 'Join as a service provider']],
     title: 'The startups that need what you know.',
     points: [
@@ -72,7 +72,7 @@ export const ROLE_AGENTS = [
       'An intro or a meeting with a startup, drafted for you to send',
       'A short morning alert when something new appears for you',
     ] },
-  { key: 'student', icon: GraduationCap, tab: 'Students', types: [['student', 'Join as a student']],
+  { key: 'student', shot: '/landing/role-student.jpg', shotAlt: "A student's Innovation Agent: each topic studied as a priority, and what the agents found", icon: GraduationCap, tab: 'Students', types: [['student', 'Join as a student']],
     title: 'The startups working on what you study.',
     points: [
       'Startups matched to each topic you study, checked by the analyst agent',
@@ -80,7 +80,7 @@ export const ROLE_AGENTS = [
       'Each topic you study becomes its own list, so you can see where the activity is',
       'A short morning alert when something new appears for you',
     ] },
-  { key: 'startup', icon: Rocket, tab: 'Startups', types: [['startup', 'Join as a startup']],
+  { key: 'startup', shot: '/landing/role-startup.jpg', shotAlt: "A startup's agent: requirements from defence and incubators, each with Not for me", icon: Rocket, tab: 'Startups', types: [['startup', 'Join as a startup']],
     title: 'Requirements that fit you, from everyone who is asking.',
     points: [
       'Open challenges from companies on OpenI that fit what you do, grouped by company',
@@ -153,6 +153,16 @@ export default function RoleAgents() {
               </li>
             ))}
           </ul>
+          {/* s127: that role's own agent, captured live from its demo account (names of real organisations replaced). Only
+              the open tab's image is in the page, so one picture loads at a time. */}
+          {role.shot && (
+            <figure className="lg:col-span-5 m-0" style={{ margin: 0 }}>
+              <img data-testid="landing-role-shot" key={role.shot} src={role.shot} alt={role.shotAlt} loading="lazy" decoding="async"
+                width={1548} height={role.key === 'startup' ? 470 : 860}
+                className="w-full h-auto rounded-xl" style={{ border: `1px solid ${BORDER}`, display: 'block' }} />
+              <figcaption className="text-xs mt-2" style={{ color: GRAY }}>From our demo account</figcaption>
+            </figure>
+          )}
         </div>
       </div>
     </section>
