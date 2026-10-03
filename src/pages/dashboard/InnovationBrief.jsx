@@ -31,7 +31,8 @@ import StartupAgentCard from '../../components/StartupAgentCard';  // s125: a st
 import BriefShortlists, { activeShareToken, shareUrl, copyText } from './BriefShortlists';
 
 // s126 G1: who has the Innovation Agent, who runs challenges, who runs pilots (same lists as the backend's agents/personas.js).
-const AGENT_ROLES = ['corporate', 'investor', 'government', 'incubator', 'accelerator', 'academia', 'lab', 'mentor', 'student'];
+// s127: service_provider is the 11th persona with an agent (BE src/agents/personas.js AGENT).
+const AGENT_ROLES = ['corporate', 'investor', 'government', 'incubator', 'accelerator', 'academia', 'lab', 'mentor', 'student', 'service_provider'];
 const RUNS_CHALLENGES = ['corporate', 'government', 'incubator', 'accelerator', 'lab'];
 const PILOTS = ['corporate', 'government', 'accelerator', 'academia', 'lab'];
 // s126 (Rajeev: "yes give Evaluate with AI to them too"): scored through each persona's own evaluator lens.
