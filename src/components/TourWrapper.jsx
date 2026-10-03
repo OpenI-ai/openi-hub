@@ -73,6 +73,26 @@ const locale = {
   skip:  'Skip tour',
 };
 
+const WIDE = '(min-width: 1024px)';   // Tailwind lg: where DashboardLayout shows the sidebar
+
+/** Role-tour steps for this screen: sidebar steps (#tour-nav-*) only where the sidebar is on screen. */
+export function roleStepsFor(steps, wide) {
+  return wide ? steps : steps.filter(st => !String(st?.target || '').startsWith('#tour-nav-'));
+}
+
+function useWideScreen() {
+  const get = () => (typeof window === 'undefined' || !window.matchMedia ? true : window.matchMedia(WIDE).matches);
+  const [wide, setWide] = useState(get);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia(WIDE);
+    const on = () => setWide(mq.matches);
+    mq.addEventListener?.('change', on);
+    return () => mq.removeEventListener?.('change', on);
+  }, []);
+  return wide;
+}
+
 export default function TourWrapper({ role, forceStart = false }) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -84,7 +104,11 @@ export default function TourWrapper({ role, forceStart = false }) {
   // listener. Both modes share the same Joyride instance + onCallback.
   const [pageMode, setPageMode] = useState(false);
   const tourDef = useMemo(() => (role && TOURS[role]) || null, [role]);
-  const roleSteps = tourDef?.steps || [];
+  // s127 (persona agent, 3 Oct): below 1024 px the sidebar is slid off-screen (a drawer), yet still on the page, so the
+  // role tour "found" its sidebar steps and drew the beacon over the content, pointing at nothing (38 pages, 390 and
+  // 768 px). On those screens the role tour skips its sidebar steps; the rest of the tour is unchanged.
+  const wide = useWideScreen();
+  const roleSteps = useMemo(() => roleStepsFor(tourDef?.steps || [], wide), [tourDef, wide]);
   const pageDef = useMemo(() => resolvePageTour(location.pathname), [location.pathname]);
   const pageSteps = pageDef?.steps || [];
   const steps = pageMode ? pageSteps : roleSteps;
