@@ -9,9 +9,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const api = vi.hoisted(() => ({ matches: vi.fn(), setSettings: vi.fn(), callEvents: vi.fn() }));
+const api = vi.hoisted(() => ({ matches: vi.fn(), setSettings: vi.fn(), callEvents: vi.fn(), feedback: vi.fn() }));
 vi.mock('../../src/services/api', () => ({ startupAgentAPI: api }));
-const { default: Card, matchesText, applyCountOf } = await import('../../src/components/StartupAgentCard');
+const { default: Card, matchesText, applyCountOf, hiddenText, withoutMatch } = await import('../../src/components/StartupAgentCard');
 
 const data = {
   total: 3, settings: { weekly_email: true, email_at: null },
@@ -26,7 +26,7 @@ const data = {
 const show = () => render(<MemoryRouter><Card /></MemoryRouter>);
 
 describe('StartupAgentCard', () => {
-  beforeEach(() => { api.callEvents.mockReset().mockResolvedValue(null); api.matches.mockReset().mockResolvedValue(data); api.setSettings.mockReset().mockResolvedValue({ weekly_email: false, email_at: null }); });
+  beforeEach(() => { api.feedback.mockReset().mockResolvedValue({ ok: true, hidden: 1 }); api.callEvents.mockReset().mockResolvedValue(null); api.matches.mockReset().mockResolvedValue(data); api.setSettings.mockReset().mockResolvedValue({ weekly_email: false, email_at: null }); });
 
   it('groups by corporate; each challenge says why and links to its page', async () => {
     show();
@@ -137,5 +137,55 @@ describe('StartupAgentCard', () => {
     api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, open_calls: [{ id: 1, title: 'A', url: 'https://a.example', why: 'x' }, { id: 2, title: 'B', url: 'https://b.example', why: 'y' }] });
     render(<MemoryRouter><Card place="brief" onLoaded={onLoaded} /></MemoryRouter>);
     await waitFor(() => expect(onLoaded).toHaveBeenCalledWith(2));
+  });
+
+  // s127 — the startup agent learns: "Not for me" hides a match for good (and from the weekly email).
+  it('"Not for me" on a challenge hides it at once, saves it, and says how many are hidden', async () => {
+    show();
+    await screen.findAllByTestId('startup-agent-corporate');
+    fireEvent.click(screen.getAllByTestId('startup-agent-not-for-me')[2]);   // Bolt's only challenge
+    expect(screen.getAllByTestId('startup-agent-challenge')).toHaveLength(2);
+    expect(screen.getAllByTestId('startup-agent-corporate')).toHaveLength(1);   // a company with nothing left goes
+    await waitFor(() => expect(api.feedback).toHaveBeenCalledWith({ kind: 'challenge', id: 21, action: 'dismiss' }));
+    expect((await screen.findByTestId('startup-agent-hidden')).textContent).toContain('1 match you said "Not for me" to is hidden.');
+  });
+
+  it('"Not for me" puts the match back when the save fails', async () => {
+    api.feedback.mockRejectedValue(new Error('down'));
+    show();
+    await screen.findAllByTestId('startup-agent-corporate');
+    fireEvent.click(screen.getAllByTestId('startup-agent-not-for-me')[0]);
+    await waitFor(() => expect(screen.getAllByTestId('startup-agent-challenge')).toHaveLength(3));
+    expect(screen.queryByTestId('startup-agent-hidden')).toBeNull();
+  });
+
+  it('"Not for me" on an open call; "Show them again" resets and reloads', async () => {
+    api.matches.mockResolvedValue({ groups: [], total: 0, settings: { weekly_email: true }, learned: { hidden: 2 }, open_calls: [
+      { id: 7, title: 'DISC 14', source_name: 'iDEX', url: 'https://idex.gov.in/x', why: 'Close' },
+      { id: 8, title: 'Mobility', source_name: 'Hyundai', url: 'https://h.example/x', why: 'Close' }] });
+    api.feedback.mockResolvedValue({ ok: true, hidden: 3 });
+    show();
+    await screen.findAllByTestId('startup-agent-call');
+    expect(screen.getByTestId('startup-agent-hidden').textContent).toContain('2 matches you said "Not for me" to are hidden.');
+    fireEvent.click(screen.getAllByTestId('startup-agent-call-not-for-me')[0]);
+    expect(screen.getAllByTestId('startup-agent-call')).toHaveLength(1);
+    await waitFor(() => expect(api.feedback).toHaveBeenCalledWith({ kind: 'call', id: 7, action: 'dismiss' }));
+    await waitFor(() => expect(screen.getByTestId('startup-agent-hidden').textContent).toContain('3 matches'));
+    api.feedback.mockResolvedValue({ ok: true, hidden: 0 });
+    api.matches.mockResolvedValue({ ...data, learned: { hidden: 0 } });
+    fireEvent.click(screen.getByTestId('startup-agent-show-again'));
+    await waitFor(() => expect(api.feedback).toHaveBeenCalledWith({ action: 'reset' }));
+    await waitFor(() => expect(screen.queryByTestId('startup-agent-hidden')).toBeNull());
+    expect(screen.getAllByTestId('startup-agent-challenge')).toHaveLength(3);
+  });
+
+  it('pure parts: hiddenText and withoutMatch', () => {
+    expect(hiddenText(0)).toBe('');
+    expect(hiddenText(1)).toBe('1 match you said "Not for me" to is hidden.');
+    expect(hiddenText(4)).toBe('4 matches you said "Not for me" to are hidden.');
+    expect(withoutMatch(data, 'challenge', 11).groups.map(g => g.challenges.map(c => c.id))).toEqual([[12], [21]]);
+    expect(withoutMatch(data, 'challenge', 21).groups).toHaveLength(1);
+    expect(withoutMatch({ open_calls: [{ id: 1 }, { id: 2 }] }, 'call', 1).open_calls).toEqual([{ id: 2 }]);
+    expect(withoutMatch(null, 'call', 1)).toBeNull();
   });
 });

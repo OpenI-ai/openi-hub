@@ -161,4 +161,6 @@ export const startupAgentAPI = {
   setSettings: (settings) => put('/startup/agent/settings', settings),
   // s125 — what the startup does with the requirements shown (the Programme Scout learns from it).
   callEvents: (ids, action, source) => post('/startup/agent/calls/events', { ids, action, source }),
+  // s127 — "Not for me" on a match (the startup agent learns): { kind: 'challenge'|'call', id, action: 'dismiss'|'undo' } | { action: 'reset' }.
+  feedback: (body) => post('/startup/agent/feedback', body),
 };

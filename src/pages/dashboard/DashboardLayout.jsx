@@ -524,7 +524,7 @@ export default function DashboardLayout() {
           </span>
 
           {/* Global AI Ask search in top bar */}
-          <div style={{ flex:1, justifyContent:"center", maxWidth:480, marginLeft:"auto", marginRight:"auto" }} className="hidden md:flex">  {/* Phase 123: removed inline display:"flex" — was overriding Tailwind `hidden` on mobile */}
+          <div style={{ flex:1, justifyContent:"center", maxWidth:480, marginLeft:"auto", marginRight:"auto" }} className="hidden lg:flex">  {/* Phase 123: removed inline display:"flex" — was overriding Tailwind `hidden` on mobile. s127: lg, not md — at 768-1023 px the box was too narrow, its Search button wrapped and the box hung out of the top bar over the page (testing agent 3 Oct); tablets use the search icon like phones. */}
             <SearchBar
               onSearch={(term, mode) => {
                 const modeParam = mode && mode !== 'keyword' ? `&mode=${mode}` : '';
@@ -568,7 +568,7 @@ export default function DashboardLayout() {
             {/* Mobile Ship 1 (27 May 2026): mobile-only search icon button (hidden md+) */}
             <button
               onClick={() => setMobileSearchOpen(o => !o)}
-              className="md:hidden"
+              className="lg:hidden"
               aria-label="Search"
               style={{
                 padding:8, color: C.textMuted,
@@ -744,7 +744,7 @@ export default function DashboardLayout() {
 
         {/* Mobile Ship 1 (27 May 2026): slide-down search panel for mobile */}
         {mobileSearchOpen && (
-          <div className="md:hidden" style={{
+          <div className="lg:hidden" style={{
             padding:"12px 16px",
             background: C.topbarBg,
             borderBottom: `1px solid ${C.topbarBorder}`,
