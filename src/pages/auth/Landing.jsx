@@ -194,15 +194,18 @@ export default function Landing() {
               Get Started for Free
               <ArrowRight size={18} />
             </Link>
-            <Link
-              to="/marketplace"
+            {/* s127 (Rajeev: "change it to See what your agent does"): the second hero button opens the role tabs on this
+                page; the marketplace stays one click away in the final call to action. */}
+            <a
+              href="#choose-persona"
+              data-testid="hero-see-agent"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg text-base font-bold transition-all"
-              style={{ background: '#fff', color: DARK, border: `1.5px solid ${BORDER}` }}
+              style={{ background: '#fff', color: DARK, border: `1.5px solid ${BORDER}`, textDecoration: 'none' }}
               onMouseEnter={e => e.currentTarget.style.borderColor = GOLD}
               onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
             >
-              Browse Marketplace
-            </Link>
+              See what your agent does
+            </a>
           </div>
 
           {/* s110 — the s51 stats strip lives in the hero rail now; same `stats`

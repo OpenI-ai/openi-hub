@@ -66,6 +66,17 @@ describe('landing: an agent for every role (s127)', () => {
   });
 });
 
+describe('landing: hero buttons (s127)', () => {
+  // Rajeev: "change it to See what your agent does" — the 2nd hero button opens the role tabs on this page.
+  it('the second hero button opens the role tabs; the marketplace stays in the final call to action', () => {
+    const src = readFileSync('src/pages/auth/Landing.jsx', 'utf8');
+    expect(src).toMatch(/href="#choose-persona"\s+data-testid="hero-see-agent"[\s\S]{0,600}See what your agent does/);
+    expect(src.match(/Browse Marketplace/g)).toHaveLength(1);
+    render(<MemoryRouter><RoleAgents /></MemoryRouter>);
+    expect(document.getElementById('choose-persona')).not.toBeNull();
+  });
+});
+
 describe('landing: hero screens and page title', () => {
   // Rajeev (1 Oct): "show the image from our demo login" -> "pls make them the first screenshots".
   it('the hero shows three real screens from the demo login; a tab picks one; every image ships with the page', () => {
