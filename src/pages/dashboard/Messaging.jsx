@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
-  MessageSquare, Search, Send, Paperclip, MoreHorizontal, CheckCheck, Bell, Archive,
+  MessageSquare, Search, Send, CheckCheck,
   Plus, X, UserPlus, ChevronLeft,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -437,16 +437,7 @@ export default function Messaging() {
                 <div style={{ color: '#1a1a1a', fontSize: 14, fontWeight: 700 }}>{active.name}</div>
                 <div style={{ color: '#5c5c5c', fontSize: 11 }}>{active.online ? 'Online' : active.role}</div>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[Bell, Archive, MoreHorizontal].map((Icon, i) => (
-                  <button key={i} style={{ padding: 7, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 7 }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <Icon size={15} />
-                  </button>
-                ))}
-              </div>
+              {/* s127 — Bell / Archive / More icons removed: none of them did anything (no mute, archive or menu exists). */}
             </div>
 
             {/* Messages */}
@@ -487,9 +478,7 @@ export default function Messaging() {
 
             {/* Input */}
             <div style={{ padding: '12px 16px', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button style={{ padding: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: '#6e6e6e', borderRadius: 7 }}>
-                <Paperclip size={15} />
-              </button>
+              {/* s127 — the paperclip was removed: messages cannot carry attachments yet, and it did nothing. */}
               <div style={{ flex: 1, position: 'relative' }}>
                 <textarea
                   rows={1}

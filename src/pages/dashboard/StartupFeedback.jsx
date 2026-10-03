@@ -264,10 +264,10 @@ export default function StartupFeedback() {
                   )}
 
                   {!f.actionTaken && f.status === 'Pending Action' && (
-                    <div style={{ padding: '10px 14px', background: '#fef2f2', borderRadius: 9, border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <AlertCircle size={13} color="#dc2626" />
-                      <span style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>Action required — no response yet</span>
-                      <button style={{ marginLeft: 'auto', padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>Respond</button>
+                    <div data-testid="feedback-awaiting" style={{ padding: '10px 14px', background: '#fffbeb', borderRadius: 9, border: '1px solid #fde68a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <AlertCircle size={13} color="#92400e" />
+                      {/* s127 — was "Action required" + a Respond button that did nothing: the reply comes from the OpenI team, not from you. */}
+                      <span style={{ fontSize: 12, color: '#92400e', fontWeight: 600 }}>Waiting for a reply from the OpenI team</span>
                     </div>
                   )}
                 </div>
