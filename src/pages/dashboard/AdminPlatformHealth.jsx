@@ -105,7 +105,8 @@ export default function AdminPlatformHealth() {
         <span style={{ fontSize: 11, color: '#6e6e6e' }}>As of {generated}</span>
       </div>
 
-      <Section title="Real Signups" sub="Self-registered users (excludes bulk-imported directory substrate).">
+      {/* s127 audit: demo / internal / test accounts are left out of every people tile, and the count left out is shown. */}
+      <Section title="Real Signups" sub={`Self-registered people. Leaves out the imported directory${u.internal_excluded != null ? ` and ${fmt(u.internal_excluded)} demo, internal or test accounts` : ''}.`}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12 }}>
           <Tile icon={Users} label="Total claimed" value={fmt(u.total_claimed)} />
           <Tile icon={UserCheck} label="Active account" value={fmt(u.active_account)} sub="is_active=true" />
@@ -124,12 +125,16 @@ export default function AdminPlatformHealth() {
         </div>
       </Section>
 
-      <Section title="Revenue" sub="Gross (captured) and Net (captured - refunded). FY = 1 Apr to now.">
+      {/* s127 audit: "Net (captured - refunded)" was always equal to gross — no refund is ever recorded. Say what it is. */}
+      <Section title="Revenue" sub="Captured payments (no refunds have been recorded on OpenI). FY = 1 Apr to now.">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 12 }}>
           <Tile icon={IndianRupee} label="INR Month-to-date" value={fmtINR(rev.mtd?.inr?.gross || 0)} sub={(rev.mtd?.inr?.payment_count || 0) + ' payments'} />
           <Tile icon={IndianRupee} label="INR Year-to-date" value={fmtINR(rev.ytd?.inr?.gross || 0)} sub={(rev.ytd?.inr?.payment_count || 0) + ' payments'} />
           <Tile icon={DollarSign} label="USD Month-to-date" value={fmtUSD(rev.mtd?.usd?.gross || 0)} sub={(rev.mtd?.usd?.payment_count || 0) + ' payments'} />
           <Tile icon={DollarSign} label="USD Year-to-date" value={fmtUSD(rev.ytd?.usd?.gross || 0)} sub={(rev.ytd?.usd?.payment_count || 0) + ' payments'} />
+          {/* s127 audit: AI credit packs were in no revenue tile. */}
+          {data.credit_packs && <Tile icon={IndianRupee} label="AI credit packs MTD" value={fmtINR(data.credit_packs.mtd?.inr || 0)} sub={(data.credit_packs.mtd?.count || 0) + ' packs'} />}
+          {data.credit_packs && <Tile icon={IndianRupee} label="AI credit packs YTD" value={fmtINR(data.credit_packs.ytd?.inr || 0)} sub={(data.credit_packs.ytd?.count || 0) + ' packs'} />}
         </div>
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Revenue by month (last 12)</div>
@@ -149,9 +154,11 @@ export default function AdminPlatformHealth() {
 
       <Section title="Churn early warning" sub="30-day forward + backward windows (matches Phase 113 reminder cadence).">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 12 }}>
-          <Tile icon={AlertCircle} label="Active subs" value={fmt(data.paid_count || 0)} color={G} />
+          {/* s127 audit: paying subscriptions of real people; "ended" = cancelled/expired; overdue shown on its own. */}
+          <Tile icon={AlertCircle} label="Paying subscriptions" value={fmt(data.paid_count || 0)} color={G} sub="real people, paid plans" />
           <Tile icon={AlertCircle} label="Renewing in 30d" value={fmt(churn.renewing_30d || 0)} color={(churn.renewing_30d || 0) > 0 ? '#F59E0B' : '#10B981'} />
-          <Tile icon={AlertCircle} label="Expired in last 30d" value={fmt(churn.expired_30d || 0)} color={(churn.expired_30d || 0) > 0 ? '#EF4444' : '#10B981'} />
+          <Tile icon={AlertCircle} label="Ended in last 30d" value={fmt(churn.expired_30d || 0)} color={(churn.expired_30d || 0) > 0 ? '#EF4444' : '#10B981'} sub="cancelled or expired" />
+          {churn.renewal_overdue != null && <Tile icon={AlertCircle} label="Renewal overdue" value={fmt(churn.renewal_overdue)} color={churn.renewal_overdue > 0 ? '#F59E0B' : '#10B981'} sub="still active, period ended: check by hand" />}
         </div>
       </Section>
 
