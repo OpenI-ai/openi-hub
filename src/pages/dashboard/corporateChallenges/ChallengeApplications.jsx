@@ -21,22 +21,38 @@ import {
 import toast from 'react-hot-toast';
 import { G, card } from './constants';
 import AIEvaluationCard from '../../../components/AIEvaluationCard';
+import { useState } from 'react';
+import { FitBadge, FitReasons, sortByFit } from '../../../components/ApplicantFit';   // s127: applicant triage
+
+// s127 — "Best fit first" is remembered per browser (a convenience; never required).
+const FIT_KEY = 'openi_applicants_best_fit';
+const readBestFit = () => { try { return localStorage.getItem(FIT_KEY) === '1'; } catch { return false; } };
 
 export default function ChallengeApplications({
   analysisData, analysisLoading, detail, evaluatingAppId, evaluations, expandedReviewApp,
   loadDetail, navigate, persona, rfiQuestions, runAiAnalysis, runAiEvaluate,
   setExpandedReviewApp, setShowAnalysis, showAnalysis, updateAppStatus, user,
 }) {
+  const [bestFit, setBestFit] = useState(readBestFit);
+  const hasFit = (detail.applications || []).some(a => typeof a.fit === 'number');
+  const toggleBestFit = () => setBestFit((v) => { try { localStorage.setItem(FIT_KEY, v ? '0' : '1'); } catch { /* private window */ } return !v; });
   return (
     // ---- BODY START (original lines 637-949) ----
     <>
         {/* Applications */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div id="tour-challenge-applicants" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
             <Users size={15} style={{ verticalAlign: -3, marginRight: 6 }} />Applications ({(detail.applications || []).length})
           </h3>
           {(detail.applications || []).length > 0 && (
-            <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {hasFit && !showAnalysis && (
+                <button type="button" data-testid="applicants-best-fit" onClick={toggleBestFit} aria-pressed={bestFit}
+                  style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, cursor: 'pointer',
+                    background: bestFit ? '#0B1E3F' : '#fff', color: bestFit ? '#fff' : '#333', border: `1px solid ${bestFit ? '#0B1E3F' : '#ddd'}` }}>
+                  {bestFit ? '✓ ' : ''}Best fit first
+                </button>
+              )}
               {showAnalysis && analysisData && (
                 <button onClick={() => setShowAnalysis(false)}
                   style={{ padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 7, background: '#f3f4f6', color: '#333', border: '1px solid #ddd', cursor: 'pointer' }}>
@@ -104,7 +120,7 @@ export default function ChallengeApplications({
           <div style={{ ...card, padding: 30, textAlign: 'center', color: '#666', fontSize: 13 }}>No applications yet</div>
         ) : (!showAnalysis) && (
           <div style={{ display: 'grid', gap: 10 }}>
-            {(detail.applications || []).map(app => {
+            {(bestFit ? sortByFit(detail.applications) : (detail.applications || [])).map(app => {
               /* Phase 100: badge uses persona label */
               const personaLabel = getStatusLabel(persona, app.status);
               const as = { label: personaLabel.label, color: personaLabel.color, bg: personaLabel.bg };
@@ -157,7 +173,9 @@ export default function ChallengeApplications({
                             ★ Invited
                           </span>
                         )}
+                        <FitBadge app={app} />
                       </div>
+                      <FitReasons app={app} />
                       <div style={{ fontSize: 11, color: '#5c5c5c' }}>
                         {app.applicant_email} {app.sector ? `| ${app.sector}` : ''} {app.stage ? `| ${app.stage}` : ''}
                         {app.profile_pct != null && <span style={{ marginLeft: 8, color: '#16a34a' }}>Profile: {app.profile_pct}%</span>}

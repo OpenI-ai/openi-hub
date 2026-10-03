@@ -76,6 +76,7 @@ import { pagesS125 } from './pagesS125.js';
 import { pagesS125b } from './pagesS125b.js';
 import { pagesS126 } from './pagesS126.js';
 import { pagesS126b } from './pagesS126b.js';
+import { pagesS127 } from './pagesS127.js';
 
 export { TOURS };
 export default TOURS;
@@ -94,6 +95,7 @@ export const PAGE_TOURS = {
   ...pagesS125b, // 1 Oct 2026 (s125b) — the page is the "Innovation Agent" for every persona; see its header.
   ...pagesS126,  // 2 Oct 2026 (s126) — Sector re-check: "Approve in bulk" step; see its header.
   ...pagesS126b, // 2 Oct 2026 (s126b) — Agent Runs: "Your agents" control room step; see its header.
+  ...pagesS127,  // 3 Oct 2026 (s127) — a challenge's page: applicants with their fit (applicant triage); see its header.
 };
 
 // Resolve the PAGE_TOURS entry for a given pathname.
