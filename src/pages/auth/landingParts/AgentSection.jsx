@@ -14,6 +14,10 @@ import { Link } from 'react-router-dom';
 import { Search, ShieldCheck, ListOrdered, Lightbulb, BellRing, Eye, Undo2, HandMetal, Lock, BellOff, Shield, Repeat } from 'lucide-react';
 import { GOLD, GOLD_DEEP, GOLD_LIGHT, DARK, GRAY, LIGHT_GRAY, BORDER } from './constants.js';
 
+// s127: the small label above the heading. GOLD_DEEP read 2.85-3.24:1 on these backgrounds (axe color-contrast, small
+// text needs 4.5:1); this darker shade of the brand gold is ~5.5:1.
+const EYEBROW = '#7a5f17';
+
 /** The agents, in the order they work for a client. */
 export const AGENT_STEPS = [
   { icon: Search, name: 'Scout', text: 'Searches the news and OpenI\'s startup base every night for each of your priorities.' },
@@ -45,7 +49,7 @@ export default function AgentSection() {
       <section id="how-it-works" className="py-16 px-6 scroll-mt-20" style={{ background: '#fff', borderTop: `1px solid ${BORDER}` }}>
         <div id="tour-landing-agents" data-testid="landing-agents" className="max-w-7xl mx-auto">
           <div className="mb-10 max-w-2xl">
-            <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD_DEEP }}>How your agents work</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: EYEBROW }}>How your agents work</p>
             <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>A team of agents, working on your priorities every night.</h2>
             <p className="text-lg" style={{ color: GRAY }}>Each agent does one job and hands it to the next. You see what each one did, and why.</p>
           </div>

@@ -15,6 +15,10 @@ import { Link } from 'react-router-dom';
 import { Building2, Landmark, TrendingUp, Home, BookOpen, Users, GraduationCap, Rocket, ArrowRight } from 'lucide-react';
 import { GOLD, GOLD_DEEP, GOLD_LIGHT, DARK, GRAY, LIGHT_GRAY, BORDER } from './constants.js';
 
+// s127: the small label above the heading. GOLD_DEEP read 2.85-3.24:1 on these backgrounds (axe color-contrast, small
+// text needs 4.5:1); this darker shade of the brand gold is ~5.5:1.
+const EYEBROW = '#7a5f17';
+
 /** One tab per role group. `types` = the personas it covers (sign-up links), first is the default. */
 export const ROLE_AGENTS = [
   { key: 'company', icon: Building2, tab: 'Companies', types: [['corporate', 'Join as a company']],
@@ -102,7 +106,7 @@ export default function RoleAgents() {
     <section id="choose-persona" data-testid="landing-roles" className="py-16 px-6 scroll-mt-20" style={{ background: LIGHT_GRAY }}>
       <div className="max-w-7xl mx-auto">
         <div id="tour-landing-roles" className="mb-8 max-w-2xl">
-          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD_DEEP }}>An agent for every role</p>
+          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: EYEBROW }}>An agent for every role</p>
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>Pick your role. See what your agent does.</h2>
           <p className="text-lg" style={{ color: GRAY, margin: 0 }}>
             Eleven kinds of innovators use OpenI. Each gets its own Innovation Agent, built around what that role is looking for.
