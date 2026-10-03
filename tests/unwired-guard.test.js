@@ -21,9 +21,7 @@ import { join } from 'node:path';
 const SRC = join(process.cwd(), 'src');
 const read = (p) => readFileSync(join(SRC, p), 'utf8');
 
-const KNOWN = {
-  '/pages/dashboard/GovtAPIIntegrations.jsx': 'FE #157 shows every integration as Planned; its Connect / Configure / Sync buttons go when it is merged.',
-};
+const KNOWN = {};
 
 /** Menu paths whose page is still a placeholder, with the PR that replaces it. Fails once the page is real. */
 const KNOWN_PLACEHOLDER_ROUTES = {
