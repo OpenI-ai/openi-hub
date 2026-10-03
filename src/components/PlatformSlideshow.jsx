@@ -171,7 +171,8 @@ export default function PlatformSlideshow() {
             (transparent, no border, no padding beyond the inline-flex box) and
             the row's negative vertical margin cancels the extra height, so the
             layout below is identical to before — only the hit area grew. */}
-        <div style={{ display: 'flex', gap: 4, marginTop: 12, marginBottom: -16, justifyContent: 'center' }}>
+        {/* s127: wraps + narrower targets on phones (10 dots × 44 px = 476 px; "Slide 10" was cut off at 390 — testing agent P2). */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 12, marginBottom: -16, justifyContent: 'center' }}>
           {slides.map((slide, i) => (
             <button
               key={slide.src}
@@ -179,7 +180,7 @@ export default function PlatformSlideshow() {
               aria-label={`Slide ${i + 1}`}
               aria-current={i === active ? 'true' : undefined}
               style={{
-                height: 44, minWidth: 44, padding: 0,
+                height: 44, minWidth: 'min(44px, 8vw)', padding: 0,
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 background: 'transparent', border: 'none', cursor: 'pointer',
                 marginTop: -16,
