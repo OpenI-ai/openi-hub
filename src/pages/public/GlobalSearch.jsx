@@ -5,7 +5,8 @@ import PublicLayout from '../../components/PublicLayout';
 import SearchBar from '../../components/SearchBar';
 import { mapsAPI } from '../../services/clusterAPI';
 import UpgradeCTA from '../../components/UpgradeCTA';
-import { publicAPI, crawlAPI, getToken } from '../../services/api';
+import { publicAPI, crawlAPI, getToken, searchLearnAPI } from '../../services/api';
+import { orderByMarks, MARK_TEXT } from '../../utils/searchLearn';   // s127 G4: search that learns
 import toast from 'react-hot-toast';
 import { isUpgradeError } from '../../utils/upgradeError';
 import { openProxyFile } from '../../utils/fileAccess';
@@ -40,6 +41,17 @@ export default function GlobalSearch({ inDashboard = false }) {
   const type = params.get('type') || 'all';
 
   const [results, setResults] = useState(null);
+  // s127 G4 — search that learns (dashboard only): the person's own marks for the startups on the page.
+  const [marks, setMarks] = useState({});
+  useEffect(() => {
+    setMarks({});
+    const ids = (results?.startups?.results || []).map(s => s.user_id).filter(Boolean);
+    if (!inDashboard || !ids.length) return undefined;
+    let cancelled = false;
+    searchLearnAPI.personal(ids).then(r => { if (!cancelled) setMarks(r?.marks || {}); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [results, inDashboard]);
+  const opened = (s, i) => { if (inDashboard) searchLearnAPI.click({ startup_user_id: s.user_id, query: q, position: i + 1 })?.catch?.(() => {}); };
   const [interpretation, setInterpretation] = useState(null);
   const [upgradeNeeded, setUpgradeNeeded] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -237,8 +249,8 @@ export default function GlobalSearch({ inDashboard = false }) {
               {(activeTab === 'all' || activeTab === 'startups') && results.startups?.results?.length > 0 && (
                 <Section title="Startups" icon={Rocket} count={results.startups.total}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                    {results.startups.results.map(s => (
-                      <StartupCard key={s.user_id} startup={s} />
+                    {(inDashboard ? orderByMarks(results.startups.results, marks) : results.startups.results).map((s, i) => (
+                      <StartupCard key={s.user_id} startup={s} mark={marks[s.user_id]} onOpen={() => opened(s, i)} />
                     ))}
                   </div>
                 </Section>
@@ -367,7 +379,7 @@ function ChallengeCard({ challenge: c }) {
   );
 }
 
-function StartupCard({ startup: s }) {
+function StartupCard({ startup: s, mark = null, onOpen = null }) {
   // s50 (J10 follow-up): cards on /search were static — clicking did nothing.
   // Now route to the dashboard startup detail page so authed users land on the
   // page where the Claim CTA lives. Append ?by=user_id so the backend resolves
@@ -377,8 +389,15 @@ function StartupCard({ startup: s }) {
   return (
     <Link
       to={`/dashboard/startup-profile/${targetId}?by=user_id`}
+      onClick={() => onOpen?.()}
+      data-testid="search-startup"
       style={{ ...card, padding: 16, display: 'block', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
     >
+      {/* s127 G4: why this one sits where it does, from the person's own decisions */}
+      {mark && MARK_TEXT[mark] && (
+        <div data-testid="search-mark" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6,
+          color: mark === 'passed' ? '#888' : '#8A6A1C' }}>{MARK_TEXT[mark]}</div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
         {s.logo_url ? <img src={s.logo_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} /> : <Rocket size={20} style={{ color: G }} />}
         <div>
