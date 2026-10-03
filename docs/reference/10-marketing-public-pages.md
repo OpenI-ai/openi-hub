@@ -111,6 +111,41 @@ only what was checked live for each persona on 1 Oct 2026.
   the hero search bar's Search button is cut off at 390 px; the agent-steps row is squeezed at 768 px
   (`md:grid-cols-5`). The daily testing agent checks every page at all three widths.
 
+### 15.11 "An agent for every role" rethink (3 Oct 2026, s127)
+Rajeev chose a whole-page rethink once every persona's agent was live ("Approve as proposed"). Headline kept; new
+subline: "An agent for every role — companies, investors, government, incubators, universities and startups. It
+checks every match, shows its evidence, and learns from every click." **Rule unchanged: the page claims only what was
+seen live with each persona's demo account** — every role-tab claim was verified on app.openi.ai on 3 Oct (mentor intro
+after BE #173; applicant fit on corporate@demo challenge 51).
+- **Order** (`Landing.jsx`): hero → Pick your role → How your agents work → You stay in charge → the map (condensed)
+  → partner logos → services → pricing → FAQ (agent FAQs first) → final CTA. Removed: "How OpenI Works", "Built for
+  Every Stakeholder", "What Powers OpenI" and the "See it in action" slideshow (overlapping).
+- **Hero buttons**: "Get Started for Free" + "See what your agent does" (`#choose-persona`,
+  `data-testid="hero-see-agent"`).
+- **Role tabs** (`landingParts/RoleAgents.jsx`, `ROLE_AGENTS`): 8 tabs covering the 11 personas (Companies ·
+  Government · Investors · Incubators & accelerators · Universities & labs · Mentors & service providers · Students ·
+  Startups). Each tab: a title, 4 claims, a real screenshot of that role's agent from its demo account
+  (`public/landing/role-<key>.jpg`, `data-testid="landing-role-shot"`; text naming real organisations or people was
+  replaced before capture) and a sign-up link with the persona preselected (`/register?type=…`).
+- **How your agents work** (`landingParts/AgentSection.jsx`): Scout → Analyst → Your Innovation Agent → Next moves →
+  Daily alerts, a "how it learns" panel, and a trust strip (Suggest only by default, "Why?", Undo, privacy rule).
+- **Readable colours** (FE #151): the gold stays a background/accent; text on gold is `#2A2A2E`, gold-family text
+  `#7a5f17`, footer text `#a8a8ae` (`landingParts/contrast.js`; `tests/pages/ContrastTokens.test.js`). axe WCAG 2 AA:
+  28 findings → 0 on the public pages. Dashboard pages still use the old gold text — separate sweep pending.
+- **Load speed** (FE #152): every dashboard page is `React.lazy`, so the landing page loads ~0.8 MB of JS (was
+  ~3.0 MB; main chunk 2.25 MB → 200 KB). LCP 0.6–0.9 s on a local build.
+- **Sharing / search** (`index.html`): `og:image` and `twitter:image` = `public/og-card.jpg` (1200×630 share card;
+  source `card.html` + `render.mjs` kept in the private memory repo, `ops/wip/og/`), with width/height/alt; JSON-LD
+  descriptions say "Innovation Agent", not "marketplace". LinkedIn caches previews — refresh via its Post Inspector.
+- **Tour**: `src/config/tourData/pagesS127b.js` — welcome → "Pick your role" → "How your agents work" → "You stay in
+  charge".
+- **Tests**: `tests/pages/LandingAgents.test.jsx` (tabs, hero button, role screenshots, share card, JSON-LD); backend
+  `e2e/new-feature-tours.spec.mjs` (tabs, screenshot loads, slideshow gone, tour). Verified live on openi.ai at
+  390 / 768 / 1440: 8/8 screenshots load, axe 0, no sideways scroll, tour complete, console clean.
+- **Closed from §15.10's open items**: the 768 px agent-steps squeeze and the 390 px slideshow dots (slideshow removed).
+
+---
+
 ## 16. Public Pages (v2.5)
 
 Public pages accessible without authentication, designed to drive organic traffic and conversions.
