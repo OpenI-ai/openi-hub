@@ -28,7 +28,7 @@ const ICON_MAP = {
 };
 
 // ── Per-persona config: stats, quick actions ─────────────────
-const DASHBOARD_CONFIG = {
+export const DASHBOARD_CONFIG = {
   startup: {
     subtitle: 'Startup Innovation Dashboard',
     stats: [
@@ -87,15 +87,16 @@ const DASHBOARD_CONFIG = {
     stats: [
       { key: 'startups_tracked', label: 'Startups Tracked', icon: Rocket, color: G, to: '/dashboard/startups' },
       { key: 'deeptech_startups', label: 'DeepTech Startups', icon: Zap, color: '#7c3aed', to: '/dashboard/startups' },
-      { key: 'programs', label: 'Programs', icon: FileText, color: '#0ea5e9', to: '/dashboard/evaluations' },
       { key: 'total_challenges', label: 'Challenges', icon: Target, color: '#16a34a', to: '/dashboard/corporate/challenges' },
       { key: 'unicorn_candidates', label: 'Unicorn Candidates', icon: Star, color: '#f59e0b', to: '/dashboard/startups' },
     ],
     quickActions: [
       { label: 'Post Challenge/RFP', desc: 'Post innovation challenges for startups', icon: Target, to: '/dashboard/corporate/challenges', color: G },
       { label: 'Discover Startups', desc: 'Browse the startup ecosystem', icon: Rocket, to: '/dashboard/startups', color: '#f59e0b' },
-      { label: 'Manage Programs', desc: 'Track evaluation programs', icon: FileText, to: '/dashboard/evaluations', color: '#0ea5e9' },
-      { label: 'View Cohorts', desc: 'Monitor incubation cohorts', icon: GraduationCap, to: '/dashboard/cohorts', color: '#7c3aed' },
+      // s127 (3 Oct): 'Manage Programs' (/dashboard/evaluations) and 'View Cohorts' (/dashboard/cohorts) were
+      // admin workflows (s117 took them out of every persona nav; personas.js explains why) but stayed here. A
+      // government body's own agent page is where its missions are worked.
+      { label: 'Your Innovation Agent', desc: 'Startups matched to your missions, checked for you', icon: Target, to: '/dashboard/brief', color: '#0ea5e9' },
       { label: 'Govt APIs', desc: 'Integration with govt databases', icon: Landmark, to: '/dashboard/govt-apis', color: '#16a34a' },
       { label: 'Explore Directory', desc: 'Find startups, mentors, labs', icon: Search, to: '/dashboard/directory', color: '#3b82f6' },
     ],
