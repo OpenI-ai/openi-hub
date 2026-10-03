@@ -5,11 +5,14 @@
  * email of the new ones is ON unless turned off here.
  *
  * Always rendered for a startup (the tour step points at it), with a plain empty state.
+ *
+ * s127 (3 Oct 2026) — the startup agent LEARNS: "Not for me" on a challenge or open call hides it for good (and from
+ * the weekly email), with Undo; a company dismissed twice is shown last; "Show them again" brings all back.
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Building2, ExternalLink, Globe, Loader2, Mail } from 'lucide-react';
+import { Building2, ExternalLink, Globe, Loader2, Mail, X } from 'lucide-react';
 import { startupAgentAPI } from '../services/api';
 
 const G = '#D0A848';
@@ -31,6 +34,23 @@ export function matchesText(d) {
   return `${n} open challenge${n === 1 ? '' : 's'} from ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'} ${n === 1 ? 'matches' : 'match'} what you do. Only public challenges, open now, are used.`;
 }
 
+/** The line under the matches when the startup has hidden some. */
+export function hiddenText(n) {
+  if (!n) return '';
+  return `${n} match${n === 1 ? '' : 'es'} you said "Not for me" to ${n === 1 ? 'is' : 'are'} hidden.`;
+}
+
+/** The data without one match (challenge or open call); a company left with no challenge goes too. */
+export function withoutMatch(d, kind, id) {
+  if (!d) return d;
+  if (kind === 'call') return { ...d, open_calls: (d.open_calls || []).filter(c => c.id !== id) };
+  const groups = (d.groups || []).map(g => ({ ...g, challenges: g.challenges.filter(c => c.id !== id) })).filter(g => g.challenges.length);
+  return { ...d, groups };
+}
+
+const notForMe = { background: 'none', border: '1px solid #e5e5e5', borderRadius: 6, padding: '5px 8px', fontSize: 11.5, color: '#666',
+  cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, minHeight: 28 };
+
 /** How many things a startup could apply to: OpenI challenges plus requirements from outside OpenI. */
 export function applyCountOf(d) {
   const challenges = (d?.groups || []).reduce((n, g) => n + (g.challenges || []).length, 0);
@@ -41,6 +61,11 @@ export default function StartupAgentCard({ place = 'card', onLoaded }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const load = () => startupAgentAPI.matches().then((d) => {
+    setData(d);
+    onLoaded?.(applyCountOf(d));
+  });
 
   useEffect(() => {
     startupAgentAPI.matches().then((d) => {
@@ -53,6 +78,32 @@ export default function StartupAgentCard({ place = 'card', onLoaded }) {
     }).catch(() => setError(true));
   }, [place]);
   const opened = (id) => { startupAgentAPI.callEvents?.([id], 'click', place)?.catch?.(() => {}); };
+
+  // s127 — "Not for me": gone at once (the button must answer the click), back if the save fails; Undo for 6 s.
+  const dismiss = async (kind, id) => {
+    const before = data;
+    setData(d => withoutMatch(d, kind, id));
+    try {
+      const r = await startupAgentAPI.feedback({ kind, id, action: 'dismiss' });
+      setData(d => ({ ...d, learned: { hidden: r?.hidden ?? ((d?.learned?.hidden || 0) + 1) } }));
+      toast((t) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          Hidden. You will not see it again.
+          <button type="button" data-testid="startup-agent-undo" style={{ ...notForMe, color: '#0B1E3F', fontWeight: 600 }}
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try { await startupAgentAPI.feedback({ kind, id, action: 'undo' }); await load(); } catch { toast.error('Could not undo just now.'); }
+            }}>Undo</button>
+        </span>
+      ), { duration: 6000 });
+    } catch (err) {
+      setData(before);
+      toast.error(err.message || 'Could not save that just now.');
+    }
+  };
+  const showAgain = async () => {
+    try { await startupAgentAPI.feedback({ action: 'reset' }); await load(); } catch (err) { toast.error(err.message || 'Could not do that just now.'); }
+  };
 
   const toggleEmail = async () => {
     const was = data?.settings?.weekly_email !== false;
@@ -101,8 +152,12 @@ export default function StartupAgentCard({ place = 'card', onLoaded }) {
                 <div key={c.id} data-testid="startup-agent-challenge" style={{ borderTop: '1px solid #f3f3f3', padding: '7px 0 2px' }}>
                   {/* The challenge page (marketplace detail), where the startup applies. */}
                   <Link to={c.url} style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{c.title}</Link>
-                  <div style={{ fontSize: 11.5, color: '#666' }}>
-                    {c.why}{c.deadline ? ` · apply by ${new Date(c.deadline).toLocaleDateString()}` : ''}{c.budget_range ? ` · ${c.budget_range}` : ''}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: 11.5, color: '#666', minWidth: 0, flex: '1 1 160px' }}>
+                      {c.why}{c.deadline ? ` · apply by ${new Date(c.deadline).toLocaleDateString()}` : ''}{c.budget_range ? ` · ${c.budget_range}` : ''}
+                    </div>
+                    <button type="button" data-testid="startup-agent-not-for-me" style={notForMe} onClick={() => dismiss('challenge', c.id)}
+                      aria-label={`Not for me: ${c.title}`}><X size={11} /> Not for me</button>
                   </div>
                 </div>
               ))}
@@ -128,14 +183,27 @@ export default function StartupAgentCard({ place = 'card', onLoaded }) {
                 </div>
                 {c.summary && <div style={{ fontSize: 12, color: '#444', marginTop: 4 }}>{c.summary}</div>}
                 <div style={{ fontSize: 11.5, color: '#8A6A1C', marginTop: 4 }}>{c.why}</div>
-                <a href={c.url} target="_blank" rel="noopener noreferrer" data-testid="startup-agent-call-apply" onClick={() => opened(c.id)}
-                  style={{ fontSize: 12, fontWeight: 600, color: G, display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
-                  Apply on {c.source_name} <ExternalLink size={12} />
-                </a>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 6 }}>
+                  <a href={c.url} target="_blank" rel="noopener noreferrer" data-testid="startup-agent-call-apply" onClick={() => opened(c.id)}
+                    style={{ fontSize: 12, fontWeight: 600, color: G, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    Apply on {c.source_name} <ExternalLink size={12} />
+                  </a>
+                  <button type="button" data-testid="startup-agent-call-not-for-me" style={notForMe} onClick={() => dismiss('call', c.id)}
+                    aria-label={`Not for me: ${c.title}`}><X size={11} /> Not for me</button>
+                </div>
               </div>
             ))}
           </div>
         </div>
+      )}
+      {(data?.learned?.hidden || 0) > 0 && (
+        <p data-testid="startup-agent-hidden" style={{ fontSize: 12, color: '#777', margin: '12px 0 0' }}>
+          {hiddenText(data.learned.hidden)}{' '}
+          <button type="button" data-testid="startup-agent-show-again" onClick={showAgain}
+            style={{ background: 'none', border: 'none', padding: '4px 0', color: '#0B1E3F', fontWeight: 600, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>
+            Show them again
+          </button>
+        </p>
       )}
     </div>
   );
