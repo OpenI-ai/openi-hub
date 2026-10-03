@@ -75,6 +75,8 @@ const AdminAgentRuns = lazy(() => import('./pages/dashboard/AdminAgentRuns'));  
 const AdminSectorRecheck = lazy(() => import('./pages/dashboard/AdminSectorRecheck'));  // s124
 const StartupFeedback      = lazy(() => import('./pages/dashboard/StartupFeedback'));
 const GovtAPIIntegrations  = lazy(() => import('./pages/dashboard/GovtAPIIntegrations'));
+const GrantsDisburse       = lazy(() => import('./pages/dashboard/government/GrantsDisburse'));  // s127
+const MyGrants             = lazy(() => import('./pages/dashboard/MyGrants'));  // s127
 const Marketplace          = lazy(() => import('./pages/dashboard/Marketplace'));
 const Directory            = lazy(() => import('./pages/dashboard/Directory'));
 const Meetings             = lazy(() => import('./pages/dashboard/Meetings'));
@@ -135,16 +137,7 @@ const InvestorRecommendedStartups    = lazy(() => import('./pages/dashboard/Inve
 const IncubatorRecommendedStartups   = lazy(() => import('./pages/dashboard/IncubatorRecommendedStartups'));
 const AcceleratorRecommendedStartups = lazy(() => import('./pages/dashboard/AcceleratorRecommendedStartups'));
 
-// s38 — minimal inline placeholder for nav targets whose backend is not yet wired
-function ComingSoonPlaceholder({ title, note }) {
-  return (
-    <div style={{ padding: '48px 24px', maxWidth: 640 }}>
-      <h1 style={{ color: '#152838', fontSize: 24, fontWeight: 700, marginBottom: 12 }}>{title}</h1>
-      <p style={{ color: '#585858', fontSize: 15, lineHeight: 1.6 }}>{note}</p>
-      <p style={{ color: '#D0A848', fontSize: 13, marginTop: 16, fontWeight: 600 }}>Coming soon</p>
-    </div>
-  );
-}
+// s38's ComingSoonPlaceholder was removed in s127 when its last user (Disburse Grants) was wired up.
 
 // ── Guard: redirect to login if not authenticated ─────────────
 function ProtectedRoute({ children }) {
@@ -334,8 +327,9 @@ export default function App() {
             <Route path="events"              element={<EventsRepository />} />
             <Route path="feedback"            element={<StartupFeedback />} />
             <Route path="govt-apis"           element={<GovtAPIIntegrations />} />
-            {/* s38 — Disburse Grants placeholder; government grant-disbursement backend wires this later */}
-            <Route path="government/grants"   element={<ComingSoonPlaceholder title="Disburse Grants" note="Disburse investment grants to startups. This surface is being wired up." />} />
+            {/* s127 — Disburse Grants (record-only: the body's treasury pays, OpenI records); the startup's side is my-grants */}
+            <Route path="government/grants"   element={<GrantsDisburse />} />
+            <Route path="my-grants"           element={<MyGrants />} />
             <Route path="marketplace"         element={<Marketplace />} />
             <Route path="search"              element={<GlobalSearch inDashboard />} />  {/* s125 — logged-in search stays in the dashboard */}
             <Route path="marketplace/:id"     element={<Marketplace />} />  {/* Phase 120 — route-based detail */}

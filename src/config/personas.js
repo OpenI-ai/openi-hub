@@ -243,6 +243,8 @@ export const PERSONA_NAV = {
     actions: [
       // Marketplace moved to the hub group (above).
       { to: '/dashboard/claims',          label: 'My Claims',      icon: 'BadgeCheck' },
+      // s127 — grants a government body awarded on OpenI (Disburse Grants' other half)
+      { to: '/dashboard/my-grants',       label: 'My Grants',      icon: 'DollarSign' },
       // Phase 89.2 — IPR removed from startup nav. IPR is an admin/evaluator
       // cross-startup registry view; startup IP data lives in MyProfile → Patents/IP.
       { to: '/dashboard/infrastructure',  label: 'Infrastructure', icon: 'Building2' },
