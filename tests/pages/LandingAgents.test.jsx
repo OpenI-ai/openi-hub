@@ -122,6 +122,9 @@ describe('landing: hero screens and page title', () => {
     for (const tag of ['property="og:image" content="https://www.openi.ai/og-card.jpg"', 'name="twitter:image" content="https://www.openi.ai/og-card.jpg"',
       'property="og:image:width" content="1200"', 'property="og:image:height" content="630"']) expect(html).toContain(tag);
     expect(html).not.toMatch(/(og|twitter):image" content="[^"]*openi-logo\.png"/);
+    const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+    expect(ld.map(x => x['@type'])).toEqual(['Organization', 'SoftwareApplication']);
+    for (const x of ld) expect(x.description).toMatch(/Innovation Agent/);   // search engines read the same message as people
     const jpg = readFileSync('public/og-card.jpg');
     const sof = jpg.indexOf(Buffer.from([0xff, 0xc0]));   // baseline JPEG frame header: height then width
     expect([jpg.readUInt16BE(sof + 7), jpg.readUInt16BE(sof + 5)]).toEqual([1200, 630]);
