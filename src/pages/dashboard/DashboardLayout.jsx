@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Outlet, NavLink, Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 // Phase 101 Sub-D: notificationAPI for live notification bell
@@ -768,7 +768,11 @@ export default function DashboardLayout() {
           {/* Phase 60.3 (s50): persistent role tabs at top of every dashboard page.
               Hidden for admin/evaluator (single-role legacy personas) inside RoleTabs itself. */}
           <RoleTabs />
-          <Outlet />
+          {/* s127: dashboard pages load on demand (App.jsx React.lazy); this boundary keeps the sidebar and top bar on
+              screen while the next page's code arrives, instead of blanking the whole app at the top-level boundary. */}
+          <Suspense fallback={<div data-testid="page-loading" style={{ padding: 32, color: '#888', fontSize: 14 }}>Loading…</div>}>
+            <Outlet />
+          </Suspense>
           {/* Single TourWrapper for the whole dashboard tree — co-located with the
               "Tour this page" topbar button so page tours fire on every route that has
               a PAGE_TOURS entry (incl. admin sub-routes). Also serves the role tour. */}
