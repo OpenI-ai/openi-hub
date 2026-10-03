@@ -8,95 +8,95 @@ import { AuthProvider } from './context/AuthContext';
 
 // Pages — Auth
 import Landing           from './pages/auth/Landing';
-import Register          from './pages/auth/Register';
-import VerifyEmail       from './pages/auth/VerifyEmail';
-import ForgotPassword    from './pages/auth/ForgotPassword';
-import ResetPassword     from './pages/auth/ResetPassword';
-import Terms             from './pages/auth/Terms';      // Phase 60.7 (s50)
-import Privacy           from './pages/auth/Privacy';    // Phase 60.7 (s50)
+const Register          = lazy(() => import('./pages/auth/Register'));
+const VerifyEmail       = lazy(() => import('./pages/auth/VerifyEmail'));
+const ForgotPassword    = lazy(() => import('./pages/auth/ForgotPassword'));
+const ResetPassword     = lazy(() => import('./pages/auth/ResetPassword'));
+const Terms             = lazy(() => import('./pages/auth/Terms'));      // Phase 60.7 (s50)
+const Privacy           = lazy(() => import('./pages/auth/Privacy'));    // Phase 60.7 (s50)
 
 // Pages — Public
-import PublicMarketplace from './pages/public/PublicMarketplace';
-import PublicReports     from './pages/public/PublicReports';
-import PublicFAQ         from './pages/public/PublicFAQ';
-import SharedChallenge   from './pages/public/SharedChallenge';
-import SharedWatchlist   from './pages/public/SharedWatchlist';
-import SharedStartupProfile from './pages/public/SharedStartupProfile';  // Phase 110
-import SharedStudentPortfolio from './pages/public/SharedStudentPortfolio';  // 17 Jun 2026 — public student portfolio share
-import SharedDeepTech from './pages/public/SharedDeepTech';  // Phase 111 Ship 2a
-import SharedEightVectorSelf from './pages/public/SharedEightVectorSelf';  // Phase 111 Ship 2c
-import SharedProgramEval from './pages/public/SharedProgramEval';  // Phase 111 Ship 2d
-import SharedDealRequest from './pages/public/SharedDealRequest';  // Phase 131 — blank-page fix
-import GlobalSearch      from './pages/public/GlobalSearch';
+const PublicMarketplace = lazy(() => import('./pages/public/PublicMarketplace'));
+const PublicReports     = lazy(() => import('./pages/public/PublicReports'));
+const PublicFAQ         = lazy(() => import('./pages/public/PublicFAQ'));
+const SharedChallenge   = lazy(() => import('./pages/public/SharedChallenge'));
+const SharedWatchlist   = lazy(() => import('./pages/public/SharedWatchlist'));
+const SharedStartupProfile = lazy(() => import('./pages/public/SharedStartupProfile'));  // Phase 110
+const SharedStudentPortfolio = lazy(() => import('./pages/public/SharedStudentPortfolio'));  // 17 Jun 2026 — public student portfolio share
+const SharedDeepTech = lazy(() => import('./pages/public/SharedDeepTech'));  // Phase 111 Ship 2a
+const SharedEightVectorSelf = lazy(() => import('./pages/public/SharedEightVectorSelf'));  // Phase 111 Ship 2c
+const SharedProgramEval = lazy(() => import('./pages/public/SharedProgramEval'));  // Phase 111 Ship 2d
+const SharedDealRequest = lazy(() => import('./pages/public/SharedDealRequest'));  // Phase 131 — blank-page fix
+const GlobalSearch      = lazy(() => import('./pages/public/GlobalSearch'));
 
 // Pages — Dashboard
-import Login             from './pages/dashboard/Login';
-import DashboardLayout   from './pages/dashboard/DashboardLayout';
-import DashboardHome     from './pages/dashboard/DashboardHome';
-import MyProfile         from './pages/dashboard/MyProfile';
-import CorporateDashboard       from './pages/dashboard/CorporateDashboard';
-import CorporateStartupSearch   from './pages/dashboard/CorporateStartupSearch';
-import CorporateChallenges      from './pages/dashboard/CorporateChallenges';
-import CorporateCollaborations  from './pages/dashboard/CorporateCollaborations';
-import InvestorDeals            from './pages/dashboard/InvestorDeals';
-import InvestorPortfolio        from './pages/dashboard/InvestorPortfolio';
-import InvestorDealRequests     from './pages/dashboard/InvestorDealRequests';
-import IncubatorPrograms        from './pages/dashboard/IncubatorPrograms';
+const Login             = lazy(() => import('./pages/dashboard/Login'));
+const DashboardLayout   = lazy(() => import('./pages/dashboard/DashboardLayout'));
+const DashboardHome     = lazy(() => import('./pages/dashboard/DashboardHome'));
+const MyProfile         = lazy(() => import('./pages/dashboard/MyProfile'));
+const CorporateDashboard       = lazy(() => import('./pages/dashboard/CorporateDashboard'));
+const CorporateStartupSearch   = lazy(() => import('./pages/dashboard/CorporateStartupSearch'));
+const CorporateChallenges      = lazy(() => import('./pages/dashboard/CorporateChallenges'));
+const CorporateCollaborations  = lazy(() => import('./pages/dashboard/CorporateCollaborations'));
+const InvestorDeals            = lazy(() => import('./pages/dashboard/InvestorDeals'));
+const InvestorPortfolio        = lazy(() => import('./pages/dashboard/InvestorPortfolio'));
+const InvestorDealRequests     = lazy(() => import('./pages/dashboard/InvestorDealRequests'));
+const IncubatorPrograms        = lazy(() => import('./pages/dashboard/IncubatorPrograms'));
 const IncubatorProgramDetail   = lazy(() => import('./pages/dashboard/IncubatorProgramDetail'));
-import IncubatorMentorPool      from './pages/dashboard/IncubatorMentorPool';
-import AcceleratorBatches       from './pages/dashboard/AcceleratorBatches';
+const IncubatorMentorPool      = lazy(() => import('./pages/dashboard/IncubatorMentorPool'));
+const AcceleratorBatches       = lazy(() => import('./pages/dashboard/AcceleratorBatches'));
 const AcceleratorBatchDetail   = lazy(() => import('./pages/dashboard/AcceleratorBatchDetail'));
-import AcceleratorPartners      from './pages/dashboard/AcceleratorPartners';
-import ProgramServicePartners   from './pages/dashboard/ProgramServicePartners';
-import StartupEvaluation from './pages/dashboard/StartupEvaluation';
-import StartupDiscovery  from './pages/dashboard/StartupDiscovery';
-import StudentDiscovery  from './pages/dashboard/StudentDiscovery';
-import AcademiaDiscovery from './pages/dashboard/AcademiaDiscovery';
-import StartupProfile    from './pages/dashboard/StartupProfile';
-import RegisterStartup   from './pages/dashboard/RegisterStartup';
-import Evaluations       from './pages/dashboard/Evaluations';
-import Cohorts           from './pages/dashboard/Cohorts';
-import Mentors           from './pages/dashboard/Mentors';
-import IPRDatabase       from './pages/dashboard/IPRDatabase';
-import Infrastructure    from './pages/dashboard/Infrastructure';
-import Knowledge         from './pages/dashboard/Knowledge';
-import StartupCrawling   from './pages/dashboard/StartupCrawling';
-import ProjectManagement from './pages/dashboard/ProjectManagement';
-import Messaging         from './pages/dashboard/Messaging';
-import StartupPipeline   from './pages/dashboard/StartupPipeline';
-import DocumentRepository   from './pages/dashboard/DocumentRepository';
-import StartupWatchlist     from './pages/dashboard/StartupWatchlist';
-import DeepTechQualification from './pages/dashboard/DeepTechQualification';
-import EventsRepository     from './pages/dashboard/EventsRepository';
-import CorporateRecommendedStartups from './pages/dashboard/CorporateRecommendedStartups';
-import InnovationBrief from './pages/dashboard/InnovationBrief';  // s121e
-import AdminBriefPreview from './pages/dashboard/AdminBriefPreview';  // s121g
-import AdminAgentRuns from './pages/dashboard/AdminAgentRuns';  // s122
-import AdminSectorRecheck from './pages/dashboard/AdminSectorRecheck';  // s124
-import StartupFeedback      from './pages/dashboard/StartupFeedback';
-import GovtAPIIntegrations  from './pages/dashboard/GovtAPIIntegrations';
-import Marketplace          from './pages/dashboard/Marketplace';
-import Directory            from './pages/dashboard/Directory';
-import Meetings             from './pages/dashboard/Meetings';
-import PersonaDashboard     from './pages/dashboard/PersonaDashboard';
-import Settings             from './pages/dashboard/Settings';
-import MyNetwork            from './pages/dashboard/MyNetwork';
-import UserProfile          from './pages/dashboard/UserProfile';
-import OrgAdmin             from './pages/dashboard/OrgAdmin';
-import SPServices           from './pages/dashboard/SPServices';
-import MentorSessions       from './pages/dashboard/MentorSessions';
-import MentorAvailability   from './pages/dashboard/MentorAvailability';
-import LabEquipment         from './pages/dashboard/LabEquipment';
-import LabPublications      from './pages/dashboard/LabPublications';
-import LabAnnouncements     from './pages/dashboard/LabAnnouncements';
-import BrowseLabFacilities  from './pages/dashboard/BrowseLabFacilities';
-import FindMentees          from './pages/dashboard/FindMentees';
-import Onboarding           from './pages/dashboard/Onboarding';
-import WhatsNew             from './pages/dashboard/WhatsNew';
+const AcceleratorPartners      = lazy(() => import('./pages/dashboard/AcceleratorPartners'));
+const ProgramServicePartners   = lazy(() => import('./pages/dashboard/ProgramServicePartners'));
+const StartupEvaluation = lazy(() => import('./pages/dashboard/StartupEvaluation'));
+const StartupDiscovery  = lazy(() => import('./pages/dashboard/StartupDiscovery'));
+const StudentDiscovery  = lazy(() => import('./pages/dashboard/StudentDiscovery'));
+const AcademiaDiscovery = lazy(() => import('./pages/dashboard/AcademiaDiscovery'));
+const StartupProfile    = lazy(() => import('./pages/dashboard/StartupProfile'));
+const RegisterStartup   = lazy(() => import('./pages/dashboard/RegisterStartup'));
+const Evaluations       = lazy(() => import('./pages/dashboard/Evaluations'));
+const Cohorts           = lazy(() => import('./pages/dashboard/Cohorts'));
+const Mentors           = lazy(() => import('./pages/dashboard/Mentors'));
+const IPRDatabase       = lazy(() => import('./pages/dashboard/IPRDatabase'));
+const Infrastructure    = lazy(() => import('./pages/dashboard/Infrastructure'));
+const Knowledge         = lazy(() => import('./pages/dashboard/Knowledge'));
+const StartupCrawling   = lazy(() => import('./pages/dashboard/StartupCrawling'));
+const ProjectManagement = lazy(() => import('./pages/dashboard/ProjectManagement'));
+const Messaging         = lazy(() => import('./pages/dashboard/Messaging'));
+const StartupPipeline   = lazy(() => import('./pages/dashboard/StartupPipeline'));
+const DocumentRepository   = lazy(() => import('./pages/dashboard/DocumentRepository'));
+const StartupWatchlist     = lazy(() => import('./pages/dashboard/StartupWatchlist'));
+const DeepTechQualification = lazy(() => import('./pages/dashboard/DeepTechQualification'));
+const EventsRepository     = lazy(() => import('./pages/dashboard/EventsRepository'));
+const CorporateRecommendedStartups = lazy(() => import('./pages/dashboard/CorporateRecommendedStartups'));
+const InnovationBrief = lazy(() => import('./pages/dashboard/InnovationBrief'));  // s121e
+const AdminBriefPreview = lazy(() => import('./pages/dashboard/AdminBriefPreview'));  // s121g
+const AdminAgentRuns = lazy(() => import('./pages/dashboard/AdminAgentRuns'));  // s122
+const AdminSectorRecheck = lazy(() => import('./pages/dashboard/AdminSectorRecheck'));  // s124
+const StartupFeedback      = lazy(() => import('./pages/dashboard/StartupFeedback'));
+const GovtAPIIntegrations  = lazy(() => import('./pages/dashboard/GovtAPIIntegrations'));
+const Marketplace          = lazy(() => import('./pages/dashboard/Marketplace'));
+const Directory            = lazy(() => import('./pages/dashboard/Directory'));
+const Meetings             = lazy(() => import('./pages/dashboard/Meetings'));
+const PersonaDashboard     = lazy(() => import('./pages/dashboard/PersonaDashboard'));
+const Settings             = lazy(() => import('./pages/dashboard/Settings'));
+const MyNetwork            = lazy(() => import('./pages/dashboard/MyNetwork'));
+const UserProfile          = lazy(() => import('./pages/dashboard/UserProfile'));
+const OrgAdmin             = lazy(() => import('./pages/dashboard/OrgAdmin'));
+const SPServices           = lazy(() => import('./pages/dashboard/SPServices'));
+const MentorSessions       = lazy(() => import('./pages/dashboard/MentorSessions'));
+const MentorAvailability   = lazy(() => import('./pages/dashboard/MentorAvailability'));
+const LabEquipment         = lazy(() => import('./pages/dashboard/LabEquipment'));
+const LabPublications      = lazy(() => import('./pages/dashboard/LabPublications'));
+const LabAnnouncements     = lazy(() => import('./pages/dashboard/LabAnnouncements'));
+const BrowseLabFacilities  = lazy(() => import('./pages/dashboard/BrowseLabFacilities'));
+const FindMentees          = lazy(() => import('./pages/dashboard/FindMentees'));
+const Onboarding           = lazy(() => import('./pages/dashboard/Onboarding'));
+const WhatsNew             = lazy(() => import('./pages/dashboard/WhatsNew'));
 // T32-99c: ChallengeInvites import
-import ChallengeInvites     from './pages/dashboard/ChallengeInvites';
-import ApplicationInvites   from './pages/dashboard/ApplicationInvites';
-import FeatureMap           from './pages/dashboard/FeatureMap';
+const ChallengeInvites     = lazy(() => import('./pages/dashboard/ChallengeInvites'));
+const ApplicationInvites   = lazy(() => import('./pages/dashboard/ApplicationInvites'));
+const FeatureMap           = lazy(() => import('./pages/dashboard/FeatureMap'));
 // s48 — lazy-loaded so recharts (~121 KB gz) is only fetched
 // when user navigates to one of these admin/portfolio surfaces.
 const AdminAnalytics       = lazy(() => import('./pages/dashboard/AdminAnalytics'));
@@ -105,35 +105,35 @@ const AdminCosts           = lazy(() => import('./pages/dashboard/AdminCosts'));
 // A: Admin Platform-Health dashboard (lazy - uses recharts)
 const AdminPlatformHealth = lazy(() => import('./pages/dashboard/AdminPlatformHealth'));
 const ChallengesToReview   = lazy(() => import('./pages/dashboard/ChallengesToReview'));
-import AdminConsole         from './pages/dashboard/AdminConsole';
-import AdminUsers           from './pages/dashboard/AdminUsers';
-import AdminChallenges      from './pages/dashboard/AdminChallenges';
-import AdminStartups        from './pages/dashboard/AdminStartups';
-import AdminLicenses        from './pages/dashboard/AdminLicenses';
-import AdminClaims          from './pages/dashboard/AdminClaims';
-import AdminKnowledge       from './pages/dashboard/AdminKnowledge';
-import MyClaims             from './pages/dashboard/MyClaims';
-import ClaimVerify          from './pages/auth/ClaimVerify';
-import AcceptInvite        from './pages/auth/AcceptInvite';   // Phase 108
-import SSOCallback         from './pages/auth/SSOCallback';    // Phase 127
-import AddRole              from './pages/dashboard/AddRole';     // Phase 60.4b (s50)
-import StudentPortfolio    from './pages/dashboard/StudentPortfolio';
-import StudentMentorships  from './pages/dashboard/StudentMentorships';
-import AcademiaPortfolio   from './pages/dashboard/AcademiaPortfolio';
-import Clusters            from './pages/dashboard/Clusters';
-import ClusterDetail       from './pages/dashboard/ClusterDetail';
+const AdminConsole         = lazy(() => import('./pages/dashboard/AdminConsole'));
+const AdminUsers           = lazy(() => import('./pages/dashboard/AdminUsers'));
+const AdminChallenges      = lazy(() => import('./pages/dashboard/AdminChallenges'));
+const AdminStartups        = lazy(() => import('./pages/dashboard/AdminStartups'));
+const AdminLicenses        = lazy(() => import('./pages/dashboard/AdminLicenses'));
+const AdminClaims          = lazy(() => import('./pages/dashboard/AdminClaims'));
+const AdminKnowledge       = lazy(() => import('./pages/dashboard/AdminKnowledge'));
+const MyClaims             = lazy(() => import('./pages/dashboard/MyClaims'));
+const ClaimVerify          = lazy(() => import('./pages/auth/ClaimVerify'));
+const AcceptInvite        = lazy(() => import('./pages/auth/AcceptInvite'));   // Phase 108
+const SSOCallback         = lazy(() => import('./pages/auth/SSOCallback'));    // Phase 127
+const AddRole              = lazy(() => import('./pages/dashboard/AddRole'));     // Phase 60.4b (s50)
+const StudentPortfolio    = lazy(() => import('./pages/dashboard/StudentPortfolio'));
+const StudentMentorships  = lazy(() => import('./pages/dashboard/StudentMentorships'));
+const AcademiaPortfolio   = lazy(() => import('./pages/dashboard/AcademiaPortfolio'));
+const Clusters            = lazy(() => import('./pages/dashboard/Clusters'));
+const ClusterDetail       = lazy(() => import('./pages/dashboard/ClusterDetail'));
 // s106 — standalone Innovation Maps (one micro-focused map per curated term)
-import InnovationMaps      from './pages/dashboard/InnovationMaps';
+const InnovationMaps      = lazy(() => import('./pages/dashboard/InnovationMaps'));
 // s108b — Art of Possible umbrella: Recommended-for-You + Innovation Maps as tabs
-import ArtOfPossible       from './pages/dashboard/ArtOfPossible';
-import MapDetail           from './pages/dashboard/MapDetail';
+const ArtOfPossible       = lazy(() => import('./pages/dashboard/ArtOfPossible'));
+const MapDetail           = lazy(() => import('./pages/dashboard/MapDetail'));
 // s32 P1.4 — Discovery surfaces consuming cluster-bridge endpoints
-import StudentRecommendedStartups    from './pages/dashboard/StudentRecommendedStartups';
-import AcademiaRecommendedStartups   from './pages/dashboard/AcademiaRecommendedStartups';
+const StudentRecommendedStartups    = lazy(() => import('./pages/dashboard/StudentRecommendedStartups'));
+const AcademiaRecommendedStartups   = lazy(() => import('./pages/dashboard/AcademiaRecommendedStartups'));
 // s36 — Discovery surfaces for investor/incubator/accelerator
-import InvestorRecommendedStartups    from './pages/dashboard/InvestorRecommendedStartups';
-import IncubatorRecommendedStartups   from './pages/dashboard/IncubatorRecommendedStartups';
-import AcceleratorRecommendedStartups from './pages/dashboard/AcceleratorRecommendedStartups';
+const InvestorRecommendedStartups    = lazy(() => import('./pages/dashboard/InvestorRecommendedStartups'));
+const IncubatorRecommendedStartups   = lazy(() => import('./pages/dashboard/IncubatorRecommendedStartups'));
+const AcceleratorRecommendedStartups = lazy(() => import('./pages/dashboard/AcceleratorRecommendedStartups'));
 
 // s38 — minimal inline placeholder for nav targets whose backend is not yet wired
 function ComingSoonPlaceholder({ title, note }) {
