@@ -24,9 +24,7 @@ const read = (p) => readFileSync(join(SRC, p), 'utf8');
 const KNOWN = {};
 
 /** Menu paths whose page is still a placeholder, with the PR that replaces it. Fails once the page is real. */
-const KNOWN_PLACEHOLDER_ROUTES = {
-  '/dashboard/government/grants': 'Disburse Grants — FE #158 replaces the placeholder with the real page.',
-};
+const KNOWN_PLACEHOLDER_ROUTES = {};
 
 /** Every /dashboard path a persona reaches: its menu (personas.js) and its home tiles (PersonaDashboard.jsx). */
 export function menuPaths() {
