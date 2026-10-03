@@ -80,3 +80,27 @@ Located in `src/services/api.js`:
 
 ---
 
+
+### 5.5 Disburse Grants & My Grants (added 3 Oct 2026)
+
+OpenI **records** grant payments that a government body makes through its own treasury. It never moves money.
+
+| Page | Route | Who | What it does |
+|---|---|---|---|
+| Disburse Grants | `/dashboard/government/grants` | Government | Create a scheme, award a grant to any startup on OpenI, and split it into milestone tranches. For each tranche: review the startup's proof, approve it, then record the payment with its date and treasury reference. |
+| My Grants | `/dashboard/my-grants` | Startup | See each grant milestone by milestone, with what has been paid (date and reference). Send proof for the **next** milestone. The funder is emailed when proof arrives. The empty state links to Challenges & Apply. |
+
+Tranche status runs `pending` → `submitted` (proof sent) → `approved` → `paid`.
+API module: `src/services/apiDomains/grants.js` (`grantAPI`, `/api/grants/*`).
+Both pages have product tours and work at phone, tablet and desktop widths.
+
+### 5.6 Unwired guard (added 3 Oct 2026)
+
+`tests/unwired-guard.test.js` runs with the unit suite. It reads every page a persona can reach from its menu or its dashboard tiles. It fails when a page:
+
+1. has no route or no page file;
+2. is a placeholder ("coming soon");
+3. has a `<button>` that does nothing;
+4. shows an integration as connected from a hardcoded value.
+
+Its `KNOWN` list may only shrink: an entry that no longer finds anything fails. A new persona page must pass this guard.
