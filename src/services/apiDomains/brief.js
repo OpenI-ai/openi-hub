@@ -164,3 +164,9 @@ export const startupAgentAPI = {
   // s127 — "Not for me" on a match (the startup agent learns): { kind: 'challenge'|'call', id, action: 'dismiss'|'undo' } | { action: 'reset' }.
   feedback: (body) => post('/startup/agent/feedback', body),
 };
+
+// s127 G4 — search that learns (signed-in, dashboard search only): the person's own marks + what they open.
+export const searchLearnAPI = {
+  personal: (ids) => get(`/search/personal?ids=${(ids || []).join(',')}`),
+  click: (body) => post('/search/clicks', body),
+};

@@ -247,12 +247,13 @@ export default function StartupDiscovery() {
   return (
     <div className="p-6" style={{ maxWidth: 1600, margin: '0 auto' }}>
       {/* Page header */}
-      <div id="tour-page-startups-header" className="flex items-center justify-between mb-4">
-        <div>
+      {/* s127: wraps on phones (government @390: "Bulk Upload" pushed the page 51 px sideways; testing agent re-check). */}
+      <div id="tour-page-startups-header" className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="min-w-0">
           <h1 className="text-2xl font-display font-bold text-gray-900">Discover Startups</h1>
           <p className="text-gray-500 text-sm mt-0.5">{total.toLocaleString()} startups · Search and filter the ecosystem</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           {watchlist.length > 0 && (
             <p className="text-sm text-primary-600">
               <BookmarkCheck size={14} className="inline mr-1" />
