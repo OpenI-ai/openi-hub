@@ -116,4 +116,14 @@ describe('landing: hero screens and page title', () => {
     for (const tag of [`<title>${DEFAULT_TITLE}</title>`, `property="og:title" content="${DEFAULT_TITLE}"`, `name="twitter:title" content="${DEFAULT_TITLE}"`]) expect(html).toContain(tag);
     expect(html).not.toMatch(/AI Open Innovation Marketplace" \/>/);
   });
+
+  it('a shared link shows the 1200x630 share card, not the bare logo', () => {
+    const html = readFileSync('index.html', 'utf8');
+    for (const tag of ['property="og:image" content="https://www.openi.ai/og-card.jpg"', 'name="twitter:image" content="https://www.openi.ai/og-card.jpg"',
+      'property="og:image:width" content="1200"', 'property="og:image:height" content="630"']) expect(html).toContain(tag);
+    expect(html).not.toMatch(/(og|twitter):image" content="[^"]*openi-logo\.png"/);
+    const jpg = readFileSync('public/og-card.jpg');
+    const sof = jpg.indexOf(Buffer.from([0xff, 0xc0]));   // baseline JPEG frame header: height then width
+    expect([jpg.readUInt16BE(sof + 7), jpg.readUInt16BE(sof + 5)]).toEqual([1200, 630]);
+  });
 });
