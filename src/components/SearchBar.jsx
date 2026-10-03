@@ -158,7 +158,7 @@ export default function SearchBar({
               border: `1px solid ${mode === 'ai' ? G : '#ccc'}`,
               borderRadius: 6, padding: '3px 8px',
               display: 'flex', alignItems: 'center', gap: 4,
-              cursor: 'pointer', fontSize: 11, color: mode === 'ai' ? '#fff' : '#666',
+              cursor: 'pointer', fontSize: 11, color: mode === 'ai' ? '#2A2A2E' : '#666',
               transition: 'all 0.2s', fontWeight: 600,
             }}
           >
@@ -174,7 +174,7 @@ export default function SearchBar({
               border: `1px solid ${mode === 'semantic' ? G : '#ccc'}`,
               borderRadius: 6, padding: '3px 8px',
               display: 'flex', alignItems: 'center', gap: 4,
-              cursor: 'pointer', fontSize: 11, color: mode === 'semantic' ? '#fff' : '#666',
+              cursor: 'pointer', fontSize: 11, color: mode === 'semantic' ? '#2A2A2E' : '#666',
               transition: 'all 0.2s',
             }}
           >
@@ -184,7 +184,7 @@ export default function SearchBar({
         <button
           onClick={() => doSearch()}
           style={{
-            background: G, color: '#fff', border: 'none', borderRadius: 8,
+            background: G, color: '#2A2A2E', border: 'none', borderRadius: 8,  // s127: dark on gold, 2.2:1 -> ~8:1
             padding: compact ? '5px 12px' : '8px 16px',
             cursor: 'pointer', fontSize: compact ? 12 : 14, fontWeight: 600,
             whiteSpace: 'nowrap',

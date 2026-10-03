@@ -17,7 +17,7 @@ const GOLD = '#D0A848';
 const GOLD_DARK = '#C9983F';
 const GOLD_LIGHT = 'rgba(213, 170, 91, 0.1)';
 const DARK = '#1a1a1a';
-const GRAY = '#6b7280';
+const GRAY = '#4b5563';  // s127 contrast: was #6b7280 (4.43:1 on the page background)
 const BORDER = '#e5e7eb';
 const LIGHT_GRAY = '#f5f5f5';
 
@@ -127,7 +127,7 @@ export default function PublicReports() {
               className="px-4 py-2 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold transition-all"
               style={{
                 background: !selectedSector ? GOLD : '#fff',
-                color: !selectedSector ? '#fff' : GRAY,
+                color: !selectedSector ? '#2A2A2E' : GRAY,
                 border: `1px solid ${!selectedSector ? GOLD : BORDER}`,
               }}
             >
@@ -260,7 +260,7 @@ export default function PublicReports() {
           </p>
           <Link to="/register"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all shadow-lg"
-                style={{ background: '#fff', color: GOLD_DARK }}
+                style={{ background: '#fff', color: '#7a5f17' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
             Get Started &mdash; It&apos;s Free <ArrowRight size={18} />

@@ -139,7 +139,7 @@ export default function Login() {
           <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a', fontFamily: 'Lexend, Inter, sans-serif' }}>
             Open<span style={{ color: '#D0A848' }}>I</span> Hub
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Secure platform for Open Innovation Ecosystem</p>
+          <p className="text-sm mt-1" style={{ color: '#4b5563' }}>Secure platform for Open Innovation Ecosystem</p>
         </div>
 
         {/* Card */}
@@ -187,7 +187,7 @@ export default function Login() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
-                    <Link to="/forgot-password" className="text-xs font-semibold" style={{ color: '#D0A848' }}>
+                    <Link to="/forgot-password" className="text-xs font-semibold" style={{ color: '#7a5f17' }}>
                       Forgot password?
                     </Link>
                   </div>
@@ -256,7 +256,7 @@ export default function Login() {
           ) : (
             <>
               <h2 className="font-semibold text-lg mb-2" style={{ color: '#1a1a1a' }}>Two-Factor Authentication</h2>
-              <p className="text-sm mb-6" style={{ color: '#6b7280' }}>Enter the 6-digit code from your authenticator app.</p>
+              <p className="text-sm mb-6" style={{ color: '#4b5563' }}>Enter the 6-digit code from your authenticator app.</p>
 
               {error && (
                 <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
@@ -301,9 +301,9 @@ export default function Login() {
 
         {/* Registration link */}
         <div className="text-center mt-5">
-          <p className="text-sm" style={{ color: '#6b7280' }}>
+          <p className="text-sm" style={{ color: '#4b5563' }}>
             Don&apos;t have an account?{' '}
-            <Link to="/landing" className="font-semibold" style={{ color: '#D0A848' }}>
+            <Link to="/landing" className="font-semibold" style={{ color: '#7a5f17' }}>
               Join OpenI Hub
             </Link>
           </p>
