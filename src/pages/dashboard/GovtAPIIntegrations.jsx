@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { govtIntegrationAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
-  Globe, Link2, CheckCircle2, AlertCircle, Clock, RefreshCw,
+  Globe, CheckCircle2, AlertCircle, Clock, RefreshCw,
   Shield, ExternalLink, Settings,
   Activity, Lock, Key,
 } from 'lucide-react';
@@ -23,7 +23,14 @@ const card = {
 const DEFAULT_COLORS = ['#ea580c', '#0284c7', '#16a34a', '#9333ea', '#dc2626', '#0284c7', '#64748b', '#64748b'];
 const DEFAULT_BGS = ['#fff7ed', '#f0f9ff', '#f0fdf4', '#fdf4ff', '#fef2f2', '#f0f9ff', '#f8fafc', '#f8fafc'];
 
+// s127 (3 Oct 2026, Rajeev: 'Show them honestly as Planned'). The backend listed Startup India, MCA, GST and
+// DigiLocker as 'connected' from a hardcoded list; OpenI exchanges data with none of these portals yet. Every
+// integration now reads 'Planned' until a real connection exists, and nothing here offers to sync or connect.
+const STATUS_LABEL = { planned: 'Planned', connected: 'Connected', pending_setup: 'Pending Setup', inactive: 'Inactive', error: 'Error' };
+export const statusLabel = (raw) => STATUS_LABEL[String(raw || '').toLowerCase()] || (raw ? String(raw) : 'Planned');
+
 const STATUS_STYLE = {
+  Planned:         { bg: '#f0f9ff', color: '#0369a1', border: '#bae6fd',              icon: Clock },
   Connected:       { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0',              icon: CheckCircle2 },
   'Pending Setup': { bg: '#fff8ec', color: G,          border: 'rgba(213,170,91,0.4)', icon: Clock },
   Inactive:        { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0',              icon: AlertCircle },
@@ -44,7 +51,7 @@ export default function GovtAPIIntegrations() {
           id: integ.id,
           name: integ.name || '',
           description: integ.description || '',
-          status: integ.status || 'Inactive',
+          status: statusLabel(integ.status),
           category: integ.category || 'Government Portal',
           endpoint: integ.endpoint || integ.api_endpoint || '',
           auth: integ.auth || integ.auth_method || 'API Key',
@@ -81,25 +88,22 @@ export default function GovtAPIIntegrations() {
       <div id="tour-page-govt-apis" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ margin: 0, color: '#1a1a1a', fontSize: 22, fontWeight: 700 }}>Government API Integrations</h1>
-          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Connect with central & state government databases for seamless startup verification</p>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', background: '#f5f5f5', color: '#555', border: '1px solid #eee', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-            <RefreshCw size={12} /> Sync All
-          </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 700, boxShadow: '0 2px 8px rgba(213,170,91,0.3)' }}>
-            <Link2 size={12} /> Add Integration
-          </button>
+          <p style={{ margin: '4px 0 0', color: '#5c5c5c', fontSize: 13 }}>Central and state government databases OpenI plans to verify startups against</p>
         </div>
       </div>
+      {connected === 0 && (
+        <div data-testid="govt-apis-planned-notice" style={{ ...card, padding: '12px 16px', marginBottom: 18, background: '#f0f9ff', borderColor: '#bae6fd', color: '#0c4a6e', fontSize: 13, lineHeight: 1.5 }}>
+          <strong>These integrations are planned.</strong> OpenI does not exchange data with these portals yet; each card shows what it will verify once connected.
+        </div>
+      )}
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 22 }}>
         {[
           { label: 'Total APIs',    value: integrations.length, icon: Globe,         bg: '#fff8ec', fg: G },
           { label: 'Connected',     value: connected,           icon: CheckCircle2,  bg: '#f0fdf4', fg: '#16a34a' },
-          { label: 'Pending Setup', value: integrations.filter(i => i.status === 'Pending Setup').length, icon: Clock, bg: '#fff8ec', fg: '#ea580c' },
-          { label: "Today's Calls", value: totalCalls,          icon: Activity,      bg: '#f0f9ff', fg: '#0284c7' },
+          { label: 'Planned',       value: integrations.filter(i => i.status === 'Planned').length, icon: Clock, bg: '#f0f9ff', fg: '#0369a1' },
+          ...(connected ? [{ label: "Today's Calls", value: totalCalls, icon: Activity, bg: '#f0f9ff', fg: '#0284c7' }] : []),
         ].map(({ label, value, icon: Icon, bg, fg }) => (
           <div key={label} style={{ ...card, padding: 16 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
@@ -159,18 +163,22 @@ export default function GovtAPIIntegrations() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid #f5f5f5' }}>
                 <div style={{ display: 'flex', gap: 14 }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{integ.callsToday}</div>
-                    <div style={{ fontSize: 10, color: '#6e6e6e' }}>calls today</div>
-                  </div>
+                  {integ.status === 'Connected' && (
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{integ.callsToday}</div>
+                      <div style={{ fontSize: 10, color: '#6e6e6e' }}>calls today</div>
+                    </div>
+                  )}
                   <div>
                     <div style={{ fontSize: 12, color: '#555' }}>{integ.auth}</div>
                     <div style={{ fontSize: 10, color: '#6e6e6e' }}>auth method</div>
                   </div>
                 </div>
-                <div style={{ fontSize: 11, color: '#6e6e6e', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <RefreshCw size={10} /> {integ.lastSync}
-                </div>
+                {integ.status === 'Connected' && (
+                  <div style={{ fontSize: 11, color: '#6e6e6e', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <RefreshCw size={10} /> {integ.lastSync}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -222,8 +230,10 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 14, marginTop: 24 }}>
           {[
             { label: 'Auth Method',  value: integ.auth,        icon: Key },
-            { label: 'Calls Today',  value: integ.callsToday,  icon: Activity },
-            { label: 'Last Synced',  value: integ.lastSync,    icon: RefreshCw },
+            ...(integ.status === 'Connected' ? [
+              { label: 'Calls Today',  value: integ.callsToday,  icon: Activity },
+              { label: 'Last Synced',  value: integ.lastSync,    icon: RefreshCw },
+            ] : []),
             { label: 'Category',     value: integ.category,    icon: Globe },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 14, background: '#fafafa', borderRadius: 10, border: '1px solid #f0f0f0' }}>
