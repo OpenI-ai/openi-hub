@@ -189,3 +189,26 @@ describe('Register — the step 1 gate', () => {
     expect(registerMock).not.toHaveBeenCalled();
   });
 });
+
+// s127 (3 Oct 2026) — the sign-up FORM step had 7 axe (WCAG 2 AA) findings on openi.ai after the public-page contrast
+// fix (FE #151 covered only the persona chooser): the show-password button had no name, and the step labels, the
+// persona line, "Sign In" and the Continue text were gold or grey below 4.5:1. Visitors from the launch posts land here.
+describe('Register — the sign-up form is readable and named (s127)', () => {
+  const lum = hex => { const c = hex.match(/\w\w/g).map(x => parseInt(x, 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const hexOf = el => { const m = getComputedStyle(el).color.match(/\d+/g).slice(0, 3).map(Number); return m.map(n => n.toString(16).padStart(2, '0')).join(''); };
+
+  it('the show-password button has a name, and it says what it will do', async () => {
+    const user = userEvent.setup();
+    renderAt('?type=startup');
+    await user.click(screen.getByRole('button', { name: 'Show password' }));
+    expect(screen.getByRole('button', { name: 'Hide password' })).toBeInTheDocument();
+  });
+
+  it('step labels, the persona line and "Sign In" pass 4.5:1 on the page background', () => {
+    renderAt('?type=startup');
+    const els = [...['Account', 'Profile', 'Done', 'Sign In'].map(t => [t, screen.getByText(t, { selector: 'span, a' })]),
+      ['Already have an account?', screen.getByText(/^Already have an account\?/, { selector: 'p' })]];
+    for (const [t, el] of els) expect(ratio(hexOf(el), 'f5f5f5'), t).toBeGreaterThanOrEqual(4.5);
+  });
+});

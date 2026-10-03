@@ -12,6 +12,10 @@ import PublicTour from '../../components/PublicTour';
 import TurnstileWidget from '../../components/TurnstileWidget';
 import PageTourButton from '../../components/PageTourButton';
 import { inputStyle, FormField, coerceForField } from './registerParts/index.js';
+// s127 contrast (sign-up form): the same readable tokens as the public pages (FE #151).
+import { ON_GOLD, GOLD_TEXT } from './landingParts/contrast.js';
+const MUTED = '#4b5563';   // grey text on white or #f5f5f5: ~7:1 (#6b7280 was 4.43:1 on #f5f5f5)
+
 
 export default function Register() {
   const navigate = useNavigate();
@@ -404,7 +408,7 @@ export default function Register() {
             <Shield size={26} color="#fff" />
           </div>
           <h1 className="text-xl font-bold" style={{ color: '#1a1a1a' }}>Join as {persona.label}</h1>
-          <p className="text-sm mt-1" style={{ color: '#6b7280' }}>{persona.description}</p>
+          <p className="text-sm mt-1" style={{ color: MUTED }}>{persona.description}</p>
         </div>
 
         {/* Stepper */}
@@ -414,7 +418,7 @@ export default function Register() {
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
                   background: step >= s ? '#D0A848' : '#e5e7eb',
-                  color: step >= s ? '#fff' : '#9ca3af',
+                  color: step >= s ? ON_GOLD : MUTED,
                 }}>
                 {step > s ? <Check size={14} /> : s}
               </div>
@@ -423,9 +427,9 @@ export default function Register() {
           ))}
         </div>
         <div className="flex justify-center gap-8 mb-6">
-          <span className="text-xs font-medium" style={{ color: step >= 1 ? '#D0A848' : '#9ca3af' }}>Account</span>
-          <span className="text-xs font-medium" style={{ color: step >= 2 ? '#D0A848' : '#9ca3af' }}>Profile</span>
-          <span className="text-xs font-medium" style={{ color: step >= 3 ? '#D0A848' : '#9ca3af' }}>Done</span>
+          <span className="text-xs font-medium" style={{ color: step >= 1 ? GOLD_TEXT : MUTED }}>Account</span>
+          <span className="text-xs font-medium" style={{ color: step >= 2 ? GOLD_TEXT : MUTED }}>Profile</span>
+          <span className="text-xs font-medium" style={{ color: step >= 3 ? GOLD_TEXT : MUTED }}>Done</span>
         </div>
 
         {/* Card */}
@@ -562,8 +566,8 @@ export default function Register() {
                   <input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Min 6 characters" style={inputStyle}
                     onFocus={e => e.target.style.borderColor = '#D0A848'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
-                  <button type="button" onClick={() => setShowPwd(!showPwd)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#6e6e6e' }}>
+                  <button type="button" onClick={() => setShowPwd(!showPwd)} aria-label={showPwd ? 'Hide password' : 'Show password'}
+                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: MUTED }}>
                     {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
@@ -627,7 +631,7 @@ export default function Register() {
                   setStep(2);
                 }} disabled={!step1Valid}
                 className="w-full font-semibold py-3 rounded-xl flex items-center justify-center gap-2 text-sm mt-2 transition-all"
-                style={{ background: step1Valid ? '#D0A848' : '#e5e7eb', color: step1Valid ? '#fff' : '#9ca3af', cursor: step1Valid ? 'pointer' : 'not-allowed' }}>
+                style={{ background: step1Valid ? '#D0A848' : '#e5e7eb', color: step1Valid ? ON_GOLD : MUTED, cursor: step1Valid ? 'pointer' : 'not-allowed' }}>
                 Continue <ArrowRight size={16} />
               </button>
               {!termsAccepted && (name.trim() || email.trim() || password) && (
@@ -799,12 +803,12 @@ export default function Register() {
         {/* Links */}
         {step < 3 && (
           <div className="text-center mt-4 space-y-2">
-            <p className="text-sm" style={{ color: '#6b7280' }}>
+            <p className="text-sm" style={{ color: MUTED }}>
               Already have an account?{' '}
-              <Link to="/dashboard/login" className="font-semibold" style={{ color: '#D0A848' }}>Sign In</Link>
+              <Link to="/dashboard/login" className="font-semibold" style={{ color: GOLD_TEXT }}>Sign In</Link>
             </p>
             <p className="text-sm">
-              <Link to="/landing" style={{ color: '#6e6e6e' }}>Choose a different persona</Link>
+              <Link to="/landing" style={{ color: MUTED }}>Choose a different persona</Link>
             </p>
           </div>
         )}
