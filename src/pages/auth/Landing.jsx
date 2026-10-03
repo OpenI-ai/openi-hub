@@ -4,7 +4,6 @@ import {
   ArrowRight, Shield, Network, Sparkles, Layers,
 } from 'lucide-react';
 import { publicAPI } from '../../services/api';
-import PlatformSlideshow from '../../components/PlatformSlideshow';
 import PublicTour from '../../components/PublicTour';
 import SearchBar from '../../components/SearchBar';
 import PageTourButton from '../../components/PageTourButton';
@@ -301,13 +300,8 @@ export default function Landing() {
         </div>
       </Section>
 
-      <Section bg="#fff">
-        <div className="text-center">
-          <h3 className="text-2xl font-bold mb-2" style={{ color: DARK }}>See it in action</h3>
-          <p className="text-sm mb-8" style={{ color: GRAY }}>The platform across different persona dashboards</p>
-          <PlatformSlideshow />
-        </div>
-      </Section>
+      {/* s127 (Rajeev: "remove it and add screenshots to each role tab"): the "See it in action" slideshow of older,
+          generic dashboards is gone; each "Pick your role" tab now shows that role's own agent, captured live. */}
 
       {/* ═══════════════════════════════════════════════════════════
           PARTNER / TRUST LOGOS

@@ -66,6 +66,26 @@ describe('landing: an agent for every role (s127)', () => {
   });
 });
 
+describe('landing: each role tab shows its own agent (s127)', () => {
+  // Rajeev: "remove it and add screenshots to each role tab" — the old slideshow is gone; each tab carries a live capture.
+  it('every role has a screenshot that ships with the page, with alt text; the open tab shows only its own', () => {
+    for (const r of ROLE_AGENTS) {
+      expect(r.shot, r.key).toMatch(/^\/landing\/role-[a-z]+\.jpg$/);
+      expect(existsSync(`public${r.shot}`), r.shot).toBe(true);
+      expect(r.shotAlt.length, r.key).toBeGreaterThan(20);
+    }
+    render(<MemoryRouter><RoleAgents /></MemoryRouter>);
+    expect(screen.getAllByTestId('landing-role-shot')).toHaveLength(1);
+    expect(screen.getByTestId('landing-role-shot').getAttribute('src')).toBe('/landing/role-company.jpg');
+    fireEvent.click(screen.getAllByTestId('landing-role-tab').find(b => b.textContent.includes('Startups')));
+    expect(screen.getByTestId('landing-role-shot').getAttribute('src')).toBe('/landing/role-startup.jpg');
+  });
+  it('the old "See it in action" slideshow is no longer on the landing page', () => {
+    const src = readFileSync('src/pages/auth/Landing.jsx', 'utf8');
+    expect(src).not.toMatch(/<PlatformSlideshow/);
+  });
+});
+
 describe('landing: hero buttons (s127)', () => {
   // Rajeev: "change it to See what your agent does" — the 2nd hero button opens the role tabs on this page.
   it('the second hero button opens the role tabs; the marketplace stays in the final call to action', () => {
