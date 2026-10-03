@@ -4,7 +4,6 @@ import { govtIntegrationAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {
   Globe, CheckCircle2, AlertCircle, Clock, RefreshCw,
-  Shield, ExternalLink, Settings,
   Activity, Lock, Key,
 } from 'lucide-react';
 
@@ -211,16 +210,10 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
             <p style={{ margin: 0, color: '#666', fontSize: 13, lineHeight: 1.6 }}>{integ.description}</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            {integ.status === 'Pending Setup' && (
-              <button style={{ padding: '8px 16px', background: G, color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontSize: 12, fontWeight: 700, boxShadow: '0 2px 8px rgba(213,170,91,0.3)' }}>Connect</button>
-            )}
             {integ.status === 'Connected' && (
               <>
                 <button onClick={() => onSync && onSync(integ.id)} style={{ padding: '8px 14px', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
                   <RefreshCw size={11} /> Sync Now
-                </button>
-                <button style={{ padding: '8px 14px', background: '#f5f5f5', color: '#555', border: '1px solid #eee', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Settings size={11} /> Configure
                 </button>
               </>
             )}
@@ -251,7 +244,7 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
         <div style={{ ...card, padding: 22 }}>
-          <h3 style={{ margin: '0 0 16px', color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>Available Data Points</h3>
+          <h3 style={{ margin: '0 0 16px', color: '#1a1a1a', fontSize: 14, fontWeight: 600 }}>{integ.status === 'Connected' ? 'Available Data Points' : 'Data points it will provide'}</h3>
           {integ.dataPoints.map((dp, i) => (
             <div key={dp} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: i < integ.dataPoints.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
               <CheckCircle2 size={13} color="#16a34a" />
@@ -266,18 +259,11 @@ function IntegrationDetail({ integration: integ, onBack, onSync }) {
             <code style={{ fontSize: 11, color: '#a3e635', wordBreak: 'break-all' }}>{integ.endpoint}</code>
           </div>
           <div style={{ fontSize: 11, color: '#5c5c5c', marginBottom: 14, lineHeight: 1.5 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-              <Shield size={11} color={G} />
-              <span>Compliant with GoI Data Exchange Standards</span>
-            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Lock size={11} color={G} />
               <span>All data encrypted in transit (TLS 1.3)</span>
             </div>
           </div>
-          <button style={{ width: '100%', padding: '8px 0', background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <ExternalLink size={11} /> View API Docs
-          </button>
         </div>
       </div>
     </div>

@@ -1,16 +1,63 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { mentorAPI } from '../../services/api';
+import { mentorAPI, messageAPI, meetingAPI } from '../../services/api';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-import { Star, Calendar, MessageSquare, Plus, Search, CheckCircle2 } from 'lucide-react';
+import { Star, Calendar, MessageSquare, Search, CheckCircle2 } from 'lucide-react';
 
 const BG_COLORS = ['bg-dark-700', 'bg-primary-600', 'bg-accent-700', 'bg-blue-700'];
 const BACKGROUND_LABELS = { academia: 'Academia', retired_defense: 'Retired Defence', ex_drdo: 'Ex-OpenI', industry: 'Industry' };
 const BACKGROUND_COLORS = { academia: 'bg-blue-100 text-blue-700', retired_defense: 'bg-green-100 text-green-700', ex_drdo: 'bg-orange-100 text-orange-700', industry: 'bg-purple-100 text-purple-700' };
 
+// s127 — the mentors table's own column names (organisation, total_sessions, is_active); the page read
+// org / sessions / available, which do not exist, so every mentor showed blanks and "Busy".
+export const normaliseMentor = (m) => ({
+  ...m,
+  org: m.org || m.organisation || '',
+  sessions: Number(m.sessions ?? m.total_sessions) || 0,
+  available: m.available ?? m.is_active !== false,
+  avatar: m.avatar || String(m.name || '?').trim().charAt(0).toUpperCase(),
+});
+
+const SLOTS = [['10:00', '11:00', '10:00 AM – 11:00 AM'], ['14:00', '15:00', '2:00 PM – 3:00 PM'], ['16:00', '17:00', '4:00 PM – 5:00 PM']];
+
+/** The meeting a session request creates: the mentor is invited (and emailed) and accepts or declines in Meetings. */
+export function sessionRequest(mentor, { date, slot, topic }) {
+  const [from, to] = SLOTS[slot] || SLOTS[0];
+  return {
+    title: `Mentoring session with ${mentor.name}`,
+    description: topic || null,
+    meeting_type: 'one_on_one',
+    start_time: new Date(`${date}T${from}:00`).toISOString(),
+    end_time: new Date(`${date}T${to}:00`).toISOString(),
+    participant_ids: [mentor.user_id],
+  };
+}
+
 function MentorDetail({ mentor, onClose }) {
+  const navigate = useNavigate();
   const [sessionOpen, setSessionOpen] = useState(false);
+  const [req, setReq] = useState({ date: '', slot: 0, topic: '' });
+  const [busy, setBusy] = useState(false);
   const assignedStartups = mentor.assigned_startups || mentor.assignedStartups || [];
+  // A mentor without an OpenI account (added by the OpenI team) cannot receive a message or an invite.
+  const reachable = !!mentor.user_id;
+
+  const message = async () => {
+    try {
+      const conv = await messageAPI.createConversation({ type: 'direct', member_ids: [mentor.user_id] });
+      navigate('/dashboard/messaging?conversation=' + conv.id);
+    } catch (err) { toast.error(err?.message || `Could not open a conversation with ${mentor.name}`); }
+  };
+  const requestSession = async () => {
+    if (!req.date) { toast.error('Pick a date'); return; }
+    setBusy(true);
+    try {
+      await meetingAPI.create(sessionRequest(mentor, req));
+      toast.success(`Request sent. ${mentor.name} is emailed and can accept it in Meetings.`);
+      setSessionOpen(false);
+    } catch (err) { toast.error(err?.message || 'Could not send the request'); } finally { setBusy(false); }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -62,7 +109,6 @@ function MentorDetail({ mentor, onClose }) {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-800">Assigned Startups</h3>
-                <button className="text-xs text-primary-600 font-semibold">Assign More →</button>
               </div>
               <div className="space-y-3">
                 {assignedStartups.length === 0 && (
@@ -77,9 +123,6 @@ function MentorDetail({ mentor, onClose }) {
                       <div className="font-semibold text-gray-800 text-sm">{startup.name || startup}</div>
                       <div className="text-xs text-gray-500">{startup.sector || ''}</div>
                     </div>
-                    <button className="flex items-center gap-1 px-2.5 py-1 bg-primary-100 text-primary-700 rounded-lg text-xs font-semibold">
-                      <MessageSquare size={11} /> Message
-                    </button>
                   </div>
                 ))}
               </div>
@@ -103,12 +146,18 @@ function MentorDetail({ mentor, onClose }) {
                 ))}
               </div>
             </div>
-            <button onClick={() => setSessionOpen(true)} disabled={!mentor.available} className="w-full py-3 bg-primary-500 text-dark-950 rounded-xl font-semibold text-sm hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {reachable ? (<>
+            <button data-testid="mentor-book" onClick={() => setSessionOpen(true)} disabled={!mentor.available} className="w-full py-3 bg-primary-500 text-dark-950 rounded-xl font-semibold text-sm hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
               <Calendar size={15} /> Book a Session
             </button>
-            <button className="w-full py-3 border border-gray-300 text-gray-600 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
+            <button data-testid="mentor-message" onClick={message} className="w-full py-3 border border-gray-300 text-gray-600 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
               <MessageSquare size={15} /> Send Message
             </button>
+            </>) : (
+              <p data-testid="mentor-unreachable" className="text-sm text-gray-500 bg-white rounded-xl border border-gray-200 p-4">
+                {mentor.name} works with OpenI programmes but does not have an OpenI account yet, so sessions are arranged through your programme.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -121,24 +170,22 @@ function MentorDetail({ mentor, onClose }) {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1.5">Date</label>
-                <input type="date" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400" />
+                <input type="date" aria-label="Date" data-testid="mentor-date" min={new Date().toISOString().slice(0, 10)} value={req.date} onChange={e => setReq({ ...req, date: e.target.value })} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400" />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1.5">Time Slot</label>
-                <select className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400">
-                  <option>10:00 AM – 11:00 AM</option>
-                  <option>2:00 PM – 3:00 PM</option>
-                  <option>4:00 PM – 5:00 PM</option>
+                <select aria-label="Time slot" value={req.slot} onChange={e => setReq({ ...req, slot: Number(e.target.value) })} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400">
+                  {SLOTS.map(([, , label], i) => <option key={label} value={i}>{label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1.5">Session Topic</label>
-                <textarea className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400" rows={3} placeholder="Describe what you'd like to discuss..." />
+                <textarea aria-label="Session topic" value={req.topic} onChange={e => setReq({ ...req, topic: e.target.value })} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-400" rows={3} placeholder="Describe what you'd like to discuss..." />
               </div>
             </div>
             <div className="flex gap-3 mt-5">
               <button onClick={() => setSessionOpen(false)} className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-lg text-sm">Cancel</button>
-              <button onClick={() => setSessionOpen(false)} className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold">Request Session</button>
+              <button data-testid="mentor-request" onClick={requestSession} disabled={busy} className="flex-1 py-2.5 bg-primary-500 text-dark-950 rounded-lg text-sm font-semibold">{busy ? 'Sending…' : 'Request Session'}</button>
             </div>
           </div>
         </div>
@@ -156,7 +203,7 @@ export default function Mentors() {
 
   useEffect(() => {
     mentorAPI.list()
-      .then(data => setMentors(data.mentors || data || []))
+      .then(data => setMentors((data.mentors || data || []).map(normaliseMentor)))
       .catch(err => toast.error(err.message || 'Failed to load mentors'))
       .finally(() => setLoading(false));
   }, []);
@@ -185,11 +232,8 @@ export default function Mentors() {
       <div id="tour-page-mentors-header" className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Mentors</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Onboard and manage mentors from academia, industry, and defence</p>
+          <p className="text-gray-500 text-sm mt-0.5">Mentors from academia, industry, and defence. Message one or request a session.</p>
         </div>
-        <button id="tour-page-mentors-add" className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-dark-950 rounded-lg font-semibold text-sm hover:bg-primary-400">
-          <Plus size={16} /> Add Mentor
-        </button>
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-6">
