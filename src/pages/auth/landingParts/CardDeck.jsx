@@ -17,9 +17,14 @@
  */
 import React from 'react';
 
-export default function CardDeck({ gridClassName = '', cardClassName = '', children }) {
+// s127: on phones the row scrolls sideways, so keyboard users must be able to reach it (axe scrollable-region-focusable):
+// it takes focus (arrow keys then scroll it) and is named for screen readers.
+export default function CardDeck({ gridClassName = '', cardClassName = '', label = 'Cards: swipe or use the arrow keys for more', children }) {
   return (
     <div
+      role="region"
+      aria-label={label}
+      tabIndex={0}
       className={
         'flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 ' +
         'md:grid md:gap-5 md:overflow-visible md:pb-0 md:mx-0 md:px-0 ' +

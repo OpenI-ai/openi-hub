@@ -264,6 +264,7 @@ export default function Register() {
         title: 'Innovation Providers',
         tag: 'GET DISCOVERED',
         accent: '#D0A848',
+        tagColor: '#7a5f17',  // s127 contrast: the small tag in readable gold (accent text was 2.05:1)
         subtitle: 'Showcase your startup, research or technology to get funded, mentored and discovered.',
         items: [
           { key: 'startup',  desc: "You're building a product or company — pick this for challenges" },
@@ -275,6 +276,7 @@ export default function Register() {
         title: 'Innovation Seekers',
         tag: 'FIND THE RIGHT STARTUP',
         accent: '#3b82f6',
+        tagColor: '#1d4ed8',  // s127 contrast: readable blue (was 3.37:1)
         subtitle: 'Source, fund, host or sell services to startups — not for companies building a product.',
         items: [
           { key: 'corporate',        desc: 'Enterprise seeking innovation' },
@@ -303,7 +305,7 @@ export default function Register() {
               />
             </Link>
             <h1 id="tour-page-register" className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>Choose your persona</h1>
-            <p className="text-sm mt-2" style={{ color: '#6b7280' }}>
+            <p className="text-sm mt-2" style={{ color: '#4b5563' }}>
               Pick the role that best describes you. You can always update your profile later.
             </p>
             <div className="mt-4 flex justify-center">
@@ -317,7 +319,7 @@ export default function Register() {
               <div className="mb-3">
                 <div className="flex items-baseline gap-2">
                   <span className="text-base font-bold" style={{ color: '#1a1a1a' }}>{group.title}</span>
-                  <span className="text-[11px] font-semibold tracking-wide" style={{ color: group.accent }}>{group.tag}</span>
+                  <span className="text-[11px] font-semibold tracking-wide" style={{ color: group.tagColor || group.accent }}>{group.tag}</span>
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: '#6e6e6e' }}>{group.subtitle}</div>
               </div>

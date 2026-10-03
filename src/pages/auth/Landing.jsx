@@ -24,6 +24,7 @@ import CardDeck from './landingParts/CardDeck.jsx';
 import AgentSection from './landingParts/AgentSection.jsx';
 import RoleAgents, { AGENT_FAQS } from './landingParts/RoleAgents.jsx';  // s127 — section 2, an agent for every role
 import HeroScreens from './landingParts/HeroScreens.jsx';  // s125 — the hero's right panel: real screens from the demo login  // s125 — the Innovation Agent, right under the hero
+import { ON_GOLD, GOLD_TEXT } from './landingParts/contrast.js';  // s127 — readable text on/in the brand gold
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING PAGE
@@ -121,7 +122,7 @@ export default function Landing() {
           <div className="lg:col-span-2 text-center lg:text-left">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-bold tracking-wide"
-            style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
+            style={{ background: GOLD_LIGHT, color: GOLD_TEXT }}
           >
             <Sparkles size={14} />
             {hero?.badge_text || 'YOUR INNOVATION AGENT'}
@@ -241,7 +242,7 @@ export default function Landing() {
             <Shield size={13} style={{ color: GOLD }} />
             <span>ISO/IEC 27001:2022 Certified</span>
             <span style={{ color: BORDER }}>&middot;</span>
-            <span style={{ color: GOLD }}>View Certificate</span>
+            <span style={{ color: GOLD_TEXT }}>View Certificate</span>
           </a>
           </div>
 
@@ -337,7 +338,7 @@ export default function Landing() {
           ═══════════════════════════════════════════════════════════ */}
       <Section bg="#fff" id="services">
         <div className="text-center mb-14">
-          <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: GOLD }}>
+          <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: GOLD_TEXT }}>
             For Corporates & Enterprises
           </p>
           <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
@@ -353,7 +354,7 @@ export default function Landing() {
           </p>
         </div>
 
-        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-3">
+        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-3" label="Services: swipe or use the arrow keys for more">
           {(services || DEFAULT_SERVICES).map((s, i) => {
             const Icon = ICON_MAP[s.icon] || Layers;
             return <FeatureCard key={i} icon={Icon} title={s.title} description={s.description} />;
@@ -371,7 +372,7 @@ export default function Landing() {
           <Link
             to="/register"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all"
-            style={{ background: GOLD, color: '#fff' }}
+            style={{ background: GOLD, color: ON_GOLD }}
             onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
             onMouseLeave={e => e.currentTarget.style.background = GOLD}
           >
@@ -401,17 +402,17 @@ export default function Landing() {
         {/* Phase 37: Tabbed pricing — Provider vs Seeker */}
         <div className="flex justify-center gap-2 mb-10">
           <button onClick={() => setPricingTab('seeker')}
-            style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'seeker' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'seeker' ? `${GOLD}12` : '#fff', color: pricingTab === 'seeker' ? GOLD : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
+            style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'seeker' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'seeker' ? `${GOLD}12` : '#fff', color: pricingTab === 'seeker' ? GOLD_TEXT : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
             For Corporates, Investors, Govt & Innovation Seekers
           </button>
           <button onClick={() => setPricingTab('provider')}
-            style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'provider' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'provider' ? `${GOLD}12` : '#fff', color: pricingTab === 'provider' ? GOLD : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
+            style={{ padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 10, border: `2px solid ${pricingTab === 'provider' ? GOLD : '#e5e7eb'}`, background: pricingTab === 'provider' ? `${GOLD}12` : '#fff', color: pricingTab === 'provider' ? GOLD_TEXT : GRAY, cursor: 'pointer', transition: 'all 0.15s' }}>
             For Startups, Students & Academia
           </button>
         </div>
 
         {pricingTab === 'provider' ? (
-          <CardDeck gridClassName="md:grid-cols-2 md:gap-6 md:max-w-3xl md:mx-auto" cardClassName="w-[84vw] max-w-[340px]">
+          <CardDeck gridClassName="md:grid-cols-2 md:gap-6 md:max-w-3xl md:mx-auto" cardClassName="w-[84vw] max-w-[340px]" label="Plans: swipe or use the arrow keys for more">
             <PricingCard
               name="Free"
               price="₹0"
@@ -557,7 +558,7 @@ export default function Landing() {
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all shadow-lg"
-              style={{ background: '#fff', color: GOLD_DARK }}
+              style={{ background: '#fff', color: GOLD_TEXT }}
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >

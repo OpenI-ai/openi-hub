@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
 import { GOLD, GOLD_DARK, GOLD_LIGHT, BORDER, DARK, GRAY } from './constants.js';
+import { ON_GOLD, GOLD_TEXT } from './contrast.js';  // s127 — readable text on/in the brand gold
 
 // ---- BODY START (original lines 98-305) ----
 // ── Reusable section wrapper ───────────────────────────────
@@ -138,7 +139,7 @@ function PricingCard({ name, price, priceNote, features, cta, ctaLink, featured 
       {featured && (
         <div
           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold"
-          style={{ background: GOLD, color: '#fff' }}
+          style={{ background: GOLD, color: ON_GOLD }}
         >
           MOST POPULAR
         </div>
@@ -168,7 +169,7 @@ function PricingCard({ name, price, priceNote, features, cta, ctaLink, featured 
         className="block text-center py-3 rounded-lg text-sm font-bold transition-all"
         style={{
           background: featured ? GOLD : '#fff',
-          color: featured ? '#fff' : GOLD,
+          color: featured ? ON_GOLD : GOLD_TEXT,
           border: featured ? 'none' : `1.5px solid ${GOLD}`,
         }}
         onMouseEnter={e => {

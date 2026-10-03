@@ -258,7 +258,7 @@ export default function PublicMarketplace({ initialData }) {
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-7 py-3 rounded-lg text-base font-bold transition-all"
-              style={{ background: '#fff', color: GOLD_DARK }}
+              style={{ background: '#fff', color: '#7a5f17' }}
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
@@ -308,7 +308,7 @@ export default function PublicMarketplace({ initialData }) {
               />
             </div>
             <button type="submit" className="px-6 py-3 rounded-xl text-sm font-bold transition-all"
-                    style={{ background: GOLD, color: '#fff' }}
+                    style={{ background: GOLD, color: '#2A2A2E' }}
                     onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
                     onMouseLeave={e => e.currentTarget.style.background = GOLD}>
               Search
@@ -450,7 +450,7 @@ export default function PublicMarketplace({ initialData }) {
                     <Link
                       to="/reports"
                       className="inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-lg text-sm font-bold transition-all"
-                      style={{ background: GOLD, color: '#fff' }}
+                      style={{ background: GOLD, color: '#2A2A2E' }}
                     >
                       Read the sector reports
                     </Link>
@@ -495,7 +495,7 @@ export default function PublicMarketplace({ initialData }) {
           </p>
           <Link to="/register"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-base font-bold transition-all shadow-lg"
-                style={{ background: '#fff', color: GOLD_DARK }}
+                style={{ background: '#fff', color: '#7a5f17' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
             Get Started &mdash; It&apos;s Free <ArrowRight size={18} />

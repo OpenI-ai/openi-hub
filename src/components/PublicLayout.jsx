@@ -55,7 +55,7 @@ export default function PublicLayout({ children }) {
   const pageTour = resolvePageTour(location.pathname);
 
   const navLinkStyle = (path) => ({
-    color: isActive(path) ? GOLD : GRAY,
+    color: isActive(path) ? '#7a5f17' : GRAY,  // s127 contrast: active link in readable gold (was 2.2:1)
     fontWeight: isActive(path) ? 700 : 500,
   });
 
@@ -144,7 +144,7 @@ export default function PublicLayout({ children }) {
             <Link
               to="/register"
               className="px-5 py-2 min-h-[44px] inline-flex items-center rounded-lg text-sm font-bold transition-all"
-              style={{ background: GOLD, color: '#fff' }}
+              style={{ background: GOLD, color: '#2A2A2E' }}
               onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
               onMouseLeave={e => e.currentTarget.style.background = GOLD}
             >
@@ -266,7 +266,7 @@ export default function PublicLayout({ children }) {
       <PublicTour />
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="px-6 py-12" style={{ background: DARK, color: '#6e6e6e' }}>
+      <footer className="px-6 py-12" style={{ background: DARK, color: '#a8a8ae' }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             {/* Logo & tagline */}

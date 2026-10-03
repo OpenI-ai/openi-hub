@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { Shield, X, Menu } from 'lucide-react';
 import SearchBar from '../../../components/SearchBar';
 import { BORDER, GOLD, GOLD_DARK, GRAY, DARK } from './constants.js';
+import { ON_GOLD } from './contrast.js';
 import { LinkedInIcon, XIcon } from './icons.jsx';
 
 export default function LandingHeader({ mobileNavOpen, setMobileNavOpen, handleHeaderSearch }) {
@@ -84,7 +85,7 @@ export default function LandingHeader({ mobileNavOpen, setMobileNavOpen, handleH
             <Link
               to="/register"
               className="px-5 py-2 min-h-[44px] inline-flex items-center rounded-lg text-sm font-bold transition-all"
-              style={{ background: GOLD, color: '#fff' }}
+              style={{ background: GOLD, color: ON_GOLD }}
               onMouseEnter={e => e.currentTarget.style.background = GOLD_DARK}
               onMouseLeave={e => e.currentTarget.style.background = GOLD}
             >
