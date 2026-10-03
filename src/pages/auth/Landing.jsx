@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowRight, Shield, Users, Briefcase, Target, Network, Sparkles,
-  Database,
-  Zap, TrendingUp, Rocket, Building2, Landmark,
-  GraduationCap, FlaskConical, Home, BookOpen,
-  BarChart3, Layers,
+  ArrowRight, Shield, Network, Sparkles, Layers,
 } from 'lucide-react';
 import { publicAPI } from '../../services/api';
 import PlatformSlideshow from '../../components/PlatformSlideshow';
@@ -19,14 +15,15 @@ import PageTourButton from '../../components/PageTourButton';
 // './landingParts' could still be shadowed by a sibling .jsx file.
 import {
   ICON_MAP,
-  GOLD, GOLD_DARK, GOLD_DEEP, GOLD_LIGHT, BLUE, DARK, GRAY, LIGHT_GRAY, BORDER,
+  GOLD, GOLD_DARK, GOLD_DEEP, GOLD_LIGHT, DARK, GRAY, LIGHT_GRAY, BORDER,
   DEFAULT_STATS, DEFAULT_PARTNERS, DEFAULT_FAQS, DEFAULT_SERVICES,
   Section, PartnerLogo, FeatureCard,
-  PricingCard, Step, PersonaListItem, FAQItem,
+  PricingCard, FAQItem,
   LandingHeader, LandingFooter,
 } from './landingParts/index.js';
 import CardDeck from './landingParts/CardDeck.jsx';
 import AgentSection from './landingParts/AgentSection.jsx';
+import RoleAgents, { AGENT_FAQS } from './landingParts/RoleAgents.jsx';  // s127 — section 2, an agent for every role
 import HeroScreens from './landingParts/HeroScreens.jsx';  // s125 — the hero's right panel: real screens from the demo login  // s125 — the Innovation Agent, right under the hero
 
 // ═══════════════════════════════════════════════════════════════
@@ -88,11 +85,12 @@ export default function Landing() {
       ? { ...s, value: liveStartupsValue }
       : s
   );
-  const faqs = cms?.faqs || DEFAULT_FAQS;
+  // s127: the agent questions come first, always (the CMS list follows; a CMS copy of the same question is dropped).
+  const faqs = [...AGENT_FAQS, ...(cms?.faqs || DEFAULT_FAQS).filter(f => !AGENT_FAQS.some(a => a.q === f.q))];
   const pricing = cms?.pricing || null;      // CMS pricing or inline fallback
   const hero = null;                         // Inline hero (not CMS-managed)
   const partners = cms?.partners || DEFAULT_PARTNERS;
-  const howItWorks = cms?.howItWorks || null;
+  // s127: cms.howItWorks is no longer shown — the agents section (#how-it-works) replaced the 3-step block.
   const services = cms?.services || null;
   const ctaContent = cms?.cta || null;
   const footerTagline = cms?.footer_tagline || null;
@@ -148,9 +146,9 @@ export default function Landing() {
             className="mb-3 text-lg leading-relaxed"
             style={{ color: GRAY }}
           >
-            {/* s125 — subline approved by Rajeev (1 Oct 2026). */}
-            Every match checked by an analyst agent. Every suggestion shows its evidence. Nothing
-            happens without your OK, unless you switch it on.
+            {/* s127 — subline chosen by Rajeev (3 Oct 2026; headline kept). Every role named here was verified live. */}
+            An agent for every role: companies, investors, government, incubators, universities and startups.
+            It checks every match, shows its evidence, and learns from every click.
           </p>
           <p data-testid="landing-proof" className="mb-8 text-sm leading-relaxed" style={{ color: GRAY }}>
             Your agents work across {startupCount} startups and a living family tree of 240+ Innovation Maps.
@@ -253,92 +251,57 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* s127 landing rethink (Rajeev approved the 9-section plan, 3 Oct 2026):
+          2 roles → 3 how the agents work (+ learning) → 4 you stay in charge → 5 the real map
+          → 6 partners → 7 services → 8 pricing + FAQ → 9 call to action. */}
+      <RoleAgents />
       <AgentSection />
 
       {/* ═══════════════════════════════════════════════════════════
-          CHAPTERS 01-03 (s110 redesign) — the Art of the Possible story.
-          Replaces the s51 stats strip (its four tiles moved into the hero
-          rail) and the old 4-card features grid (Art of the Possible is
-          the hero now; the other three cards became Chapter 03 rows).
-          Everything below the chapters — personas, services, pricing —
-          is intentionally unchanged.
+          THE REAL MAP (s127) — the s110 chapters 01-03 condensed into one section:
+          the data the agents work on, the four lenses, and the platform in action.
+          Keeps the #features anchor (footer links to it).
           ═══════════════════════════════════════════════════════════ */}
+      <Section bg={DARK} id="features">
+        <div data-testid="landing-map" className="max-w-7xl mx-auto">
+          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD }}>What your agents work on</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-white">
+            Not a demo dataset. The real map.
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {[
+              { value: startupCount, label: 'startups, embedded and searchable' },
+              { value: '240+', label: 'curated, hierarchical innovation maps' },
+              { value: '4', label: 'lenses: sector, technology, function, use case' },
+              { value: 'Live', label: 'counts on every map, updated as the database grows' },
+            ].map((s, i) => (
+              <div key={i} className="pl-5" style={{ borderLeft: `2px solid ${GOLD}` }}>
+                <div className="text-4xl font-extrabold mb-1" style={{ color: GOLD }}>{s.value}</div>
+                <div className="text-sm" style={{ color: LIGHT_GRAY }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { title: 'By sector', desc: '“Who is disrupting my industry?” 130 sector maps, FinTech to LegalTech.' },
+              { title: 'By technology', desc: '“Who has the GenAI, robotics or IoT capability we lack?”' },
+              { title: 'By function', desc: '“What can my finance, HR or security team use today?”' },
+              { title: 'By use case', desc: '“Who solves fraud detection or churn, whatever the sector?”' },
+            ].map((lens) => (
+              <div key={lens.title} className="rounded-xl p-5 min-w-0" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <h3 className="text-base font-bold mb-1.5" style={{ color: '#fff' }}>{lens.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: LIGHT_GRAY, margin: 0 }}>{lens.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
       <Section bg="#fff">
-        <div className="mb-10 max-w-2xl">
-          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD_DEEP }}>Chapter 01</p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Pick the lens that matches how you buy.
-          </h2>
-          <p className="text-base" style={{ color: GRAY }}>
-            The same {startupCount} startups, organized four different ways — so a CISO, a CFO and
-            an innovation head each start from their own question.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { n: '01', title: 'By Sector', desc: '“Who is disrupting my industry?” — 130 sector maps from FinTech to LegalTech.' },
-            { n: '02', title: 'By Technology', desc: '“Who has the GenAI / robotics / IoT capability we lack?”' },
-            { n: '03', title: 'By Function', desc: '“What can my finance / HR / security team use today?”' },
-            { n: '04', title: 'By Use Case', desc: '“Who solves fraud detection / churn / forecasting — regardless of sector?”' },
-          ].map((lens) => (
-            <div key={lens.n} className="rounded-xl p-6" style={{ background: LIGHT_GRAY, borderTop: `4px solid ${GOLD}` }}>
-              <div className="text-2xl font-extrabold mb-2" style={{ color: GOLD_DEEP }}>{lens.n}</div>
-              <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>{lens.title}</h3>
-              <p className="text-sm leading-relaxed" style={{ color: GRAY }}>{lens.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section bg={DARK}>
-        <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD }}>Chapter 02</p>
-        <h2 className="text-3xl md:text-4xl font-bold mb-10 text-white">
-          Not a demo dataset. The real map.
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { value: startupCount, label: 'startups, embedded and searchable' },
-            { value: '240+', label: 'curated, hierarchical innovation maps' },
-            { value: '4', label: 'lenses: sector, technology, function, use case' },
-            { value: 'Live', label: 'counts on every map — updated as the database grows' },
-          ].map((s, i) => (
-            <div key={i} className="pl-5" style={{ borderLeft: `2px solid ${GOLD}` }}>
-              <div className="text-4xl font-extrabold mb-1" style={{ color: GOLD }}>{s.value}</div>
-              <div className="text-sm" style={{ color: LIGHT_GRAY }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section bg="#fff" id="features">
-        <div className="mb-10 max-w-2xl">
-          <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: GOLD_DEEP }}>Chapter 03</p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            From map to deal, without leaving the platform.
-          </h2>
-        </div>
-        <div className="flex flex-col gap-4">
-          {[
-            { title: 'Semantic AI Search', desc: `Ask in plain English — “Series A deeptech healthcare in Bangalore” — and get matched across ${startupCount} startups.` },
-            { title: '8-Vector AI Evaluation', desc: 'Score fit, maturity, team, cost and more — with clear explanations, red flags, and recommended next steps.' },
-            { title: 'Challenge Marketplace', desc: 'Post partner, source, or invest challenges with RFI forms and data rooms. AI evaluates and ranks applicants automatically.' },
-          ].map((f, i) => (
-            <div key={i} className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 rounded-xl px-6 py-5" style={{ border: `1px solid ${BORDER}` }}>
-              <ArrowRight size={18} style={{ color: GOLD, flexShrink: 0 }} className="hidden md:block" />
-              <h3 className="text-base font-bold md:w-64 shrink-0" style={{ color: DARK }}>{f.title}</h3>
-              <p className="text-sm leading-relaxed" style={{ color: GRAY }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-12">
-          <Link
-            to="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
-            style={{ color: GOLD_DEEP }}
-          >
-            Explore all platform capabilities
-            <ArrowRight size={16} />
-          </Link>
+        <div className="text-center">
+          <h3 className="text-2xl font-bold mb-2" style={{ color: DARK }}>See it in action</h3>
+          <p className="text-sm mb-8" style={{ color: GRAY }}>The platform across different persona dashboards</p>
+          <PlatformSlideshow />
         </div>
       </Section>
 
@@ -373,169 +336,9 @@ export default function Landing() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          HOW IT WORKS
-          ═══════════════════════════════════════════════════════════ */}
-      <Section bg="#fff" id="how-it-works">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            How OpenI Works
-          </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            Three simple steps to join the open innovation ecosystem.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {(howItWorks || [
-            { number: '1', title: 'Register your role', description: 'Choose from 11 roles — startup, corporate, investor, government, mentor, lab, and more. Each gets a tailored profile and dashboard.' },
-            { number: '2', title: 'Discover & connect', description: `Search ${startupCount} startups, browse challenges, and use the 8-vector evaluation framework to find the right partners, investments, and innovations.` },
-            { number: '3', title: 'Collaborate & grow', description: 'Schedule meetings, submit proposals, and track projects — manage the full journey from first contact to successful pilot.' },
-          ]).map((step, i) => (
-            <Step key={i} number={step.number || String(i + 1)} title={step.title} description={step.description} />
-          ))}
-        </div>
-
-        {/* Platform Slideshow */}
-        <div className="mt-16 text-center">
-          <h3 className="text-2xl font-bold mb-2" style={{ color: DARK }}>See It In Action</h3>
-          <p className="text-sm mb-8" style={{ color: GRAY }}>Explore the platform across different persona dashboards</p>
-          <PlatformSlideshow />
-        </div>
-      </Section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          FOR PROVIDERS / FOR SEEKERS
-          ═══════════════════════════════════════════════════════════ */}
-      <Section bg={LIGHT_GRAY}>
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Built for Every Stakeholder
-          </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            Whether you have innovation to offer or innovation to find, OpenI connects you to the right people.
-          </p>
-        </div>
-
-        <CardDeck gridClassName="md:grid-cols-2 md:gap-6" cardClassName="w-[86vw] max-w-[360px]">
-          {/* Innovation Providers */}
-          <div
-            className="rounded-2xl p-8 transition-all"
-            style={{ background: '#fff', border: `1px solid ${BORDER}` }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = GOLD}
-            onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: GOLD_LIGHT }}>
-                <Rocket size={22} style={{ color: GOLD }} />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold" style={{ color: DARK }}>Innovation Providers</h3>
-                <p className="text-xs font-semibold" style={{ color: GOLD }}>GET DISCOVERED</p>
-              </div>
-            </div>
-            <p className="text-sm mb-5 leading-relaxed" style={{ color: GRAY }}>
-              Showcase your startup, research, or technology. Get funded, mentored, and connected to corporates looking for your innovation.
-            </p>
-            <ul className="space-y-2 mb-6">
-              <PersonaListItem icon={Rocket} label="Startups — Deep-tech, SaaS, healthtech, defence tech" color={GOLD} />
-              <PersonaListItem icon={GraduationCap} label="Students — Research projects, theses, internships" color={GOLD} />
-              <PersonaListItem icon={BookOpen} label="Academia — University labs, research centres, IP licensing" color={GOLD} />
-            </ul>
-            <a
-              href="#choose-persona"
-              className="inline-flex items-center gap-2 text-sm font-bold transition-all"
-              style={{ color: GOLD }}
-              onMouseEnter={e => e.currentTarget.style.color = GOLD_DARK}
-              onMouseLeave={e => e.currentTarget.style.color = GOLD}
-            >
-              Join as Provider <ArrowRight size={16} />
-            </a>
-          </div>
-
-          {/* Innovation Seekers */}
-          <div
-            className="rounded-2xl p-8 transition-all"
-            style={{ background: '#fff', border: `1px solid ${BORDER}` }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = BLUE}
-            onMouseLeave={e => e.currentTarget.style.borderColor = BORDER}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
-                <Target size={22} style={{ color: BLUE }} />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold" style={{ color: DARK }}>Innovation Seekers</h3>
-                <p className="text-xs font-semibold" style={{ color: BLUE }}>FIND THE RIGHT STARTUP</p>
-              </div>
-            </div>
-            <p className="text-sm mb-5 leading-relaxed" style={{ color: GRAY }}>
-              Source, evaluate, and partner with high-potential startups. Solve strategic challenges with the next generation of innovators.
-            </p>
-            <ul className="space-y-2 mb-6">
-              <PersonaListItem icon={Building2} label="Corporates — Find startups for PoCs, pilots, acquisitions" color={BLUE} />
-              <PersonaListItem icon={Landmark} label="Government — iDEX, defence, e-governance tech providers" color={BLUE} />
-              <PersonaListItem icon={TrendingUp} label="Investors — Pre-seed to Series C deeptech opportunities" color={BLUE} />
-              <PersonaListItem icon={Users} label="Mentors — Industry advisors and domain experts" color={BLUE} />
-              <PersonaListItem icon={FlaskConical} label="Labs — Research labs and testing facilities" color={BLUE} />
-              <PersonaListItem icon={Home} label="Incubators & Accelerators — Growth programs" color={BLUE} />
-              <PersonaListItem icon={Briefcase} label="Service Providers — Cloud credits, legal, compliance, HR" color={BLUE} />
-            </ul>
-            <a
-              href="#choose-persona"
-              className="inline-flex items-center gap-2 text-sm font-bold transition-all"
-              style={{ color: BLUE }}
-              onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
-              onMouseLeave={e => e.currentTarget.style.color = BLUE}
-            >
-              Join as Seeker <ArrowRight size={16} />
-            </a>
-          </div>
-        </CardDeck>
-
-        {/* ── Persona Picker Grid ──────────────────────────────────── */}
-        <div id="choose-persona" className="mt-14 scroll-mt-20">
-          <h3 className="text-2xl font-bold text-center mb-2" style={{ color: DARK }}>Choose Your Persona</h3>
-          <p className="text-sm text-center mb-8" style={{ color: GRAY }}>Click a persona to create your free account</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {[
-              { key: 'startup',          label: 'Startup',          icon: Rocket,        color: '#D0A848', desc: 'Tech startup or early-stage' },
-              { key: 'student',          label: 'Student',          icon: GraduationCap, color: '#3b82f6', desc: 'Student innovator / researcher' },
-              { key: 'academia',         label: 'Academia',         icon: BookOpen,      color: '#7c3aed', desc: 'University or research institute' },
-              { key: 'corporate',        label: 'Corporate',        icon: Building2,     color: '#16a34a', desc: 'Enterprise seeking innovation' },
-              { key: 'government',       label: 'Government',       icon: Landmark,      color: '#0ea5e9', desc: 'Government body or PSU' },
-              { key: 'investor',         label: 'Investor',         icon: TrendingUp,    color: '#f59e0b', desc: 'Angel, VC, PE, or fund' },
-              { key: 'mentor',           label: 'Mentor',           icon: Users,         color: '#ec4899', desc: 'Industry mentor or advisor' },
-              { key: 'lab',              label: 'Lab',              icon: FlaskConical,  color: '#14b8a6', desc: 'Lab offering resources' },
-              { key: 'incubator',        label: 'Incubator',        icon: Home,          color: '#8b5cf6', desc: 'Startup incubation program' },
-              { key: 'accelerator',      label: 'Accelerator',      icon: Zap,           color: '#ef4444', desc: 'Growth acceleration program' },
-              { key: 'service_provider', label: 'Service Provider', icon: Briefcase,     color: '#0d9488', desc: 'Cloud, legal, compliance services' },
-            ].map(p => (
-              <Link
-                key={p.key}
-                to={`/register?type=${p.key}`}
-                className="rounded-xl p-4 text-center transition-all group"
-                style={{ background: '#fff', border: `1px solid ${BORDER}` }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.boxShadow = `0 4px 16px ${p.color}20`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.boxShadow = 'none'; }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
-                  style={{ background: `${p.color}12` }}
-                >
-                  <p.icon size={20} style={{ color: p.color }} />
-                </div>
-                <div className="text-sm font-bold" style={{ color: DARK }}>{p.label}</div>
-                <div className="text-xs mt-0.5" style={{ color: GRAY }}>{p.desc}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══════════════════════════════════════════════════════════
           SERVICES (Corporate/Enterprise-facing) — Phase 124, 5 Jul
           ═══════════════════════════════════════════════════════════ */}
-      <Section bg={LIGHT_GRAY} id="services">
+      <Section bg="#fff" id="services">
         <div className="text-center mb-14">
           <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: GOLD }}>
             For Corporates & Enterprises
@@ -580,111 +383,7 @@ export default function Landing() {
         </div>
       </Section>
 
-      {/* FEATURES grid removed s110 — Art of the Possible is the hero, and the
-          other three cards live on as Chapter 03 rows near the top (which also
-          carries the #features anchor the footer links to). */}
-
-      {/* ═══════════════════════════════════════════════════════════
-          WHAT'S NEW (s47) — recently shipped capabilities
-          ═══════════════════════════════════════════════════════════ */}
-      <Section bg={LIGHT_GRAY} id="whats-new">
-        <div className="text-center mb-14">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-bold tracking-wide"
-            style={{ background: GOLD_LIGHT, color: GOLD_DARK }}
-          >
-            <Sparkles size={14} />
-            UNDER THE HOOD
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            What Powers OpenI
-          </h2>
-          {/* s109: dateless on purpose — the previous copy said "shipped major
-              upgrades in April-May 2026" and read four months stale by
-              September. Never put a date or a "recently" claim here. */}
-          <p className="text-base max-w-2xl mx-auto" style={{ color: GRAY }}>
-            Live numbers, curated innovation maps, AI-tuned recommendations, and multi-role accounts — on a platform that ships every week.
-          </p>
-        </div>
-        <CardDeck gridClassName="md:grid-cols-2 lg:grid-cols-4">
-          <div className="p-6 rounded-xl h-full" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: GOLD_LIGHT }}
-            >
-              <Database size={22} style={{ color: GOLD }} />
-            </div>
-            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>{liveStartupsValue || '500K+'} Startup Database</h3>
-            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Bulk-imported and organized into 240+ curated, hierarchical innovation maps. Every profile has a 1536-dim embedding for cosine-similarity search across the full corpus.
-            </p>
-          </div>
-          {/* Phase 60.6 (s50) — multi-role feature card */}
-          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: GOLD_LIGHT }}
-            >
-              <Layers size={22} style={{ color: GOLD }} />
-            </div>
-            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Multiple Roles, One Account</h3>
-            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Mentor a startup AND fund another. Add Investor, Mentor, Corporate, or any of 11 roles to your account anytime. Switch in one click. One inbox, one watchlist, separate dashboards.
-            </p>
-          </div>
-          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: GOLD_LIGHT }}
-            >
-              <Network size={22} style={{ color: GOLD }} />
-            </div>
-            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Persona-Tuned Recommendations</h3>
-            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Students, academics, corporates and investors get startup matches tuned to their own world — a robotics researcher sees robotics startups first — with measurable lift on every recommendation.
-            </p>
-          </div>
-          <div className="p-6 rounded-xl" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: GOLD_LIGHT }}
-            >
-              <BarChart3 size={22} style={{ color: GOLD }} />
-            </div>
-            <h3 className="text-base font-bold mb-2" style={{ color: DARK }}>Click-Impact Analytics</h3>
-            <p className="text-sm leading-relaxed" style={{ color: GRAY }}>
-              Every recommendation surface tracks impressions, clicks, and conversions. We measure which AI matches actually convert — closing the loop on recommendation quality.
-            </p>
-          </div>
-        </CardDeck>
-      </Section>
-
       {/* TESTIMONIALS section removed s47 \u2014 no real testimonials yet, will restore once collected. */}
-
-      {/* ═══════════════════════════════════════════════════════════
-          FAQ
-          ═══════════════════════════════════════════════════════════ */}
-      <Section bg="#fff" id="faq">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
-            Frequently Asked Questions
-          </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
-            Everything you need to know about OpenI.
-          </p>
-        </div>
-        <div className="max-w-3xl mx-auto space-y-3">
-          {faqs.map((faq, i) => (
-            <FAQItem
-              key={i}
-              question={faq.q}
-              answer={faq.a}
-              isOpen={openFaq === i}
-              onToggle={() => setOpenFaq(openFaq === i ? null : i)}
-            />
-          ))}
-        </div>
-      </Section>
 
       {/* ═══════════════════════════════════════════════════════════
           PRICING
@@ -813,6 +512,31 @@ export default function Landing() {
         <p className="text-center text-sm mt-8" style={{ color: GRAY }}>
           All plans include SSL encryption, daily backups, and access to all 11 persona types. Annual billing saves ~17%.
         </p>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          FAQ
+          ═══════════════════════════════════════════════════════════ */}
+      <Section bg="#fff" id="faq">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: DARK }}>
+            Frequently Asked Questions
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: GRAY }}>
+            Everything you need to know about OpenI.
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto space-y-3">
+          {faqs.map((faq, i) => (
+            <FAQItem
+              key={i}
+              question={faq.q}
+              answer={faq.a}
+              isOpen={openFaq === i}
+              onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+            />
+          ))}
+        </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════
